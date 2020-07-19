@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            var @base = IObjectPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+            var @base = IObjectPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");

@@ -14,7 +14,13 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
+            var properties = CreateTestProperties(ref args);
+            // TODO: we currently force ice1 for this test because Ice.Default.Protocol is the only way to select
+            // the protocol used by object adapters. Once this is fixed, we should run this test with both ice1 and
+            // ice2, and use only ice1 for the udp object adapter.
+            properties["Ice.Default.Protocol"] = "ice1";
+
+            await using Communicator communicator = Initialize(properties);
             int num = 0;
             try
             {

@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             var output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            ITestIntfPrx testPrx = ITestIntfPrx.Parse($"Test:{helper.GetTestEndpoint(0)} -t 2000", communicator);
+            ITestIntfPrx testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
             output.WriteLine("ok");
 
             output.Write("base... ");

@@ -71,11 +71,11 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string OptionsToString()
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
-            if (Protocol == Protocol.Ice1) // TODO: temporary, Protocol should always be ice1
+            base.AppendOptions(sb, optionSeparator);
+            if (Protocol == Protocol.Ice1)
             {
-                var sb = new StringBuilder(base.OptionsToString());
                 if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
                 {
                     sb.Append(" -t infinite");
@@ -90,20 +90,21 @@ namespace ZeroC.Ice
                 {
                     sb.Append(" -z");
                 }
-                return sb.ToString();
-            }
-            else
-            {
-                return base.OptionsToString();
             }
         }
 
-        public override void IceWritePayload(OutputStream ostr)
+        protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            base.IceWritePayload(ostr);
-            ostr.WriteInt((int)Timeout.TotalMilliseconds);
-            ostr.WriteBool(HasCompressionFlag);
+            if (Protocol == Protocol.Ice1)
+            {
+                base.WriteOptions(ostr);
+                ostr.WriteInt((int)Timeout.TotalMilliseconds);
+                ostr.WriteBool(HasCompressionFlag);
+            }
+            else
+            {
+                ostr.WriteSize(0); // empty sequence of options
+            }
         }
 
         public override Endpoint NewTimeout(TimeSpan timeout) =>

@@ -1583,7 +1583,7 @@ namespace ZeroC.Ice.Test.Operations
                 communicator.CurrentContext["two"] = "TWO";
                 communicator.CurrentContext["three"] = "THREE";
 
-                var p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                var p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
                 TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
@@ -1609,7 +1609,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
                 TestHelper.Assert(communicator.DefaultContext.DictionaryEqual(prxContext));
 
-                p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
                 communicator.CurrentContext.Clear();

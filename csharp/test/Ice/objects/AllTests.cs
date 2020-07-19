@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.Objects
             TestHelper.Assert(communicator != null);
             var output = helper.GetWriter();
 
-            var initial = IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+            var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
             TestHelper.Assert(initial != null);
             output.Write("getting B1... ");
             output.Flush();
@@ -252,7 +252,7 @@ namespace ZeroC.Ice.Test.Objects
 
             output.Write("testing UnexpectedObjectException...");
             output.Flush();
-            var uoet = IUnexpectedObjectExceptionTestPrx.Parse($"uoet:{helper.GetTestEndpoint(0)}", communicator);
+            var uoet = IUnexpectedObjectExceptionTestPrx.Parse(helper.GetTestProxy("uoet", 0), communicator);
             try
             {
                 uoet.Op();
@@ -322,7 +322,7 @@ namespace ZeroC.Ice.Test.Objects
                 TestHelper.Assert(f12!.Name.Equals("F12"));
 
                 (IF2Prx? f21, IF2Prx? f22) =
-                    initial.OpF2(IF2Prx.Parse($"F21:{helper.GetTestEndpoint()}", communicator));
+                    initial.OpF2(IF2Prx.Parse(helper.GetTestProxy("F21"), communicator));
                 TestHelper.Assert(f21!.Identity.Name.Equals("F21"));
                 f21.Op();
                 TestHelper.Assert(f22!.Identity.Name.Equals("F22"));

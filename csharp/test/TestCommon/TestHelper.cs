@@ -45,27 +45,60 @@ namespace Test
 
         public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
-            string? value;
             if (transport.Length == 0)
             {
-                if (!properties.TryGetValue("Ice.Default.Transport", out value))
+                if (properties.TryGetValue("Ice.Default.Transport", out string? value))
                 {
-                    value = "default";
+                    transport = value;
                 }
-            }
-            else
-            {
-                value = transport;
+                else
+                {
+                    transport = "tcp";
+                }
             }
 
             var sb = new StringBuilder();
-            sb.Append(value);
+            sb.Append(transport);
             sb.Append(" -p ");
-            if (!properties.TryGetValue("Test.BasePort", out value) || !int.TryParse(value, out int basePort))
+            sb.Append(GetTestPort(properties, num));
+            return sb.ToString();
+        }
+
+        public string GetTestProxy(string path, int num = 0, string? transport = null) =>
+            GetTestProxy(path, _communicator!.GetProperties(), num, transport);
+
+        public static string GetTestProxy(
+            string path,
+            Dictionary<string, string> properties,
+            int num = 0,
+            string? transport = null)
+        {
+            var sb = new StringBuilder("ice+");
+            sb.Append(transport ?? GetTestTransport(properties));
+            sb.Append("://");
+            string host = GetTestHost(properties);
+            if (host.Contains(':'))
             {
-                basePort = 12010;
+                sb.Append('[');
+                sb.Append(host);
+                sb.Append(']');
             }
-            sb.Append(basePort + num);
+            else
+            {
+                sb.Append(host);
+            }
+            sb.Append(":");
+            sb.Append(GetTestPort(properties, num));
+            sb.Append("/");
+            sb.Append(path);
+
+            // TODO: switch to a different test-only property to select the protocol
+            if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
+            {
+                sb.Append("?protocol=");
+                sb.Append(protocolValue);
+            }
+
             return sb.ToString();
         }
 
@@ -84,6 +117,7 @@ namespace Test
 
         public static string GetTestTransport(Dictionary<string, string> properties)
         {
+            // TODO: switch to a different test-only property to select the transport
             if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
             {
                 transport = "tcp";

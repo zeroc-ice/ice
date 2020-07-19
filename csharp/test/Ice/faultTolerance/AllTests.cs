@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
@@ -41,11 +42,27 @@ namespace ZeroC.Ice.Test.FaultTolerance
             TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            string refString = "test";
-            for (int i = 0; i < ports.Count; i++)
+
+            // Build a multi-endpoint proxy by hand.
+            // TODO: should the TestHelper help with that?
+            string refString = helper.GetTestProxy("test", 0);
+            if (ports.Count > 1)
             {
-                refString += ":" + helper.GetTestEndpoint(ports[i]);
+                var sb = new StringBuilder(refString);
+                sb.Append(refString.Contains('?') ? "&alt-endpoint=" : "?alt-endpoint=");
+                for (int i = 1; i < ports.Count; ++i)
+                {
+                    if (i > 1)
+                    {
+                        sb.Append(',');
+                    }
+                    sb.Append(helper.GetTestHost());
+                    sb.Append(':');
+                    sb.Append(helper.GetTestPort(ports[i]));
+                }
+                refString = sb.ToString();
             }
+
             var basePrx = IObjectPrx.Parse(refString, communicator);
             output.WriteLine("ok");
 

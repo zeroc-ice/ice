@@ -1664,7 +1664,7 @@ namespace ZeroC.Ice
                     Encoding = payloadEncoding;
                     if (endpoint.Protocol == Protocol.Ice1)
                     {
-                        endpoint.IceWritePayload(this);
+                        endpoint.WriteOptions(this);
                     }
                     else
                     {

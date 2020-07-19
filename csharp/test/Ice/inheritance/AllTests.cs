@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Inheritance
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
-            var initial = IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+            var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
 
             output.Write("getting proxies for interface hierarchy... ");
             output.Flush();

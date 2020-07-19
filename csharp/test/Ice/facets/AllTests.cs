@@ -58,7 +58,7 @@ namespace ZeroC.Ice.Test.Facets
 
             adapter.Dispose();
 
-            var prx = IObjectPrx.Parse($"d:{helper.GetTestEndpoint(0)}", communicator);
+            var prx = IObjectPrx.Parse(helper.GetTestProxy("d", 0), communicator);
             IDPrx? d;
             IDPrx? df2;
             IDPrx? df3;

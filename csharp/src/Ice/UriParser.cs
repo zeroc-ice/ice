@@ -23,8 +23,8 @@ namespace ZeroC.Ice
             GenericUriParserOptions.IriParsing |
             GenericUriParserOptions.NoUserInfo;
 
-        /// <summary>Checks if a string is an ice or ice+transport URI and not a stringified proxy using the old format.
-        /// </summary>
+        /// <summary>Checks if a string is an ice or ice+transport URI, and not a proxy or endpoint string using the
+        /// ice1 string format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice or ice+transport URI; otherwise, false.</returns>
         internal static bool IsUri(string s) =>
@@ -167,7 +167,7 @@ namespace ZeroC.Ice
         /// <summary>Registers the ice and ice+universal schemes.</summary>
         internal static void RegisterCommon()
         {
-            RegisterTransport("universal", defaultPort: 0);
+            RegisterTransport("universal", UniversalEndpoint.DefaultUniversalPort);
 
             // There is actually no authority at all with the ice scheme, but we emulate it with an empty authority
             // during parsing by the Uri class and the GenericUriParser.
@@ -220,11 +220,20 @@ namespace ZeroC.Ice
                 transport = Enum.Parse<Transport>(options["transport"], ignoreCase: true);
                 options.Remove("transport");
 
-                // It's possible we have a factory for this transport:
-                factory = communicator.IceFindEndpointFactory(transport);
+                if (protocol.IsSupported())
+                {
+                    // It's possible we have a factory for this transport, and we check it only the protocol is
+                    // supported (otherwise, we want to create a UniversalEndpoint).
+                    factory = communicator.IceFindEndpointFactory(transport);
+                }
             }
             else if (communicator.FindEndpointFactory(transportName) is (EndpointFactory f, Transport t))
             {
+                if (!protocol.IsSupported())
+                {
+                    throw new FormatException(
+                        $"cannot create an `{uri.Scheme}' endpoint for protocol `{protocol.GetName()}'");
+                }
                 factory = f;
                 transport = t;
             }
@@ -240,7 +249,7 @@ namespace ZeroC.Ice
                                                 options,
                                                 oaEndpoint,
                                                 uriString) ??
-                new OpaqueEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
+                new UniversalEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
 
             if (options.Count > 0)
             {

@@ -35,8 +35,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             var output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            var testPrx = ITestIntfPrx.Parse($"Test:{helper.GetTestEndpoint(0)} -t 2000", communicator);
-            var test2Prx = ITestIntf2Prx.Parse($"Test2:{helper.GetTestEndpoint(0)} -t 2000", communicator);
+            var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
+            var test2Prx = ITestIntf2Prx.Parse(helper.GetTestProxy("Test2", 0), communicator);
             output.WriteLine("ok");
 
             output.Write("testing Ice.Default.SlicedFormat... ");

@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Timeout
         {
             var communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
+            var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
             try
             {
                 allTestsWithController(helper, controller);
@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Timeout
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
 
-            var timeout = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", communicator);
+            var timeout = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), communicator);
 
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing connect timeout... ");
@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.Timeout
                 properties["Ice.ConnectTimeout"] = "100ms";
                 using var comm = new Communicator(properties);
 
-                var to = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", comm);
+                var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
                 // Expect ConnectTimeoutException.
                 controller.HoldAdapter(-1);
@@ -167,7 +167,7 @@ namespace ZeroC.Ice.Test.Timeout
                 properties["Ice.CloseTimeout"] = "100ms";
                 using var comm = new Communicator(properties);
 
-                var to = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", comm);
+                var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
                 var connection = to.GetConnection();
                 var connection2 = timeout.GetConnection(); // No close timeout

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -22,6 +23,13 @@ namespace ZeroC.Ice
 
         public override ushort Port { get; }
 
+        protected internal override bool HasOptions => Protocol == Protocol.Ice1 || SourceAddress != null;
+
+        // The default port with ice1 is 0.
+        protected internal override ushort DefaultPort => Protocol == Protocol.Ice1 ? (ushort)0 : DefaultIPPort;
+
+        internal const ushort DefaultIPPort = 4062;
+
         /// <summary>The source address of this IP endpoint.</summary>
         internal IPAddress? SourceAddress { get; }
 
@@ -32,47 +40,6 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() =>
             SourceAddress != null ? HashCode.Combine(base.GetHashCode(), SourceAddress) : base.GetHashCode();
-
-        public override string OptionsToString()
-        {
-            var sb = new StringBuilder();
-
-            if (Host.Length > 0)
-            {
-                sb.Append(" -h ");
-                bool addQuote = Host.IndexOf(':') != -1;
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-                sb.Append(Host);
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-            }
-
-            sb.Append(" -p ");
-            sb.Append(Port.ToString(CultureInfo.InvariantCulture));
-
-            if (SourceAddress != null)
-            {
-                string sourceAddr = SourceAddress.ToString();
-                bool addQuote = sourceAddr.IndexOf(':') != -1;
-                sb.Append(" --sourceAddress ");
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-                sb.Append(sourceAddr);
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-            }
-
-            return sb.ToString();
-        }
 
         public override bool IsLocal(Endpoint endpoint)
         {
@@ -104,10 +71,17 @@ namespace ZeroC.Ice
             }
         }
 
-        public override void IceWritePayload(OutputStream ostr)
+        protected internal override void WriteOptions(OutputStream ostr)
         {
-            ostr.WriteString(Host);
-            ostr.WriteInt(Port);
+            if (Protocol == Protocol.Ice1)
+            {
+                ostr.WriteString(Host);
+                ostr.WriteInt(Port);
+            }
+            else
+            {
+                Debug.Assert(false); // the derived class must provide the implementation
+            }
         }
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
@@ -194,6 +168,51 @@ namespace ZeroC.Ice
             }
         }
 
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
+        {
+            if (Protocol == Protocol.Ice1)
+            {
+                if (Host.Length > 0)
+                {
+                    sb.Append(" -h ");
+                    bool addQuote = Host.IndexOf(':') != -1;
+                    if (addQuote)
+                    {
+                        sb.Append("\"");
+                    }
+                    sb.Append(Host);
+                    if (addQuote)
+                    {
+                        sb.Append("\"");
+                    }
+                }
+
+                sb.Append(" -p ");
+                sb.Append(Port.ToString(CultureInfo.InvariantCulture));
+
+                if (SourceAddress != null)
+                {
+                    string sourceAddr = SourceAddress.ToString();
+                    bool addQuote = sourceAddr.IndexOf(':') != -1;
+                    sb.Append(" --sourceAddress ");
+                    if (addQuote)
+                    {
+                        sb.Append("\"");
+                    }
+                    sb.Append(sourceAddr);
+                    if (addQuote)
+                    {
+                        sb.Append("\"");
+                    }
+                }
+            }
+            else if (SourceAddress != null)
+            {
+                sb.Append("source-address=");
+                sb.Append(SourceAddress);
+            }
+        }
+
         internal IPEndpoint NewPort(ushort port)
         {
             if (port == Port)
@@ -214,6 +233,7 @@ namespace ZeroC.Ice
             IPAddress? sourceAddress)
             : base(communicator, protocol)
         {
+            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = host;
             Port = port;
             SourceAddress = sourceAddress;
@@ -229,6 +249,7 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol)
         {
+            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = host;
             Port = port;
             if (!oaEndpoint) // parsing a URI that represents a proxy
@@ -246,6 +267,7 @@ namespace ZeroC.Ice
         private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
             : base(communicator, protocol)
         {
+            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = istr.ReadString();
 
             if (protocol == Protocol.Ice1)
@@ -269,6 +291,7 @@ namespace ZeroC.Ice
             string endpointString)
             : base(communicator, protocol)
         {
+            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2); // TODO: ice1-only
             if (options.TryGetValue("-h", out string? argument))
             {
                 Host = argument ??

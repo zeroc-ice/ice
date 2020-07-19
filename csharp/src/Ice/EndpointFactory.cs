@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     {
         private readonly Communicator _communicator;
 
-        // Parsing of old format
+        // ice1 format parsing
         public Endpoint Create(
             Transport transport,
             Protocol protocol,

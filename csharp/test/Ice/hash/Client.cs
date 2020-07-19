@@ -30,18 +30,9 @@ namespace ZeroC.Ice.Test.Hash
                         endpointCollisions < maxCollisions &&
                         i < maxIterations; ++i)
                 {
-                    var sw = new System.IO.StringWriter();
-                    sw.Write(i);
-                    sw.Write(":tcp -p ");
-                    sw.Write(rand.Next(65536));
-                    sw.Write(" -t 10");
-                    sw.Write(rand.Next(1000000));
-                    sw.Write(":udp -p ");
-                    sw.Write(rand.Next(65536));
-                    sw.Write(" -h ");
-                    sw.Write(rand.Next(100));
+                    string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}";
 
-                    var obj = IObjectPrx.Parse(sw.ToString(), communicator);
+                    var obj = IObjectPrx.Parse(proxyString, communicator);
                     var endpoints = new List<Endpoint>(obj.Endpoints);
 
                     if (seenProxy.ContainsKey(obj.GetHashCode()))
@@ -88,18 +79,9 @@ namespace ZeroC.Ice.Test.Hash
                     seenProxy = new Dictionary<int, IObjectPrx>();
                     for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                     {
-                        var sw = new System.IO.StringWriter();
-                        sw.Write(i);
-                        sw.Write(":tcp -p ");
-                        sw.Write(rand.Next(65536));
-                        sw.Write(" -t 10");
-                        sw.Write(rand.Next(1000000));
-                        sw.Write(":udp -p ");
-                        sw.Write(rand.Next(65536));
-                        sw.Write(" -h ");
-                        sw.Write(rand.Next(100));
+                        string proxyString = $"ice+tcp://{rand.Next(100)}:{rand.Next(65536)}/{i}";
 
-                        var obj = IObjectPrx.Parse(sw.ToString(), communicator);
+                        var obj = IObjectPrx.Parse(proxyString, communicator);
 
                         if (seenProxy.ContainsKey(ProxyComparer.Identity.GetHashCode(obj)))
                         {
@@ -124,18 +106,9 @@ namespace ZeroC.Ice.Test.Hash
                 seenProxy = new Dictionary<int, IObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                 {
-                    var sw = new System.IO.StringWriter();
-                    sw.Write(i);
-                    sw.Write(" -f demo:tcp -p ");
-                    sw.Write(rand.Next(65536));
-                    sw.Write(" -t 10");
-                    sw.Write(rand.Next(1000000));
-                    sw.Write(":udp -p ");
-                    sw.Write(rand.Next(65536));
-                    sw.Write(" -h ");
-                    sw.Write(rand.Next(100));
+                    string proxyString = $"ice+tcp://{rand.Next(100)}:{rand.Next(65536)}/{i}#facet";
 
-                    var obj = IObjectPrx.Parse(sw.ToString(), communicator);
+                    var obj = IObjectPrx.Parse(proxyString, communicator);
 
                     if (seenProxy.ContainsKey(ProxyComparer.IdentityAndFacet.GetHashCode(obj)))
                     {

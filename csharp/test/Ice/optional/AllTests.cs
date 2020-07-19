@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Optional
         internal static ITestPrx Run(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
-            var test = ITestPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var test = ITestPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
             TextWriter output = helper.GetWriter();
             output.Write("testing BitSequence and ReadOnlyBitSequence... ");

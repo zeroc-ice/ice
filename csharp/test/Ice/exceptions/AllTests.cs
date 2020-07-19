@@ -87,7 +87,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 output.WriteLine("ok");
             }
 
-            var thrower = IThrowerPrx.Parse($"thrower:{helper.GetTestEndpoint(0)}", communicator);
+            var thrower = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 0), communicator);
             TestHelper.Assert(thrower != null);
             output.Write("catching exact types... ");
             output.Flush();
@@ -334,7 +334,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
                 try
                 {
-                    var thrower2 = IThrowerPrx.Parse("thrower:" + helper.GetTestEndpoint(1), communicator);
+                    var thrower2 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 1), communicator);
                     try
                     {
                         thrower2.ThrowMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
@@ -342,7 +342,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (InvalidDataException)
                     {
                     }
-                    var thrower3 = IThrowerPrx.Parse("thrower:" + helper.GetTestEndpoint(2), communicator);
+                    var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
                     try
                     {
                         thrower3.ThrowMemoryLimitException(new byte[1024]); // 1KB limit

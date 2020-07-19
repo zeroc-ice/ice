@@ -77,9 +77,11 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string OptionsToString()
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
-            var sb = new StringBuilder(base.OptionsToString());
+            Debug.Assert(Protocol == Protocol.Ice1);
+
+            base.AppendOptions(sb, optionSeparator);
 
             if (McastInterface.Length > 0)
             {
@@ -111,14 +113,20 @@ namespace ZeroC.Ice
             {
                 sb.Append(" -z");
             }
-            return sb.ToString();
         }
 
-        public override void IceWritePayload(OutputStream ostr)
+        protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            base.IceWritePayload(ostr);
-            ostr.WriteBool(HasCompressionFlag);
+            // TODO: temporary, should be ice1-only
+            if (Protocol == Protocol.Ice1)
+            {
+                base.WriteOptions(ostr);
+                ostr.WriteBool(HasCompressionFlag);
+            }
+            else
+            {
+                ostr.WriteSize(0);
+            }
         }
 
         public override Endpoint NewTimeout(TimeSpan timeout) => this;

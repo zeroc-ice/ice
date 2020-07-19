@@ -584,7 +584,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var com = IRemoteCommunicatorPrx.Parse($"communicator:{helper.GetTestEndpoint(0)}", communicator);
+            var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
 
             TextWriter output = helper.GetWriter();
 

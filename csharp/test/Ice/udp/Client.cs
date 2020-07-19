@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.UDP
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.SndSize"] = "16K";
+            properties["Ice.Default.Protocol"] = "ice1"; // TODO: see comment in server
             await using var communicator = Initialize(properties);
             AllTests.allTests(this);
 
@@ -30,7 +31,7 @@ namespace ZeroC.Ice.Test.UDP
 
             for (int i = 0; i < num; ++i)
             {
-                ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).Shutdown();
+                ITestIntfPrx.Parse(GetTestProxy("control", i, "tcp"), communicator).Shutdown();
             }
         }
 

@@ -1186,15 +1186,23 @@ namespace ZeroC.Ice
         internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
         {
             var transport = (Transport)ReadShort();
-            IEndpointFactory? factory = communicator.IceFindEndpointFactory(transport);
+            // We only look up the factory for the transport if the protocol is supported.
+            IEndpointFactory? factory = protocol.IsSupported() ? communicator.IceFindEndpointFactory(transport) : null;
+
             Endpoint endpoint;
 
             if (protocol == Protocol.Ice1 || OldEncoding)
             {
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
 
-                // We need to read the encaps except for ice1 + unknown encoding or null factory.
-                if (protocol == Protocol.Ice1 && (!encoding.IsSupported || factory == null))
+                if (!encoding.IsSupported)
+                {
+                    // If we can't read the encaps, it's like we didn't find a factory.
+                    factory = null;
+                }
+
+                // We need to read the encaps except for ice1 + null factory.
+                if (protocol == Protocol.Ice1 && factory == null)
                 {
                     endpoint = new OpaqueEndpoint(
                         communicator, transport, encoding, _buffer.Slice(_pos, size - 2).ToArray());
@@ -1212,7 +1220,7 @@ namespace ZeroC.Ice
                     _minTotalSeqSize = 0;
 
                     endpoint = factory?.Read(this, transport, protocol) ??
-                        new OpaqueEndpoint(this, communicator, transport, protocol);  // protocol is ice2 or greater
+                        new UniversalEndpoint(this, communicator, transport, protocol); // protocol is ice2 or greater
 
                     CheckEndOfBuffer();
 
@@ -1234,7 +1242,7 @@ namespace ZeroC.Ice
             else
             {
                 endpoint = factory?.Read(this, transport, protocol) ??
-                    new OpaqueEndpoint(this, communicator, transport, protocol);
+                    new UniversalEndpoint(this, communicator, transport, protocol);
             }
             return endpoint;
         }

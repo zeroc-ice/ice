@@ -19,11 +19,13 @@ namespace ZeroC.IceDiscovery.Test.Simple
             TestHelper.Assert(communicator != null);
             var proxies = new List<IControllerPrx>();
             var indirectProxies = new List<IControllerPrx>();
+            string protocolOption = communicator.DefaultProtocol == Protocol.Ice1 ? "?protocol=ice1" : "";
+
             for (int i = 0; i < num; ++i)
             {
                 string id = "controller" + i;
-                proxies.Add(IControllerPrx.Parse(id, communicator));
-                indirectProxies.Add(IControllerPrx.Parse($"{id}@control{i}", communicator));
+                proxies.Add(IControllerPrx.Parse($"ice:{id}{protocolOption}", communicator));
+                indirectProxies.Add(IControllerPrx.Parse($"ice:control{i}//{id}{protocolOption}", communicator));
             }
 
             output.Write("testing indirect proxies... ");
@@ -51,7 +53,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             {
                 try
                 {
-                    IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                    IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (NoEndpointException)
@@ -62,7 +64,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
                 try
                 {
-                    IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                    IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -73,7 +75,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
                 try
                 {
-                    IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                    IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (NoEndpointException)
@@ -87,13 +89,13 @@ namespace ZeroC.IceDiscovery.Test.Simple
             {
                 proxies[0].ActivateObjectAdapter("oa", "oa1", "");
                 proxies[0].AddObject("oa", "object");
-                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                 proxies[0].RemoveObject("oa", "object");
                 proxies[0].DeactivateObjectAdapter("oa");
 
                 proxies[1].ActivateObjectAdapter("oa", "oa1", "");
                 proxies[1].AddObject("oa", "object");
-                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                 proxies[1].RemoveObject("oa", "object");
                 proxies[1].DeactivateObjectAdapter("oa");
             }
@@ -106,25 +108,25 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 proxies[1].ActivateObjectAdapter("oa", "oa2", "");
 
                 proxies[0].AddObject("oa", "object");
-                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                 IObjectPrx.Parse("object", communicator).IcePing();
                 proxies[0].RemoveObject("oa", "object");
 
                 proxies[1].AddObject("oa", "object");
-                IObjectPrx.Parse("object @ oa2", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa2//object{protocolOption}", communicator).IcePing();
                 IObjectPrx.Parse("object", communicator).IcePing();
                 proxies[1].RemoveObject("oa", "object");
 
                 try
                 {
-                    IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+                    IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
                 }
                 catch (ObjectNotExistException)
                 {
                 }
                 try
                 {
-                    IObjectPrx.Parse("object @ oa2", communicator).IcePing();
+                    IObjectPrx.Parse($"ice:oa2//object{protocolOption}", communicator).IcePing();
                 }
                 catch (ObjectNotExistException)
                 {
@@ -146,17 +148,17 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 proxies[1].AddObject("oa", "object");
                 proxies[2].AddObject("oa", "object");
 
-                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
-                IObjectPrx.Parse("object @ oa2", communicator).IcePing();
-                IObjectPrx.Parse("object @ oa3", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa1//object{protocolOption}", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa2//object{protocolOption}", communicator).IcePing();
+                IObjectPrx.Parse($"ice:oa3//object{protocolOption}", communicator).IcePing();
 
-                IObjectPrx.Parse("object @ rg", communicator).IcePing();
+                IObjectPrx.Parse($"ice:rg//object{protocolOption}", communicator).IcePing();
 
                 List<string> adapterIds = new List<string>();
                 adapterIds.Add("oa1");
                 adapterIds.Add("oa2");
                 adapterIds.Add("oa3");
-                ITestIntfPrx intf = ITestIntfPrx.Parse("object", communicator).Clone(
+                ITestIntfPrx intf = ITestIntfPrx.Parse($"ice:object{protocolOption}", communicator).Clone(
                     cacheConnection: false,
                     locatorCacheTimeout: TimeSpan.Zero);
                 while (adapterIds.Count > 0)
@@ -169,7 +171,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                     adapterIds.Add("oa1");
                     adapterIds.Add("oa2");
                     adapterIds.Add("oa3");
-                    intf = ITestIntfPrx.Parse("object @ rg", communicator).Clone(cacheConnection: false);
+                    intf = ITestIntfPrx.Parse($"ice:rg//object{protocolOption}", communicator).Clone(cacheConnection: false);
                     int nRetry = 100;
                     while (adapterIds.Count > 0 && --nRetry > 0)
                     {
@@ -186,12 +188,14 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
                 proxies[0].DeactivateObjectAdapter("oa");
                 proxies[1].DeactivateObjectAdapter("oa");
-                TestHelper.Assert(ITestIntfPrx.Parse("object @ rg", communicator).GetAdapterId().Equals("oa3"));
+                TestHelper.Assert(
+                    ITestIntfPrx.Parse($"ice:rg//object{protocolOption}", communicator).GetAdapterId().Equals("oa3"));
                 proxies[2].DeactivateObjectAdapter("oa");
 
                 proxies[0].ActivateObjectAdapter("oa", "oa1", "rg");
                 proxies[0].AddObject("oa", "object");
-                TestHelper.Assert(ITestIntfPrx.Parse("object @ rg", communicator).GetAdapterId().Equals("oa1"));
+                TestHelper.Assert(
+                    ITestIntfPrx.Parse($"ice:rg//object{protocolOption}", communicator).GetAdapterId().Equals("oa1"));
                 proxies[0].DeactivateObjectAdapter("oa");
             }
             output.WriteLine("ok");

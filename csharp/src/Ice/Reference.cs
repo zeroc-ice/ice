@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
@@ -70,7 +71,7 @@ namespace ZeroC.Ice
             }
 
             return UriParser.IsUri(proxyString) ? ParseUri(proxyString, communicator, propertyPrefix) :
-                ParseOldFormat(proxyString, communicator, propertyPrefix);
+                ParseIce1Format(proxyString, communicator, propertyPrefix);
         }
 
         public override bool Equals(object? obj) => Equals(obj as Reference);
@@ -234,114 +235,190 @@ namespace ZeroC.Ice
             }
         }
 
-        // Convert the reference to its string form.
+        /// <summary>Converts the reference into a string. The format of this string depends on the protocol: for ice1,
+        /// this method uses the ice1 format, which can be customized by Communicator.ToStringMode. For ice2 and
+        /// greater, this method uses the URI format.</summary>
         public override string ToString()
         {
-            // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings.
-            // Changes to ToString() and methods called to generate parts of the reference string could break
-            // these features.
-
-            var s = new System.Text.StringBuilder();
-
-            // If the encoded identity string contains characters which the reference parser uses as separators, then
-            // we enclose the identity string in quotes.
-            string id = Identity.ToString(Communicator.ToStringMode);
-            if (StringUtil.FindFirstOf(id, " :@") != -1)
+            if (Protocol == Protocol.Ice1)
             {
-                s.Append('"');
-                s.Append(id);
-                s.Append('"');
-            }
-            else
-            {
-                s.Append(id);
-            }
+                var sb = new StringBuilder();
 
-            if (Facet.Length > 0)
-            {
-                // If the encoded facet string contains characters which the reference parser uses as separators, then
-                // we enclose the facet string in quotes.
-                s.Append(" -f ");
-                string fs = StringUtil.EscapeString(Facet, "", Communicator.ToStringMode);
-                if (StringUtil.FindFirstOf(fs, " :@") != -1)
+                // If the encoded identity string contains characters which the reference parser uses as separators,
+                // then we enclose the identity string in quotes.
+                string id = Identity.ToString(Communicator.ToStringMode);
+                if (StringUtil.FindFirstOf(id, " :@") != -1)
                 {
-                    s.Append('"');
-                    s.Append(fs);
-                    s.Append('"');
+                    sb.Append('"');
+                    sb.Append(id);
+                    sb.Append('"');
                 }
                 else
                 {
-                    s.Append(fs);
+                    sb.Append(id);
                 }
-            }
 
-            switch (InvocationMode)
-            {
-                case InvocationMode.Twoway:
-                    s.Append(" -t");
-                    break;
-                case InvocationMode.Oneway:
-                    s.Append(" -o");
-                    break;
-                case InvocationMode.BatchOneway:
-                    s.Append(" -O");
-                    break;
-                case InvocationMode.Datagram:
-                    s.Append(" -d");
-                    break;
-                case InvocationMode.BatchDatagram:
-                    s.Append(" -D");
-                    break;
-            }
-
-            s.Append(" -p ");
-            if (Communicator.ToStringMode >= ToStringMode.Compat)
-            {
-                // x.0 style
-                s.Append(Protocol.ToString("D"));
-                s.Append(".0");
-            }
-            else
-            {
-                s.Append(Protocol.GetName());
-            }
-
-            // Always print the encoding version to ensure a stringified proxy will convert back to a proxy with the
-            // same encoding with StringToProxy (and won't use Ice.Default.Encoding).
-            s.Append(" -e ");
-            s.Append(Encoding.ToString());
-
-            if (AdapterId.Length > 0)
-            {
-                s.Append(" @ ");
-
-                // If the encoded adapter id string contains characters which the reference parser uses as separators,
-                // then we enclose the adapter id string in quotes.
-                string a = StringUtil.EscapeString(AdapterId, null, Communicator.ToStringMode);
-                if (StringUtil.FindFirstOf(a, " :@") != -1)
+                if (Facet.Length > 0)
                 {
-                    s.Append('"');
-                    s.Append(a);
-                    s.Append('"');
+                    // If the encoded facet string contains characters which the reference parser uses as separators,
+                    // then we enclose the facet string in quotes.
+                    sb.Append(" -f ");
+                    string fs = StringUtil.EscapeString(Facet, Communicator.ToStringMode);
+                    if (StringUtil.FindFirstOf(fs, " :@") != -1)
+                    {
+                        sb.Append('"');
+                        sb.Append(fs);
+                        sb.Append('"');
+                    }
+                    else
+                    {
+                        sb.Append(fs);
+                    }
+                }
+
+                switch (InvocationMode)
+                {
+                    case InvocationMode.Twoway:
+                        sb.Append(" -t");
+                        break;
+                    case InvocationMode.Oneway:
+                        sb.Append(" -o");
+                        break;
+                    case InvocationMode.BatchOneway:
+                        sb.Append(" -O");
+                        break;
+                    case InvocationMode.Datagram:
+                        sb.Append(" -d");
+                        break;
+                    case InvocationMode.BatchDatagram:
+                        sb.Append(" -D");
+                        break;
+                }
+
+                // Always print the encoding version to ensure a stringified proxy will convert back to a proxy with the
+                // same encoding with StringToProxy. (Only needed for backwards compatibility).
+                sb.Append(" -e ");
+                sb.Append(Encoding.ToString());
+
+                if (AdapterId.Length > 0)
+                {
+                    sb.Append(" @ ");
+
+                    // If the encoded adapter id string contains characters which the reference parser uses as
+                    // separators, then we enclose the adapter id string in quotes.
+                    string a = StringUtil.EscapeString(AdapterId, Communicator.ToStringMode);
+                    if (StringUtil.FindFirstOf(a, " :@") != -1)
+                    {
+                        sb.Append('"');
+                        sb.Append(a);
+                        sb.Append('"');
+                    }
+                    else
+                    {
+                        sb.Append(a);
+                    }
                 }
                 else
                 {
-                    s.Append(a);
+                    foreach (Endpoint e in Endpoints)
+                    {
+                        sb.Append(":");
+                        sb.Append(e);
+                    }
                 }
+                return sb.ToString();
             }
-            else
+            else // >= ice2, use URI format
             {
-                foreach (Endpoint e in Endpoints)
+                string path;
+                if (AdapterId.Length > 0)
                 {
-                    s.Append(":");
-                    s.Append(e);
+                    string location = Uri.EscapeDataString(AdapterId);
+                    if (Identity.Category.Length > 0)
+                    {
+                        path = $"{location}/{Identity}";
+                    }
+                    else
+                    {
+                        path = $"{location}//{Identity}";
+                    }
+                }
+                else
+                {
+                    path = Identity.ToString();
+                }
+
+                var sb = new StringBuilder();
+                bool firstOption = true;
+
+                if (Endpoints.Count > 0)
+                {
+                    // direct proxy using ice+transport scheme
+                    Endpoint mainEndpoint = Endpoints[0];
+                    sb.AppendEndpoint(mainEndpoint, path);
+                    firstOption = !mainEndpoint.HasOptions;
+                }
+                else
+                {
+                    sb.Append("ice:");
+                    sb.Append(path);
+                }
+
+                if (Protocol != Protocol.Ice2) // i.e. > ice2
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("protocol=");
+                    sb.Append(Protocol.GetName());
+                }
+
+                if (Encoding != Ice2Definitions.Encoding) // possible but quite unlikely
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("encoding=");
+                    sb.Append(Encoding);
+                }
+
+                if (Endpoints.Count > 1)
+                {
+                    Transport mainTransport = Endpoints[0].Transport;
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("alt-endpoint=");
+                    for (int i = 1; i < Endpoints.Count; ++i)
+                    {
+                        if (i > 1)
+                        {
+                            sb.Append(',');
+                        }
+                        sb.AppendEndpoint(Endpoints[i], "", mainTransport != Endpoints[i].Transport, '$');
+                    }
+                }
+
+                if (Facet.Length > 0)
+                {
+                    sb.Append('#');
+                    sb.Append(Uri.EscapeDataString(Facet));
+                }
+
+                return sb.ToString();
+            }
+
+            static void StartQueryOption(StringBuilder sb, ref bool firstOption)
+            {
+                if (firstOption)
+                {
+                    sb.Append('?');
+                    firstOption = false;
+                }
+                else
+                {
+                    sb.Append('&');
                 }
             }
-            return s.ToString();
         }
 
         // TODO: move to private section of the file (not done for ease of review)
-        private static Reference ParseOldFormat(string s, Communicator communicator, string? propertyPrefix)
+        /// <summary>Parses a string in the ice1 string format for proxies, and returns a new reference.</summary>
+        private static Reference ParseIce1Format(string s, Communicator communicator, string? propertyPrefix)
         {
             // TODO: rework this implementation
 
@@ -379,12 +456,11 @@ namespace ZeroC.Ice
             }
 
             // Parsing the identity may raise FormatException.
-            var identity = Identity.Parse(identityString);
+            var identity = Identity.Parse(identityString, uriFormat: false);
 
             string facet = "";
             InvocationMode invocationMode = InvocationMode.Twoway;
-            Encoding encoding = communicator.DefaultEncoding;
-            Protocol protocol = communicator.DefaultProtocol;
+            Encoding encoding = Ice1Definitions.Encoding;
             string adapterId;
 
             while (true)
@@ -526,9 +602,12 @@ namespace ZeroC.Ice
                     case 'p':
                         if (argument == null)
                         {
-                            throw new FormatException($"no argument provided for -p option `{s}'");
+                            throw new FormatException($"no argument provided for -p option in `{s}'");
                         }
-                        protocol = ProtocolExtensions.Parse(argument);
+                        if (argument != "1.0")
+                        {
+                            throw new FormatException($"invalid value for -p option in `{s}'");
+                        }
                         break;
 
                     default:
@@ -539,7 +618,7 @@ namespace ZeroC.Ice
             if (beg == -1)
             {
                 return Create(adapterId: "", communicator, encoding, endpoints: ImmutableArray<Endpoint>.Empty, facet,
-                    identity, invocationMode, propertyPrefix, protocol);
+                    identity, invocationMode, propertyPrefix, Protocol.Ice1);
             }
 
             var endpoints = new List<Endpoint>();
@@ -596,12 +675,12 @@ namespace ZeroC.Ice
                     }
 
                     string es = s[beg..end];
-                    endpoints.Add(Endpoint.Parse(es, protocol, communicator, false));
+                    endpoints.Add(Endpoint.Parse(es, Protocol.Ice1, communicator, false));
                 }
 
                 Debug.Assert(endpoints.Count > 0);
                 return Create(adapterId: "", communicator, encoding, endpoints, facet, identity, invocationMode,
-                    propertyPrefix, protocol);
+                    propertyPrefix, Protocol.Ice1);
             }
             else if (s[beg] == '@')
             {
@@ -643,11 +722,11 @@ namespace ZeroC.Ice
 
                 if (adapterId.Length == 0)
                 {
-                    throw new FormatException($"empty adapter id in `{s}'");
+                    throw new FormatException($"empty adapter id in proxy `{s}'");
                 }
 
                 return Create(adapterId, communicator, encoding, endpoints: Array.Empty<Endpoint>(), facet, identity,
-                    invocationMode, propertyPrefix, protocol);
+                    invocationMode, propertyPrefix, Protocol.Ice1);
             }
 
             throw new FormatException($"malformed proxy `{s}'");
@@ -1196,7 +1275,7 @@ namespace ZeroC.Ice
             IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
             {
                 // Filter out opaque endpoints
-                if (endpoint is OpaqueEndpoint)
+                if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
                 {
                     return false;
                 }

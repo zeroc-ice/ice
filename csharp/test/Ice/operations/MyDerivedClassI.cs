@@ -188,11 +188,10 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p1);
         }
 
-        public (IMyClassPrx?, IMyClassPrx?, IMyClassPrx?) OpMyClass(IMyClassPrx? p1,
-            Current current) =>
+        public (IMyClassPrx?, IMyClassPrx?, IMyClassPrx?) OpMyClass(IMyClassPrx? p1, Current current) =>
             (current.Adapter.CreateProxy(current.Identity, IMyClassPrx.Factory),
-            p1,
-            current.Adapter.CreateProxy("noSuchIdentity", IMyClassPrx.Factory));
+             p1,
+             current.Adapter.CreateProxy("noSuchIdentity", IMyClassPrx.Factory));
 
         public (MyEnum, MyEnum) OpMyEnum(MyEnum p1, Current current) => (MyEnum.enum3, p1);
 

@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Threading
 
             var scheduler = TaskScheduler.Current;
 
-            var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(server), helper.Communicator()!);
+            var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", server), helper.Communicator()!);
 
             if (collocated)
             {
@@ -138,7 +138,7 @@ namespace ZeroC.Ice.Test.Threading
                 // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
                 // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
                 // of concurrency but in theory it could be much higher.
-                var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0), communicator);
+                var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
                 try
                 {
                     Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
@@ -157,7 +157,7 @@ namespace ZeroC.Ice.Test.Threading
             output.Write("testing server-side exclusive task scheduler... ");
             {
                 // With the exclusive task scheduler, at most one request can be dispatched concurrently.
-                var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(1), communicator);
+                var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 1), communicator);
                 Task.WaitAll(Enumerable.Range(0, 10).Select(idx => proxy.ConcurrentAsync(1)).ToArray());
             }
             output.WriteLine("ok");
@@ -166,12 +166,12 @@ namespace ZeroC.Ice.Test.Threading
             {
                 // With the concurrent task scheduler, at most 5 requests can be dispatched concurrently (this is
                 // configured on the server side).
-                var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(2), communicator);
+                var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 2), communicator);
                 Task.WaitAll(Enumerable.Range(0, 20).Select(idx => proxy.ConcurrentAsync(5)).ToArray());
             }
             output.WriteLine("ok");
 
-            return ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0), communicator);
+            return ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
         }
     }
 }

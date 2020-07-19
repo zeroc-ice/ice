@@ -151,7 +151,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Default.Protocol"] = "ice1";
             properties["Ice.Default.Encoding"] = "1.1";
-            properties["Ice.Default.Router"] = $"Glacier2/router:{GetTestEndpoint(properties, 50)}";
+            properties["Ice.Default.Router"] = GetTestProxy("Glacier2/router", properties, 50);
 
             using Communicator communicator = Initialize(properties);
 
@@ -264,7 +264,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                var twoway = ICallbackPrx.Parse($"callback:{GetTestEndpoint(0)}", session.Communicator!);
+                var twoway = ICallbackPrx.Parse(GetTestProxy("callback", 0), session.Communicator!);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("pinging server after session creation... ");
@@ -337,8 +337,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for process object... ");
-                    process = IProcessPrx.Parse($"Glacier2/admin -e 1.1 -f Process:{GetTestEndpoint(51)}",
-                                                communicator);
+                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin", 51) + "#Process", communicator);
                     Console.Out.WriteLine("ok");
                 }
 
