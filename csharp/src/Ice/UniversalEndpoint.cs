@@ -31,7 +31,7 @@ namespace ZeroC.Ice
 
         public override ushort Port { get; }
 
-        public override string Scheme => "universal";
+        public override string Scheme => "ice+universal";
         public override Transport Transport { get; }
 
         protected internal override ushort DefaultPort => DefaultUniversalPort;
@@ -102,7 +102,7 @@ namespace ZeroC.Ice
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
             sb.Append("transport=");
-            sb.Append(Transport.ToString().ToLowerInvariant());
+            sb.Append(TransportName);
 
             if (_options.Count > 0)
             {
