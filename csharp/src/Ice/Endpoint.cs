@@ -132,8 +132,8 @@ namespace ZeroC.Ice
             return hash.ToHashCode();
         }
 
-        /// <summary>Converts the endpoint into a string. When the protocol is ice2 or greater, the string is a base
-        /// URI with no path.</summary>
+        /// <summary>Converts the endpoint into a string. The format of thi string depends on the protocol: either
+        /// ice1 format (for ice1) or URI format (for ice2 and up).</summary>
         public override string ToString()
         {
             if (Protocol == Protocol.Ice1)
@@ -350,7 +350,7 @@ namespace ZeroC.Ice
         /// format.</summary>
         /// <param name="sb">The string builder.</param>
         /// <param name="endpoint">The endpoint to append.</param>
-        /// <param name="path">The path of the endpoint URI.</param>
+        /// <param name="path">The path of the endpoint URI. Use this parameter to start building a proxy URI.</param>
         /// <param name="includeScheme">When true, first appends the endpoint's scheme followed by ://.</param>
         /// <param name="optionSeparator">The character that separates options in the query component of the URI.
         /// </param>
