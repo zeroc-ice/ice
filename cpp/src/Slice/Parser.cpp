@@ -2506,7 +2506,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
     // Check whether enclosing class has the same name.
     if (name == this->name())
     {
-        _unit->error("data member `" + name + "' cannot share the same name as its enclosing class");
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing class");
         _unit->note(this, "class `" + this->name() + "' is defined here");
         return nullptr;
     }
@@ -3307,7 +3307,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
     // Check whether enclosing exception has the same name.
     if (name == this->name())
     {
-        _unit->error("data member `" + name + "' cannot share the same name as its enclosing exception");
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing exception");
         _unit->note(this, "exception `" + this->name() + "' is defined here");
         return nullptr;
     }
@@ -3586,7 +3586,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
     // Check whether enclosing struct has the same name.
     if (name == this->name())
     {
-        _unit->error("data member `" + name + "' cannot share the same name as its enclosing struct");
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing struct");
         _unit->note(this, "struct `" + this->name() + "' is defined here");
         return nullptr;
     }

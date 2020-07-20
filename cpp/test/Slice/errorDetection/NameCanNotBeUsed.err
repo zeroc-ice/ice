@@ -1,7 +1,7 @@
 NameCanNotBeUsed.ice:10: interface name `IFoo' cannot be used as operation name
-NameCanNotBeUsed.ice:15: data member `Bar' cannot share the same name as its enclosing class
+NameCanNotBeUsed.ice:15: data member `Bar' cannot have the same name as its enclosing class
 NameCanNotBeUsed.ice:14: note: class `Bar' is defined here
-NameCanNotBeUsed.ice:21: data member `EBar' cannot share the same name as its enclosing exception
+NameCanNotBeUsed.ice:21: data member `EBar' cannot have the same name as its enclosing exception
 NameCanNotBeUsed.ice:20: note: exception `EBar' is defined here
-NameCanNotBeUsed.ice:27: data member `SBar' cannot share the same name as its enclosing struct
+NameCanNotBeUsed.ice:27: data member `SBar' cannot have the same name as its enclosing struct
 NameCanNotBeUsed.ice:26: note: struct `SBar' is defined here
