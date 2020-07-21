@@ -92,6 +92,8 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+universal:/identity", // missing host
                 "ice+tcp://host.zeroc.com/identity?protocol=3", // unknown protocol (must use universal)
                 "ice+ws://host.zeroc.com//identity?protocol=ice1", // invalid protocol
+                "ice+tcp://host.zeroc.com/identity?alt-endpoint=host2?protocol=ice2", // protocol option in alt-endpoint
+                "ice+tcp://host.zeroc.com/identity?foo=bar", // unknown option
 
                 "",
                 "\"\"",

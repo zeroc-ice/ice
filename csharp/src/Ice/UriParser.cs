@@ -257,16 +257,24 @@ namespace ZeroC.Ice
                 string name = p.Substring(0, equalPos);
                 string value = p.Substring(equalPos + 1);
 
-                if (name == "encoding" && proxyOptions != null)
+                if (name == "encoding")
                 {
+                    if (proxyOptions == null)
+                    {
+                        throw new FormatException($"encoding is not a valid option for endpoint `{uriString}'");
+                    }
                     if (proxyOptions.Encoding != null)
                     {
                         throw new FormatException($"multiple encoding options in `{uriString}'");
                     }
                     proxyOptions.Encoding = Encoding.Parse(value);
                 }
-                else if (name == "protocol" && proxyOptions != null)
+                else if (name == "protocol")
                 {
+                    if (proxyOptions == null)
+                    {
+                        throw new FormatException($"protocol is not a valid option for endpoint `{uriString}'");
+                    }
                     if (proxyOptions.Protocol != null)
                     {
                         throw new FormatException($"multiple protocol options in `{uriString}'");
