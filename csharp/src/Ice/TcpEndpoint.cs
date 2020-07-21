@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -78,7 +77,8 @@ namespace ZeroC.Ice
             {
                 if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
                 {
-                    sb.Append(" -t infinite");
+                    // We use "-1" instead of "infinite" for compatibility with Ice 3.5.
+                    sb.Append(" -t -1");
                 }
                 else
                 {

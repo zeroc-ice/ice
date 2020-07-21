@@ -16,7 +16,7 @@ namespace ZeroC.Ice
     internal static class UriParser
     {
         /// <summary>Provides the proxy options parsed by the UriParser.</summary>
-        internal sealed class ProxyOptions
+        internal class ProxyOptions
         {
             // TODO: add more proxy options
             internal Encoding? Encoding { get; set; }
@@ -35,8 +35,7 @@ namespace ZeroC.Ice
         /// ice1 string format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice or ice+transport URI; otherwise, false.</returns>
-        internal static bool IsUri(string s) =>
-            (s.StartsWith("ice:") || (s.StartsWith("ice+") && s.Contains(':'))) && !s.Contains(' ');
+        internal static bool IsUri(string s) => s.StartsWith("ice:") || (s.StartsWith("ice+") && s.Contains("://"));
 
         /// <summary>Parses an ice or ice+transport URI string.</summary>
         /// <param name="uriString">The URI string to parse.</param>

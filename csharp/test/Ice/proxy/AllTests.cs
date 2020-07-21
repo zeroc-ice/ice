@@ -22,8 +22,8 @@ namespace ZeroC.Ice.Test.Proxy
             // ice1 proxies
             string[] ice1ProxyArray =
             {
-                "ice:tcp -p 10000", // looks like an ice: URI, but it's really the ice1 format
-                "ice+tcp:ssl -p 10000", // another proxy in the ice1 format
+                "ice -t:tcp -p 10000",
+                "ice+tcp:ssl -p 10000",
             };
 
             // ice2 proxies
@@ -46,6 +46,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+ws://host.zeroc.com/identity?resource=/foo%2Fbar?/xyz",
                 "ice+universal://host.zeroc.com:10000/identity?transport=tcp",
                 "ice+universal://host.zeroc.com/identity?transport=ws&option=/foo%2520/bar",
+                "ice:tcp -p 10000", // a valid URI
             };
 
             // ice3 proxies
@@ -971,7 +972,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "test:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
                 communicator);
             TestHelper.Assert(p1.ToString() ==
-                "test -t -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch");
+                "test -t -e 1.1:ssl -h 127.0.0.1 -p 10001 -t -1:opaque -t 99 -e 1.1 -v abch");
 
             output.WriteLine("ok");
 

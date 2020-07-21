@@ -132,7 +132,7 @@ namespace ZeroC.Ice
             return hash.ToHashCode();
         }
 
-        /// <summary>Converts the endpoint into a string. The format of thi string depends on the protocol: either
+        /// <summary>Converts the endpoint into a string. The format of this string depends on the protocol: either
         /// ice1 format (for ice1) or URI format (for ice2 and up).</summary>
         public override string ToString()
         {

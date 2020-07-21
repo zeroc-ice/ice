@@ -90,24 +90,16 @@ namespace ZeroC.Ice
             }
             else
             {
-                string name;
-                string? category = null;
-
                 string[] segments = s.Split('/');
-                switch (segments.Length) // always > 0
+                Debug.Assert(segments.Length > 0);
+                (string name, string category) = segments.Length switch
                 {
-                    case 1:
-                        name = Uri.UnescapeDataString(segments[0]);
-                        break;
-                    case 2:
-                        category = Uri.UnescapeDataString(segments[0]);
-                        name = Uri.UnescapeDataString(segments[1]);
-                        break;
-                    default:
-                        throw new FormatException($"too many path segments in identity `{s}'");
-                }
+                    1 => (Uri.UnescapeDataString(segments[0]), ""),
+                    2 => (Uri.UnescapeDataString(segments[1]), Uri.UnescapeDataString(segments[0])),
+                    _ => throw new FormatException($"too many path segments in identity `{s}'"),
+                };
 
-                return name.Length > 0 ? new Identity(name, category ?? "") :
+                return name.Length > 0 ? new Identity(name, category) :
                     throw new FormatException($"invalid empty name in identity `{s}'");
             }
         }
@@ -180,7 +172,7 @@ namespace ZeroC.Ice
     }
 
     /// <summary>The output mode or format for <see cref="Identity.ToString(ToStringMode)"/>.</summary>
-    public enum ToStringMode
+    public enum ToStringMode : byte
     {
         /// <summary>Characters with ordinal values greater than 127 are kept as-is in the resulting string.
         /// Non-printable ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.). This

@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Text;
 
@@ -161,8 +160,7 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, transport, protocol, host, port, options, oaEndpoint)
         {
-            string? value = null;
-            if (options.TryGetValue("resource", out value))
+            if (options.TryGetValue("resource", out string? value))
             {
                 // The resource value (as supplied in a URI string) must be percent-escaped with '/' separators
                 // We keep it as-is, and will marshal it as-is.

@@ -12,13 +12,11 @@ using System.Threading.Tasks;
 namespace ZeroC.Ice
 {
     /// <summary>Describes an endpoint with a transport or protocol that the associated communicator does not implement.
-    /// Thecommunicator cannot send a request to this endpoint; it can however marshal this endpoint (within a proxy)
+    /// The communicator cannot send a request to this endpoint; it can however marshal this endpoint (within a proxy)
     /// and send this proxy to another application that may know this transport. This class is used only for protocol
     /// ice2 or greater.</summary>
     internal sealed class UniversalEndpoint : Endpoint
     {
-        public override bool HasCompressionFlag => false;
-
         public override string Host { get; }
 
         public override string? this[string option] =>
