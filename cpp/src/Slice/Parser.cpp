@@ -2503,6 +2503,22 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         return nullptr;
     }
 
+    // Check whether enclosing class has the same name.
+    if (name == this->name())
+    {
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing class");
+        _unit->note(this, "class `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
+    if (ciequals(name, this->name()))
+    {
+        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing class named `"
+                     + this->name() + "'");
+        _unit->note(this, "class `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
     // Check whether any bases have defined something with the same name already.
     if (_base)
     {
@@ -3288,6 +3304,22 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         return nullptr;
     }
 
+    // Check whether enclosing exception has the same name.
+    if (name == this->name())
+    {
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing exception");
+        _unit->note(this, "exception `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
+    if (ciequals(name, this->name()))
+    {
+        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing exception named `"
+                     + this->name() + "'");
+        _unit->note(this, "exception `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
     // Check whether any bases have defined a member with the same name already.
     for (const auto& base : allBases())
     {
@@ -3548,6 +3580,22 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
     _unit->checkType(type);
     if (!checkForRedefinition(this, name, "data member"))
     {
+        return nullptr;
+    }
+
+    // Check whether enclosing struct has the same name.
+    if (name == this->name())
+    {
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing struct");
+        _unit->note(this, "struct `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
+    if (ciequals(name, this->name()))
+    {
+        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing struct named `"
+                     + this->name() + "'");
+        _unit->note(this, "struct `" + this->name() + "' is defined here");
         return nullptr;
     }
 

@@ -1203,18 +1203,14 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
         var s = MyStruct1()
         s.tesT = "MyStruct1.s"
         s.myClass = nil
-        s.myStruct1 = "MyStruct1.myStruct1"
         s = try d.opMyStruct1(s)
         try test(s.tesT == "MyStruct1.s")
         try test(s.myClass == nil)
-        try test(s.myStruct1 == "MyStruct1.myStruct1")
         var c = MyClass1()
         c.tesT = "MyClass1.testT"
         c.myClass = nil
-        c.myClass1 = "MyClass1.myClass1"
         c = try d.opMyClass1(c)!
         try test(c.tesT == "MyClass1.testT")
         try test(c.myClass == nil)
-        try test(c.myClass1 == "MyClass1.myClass1")
     }
 }

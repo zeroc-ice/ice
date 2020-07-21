@@ -1856,16 +1856,16 @@ namespace ZeroC.Ice.Test.Operations
 
                 var d = IMyDerivedClassPrx.UncheckedCast(p);
                 var s = new MyStruct1();
-                s.TesT = "MyStruct1.s";
-                s.MyClass = null;
-                s = d.OpMyStruct1(s);
-                TestHelper.Assert(s.TesT.Equals("MyStruct1.s"));
-                TestHelper.Assert(s.MyClass == null);
+                s.tesT = "MyStruct1.s";
+                s.myClass = null;
+                s = d.opMyStruct1(s);
+                TestHelper.Assert(s.tesT.Equals("MyStruct1.s"));
+                TestHelper.Assert(s.myClass == null);
                 MyClass1? c = new MyClass1("MyClass1.testT", null);
-                c = d.OpMyClass1(c);
+                c = d.opMyClass1(c);
                 TestHelper.Assert(c != null);
-                TestHelper.Assert(c.TesT.Equals("MyClass1.testT"));
-                TestHelper.Assert(c.MyClass == null);
+                TestHelper.Assert(c.tesT.Equals("MyClass1.testT"));
+                TestHelper.Assert(c.myClass == null);
             }
 
             {
