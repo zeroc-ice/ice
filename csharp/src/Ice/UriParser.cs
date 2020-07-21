@@ -16,7 +16,7 @@ namespace ZeroC.Ice
     internal static class UriParser
     {
         /// <summary>Provides the proxy options parsed by the UriParser.</summary>
-        internal class ProxyOptions
+        internal sealed class ProxyOptions
         {
             // TODO: add more proxy options
             internal Encoding? Encoding { get; set; }
@@ -43,8 +43,8 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         /// <param name="proxyOptions">When not null, the uriString represents a proxy and this method parses proxy
         /// options into this parameter.</param>
-        /// <returns>The Uri and endpoints the ice or ice+transport URI.</returns>
-        internal static (Uri uri, IReadOnlyList<Endpoint> Endpoints) Parse(
+        /// <returns>The Uri and endpoints of the ice or ice+transport URI.</returns>
+        internal static (Uri Uri, IReadOnlyList<Endpoint> Endpoints) Parse(
             string uriString,
             Communicator communicator,
             ProxyOptions? proxyOptions = null)
@@ -63,20 +63,13 @@ namespace ZeroC.Ice
 
                 (Uri uri, string? altEndpoint) = InitialParse(uriString, proxyOptions, endpointOptions);
 
-                Protocol protocol = proxyOptions?.Protocol ?? Protocol.Ice2;
-
                 List<Endpoint>? endpoints = null;
 
                 if (endpointOptions != null) // i.e. not ice scheme
                 {
                     endpoints = new List<Endpoint>
                     {
-                        CreateEndpoint(communicator,
-                                       oaEndpoint: proxyOptions == null,
-                                       endpointOptions,
-                                       protocol,
-                                       uri,
-                                       uriString)
+                        CreateEndpoint(communicator, proxyOptions, endpointOptions, uri, uriString)
                     };
 
                     if (altEndpoint != null)
@@ -118,16 +111,11 @@ namespace ZeroC.Ice
                                 throw new FormatException(
                                     $"endpoint `{endpointStr}' must not specify a path or fragment");
                             }
-                            endpoints.Add(CreateEndpoint(communicator,
-                                                         oaEndpoint: proxyOptions == null,
-                                                         endpointOptions,
-                                                         protocol,
-                                                         endpointUri,
-                                                         endpointStr));
+                            endpoints.Add(
+                                CreateEndpoint(communicator, proxyOptions, endpointOptions, endpointUri, endpointStr));
                         }
                     }
                 }
-
                 return (uri, (IReadOnlyList<Endpoint>?)endpoints ?? ImmutableArray<Endpoint>.Empty);
             }
             catch (Exception ex)
@@ -160,14 +148,15 @@ namespace ZeroC.Ice
 
         private static Endpoint CreateEndpoint(
             Communicator communicator,
-            bool oaEndpoint,
+            ProxyOptions? proxyOptions,
             Dictionary<string, string> options,
-            Protocol protocol,
             Uri uri,
             string uriString)
         {
             Debug.Assert(uri.Scheme.StartsWith("ice+"));
             string transportName = uri.Scheme.Substring(4); // i.e. chop-off "ice+"
+
+            Protocol protocol = proxyOptions?.Protocol ?? Protocol.Ice2;
 
             ushort port;
             checked
@@ -180,7 +169,7 @@ namespace ZeroC.Ice
 
             if (transportName == "universal")
             {
-                if (oaEndpoint)
+                if (proxyOptions == null)
                 {
                     throw new FormatException("ice+universal cannot specify an object adapter endpoint");
                 }
@@ -216,7 +205,7 @@ namespace ZeroC.Ice
                                                 uri.DnsSafeHost,
                                                 port,
                                                 options,
-                                                oaEndpoint,
+                                                oaEndpoint: proxyOptions == null,
                                                 uriString) ??
                 new UniversalEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
 
@@ -227,7 +216,7 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
-        private static (Uri Uri, string? altEndpoint) InitialParse(
+        private static (Uri Uri, string? AltEndpoint) InitialParse(
             string uriString,
             ProxyOptions? proxyOptions,
             Dictionary<string, string>? endpointOptions)
@@ -270,7 +259,7 @@ namespace ZeroC.Ice
                 string value = p.Substring(equalPos + 1);
 
                 if (name == "encoding" && proxyOptions != null)
-               {
+                {
                     if (proxyOptions.Encoding != null)
                     {
                         throw new FormatException($"multiple encoding options in `{uriString}'");
