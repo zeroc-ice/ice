@@ -10,7 +10,6 @@
 [[cpp:include:Glacier2/Config.h]]
 
 [[js:module:ice]]
-[[normalize-case]]
 [[python:pkgdir:Glacier2]]
 
 #include <Ice/BuiltinSequences.ice>

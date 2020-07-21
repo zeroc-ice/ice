@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 using Test;
 using ZeroC.Ice.Instrumentation;
@@ -11,10 +10,15 @@ namespace ZeroC.Ice.Test.Metrics
 {
     public class Observer : IObserver
     {
-        public virtual void
-        reset()
+        public int total;
+        public int current;
+        public int failedCount;
+
+        protected readonly object _mutex = new object();
+
+        public virtual void Reset()
         {
-            lock (this)
+            lock (_mutex)
             {
                 total = 0;
                 current = 0;
@@ -22,80 +26,68 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public void
-        Attach()
+        public void Attach()
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++total;
                 ++current;
             }
         }
-        public void
-        Detach()
+        public void Detach()
         {
-            lock (this)
+            lock (_mutex)
             {
                 --current;
             }
         }
-        public void
-        Failed(string s)
+        public void Failed(string s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++failedCount;
             }
         }
 
-        public int
-        getTotal()
+        public int GetTotal()
         {
-            lock (this)
+            lock (_mutex)
             {
                 return total;
             }
         }
 
-        public int
-        GetCurrent()
+        public int GetCurrent()
         {
-            lock (this)
+            lock (_mutex)
             {
                 return current;
             }
         }
 
-        public int
-        GetFailedCount()
+        public int GetFailedCount()
         {
-            lock (this)
+            lock (_mutex)
             {
                 return failedCount;
             }
         }
-
-        public int total;
-        public int current;
-        public int failedCount;
     }
 
     public class ChildInvocationObserver : Observer, IChildInvocationObserver
     {
-        public override void
-        reset()
+        public override void Reset()
         {
-            lock (this)
+            lock (_mutex)
             {
-                base.reset();
+                base.Reset();
                 replySize = 0;
             }
         }
 
-        public void
-        Reply(int s)
+        public void Reply(int s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 replySize += s;
             }
@@ -114,52 +106,48 @@ namespace ZeroC.Ice.Test.Metrics
 
     public class InvocationObserver : Observer, IInvocationObserver
     {
-        public override void
-        reset()
+        public override void Reset()
         {
-            lock (this)
+            lock (_mutex)
             {
-                base.reset();
+                base.Reset();
                 retriedCount = 0;
                 userExceptionCount = 0;
                 if (remoteObserver != null)
                 {
-                    remoteObserver.reset();
+                    remoteObserver.Reset();
                 }
                 if (collocatedObserver != null)
                 {
-                    collocatedObserver.reset();
+                    collocatedObserver.Reset();
                 }
             }
         }
 
-        public void
-        Retried()
+        public void Retried()
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++retriedCount;
             }
         }
 
-        public void
-        RemoteException()
+        public void RemoteException()
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++userExceptionCount;
             }
         }
 
-        public IRemoteObserver
-        GetRemoteObserver(Connection c, int a, int b)
+        public IRemoteObserver GetRemoteObserver(Connection c, int a, int b)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (remoteObserver == null)
                 {
                     remoteObserver = new RemoteObserver();
-                    remoteObserver.reset();
+                    remoteObserver.Reset();
                 }
                 return remoteObserver;
             }
@@ -168,12 +156,12 @@ namespace ZeroC.Ice.Test.Metrics
         public ICollocatedObserver
         GetCollocatedObserver(ObjectAdapter adapter, int a, int b)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (collocatedObserver == null)
                 {
                     collocatedObserver = new CollocatedObserver();
-                    collocatedObserver.reset();
+                    collocatedObserver.Reset();
                 }
                 return collocatedObserver;
             }
@@ -189,11 +177,11 @@ namespace ZeroC.Ice.Test.Metrics
     public class DispatchObserver : Observer, IDispatchObserver
     {
         public override void
-        reset()
+        Reset()
         {
-            lock (this)
+            lock (_mutex)
             {
-                base.reset();
+                base.Reset();
                 userExceptionCount = 0;
                 replySize = 0;
             }
@@ -202,7 +190,7 @@ namespace ZeroC.Ice.Test.Metrics
         public void
         RemoteException()
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++userExceptionCount;
             }
@@ -211,7 +199,7 @@ namespace ZeroC.Ice.Test.Metrics
         public void
         Reply(int s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 replySize += s;
             }
@@ -224,29 +212,27 @@ namespace ZeroC.Ice.Test.Metrics
     public class ConnectionObserver : Observer, IConnectionObserver
     {
         public override void
-        reset()
+        Reset()
         {
-            lock (this)
+            lock (_mutex)
             {
-                base.reset();
+                base.Reset();
                 received = 0;
                 sent = 0;
             }
         }
 
-        public void
-        SentBytes(int s)
+        public void SentBytes(int s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 sent += s;
             }
         }
 
-        public void
-        ReceivedBytes(int s)
+        public void ReceivedBytes(int s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 received += s;
             }
@@ -258,119 +244,84 @@ namespace ZeroC.Ice.Test.Metrics
 
     public class CommunicatorObserver : ICommunicatorObserver
     {
-        public void
-        SetObserverUpdater(IObserverUpdater? u)
+        private readonly object _mutex = new object();
+
+        public void SetObserverUpdater(IObserverUpdater? u)
         {
-            lock (this)
+            lock (_mutex)
             {
                 updater = u;
             }
         }
 
-        public IObserver
-        GetConnectionEstablishmentObserver(Endpoint e, string s)
+        public IObserver GetConnectionEstablishmentObserver(Endpoint e, string s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (connectionEstablishmentObserver == null)
                 {
                     connectionEstablishmentObserver = new Observer();
-                    connectionEstablishmentObserver.reset();
+                    connectionEstablishmentObserver.Reset();
                 }
                 return connectionEstablishmentObserver;
             }
         }
 
-        public IObserver
-        GetEndpointLookupObserver(Endpoint e)
+        public IObserver GetEndpointLookupObserver(Endpoint e)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (endpointLookupObserver == null)
                 {
                     endpointLookupObserver = new Observer();
-                    endpointLookupObserver.reset();
+                    endpointLookupObserver.Reset();
                 }
                 return endpointLookupObserver;
             }
         }
 
-        public IConnectionObserver?
-        GetConnectionObserver(Connection c, ConnectionState s, IConnectionObserver? old)
+        public IConnectionObserver? GetConnectionObserver(Connection c, ConnectionState s, IConnectionObserver? old)
         {
-            lock (this)
+            lock (_mutex)
             {
                 TestHelper.Assert(old == null || old is ConnectionObserver);
                 if (connectionObserver == null)
                 {
                     connectionObserver = new ConnectionObserver();
-                    connectionObserver.reset();
+                    connectionObserver.Reset();
                 }
                 return connectionObserver;
             }
         }
 
-        public IInvocationObserver
-        GetInvocationObserver(IObjectPrx? p, string op, IReadOnlyDictionary<string, string> ctx)
+        public IInvocationObserver GetInvocationObserver(
+            IObjectPrx? p,
+            string op,
+            IReadOnlyDictionary<string, string> ctx)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (invocationObserver == null)
                 {
                     invocationObserver = new InvocationObserver();
-                    invocationObserver.reset();
+                    invocationObserver.Reset();
                 }
                 return invocationObserver;
             }
         }
 
-        public IDispatchObserver
-        GetDispatchObserver(Current current, int requestId, int s)
+        public IDispatchObserver GetDispatchObserver(Current current, int requestId, int s)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (dispatchObserver == null)
                 {
                     dispatchObserver = new DispatchObserver();
-                    dispatchObserver.reset();
+                    dispatchObserver.Reset();
                 }
                 return dispatchObserver;
             }
         }
-
-        /*
-        void
-        reset()
-        {
-            lock(this)
-            {
-                if(connectionEstablishmentObserver != null)
-                {
-                    connectionEstablishmentObserver.reset();
-                }
-                if(endpointLookupObserver != null)
-                {
-                    endpointLookupObserver.reset();
-                }
-                if(connectionObserver != null)
-                {
-                    connectionObserver.reset();
-                }
-                if(threadObserver != null)
-                {
-                    threadObserver.reset();
-                }
-                if(invocationObserver != null)
-                {
-                    invocationObserver.reset();
-                }
-                if(dispatchObserver != null)
-                {
-                    dispatchObserver.reset();
-                }
-            }
-        }
-        */
 
         protected IObserverUpdater? updater;
 

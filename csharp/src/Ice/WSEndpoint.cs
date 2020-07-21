@@ -148,10 +148,24 @@ namespace ZeroC.Ice
             string endpointString)
             : base(communicator, transport, protocol, host, port, options, oaEndpoint, endpointString)
         {
-            if (options.TryGetValue("resource", out string? value))
+            string? value = null;
+            if (options.TryGetValue("resource", out value))
             {
+                // The resource value (as supplied in a URI string) must be percent-escaped with '/' separators
+                // We keep it as-is, and will marshal it as-is.
                 _resource = value;
                 options.Remove("resource");
+            }
+            else if (options.TryGetValue("option", out value))
+            {
+                // We are parsing a ice+universal endpoint
+                if (value.Contains(','))
+                {
+                    throw new FormatException("a WS endpoint accepts at most one marshaled option (resource)");
+                }
+                // Each option of a universal endpoint needs to be unescaped
+                _resource = Uri.UnescapeDataString(value);
+                options.Remove("option");
             }
         }
 

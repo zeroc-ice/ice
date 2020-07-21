@@ -25,46 +25,7 @@ namespace ZeroC.Ice
 
         public static bool Interrupted(SocketException ex) => SocketErrorCode(ex) == SocketError.Interrupted;
 
-        public static bool AcceptInterrupted(SocketException ex)
-        {
-            if (Interrupted(ex))
-            {
-                return true;
-            }
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.ConnectionAborted ||
-                   error == SocketError.ConnectionReset ||
-                   error == SocketError.TimedOut;
-        }
-
-        public static bool NoBuffers(SocketException ex)
-        {
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.NoBufferSpaceAvailable ||
-                   error == SocketError.Fault;
-        }
-
         public static bool WouldBlock(SocketException ex) => SocketErrorCode(ex) == SocketError.WouldBlock;
-
-        public static bool ConnectFailed(SocketException ex)
-        {
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.ConnectionRefused ||
-                   error == SocketError.TimedOut ||
-                   error == SocketError.NetworkUnreachable ||
-                   error == SocketError.HostUnreachable ||
-                   error == SocketError.ConnectionReset ||
-                   error == SocketError.Shutdown ||
-                   error == SocketError.ConnectionAborted ||
-                   error == SocketError.NetworkDown;
-        }
-
-        public static bool ConnectInProgress(SocketException ex)
-        {
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.WouldBlock ||
-                   error == SocketError.InProgress;
-        }
 
         public static bool ConnectionLost(SocketException ex)
         {
@@ -109,20 +70,7 @@ namespace ZeroC.Ice
 
         public static bool ConnectionRefused(SocketException ex) => SocketErrorCode(ex) == SocketError.ConnectionRefused;
 
-        public static bool NotConnected(SocketException ex)
-        {
-            // BUGFIX: SocketError.InvalidArgument because shutdown() under macOS returns EINVAL
-            // if the server side is gone.
-            // BUGFIX: shutdown() under Vista might return SocketError.ConnectionReset
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.NotConnected ||
-                   error == SocketError.InvalidArgument ||
-                   error == SocketError.ConnectionReset;
-        }
-
         public static bool RecvTruncated(SocketException ex) => SocketErrorCode(ex) == SocketError.MessageSize;
-
-        public static bool OperationAborted(SocketException ex) => SocketErrorCode(ex) == SocketError.OperationAborted;
 
         public static bool Timeout(System.IO.IOException ex)
         {
@@ -131,18 +79,6 @@ namespace ZeroC.Ice
             // exception (if there is one).
             //
             return ex.Message.IndexOf("period of time", StringComparison.Ordinal) >= 0;
-        }
-
-        public static bool NoMoreFds(Exception ex)
-        {
-            try
-            {
-                return ex != null && SocketErrorCode((SocketException)ex) == SocketError.TooManyOpenSockets;
-            }
-            catch (InvalidCastException)
-            {
-                return false;
-            }
         }
 
         public static bool IsMulticast(IPEndPoint addr)
@@ -296,26 +232,6 @@ namespace ZeroC.Ice
             }
         }
 
-        //
-        // FIX: the fast path loopback appears to cause issues with
-        // connection closure when it's enabled. Sometime, a peer
-        // doesn't receive the TCP/IP connection closure (RST) from
-        // the other peer and it ends up hanging. See bug #6093.
-        //
-        // public static void setTcpLoopbackFastPath(Socket socket)
-        // {
-        //     const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
-        //     byte[] OptionInValue = BitConverter.GetBytes(1);
-        //     try
-        //     {
-        //         socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
-        //     }
-        //     catch(Exception)
-        //     {
-        //         // Expected on platforms that do not support TCP Loopback Fast Path
-        //     }
-        // }
-
         public static void SetBlock(Socket socket, bool block)
         {
             try
@@ -323,19 +239,6 @@ namespace ZeroC.Ice
                 socket.Blocking = block;
             }
             catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetKeepAlive(Socket socket)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-            }
-            catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
                 throw new TransportException(ex);
@@ -601,100 +504,6 @@ namespace ZeroC.Ice
             return true;
         }
 
-        public static IAsyncResult DoConnectAsync(Socket fd, EndPoint addr, EndPoint sourceAddr, AsyncCallback callback,
-                                                  object state)
-        {
-            //
-            // NOTE: It's the caller's responsability to close the socket upon
-            // failure to connect. The socket isn't closed by this method.
-            //
-            EndPoint bindAddr = sourceAddr;
-            if (bindAddr == null)
-            {
-                //
-                // Even though we are on the client side, the call to Bind()
-                // is necessary to work around a .NET bug: if a socket is
-                // connected non-blocking, the LocalEndPoint and RemoteEndPoint
-                // properties are null. The call to Bind() fixes this.
-                //
-                IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-                bindAddr = new IPEndPoint(any, 0);
-            }
-            fd.Bind(bindAddr);
-
-        repeatConnect:
-            try
-            {
-                return fd.BeginConnect(addr,
-                                       result =>
-                                       {
-                                           if (!result.CompletedSynchronously)
-                                           {
-                                               Debug.Assert(result.AsyncState != null);
-                                               callback(result.AsyncState);
-                                           }
-                                       }, state);
-            }
-            catch (SocketException ex)
-            {
-                if (Interrupted(ex))
-                {
-                    goto repeatConnect;
-                }
-
-                if (ConnectionRefused(ex))
-                {
-                    throw new ConnectionRefusedException(ex);
-                }
-                else
-                {
-                    throw new ConnectFailedException(ex);
-                }
-            }
-        }
-
-        public static void DoFinishConnectAsync(Socket fd, IAsyncResult result)
-        {
-            //
-            // NOTE: It's the caller's responsability to close the socket upon
-            // failure to connect. The socket isn't closed by this method.
-            //
-            try
-            {
-                fd.EndConnect(result);
-            }
-            catch (SocketException ex)
-            {
-                if (ConnectionRefused(ex))
-                {
-                    throw new ConnectionRefusedException(ex);
-                }
-                else
-                {
-                    throw new ConnectFailedException(ex);
-                }
-            }
-
-            //
-            // On Windows, we need to set the socket's blocking status again
-            // after the asynchronous connect. Seems like a bug in .NET.
-            //
-            SetBlock(fd, fd.Blocking);
-            if (!AssemblyUtil.IsWindows)
-            {
-                //
-                // Prevent self connect (self connect happens on Linux when a client tries to connect to
-                // a server which was just deactivated if the client socket re-uses the same ephemeral
-                // port as the server).
-                //
-                EndPoint? remoteAddr = GetRemoteAddress(fd);
-                if (remoteAddr!.Equals(GetLocalAddress(fd)))
-                {
-                    throw new ConnectionRefusedException();
-                }
-            }
-        }
-
         public static int GetIPVersion(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
         public static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion, bool preferIPv6)
@@ -903,20 +712,12 @@ namespace ZeroC.Ice
             return false;
         }
 
-        public static void
-        SetTcpBufSize(Socket socket, Communicator communicator)
+        public static void SetTcpBufSize(Socket socket, Communicator communicator)
         {
-            //
-            // By default, on Windows we use a 128KB buffer size. On Unix
-            // platforms, we use the system defaults.
-            //
-            int dfltBufSize = 0;
-            if (AssemblyUtil.IsWindows)
-            {
-                dfltBufSize = 128 * 1024;
-            }
-            int rcvSize = communicator.GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
-            int sndSize = communicator.GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
+            // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
+            int dfltBufSize = AssemblyUtil.IsWindows ? 128 * 1024 : 0;
+            int rcvSize = communicator.GetPropertyAsByteSize("Ice.TCP.RcvSize") ?? dfltBufSize;
+            int sndSize = communicator.GetPropertyAsByteSize("Ice.TCP.SndSize") ?? dfltBufSize;
             SetTcpBufSize(socket, rcvSize, sndSize, communicator);
         }
 
@@ -1067,8 +868,6 @@ namespace ZeroC.Ice
                 return "<closed>";
             }
         }
-
-        public static string FdLocalAddressToString(Socket socket) => "local address = " + LocalAddrToString(GetLocalAddress(socket));
 
         public static string
         AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);

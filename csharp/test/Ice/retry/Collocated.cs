@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.Retry
             using var communicator2 = Initialize(properties, observer: observer);
             communicator.CreateObjectAdapter().Add("retry", new Retry());
             communicator2.CreateObjectAdapter().Add("retry", new Retry());
-            AllTests.allTests(this, communicator, communicator2, "retry").shutdown();
+            await AllTests.allTests(this, communicator, communicator2, "retry").ShutdownAsync();
         }
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }

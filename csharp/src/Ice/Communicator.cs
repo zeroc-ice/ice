@@ -150,6 +150,7 @@ namespace ZeroC.Ice
         internal Acm ClientAcm { get; }
         internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
+        internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int[] RetryIntervals { get; }
@@ -157,7 +158,8 @@ namespace ZeroC.Ice
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
-        internal bool IsDisposed => _disposeTask != null;
+        // The default port number for all Ice IP-based transports.
+        private const int DefaultIPPort = 4062;
 
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
@@ -338,6 +340,7 @@ namespace ZeroC.Ice
                             }
                         }
 
+                        UriParser.RegisterCommon();
                         _oneOffDone = true;
                     }
                 }
@@ -457,35 +460,16 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"invalid value for Ice.ConnectTimeout: `{ConnectTimeout}'");
                 }
 
-                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", new Acm(false)));
-                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", new Acm(true)));
+                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
+                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
 
-                {
-                    int num = GetPropertyAsInt("Ice.MessageSizeMax") ?? 1024;
-                    if (num < 1 || num > 0x7fffffff / 1024)
-                    {
-                        FrameSizeMax = 0x7fffffff;
-                    }
-                    else
-                    {
-                        FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
-                    }
-                }
+                int frameSizeMax = GetPropertyAsByteSize("Ice.MessageSizeMax") ?? 1024 * 1024;
+                FrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
                 // TODO: switch to 0 default
                 AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;
-
-                {
-                    int num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
-                    if (num < 1 || num > 0x7fffffff)
-                    {
-                        ClassGraphDepthMax = 0x7fffffff;
-                    }
-                    else
-                    {
-                        ClassGraphDepthMax = num;
-                    }
-                }
+                int classGraphDepthMax = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
+                ClassGraphDepthMax = classGraphDepthMax < 1 ? int.MaxValue : classGraphDepthMax;
 
                 ToStringMode = Enum.Parse<ToStringMode>(GetProperty("Ice.ToStringMode") ?? "Unicode");
 
@@ -542,11 +526,11 @@ namespace ZeroC.Ice
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
                 var endpointFactory = new EndpointFactory(this);
-                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory);
-                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory);
-                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory);
-                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory);
-                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory);
+                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, DefaultIPPort);
 
                 OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -806,8 +790,8 @@ namespace ZeroC.Ice
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
-        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
+        /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
+        /// implicitly.</summary>
         public async ValueTask DisposeAsync()
         {
             // If Dispose is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
@@ -825,7 +809,7 @@ namespace ZeroC.Ice
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                await Task.WhenAll(OutgoingConnectionFactory.DestroyAsync(),
+                await Task.WhenAll(OutgoingConnectionFactory?.DisposeAsync().AsTask() ?? Task.CompletedTask,
                                    ShutdownAsync()).ConfigureAwait(false);
 
                 // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
@@ -879,8 +863,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
-        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
+        /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
+        /// implicitly.</summary>
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
         /// <summary>Returns a facet of the Admin object.</summary>
@@ -1037,10 +1021,29 @@ namespace ZeroC.Ice
         }
 
         // Registers an endpoint factory.
-        public void IceAddEndpointFactory(Transport transport, string transportName, IEndpointFactory factory)
+        public void IceAddEndpointFactory(
+            Transport transport,
+            string transportName,
+            IEndpointFactory factory,
+            ushort defaultPort = 0)
         {
+            if (transportName.Length == 0)
+            {
+                throw new ArgumentException($"{nameof(transportName)} cannot be empty", nameof(transportName));
+            }
+
             _transportNameToEndpointFactory.Add(transportName, (factory, transport));
             _transportToEndpointFactory.Add(transport, factory);
+
+            // Also register URI parser if not registered yet.
+            try
+            {
+                UriParser.RegisterTransport(transportName, defaultPort);
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignored, already registered
+            }
         }
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory.

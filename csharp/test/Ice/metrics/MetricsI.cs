@@ -8,26 +8,26 @@ namespace ZeroC.Ice.Test.Metrics
 {
     public sealed class Metrics : IMetrics
     {
-        public void op(Current current)
+        public void Op(Current current)
         {
         }
 
-        public void fail(Current current) => current.Connection!.Close(ConnectionClose.Forcefully);
+        public void Fail(Current current) => current.Connection!.Close(ConnectionClose.Forcefully);
 
-        public void opWithUserException(Current current) => throw new UserEx("custom UserEx message");
+        public void OpWithUserException(Current current) => throw new UserEx("custom UserEx message");
 
-        public void opWithRequestFailedException(Current current) => throw new ObjectNotExistException(current);
+        public void OpWithRequestFailedException(Current current) => throw new ObjectNotExistException(current);
 
-        public void opWithLocalException(Current current) => throw new InvalidConfigurationException("fake");
+        public void OpWithLocalException(Current current) => throw new InvalidConfigurationException("fake");
 
-        public void opWithUnknownException(Current current) => throw new ArgumentOutOfRangeException();
+        public void OpWithUnknownException(Current current) => throw new ArgumentOutOfRangeException();
 
-        public void opByteS(byte[] bs, Current current)
+        public void OpByteS(byte[] bs, Current current)
         {
         }
 
-        public IObjectPrx? getAdmin(Current current) => current.Adapter.Communicator.GetAdmin();
+        public IObjectPrx? GetAdmin(Current current) => current.Adapter.Communicator.GetAdmin();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
@@ -51,6 +51,64 @@ namespace ZeroC.Ice
         /// is parsed into an integer smaller or equal to 0.</returns>
         public bool? GetPropertyAsBool(string name) =>
             GetPropertyAsInt(name) is int intValue ? intValue > 0 : (bool?)null;
+
+        /// <summary>Gets the value of a property as a size in bytes. If the property is not set, returns null.
+        /// The value must be an integer followed immediately by an optional size unit of 'K', 'M' or 'G'.
+        /// These correspond to kilobytes, megabytes, or gigabytes, respectively.</summary>
+        /// <param name="name">The property name.</param>
+        /// <returns>The property value parsed into an integer representing the number of bytes or null.</returns>
+        public int? GetPropertyAsByteSize(string name)
+        {
+            lock (_properties)
+            {
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
+                {
+                    pv.Used = true;
+
+                    if (!int.TryParse(pv.Val, out int size))
+                    {
+                        try
+                        {
+                            Match match = Regex.Match(pv.Val, @"^([0-9]+)([K|M|G])$");
+
+                            if (!match.Success)
+                            {
+                                throw new InvalidConfigurationException(
+                                    $"the value `{pv.Val}' of property `{name}' is not a byte size");
+                            }
+
+                            int value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                            string unit = match.Groups[2].Value;
+
+                            checked
+                            {
+                                try
+                                {
+                                    size = unit switch
+                                    {
+                                        "K" => 1024 * value,
+                                        "M" => 1024 * 1024 * value,
+                                        "G" => 1024 * 1024 * 1024 * value,
+                                        _ => throw new FormatException($"unknown size unit `{unit}'"),
+                                    };
+                                }
+                                catch (OverflowException)
+                                {
+                                    size = int.MaxValue;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"the value `{pv.Val}' of property `{name}' is not a byte size", ex);
+                        }
+                    }
+                    return size;
+                }
+                return null;
+            }
+        }
 
         /// <summary>Gets the value of a property as an enumerated type, the conversion does a case insensitive
         /// comparison of the property value with the enumerators and returns the matching enumerator or throws and
@@ -166,7 +224,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return factory(Reference.Parse(value, name, this));
+                    return factory(Reference.Parse(value, this, name));
                 }
                 catch (FormatException ex)
                 {

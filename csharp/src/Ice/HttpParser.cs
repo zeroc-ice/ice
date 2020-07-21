@@ -9,7 +9,7 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
-    public sealed class WebSocketException : System.Exception
+    public sealed class WebSocketException : Exception
     {
         internal WebSocketException()
             : base("", null)

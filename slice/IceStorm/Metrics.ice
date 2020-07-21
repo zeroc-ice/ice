@@ -10,7 +10,6 @@
 [[cpp:include:IceStorm/Config.h]]
 
 [[suppress-warning:reserved-identifier]]
-[[normalize-case]]
 [[python:pkgdir:IceStorm]]
 
 #include <Ice/Metrics.ice>

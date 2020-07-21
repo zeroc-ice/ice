@@ -9,35 +9,35 @@ namespace ZeroC.Ice.Test.DictMapping
 {
     public sealed class MyClassAsync : IMyClassAsync
     {
-        public ValueTask shutdownAsync(Current current)
+        public ValueTask ShutdownAsync(Current current)
         {
             current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<(IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>)> opNVAsync(
+        public ValueTask<(IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>)> OpNVAsync(
             Dictionary<int, int> i, Current current) => ToReturnValue(i);
 
-        public ValueTask<(IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)> opNRAsync(
+        public ValueTask<(IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)> OpNRAsync(
             Dictionary<string, string> i, Current current) => ToReturnValue(i);
 
         public ValueTask<(IReadOnlyDictionary<string, Dictionary<int, int>>, IReadOnlyDictionary<string, Dictionary<int, int>>)>
-        opNDVAsync(Dictionary<string, Dictionary<int, int>> i, Current current) => ToReturnValue(i);
+        OpNDVAsync(Dictionary<string, Dictionary<int, int>> i, Current current) => ToReturnValue(i);
 
         public ValueTask<(IReadOnlyDictionary<string, Dictionary<string, string>>, IReadOnlyDictionary<string, Dictionary<string, string>>)>
-        opNDRAsync(Dictionary<string, Dictionary<string, string>> i, Current current) => ToReturnValue(i);
+        OpNDRAsync(Dictionary<string, Dictionary<string, string>> i, Current current) => ToReturnValue(i);
 
         public ValueTask<(IReadOnlyDictionary<string, int[]>, IReadOnlyDictionary<string, int[]>)>
-        opNDAISAsync(Dictionary<string, int[]> i, Current current) => ToReturnValue(i);
+        OpNDAISAsync(Dictionary<string, int[]> i, Current current) => ToReturnValue(i);
 
         public ValueTask<(IReadOnlyDictionary<string, List<int>>, IReadOnlyDictionary<string, List<int>>)>
-        opNDGISAsync(Dictionary<string, List<int>> i, Current current) => ToReturnValue(i);
+        OpNDGISAsync(Dictionary<string, List<int>> i, Current current) => ToReturnValue(i);
 
         public ValueTask<(IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>)>
-        opNDASSAsync(Dictionary<string, string[]> i, Current current) => ToReturnValue(i);
+        OpNDASSAsync(Dictionary<string, string[]> i, Current current) => ToReturnValue(i);
 
         public ValueTask<(IReadOnlyDictionary<string, List<string>>, IReadOnlyDictionary<string, List<string>>)>
-        opNDGSSAsync(Dictionary<string, List<string>> i, Current current) => ToReturnValue(i);
+        OpNDGSSAsync(Dictionary<string, List<string>> i, Current current) => ToReturnValue(i);
 
         private static ValueTask<(IReadOnlyDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>)>
         ToReturnValue<TKey, TValue>(Dictionary<TKey, TValue> input) where TKey : notnull =>

@@ -12,7 +12,6 @@
 [[cpp:include:list]]
 
 [[suppress-warning:reserved-identifier]]
-[[normalize-case]]
 [[js:module:ice]]
 
 [[python:pkgdir:Ice]]

@@ -1773,7 +1773,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 {
                     continue;
                 }
-                string mName = fixId(m->name(), Slice::ExceptionType);
+                string mName = fixId(dataMemberName(m), Slice::ExceptionType);
                 _out << nl << "case \"" << mName << "\":";
                 _out << sb;
                 _out << nl << "this." << mName << " = ("

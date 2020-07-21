@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Threading
             _scheduler = scheduler;
         }
 
-        public void pingSync(Current current)
+        public void PingSync(Current current)
         {
             if (TaskScheduler.Current != _scheduler &&
                 (!current.Context.TryGetValue("scheduler", out string? id) ||
@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Threading
             Thread.Sleep(1);
         }
 
-        public async ValueTask pingAsync(Current current)
+        public async ValueTask PingAsync(Current current)
         {
             if (TaskScheduler.Current != _scheduler &&
                 (!current.Context.TryGetValue("scheduler", out string? id) ||
@@ -44,7 +44,7 @@ namespace ZeroC.Ice.Test.Threading
             await Task.Delay(1).ConfigureAwait(false);
         }
 
-        public void concurrent(int level, Current current)
+        public void Concurrent(int level, Current current)
         {
             lock (_mutex)
             {
@@ -78,7 +78,7 @@ namespace ZeroC.Ice.Test.Threading
             }
         }
 
-        public void reset(Current current)
+        public void Reset(Current current)
         {
             lock (_mutex)
             {
@@ -86,6 +86,6 @@ namespace ZeroC.Ice.Test.Threading
             }
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

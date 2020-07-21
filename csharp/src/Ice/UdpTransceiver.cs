@@ -15,11 +15,11 @@ namespace ZeroC.Ice
         internal System.Net.IPEndPoint? McastAddress { get; private set; } = null;
 
         public Connection CreateConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             IConnector? connector,
             string connectionId,
-            ObjectAdapter? adapter) => new UdpConnection(endpoint, monitor, this, connector, connectionId, adapter);
+            ObjectAdapter? adapter) => new UdpConnection(manager, endpoint, this, connector, connectionId, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -693,7 +693,7 @@ namespace ZeroC.Ice
                 SetBufSize(-1, -1);
                 Network.SetBlock(_fd, false);
             }
-            catch (System.Exception)
+            catch
             {
                 if (_readEventArgs != null)
                 {
@@ -742,7 +742,7 @@ namespace ZeroC.Ice
                 //
                 if (sizeRequested == -1)
                 {
-                    sizeRequested = _communicator.GetPropertyAsInt(prop) ?? dfltSize;
+                    sizeRequested = _communicator.GetPropertyAsByteSize(prop) ?? dfltSize;
                 }
                 //
                 // Check for sanity.

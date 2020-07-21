@@ -41,12 +41,15 @@ namespace ZeroC.Ice
         /// <param name="protocol">The protocol.</param>
         internal static void CheckSupported(this Protocol protocol)
         {
-            if (protocol != Protocol.Ice1 && protocol != Protocol.Ice2)
+            if (!protocol.IsSupported())
             {
                 throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
                     }' is not supported by this Ice runtime ({Runtime.StringVersion})");
             }
         }
+
+        internal static bool IsSupported(this Protocol protocol) =>
+            protocol == Protocol.Ice1 || protocol == Protocol.Ice2;
 
         /// <summary>Parses a protocol string in the stringified proxy format into a Protocol.</summary>
         /// <param name="str">The string to parse.</param>
@@ -60,16 +63,17 @@ namespace ZeroC.Ice
                 case "ice2":
                     return Protocol.Ice2;
                 default:
-                    // TODO: for now, parse as a Major.Minor encoding or just Major:
-                    byte b = Encoding.TryParse(str, out Encoding encoding) && encoding.Minor == 0 ?
-                        encoding.Major : byte.Parse(str, CultureInfo.InvariantCulture);
-                    if (b == 0)
+                    if (str.EndsWith(".0"))
                     {
-                        throw new FormatException("invalid protocol 0");
+                        str = str[0..^2];
+                    }
+                    if (byte.TryParse(str, out byte value))
+                    {
+                        return value > 0 ? (Protocol)value : throw new FormatException("invalid protocol 0");
                     }
                     else
                     {
-                        return (Protocol)b;
+                        throw new FormatException($"invalid protocol `{str}'");
                     }
             }
         }

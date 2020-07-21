@@ -6,7 +6,7 @@ namespace ZeroC.Ice.Test.Objects
 {
     public sealed class F2 : IF2
     {
-        public void op(Current current)
+        public void Op(Current current)
         {
         }
     }

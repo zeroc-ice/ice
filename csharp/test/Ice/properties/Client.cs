@@ -155,6 +155,83 @@ namespace ZeroC.Ice.Test.Properties
 
                 Console.Out.WriteLine("ok");
             }
+
+            {
+                Console.Out.Write("testing configuration properties as byte size... ");
+                var sizeProperties = new Dictionary<string, string>
+                {
+                    { "Size", "1" },
+                    { "Size.K", "1K" },
+                    { "Size.M", "1M" },
+                    { "Size.G", "1G" },
+
+                    { "Size.Zero", "0" },
+                    { "Size.Zero.K", "0K" },
+                    { "Size.Zero.M", "0M" },
+                    { "Size.Zero.G", "0G" },
+
+                    { "Size.MaxValue.K", $"{int.MaxValue}K" },
+                    { "Size.MaxValue.M", $"{int.MaxValue}M" },
+                    { "Size.MaxValue.G", $"{int.MaxValue}G" },
+
+                    { "Size.Bad.Word", "x"},
+                    { "Size.Bad.Negative", "-1B"},
+                    { "Size.Bad.InvalidUnit", "1b"},
+                    { "Size.Bad.NotANumber", "NaN"},
+                    { "Size.Bad.Double.B", "1.0" },
+                };
+
+                await using var communicator = new Communicator(sizeProperties);
+
+                {
+                    int? size = communicator.GetPropertyAsByteSize("Size");
+                    Assert(size == 1);
+
+                    size = communicator.GetPropertyAsByteSize("Size.K");
+                    Assert(size == 1024);
+
+                    size = communicator.GetPropertyAsByteSize("Size.M");
+                    Assert(size == 1024 * 1024);
+
+                    size = communicator.GetPropertyAsByteSize("Size.G");
+                    Assert(size == 1024 * 1024 * 1024);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.K");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.M");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.G");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.K");
+                    Assert(size == int.MaxValue);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.M");
+                    Assert(size == int.MaxValue);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.G");
+                    Assert(size == int.MaxValue);
+                }
+
+                foreach (string property in communicator.GetProperties("Size.Bad").Keys)
+                {
+                    try
+                    {
+                        _ = communicator.GetPropertyAsTimeSpan(property);
+                        Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+                }
+
+                Console.Out.WriteLine("ok");
+            }
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

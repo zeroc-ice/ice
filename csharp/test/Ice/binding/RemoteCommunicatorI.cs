@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx createObjectAdapter(string name, string endpts, Current current)
+        public IRemoteObjectAdapterPrx CreateObjectAdapter(string name, string endpts, Current current)
         {
             int retry = 5;
             while (true)
@@ -37,10 +37,10 @@ namespace ZeroC.Ice.Test.Binding
         }
 
         // Collocated call.
-        public void deactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
-            adapter!.deactivate();
+        public void DeactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
+            adapter!.Deactivate();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private int _nextPort = 10;
     }

@@ -12,11 +12,13 @@ namespace ZeroC.Ice.Test.Retry
     {
         private class Callback
         {
+            private readonly object _mutex = new object();
+
             internal Callback() => _called = false;
 
             public void check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
@@ -29,7 +31,7 @@ namespace ZeroC.Ice.Test.Retry
 
             public void called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;
@@ -62,7 +64,7 @@ namespace ZeroC.Ice.Test.Retry
 
             output.Write("calling regular operation with first proxy... ");
             output.Flush();
-            retry1.op(false);
+            retry1.Op(false);
             output.WriteLine("ok");
 
             Instrumentation.testInvocationCount(3);
@@ -71,7 +73,7 @@ namespace ZeroC.Ice.Test.Retry
             output.Flush();
             try
             {
-                retry2.op(true);
+                retry2.Op(true);
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -88,14 +90,14 @@ namespace ZeroC.Ice.Test.Retry
 
             output.Write("calling regular operation with first proxy again... ");
             output.Flush();
-            retry1.op(false);
+            retry1.Op(false);
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(0);
             output.WriteLine("ok");
 
             output.Write("calling regular AMI operation with first proxy... ");
-            retry1.opAsync(false).Wait();
+            retry1.OpAsync(false).Wait();
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(0);
@@ -104,7 +106,7 @@ namespace ZeroC.Ice.Test.Retry
             output.Write("calling AMI operation to kill connection with second proxy... ");
             try
             {
-                retry2.opAsync(true).Wait();
+                retry2.OpAsync(true).Wait();
                 TestHelper.Assert(false);
             }
             catch (AggregateException ex)
@@ -119,18 +121,18 @@ namespace ZeroC.Ice.Test.Retry
             output.WriteLine("ok");
 
             output.Write("calling regular AMI operation with first proxy again... ");
-            retry1.opAsync(false).Wait();
+            retry1.OpAsync(false).Wait();
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(0);
             output.WriteLine("ok");
 
             output.Write("testing idempotent operation... ");
-            TestHelper.Assert(retry1.opIdempotent(4) == 4);
+            TestHelper.Assert(retry1.OpIdempotent(4) == 4);
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(4);
-            TestHelper.Assert(retry1.opIdempotentAsync(4).Result == 4);
+            TestHelper.Assert(retry1.OpIdempotentAsync(4).Result == 4);
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(4);
@@ -141,7 +143,7 @@ namespace ZeroC.Ice.Test.Retry
                 output.Write("testing non-idempotent operation with bi-dir proxy... ");
                 try
                 {
-                    retry1.Clone(fixedConnection: retry1.GetCachedConnection()).opIdempotent(4);
+                    retry1.Clone(fixedConnection: retry1.GetCachedConnection()).OpIdempotent(4);
                 }
                 catch (UnhandledException)
                 {
@@ -149,7 +151,7 @@ namespace ZeroC.Ice.Test.Retry
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(1);
                 Instrumentation.testRetryCount(0);
-                TestHelper.Assert(retry1.opIdempotent(4) == 4);
+                TestHelper.Assert(retry1.OpIdempotent(4) == 4);
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
                 // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
@@ -160,7 +162,7 @@ namespace ZeroC.Ice.Test.Retry
             output.Write("testing non-idempotent operation... ");
             try
             {
-                retry1.opNotIdempotent();
+                retry1.OpNotIdempotent();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -171,7 +173,7 @@ namespace ZeroC.Ice.Test.Retry
             Instrumentation.testRetryCount(0);
             try
             {
-                retry1.opNotIdempotentAsync().Wait();
+                retry1.OpNotIdempotentAsync().Wait();
                 TestHelper.Assert(false);
             }
             catch (AggregateException ex)
@@ -186,7 +188,7 @@ namespace ZeroC.Ice.Test.Retry
             output.Write("testing system exception... "); // it's just a regular remote exception
             try
             {
-                retry1.opSystemException();
+                retry1.OpSystemException();
                 TestHelper.Assert(false);
             }
             catch (SystemFailure)
@@ -197,7 +199,7 @@ namespace ZeroC.Ice.Test.Retry
             Instrumentation.testRetryCount(0);
             try
             {
-                retry1.opSystemExceptionAsync().Wait();
+                retry1.OpSystemExceptionAsync().Wait();
                 TestHelper.Assert(false);
             }
             catch (AggregateException ex)
@@ -217,27 +219,27 @@ namespace ZeroC.Ice.Test.Retry
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
-                    retry2.Clone(invocationTimeout: 500).opIdempotent(4);
+                    retry2.Clone(invocationTimeout: 500).OpIdempotent(4);
                     TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
                 {
                     Instrumentation.testRetryCount(2);
-                    retry2.opIdempotent(-1); // Reset the counter
+                    retry2.OpIdempotent(-1); // Reset the counter
                     Instrumentation.testRetryCount(-1);
                 }
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
                     IRetryPrx prx = retry2.Clone(invocationTimeout: 500);
-                    prx.opIdempotentAsync(4).Wait();
+                    prx.OpIdempotentAsync(4).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ex)
                 {
                     TestHelper.Assert(ex.InnerException is TimeoutException);
                     Instrumentation.testRetryCount(2);
-                    retry2.opIdempotent(-1); // Reset the counter
+                    retry2.OpIdempotent(-1); // Reset the counter
                     Instrumentation.testRetryCount(-1);
                 }
                 output.WriteLine("ok");

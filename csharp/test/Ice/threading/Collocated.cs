@@ -44,14 +44,14 @@ namespace ZeroC.Ice.Test.Threading
             {
                 if (ex.InnerException is TestFailedException failedEx)
                 {
-                    GetWriter().WriteLine($"test failed: {failedEx.reason}");
+                    GetWriter().WriteLine($"test failed: {failedEx.Reason}");
                     Assert(false);
                 }
                 throw;
             }
             catch (TestFailedException ex)
             {
-                GetWriter().WriteLine($"test failed: {ex.reason}");
+                GetWriter().WriteLine($"test failed: {ex.Reason}");
                 Assert(false);
                 throw;
             }

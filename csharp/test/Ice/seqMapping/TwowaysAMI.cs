@@ -16,350 +16,350 @@ namespace ZeroC.Ice.Test.SeqMapping
         {
             {
                 var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToArray();
-                var r = p.opAByteSAsync(i).Result;
+                var r = p.OpAByteSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToList();
-                var r = p.opLByteSAsync(i).Result;
+                var r = p.OpLByteSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var r = p.opKByteSAsync(i).Result;
+                var r = p.OpKByteSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var r = p.opQByteSAsync(i).Result;
+                var r = p.OpQByteSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var r = p.opSByteSAsync(i).Result;
+                var r = p.OpSByteSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var r = p.opCByteSAsync(i).Result;
+                var r = p.OpCByteSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray();
-                var r = p.opABoolSAsync(i).Result;
+                var r = p.OpABoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToList();
-                var r = p.opLBoolSAsync(i).Result;
+                var r = p.OpLBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
-                var r = p.opKBoolSAsync(i).Result;
+                var r = p.OpKBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
-                var r = p.opQBoolSAsync(i).Result;
+                var r = p.OpQBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
-                var r = p.opSBoolSAsync(i).Result;
+                var r = p.OpSBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
-                var r = p.opCBoolSAsync(i).Result;
+                var r = p.OpCBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (short)x).ToArray();
-                var r = p.opAShortSAsync(i).Result;
+                var r = p.OpAShortSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (short)x).ToList();
-                var r = p.opLShortSAsync(i).Result;
+                var r = p.OpLShortSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                var r = p.opKShortSAsync(i).Result;
+                var r = p.OpKShortSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                var r = p.opQShortSAsync(i).Result;
+                var r = p.OpQShortSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                var r = p.opSShortSAsync(i).Result;
+                var r = p.OpSShortSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<short>(Enumerable.Range(0, Length).Select(x => (short)x).ToArray());
-                var r = p.opCShortSAsync(i).Result;
+                var r = p.OpCShortSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).ToArray();
-                var r = p.opAIntSAsync(i).Result;
+                var r = p.OpAIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).ToList();
-                var r = p.opLIntSAsync(i).Result;
+                var r = p.OpLIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<int>(Enumerable.Range(0, Length).ToArray());
-                var r = p.opKIntSAsync(i).Result;
+                var r = p.OpKIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<int>(Enumerable.Range(0, Length).ToArray());
-                var r = p.opQIntSAsync(i).Result;
+                var r = p.OpQIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<int>(Enumerable.Range(0, Length).ToArray());
-                var r = p.opSIntSAsync(i).Result;
+                var r = p.OpSIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<int>(Enumerable.Range(0, Length).ToArray());
-                var r = p.opCIntSAsync(i).Result;
+                var r = p.OpCIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (long)x).ToArray();
-                var r = p.opALongSAsync(i).Result;
+                var r = p.OpALongSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (long)x).ToList();
-                var r = p.opLLongSAsync(i).Result;
+                var r = p.OpLLongSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                var r = p.opKLongSAsync(i).Result;
+                var r = p.OpKLongSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                var r = p.opQLongSAsync(i).Result;
+                var r = p.OpQLongSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                var r = p.opSLongSAsync(i).Result;
+                var r = p.OpSLongSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<long>(Enumerable.Range(0, Length).Select(x => (long)x).ToArray());
-                var r = p.opCLongSAsync(i).Result;
+                var r = p.OpCLongSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (float)x).ToArray();
-                var r = p.opAFloatSAsync(i).Result;
+                var r = p.OpAFloatSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (float)x).ToList();
-                var r = p.opLFloatSAsync(i).Result;
+                var r = p.OpLFloatSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                var r = p.opKFloatSAsync(i).Result;
+                var r = p.OpKFloatSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                var r = p.opQFloatSAsync(i).Result;
+                var r = p.OpQFloatSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                var r = p.opSFloatSAsync(i).Result;
+                var r = p.OpSFloatSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<float>(Enumerable.Range(0, Length).Select(x => (float)x).ToArray());
-                var r = p.opCFloatSAsync(i).Result;
+                var r = p.OpCFloatSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (double)x).ToArray();
-                var r = p.opADoubleSAsync(i).Result;
+                var r = p.OpADoubleSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (double)x).ToList();
-                var r = p.opLDoubleSAsync(i).Result;
+                var r = p.OpLDoubleSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                var r = p.opKDoubleSAsync(i).Result;
+                var r = p.OpKDoubleSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                var r = p.opQDoubleSAsync(i).Result;
+                var r = p.OpQDoubleSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                var r = p.opSDoubleSAsync(i).Result;
+                var r = p.OpSDoubleSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<double>(Enumerable.Range(0, Length).Select(x => (double)x).ToArray());
-                var r = p.opCDoubleSAsync(i).Result;
+                var r = p.OpCDoubleSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray();
-                var r = p.opAStringSAsync(i).Result;
+                var r = p.OpAStringSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => x.ToString()).ToList();
-                var r = p.opLStringSAsync(i).Result;
+                var r = p.OpLStringSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                var r = p.opKStringSAsync(i).Result;
+                var r = p.OpKStringSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                var r = p.opQStringSAsync(i).Result;
+                var r = p.OpQStringSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                var r = p.opSStringSAsync(i).Result;
+                var r = p.OpSStringSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<string>(Enumerable.Range(0, Length).Select(x => x.ToString()).ToArray());
-                var r = p.opCStringSAsync(i).Result;
+                var r = p.OpCStringSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new CV(x) as AnyClass).ToArray();
-                var r = p.opAObjectSAsync(i).Result;
+                var r = p.OpAObjectSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CVComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CVComparer()));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new CV(x) as AnyClass).ToList<AnyClass?>();
-                var r = p.opLObjectSAsync(i).Result;
+                var r = p.OpLObjectSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CVComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CVComparer()));
             }
@@ -367,7 +367,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Custom<AnyClass>(Enumerable.Range(0, Length).Select(
                     x => new CV(x) as AnyClass).ToArray());
-                var r = p.opCObjectSAsync(i).Result;
+                var r = p.OpCObjectSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CVComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CVComparer()));
             }
@@ -375,7 +375,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = Enumerable.Range(0, Length).Select(
                     x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray();
-                var r = p.opAObjectPrxSAsync(i).Result;
+                var r = p.OpAObjectPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -383,7 +383,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = Enumerable.Range(0, Length).Select(
                     x => IObjectPrx.Parse(x.ToString(), communicator)).ToList<IObjectPrx?>();
-                var r = p.opLObjectPrxSAsync(i).Result;
+                var r = p.OpLObjectPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -391,7 +391,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new LinkedList<IObjectPrx?>(Enumerable.Range(0, Length).Select(
                     x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opKObjectPrxSAsync(i).Result;
+                var r = p.OpKObjectPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -399,7 +399,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Queue<IObjectPrx?>(Enumerable.Range(0, Length).Select(
                     x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opQObjectPrxSAsync(i).Result;
+                var r = p.OpQObjectPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -407,7 +407,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Stack<IObjectPrx?>(Enumerable.Range(0, Length).Select(
                     x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opSObjectPrxSAsync(i).Result;
+                var r = p.OpSObjectPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -415,63 +415,63 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Custom<IObjectPrx?>(Enumerable.Range(0, Length).Select(
                     x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opCObjectPrxSAsync(i).Result;
+                var r = p.OpCObjectPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new S(x)).ToArray();
-                var r = p.opAStructSAsync(i).Result;
+                var r = p.OpAStructSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new S(x)).ToList();
-                var r = p.opLStructSAsync(i).Result;
+                var r = p.OpLStructSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new LinkedList<S>(Enumerable.Range(0, Length).Select(x => new S(x)).ToArray());
-                var r = p.opKStructSAsync(i).Result;
+                var r = p.OpKStructSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<S>(Enumerable.Range(0, Length).Select(x => new S(x)).ToArray());
-                var r = p.opQStructSAsync(i).Result;
+                var r = p.OpQStructSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<S>(Enumerable.Range(0, Length).Select(x => new S(x)).ToArray());
-                var r = p.opSStructSAsync(i).Result;
+                var r = p.OpSStructSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<S>(Enumerable.Range(0, Length).Select(x => new S(x)).ToArray());
-                var r = p.opCStructSAsync(i).Result;
+                var r = p.OpCStructSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new CV(x)).ToArray();
-                var r = p.opACVSAsync(i).Result;
+                var r = p.OpACVSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CVComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CVComparer()));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new CV(x)).ToList<CV?>();
-                var r = p.opLCVSAsync(i).Result;
+                var r = p.OpLCVSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CVComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CVComparer()));
             }
@@ -479,7 +479,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = Enumerable.Range(0, Length).Select(
                     x => IIPrx.Parse(x.ToString(), communicator)).ToArray();
-                var r = p.opAIPrxSAsync(i).Result;
+                var r = p.OpAIPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -487,7 +487,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = Enumerable.Range(0, Length).Select(
                     x => IIPrx.Parse(x.ToString(), communicator)).ToList<IIPrx?>();
-                var r = p.opLIPrxSAsync(i).Result;
+                var r = p.OpLIPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -495,7 +495,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new LinkedList<IIPrx?>(Enumerable.Range(0, Length).Select(
                     x => IIPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opKIPrxSAsync(i).Result;
+                var r = p.OpKIPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -503,7 +503,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Queue<IIPrx?>(Enumerable.Range(0, Length).Select(
                     x => IIPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opQIPrxSAsync(i).Result;
+                var r = p.OpQIPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -511,7 +511,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Stack<IIPrx?>(Enumerable.Range(0, Length).Select(
                     x => IIPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opSIPrxSAsync(i).Result;
+                var r = p.OpSIPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -519,21 +519,21 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Custom<IIPrx?>(Enumerable.Range(0, Length).Select(
                     x => IIPrx.Parse(x.ToString(), communicator)).ToArray());
-                var r = p.opCIPrxSAsync(i).Result;
+                var r = p.OpCIPrxSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new CR(new CV(x))).ToArray();
-                var r = p.opACRSAsync(i).Result;
+                var r = p.OpACRSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CRComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CRComparer()));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => new CR(new CV(x))).ToList<CR?>();
-                var r = p.opLCRSAsync(i).Result;
+                var r = p.OpLCRSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CRComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CRComparer()));
             }
@@ -541,21 +541,21 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Custom<CR>(Enumerable.Range(0, Length).Select(
                     x => new CR(new CV(x))).ToArray());
-                var r = p.opLCRSAsync(i).Result;
+                var r = p.OpLCRSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CRComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CRComparer()));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (En)(x % 3)).ToArray();
-                var r = p.opAEnSAsync(i).Result;
+                var r = p.OpAEnSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = Enumerable.Range(0, Length).Select(x => (En)(x % 3)).ToList();
-                var r = p.opLEnSAsync(i).Result;
+                var r = p.OpLEnSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -563,35 +563,35 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new LinkedList<En>(Enumerable.Range(0, Length).Select(
                     x => (En)(x % 3)).ToArray());
-                var r = p.opKEnSAsync(i).Result;
+                var r = p.OpKEnSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Queue<En>(Enumerable.Range(0, Length).Select(x => (En)(x % 3)).ToArray());
-                var r = p.opQEnSAsync(i).Result;
+                var r = p.OpQEnSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Stack<En>(Enumerable.Range(0, Length).Select(x => (En)(x % 3)).ToArray());
-                var r = p.opSEnSAsync(i).Result;
+                var r = p.OpSEnSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<En>(Enumerable.Range(0, Length).Select(x => (En)(x % 3)).ToArray());
-                var r = p.opCEnSAsync(i).Result;
+                var r = p.OpCEnSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
                 var i = new Custom<int>(Enumerable.Range(0, Length).ToList());
-                var r = p.opCustomIntSAsync(i).Result;
+                var r = p.OpCustomIntSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -599,7 +599,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 var i = new Custom<CV?>(
                     Enumerable.Range(0, Length).Select(x => new CV(x)).ToList<CV?>());
-                var r = p.opCustomCVSAsync(i).Result;
+                var r = p.OpCustomCVSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i, new CVComparer()));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i, new CVComparer()));
             }
@@ -610,7 +610,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 {
                     i.Add(new Custom<int>(Enumerable.Range(0, Length).ToList()));
                 }
-                var r = p.opCustomIntSSAsync(i).Result;
+                var r = p.OpCustomIntSSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
@@ -622,7 +622,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                     i.Add(new Custom<CV?>(Enumerable.Range(0, Length).Select(
                         x => new CV(x)).ToList<CV?>()));
                 }
-                var r = p.opCustomCVSSAsync(i).Result;
+                var r = p.OpCustomCVSSAsync(i).Result;
                 for (int c = 0; c < Length; ++c)
                 {
                     TestHelper.Assert(r.o[c].SequenceEqual(i[c], new CVComparer()));
@@ -634,7 +634,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 var i = new Serialize.Small();
                 i.i = 99;
 
-                (Serialize.Small ReturnValue, Serialize.Small o) = p.opSerialSmallCSharpAsync(i).Result;
+                (Serialize.Small ReturnValue, Serialize.Small o) = p.OpSerialSmallCSharpAsync(i).Result;
                 TestHelper.Assert(o.i == 99);
                 TestHelper.Assert(ReturnValue.i == 99);
             }
@@ -654,7 +654,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 i.d11 = 11.0;
                 i.s1 = Serialize.Large.LargeString;
 
-                (Serialize.Large ReturnValue, Serialize.Large o) = p.opSerialLargeCSharpAsync(i).Result;
+                (Serialize.Large ReturnValue, Serialize.Large o) = p.OpSerialLargeCSharpAsync(i).Result;
                 TestHelper.Assert(o.d1 == 1.0);
                 TestHelper.Assert(o.d2 == 2.0);
                 TestHelper.Assert(o.d3 == 3.0);
@@ -689,7 +689,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 i.s = null;
                 i.s2 = "Hello";
 
-                (Serialize.Struct ReturnValue, Serialize.Struct o) = p.opSerialStructCSharpAsync(i).Result;
+                (Serialize.Struct ReturnValue, Serialize.Struct o) = p.OpSerialStructCSharpAsync(i).Result;
                 TestHelper.Assert(o.o == null);
                 TestHelper.Assert(o.o2 == o);
                 TestHelper.Assert(o.s == null);
@@ -716,7 +716,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 return false;
             }
-            return (x as CV)!.i == (y as CV)!.i;
+            return (x as CV)!.I == (y as CV)!.I;
         }
 
         public int GetHashCode(AnyClass? obj) => obj!.GetHashCode();
@@ -735,7 +735,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 return false;
             }
-            return x.v!.i == y.v!.i;
+            return x.V!.I == y.V!.I;
         }
 
         public int GetHashCode(CR? obj) => obj!.GetHashCode();

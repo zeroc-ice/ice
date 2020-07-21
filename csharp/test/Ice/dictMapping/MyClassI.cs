@@ -8,30 +8,30 @@ namespace ZeroC.Ice.Test.DictMapping
 {
     public sealed class MyClass : IMyClass
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public (IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>)
-        opNV(Dictionary<int, int> i, Current current) => (i, i);
+        OpNV(Dictionary<int, int> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)
-        opNR(Dictionary<string, string> i, Current current) => (i, i);
+        OpNR(Dictionary<string, string> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, Dictionary<int, int>>, IReadOnlyDictionary<string, Dictionary<int, int>>)
-        opNDV(Dictionary<string, Dictionary<int, int>> i, Current current) => (i, i);
+        OpNDV(Dictionary<string, Dictionary<int, int>> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, Dictionary<string, string>>, IReadOnlyDictionary<string, Dictionary<string, string>>)
-        opNDR(Dictionary<string, Dictionary<string, string>> i, Current current) => (i, i);
+        OpNDR(Dictionary<string, Dictionary<string, string>> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, int[]>, IReadOnlyDictionary<string, int[]>)
-        opNDAIS(Dictionary<string, int[]> i, Current current) => (i, i);
+        OpNDAIS(Dictionary<string, int[]> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, List<int>>, IReadOnlyDictionary<string, List<int>>)
-        opNDGIS(Dictionary<string, List<int>> i, Current current) => (i, i);
+        OpNDGIS(Dictionary<string, List<int>> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>)
-        opNDASS(Dictionary<string, string[]> i, Current current) => (i, i);
+        OpNDASS(Dictionary<string, string[]> i, Current current) => (i, i);
 
         public (IReadOnlyDictionary<string, List<string>>, IReadOnlyDictionary<string, List<string>>)
-        opNDGSS(Dictionary<string, List<string>> i, Current current) => (i, i);
+        OpNDGSS(Dictionary<string, List<string>> i, Current current) => (i, i);
     }
 }

@@ -15,9 +15,9 @@ namespace ZeroC.Ice.Test.Binding
             _adapter.Activate();
         }
 
-        public ITestIntfPrx getTestIntf(Current current) => _testIntf;
+        public ITestIntfPrx GetTestIntf(Current current) => _testIntf;
 
-        public void deactivate(Current current)
+        public void Deactivate(Current current)
         {
             try
             {

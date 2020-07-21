@@ -15,69 +15,58 @@ namespace ZeroC.Ice.Test.Operations
     {
         private class CallbackBase
         {
-            internal CallbackBase()
-            {
-                _called = false;
-            }
+            private bool _called = false;
+            private readonly object _mutex = new object();
 
-            public virtual void check()
+            public virtual void Check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                     _called = false;
                 }
             }
 
-            public virtual void called()
+            public virtual void Called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;
-                    Monitor.Pulse(this);
+                    Monitor.Pulse(_mutex);
                 }
             }
-
-            public bool _called;
         }
 
         private class GenericCallback<T> : CallbackBase
         {
-            public GenericCallback(T value)
-            {
-                this._value = value;
-            }
+            public T Value { get; private set; }
 
-            public void response(T value)
+            private bool _succeeded = false;
+
+            public GenericCallback(T value) => Value = value;
+
+            public void Response(T value)
             {
-                _value = value;
+                Value = value;
                 _succeeded = true;
-                called();
+                Called();
             }
 
-            public void exception()
+            public void Exception()
             {
                 _succeeded = false;
-                called();
+                Called();
             }
 
-            public bool succeeded()
+            public bool Succeeded()
             {
-                check();
+                Check();
                 return _succeeded;
             }
-
-            public T value()
-            {
-                return _value;
-            }
-
-            private T _value;
-            private bool _succeeded = false;
         }
 
         private class Callback : CallbackBase
@@ -92,22 +81,22 @@ namespace ZeroC.Ice.Test.Operations
 
             public Callback(Dictionary<string, string> d) => _d = d;
 
-            public void opVoid() => called();
+            public void opVoid() => Called();
 
-            public void opContext() => called();
+            public void opContext() => Called();
 
             public void opByte(byte r, byte b)
             {
                 TestHelper.Assert(b == 0xf0);
                 TestHelper.Assert(r == 0xff);
-                called();
+                Called();
             }
 
             public void opBool(bool r, bool b)
             {
                 TestHelper.Assert(b);
                 TestHelper.Assert(!r);
-                called();
+                Called();
             }
 
             public void opShortIntLong(long r, short s, int i, long l)
@@ -116,7 +105,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(i == 11);
                 TestHelper.Assert(l == 12);
                 TestHelper.Assert(r == 12);
-                called();
+                Called();
             }
 
             public void opUShortUIntULong(ulong r, ushort s, uint i, ulong l)
@@ -125,7 +114,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(i == 11);
                 TestHelper.Assert(l == 12);
                 TestHelper.Assert(r == 12);
-                called();
+                Called();
             }
 
             public void opFloatDouble(double r, float f, double d)
@@ -133,21 +122,21 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(f == 3.14f);
                 TestHelper.Assert(d == 1.1e10);
                 TestHelper.Assert(r == 1.1e10);
-                called();
+                Called();
             }
 
             public void opString(string r, string s)
             {
                 TestHelper.Assert(s.Equals("world hello"));
                 TestHelper.Assert(r.Equals("hello world"));
-                called();
+                Called();
             }
 
             public void opMyEnum(MyEnum r, MyEnum e)
             {
                 TestHelper.Assert(e == MyEnum.enum2);
                 TestHelper.Assert(r == MyEnum.enum3);
-                called();
+                Called();
             }
 
             public void opMyClass(IMyClassPrx? r, IMyClassPrx? c1, IMyClassPrx? c2)
@@ -155,17 +144,17 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
                 TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
                 TestHelper.Assert(r!.Identity.Equals(Identity.Parse("test")));
-                called();
+                Called();
             }
 
             public void opStruct(Structure rso, Structure so)
             {
-                TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == MyEnum.enum2);
-                TestHelper.Assert(rso.s.s.Equals("def"));
-                TestHelper.Assert(so.e == MyEnum.enum3);
-                TestHelper.Assert(so.s.s.Equals("a new string"));
-                called();
+                TestHelper.Assert(rso.P == null);
+                TestHelper.Assert(rso.E == MyEnum.enum2);
+                TestHelper.Assert(rso.S.S.Equals("def"));
+                TestHelper.Assert(so.E == MyEnum.enum3);
+                TestHelper.Assert(so.S.S.Equals("a new string"));
+                Called();
             }
 
             public void opByteS(byte[] rso, byte[] bso)
@@ -184,7 +173,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[5] == 0xf2);
                 TestHelper.Assert(rso[6] == 0xf3);
                 TestHelper.Assert(rso[7] == 0xf4);
-                called();
+                Called();
             }
 
             public void opBoolS(bool[] rso, bool[] bso)
@@ -198,7 +187,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(!rso[0]);
                 TestHelper.Assert(rso[1]);
                 TestHelper.Assert(rso[2]);
-                called();
+                Called();
             }
 
             public void opShortIntLongS(long[] rso, short[] sso, int[] iso, long[] lso)
@@ -223,7 +212,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[0] == 10);
                 TestHelper.Assert(rso[1] == 30);
                 TestHelper.Assert(rso[2] == 20);
-                called();
+                Called();
             }
 
             public void opFloatDoubleS(double[] rso, float[] fso, double[] dso)
@@ -241,7 +230,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[2] == 1.3e10);
                 TestHelper.Assert((float)rso[3] == 3.14f);
                 TestHelper.Assert((float)rso[4] == 1.11f);
-                called();
+                Called();
             }
 
             public void opStringS(string[] rso, string[] sso)
@@ -255,7 +244,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[0].Equals("fghi"));
                 TestHelper.Assert(rso[1].Equals("de"));
                 TestHelper.Assert(rso[2].Equals("abc"));
-                called();
+                Called();
             }
 
             public void opByteSS(byte[][] rso, byte[][] bso)
@@ -279,7 +268,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[3].Length == 2);
                 TestHelper.Assert(rso[3][0] == 0xf2);
                 TestHelper.Assert(rso[3][1] == 0xf1);
-                called();
+                Called();
             }
 
             public void opBoolSS(bool[][] rso, bool[][] bso)
@@ -304,7 +293,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(!rso[1][0]);
                 TestHelper.Assert(rso[2].Length == 1);
                 TestHelper.Assert(rso[2][0]);
-                called();
+                Called();
             }
 
             public void opShortIntLongSS(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
@@ -334,7 +323,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(lso[1].Length == 2);
                 TestHelper.Assert(lso[1][0] == 496);
                 TestHelper.Assert(lso[1][1] == 1729);
-                called();
+                Called();
             }
 
             public void opFloatDoubleSS(double[][] rso, float[][] fso, double[][] dso)
@@ -359,7 +348,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[1][0] == 1.1e10);
                 TestHelper.Assert(rso[1][1] == 1.2e10);
                 TestHelper.Assert(rso[1][2] == 1.3e10);
-                called();
+                Called();
             }
 
             public void opStringSS(string[][] rso, string[][] sso)
@@ -379,7 +368,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[0][0].Equals("xyz"));
                 TestHelper.Assert(rso[1].Length == 0);
                 TestHelper.Assert(rso[2].Length == 0);
-                called();
+                Called();
             }
 
             public void opStringSSS(string[][][] rsso, string[][][] ssso)
@@ -400,10 +389,10 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ssso[0][0][1].Equals("de"));
                 TestHelper.Assert(ssso[0][1][0].Equals("xyz"));
                 TestHelper.Assert(ssso[1][0][0].Equals("hello"));
-                TestHelper.Assert(ssso[2][0][0].Equals(""));
-                TestHelper.Assert(ssso[2][0][1].Equals(""));
+                TestHelper.Assert(ssso[2][0][0].Length == 0);
+                TestHelper.Assert(ssso[2][0][1].Length == 0);
                 TestHelper.Assert(ssso[2][1][0].Equals("abcd"));
-                TestHelper.Assert(ssso[3][0][0].Equals(""));
+                TestHelper.Assert(ssso[3][0][0].Length == 0);
 
                 TestHelper.Assert(rsso.Length == 3);
                 TestHelper.Assert(rsso[0].Length == 0);
@@ -412,16 +401,16 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rsso[2].Length == 2);
                 TestHelper.Assert(rsso[2][0].Length == 2);
                 TestHelper.Assert(rsso[2][1].Length == 1);
-                TestHelper.Assert(rsso[1][0][0].Equals(""));
-                TestHelper.Assert(rsso[2][0][0].Equals(""));
-                TestHelper.Assert(rsso[2][0][1].Equals(""));
+                TestHelper.Assert(rsso[1][0][0].Length == 0);
+                TestHelper.Assert(rsso[2][0][0].Length == 0);
+                TestHelper.Assert(rsso[2][0][1].Length == 0);
                 TestHelper.Assert(rsso[2][1][0].Equals("abcd"));
-                called();
+                Called();
             }
 
             public void opByteBoolD(Dictionary<byte, bool> ro, Dictionary<byte, bool> _do)
             {
-                Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+                var di1 = new Dictionary<byte, bool>();
                 di1[10] = true;
                 di1[100] = false;
                 TestHelper.Assert(_do.DictionaryEqual(di1));
@@ -430,12 +419,12 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[11] == false);
                 TestHelper.Assert(ro[100] == false);
                 TestHelper.Assert(ro[101] == true);
-                called();
+                Called();
             }
 
             public void opShortIntD(Dictionary<short, int> ro, Dictionary<short, int> _do)
             {
-                Dictionary<short, int> di1 = new Dictionary<short, int>();
+                var di1 = new Dictionary<short, int>();
                 di1[110] = -1;
                 di1[1100] = 123123;
                 TestHelper.Assert(_do.DictionaryEqual(di1));
@@ -444,7 +433,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[111] == -100);
                 TestHelper.Assert(ro[1100] == 123123);
                 TestHelper.Assert(ro[1101] == 0);
-                called();
+                Called();
             }
 
             public void opLongFloatD(Dictionary<long, float> ro, Dictionary<long, float> _do)
@@ -458,7 +447,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[999999120L] == -100.4f);
                 TestHelper.Assert(ro[999999111L] == 123123.2f);
                 TestHelper.Assert(ro[999999130L] == 0.5f);
-                called();
+                Called();
             }
 
             public void opStringStringD(Dictionary<string, string> ro, Dictionary<string, string> _do)
@@ -472,7 +461,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["FOO"].Equals("abc -100.4"));
                 TestHelper.Assert(ro["bar"].Equals("abc 123123.2"));
                 TestHelper.Assert(ro["BAR"].Equals("abc 0.5"));
-                called();
+                Called();
             }
 
             public void opStringMyEnumD(Dictionary<string, MyEnum> ro, Dictionary<string, MyEnum> _do)
@@ -486,7 +475,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["qwerty"] == MyEnum.enum3);
                 TestHelper.Assert(ro[""] == MyEnum.enum2);
                 TestHelper.Assert(ro["Hello!!"] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opMyEnumStringD(Dictionary<MyEnum, string> ro, Dictionary<MyEnum, string> _do)
@@ -498,7 +487,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(ro[MyEnum.enum2].Equals("Hello!!"));
                 TestHelper.Assert(ro[MyEnum.enum3].Equals("qwerty"));
-                called();
+                Called();
             }
 
             public void opMyStructMyEnumD(Dictionary<MyStruct, MyEnum> ro,
@@ -517,7 +506,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[s12] == MyEnum.enum2);
                 TestHelper.Assert(ro[s22] == MyEnum.enum3);
                 TestHelper.Assert(ro[s23] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opByteBoolDS(Dictionary<byte, bool>[] ro,
@@ -543,7 +532,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][10]);
                 TestHelper.Assert(!_do[2][11]);
                 TestHelper.Assert(_do[2][101]);
-                called();
+                Called();
             }
 
             public void opShortIntDS(Dictionary<short, int>[] ro,
@@ -568,7 +557,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][110] == -1);
                 TestHelper.Assert(_do[2][111] == -100);
                 TestHelper.Assert(_do[2][1101] == 0);
-                called();
+                Called();
             }
 
             public void opLongFloatDS(Dictionary<long, float>[] ro,
@@ -593,7 +582,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][999999110L] == -1.1f);
                 TestHelper.Assert(_do[2][999999120L] == -100.4f);
                 TestHelper.Assert(_do[2][999999130L] == 0.5f);
-                called();
+                Called();
             }
 
             public void opStringStringDS(Dictionary<string, string>[] ro,
@@ -618,7 +607,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2]["foo"].Equals("abc -1.1"));
                 TestHelper.Assert(_do[2]["FOO"].Equals("abc -100.4"));
                 TestHelper.Assert(_do[2]["BAR"].Equals("abc 0.5"));
-                called();
+                Called();
             }
 
             public void opStringMyEnumDS(Dictionary<string, MyEnum>[] ro,
@@ -643,7 +632,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2]["abc"] == MyEnum.enum1);
                 TestHelper.Assert(_do[2]["qwerty"] == MyEnum.enum3);
                 TestHelper.Assert(_do[2]["Hello!!"] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opMyEnumStringDS(Dictionary<MyEnum, string>[] ro,
@@ -664,7 +653,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2].Count == 2);
                 TestHelper.Assert(_do[2][MyEnum.enum2].Equals("Hello!!"));
                 TestHelper.Assert(_do[2][MyEnum.enum3].Equals("qwerty"));
-                called();
+                Called();
             }
 
             public void opMyStructMyEnumDS(Dictionary<MyStruct, MyEnum>[] ro,
@@ -694,7 +683,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][s11] == MyEnum.enum1);
                 TestHelper.Assert(_do[2][s22] == MyEnum.enum3);
                 TestHelper.Assert(_do[2][s23] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opByteByteSD(Dictionary<byte, byte[]> ro,
@@ -714,7 +703,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[0xf1].Length == 2);
                 TestHelper.Assert(ro[0xf1][0] == 0xf2);
                 TestHelper.Assert(ro[0xf1][1] == 0xf3);
-                called();
+                Called();
             }
 
             public void opBoolBoolSD(Dictionary<bool, bool[]> ro,
@@ -732,7 +721,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(!ro[true][0]);
                 TestHelper.Assert(ro[true][1]);
                 TestHelper.Assert(ro[true][2]);
-                called();
+                Called();
             }
 
             public void opShortShortSD(Dictionary<short, short[]> ro,
@@ -754,7 +743,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[4].Length == 2);
                 TestHelper.Assert(ro[4][0] == 6);
                 TestHelper.Assert(ro[4][1] == 7);
-                called();
+                Called();
             }
 
             public void opIntIntSD(Dictionary<int, int[]> ro,
@@ -776,7 +765,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[400].Length == 2);
                 TestHelper.Assert(ro[400][0] == 600);
                 TestHelper.Assert(ro[400][1] == 700);
-                called();
+                Called();
             }
 
             public void opLongLongSD(Dictionary<long, long[]> ro,
@@ -797,7 +786,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[999999992L].Length == 2);
                 TestHelper.Assert(ro[999999992L][0] == 999999110L);
                 TestHelper.Assert(ro[999999992L][1] == 999999120L);
-                called();
+                Called();
             }
 
             public void opStringFloatSD(Dictionary<string, float[]> ro,
@@ -819,7 +808,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["aBc"].Length == 2);
                 TestHelper.Assert(ro["aBc"][0] == -3.14f);
                 TestHelper.Assert(ro["aBc"][1] == 3.14f);
-                called();
+                Called();
             }
 
             public void opStringDoubleSD(Dictionary<string, double[]> ro,
@@ -840,7 +829,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[""].Length == 2);
                 TestHelper.Assert(ro[""][0] == 1.6E10);
                 TestHelper.Assert(ro[""][1] == 1.7E10);
-                called();
+                Called();
             }
 
             public void opStringStringSD(Dictionary<string, string[]> ro,
@@ -862,7 +851,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["ghi"].Length == 2);
                 TestHelper.Assert(ro["ghi"][0].Equals("and"));
                 TestHelper.Assert(ro["ghi"][1].Equals("xor"));
-                called();
+                Called();
             }
 
             public void opMyEnumMyEnumSD(Dictionary<MyEnum, MyEnum[]> ro,
@@ -883,7 +872,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[MyEnum.enum1].Length == 2);
                 TestHelper.Assert(ro[MyEnum.enum1][0] == MyEnum.enum3);
                 TestHelper.Assert(ro[MyEnum.enum1][1] == MyEnum.enum3);
-                called();
+                Called();
             }
 
             public void opIntS(int[] r)
@@ -893,19 +882,19 @@ namespace ZeroC.Ice.Test.Operations
                 {
                     TestHelper.Assert(r[j] == -j);
                 }
-                called();
+                Called();
             }
 
             public void opContextNotEqual(Dictionary<string, string> r)
             {
                 TestHelper.Assert(!r.DictionaryEqual(_d));
-                called();
+                Called();
             }
 
             public void opContextEqual(Dictionary<string, string> r)
             {
                 TestHelper.Assert(r.DictionaryEqual(_d));
-                called();
+                Called();
             }
 
             private Communicator? _communicator;
@@ -935,71 +924,71 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                p.opVoidAsync().Wait();
+                p.OpVoidAsync().Wait();
             }
 
             {
-                var ret = p.opByteAsync(0xff, 0x0f).Result;
+                var ret = p.OpByteAsync(0xff, 0x0f).Result;
                 TestHelper.Assert(ret.p3 == 0xf0);
                 TestHelper.Assert(ret.ReturnValue == 0xff);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opBoolAsync(true, false).Result;
+                var ret = p.OpBoolAsync(true, false).Result;
                 cb.opBool(ret.ReturnValue, ret.p3);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opShortIntLongAsync(10, 11, 12).Result;
+                var ret = p.OpShortIntLongAsync(10, 11, 12).Result;
                 cb.opShortIntLong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opUShortUIntULongAsync(10, 11, 12).Result;
+                var ret = p.OpUShortUIntULongAsync(10, 11, 12).Result;
                 cb.opUShortUIntULong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opFloatDoubleAsync(3.14f, 1.1E10).Result;
+                var ret = p.OpFloatDoubleAsync(3.14f, 1.1E10).Result;
                 cb.opFloatDouble(ret.ReturnValue, ret.p3, ret.p4);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opStringAsync("hello", "world").Result;
+                var ret = p.OpStringAsync("hello", "world").Result;
                 cb.opString(ret.ReturnValue, ret.p3);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opMyEnumAsync(MyEnum.enum2).Result;
+                var ret = p.OpMyEnumAsync(MyEnum.enum2).Result;
                 cb.opMyEnum(ret.ReturnValue, ret.p2);
             }
 
             {
                 var cb = new Callback(communicator);
-                var ret = p.opMyClassAsync(p).Result;
+                var ret = p.OpMyClassAsync(p).Result;
                 cb.opMyClass(ret.ReturnValue, ret.p2, ret.p3);
             }
 
             {
                 var si1 = new Structure();
-                si1.p = p;
-                si1.e = MyEnum.enum3;
-                si1.s = new AnotherStruct();
-                si1.s.s = "abc";
+                si1.P = p;
+                si1.E = MyEnum.enum3;
+                si1.S = new AnotherStruct();
+                si1.S.S = "abc";
                 var si2 = new Structure();
-                si2.p = null;
-                si2.e = MyEnum.enum2;
-                si2.s = new AnotherStruct();
-                si2.s.s = "def";
+                si2.P = null;
+                si2.E = MyEnum.enum2;
+                si2.S = new AnotherStruct();
+                si2.S.S = "def";
 
                 var cb = new Callback(communicator);
-                var ret = p.opStructAsync(si1, si2).Result;
+                var ret = p.OpStructAsync(si1, si2).Result;
                 cb.opStruct(ret.ReturnValue, ret.p3);
             }
 
@@ -1008,7 +997,7 @@ namespace ZeroC.Ice.Test.Operations
                 byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
 
                 var cb = new Callback();
-                var ret = p.opByteSAsync(bsi1, bsi2).Result;
+                var ret = p.OpByteSAsync(bsi1, bsi2).Result;
                 cb.opByteS(ret.ReturnValue, ret.p3);
             }
 
@@ -1017,7 +1006,7 @@ namespace ZeroC.Ice.Test.Operations
                 bool[] bsi2 = new bool[] { false };
 
                 var cb = new Callback();
-                var ret = p.opBoolSAsync(bsi1, bsi2).Result;
+                var ret = p.OpBoolSAsync(bsi1, bsi2).Result;
                 cb.opBoolS(ret.ReturnValue, ret.p3);
             }
 
@@ -1027,7 +1016,7 @@ namespace ZeroC.Ice.Test.Operations
                 long[] lsi = new long[] { 10, 30, 20 };
 
                 var cb = new Callback();
-                var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
+                var ret = p.OpShortIntLongSAsync(ssi, isi, lsi).Result;
                 cb.opShortIntLongS(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
@@ -1036,7 +1025,7 @@ namespace ZeroC.Ice.Test.Operations
                 double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
                 var cb = new Callback();
-                var ret = p.opFloatDoubleSAsync(fsi, dsi).Result;
+                var ret = p.OpFloatDoubleSAsync(fsi, dsi).Result;
                 cb.opFloatDoubleS(ret.ReturnValue, ret.p3, ret.p4);
             }
 
@@ -1045,7 +1034,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[] ssi2 = new string[] { "xyz" };
 
                 var cb = new Callback();
-                var ret = p.opStringSAsync(ssi1, ssi2).Result;
+                var ret = p.OpStringSAsync(ssi1, ssi2).Result;
                 cb.opStringS(ret.ReturnValue, ret.p3);
             }
 
@@ -1059,7 +1048,7 @@ namespace ZeroC.Ice.Test.Operations
                 byte[][] bsi2 = new byte[][] { s21, s22 };
 
                 var cb = new Callback();
-                var ret = p.opByteSSAsync(bsi1, bsi2).Result;
+                var ret = p.OpByteSSAsync(bsi1, bsi2).Result;
                 cb.opByteSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1073,14 +1062,14 @@ namespace ZeroC.Ice.Test.Operations
                 bool[][] bsi2 = new bool[][] { s21 };
 
                 var cb = new Callback();
-                var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
+                var ret = p.OpBoolSSAsync(bsi1, bsi2).Result;
                 cb.opBoolSS(ret.ReturnValue, ret.p3);
             }
 
             {
                 short[] s11 = new short[] { 1, 2, 5 };
                 short[] s12 = new short[] { 13 };
-                short[] s13 = new short[] { };
+                short[] s13 = Array.Empty<short>();
                 short[][] ssi = new short[][] { s11, s12, s13 };
 
                 int[] i11 = new int[] { 24, 98 };
@@ -1091,21 +1080,21 @@ namespace ZeroC.Ice.Test.Operations
                 long[][] lsi = new long[][] { l11 };
 
                 var cb = new Callback();
-                var ret = p.opShortIntLongSSAsync(ssi, isi, lsi).Result;
+                var ret = p.OpShortIntLongSSAsync(ssi, isi, lsi).Result;
                 cb.opShortIntLongSS(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
                 float[] f11 = new float[] { 3.14f };
                 float[] f12 = new float[] { 1.11f };
-                float[] f13 = new float[] { };
+                float[] f13 = Array.Empty<float>();
                 float[][] fsi = new float[][] { f11, f12, f13 };
 
                 double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
                 double[][] dsi = new double[][] { d11 };
 
                 var cb = new Callback();
-                var ret = p.opFloatDoubleSSAsync(fsi, dsi).Result;
+                var ret = p.OpFloatDoubleSSAsync(fsi, dsi).Result;
                 cb.opFloatDoubleSS(ret.ReturnValue, ret.p3, ret.p4);
             }
 
@@ -1114,13 +1103,13 @@ namespace ZeroC.Ice.Test.Operations
                 string[] s12 = new string[] { "de", "fghi" };
                 string[][] ssi1 = new string[][] { s11, s12 };
 
-                string[] s21 = new string[] { };
-                string[] s22 = new string[] { };
+                string[] s21 = Array.Empty<string>();
+                string[] s22 = Array.Empty<string>();
                 string[] s23 = new string[] { "xyz" };
                 string[][] ssi2 = new string[][] { s21, s22, s23 };
 
                 var cb = new Callback();
-                var ret = p.opStringSSAsync(ssi1, ssi2).Result;
+                var ret = p.OpStringSSAsync(ssi1, ssi2).Result;
                 cb.opStringSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1137,11 +1126,11 @@ namespace ZeroC.Ice.Test.Operations
                 string[][] ss21 = new string[][] { s211, s212 };
                 string[] s221 = new string[] { "" };
                 string[][] ss22 = new string[][] { s221 };
-                string[][] ss23 = new string[][] { };
+                string[][] ss23 = Array.Empty<string[]>();
                 string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
 
                 var cb = new Callback();
-                var ret = p.opStringSSSAsync(sssi1, sssi2).Result;
+                var ret = p.OpStringSSSAsync(sssi1, sssi2).Result;
                 cb.opStringSSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1155,7 +1144,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[101] = true;
 
                 var cb = new Callback();
-                var ret = p.opByteBoolDAsync(di1, di2).Result;
+                var ret = p.OpByteBoolDAsync(di1, di2).Result;
                 cb.opByteBoolD(ret.ReturnValue, ret.p3);
             }
 
@@ -1169,7 +1158,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[1101] = 0;
 
                 var cb = new Callback();
-                var ret = p.opShortIntDAsync(di1, di2).Result;
+                var ret = p.OpShortIntDAsync(di1, di2).Result;
                 cb.opShortIntD(ret.ReturnValue, ret.p3);
             }
 
@@ -1183,7 +1172,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[999999130L] = 0.5f;
 
                 var cb = new Callback();
-                var ret = p.opLongFloatDAsync(di1, di2).Result;
+                var ret = p.OpLongFloatDAsync(di1, di2).Result;
                 cb.opLongFloatD(ret.ReturnValue, ret.p3);
             }
 
@@ -1197,7 +1186,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2["BAR"] = "abc 0.5";
 
                 var cb = new Callback();
-                var ret = p.opStringStringDAsync(di1, di2).Result;
+                var ret = p.OpStringStringDAsync(di1, di2).Result;
                 cb.opStringStringD(ret.ReturnValue, ret.p3);
             }
 
@@ -1211,7 +1200,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2["Hello!!"] = MyEnum.enum2;
 
                 var cb = new Callback();
-                var ret = p.opStringMyEnumDAsync(di1, di2).Result;
+                var ret = p.OpStringMyEnumDAsync(di1, di2).Result;
                 cb.opStringMyEnumD(ret.ReturnValue, ret.p3);
             }
 
@@ -1223,7 +1212,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[MyEnum.enum3] = "qwerty";
 
                 var cb = new Callback();
-                var ret = p.opMyEnumStringDAsync(di1, di2).Result;
+                var ret = p.OpMyEnumStringDAsync(di1, di2).Result;
                 cb.opMyEnumStringD(ret.ReturnValue, ret.p3);
             }
 
@@ -1242,7 +1231,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[s23] = MyEnum.enum2;
 
                 var cb = new Callback();
-                var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
+                var ret = p.OpMyStructMyEnumDAsync(di1, di2).Result;
                 cb.opMyStructMyEnumD(ret.ReturnValue, ret.p3);
             }
 
@@ -1266,7 +1255,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opByteBoolDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpByteBoolDSAsync(dsi1, dsi2).Result;
                 cb.opByteBoolDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1289,7 +1278,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opLongFloatDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpLongFloatDSAsync(dsi1, dsi2).Result;
                 cb.opLongFloatDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1312,7 +1301,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opStringStringDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpStringStringDSAsync(dsi1, dsi2).Result;
                 cb.opStringStringDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1335,7 +1324,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opStringMyEnumDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpStringMyEnumDSAsync(dsi1, dsi2).Result;
                 cb.opStringMyEnumDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1356,7 +1345,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opMyEnumStringDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpMyEnumStringDSAsync(dsi1, dsi2).Result;
                 cb.opMyEnumStringDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1385,7 +1374,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opMyStructMyEnumDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpMyStructMyEnumDSAsync(dsi1, dsi2).Result;
                 cb.opMyStructMyEnumDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1402,7 +1391,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[0xf1] = si3;
 
                 var cb = new Callback();
-                var ret = p.opByteByteSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpByteByteSDAsync(sdi1, sdi2).Result;
                 cb.opByteByteSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1418,7 +1407,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[false] = si1;
 
                 var cb = new Callback();
-                var ret = p.opBoolBoolSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpBoolBoolSDAsync(sdi1, sdi2).Result;
                 cb.opBoolBoolSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1435,7 +1424,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[4] = si3;
 
                 var cb = new Callback();
-                var ret = p.opShortShortSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpShortShortSDAsync(sdi1, sdi2).Result;
                 cb.opShortShortSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1452,7 +1441,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[400] = si3;
 
                 var cb = new Callback();
-                var ret = p.opIntIntSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpIntIntSDAsync(sdi1, sdi2).Result;
                 cb.opIntIntSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1469,7 +1458,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[999999992L] = si3;
 
                 var cb = new Callback();
-                var ret = p.opLongLongSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpLongLongSDAsync(sdi1, sdi2).Result;
                 cb.opLongLongSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1486,7 +1475,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2["aBc"] = si3;
 
                 var cb = new Callback();
-                var ret = p.opStringFloatSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpStringFloatSDAsync(sdi1, sdi2).Result;
                 cb.opStringFloatSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1503,7 +1492,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[""] = si3;
 
                 var cb = new Callback();
-                var ret = p.opStringDoubleSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpStringDoubleSDAsync(sdi1, sdi2).Result;
                 cb.opStringDoubleSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1520,7 +1509,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2["ghi"] = si3;
 
                 var cb = new Callback();
-                var ret = p.opStringStringSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpStringStringSDAsync(sdi1, sdi2).Result;
                 cb.opStringStringSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1537,7 +1526,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[MyEnum.enum1] = si3;
 
                 var cb = new Callback();
-                var ret = p.opMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
                 cb.opMyEnumMyEnumSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1553,7 +1542,7 @@ namespace ZeroC.Ice.Test.Operations
                     }
 
                     var cb = new Callback(lengths[l]);
-                    cb.opIntS(p.opIntSAsync(s).Result);
+                    cb.opIntS(p.OpIntSAsync(s).Result);
                 }
             }
 
@@ -1565,23 +1554,23 @@ namespace ZeroC.Ice.Test.Operations
                 {
                     TestHelper.Assert(p.Context.Count == 0);
                     var cb = new Callback(ctx);
-                    cb.opContextNotEqual(p.opContextAsync().Result);
+                    cb.opContextNotEqual(p.OpContextAsync().Result);
                 }
                 {
                     TestHelper.Assert(p.Context.Count == 0);
                     var cb = new Callback(ctx);
-                    cb.opContextEqual(p.opContextAsync(ctx).Result);
+                    cb.opContextEqual(p.OpContextAsync(ctx).Result);
                 }
                 {
                     var p2 = p.Clone(context: ctx);
                     TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
                     var cb = new Callback(ctx);
-                    cb.opContextEqual(p2.opContextAsync().Result);
+                    cb.opContextEqual(p2.OpContextAsync().Result);
                 }
                 {
                     var p2 = p.Clone(context: ctx);
                     Callback cb = new Callback(ctx);
-                    cb.opContextEqual(p2.opContextAsync(ctx).Result);
+                    cb.opContextEqual(p2.OpContextAsync(ctx).Result);
                 }
             }
 
@@ -1595,7 +1584,7 @@ namespace ZeroC.Ice.Test.Operations
                 communicator.CurrentContext["three"] = "THREE";
 
                 var p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-                TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -1624,75 +1613,75 @@ namespace ZeroC.Ice.Test.Operations
 
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
                 communicator.CurrentContext.Clear();
-                TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(prxContext));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(prxContext));
 
                 communicator.CurrentContext = ctx;
-                TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(combined));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
                 communicator.DefaultContext = new Dictionary<string, string>();
             }
 
-            p.opIdempotentAsync().Wait();
+            p.OpIdempotentAsync().Wait();
 
             try
             {
-                p.opOnewayAsync().Wait();
+                p.OpOnewayAsync().Wait();
                 TestHelper.Assert(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 TestHelper.Assert(ex.InnerException is SomeException);
             }
 
             // This is invoked as a oneway, despite using a twoway proxy.
-            p.opOnewayMetadataAsync().Wait();
+            p.OpOnewayMetadataAsync().Wait();
 
             {
                 var derived = IMyDerivedClassPrx.CheckedCast(p);
                 TestHelper.Assert(derived != null);
-                derived.opDerivedAsync().Wait();
+                derived.OpDerivedAsync().Wait();
             }
 
             {
-                TestHelper.Assert(p.opByte1Async(0xFF).Result == 0xFF);
-                TestHelper.Assert(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
-                TestHelper.Assert(p.opLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
-                TestHelper.Assert(p.opFloat1Async(1.0f).Result == 1.0f);
-                TestHelper.Assert(p.opDouble1Async(1.0d).Result == 1.0d);
-                TestHelper.Assert(p.opString1Async("opString1").Result.Equals("opString1"));
-                TestHelper.Assert(p.opStringS1Async(Array.Empty<string>()).Result.Length == 0);
-                TestHelper.Assert(p.opByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
-                TestHelper.Assert(p.opStringS2Async(Array.Empty<string>()).Result.Length == 0);
-                TestHelper.Assert(p.opByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                TestHelper.Assert(p.OpByte1Async(0xFF).Result == 0xFF);
+                TestHelper.Assert(p.OpInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
+                TestHelper.Assert(p.OpLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
+                TestHelper.Assert(p.OpFloat1Async(1.0f).Result == 1.0f);
+                TestHelper.Assert(p.OpDouble1Async(1.0d).Result == 1.0d);
+                TestHelper.Assert(p.OpString1Async("opString1").Result.Equals("opString1"));
+                TestHelper.Assert(p.OpStringS1Async(Array.Empty<string>()).Result.Length == 0);
+                TestHelper.Assert(p.OpByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                TestHelper.Assert(p.OpStringS2Async(Array.Empty<string>()).Result.Length == 0);
+                TestHelper.Assert(p.OpByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
             }
 
             Func<Task> task = async () =>
             {
                 {
-                    var p1 = await p.opMStruct1Async();
+                    var p1 = await p.OpMStruct1Async();
 
-                    p1.e = MyEnum.enum3;
-                    var r = await p.opMStruct2Async(p1);
+                    p1.E = MyEnum.enum3;
+                    var r = await p.OpMStruct2Async(p1);
                     TestHelper.Assert(r.p2.Equals(p1) && r.ReturnValue.Equals(p1));
                 }
 
                 {
-                    await p.opMSeq1Async();
+                    await p.OpMSeq1Async();
 
                     var p1 = new string[1];
                     p1[0] = "test";
-                    var r = await p.opMSeq2Async(p1);
+                    var r = await p.OpMSeq2Async(p1);
                     TestHelper.Assert(r.p2.SequenceEqual(p1) && r.ReturnValue.SequenceEqual(p1));
                 }
 
                 {
-                    await p.opMDict1Async();
+                    await p.OpMDict1Async();
 
                     var p1 = new Dictionary<string, string>();
                     p1["test"] = "test";
-                    var r = await p.opMDict2Async(p1);
+                    var r = await p.OpMDict2Async(p1);
                     TestHelper.Assert(r.p2.DictionaryEqual(p1) && r.ReturnValue.DictionaryEqual(p1));
                 }
             };

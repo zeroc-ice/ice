@@ -93,20 +93,21 @@ namespace ZeroC.Ice.Test.Metrics
 
         public class UpdateCallbackI
         {
+            private readonly object _mutex = new object();
+
             public UpdateCallbackI(IPropertiesAdminPrx serverProps)
             {
                 _updated = false;
                 _serverProps = serverProps;
             }
 
-            public void
-            waitForUpdate()
+            public void waitForUpdate()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_updated)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                 }
 
@@ -116,7 +117,7 @@ namespace ZeroC.Ice.Test.Metrics
                 // completed.
                 _serverProps.SetProperties(new Dictionary<string, string>());
 
-                lock (this)
+                lock (_mutex)
                 {
                     _updated = false;
                 }
@@ -124,10 +125,10 @@ namespace ZeroC.Ice.Test.Metrics
 
             public void Updated()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _updated = true;
-                    Monitor.Pulse(this);
+                    Monitor.Pulse(_mutex);
                 }
             }
 
@@ -140,10 +141,10 @@ namespace ZeroC.Ice.Test.Metrics
         {
             while (true)
             {
-                Dictionary<string, ZeroC.IceMX.Metrics?[]> view = metrics.GetMetricsView(viewName).ReturnValue;
+                Dictionary<string, IceMX.Metrics?[]> view = metrics.GetMetricsView(viewName).ReturnValue;
                 TestHelper.Assert(view.ContainsKey(map));
                 bool ok = true;
-                foreach (ZeroC.IceMX.Metrics? m in view[map])
+                foreach (IceMX.Metrics? m in view[map])
                 {
                     TestHelper.Assert(m != null);
                     if (m.Current != value)
@@ -256,7 +257,7 @@ namespace ZeroC.Ice.Test.Metrics
             Dictionary<string, string> ctx = new Dictionary<string, string>();
             ctx.Add("entry1", "test");
             ctx.Add("entry2", "");
-            proxy.op(ctx);
+            proxy.Op(ctx);
         }
 
         public static void
@@ -381,7 +382,7 @@ namespace ZeroC.Ice.Test.Metrics
                 IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
             TestHelper.Assert(clientProps != null && clientMetrics != null);
 
-            admin = metrics.getAdmin();
+            admin = metrics.GetAdmin();
             TestHelper.Assert(admin != null);
             IPropertiesAdminPrx? serverProps =
                 IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
@@ -523,8 +524,8 @@ namespace ZeroC.Ice.Test.Metrics
                 cm1 = cm2;
                 sm1 = sm2;
 
-                byte[] bs = new byte[0];
-                metrics.opByteS(bs);
+                byte[] bs = Array.Empty<byte>();
+                metrics.OpByteS(bs);
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + cm2.ReceivedBytes - cm1.ReceivedBytes)!;
@@ -535,7 +536,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm1 = sm2;
 
                 bs = new byte[456];
-                metrics.opByteS(bs);
+                metrics.OpByteS(bs);
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
@@ -551,7 +552,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm1 = sm2;
 
                 bs = new byte[1024 * 1024 * 10]; // Try with large amount of data which should be sent in several chunks
-                metrics.opByteS(bs);
+                metrics.OpByteS(bs);
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
@@ -585,22 +586,22 @@ namespace ZeroC.Ice.Test.Metrics
                 metricsWithHold.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
                                                                AcmClose.OnInvocation,
                                                                AcmHeartbeat.Off);
-                controller.hold();
+                controller.Hold();
                 metricsWithHold.IcePingAsync(); // Ensure the server stops reading
                 try
                 {
-                    metricsWithHold.opByteS(new byte[10000000]);
+                    metricsWithHold.OpByteS(new byte[10000000]);
                     TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
                 {
                 }
-                controller.resume();
+                controller.Resume();
 
-                cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+                cm1 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 while (true)
                 {
-                    sm1 = (IceMX.ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+                    sm1 = (ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                     if (sm1.Failures >= 2)
                     {
                         break;
@@ -664,7 +665,7 @@ namespace ZeroC.Ice.Test.Metrics
                 metrics.IcePing();
 
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
-                ZeroC.IceMX.Metrics? m1;
+                IceMX.Metrics? m1;
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
                 TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
@@ -673,7 +674,7 @@ namespace ZeroC.Ice.Test.Metrics
                 clearView(clientProps, serverProps, update);
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 0);
 
-                controller.hold();
+                controller.Hold();
                 try
                 {
                     IObjectPrx.Parse($"test:{helper.GetTestEndpoint(2)}", communicator).IcePing();
@@ -682,11 +683,11 @@ namespace ZeroC.Ice.Test.Metrics
                 catch (ConnectTimeoutException)
                 {
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
-                controller.resume();
+                controller.Resume();
 
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
@@ -694,7 +695,7 @@ namespace ZeroC.Ice.Test.Metrics
 
                 checkFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "ZeroC.Ice.ConnectTimeoutException", 2, output);
 
-                System.Action c = () => { connect(metrics); };
+                Action c = () => connect(metrics);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
                 if (communicator.DefaultProtocol == Protocol.Ice1)
@@ -799,11 +800,11 @@ namespace ZeroC.Ice.Test.Metrics
             updateProps(clientProps, serverProps, update, props, "Dispatch");
             TestHelper.Assert(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"].Length == 0);
 
-            metrics.op();
+            metrics.Op();
             int userExErrorMessageSize = 0;
             try
             {
-                metrics.opWithUserException();
+                metrics.OpWithUserException();
                 TestHelper.Assert(false);
             }
             catch (UserEx ex)
@@ -812,7 +813,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             try
             {
-                metrics.opWithRequestFailedException();
+                metrics.OpWithRequestFailedException();
                 TestHelper.Assert(false);
             }
             catch (DispatchException)
@@ -820,7 +821,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             try
             {
-                metrics.opWithLocalException();
+                metrics.OpWithLocalException();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -828,7 +829,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             try
             {
-                metrics.opWithUnknownException();
+                metrics.OpWithUnknownException();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -838,7 +839,7 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 try
                 {
-                    metrics.fail();
+                    metrics.Fail();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectionLostException)
@@ -940,12 +941,12 @@ namespace ZeroC.Ice.Test.Metrics
             updateProps(clientProps, serverProps, update, props, "Invocation");
             TestHelper.Assert(serverMetrics.GetMetricsView("View").ReturnValue["Invocation"].Length == 0);
 
-            metrics.op();
-            metrics.opAsync().Wait();
+            metrics.Op();
+            metrics.OpAsync().Wait();
 
             try
             {
-                metrics.opWithUserException();
+                metrics.OpWithUserException();
                 TestHelper.Assert(false);
             }
             catch (UserEx)
@@ -954,17 +955,17 @@ namespace ZeroC.Ice.Test.Metrics
 
             try
             {
-                metrics.opWithUserExceptionAsync().Wait();
+                metrics.OpWithUserExceptionAsync().Wait();
                 TestHelper.Assert(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 TestHelper.Assert(ex.InnerException is UserEx);
             }
 
             try
             {
-                metrics.opWithRequestFailedException();
+                metrics.OpWithRequestFailedException();
                 TestHelper.Assert(false);
             }
             catch (DispatchException)
@@ -973,17 +974,17 @@ namespace ZeroC.Ice.Test.Metrics
 
             try
             {
-                metrics.opWithRequestFailedExceptionAsync().Wait();
+                metrics.OpWithRequestFailedExceptionAsync().Wait();
                 TestHelper.Assert(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 TestHelper.Assert(ex.InnerException is DispatchException);
             }
 
             try
             {
-                metrics.opWithLocalException();
+                metrics.OpWithLocalException();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -991,17 +992,17 @@ namespace ZeroC.Ice.Test.Metrics
             }
             try
             {
-                metrics.opWithLocalExceptionAsync().Wait();
+                metrics.OpWithLocalExceptionAsync().Wait();
                 TestHelper.Assert(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 TestHelper.Assert(ex.InnerException is UnhandledException);
             }
 
             try
             {
-                metrics.opWithUnknownException();
+                metrics.OpWithUnknownException();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -1010,10 +1011,10 @@ namespace ZeroC.Ice.Test.Metrics
 
             try
             {
-                metrics.opWithUnknownExceptionAsync().Wait();
+                metrics.OpWithUnknownExceptionAsync().Wait();
                 TestHelper.Assert(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 TestHelper.Assert(ex.InnerException is UnhandledException);
             }
@@ -1022,7 +1023,7 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 try
                 {
-                    metrics.fail();
+                    metrics.Fail();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectionLostException)
@@ -1031,10 +1032,10 @@ namespace ZeroC.Ice.Test.Metrics
 
                 try
                 {
-                    metrics.failAsync().Wait();
+                    metrics.FailAsync().Wait();
                     TestHelper.Assert(false);
                 }
-                catch (System.AggregateException ex)
+                catch (AggregateException ex)
                 {
                     TestHelper.Assert(ex.InnerException is ConnectionLostException);
                 }
@@ -1160,8 +1161,8 @@ namespace ZeroC.Ice.Test.Metrics
             updateProps(clientProps, serverProps, update, props, "Invocation");
 
             IMetricsPrx metricsOneway = metrics.Clone(oneway: true);
-            metricsOneway.op();
-            metricsOneway.opAsync().Wait();
+            metricsOneway.Op();
+            metricsOneway.OpAsync().Wait();
 
             map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Invocation"]!);
             TestHelper.Assert(map.Count == 1);
@@ -1228,18 +1229,18 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!collocated)
             {
-                TestHelper.Assert(obsv.connectionObserver!.getTotal() > 0);
-                TestHelper.Assert(obsv.connectionEstablishmentObserver!.getTotal() > 0);
-                TestHelper.Assert(obsv.endpointLookupObserver!.getTotal() > 0);
-                TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.getTotal() > 0);
+                TestHelper.Assert(obsv.connectionObserver!.GetTotal() > 0);
+                TestHelper.Assert(obsv.connectionEstablishmentObserver!.GetTotal() > 0);
+                TestHelper.Assert(obsv.endpointLookupObserver!.GetTotal() > 0);
+                TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.GetTotal() > 0);
             }
             else
             {
-                TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.getTotal() > 0);
+                TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.GetTotal() > 0);
             }
 
-            TestHelper.Assert(obsv.dispatchObserver!.getTotal() > 0);
-            TestHelper.Assert(obsv.invocationObserver!.getTotal() > 0);
+            TestHelper.Assert(obsv.dispatchObserver!.GetTotal() > 0);
+            TestHelper.Assert(obsv.invocationObserver!.GetTotal() > 0);
 
             if (!collocated)
             {

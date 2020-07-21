@@ -13,18 +13,68 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    internal sealed class OutgoingConnectionFactory
+    public interface IConnectionManager
     {
+        IAcmMonitor AcmMonitor { get; }
+
+        void Remove(Connection connection);
+    }
+
+    internal sealed class OutgoingConnectionFactory : IConnectionManager, IAsyncDisposable
+    {
+        public IAcmMonitor AcmMonitor { get; }
+
         private readonly Communicator _communicator;
         private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector =
             new MultiDictionary<(IConnector, string), Connection>();
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
-        private Task? _destroyTask = null;
-        private readonly ConnectionFactoryAcmMonitor _monitor;
+        private Task? _disposeTask = null;
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
+
+        public async ValueTask DisposeAsync()
+        {
+            lock (_mutex)
+            {
+                _disposeTask ??= PerformDisposeAsync();
+            }
+            await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDisposeAsync()
+            {
+                // Wait for connections to be closed.
+                IEnumerable<Task> tasks =
+                    _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
+                        connection.GracefulCloseAsync(new CommunicatorDisposedException()));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+#if DEBUG
+                // Ensure all the connections are removed
+                Debug.Assert(_connectionsByConnector.Count == 0);
+                Debug.Assert(_connectionsByEndpoint.Count == 0);
+#endif
+            }
+        }
+
+        public void Remove(Connection connection)
+        {
+            lock (_mutex)
+            {
+                _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
+                foreach (Endpoint endpoint in connection.Endpoints)
+                {
+                    _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
+                }
+            }
+        }
+
+        internal OutgoingConnectionFactory(Communicator communicator)
+        {
+            _communicator = communicator;
+            AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
+        }
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
@@ -36,7 +86,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_destroyTask != null)
+                if (_disposeTask != null)
                 {
                     throw new CommunicatorDisposedException();
                 }
@@ -48,12 +98,9 @@ namespace ZeroC.Ice
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        foreach (Connection connection in connectionList)
+                        if (connectionList.FirstOrDefault(connection => connection.Active) is Connection connection)
                         {
-                            if (connection.Active) // Don't return destroyed or un-validated connections
-                            {
-                                return connection;
-                            }
+                            return connection;
                         }
                     }
                 }
@@ -61,14 +108,14 @@ namespace ZeroC.Ice
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
             // resolve an endpoint hostname into connector addresses.
-            var connectors = new List<(IConnector, Endpoint, string)>();
+            var connectors = new List<(IConnector, Endpoint)>();
             foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
                     foreach (IConnector connector in await endpoint.ConnectorsAsync(selType).ConfigureAwait(false))
                     {
-                        connectors.Add((connector, endpoint, connectionId));
+                        connectors.Add((connector, endpoint));
                     }
                 }
                 catch (CommunicatorDisposedException)
@@ -95,59 +142,115 @@ namespace ZeroC.Ice
                 }
             }
 
-            lock (_mutex)
+            // Wait for connection establishment to one or some of the connectors to complete.
+            while (true)
             {
-                if (_destroyTask != null)
+                var connectTasks = new List<Task<Connection>>();
+                var tried = new HashSet<IConnector>();
+                lock (_mutex)
                 {
-                    throw new CommunicatorDisposedException();
-                }
-
-                // Reap closed connections
-                foreach (Connection connection in _monitor.SwapReapedConnections())
-                {
-                    _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
-                    foreach (Endpoint endpoint in connection.Endpoints)
+                    if (_disposeTask != null)
                     {
-                        _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
+                        throw new CommunicatorDisposedException();
                     }
-                }
 
-                // Try to find a connection matching one of the connector.
-                foreach ((IConnector connector, Endpoint _, string _) in connectors)
-                {
-                    ValueTuple<IConnector, string> key = (connector, connectionId);
-                    if (!_pending.ContainsKey(key) &&
-                        _connectionsByConnector.TryGetValue(key, out ICollection<Connection>? connectionList))
+                    // Search for pending connects for the set of connectors which weren't already tried.
+                    foreach ((IConnector connector, Endpoint endpoint) in connectors)
                     {
-                        foreach (Connection connection in connectionList)
+                        if (_connectionsByConnector.TryGetValue((connector, connectionId),
+                                                                out ICollection<Connection>? connectionList))
                         {
-                            if (connection.Active) // Don't return destroyed or un-validated connections
+                            if (connectionList.FirstOrDefault(connection => connection.Active) is Connection connection)
                             {
                                 return connection;
                             }
                         }
+
+                        if (_pending.TryGetValue((connector, connectionId), out Task<Connection>? task))
+                        {
+                            connectTasks.Add(task);
+                            tried.Add(connector);
+                        }
+                    }
+
+                    // We didn't find pending connects for the remaining connectors so we can try to establish
+                    // a connection to them.
+                    if (tried.Count == 0)
+                    {
+                        Task<Connection> connectTask = ConnectAsync(connectors, connectionId, hasMore);
+                        if (connectTask.IsCompleted)
+                        {
+                            try
+                            {
+                                return connectTask.Result;
+                            }
+                            catch (AggregateException ex)
+                            {
+                                Debug.Assert(ex.InnerException != null);
+                                throw ExceptionUtil.Throw(ex.InnerException);
+                            }
+                        }
+
+                        foreach ((IConnector connector, Endpoint endpoint) in connectors)
+                        {
+                            // Use TryAdd in case there are duplicates.
+                            Debug.Assert(!_pending.ContainsKey((connector, connectionId)) ||
+                                         connectors.Count(v => v.Equals((connector, endpoint))) > 1);
+                            _pending.TryAdd((connector, connectionId), connectTask);
+                            tried.Add(connector);
+                        }
+                        connectTasks.Add(connectTask);
                     }
                 }
-            }
 
-            // Wait for connection establishment to one or some of the connectors to complete.
-            return await WaitForConnectOrConnectAsync(connectors, hasMore).ConfigureAwait(false);
+                // Wait for the first successful connection establishment
+                Task<Connection> completedTask;
+                do
+                {
+                    completedTask = await Task.WhenAny(connectTasks).ConfigureAwait(false);
+                    if (completedTask.IsCompletedSuccessfully)
+                    {
+                        lock (_mutex)
+                        {
+                            Connection connection = completedTask.Result;
+                            foreach ((IConnector connector, Endpoint endpoint) in connectors)
+                            {
+                                // If the connection was established for another endpoint but to the same connector,
+                                // we ensure to also associate the connection with this endpoint.
+                                if (connection.Connector.Equals(connector) && !connection.Endpoints.Contains(endpoint))
+                                {
+                                    Debug.Assert(connection.ConnectionId == connectionId);
+                                    connection.Endpoints.Add(endpoint);
+                                    _connectionsByEndpoint.Add((endpoint, connectionId), connection);
+                                    break;
+                                }
+                            }
+                            return connection;
+                        }
+                    }
+                    connectTasks.Remove(completedTask);
+                }
+                while (connectTasks.Count > 0);
+
+                // Remove the connectors we tried from the set of remaining connectors
+                connectors.RemoveAll(((IConnector Connector, Endpoint Endpoint) tuple) =>
+                    tried.Contains(tuple.Connector));
+
+                // If there are no more connectors to try, we failed to establish a connection and we raise the
+                // failure.
+                if (connectors.Count == 0)
+                {
+                    Debug.Assert(completedTask.IsFaulted);
+                    return await completedTask.ConfigureAwait(false);
+                }
+            }
         }
 
-        public Task DestroyAsync()
+        internal void RemoveAdapter(ObjectAdapter adapter)
         {
             lock (_mutex)
             {
-                _destroyTask ??= PerformDestroyAsync();
-            }
-            return _destroyTask;
-        }
-
-        public void RemoveAdapter(ObjectAdapter adapter)
-        {
-            lock (_mutex)
-            {
-                if (_destroyTask != null)
+                if (_disposeTask != null)
                 {
                     return;
                 }
@@ -162,7 +265,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public void SetRouterInfo(RouterInfo routerInfo)
+        internal void SetRouterInfo(RouterInfo routerInfo)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
             IReadOnlyList<Endpoint> endpoints;
@@ -188,7 +291,7 @@ namespace ZeroC.Ice
                     {
                         lock (_mutex)
                         {
-                            if (_destroyTask != null)
+                            if (_disposeTask != null)
                             {
                                 throw new CommunicatorDisposedException();
                             }
@@ -210,7 +313,8 @@ namespace ZeroC.Ice
                 }
             }
         }
-        public void UpdateConnectionObservers()
+
+        internal void UpdateConnectionObservers()
         {
             lock (_mutex)
             {
@@ -224,88 +328,93 @@ namespace ZeroC.Ice
             }
         }
 
-        internal OutgoingConnectionFactory(Communicator communicator)
-        {
-            _communicator = communicator;
-            _monitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
-        }
-
         private async Task<Connection> ConnectAsync(
-            IReadOnlyList<(IConnector Connector, Endpoint Endpoint, string ConnectionId)> connectors,
+            IReadOnlyList<(IConnector Connector, Endpoint Endpoint)> connectors,
+            string connectionId,
             bool hasMore)
         {
             Debug.Assert(connectors.Count > 0);
 
-            foreach ((IConnector connector, Endpoint endpoint, string connectionId) in connectors)
+            try
             {
-                IObserver? observer = _communicator.Observer?.GetConnectionEstablishmentObserver(endpoint,
-                                                                                                 connector.ToString()!);
-                try
+                for (int i = 0; i < connectors.Count; ++i)
                 {
-                    observer?.Attach();
+                    (IConnector connector, Endpoint endpoint) = connectors[i];
 
-                    if (_communicator.TraceLevels.Network >= 2)
+                    IObserver? observer =
+                        _communicator.Observer?.GetConnectionEstablishmentObserver(endpoint, connector.ToString()!);
+                    try
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                            $"trying to establish {endpoint.TransportName} connection to {connector}");
-                    }
+                        observer?.Attach();
 
-                    Connection connection;
-                    lock (_mutex)
-                    {
-                        if (_destroyTask != null)
+                        if (_communicator.TraceLevels.Network >= 2)
                         {
-                            throw new CommunicatorDisposedException();
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                                $"trying to establish {endpoint.TransportName} connection to {connector}");
                         }
 
-                        connection = connector.Connect().CreateConnection(endpoint,
-                                                                          _monitor,
-                                                                          connector,
-                                                                          connectionId,
-                                                                          null);
-
-                        _connectionsByConnector.Add((connector, connectionId), connection);
-                        _connectionsByEndpoint.Add((endpoint, connectionId), connection);
-                    }
-
-                    await connection.StartAsync().ConfigureAwait(false);
-                    return connection;
-                }
-                catch (CommunicatorDisposedException ex)
-                {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw; // No need to continue
-                }
-                catch (Exception ex)
-                {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-
-                    bool last = hasMore || connector == connectors[connectors.Count - 1].Connector;
-
-                    TraceLevels traceLevels = _communicator.TraceLevels;
-                    if (traceLevels.Network >= 2)
-                    {
-                        _communicator.Logger.Trace(traceLevels.NetworkCategory,
-                            $"failed to establish {endpoint.TransportName} connection to {connector} " +
-                            (last ? $"and no more endpoints to try\n{ex}" : $"trying next endpoint\n{ex}"));
-                    }
-
-                    if (last)
-                    {
-                        // If it's the last connector to try and we couldn't establish the connection, we're done.
-                        throw;
-                    }
-                }
-                finally
-                {
-                    lock (_mutex)
-                    {
-                        foreach ((IConnector connectorToRemove, Endpoint _, string connectionIdToRemove) in connectors)
+                        Connection connection;
+                        lock (_mutex)
                         {
-                            _pending.Remove((connectorToRemove, connectionIdToRemove));
+                            if (_disposeTask != null)
+                            {
+                                throw new CommunicatorDisposedException();
+                            }
+
+                            connection = connector.Connect().CreateConnection(this,
+                                                                              endpoint,
+                                                                              connector,
+                                                                              connectionId,
+                                                                              null);
+
+                            _connectionsByConnector.Add((connector, connectionId), connection);
+                            _connectionsByEndpoint.Add((endpoint, connectionId), connection);
+                        }
+
+                        await connection.StartAsync().ConfigureAwait(false);
+                        return connection;
+                    }
+                    catch (CommunicatorDisposedException ex)
+                    {
+                        observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                        throw; // No need to continue
+                    }
+                    catch (Exception ex)
+                    {
+                        observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+
+                        bool last = i == connectors.Count - 1;
+
+                        TraceLevels traceLevels = _communicator.TraceLevels;
+                        if (traceLevels.Network >= 2)
+                        {
+                            _communicator.Logger.Trace(traceLevels.NetworkCategory,
+                                $"failed to establish {endpoint.TransportName} connection to {connector} " +
+                                (last && !hasMore ?
+                                    $"and no more endpoints to try\n{ex}" :
+                                    $"trying next endpoint\n{ex}"));
+                        }
+
+                        if (last)
+                        {
+                            // If it's the last connector to try and we couldn't establish the connection, we're done.
+                            throw;
                         }
                     }
-                    observer?.Detach();
+                    finally
+                    {
+                        observer?.Detach();
+                    }
+                }
+            }
+            finally
+            {
+                lock (_mutex)
+                {
+                    foreach ((IConnector connector, Endpoint _) in connectors)
+                    {
+                        _pending.Remove((connector, connectionId));
+                    }
                 }
             }
 
@@ -313,121 +422,6 @@ namespace ZeroC.Ice
             // succeeded.
             Debug.Assert(false);
             return null!;
-        }
-
-        private async Task PerformDestroyAsync()
-        {
-            // Wait for connections to be closed.
-            IEnumerable<Task> tasks =
-                _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                    connection.GracefulCloseAsync(new CommunicatorDisposedException()));
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-#if DEBUG
-            // Ensure all the connections are finished and reapable at this point.
-            foreach (Connection connection in _monitor.SwapReapedConnections())
-            {
-                _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
-                foreach (Endpoint endpoint in connection.Endpoints)
-                {
-                    _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
-                }
-            }
-            Debug.Assert(_connectionsByConnector.Count == 0);
-            Debug.Assert(_connectionsByEndpoint.Count == 0);
-#endif
-
-            _monitor.Destroy();
-        }
-
-        private async Task<Connection> WaitForConnectOrConnectAsync(
-            IReadOnlyList<(IConnector, Endpoint, string)> connectors,
-            bool hasMore)
-        {
-            var remaining = new List<(IConnector, Endpoint, string)>(connectors);
-            while (true)
-            {
-                var connectTasks = new List<Task<Connection>>();
-                var tried = new List<(IConnector, Endpoint, string)>();
-                lock (_mutex)
-                {
-                    if (_destroyTask != null)
-                    {
-                        throw new CommunicatorDisposedException();
-                    }
-
-                    // Search for pending connects for the set of connectors which weren't already tried.
-                    foreach ((IConnector connector, Endpoint endpoint, string connectionId) in remaining)
-                    {
-                        if (_pending.TryGetValue((connector, connectionId), out Task<Connection>? task))
-                        {
-                            connectTasks.Add(task);
-                            tried.Add((connector, endpoint, connectionId));
-                        }
-                    }
-
-                    // We didn't find pending connects for the remaining connectors so we can try to establish
-                    // a connection to them.
-                    if (tried.Count == 0)
-                    {
-                        Task<Connection> connectTask = ConnectAsync(remaining, hasMore);
-                        if (connectTask.IsCompleted)
-                        {
-                            try
-                            {
-                                return connectTask.Result;
-                            }
-                            catch (AggregateException ex)
-                            {
-                                Debug.Assert(ex.InnerException != null);
-                                throw ExceptionUtil.Throw(ex.InnerException);
-                            }
-                        }
-
-                        foreach ((IConnector connector, Endpoint endpoint, string connectionId) in remaining)
-                        {
-                            // Use TryAdd in case there are duplicate (connector, endpoint) pairs.
-                            _pending.TryAdd((connector, connectionId), connectTask);
-                            tried.Add((connector, endpoint, connectionId));
-                        }
-                        connectTasks.Add(connectTask);
-                    }
-                }
-
-                // Wait for the first successful connection establishment
-                Task<Connection> completedTask;
-                do
-                {
-                    completedTask = await Task.WhenAny(connectTasks).ConfigureAwait(false);
-                    if (completedTask.IsCompletedSuccessfully)
-                    {
-                        Connection connection = completedTask.Result;
-                        foreach ((IConnector connector, Endpoint endpoint, string connectionId) in connectors)
-                        {
-                            // If the connection was established for another endpoint but to the same connector,
-                            // we ensure to also associate the connection with this endpoint.
-                            if (connection.Connector.Equals(connector) && !connection.Endpoints.Contains(endpoint))
-                            {
-                                connection.Endpoints.Add(endpoint);
-                                _connectionsByEndpoint.Add((endpoint, connectionId), connection);
-                            }
-                        }
-                        return connection;
-                    }
-                    connectTasks.Remove(completedTask);
-                }
-                while (connectTasks.Count > 0);
-
-                // Remove the connectors we tried from the set of remaining connectors
-                remaining.RemoveAll(t => tried.Contains(t));
-
-                // If there are no more connectors to try, we failed to establish a connection and we raise the
-                // failure.
-                if (remaining.Count == 0)
-                {
-                    return await completedTask.ConfigureAwait(false);
-                }
-            }
         }
 
         private class MultiDictionary<TKey, TValue> : Dictionary<TKey, ICollection<TValue>> where TKey : notnull
@@ -454,21 +448,72 @@ namespace ZeroC.Ice
         }
     }
 
-    internal sealed class IncomingConnectionFactory
+    internal sealed class IncomingConnectionFactory : IConnectionManager, IAsyncDisposable
     {
+        public IAcmMonitor AcmMonitor { get; }
+
         private readonly IAcceptor? _acceptor;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private Task? _destroyTask = null;
+        private Task? _disposeTask = null;
         private readonly Endpoint _endpoint;
-        private readonly ConnectionFactoryAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;
         private readonly ITransceiver? _transceiver;
         private readonly bool _warn;
 
-        public IncomingConnectionFactory(
+        public async ValueTask DisposeAsync()
+        {
+            lock (_mutex)
+            {
+                _disposeTask ??= PerformDisposeAsync();
+            }
+            await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDisposeAsync()
+            {
+                // Close the acceptor
+                if (_acceptor != null)
+                {
+                    if (_communicator.TraceLevels.Network >= 1)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                            $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
+                    }
+
+                    _acceptor.Close();
+                }
+
+                // Wait for all the connections to be closed
+                IEnumerable<Task> tasks = _connections.Select(
+                    connection => connection.GracefulCloseAsync(
+                        new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            }
+        }
+
+        public void Remove(Connection connection)
+        {
+            lock (_mutex)
+            {
+                _connections.Remove(connection);
+            }
+        }
+
+        public override string ToString()
+        {
+            if (_transceiver != null)
+            {
+                return _transceiver.ToString()!;
+            }
+            else
+            {
+                return _acceptor!.ToString();
+            }
+        }
+
+        internal IncomingConnectionFactory(
             ObjectAdapter adapter,
             Endpoint endpoint,
             Endpoint? publish,
@@ -479,7 +524,7 @@ namespace ZeroC.Ice
             _publishedEndpoint = publish;
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _monitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
+            AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
 
             try
             {
@@ -493,7 +538,8 @@ namespace ZeroC.Ice
                     }
                     _endpoint = _transceiver.Bind();
 
-                    Connection connection = _transceiver.CreateConnection(_endpoint, null, null, "", _adapter);
+                    Connection connection = _transceiver.CreateConnection(this, _endpoint, null, "", _adapter);
+                    connection.Acm = Acm.Disabled; // Don't enable ACM for this connection
                     _ = connection.StartAsync();
                     _connections.Add(connection);
                 }
@@ -530,18 +576,17 @@ namespace ZeroC.Ice
                     // Ignore
                 }
 
-                _monitor.Destroy();
                 _connections.Clear();
 
                 throw;
             }
         }
 
-        public void Activate()
+        internal void Activate()
         {
             lock (_mutex)
             {
-                Debug.Assert(_destroyTask == null);
+                Debug.Assert(_disposeTask == null);
                 if (_acceptor != null)
                 {
                     if (_communicator.TraceLevels.Network >= 1)
@@ -564,16 +609,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public Task DestroyAsync()
-        {
-            lock (_mutex)
-            {
-                _destroyTask ??= PerformDestroyAsync();
-            }
-            return _destroyTask;
-        }
-
-        public Endpoint Endpoint()
+        internal Endpoint Endpoint()
         {
             if (_publishedEndpoint != null)
             {
@@ -581,7 +617,7 @@ namespace ZeroC.Ice
             }
             return _endpoint;
         }
-        public bool IsLocal(Endpoint endpoint)
+        internal bool IsLocal(Endpoint endpoint)
         {
             if (_publishedEndpoint != null && endpoint.IsLocal(_publishedEndpoint))
             {
@@ -590,19 +626,7 @@ namespace ZeroC.Ice
             return endpoint.IsLocal(_endpoint);
         }
 
-        public override string ToString()
-        {
-            if (_transceiver != null)
-            {
-                return _transceiver.ToString()!;
-            }
-            else
-            {
-                return _acceptor!.ToString();
-            }
-        }
-
-        public void UpdateConnectionObservers()
+        internal void UpdateConnectionObservers()
         {
             lock (_mutex)
             {
@@ -632,7 +656,7 @@ namespace ZeroC.Ice
                     // fatal.
                     lock (_mutex)
                     {
-                        if (_destroyTask != null)
+                        if (_disposeTask != null)
                         {
                             return;
                         }
@@ -646,7 +670,7 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     Debug.Assert(transceiver != null);
-                    if (_destroyTask != null)
+                    if (_disposeTask != null)
                     {
                         try
                         {
@@ -658,12 +682,6 @@ namespace ZeroC.Ice
                         return;
                     }
 
-                    // Reap closed connections
-                    foreach (Connection c in _monitor.SwapReapedConnections())
-                    {
-                        _connections.Remove(c);
-                    }
-
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
@@ -672,7 +690,7 @@ namespace ZeroC.Ice
 
                     try
                     {
-                        connection = transceiver.CreateConnection(_endpoint, _monitor, null, "", _adapter);
+                        connection = transceiver.CreateConnection(this, _endpoint, null, "", _adapter);
                     }
                     catch (Exception ex)
                     {
@@ -716,29 +734,6 @@ namespace ZeroC.Ice
                     }
                 }
             }
-        }
-
-        private async Task PerformDestroyAsync()
-        {
-            // Close the acceptor
-            if (_acceptor != null)
-            {
-                if (_communicator.TraceLevels.Network >= 1)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
-                }
-
-                _acceptor.Close();
-            }
-
-            // Wait for all the connections to be closed
-            IEnumerable<Task> tasks = _connections.Select(
-                connection => connection.GracefulCloseAsync(
-                    new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            _monitor.Destroy();
         }
     }
 }

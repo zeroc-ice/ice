@@ -35,7 +35,7 @@ namespace ZeroC.Ice.Test.Location
 
         public ILocatorRegistryPrx GetRegistry(Current current) => _registryPrx;
 
-        public int getRequestCount(Current current) => _requestCount;
+        public int GetRequestCount(Current current) => _requestCount;
 
         private readonly ServerLocatorRegistry _registry;
         private readonly ILocatorRegistryPrx _registryPrx;

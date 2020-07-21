@@ -9,9 +9,9 @@ namespace ZeroC.Ice.Test.Info
 {
     public class TestIntf : ITestIntf
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        public IReadOnlyDictionary<string, string> getEndpointInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> GetEndpointInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
@@ -34,7 +34,7 @@ namespace ZeroC.Ice.Test.Info
             return ctx;
         }
 
-        public IReadOnlyDictionary<string, string> getConnectionInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> GetConnectionInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();

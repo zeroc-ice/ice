@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             var myClass = AllTests.allTests(this, false);
             Console.Out.Write("shutting down server... ");
             Console.Out.Flush();
-            myClass.shutdown();
+            await myClass.ShutdownAsync();
             Console.Out.WriteLine("ok");
         }
 

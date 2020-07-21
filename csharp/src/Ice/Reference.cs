@@ -61,7 +61,17 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a reference from a string and a communicator. This an Ice-internal publicly visible static
         /// method.</summary>
-        public static Reference Parse(string s, Communicator communicator) => Parse(s, null, communicator);
+        public static Reference Parse(string s, Communicator communicator, string? propertyPrefix = null)
+        {
+            string proxyString = s.Trim();
+            if (proxyString.Length == 0)
+            {
+                throw new FormatException("empty string is invalid");
+            }
+
+            return UriParser.IsUri(proxyString) ? ParseUri(proxyString, communicator, propertyPrefix) :
+                ParseOldFormat(proxyString, communicator, propertyPrefix);
+        }
 
         public override bool Equals(object? obj) => Equals(obj as Reference);
 
@@ -330,25 +340,22 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        internal static Reference Parse(string s, string? propertyPrefix, Communicator communicator)
+        // TODO: move to private section of the file (not done for ease of review)
+        private static Reference ParseOldFormat(string s, Communicator communicator, string? propertyPrefix)
         {
-            const string delim = " \t\n\r";
+            // TODO: rework this implementation
 
-            int beg;
+            int beg = 0;
             int end = 0;
 
-            beg = StringUtil.FindFirstNotOf(s, delim, end);
-            if (beg == -1)
-            {
-                throw new FormatException($"no non-whitespace characters found in `{s}'");
-            }
+            const string delim = " \t\n\r";
 
             // Extract the identity, which may be enclosed in single or double quotation marks.
             string identityString;
             end = StringUtil.CheckQuote(s, beg);
             if (end == -1)
             {
-                throw new FormatException($"mismatched quotes around identity in `{s} '");
+                throw new FormatException($"mismatched quotes around identity in `{s}'");
             }
             else if (end == 0)
             {
@@ -644,6 +651,59 @@ namespace ZeroC.Ice
             }
 
             throw new FormatException($"malformed proxy `{s}'");
+        }
+
+        private static Reference ParseUri(string uriString, Communicator communicator, string? propertyPrefix)
+        {
+            (Encoding encoding,
+             IReadOnlyList<Endpoint> endpoints,
+             string facet,
+             InvocationMode invocationMode,
+             List<string> path,
+             Protocol protocol) = UriParser.Parse(uriString, oaEndpoints: false, communicator);
+
+            string adapterId = "";
+            Identity identity;
+
+            switch (path.Count)
+            {
+                case 0:
+                    // TODO: should we add a default identity "Default" or "Root" or "Main"?
+                    throw new FormatException($"missing identity in proxy `{uriString}'");
+                case 1:
+                    identity = new Identity(path[0], "");
+                    break;
+                case 2:
+                    identity = new Identity(path[1], path[0]);
+                    break;
+                case 3:
+                    adapterId = path[0];
+                    identity = new Identity(path[2], path[1]);
+                    // TODO: temporary, should be only for ice1
+                    if (endpoints.Count > 0 && adapterId.Length > 0)
+                    {
+                        throw new FormatException($"direct proxy `{uriString}' cannot include a location");
+                    }
+                    break;
+                default:
+                    // TODO: should we convert adapterId/location into a sequence<string>?
+                    throw new FormatException($"too many segments in path of proxy `{uriString}'");
+            }
+
+            if (identity.Name.Length == 0)
+            {
+                throw new FormatException($"invalid identity with empty name in proxy `{uriString}'");
+            }
+
+            return Create(adapterId,
+                          communicator,
+                          encoding,
+                          endpoints,
+                          facet,
+                          identity,
+                          invocationMode,
+                          propertyPrefix,
+                          protocol);
         }
 
         /// <summary>Reads a reference from the input stream.</summary>

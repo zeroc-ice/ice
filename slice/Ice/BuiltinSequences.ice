@@ -8,8 +8,6 @@
 [[cpp:doxygen:include:Ice/Ice.h]]
 [[cpp:header-ext:h]]
 
-[[normalize-case]]
-
 [[suppress-warning:reserved-identifier]]
 
 [[js:module:ice]]
