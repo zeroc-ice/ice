@@ -41,7 +41,7 @@ namespace ZeroC.Ice
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
         private readonly Connection? _fixedConnection;
-        private int _hashCode = 0;
+        private int _hashCode;
         private volatile IRequestHandler? _requestHandler; // readonly when IsFixed is true
 
         public static bool operator ==(Reference? lhs, Reference? rhs)
@@ -322,7 +322,7 @@ namespace ZeroC.Ice
                 {
                     foreach (Endpoint e in Endpoints)
                     {
-                        sb.Append(":");
+                        sb.Append(':');
                         sb.Append(e);
                     }
                 }

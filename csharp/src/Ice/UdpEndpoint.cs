@@ -35,7 +35,7 @@ namespace ZeroC.Ice
         internal int McastTtl { get; } = -1;
 
         private readonly bool _connect;
-        private int _hashCode = 0;
+        private int _hashCode;
 
         public override bool Equals(Endpoint? other)
         {
@@ -89,12 +89,12 @@ namespace ZeroC.Ice
                 sb.Append(" --interface ");
                 if (addQuote)
                 {
-                    sb.Append("\"");
+                    sb.Append('"');
                 }
                 sb.Append(McastInterface);
                 if (addQuote)
                 {
-                    sb.Append("\"");
+                    sb.Append('"');
                 }
             }
 

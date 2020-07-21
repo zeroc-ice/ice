@@ -29,7 +29,7 @@ namespace ZeroC.Ice
             new MultiDictionary<(IConnector, string), Connection>();
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
-        private Task? _disposeTask = null;
+        private Task? _disposeTask;
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
@@ -456,7 +456,7 @@ namespace ZeroC.Ice
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private Task? _disposeTask = null;
+        private Task? _disposeTask;
         private readonly Endpoint _endpoint;
         private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;

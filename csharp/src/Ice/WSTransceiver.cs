@@ -758,7 +758,7 @@ namespace ZeroC.Ice
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (value.IndexOf("upgrade") == -1)
+            else if (!value.Contains("upgrade"))
             {
                 throw new WebSocketException($"invalid value `{value}' for Connection field");
             }
@@ -912,7 +912,7 @@ namespace ZeroC.Ice
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (value.IndexOf("upgrade") == -1)
+            else if (!value.Contains("upgrade"))
             {
                 throw new WebSocketException($"invalid value `{value}' for Connection field");
             }

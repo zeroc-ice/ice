@@ -156,7 +156,7 @@ namespace ZeroC.Ice
         private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
         private EventHandler? _closed;
-        private Task? _closeTask = null;
+        private Task? _closeTask;
         private readonly Communicator _communicator;
         private readonly int _compressionLevel;
         private readonly IConnector? _connector;
@@ -174,7 +174,7 @@ namespace ZeroC.Ice
             new Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private Task _sendTask = Task.CompletedTask;
         private ConnectionState _state; // The current state.
-        private bool _validated = false;
+        private bool _validated;
         private readonly bool _warn;
         private readonly bool _warnUdp;
 
@@ -696,7 +696,7 @@ namespace ZeroC.Ice
                         {
                             s.Append("starting to ");
                             s.Append(_connector != null ? "send" : "receive");
-                            s.Append(" ");
+                            s.Append(' ');
                             s.Append(Endpoint.TransportName);
                             s.Append(" datagrams\n");
                             s.Append(Transceiver.ToDetailedString());
@@ -704,7 +704,7 @@ namespace ZeroC.Ice
                         else
                         {
                             s.Append(_connector != null ? "established" : "accepted");
-                            s.Append(" ");
+                            s.Append(' ');
                             s.Append(Endpoint.TransportName);
                             s.Append(" connection\n");
                             s.Append(ToString());
@@ -1255,7 +1255,7 @@ namespace ZeroC.Ice
                       _exception is ConnectionIdleException ||
                       _exception is ObjectDisposedException))
                 {
-                    s.Append("\n");
+                    s.Append('\n');
                     s.Append(_exception);
                 }
 

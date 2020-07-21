@@ -533,7 +533,7 @@ namespace ZeroC.Ice
             {
                 if (arg.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    (string name, string value) = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
+                    (string name, string value) = ParseLine((arg.Contains('=') ? arg : $"{arg}=1").Substring(2));
                     if (name.Length > 0)
                     {
                         parsedArgs[name] = value;

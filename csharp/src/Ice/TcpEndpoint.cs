@@ -13,13 +13,13 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the TCP transport.</summary>
     internal class TcpEndpoint : IPEndpoint
     {
-        public override bool HasCompressionFlag { get; } = false;
+        public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => false;
         public override bool IsSecure => Transport == Transport.SSL;
         public override TimeSpan Timeout { get; } = DefaultTimeout;
         public override Transport Transport { get; }
 
-        private int _hashCode = 0;
+        private int _hashCode;
 
         public override bool Equals(Endpoint? other)
         {

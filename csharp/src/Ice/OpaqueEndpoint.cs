@@ -27,7 +27,7 @@ namespace ZeroC.Ice
             option switch
             {
                 "transport" => ((short)Transport).ToString(CultureInfo.InvariantCulture),
-                "value" => Value.Length > 0 ? Convert.ToBase64String(Value.Span) : null,
+                "value" => Value.IsEmpty ? null : Convert.ToBase64String(Value.Span),
                 "value-encoding" => ValueEncoding.ToString(),
                 _ => null,
             };
@@ -42,7 +42,7 @@ namespace ZeroC.Ice
 
         internal Encoding ValueEncoding { get; }
 
-        private int _hashCode = 0; // 0 is a special value that means not initialized.
+        private int _hashCode; // 0 is a special value that means not initialized.
 
         public override bool Equals(Endpoint? other)
         {
@@ -106,7 +106,7 @@ namespace ZeroC.Ice
 
             sb.Append(" -e ");
             sb.Append(ValueEncoding.ToString());
-            if (Value.Length > 0)
+            if (!Value.IsEmpty)
             {
                 sb.Append(" -v ");
                 sb.Append(Convert.ToBase64String(Value.Span));

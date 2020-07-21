@@ -178,11 +178,11 @@ namespace ZeroC.Glacier2
 
         private readonly ISessionCallback _callback;
         private IReadOnlyDictionary<string, string>? _context;
-        private Identity? _identity = null;
+        private Identity? _identity;
         private readonly ILogger? _logger;
         private readonly object _mutex = new object();
         private readonly ICommunicatorObserver? _observer;
-        private int _port = 0;
+        private int _port;
         private readonly Dictionary<string, string> _properties;
         private string _routerHost = "localhost";
         private readonly TlsClientOptions? _tlsClientOptions;

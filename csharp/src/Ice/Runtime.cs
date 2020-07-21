@@ -33,6 +33,6 @@ namespace ZeroC.Ice
         /// <returns>The Ice version.</returns>
         public const string StringVersion = "4.0.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
 
-        private static volatile ILogger? _processLogger = null;
+        private static volatile ILogger? _processLogger;
     }
 }
