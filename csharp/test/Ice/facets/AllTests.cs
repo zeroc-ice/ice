@@ -43,17 +43,17 @@ namespace ZeroC.Ice.Test.Facets
             var obj = new Empty();
 
             adapter.Add("d", obj);
-            adapter.Add("d", "facetABCD", obj);
+            adapter.Add("d#facetABCD", obj);
             try
             {
-                adapter.Add("d", "facetABCD", obj);
+                adapter.Add("d#facetABCD", obj);
                 TestHelper.Assert(false);
             }
             catch (System.ArgumentException)
             {
             }
-            adapter.Remove("d", "facetABCD");
-            adapter.Remove("d", "facetABCD"); // multiple Remove are fine as of Ice 4.0
+            adapter.Remove("d#facetABCD");
+            adapter.Remove("d#facetABCD"); // multiple Remove are fine as of Ice 4.0
             output.WriteLine("ok");
 
             adapter.Dispose();

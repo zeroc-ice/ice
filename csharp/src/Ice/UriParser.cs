@@ -124,6 +124,25 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Parses a relative URI [category/]name[#facet] into an identity and facet.</summary>
+        internal static (Identity Identity, string Facet) Parse(string uriString)
+        {
+            // First extract the facet, if any
+            string facet = "";
+            string path;
+            int hashPos = uriString.IndexOf('#');
+            if (hashPos != -1 && hashPos != uriString.Length - 1)
+            {
+                facet = Uri.UnescapeDataString(uriString.Substring(hashPos + 1));
+                path = uriString[0..hashPos];
+            }
+            else
+            {
+                path = uriString;
+            }
+            return (Identity.Parse(path), facet);
+        }
+
         /// <summary>Registers the ice and ice+universal schemes.</summary>
         internal static void RegisterCommon()
         {

@@ -232,12 +232,13 @@ namespace ZeroC.Ice
 
         /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
         /// servants currently in the ASM.</summary>
-        /// <param name="identity">The stringified identity of the Ice object.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <returns>The corresponding servant in the ASM, or null if the servant was not found.</returns>
-        // TODO: switch to a single identityPlusFacet parameter that uses the URI format, e.g. "category/name#facet".
-        public IObject? Find(string identity, string facet = "") =>
-            Find(Identity.Parse(identity, uriFormat: false), facet);
+        public IObject? Find(string identityAndFacet)
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            return Find(identity, facet);
+        }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and facet. Adding a servant with an identity and facet that are already in the ASM throws
@@ -290,24 +291,28 @@ namespace ZeroC.Ice
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and facet. Adding a servant with an identity and facet that are already in the ASM throws
         /// ArgumentException.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(string, string, ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(string,ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
-        public T Add<T>(string identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
-            where T : class, IObjectPrx =>
-            Add(Identity.Parse(identity, uriFormat: false), facet, servant, proxyFactory);
+        public T Add<T>(string identityAndFacet, IObject servant, ProxyFactory<T> proxyFactory)
+            where T : class, IObjectPrx
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            return Add(identity, facet, servant, proxyFactory);
+        }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and facet. Adding a servant with an identity and facet that are already in the ASM throws
         /// ArgumentException.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="servant">The servant to add.</param>
-        public void Add(string identity, string facet, IObject servant) =>
-            Add(Identity.Parse(identity, uriFormat: false), facet, servant);
+        public void Add(string identityAndFacet, IObject servant)
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            Add(identity, facet, servant);
+        }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and the default (empty) facet.</summary>
@@ -327,23 +332,6 @@ namespace ZeroC.Ice
         /// be empty.</param>
         /// <param name="servant">The servant to add.</param>
         public void Add(Identity identity, IObject servant) => Add(identity, "", servant);
-
-        /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// identity and the default (empty) facet.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="servant">The servant to add.</param>
-        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(string, ProxyFactory{T})"/>.</param>
-        /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
-        public T Add<T>(string identity, IObject servant, ProxyFactory<T> proxyFactory)
-            where T : class, IObjectPrx =>
-            Add(identity, "", servant, proxyFactory);
-
-        /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// identity and the default (empty) facet.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="servant">The servant to add.</param>
-        public void Add(string identity, IObject servant) => Add(identity, "", servant);
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key a unique identity
         /// and the provided facet. This method creates the unique identity with a UUID name and an empty category.
@@ -385,11 +373,13 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Removes a servant previously added to the Active Servant Map (ASM) using Add.</summary>
-        /// <param name="identity">The stringified identity of the Ice object.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <returns>The servant that was just removed from the ASM, or null if the servant was not found.</returns>
-        public IObject? Remove(string identity, string facet = "") =>
-            Remove(Identity.Parse(identity, uriFormat: false), facet);
+        public IObject? Remove(string identityAndFacet)
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            return Remove(identity, facet);
+        }
 
         /// <summary>Adds a category-specific default servant to this object adapter's Active Servant Map (ASM), using
         /// as key the provided category and facet.</summary>
@@ -510,24 +500,15 @@ namespace ZeroC.Ice
         /// configured with an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group
         /// id is also defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
         /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="facet">The facet.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateProxy<T>(string identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            CreateProxy(Identity.Parse(identity, uriFormat: false), facet, factory);
-
-        /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
-        /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
-        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
-        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateProxy(identity, "", factory);
+        public T CreateProxy<T>(string identityAndFacet, ProxyFactory<T> factory) where T : class, IObjectPrx
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            return CreateProxy(identity, facet, factory);
+        }
 
         /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
         /// contains this object adapter's published endpoints.</summary>
@@ -550,23 +531,16 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
         /// contains this object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="facet">The facet.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateDirectProxy<T>(string identity, string facet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx =>
-            CreateDirectProxy(Identity.Parse(identity, uriFormat: false), facet, factory);
-
-        /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
-        /// object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            CreateDirectProxy(identity, "", factory);
+        public T CreateDirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            return CreateDirectProxy(identity, facet, factory);
+        }
 
         /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
         /// <param name="identity">The object's identity.</param>
@@ -586,22 +560,16 @@ namespace ZeroC.Ice
             CreateIndirectProxy(identity, "", factory);
 
         /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="facet">The facet.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateIndirectProxy<T>(string identity, string facet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx =>
-            CreateIndirectProxy(Identity.Parse(identity, uriFormat: false), facet, factory);
-
-        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            CreateIndirectProxy(identity, "", factory);
+        public T CreateIndirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
+            where T : class, IObjectPrx
+        {
+            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            return CreateIndirectProxy(identity, facet, factory);
+        }
 
         /// <summary>Retrieves the endpoints configured with this object adapter.</summary>
         /// <returns>The endpoints.</returns>
