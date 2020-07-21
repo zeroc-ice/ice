@@ -12,7 +12,7 @@ namespace ZeroC.Ice
 {
     internal sealed class UdpTransceiver : ITransceiver
     {
-        internal System.Net.IPEndPoint? McastAddress { get; private set; } = null;
+        internal System.Net.IPEndPoint? McastAddress { get; private set; }
 
         public Connection CreateConnection(
             IConnectionManager manager,
@@ -830,11 +830,11 @@ namespace ZeroC.Ice
         private readonly Socket _fd;
         private System.Net.EndPoint _addr;
         private readonly System.Net.IPEndPoint? _sourceAddr;
-        private System.Net.EndPoint? _peerAddr = null;
-        private readonly string? _mcastInterface = null;
+        private System.Net.EndPoint? _peerAddr;
+        private readonly string? _mcastInterface;
 
-        private readonly int _port = 0;
-        private bool _bound = false;
+        private readonly int _port;
+        private bool _bound;
 
         private SocketAsyncEventArgs? _writeEventArgs;
         private readonly SocketAsyncEventArgs _readEventArgs;

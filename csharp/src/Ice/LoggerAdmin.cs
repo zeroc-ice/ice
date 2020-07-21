@@ -96,18 +96,18 @@ namespace ZeroC.Ice
     {
         internal int TraceLevel { get; }
         internal const string TraceCategory = "Admin.Logger";
-        private bool _destroyed = false;
-        private int _logCount = 0; // non-trace messages
+        private bool _destroyed;
+        private int _logCount; // non-trace messages
         private readonly LoggerAdminLogger _logger;
         private readonly int _maxLogCount;
         private readonly int _maxTraceCount;
         private readonly object _mutex = new object();
-        private LinkedListNode<LogMessage>? _oldestTrace = null;
-        private LinkedListNode<LogMessage>? _oldestLog = null;
+        private LinkedListNode<LogMessage>? _oldestTrace;
+        private LinkedListNode<LogMessage>? _oldestLog;
         private readonly LinkedList<LogMessage> _queue = new LinkedList<LogMessage>();
         private readonly Dictionary<Identity, LogForwarder> _logForwarderMap = new Dictionary<Identity, LogForwarder>();
-        private Communicator? _sendLogCommunicator = null;
-        private int _traceCount = 0;
+        private Communicator? _sendLogCommunicator;
+        private int _traceCount;
 
         public void AttachRemoteLogger(
             IRemoteLoggerPrx? prx,

@@ -49,7 +49,7 @@ namespace ZeroC.Ice
             for (int i = start; i < len; i++)
             {
                 char ch = str[i];
-                if (match.IndexOf(ch) == -1)
+                if (!match.Contains(ch))
                 {
                     return i;
                 }
@@ -487,7 +487,7 @@ namespace ZeroC.Ice
                         }
                     default:
                         {
-                            if (string.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
+                            if (string.IsNullOrEmpty(special) || !special.Contains(c))
                             {
                                 result.Append('\\'); // not in special, so we keep the backslash
                             }

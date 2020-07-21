@@ -274,7 +274,7 @@ namespace ZeroC.Ice
                                             case 'x':
                                                 {
                                                     const string hexDigits = "0123456789abcdefABCDEF";
-                                                    if (i < l.Length - 1 && hexDigits.IndexOf(l[i + 1]) == -1)
+                                                    if (i < l.Length - 1 && !hexDigits.Contains(l[i + 1]))
                                                     {
                                                         arg += '\\';
                                                         arg += 'x';

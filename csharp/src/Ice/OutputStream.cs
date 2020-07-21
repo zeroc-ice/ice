@@ -1329,7 +1329,7 @@ namespace ZeroC.Ice
                 if (elementSize > 1)
                 {
                     // This size is redundant and optimized out by the encoding when elementSize is 1.
-                    WriteSize(v.Length == 0 ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
+                    WriteSize(v.IsEmpty ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
                 }
                 WriteSequence(v);
             }
@@ -1660,7 +1660,7 @@ namespace ZeroC.Ice
 
                     // 0 is a placeholder for the size.
                     WriteEncapsulationHeader(0, payloadEncoding, sizeLength);
-                    var previousEncoding = Encoding;
+                    Encoding previousEncoding = Encoding;
                     Encoding = payloadEncoding;
                     if (endpoint.Protocol == Protocol.Ice1)
                     {

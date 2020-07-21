@@ -177,7 +177,7 @@ namespace ZeroC.Ice
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
         private ObjectAdapter? _adminAdapter;
-        private readonly bool _adminEnabled = false;
+        private readonly bool _adminEnabled;
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
         private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
         private Identity? _adminIdentity;
@@ -199,8 +199,8 @@ namespace ZeroC.Ice
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
             new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
         private readonly object _mutex = new object();
-        private static bool _oneOffDone = false;
-        private static bool _printProcessIdDone = false;
+        private static bool _oneOffDone;
+        private static bool _printProcessIdDone;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =

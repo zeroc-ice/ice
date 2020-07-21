@@ -19,7 +19,7 @@ namespace ZeroC.Ice
         /// it into an Ice.UnhandledException. When false, Ice marshals this remote exception as-is. true is the
         /// default for exceptions unmarshaled by Ice, while false is the default for exceptions that did not originate
         /// in a remote server.</summary>
-        public bool ConvertToUnhandled { get; set; } = false;
+        public bool ConvertToUnhandled { get; set; }
 
         /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
         /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in
@@ -29,12 +29,12 @@ namespace ZeroC.Ice
         protected SlicedData? IceSlicedData { get; set; }
         internal SlicedData? SlicedData => IceSlicedData;
 
-        private readonly bool _hasCustomMessage = false;
+        private readonly bool _hasCustomMessage;
 
         /// <summary>Constructs a remote exception with the provided message.</summary>
         /// <param name="message">Message that describes the exception.</param>
         protected internal RemoteException(string? message)
-            : base(message) => _hasCustomMessage = (message != null);
+            : base(message) => _hasCustomMessage = message != null;
 
         /// <summary>Constructs a remote exception with the default system message.</summary>
         protected RemoteException()
@@ -45,7 +45,7 @@ namespace ZeroC.Ice
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="innerException">The inner exception.</param>
         protected RemoteException(string? message, Exception? innerException)
-            : base(message, innerException) => _hasCustomMessage = (message != null);
+            : base(message, innerException) => _hasCustomMessage = message != null;
 
         /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>

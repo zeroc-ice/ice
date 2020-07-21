@@ -37,7 +37,7 @@ namespace ZeroC.Ice
 
         internal const ushort DefaultUniversalPort = 0;
 
-        private int _hashCode = 0; // 0 is a special value that means not initialized.
+        private int _hashCode; // 0 is a special value that means not initialized.
 
         private readonly IReadOnlyList<string> _options = Array.Empty<string>();
 

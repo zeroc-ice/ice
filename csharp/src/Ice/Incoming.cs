@@ -51,7 +51,7 @@ namespace ZeroC.Ice
             {
                 output.Append("\nremote address: ").Append(remoteEndpoint);
             }
-            output.Append("\n");
+            output.Append('\n');
             output.Append(ex.ToString());
             current.Adapter.Communicator.Logger.Warning(output.ToString());
         }

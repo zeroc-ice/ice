@@ -56,7 +56,7 @@ namespace ZeroC.IceMX
         public delegate void MetricsUpdate(T m);
 
         private List<MetricsMap<T>.Entry>? _entries;
-        private long _previousDelay = 0;
+        private long _previousDelay;
 
         public virtual void Attach() => Start();
 

@@ -88,7 +88,7 @@ namespace ZeroC.Ice
             var sb = new StringBuilder();
             foreach (byte b in Span)
             {
-                sb.Append(Convert.ToString(b, 2).PadLeft(8, '0')).Append(" ");
+                sb.Append(Convert.ToString(b, 2).PadLeft(8, '0')).Append(' ');
             }
             return sb.ToString();
         }

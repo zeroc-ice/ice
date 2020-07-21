@@ -72,14 +72,10 @@ namespace ZeroC.Ice
 
         public static bool RecvTruncated(SocketException ex) => SocketErrorCode(ex) == SocketError.MessageSize;
 
-        public static bool Timeout(System.IO.IOException ex)
-        {
-            //
+        public static bool Timeout(System.IO.IOException ex) =>
             // TODO: Instead of testing for an English substring, we need to examine the inner
             // exception (if there is one).
-            //
-            return ex.Message.IndexOf("period of time", StringComparison.Ordinal) >= 0;
-        }
+            ex.Message.Contains("period of time");
 
         public static bool IsMulticast(IPEndPoint addr)
         {

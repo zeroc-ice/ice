@@ -225,7 +225,7 @@ namespace ZeroC.Ice
 
                     if (_connection.ConnectionId.Length > 0)
                     {
-                        os.Append(" [").Append(_connection.ConnectionId).Append("]");
+                        os.Append(" [").Append(_connection.ConnectionId).Append(']');
                     }
                     _id = os.ToString();
                 }
@@ -250,10 +250,7 @@ namespace ZeroC.Ice
         {
             internal AttributeResolverI()
             {
-                Add("parent", obj =>
-                    {
-                        return (obj as ConnectionHelper)?._connection?.Adapter?.Name ?? "Communicator";
-                    });
+                Add("parent", obj => (obj as ConnectionHelper)?._connection?.Adapter?.Name ?? "Communicator");
                 Add("id", obj => (obj as ConnectionHelper)?.Id);
                 Add("state", obj => (obj as ConnectionHelper)?._state.ToString().ToLowerInvariant());
                 Add("incoming", obj => (obj as ConnectionHelper)?._connection.IsIncoming);

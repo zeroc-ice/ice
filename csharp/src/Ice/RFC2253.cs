@@ -24,7 +24,7 @@ namespace ZeroC.Ice
         internal class RDNEntry
         {
             internal List<RDNPair> Rdn = new List<RDNPair>();
-            internal bool Negate = false;
+            internal bool Negate;
         }
 
         internal static List<RDNEntry> Parse(string data)
@@ -388,7 +388,7 @@ namespace ZeroC.Ice
                     {
                         result.Append(ParsePair(data, ref pos));
                     }
-                    else if (Special.IndexOf(data[pos]) == -1 && data[pos] != '"')
+                    else if (!Special.Contains(data[pos]) && data[pos] != '"')
                     {
                         result.Append(data[pos]);
                         ++pos;

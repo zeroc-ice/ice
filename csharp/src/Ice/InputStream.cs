@@ -181,7 +181,7 @@ namespace ZeroC.Ice
         private InstanceData _current;
 
         // The current depth when reading nested class/exception instances.
-        private int _classGraphDepth = 0;
+        private int _classGraphDepth;
 
         // Map of class instance ID to class instance.
         // When reading a top-level encapsulation:
@@ -193,13 +193,13 @@ namespace ZeroC.Ice
 
         // The sum of all the minimum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
-        private int _minTotalSeqSize = 0;
+        private int _minTotalSeqSize;
 
         // The 0-based index in the buffer.
         private int _pos;
 
         // See ReadTypeId11.
-        private int _posAfterLatestInsertedTypeId11 = 0;
+        private int _posAfterLatestInsertedTypeId11;
 
         // Map of type ID index to type ID sequence, used only for classes.
         // We assign a type ID index (starting with 1) to each type ID (type ID sequence) we read, in order.
@@ -1380,7 +1380,7 @@ namespace ZeroC.Ice
         {
             if (withBitSequence)
             {
-                var bitSequence = ReadBitSequence(size);
+                ReadOnlyBitSequence bitSequence = ReadBitSequence(size);
                 for (int i = 0; i < size; ++i)
                 {
                     TKey key = keyReader(this);
@@ -1409,7 +1409,7 @@ namespace ZeroC.Ice
             where TKey : notnull
             where TValue : struct
         {
-            var bitSequence = ReadBitSequence(size);
+            ReadOnlyBitSequence bitSequence = ReadBitSequence(size);
             for (int i = 0; i < size; ++i)
             {
                 TKey key = keyReader(this);
@@ -1632,9 +1632,9 @@ namespace ZeroC.Ice
             object? IEnumerator.Current => Current;
             public bool IsReadOnly => true;
             protected readonly InputStream InputStream;
-            protected int Pos = 0;
+            protected int Pos;
             private T _current;
-            private bool _enumeratorRetrieved = false;
+            private bool _enumeratorRetrieved;
 
             public IEnumerator<T> GetEnumerator()
             {
