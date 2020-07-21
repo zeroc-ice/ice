@@ -158,28 +158,28 @@ namespace ZeroC.Ice.Test.UDP
             Console.Out.Write("testing udp multicast... ");
             Console.Out.Flush();
 
-            var sb = new StringBuilder("ice+udp://");
+            var sb = new StringBuilder("test -d:udp -h ");
 
             // Use loopback to prevent other machines to answer.
             if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
             {
-                sb.Append("[ff15::1:1]:");
+                sb.Append("\"ff15::1:1\"");
             }
             else
             {
-                sb.Append("239.255.1.1:");
+                sb.Append("239.255.1.1");
             }
+            sb.Append(" -p ");
             sb.Append(helper.GetTestPort(10));
-            sb.Append("/test?invocation-mode=datagram&protocol=1.0");
             if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
             {
                 if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
                 {
-                    sb.Append("&interface=::1");
+                    sb.Append(" --interface \"::1\"");
                 }
                 else
                 {
-                    sb.Append("&interface=127.0.0.1");
+                    sb.Append(" --interface 127.0.0.1");
                 }
             }
             var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator);

@@ -64,44 +64,69 @@ namespace Test
             return sb.ToString();
         }
 
-        public string GetTestProxy(string path, int num = 0, string? transport = null) =>
-            GetTestProxy(path, _communicator!.GetProperties(), num, transport);
+        public string GetTestProxy(string identity, int num = 0, string? transport = null) =>
+            GetTestProxy(identity, _communicator!.GetProperties(), num, transport);
 
         public static string GetTestProxy(
-            string path,
+            string identity,
             Dictionary<string, string> properties,
             int num = 0,
             string? transport = null)
         {
-            var sb = new StringBuilder("ice+");
-            sb.Append(transport ?? GetTestTransport(properties));
-            sb.Append("://");
-            string host = GetTestHost(properties);
-            if (host.Contains(':'))
-            {
-                sb.Append('[');
-                sb.Append(host);
-                sb.Append(']');
-            }
-            else
-            {
-                sb.Append(host);
-            }
-            sb.Append(":");
-            sb.Append(GetTestPort(properties, num));
-            sb.Append("/");
-            sb.Append(path);
-
+            bool uriFormat = true;
             // TODO: switch to a different test-only property to select the protocol
             if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
             {
-                sb.Append("?protocol=");
-                sb.Append(protocolValue);
+                if (protocolValue == "ice1")
+                {
+                    uriFormat = false;
+                }
             }
 
-            return sb.ToString();
+            if (uriFormat) // i.e. ice2
+            {
+                var sb = new StringBuilder("ice+");
+                sb.Append(transport ?? GetTestTransport(properties));
+                sb.Append("://");
+                string host = GetTestHost(properties);
+                if (host.Contains(':'))
+                {
+                    sb.Append('[');
+                    sb.Append(host);
+                    sb.Append(']');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
+                sb.Append(":");
+                sb.Append(GetTestPort(properties, num));
+                sb.Append("/");
+                sb.Append(identity);
+                return sb.ToString();
+            }
+            else // i.e. ice1
+            {
+                var sb = new StringBuilder(identity);
+                sb.Append(':');
+                sb.Append(transport ?? GetTestTransport(properties));
+                sb.Append(" -h ");
+                string host = GetTestHost(properties);
+                if (host.Contains(':'))
+                {
+                    sb.Append('"');
+                    sb.Append(host);
+                    sb.Append('"');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
+                sb.Append(" -p ");
+                sb.Append(GetTestPort(properties, num));
+                return sb.ToString();
+            }
         }
-
         public string GetTestHost() => GetTestHost(_communicator!.GetProperties());
 
         public static string GetTestHost(Dictionary<string, string> properties)

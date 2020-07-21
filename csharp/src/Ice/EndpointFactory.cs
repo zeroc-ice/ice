@@ -49,12 +49,9 @@ namespace ZeroC.Ice
                                     host,
                                     port,
                                     options,
-                                    oaEndpoint,
-                                    endpointString),
+                                    oaEndpoint),
                 var tv when tv == Transport.WS || tv == Transport.WSS =>
-                    new WSEndpoint(_communicator, transport, protocol, host, port, options, oaEndpoint, endpointString),
-                Transport.UDP =>
-                    new UdpEndpoint(_communicator, protocol, host, port, options, oaEndpoint, endpointString),
+                    new WSEndpoint(_communicator, transport, protocol, host, port, options, oaEndpoint),
                 _ => throw new NotSupportedException(
                     $"cannot create endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };

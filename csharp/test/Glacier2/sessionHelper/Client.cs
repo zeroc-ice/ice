@@ -337,7 +337,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for process object... ");
-                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin", 51) + "#Process", communicator);
+                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin -f Process", 51), communicator);
                     Console.Out.WriteLine("ok");
                 }
 

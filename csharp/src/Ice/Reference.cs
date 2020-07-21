@@ -734,12 +734,11 @@ namespace ZeroC.Ice
 
         private static Reference ParseUri(string uriString, Communicator communicator, string? propertyPrefix)
         {
-            (Encoding encoding,
-             IReadOnlyList<Endpoint> endpoints,
-             string facet,
-             InvocationMode invocationMode,
-             List<string> path,
-             Protocol protocol) = UriParser.Parse(uriString, oaEndpoints: false, communicator);
+            var proxyOptions = new UriParser.ProxyOptions();
+            (Uri uri, IReadOnlyList<Endpoint> endpoints) = UriParser.Parse(uriString, communicator, proxyOptions);
+
+            string facet = uri.Fragment.Length >= 2 ? Uri.UnescapeDataString(uri.Fragment.TrimStart('#')) : "";
+            var path = uri.AbsolutePath.TrimStart('/').Split('/').Select(s => Uri.UnescapeDataString(s)).ToList();
 
             string adapterId = "";
             Identity identity;
@@ -758,7 +757,7 @@ namespace ZeroC.Ice
                 case 3:
                     adapterId = path[0];
                     identity = new Identity(path[2], path[1]);
-                    // TODO: temporary, should be only for ice1
+                    // TODO: temporary
                     if (endpoints.Count > 0 && adapterId.Length > 0)
                     {
                         throw new FormatException($"direct proxy `{uriString}' cannot include a location");
@@ -776,13 +775,13 @@ namespace ZeroC.Ice
 
             return Create(adapterId,
                           communicator,
-                          encoding,
+                          proxyOptions.Encoding ?? Encoding.V2_0,
                           endpoints,
                           facet,
                           identity,
-                          invocationMode,
+                          invocationMode: InvocationMode.Twoway,
                           propertyPrefix,
-                          protocol);
+                          proxyOptions.Protocol ?? Protocol.Ice2);
         }
 
         /// <summary>Reads a reference from the input stream.</summary>

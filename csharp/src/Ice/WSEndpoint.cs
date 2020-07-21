@@ -108,8 +108,7 @@ namespace ZeroC.Ice
                    port,
                    sourceAddress,
                    timeout,
-                   compressionFlag) =>
-            _resource = resource;
+                   compressionFlag) => _resource = resource;
 
         // Constructor for parsing a string in the ice1 format.
         // TODO: remove protocol, as it should be ice1-only.
@@ -159,9 +158,8 @@ namespace ZeroC.Ice
             string host,
             ushort port,
             Dictionary<string, string> options,
-            bool oaEndpoint,
-            string endpointString)
-            : base(communicator, transport, protocol, host, port, options, oaEndpoint, endpointString)
+            bool oaEndpoint)
+            : base(communicator, transport, protocol, host, port, options, oaEndpoint)
         {
             string? value = null;
             if (options.TryGetValue("resource", out value))

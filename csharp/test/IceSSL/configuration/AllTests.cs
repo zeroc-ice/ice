@@ -1887,10 +1887,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties["IceSSL.DefaultDir"] = "";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
                     using var comm = new Communicator(clientProperties);
-                    var oldP = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
-                    var p = IObjectPrx.Parse(
-                        "ice+wss://zeroc.com:443/dummy?protocol=ice1&resource=/demo-proxy/chat/glacier2", comm);
-                    TestHelper.Assert(p.Equals(oldP));
+                    var p = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
 
                     while (true)
                     {

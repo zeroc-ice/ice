@@ -49,16 +49,30 @@ namespace ZeroC.Ice.Test.FaultTolerance
             if (ports.Count > 1)
             {
                 var sb = new StringBuilder(refString);
-                sb.Append(refString.Contains('?') ? "&alt-endpoint=" : "?alt-endpoint=");
-                for (int i = 1; i < ports.Count; ++i)
+                if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
-                    if (i > 1)
+                    string transport = helper.GetTestTransport();
+                    for (int i = 1; i < ports.Count; ++i)
                     {
-                        sb.Append(',');
+                        sb.Append($": {transport} -h ");
+                        sb.Append(helper.GetTestHost());
+                        sb.Append(" -p ");
+                        sb.Append(helper.GetTestPort(ports[i]));
                     }
-                    sb.Append(helper.GetTestHost());
-                    sb.Append(':');
-                    sb.Append(helper.GetTestPort(ports[i]));
+                }
+                else
+                {
+                    sb.Append("?alt-endpoint=");
+                    for (int i = 1; i < ports.Count; ++i)
+                    {
+                        if (i > 1)
+                        {
+                            sb.Append(',');
+                        }
+                        sb.Append(helper.GetTestHost());
+                        sb.Append(':');
+                        sb.Append(helper.GetTestPort(ports[i]));
+                    }
                 }
                 refString = sb.ToString();
             }

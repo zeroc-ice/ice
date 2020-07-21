@@ -195,7 +195,7 @@ namespace ZeroC.Ice
                 throw new FormatException($"no -v option in endpoint `{endpointString}'");
             }
 
-            // the caller deals with remaining options, if any
+            // the caller deals with the remaining options, if any
         }
 
         // Constructor for unmarshaling.

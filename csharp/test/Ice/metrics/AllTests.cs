@@ -733,8 +733,11 @@ namespace ZeroC.Ice.Test.Metrics
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 0);
 
                 var prx = IObjectPrx.Parse(
-                    $"ice+{transport}://localhost:{port}/metrics?protocol={communicator.DefaultProtocol.GetName()}",
+                    communicator.DefaultProtocol == Protocol.Ice1 ?
+                        $"metrics:{transport} -h localhost -p {port}" :
+                        $"ice+{transport}://localhost:{port}/metrics",
                     communicator);
+
                 try
                 {
                     prx.IcePing();

@@ -385,7 +385,7 @@ namespace ZeroC.Glacier2.Test.Router
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin", 51) + "#Process", communicator);
+                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin -f Process", 51), communicator);
                     Console.Out.WriteLine("ok");
                 }
 

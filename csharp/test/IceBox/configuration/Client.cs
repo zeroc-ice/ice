@@ -18,10 +18,11 @@ namespace ZeroC.IceBox.Test.Configuration
             AllTests.allTests(this);
             // Shutdown the IceBox server.
             string transport = communicator.DefaultTransport.ToString().ToLowerInvariant();
-            string protocol = communicator.DefaultProtocol.GetName();
 
-            IProcessPrx.Parse($"ice+{transport}://127.0.0.1:9996/DemoIceBox/admin?protocol={protocol}#Process",
-                             communicator).Shutdown();
+            IProcessPrx.Parse(communicator.DefaultProtocol == Protocol.Ice1 ?
+                                $"DemoIceBox/admin -f Process:{transport} -h 127.0.0.1 -p 9996" :
+                                $"ice+{transport}://127.0.0.1:9996/DemoIceBox/admin#Process",
+                              communicator).Shutdown();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
