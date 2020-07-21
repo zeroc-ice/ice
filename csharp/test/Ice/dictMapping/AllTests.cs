@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.DictMapping
             TestHelper.Assert(communicator != null);
             TextWriter output = helper.GetWriter();
 
-            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
             output.Write("testing twoway operations... ");
             output.Flush();

@@ -142,6 +142,8 @@ namespace ZeroC.Ice
 
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
+        /// <summary>The output mode or format for ToString on Ice proxies when the protocol is ice1. See
+        /// <see cref="ZeroC.Ice.ToStringMode"/>.</summary>
         public ToStringMode ToStringMode { get; }
 
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
@@ -157,9 +159,6 @@ namespace ZeroC.Ice
         internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
-
-        // The default port number for all Ice IP-based transports.
-        private const int DefaultIPPort = 4062;
 
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
@@ -471,7 +470,7 @@ namespace ZeroC.Ice
                 int classGraphDepthMax = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
                 ClassGraphDepthMax = classGraphDepthMax < 1 ? int.MaxValue : classGraphDepthMax;
 
-                ToStringMode = Enum.Parse<ToStringMode>(GetProperty("Ice.ToStringMode") ?? "Unicode");
+                ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
                 _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
 
@@ -526,11 +525,11 @@ namespace ZeroC.Ice
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
                 var endpointFactory = new EndpointFactory(this);
-                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory, DefaultIPPort);
-                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory, DefaultIPPort);
-                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory, DefaultIPPort);
-                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, DefaultIPPort);
-                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory, IPEndpoint.DefaultIPPort);
+                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory, IPEndpoint.DefaultIPPort);
+                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory, IPEndpoint.DefaultIPPort);
+                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, IPEndpoint.DefaultIPPort);
+                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, IPEndpoint.DefaultIPPort);
 
                 OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 

@@ -118,8 +118,8 @@ namespace ZeroC.Ice.Test.AMI
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
 
-            var p = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-            var serialized = ITestIntfPrx.Parse($"serialized:{helper.GetTestEndpoint(1)}", communicator);
+            var p = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+            var serialized = ITestIntfPrx.Parse(helper.GetTestProxy("serialized", 1), communicator);
 
             TextWriter output = helper.GetWriter();
 
@@ -326,7 +326,6 @@ namespace ZeroC.Ice.Test.AMI
                 {
                     Communicator ic = helper.Initialize(communicator.GetProperties());
                     var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
-                    TestHelper.Assert(p2 != null);
                     ic.Dispose();
 
                     try
@@ -838,7 +837,7 @@ namespace ZeroC.Ice.Test.AMI
             output.Write("testing result struct... ");
             output.Flush();
             {
-                var q = Outer.Inner.ITestIntfPrx.Parse($"test2:{helper.GetTestEndpoint(0)}", communicator);
+                var q = Outer.Inner.ITestIntfPrx.Parse(helper.GetTestProxy("test2", 0), communicator);
                 q.OpAsync(1).ContinueWith(t =>
                     {
                         (int ReturnValue, int j) = t.Result;

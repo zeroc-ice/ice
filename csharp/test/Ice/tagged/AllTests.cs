@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(communicator != null);
 
             var output = helper.GetWriter();
-            var initial = IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+            var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
 
             output.Write("testing tagged data members... ");
             output.Flush();

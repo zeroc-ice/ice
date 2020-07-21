@@ -15,10 +15,10 @@ namespace ZeroC.IceBox.Test.Configuration
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var service1 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-            var service2 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(1)}", communicator);
-            var service3 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(2)}", communicator);
-            var service4 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(3)}", communicator);
+            var service1 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+            var service2 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 1), communicator);
+            var service3 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 2), communicator);
+            var service4 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 3), communicator);
 
             if (service1.GetProperty("IceBox.InheritProperties").Length == 0)
             {

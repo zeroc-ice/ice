@@ -55,7 +55,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var com = IRemoteCommunicatorPrx.Parse($"communicator:{helper.GetTestEndpoint(0)}", communicator);
+            var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
 
             var rand = new Random(unchecked((int)DateTime.Now.Ticks));
             System.IO.TextWriter output = helper.GetWriter();
@@ -443,23 +443,26 @@ namespace ZeroC.Ice.Test.Binding
 
                 adapters.Clear();
 
-                //
-                // Now, re-activate the adapters with the same endpoints in the opposite
-                // order.
-                //
-                adapters.Add(com.CreateObjectAdapter("Adapter36", endpoints[2].ToString())!);
-                for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter36"); i++) ;
-                TestHelper.Assert(i == nRetry);
-                obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-                adapters.Add(com.CreateObjectAdapter("Adapter35", endpoints[1].ToString())!);
-                for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter35"); i++) ;
-                TestHelper.Assert(i == nRetry);
-                obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-                adapters.Add(com.CreateObjectAdapter("Adapter34", endpoints[0].ToString())!);
-                for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter34"); i++) ;
-                TestHelper.Assert(i == nRetry);
-
-                deactivate(com, adapters);
+                // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    //
+                    // Now, re-activate the adapters with the same endpoints in the opposite
+                    // order.
+                    //
+                    adapters.Add(com.CreateObjectAdapter("Adapter36", endpoints[2].ToString())!);
+                    for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter36"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    adapters.Add(com.CreateObjectAdapter("Adapter35", endpoints[1].ToString())!);
+                    for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter35"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    adapters.Add(com.CreateObjectAdapter("Adapter34", endpoints[0].ToString())!);
+                    for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter34"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    deactivate(com, adapters);
+                }
             }
             output.WriteLine("ok");
 
@@ -617,21 +620,25 @@ namespace ZeroC.Ice.Test.Binding
 
                 adapters.Clear();
 
-                //
-                // Now, re-activate the adapters with the same endpoints in the opposite
-                // order.
-                //
-                adapters.Add(com.CreateObjectAdapter("Adapter66", endpoints[2].ToString())!);
-                for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter66"); i++) ;
-                TestHelper.Assert(i == nRetry);
-                adapters.Add(com.CreateObjectAdapter("Adapter65", endpoints[1].ToString())!);
-                for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter65"); i++) ;
-                TestHelper.Assert(i == nRetry);
-                adapters.Add(com.CreateObjectAdapter("Adapter64", endpoints[0].ToString())!);
-                for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter64"); i++) ;
-                TestHelper.Assert(i == nRetry);
+                // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    //
+                    // Now, re-activate the adapters with the same endpoints in the opposite
+                    // order.
+                    //
+                    adapters.Add(com.CreateObjectAdapter("Adapter66", endpoints[2].ToString())!);
+                    for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter66"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    adapters.Add(com.CreateObjectAdapter("Adapter65", endpoints[1].ToString())!);
+                    for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter65"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    adapters.Add(com.CreateObjectAdapter("Adapter64", endpoints[0].ToString())!);
+                    for (i = 0; i < nRetry && obj.GetAdapterName().Equals("Adapter64"); i++) ;
+                    TestHelper.Assert(i == nRetry);
 
-                deactivate(com, adapters);
+                    deactivate(com, adapters);
+                }
             }
             output.WriteLine("ok");
 
@@ -679,21 +686,25 @@ namespace ZeroC.Ice.Test.Binding
 
                 adapters.Clear();
 
-                //
-                // Now, re-activate the adapters with the same endpoints in the opposite
-                // order.
-                //
-                adapters.Add(com.CreateObjectAdapter("AdapterAMI66", endpoints[2].ToString())!);
-                for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI66"); i++) ;
-                TestHelper.Assert(i == nRetry);
-                adapters.Add(com.CreateObjectAdapter("AdapterAMI65", endpoints[1].ToString())!);
-                for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI65"); i++) ;
-                TestHelper.Assert(i == nRetry);
-                adapters.Add(com.CreateObjectAdapter("AdapterAMI64", endpoints[0].ToString())!);
-                for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI64"); i++) ;
-                TestHelper.Assert(i == nRetry);
+                // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    //
+                    // Now, re-activate the adapters with the same endpoints in the opposite
+                    // order.
+                    //
+                    adapters.Add(com.CreateObjectAdapter("AdapterAMI66", endpoints[2].ToString())!);
+                    for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI66"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    adapters.Add(com.CreateObjectAdapter("AdapterAMI65", endpoints[1].ToString())!);
+                    for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI65"); i++) ;
+                    TestHelper.Assert(i == nRetry);
+                    adapters.Add(com.CreateObjectAdapter("AdapterAMI64", endpoints[0].ToString())!);
+                    for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI64"); i++) ;
+                    TestHelper.Assert(i == nRetry);
 
-                deactivate(com, adapters);
+                    deactivate(com, adapters);
+                }
             }
             output.WriteLine("ok");
 
@@ -755,12 +766,16 @@ namespace ZeroC.Ice.Test.Binding
                         obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                     }
 
-                    com.CreateObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Recreate a tcp OA.
-
-                    for (i = 0; i < 5; i++)
+                    // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
+                    if (communicator.DefaultProtocol == Protocol.Ice1)
                     {
-                        TestHelper.Assert(obj.GetAdapterName().Equals("Adapter83"));
-                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        com.CreateObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Recreate a tcp OA.
+
+                        for (i = 0; i < 5; i++)
+                        {
+                            TestHelper.Assert(obj.GetAdapterName().Equals("Adapter83"));
+                            obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        }
                     }
 
                     com.DeactivateObjectAdapter(adapters[0]);

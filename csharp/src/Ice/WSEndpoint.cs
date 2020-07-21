@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Text;
 
@@ -20,6 +19,8 @@ namespace ZeroC.Ice
         /// GET in the WebSocket upgrade request.</summary>
         private readonly string _resource = "/";
 
+        protected internal override bool HasOptions => _resource != "/" || base.HasOptions;
+
         public override bool Equals(Endpoint? other)
         {
             if (ReferenceEquals(this, other))
@@ -32,49 +33,62 @@ namespace ZeroC.Ice
         // TODO: why no hashcode caching?
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _resource);
 
-        public override string OptionsToString()
-        {
-            var sb = new StringBuilder(base.OptionsToString());
-            if (_resource != "/")
-            {
-                sb.Append(" -r ");
-                bool addQuote = _resource.IndexOf(':') != -1;
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-                sb.Append(_resource);
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-            }
-            return sb.ToString();
-        }
-
         public override bool IsLocal(Endpoint endpoint) => endpoint is WSEndpoint && base.IsLocal(endpoint);
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol != Protocol.Ice1);
-            if (_resource != "/")
-            {
-                ostr.WriteSize(1);
+           if (Protocol == Protocol.Ice1)
+           {
+                base.WriteOptions(ostr);
                 ostr.WriteString(_resource);
-            }
-            else
-            {
-                ostr.WriteSize(0);
-            }
-        }
-
-        public override void IceWritePayload(OutputStream ostr)
-        {
-            base.IceWritePayload(ostr);
-            ostr.WriteString(_resource);
+           }
+           else
+           {
+                if (_resource != "/")
+                {
+                    ostr.WriteSize(1);
+                    ostr.WriteString(_resource);
+                }
+                else
+                {
+                    ostr.WriteSize(0); // empty sequence of options
+                }
+           }
         }
 
         public override ITransceiver? GetTransceiver() => null;
+
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
+        {
+            base.AppendOptions(sb, optionSeparator);
+            if (_resource != "/")
+            {
+                if (Protocol == Protocol.Ice1)
+                {
+                    sb.Append(" -r ");
+                    bool addQuote = _resource.IndexOf(':') != -1;
+                    if (addQuote)
+                    {
+                        sb.Append("\"");
+                    }
+                    sb.Append(_resource);
+                    if (addQuote)
+                    {
+                        sb.Append("\"");
+                    }
+                }
+                else
+                {
+                    if (base.HasOptions)
+                    {
+                        sb.Append(optionSeparator);
+                    }
+                    sb.Append("resource=");
+                    // _resource must be in a URI-compatible format, with for example spaces escaped as %20.
+                    sb.Append(_resource);
+                }
+            }
+        }
 
         internal WSEndpoint(
             Communicator communicator,
@@ -93,10 +107,9 @@ namespace ZeroC.Ice
                    port,
                    sourceAddress,
                    timeout,
-                   compressionFlag) =>
-            _resource = resource;
+                   compressionFlag) => _resource = resource;
 
-        // Constructor for parsing with the old format.
+        // Constructor for parsing a string in the ice1 format.
         // TODO: remove protocol, as it should be ice1-only.
         internal WSEndpoint(
             Communicator communicator,
@@ -144,12 +157,10 @@ namespace ZeroC.Ice
             string host,
             ushort port,
             Dictionary<string, string> options,
-            bool oaEndpoint,
-            string endpointString)
-            : base(communicator, transport, protocol, host, port, options, oaEndpoint, endpointString)
+            bool oaEndpoint)
+            : base(communicator, transport, protocol, host, port, options, oaEndpoint)
         {
-            string? value = null;
-            if (options.TryGetValue("resource", out value))
+            if (options.TryGetValue("resource", out string? value))
             {
                 // The resource value (as supplied in a URI string) must be percent-escaped with '/' separators
                 // We keep it as-is, and will marshal it as-is.

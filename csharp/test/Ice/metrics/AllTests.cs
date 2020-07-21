@@ -366,9 +366,12 @@ namespace ZeroC.Ice.Test.Metrics
             string hostAndPort = host + ":" + port;
             string transport = helper.GetTestTransport();
             string defaultTimeout = "60000";
-            string endpoint = $"{transport} -h {host} -p {port}";
+            string endpoint = communicator.DefaultProtocol == Protocol.Ice1 ?
+                $"{transport} -h {host} -p {port}" : $"ice+{transport}://{host}:{port}";
 
-            var metrics = IMetricsPrx.Parse($"metrics:{endpoint}", communicator);
+            var metrics = communicator.DefaultProtocol == Protocol.Ice1 ?
+                IMetricsPrx.Parse($"metrics:{endpoint}", communicator) :
+                IMetricsPrx.Parse($"{endpoint}/metrics", communicator);
 
             bool collocated = metrics.GetConnection() == null;
             var output = helper.GetWriter();
@@ -580,8 +583,8 @@ namespace ZeroC.Ice.Test.Metrics
                 updateProps(clientProps, serverProps, update, props, "Connection");
                 metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
-                var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
-                var metricsWithHold = IMetricsPrx.Parse($"metrics:{helper.GetTestEndpoint(2)}", communicator);
+                var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
+                var metricsWithHold = IMetricsPrx.Parse(helper.GetTestProxy("metrics", 2), communicator);
 
                 metricsWithHold.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
                                                                AcmClose.OnInvocation,
@@ -677,7 +680,7 @@ namespace ZeroC.Ice.Test.Metrics
                 controller.Hold();
                 try
                 {
-                    IObjectPrx.Parse($"test:{helper.GetTestEndpoint(2)}", communicator).IcePing();
+                    IObjectPrx.Parse(helper.GetTestProxy("test", 2), communicator).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
@@ -729,7 +732,12 @@ namespace ZeroC.Ice.Test.Metrics
                 updateProps(clientProps, serverProps, update, props, "EndpointLookup");
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 0);
 
-                var prx = IObjectPrx.Parse($"metrics:{transport} -p {port} -h localhost -t 500", communicator);
+                var prx = IObjectPrx.Parse(
+                    communicator.DefaultProtocol == Protocol.Ice1 ?
+                        $"metrics:{transport} -h localhost -p {port}" :
+                        $"ice+{transport}://localhost:{port}/metrics",
+                    communicator);
+
                 try
                 {
                     prx.IcePing();
@@ -746,7 +754,14 @@ namespace ZeroC.Ice.Test.Metrics
                 bool dnsException = false;
                 try
                 {
-                    IObjectPrx.Parse($"test:tcp -t 500 -h unknownfoo.zeroc.com -p {port}", communicator).IcePing();
+                    if (communicator.DefaultProtocol == Protocol.Ice1)
+                    {
+                        IObjectPrx.Parse($"test:tcp -h unknownfoo.zeroc.com -p {port} -t 500", communicator).IcePing();
+                    }
+                    else
+                    {
+                        IObjectPrx.Parse($"ice+tcp://unknownfoo.zeroc.com:{port}/test", communicator).IcePing();
+                    }
                     TestHelper.Assert(false);
                 }
                 catch (DNSException)
@@ -756,16 +771,18 @@ namespace ZeroC.Ice.Test.Metrics
                 catch (System.Exception)
                 {
                     // Some DNS servers don't fail on unknown DNS names.
+                    // TODO: what's the point of this test then?
                 }
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 2);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0]!;
 
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
-                    if (!m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
+                    if (!m1.Id.Equals($"tcp -h unknownfoo.zeroc.com -p {port} -t 500"))
                     {
                         m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][1]!;
                     }
+
                     TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 2 &&
                         (!dnsException || m1.Failures == 2));
                     if (dnsException)
@@ -786,7 +803,7 @@ namespace ZeroC.Ice.Test.Metrics
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTransport", transportName, c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);
-                testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "500", c, output);
+                testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "60000", c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "False", c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port, c, output);
@@ -1128,8 +1145,15 @@ namespace ZeroC.Ice.Test.Metrics
             string defaultProtocolName = communicator.DefaultProtocol.GetName();
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
-            testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                $"metrics -t -p {defaultProtocolName} -e {defaultEncoding} [op]", op, output);
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
+                    $"metrics -t -e {defaultEncoding} [op]", op, output);
+            }
+            else
+            {
+                testAttribute(clientMetrics, clientProps, update, "Invocation", "id", $"ice:metrics [op]", op, output);
+            }
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
@@ -1140,12 +1164,12 @@ namespace ZeroC.Ice.Test.Metrics
             if (communicator.DefaultProtocol == Protocol.Ice1)
             {
                 testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                    $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint} -t {defaultTimeout}", op, output);
+                    $"metrics -t -e {defaultEncoding}:{endpoint} -t {defaultTimeout}", op, output);
             }
             else
             {
-                testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                    $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint}", op, output);
+                testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy", $"{endpoint}/metrics", op,
+                    output);
             }
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);

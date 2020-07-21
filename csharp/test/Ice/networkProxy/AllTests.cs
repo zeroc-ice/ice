@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            string sref = "test:" + helper.GetTestEndpoint(0);
+            string sref = helper.GetTestProxy("test", 0);
             var testPrx = ITestIntfPrx.Parse(sref, communicator);
 
             int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??

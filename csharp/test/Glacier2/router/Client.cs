@@ -29,7 +29,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
-                routerBase = IObjectPrx.Parse($"Glacier2/router -e 1.1:{GetTestEndpoint(50)}", communicator);
+                routerBase = IObjectPrx.Parse(GetTestProxy("Glacier2/router", 50), communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -45,8 +45,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder -e 1.1:{GetTestEndpoint(50)}",
-                    communicator);
+                IRouterFinderPrx finder = IRouterFinderPrx.Parse(GetTestProxy("Ice/RouterFinder", 50), communicator);
                 Assert(finder.GetRouter()!.Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
@@ -71,7 +70,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                twoway = ICallbackPrx.Parse($"c1/callback:{GetTestEndpoint(0)}", communicator);
+                twoway = ICallbackPrx.Parse(GetTestProxy("c1/callback", 0), communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -170,7 +169,7 @@ namespace ZeroC.Glacier2.Test.Router
 
             {
                 Console.Out.Write("pinging object with client endpoint... ");
-                IObjectPrx baseC = IObjectPrx.Parse($"collocated:{GetTestEndpoint(50)}", communicator);
+                IObjectPrx baseC = IObjectPrx.Parse(GetTestProxy("collocated", 50), communicator);
                 try
                 {
                     baseC.IcePing();
@@ -386,8 +385,7 @@ namespace ZeroC.Glacier2.Test.Router
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    process = IProcessPrx.Parse($"Glacier2/admin -e 1.1 -f Process:{GetTestEndpoint(51)}",
-                        communicator);
+                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin -f Process", 51), communicator);
                     Console.Out.WriteLine("ok");
                 }
 

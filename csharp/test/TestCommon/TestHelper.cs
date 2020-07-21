@@ -45,30 +45,88 @@ namespace Test
 
         public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
-            string? value;
             if (transport.Length == 0)
             {
-                if (!properties.TryGetValue("Ice.Default.Transport", out value))
+                if (properties.TryGetValue("Ice.Default.Transport", out string? value))
                 {
-                    value = "default";
+                    transport = value;
                 }
-            }
-            else
-            {
-                value = transport;
+                else
+                {
+                    transport = "tcp";
+                }
             }
 
             var sb = new StringBuilder();
-            sb.Append(value);
+            sb.Append(transport);
             sb.Append(" -p ");
-            if (!properties.TryGetValue("Test.BasePort", out value) || !int.TryParse(value, out int basePort))
-            {
-                basePort = 12010;
-            }
-            sb.Append(basePort + num);
+            sb.Append(GetTestPort(properties, num));
             return sb.ToString();
         }
 
+        public string GetTestProxy(string identity, int num = 0, string? transport = null) =>
+            GetTestProxy(identity, _communicator!.GetProperties(), num, transport);
+
+        public static string GetTestProxy(
+            string identity,
+            Dictionary<string, string> properties,
+            int num = 0,
+            string? transport = null)
+        {
+            bool uriFormat = true;
+            // TODO: switch to a different test-only property to select the protocol
+            if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
+            {
+                if (protocolValue == "ice1")
+                {
+                    uriFormat = false;
+                }
+            }
+
+            if (uriFormat) // i.e. ice2
+            {
+                var sb = new StringBuilder("ice+");
+                sb.Append(transport ?? GetTestTransport(properties));
+                sb.Append("://");
+                string host = GetTestHost(properties);
+                if (host.Contains(':'))
+                {
+                    sb.Append('[');
+                    sb.Append(host);
+                    sb.Append(']');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
+                sb.Append(":");
+                sb.Append(GetTestPort(properties, num));
+                sb.Append("/");
+                sb.Append(identity);
+                return sb.ToString();
+            }
+            else // i.e. ice1
+            {
+                var sb = new StringBuilder(identity);
+                sb.Append(':');
+                sb.Append(transport ?? GetTestTransport(properties));
+                sb.Append(" -h ");
+                string host = GetTestHost(properties);
+                if (host.Contains(':'))
+                {
+                    sb.Append('"');
+                    sb.Append(host);
+                    sb.Append('"');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
+                sb.Append(" -p ");
+                sb.Append(GetTestPort(properties, num));
+                return sb.ToString();
+            }
+        }
         public string GetTestHost() => GetTestHost(_communicator!.GetProperties());
 
         public static string GetTestHost(Dictionary<string, string> properties)
@@ -84,6 +142,7 @@ namespace Test
 
         public static string GetTestTransport(Dictionary<string, string> properties)
         {
+            // TODO: switch to a different test-only property to select the transport
             if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
             {
                 transport = "tcp";

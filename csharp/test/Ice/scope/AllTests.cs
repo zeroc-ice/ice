@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Scope
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             {
-                var i = IIPrx.Parse($"i1:{helper.GetTestEndpoint()}", communicator);
+                var i = IIPrx.Parse(helper.GetTestProxy("i1"), communicator);
                 var s1 = new S(0);
                 var (s3, s2) = i.OpS(s1);
                 TestHelper.Assert(s2.Equals(s1));
@@ -61,7 +61,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = IIPrx.Parse($"i1:{helper.GetTestEndpoint()}", communicator);
+                var i = IIPrx.Parse(helper.GetTestProxy("i1"), communicator);
 
                 Task.Run(async () =>
                     {
@@ -112,7 +112,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = Inner.IIPrx.Parse($"i2:{helper.GetTestEndpoint()}", communicator);
+                var i = Inner.IIPrx.Parse(helper.GetTestProxy("i2"), communicator);
 
                 Inner.Inner2.S s1 = new Inner.Inner2.S(0);
                 var (s3, s2) = i.OpS(s1);
@@ -147,7 +147,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = Inner.IIPrx.Parse($"i2:{helper.GetTestEndpoint()}", communicator);
+                var i = Inner.IIPrx.Parse(helper.GetTestProxy("i2"), communicator);
                 Task.Run(async () =>
                     {
                         Inner.Inner2.S s1 = new Inner.Inner2.S(0);
@@ -185,7 +185,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = Inner.Inner2.IIPrx.Parse($"i3:{helper.GetTestEndpoint()}", communicator);
+                var i = Inner.Inner2.IIPrx.Parse(helper.GetTestProxy("i3"), communicator);
 
                 var s1 = new Inner.Inner2.S(0);
                 var (s3, s2) = i.OpS(s1);
@@ -221,7 +221,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = Inner.Inner2.IIPrx.Parse($"i3:{helper.GetTestEndpoint()}", communicator);
+                var i = Inner.Inner2.IIPrx.Parse(helper.GetTestProxy("i3"), communicator);
 
                 Task.Run(async () =>
                     {
@@ -258,7 +258,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = Inner.Test.Inner2.IIPrx.Parse($"i4:{helper.GetTestEndpoint()}", communicator);
+                var i = Inner.Test.Inner2.IIPrx.Parse(helper.GetTestProxy("i4"), communicator);
 
                 S s1 = new S(0);
                 var (s3, s2) = i.OpS(s1);
@@ -293,7 +293,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                var i = Inner.Test.Inner2.IIPrx.Parse($"i4:{helper.GetTestEndpoint()}", communicator);
+                var i = Inner.Test.Inner2.IIPrx.Parse(helper.GetTestProxy("i4"), communicator);
 
                 Task.Run(async () =>
                     {
@@ -331,7 +331,7 @@ namespace ZeroC.Ice.Test.Scope
             }
 
             {
-                IIPrx.Parse($"i1:{helper.GetTestEndpoint()}", communicator).Shutdown();
+                IIPrx.Parse(helper.GetTestProxy("i1"), communicator).Shutdown();
             }
         }
     }

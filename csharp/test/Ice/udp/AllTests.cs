@@ -68,7 +68,7 @@ namespace ZeroC.Ice.Test.UDP
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
-            var obj = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0, "udp"),
+            var obj = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0, "udp"),
                                         communicator).Clone(invocationMode: InvocationMode.Datagram);
 
             try
@@ -157,29 +157,32 @@ namespace ZeroC.Ice.Test.UDP
 
             Console.Out.Write("testing udp multicast... ");
             Console.Out.Flush();
-            StringBuilder endpoint = new StringBuilder();
-            //
+
+            var sb = new StringBuilder("test -d:udp -h ");
+
             // Use loopback to prevent other machines to answer.
-            //
-            if (communicator.GetProperty("Ice.IPv6") == "1")
+            if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
             {
-                endpoint.Append("udp -h \"ff15::1:1\"");
-                if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
-                {
-                    endpoint.Append(" --interface \"::1\"");
-                }
+                sb.Append("\"ff15::1:1\"");
             }
             else
             {
-                endpoint.Append("udp -h 239.255.1.1");
-                if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
+                sb.Append("239.255.1.1");
+            }
+            sb.Append(" -p ");
+            sb.Append(helper.GetTestPort(10));
+            if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
+            {
+                if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
                 {
-                    endpoint.Append(" --interface 127.0.0.1");
+                    sb.Append(" --interface \"::1\"");
+                }
+                else
+                {
+                    sb.Append(" --interface 127.0.0.1");
                 }
             }
-            endpoint.Append(" -p ");
-            endpoint.Append(helper.GetTestPort(10));
-            var objMcast = ITestIntfPrx.Parse($"test -d:{endpoint}", communicator);
+            var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator);
 
             nRetry = 5;
             while (nRetry-- > 0)

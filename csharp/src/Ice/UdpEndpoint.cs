@@ -77,9 +77,11 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string OptionsToString()
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
-            var sb = new StringBuilder(base.OptionsToString());
+            Debug.Assert(Protocol == Protocol.Ice1);
+
+            base.AppendOptions(sb, optionSeparator);
 
             if (McastInterface.Length > 0)
             {
@@ -111,14 +113,20 @@ namespace ZeroC.Ice
             {
                 sb.Append(" -z");
             }
-            return sb.ToString();
         }
 
-        public override void IceWritePayload(OutputStream ostr)
+        protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            base.IceWritePayload(ostr);
-            ostr.WriteBool(HasCompressionFlag);
+            // TODO: temporary, should be ice1-only
+            if (Protocol == Protocol.Ice1)
+            {
+                base.WriteOptions(ostr);
+                ostr.WriteBool(HasCompressionFlag);
+            }
+            else
+            {
+                ostr.WriteSize(0);
+            }
         }
 
         public override Endpoint NewTimeout(TimeSpan timeout) => this;
@@ -159,76 +167,6 @@ namespace ZeroC.Ice
             else
             {
                 SkipUnknownOptions(istr, istr.ReadSize());
-            }
-        }
-
-        // Constructor for URI parsing
-        internal UdpEndpoint(
-            Communicator communicator,
-            Protocol protocol,           // TODO: temporary, should always be ice1
-            string host,
-            ushort port,
-            Dictionary<string, string> options,
-            bool oaEndpoint,
-            string endpointString)
-            : base(communicator, protocol, host, port, options, oaEndpoint)
-        {
-            _connect = false; // TODO: what is this connect about?
-            string? value;
-
-            if (protocol == Protocol.Ice1)
-            {
-                if (options.TryGetValue("compress", out value))
-                {
-                    if (value == "true")
-                    {
-                        HasCompressionFlag = true;
-                    }
-                    else if (value != "false")
-                    {
-                        throw new FormatException(
-                            $"invalid compress value `{value}' in endpoint `{endpointString}'");
-                    }
-                    options.Remove("compress");
-                }
-            }
-
-            // Parse local options
-            if (options.TryGetValue("ttl", out value))
-            {
-                try
-                {
-                    McastTtl = int.Parse(value, CultureInfo.InvariantCulture);
-                }
-                catch (FormatException ex)
-                {
-                    throw new FormatException($"invalid ttl value `{value}' in endpoint `{endpointString}'", ex);
-                }
-
-                if (McastTtl < 0)
-                {
-                    throw new FormatException($"ttl value `{value}' out of range in endpoint `{endpointString}'");
-                }
-                options.Remove("ttl");
-            }
-
-            if (options.TryGetValue("interface", out value))
-            {
-                // interface is percent escaped, for example "%lo" in the interface string is encoded as "%25lo".
-                McastInterface = Uri.UnescapeDataString(value);
-                if (McastInterface == "*")
-                {
-                    if (oaEndpoint)
-                    {
-                        McastInterface = "";
-                    }
-                    else
-                    {
-                        throw new FormatException(
-                            $"`interface=*' is not valid for proxy endpoint `{endpointString}'");
-                    }
-                }
-                options.Remove("interface");
             }
         }
 

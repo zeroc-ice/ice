@@ -14,8 +14,8 @@ namespace ZeroC.Ice.Test.Operations
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
 
-            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-            var derivedProxy = IMyDerivedClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+            var derivedProxy = IMyDerivedClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
             output.Write("testing twoway operations... ");
             output.Flush();

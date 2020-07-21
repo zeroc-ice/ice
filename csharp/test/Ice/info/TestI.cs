@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Info
             ctx["compress"] = endpoint["compress"] ?? "false";
             ctx["datagram"] = endpoint.IsDatagram ? "true" : "false";
             ctx["secure"] = endpoint.IsSecure ? "true" : "false";
-            ctx["transport"] = endpoint.TransportName;
+            ctx["scheme"] = endpoint.Scheme;
 
             ctx["host"] = endpoint.Host;
             ctx["port"] = endpoint.Port.ToString();

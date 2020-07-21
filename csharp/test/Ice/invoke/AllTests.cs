@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Invoke
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             IMyClassPrx oneway = cl.Clone(oneway: true);
 
             System.IO.TextWriter output = helper.GetWriter();

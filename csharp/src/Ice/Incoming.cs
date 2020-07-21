@@ -42,9 +42,9 @@ namespace ZeroC.Ice
             var output = new System.Text.StringBuilder();
 
             output.Append("dispatch exception:");
-            output.Append("\nidentity: ").Append(current.Identity.ToString(current.Adapter.Communicator.ToStringMode));
-            output.Append("\nfacet: ").Append(StringUtil.EscapeString(current.Facet, "",
-                current.Adapter.Communicator.ToStringMode));
+            output.Append("\nidentity: ").Append(current.Identity.ToString(current.Communicator.ToStringMode));
+            output.Append("\nfacet: ").Append(
+                StringUtil.EscapeString(current.Facet, current.Communicator.ToStringMode));
             output.Append("\noperation: ").Append(current.Operation);
 
             if ((current.Connection as IPConnection)?.RemoteEndpoint is System.Net.IPEndPoint remoteEndpoint)

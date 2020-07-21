@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             var communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             var output = helper.GetWriter();
-            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             output.Write("testing twoway operations... ");
             output.Flush();
             Twoways.twoways(communicator, cl);

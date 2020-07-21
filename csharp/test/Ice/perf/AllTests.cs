@@ -65,7 +65,7 @@ namespace ZeroC.Ice.Test.Perf
             output.WriteLine("warning: performance test built with DEBUG");
 #endif
 
-            var perf = IPerformancePrx.Parse("perf:" + helper.GetTestEndpoint(0), communicator);
+            var perf = IPerformancePrx.Parse(helper.GetTestProxy("perf", 0), communicator);
 
             RunTest(output, 10000, "latency", () => perf.IcePing());
             RunTest<byte>(output, 1000, "sending byte sequence", v => perf.SendBytes(v), Constants.ByteSeqSize);

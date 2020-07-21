@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -71,14 +70,15 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string OptionsToString()
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
-            if (Protocol == Protocol.Ice1) // TODO: temporary, Protocol should always be ice1
+            base.AppendOptions(sb, optionSeparator);
+            if (Protocol == Protocol.Ice1)
             {
-                var sb = new StringBuilder(base.OptionsToString());
                 if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
                 {
-                    sb.Append(" -t infinite");
+                    // We use "-1" instead of "infinite" for compatibility with Ice 3.5.
+                    sb.Append(" -t -1");
                 }
                 else
                 {
@@ -90,20 +90,21 @@ namespace ZeroC.Ice
                 {
                     sb.Append(" -z");
                 }
-                return sb.ToString();
-            }
-            else
-            {
-                return base.OptionsToString();
             }
         }
 
-        public override void IceWritePayload(OutputStream ostr)
+        protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            base.IceWritePayload(ostr);
-            ostr.WriteInt((int)Timeout.TotalMilliseconds);
-            ostr.WriteBool(HasCompressionFlag);
+            if (Protocol == Protocol.Ice1)
+            {
+                base.WriteOptions(ostr);
+                ostr.WriteInt((int)Timeout.TotalMilliseconds);
+                ostr.WriteBool(HasCompressionFlag);
+            }
+            else
+            {
+                ostr.WriteSize(0); // empty sequence of options
+            }
         }
 
         public override Endpoint NewTimeout(TimeSpan timeout) =>
@@ -158,53 +159,8 @@ namespace ZeroC.Ice
             string host,
             ushort port,
             Dictionary<string, string> options,
-            bool oaEndpoint,
-            string endpointString)
-            : base(communicator, protocol, host, port, options, oaEndpoint)
-        {
-            Transport = transport;
-            if (protocol == Protocol.Ice1)
-            {
-                if (options.TryGetValue("compress", out string? value))
-                {
-                    if (value == "true")
-                    {
-                        HasCompressionFlag = true;
-                    }
-                    else if (value != "false")
-                    {
-                        throw new FormatException(
-                            $"invalid compress value `{value}' in endpoint `{endpointString}'");
-                    }
-                    options.Remove("compress");
-                }
-
-                if (options.TryGetValue("timeout", out value))
-                {
-                    if (value == "infinite")
-                    {
-                        Timeout = System.Threading.Timeout.InfiniteTimeSpan;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            Timeout = TimeSpan.FromMilliseconds(int.Parse(value, CultureInfo.InvariantCulture));
-                        }
-                        catch (FormatException ex)
-                        {
-                            throw new FormatException(
-                                $"invalid timeout value `{value}' in endpoint `{endpointString}'", ex);
-                        }
-                        if (Timeout <= TimeSpan.Zero)
-                        {
-                            throw new FormatException(
-                                $"invalid timeout value `{value}' in endpoint `{endpointString}'");
-                        }
-                    }
-                }
-            }
-        }
+            bool oaEndpoint)
+            : base(communicator, protocol, host, port, options, oaEndpoint) => Transport = transport;
 
         internal TcpEndpoint(
             Communicator communicator,

@@ -198,8 +198,7 @@ namespace ZeroC.Ice.Test.Admin
             }
             output.WriteLine("ok");
 
-            var factory = IRemoteCommunicatorFactoryPrx.Parse($"factory:{helper.GetTestEndpoint(0)} -t 10000",
-                communicator);
+            var factory = IRemoteCommunicatorFactoryPrx.Parse(helper.GetTestProxy("factory", 0), communicator);
 
             output.Write("testing process facet... ");
             output.Flush();

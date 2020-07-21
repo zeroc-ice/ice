@@ -14,9 +14,12 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
         public (IObjectPrx?, bool?) GetClientProxy(Current current) => (null, false);
 
         public IObjectPrx GetServerProxy(Current current) =>
-            IObjectPrx.Parse($"dummy:tcp -h localhost -p {_nextPort++} -t 30000", current.Adapter.Communicator);
+            IObjectPrx.Parse(current.Communicator.DefaultProtocol == Protocol.Ice1 ?
+                $"dummy:tcp -h localhost -p {_nextPort++}" : $"ice+tcp://localhost:{_nextPort++}/dummy",
+                current.Communicator);
 
-        public IEnumerable<IObjectPrx?> AddProxies(IObjectPrx?[] proxies, Current current) => Array.Empty<IObjectPrx?>();
+        public IEnumerable<IObjectPrx?> AddProxies(IObjectPrx?[] proxies, Current current) =>
+            Array.Empty<IObjectPrx?>();
 
         private int _nextPort = 23456;
     }

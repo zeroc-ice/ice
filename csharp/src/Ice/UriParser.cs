@@ -15,6 +15,14 @@ namespace ZeroC.Ice
     /// URI schemes.</summary>
     internal static class UriParser
     {
+        /// <summary>Provides the proxy options parsed by the UriParser.</summary>
+        internal class ProxyOptions
+        {
+            // TODO: add more proxy options
+            internal Encoding? Encoding { get; set; }
+            internal Protocol? Protocol { get; set; }
+        }
+
         // Common options for the ice and ice[+transport] parsers we register for each transport.
         private const GenericUriParserOptions ParserOptions =
             GenericUriParserOptions.DontConvertPathBackslashes |
@@ -23,77 +31,36 @@ namespace ZeroC.Ice
             GenericUriParserOptions.IriParsing |
             GenericUriParserOptions.NoUserInfo;
 
-        /// <summary>Checks if a string is an ice or ice+transport URI and not a stringified proxy using the old format.
-        /// </summary>
+        /// <summary>Checks if a string is an ice or ice+transport URI, and not a proxy or endpoint string using the
+        /// ice1 string format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice or ice+transport URI; otherwise, false.</returns>
-        internal static bool IsUri(string s) =>
-            (s.StartsWith("ice:") || (s.StartsWith("ice+") && s.Contains(':'))) && !s.Contains(' ');
+        internal static bool IsUri(string s) => s.StartsWith("ice:") || (s.StartsWith("ice+") && s.Contains("://"));
 
         /// <summary>Parses an ice or ice+transport URI string.</summary>
         /// <param name="uriString">The URI string to parse.</param>
-        /// <param name="oaEndpoints">When true, the URI is used to configure an object adapter.</param>
         /// <param name="communicator">The communicator.</param>
-        /// <returns>The parsed components of the ice or ice+transport URI.</returns>
-        internal static (Encoding Encoding,
-                         IReadOnlyList<Endpoint> Endpoints,
-                         string Facet,
-                         InvocationMode InvocationMode,
-                         List<string> Path,
-                         Protocol Protocol) Parse(
+        /// <param name="proxyOptions">When not null, the uriString represents a proxy and this method parses proxy
+        /// options into this parameter.</param>
+        /// <returns>The Uri and endpoints of the ice or ice+transport URI.</returns>
+        internal static (Uri Uri, IReadOnlyList<Endpoint> Endpoints) Parse(
             string uriString,
-            bool oaEndpoints,
-            Communicator communicator)
+            Communicator communicator,
+            ProxyOptions? proxyOptions = null)
         {
             Debug.Assert(IsUri(uriString));
 
             try
             {
                 bool iceScheme = uriString.StartsWith("ice:");
-                if (iceScheme && oaEndpoints)
+                if (iceScheme && proxyOptions == null)
                 {
                     throw new FormatException("an object adapter endpoint supports only ice+transport URIs");
                 }
 
-                var generalOptions = new Dictionary<string, string>();
                 Dictionary<string, string>? endpointOptions = iceScheme ? null : new Dictionary<string, string>();
 
-                Uri uri = InitialParse(uriString, generalOptions, endpointOptions);
-
-                Protocol protocol = Protocol.Ice2;
-                if (generalOptions.TryGetValue("protocol", out string? protocolValue))
-                {
-                    protocol = ProtocolExtensions.Parse(protocolValue);
-                }
-
-                Encoding encoding = protocol.IsSupported() ? protocol.GetEncoding() : Encoding.V2_0;
-                if (generalOptions.TryGetValue("encoding", out string? encodingValue))
-                {
-                    encoding = Encoding.Parse(encodingValue);
-                }
-
-                InvocationMode invocationMode = InvocationMode.Twoway;
-                if (generalOptions.TryGetValue("invocation-mode", out string? invocationModeValue))
-                {
-                    if (protocol != Protocol.Ice1)
-                    {
-                        throw new FormatException("option `invocation-mode' requires the ice1 protocol");
-                    }
-                    if (oaEndpoints)
-                    {
-                        throw new FormatException(
-                            "option `invocation-mode' is not applicable to object adapter endpoints");
-                    }
-                    if (int.TryParse(invocationModeValue, out int _))
-                    {
-                        throw new FormatException($"invalid value `{invocationModeValue}' for invocation-mode");
-                    }
-                    invocationMode = Enum.Parse<InvocationMode>(invocationModeValue, ignoreCase: true);
-                }
-
-                string facet = uri.Fragment.Length >= 2 ? Uri.UnescapeDataString(uri.Fragment.TrimStart('#')) : "";
-                List<string> path =
-                    uri.AbsolutePath.TrimStart('/').Split('/').Select(s => Uri.UnescapeDataString(s)).ToList();
+                (Uri uri, string? altEndpoint) = InitialParse(uriString, proxyOptions, endpointOptions);
 
                 List<Endpoint>? endpoints = null;
 
@@ -101,17 +68,12 @@ namespace ZeroC.Ice
                 {
                     endpoints = new List<Endpoint>
                     {
-                        CreateEndpoint(communicator,
-                                       oaEndpoints,
-                                       endpointOptions,
-                                       protocol,
-                                       uri,
-                                       uriString)
+                        CreateEndpoint(communicator, proxyOptions, endpointOptions, uri, uriString)
                     };
 
-                    if (generalOptions.TryGetValue("alt-endpoint", out string? altEndpointValue))
+                    if (altEndpoint != null)
                     {
-                        foreach (string endpointStr in altEndpointValue.Split(','))
+                        foreach (string endpointStr in altEndpoint.Split(','))
                         {
                             if (endpointStr.StartsWith("ice:"))
                             {
@@ -132,30 +94,28 @@ namespace ZeroC.Ice
                             // No need to clear endpointOptions before reusing it since CreateEndpoint consumes all the
                             // endpoint options
                             Debug.Assert(endpointOptions.Count == 0);
-                            uri = InitialParse(altUriString, generalOptions: null, endpointOptions);
 
-                            Debug.Assert(uri.AbsolutePath[0] == '/'); // there is always a first segment
-                            if (uri.AbsolutePath.Length > 1 || uri.Fragment.Length > 0)
+                            (Uri endpointUri, string? endpointAltEndpoint) =
+                                InitialParse(altUriString, proxyOptions: null, endpointOptions);
+
+                            if (endpointAltEndpoint != null)
+                            {
+                                throw new FormatException(
+                                    $"invalid option `alt-endpoint' in endpoint `{endpointStr}'");
+                            }
+
+                            Debug.Assert(endpointUri.AbsolutePath[0] == '/'); // there is always a first segment
+                            if (endpointUri.AbsolutePath.Length > 1 || endpointUri.Fragment.Length > 0)
                             {
                                 throw new FormatException(
                                     $"endpoint `{endpointStr}' must not specify a path or fragment");
                             }
-                            endpoints.Add(CreateEndpoint(communicator,
-                                                         oaEndpoints,
-                                                         endpointOptions,
-                                                         protocol,
-                                                         uri,
-                                                         endpointStr));
+                            endpoints.Add(
+                                CreateEndpoint(communicator, proxyOptions, endpointOptions, endpointUri, endpointStr));
                         }
                     }
                 }
-
-                return (encoding,
-                        (IReadOnlyList<Endpoint>?)endpoints ?? ImmutableArray<Endpoint>.Empty,
-                        facet,
-                        invocationMode,
-                        path,
-                        protocol);
+                return (uri, (IReadOnlyList<Endpoint>?)endpoints ?? ImmutableArray<Endpoint>.Empty);
             }
             catch (Exception ex)
             {
@@ -167,7 +127,7 @@ namespace ZeroC.Ice
         /// <summary>Registers the ice and ice+universal schemes.</summary>
         internal static void RegisterCommon()
         {
-            RegisterTransport("universal", defaultPort: 0);
+            RegisterTransport("universal", UniversalEndpoint.DefaultUniversalPort);
 
             // There is actually no authority at all with the ice scheme, but we emulate it with an empty authority
             // during parsing by the Uri class and the GenericUriParser.
@@ -187,31 +147,28 @@ namespace ZeroC.Ice
 
         private static Endpoint CreateEndpoint(
             Communicator communicator,
-            bool oaEndpoint,
+            ProxyOptions? proxyOptions,
             Dictionary<string, string> options,
-            Protocol protocol,
             Uri uri,
             string uriString)
         {
             Debug.Assert(uri.Scheme.StartsWith("ice+"));
             string transportName = uri.Scheme.Substring(4); // i.e. chop-off "ice+"
 
-            ushort port = 0;
+            Protocol protocol = proxyOptions?.Protocol ?? Protocol.Ice2;
+
+            ushort port;
             checked
             {
                 port = (ushort)uri.Port;
             }
 
             IEndpointFactory? factory = null;
-            Transport transport = default;
+            Transport transport;
 
             if (transportName == "universal")
             {
-                if (protocol == Protocol.Ice1)
-                {
-                    throw new FormatException("ice+universal is not compatible with the ice1 protocol");
-                }
-                if (oaEndpoint)
+                if (proxyOptions == null)
                 {
                     throw new FormatException("ice+universal cannot specify an object adapter endpoint");
                 }
@@ -220,11 +177,20 @@ namespace ZeroC.Ice
                 transport = Enum.Parse<Transport>(options["transport"], ignoreCase: true);
                 options.Remove("transport");
 
-                // It's possible we have a factory for this transport:
-                factory = communicator.IceFindEndpointFactory(transport);
+                if (protocol == Protocol.Ice2)
+                {
+                    // It's possible we have a factory for this transport, and we check it only when the protocol is
+                    // ice2 (otherwise, we want to create a UniversalEndpoint).
+                    factory = communicator.IceFindEndpointFactory(transport);
+                }
             }
             else if (communicator.FindEndpointFactory(transportName) is (EndpointFactory f, Transport t))
             {
+                if (protocol != Protocol.Ice2)
+                {
+                    throw new FormatException(
+                        $"cannot create an `{uri.Scheme}' endpoint for protocol `{protocol.GetName()}'");
+                }
                 factory = f;
                 transport = t;
             }
@@ -238,9 +204,9 @@ namespace ZeroC.Ice
                                                 uri.DnsSafeHost,
                                                 port,
                                                 options,
-                                                oaEndpoint,
+                                                oaEndpoint: proxyOptions == null,
                                                 uriString) ??
-                new OpaqueEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
+                new UniversalEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
 
             if (options.Count > 0)
             {
@@ -249,15 +215,15 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
-        private static Uri InitialParse(
+        private static (Uri Uri, string? AltEndpoint) InitialParse(
             string uriString,
-            Dictionary<string, string>? generalOptions,
+            ProxyOptions? proxyOptions,
             Dictionary<string, string>? endpointOptions)
         {
             if (endpointOptions == null) // i.e. ice scheme
             {
                 Debug.Assert(uriString.StartsWith("ice:"));
-                Debug.Assert(generalOptions != null);
+                Debug.Assert(proxyOptions != null);
 
                 string body = uriString.Substring(4);
                 if (body.StartsWith("//"))
@@ -279,6 +245,8 @@ namespace ZeroC.Ice
 
             string[] nvPairs = uri.Query.Length >= 2 ? uri.Query.TrimStart('?').Split('&') : Array.Empty<string>();
 
+            string? altEndpoint = null;
+
             foreach (string p in nvPairs)
             {
                 int equalPos = p.IndexOf('=');
@@ -289,9 +257,33 @@ namespace ZeroC.Ice
                 string name = p.Substring(0, equalPos);
                 string value = p.Substring(equalPos + 1);
 
-                if (name == "protocol" || name == "encoding" || name == "invocation-mode")
+                if (name == "encoding")
                 {
-                    AppendValue(generalOptions, name, value, uriString);
+                    if (proxyOptions == null)
+                    {
+                        throw new FormatException($"encoding is not a valid option for endpoint `{uriString}'");
+                    }
+                    if (proxyOptions.Encoding != null)
+                    {
+                        throw new FormatException($"multiple encoding options in `{uriString}'");
+                    }
+                    proxyOptions.Encoding = Encoding.Parse(value);
+                }
+                else if (name == "protocol")
+                {
+                    if (proxyOptions == null)
+                    {
+                        throw new FormatException($"protocol is not a valid option for endpoint `{uriString}'");
+                    }
+                    if (proxyOptions.Protocol != null)
+                    {
+                        throw new FormatException($"multiple protocol options in `{uriString}'");
+                    }
+                    proxyOptions.Protocol = ProtocolExtensions.Parse(value);
+                    if (proxyOptions.Protocol == Protocol.Ice1)
+                    {
+                        throw new FormatException("the URI format does not support protocol ice1");
+                    }
                 }
                 else if (endpointOptions == null)
                 {
@@ -299,32 +291,21 @@ namespace ZeroC.Ice
                 }
                 else if (name == "alt-endpoint")
                 {
-                    AppendValue(generalOptions, name, value, uriString);
+                    altEndpoint = altEndpoint == null ? value : $"{altEndpoint},{value}";
                 }
                 else
                 {
-                    AppendValue(endpointOptions, name, value, uriString);
+                    if (endpointOptions.TryGetValue(name, out string? existingValue))
+                    {
+                        endpointOptions[name] = $"{existingValue},{value}";
+                    }
+                    else
+                    {
+                        endpointOptions.Add(name, value);
+                    }
                 }
             }
-
-            return uri;
-
-            static void AppendValue(Dictionary<string, string>? options, string name, string value, string uriString)
-            {
-                if (options == null)
-                {
-                    throw new FormatException($"unexpected option `{name}' in endpoint `{uriString}'");
-                }
-
-                if (options.TryGetValue(name, out string? existingValue))
-                {
-                    options[name] = $"{existingValue},{value}";
-                }
-                else
-                {
-                    options.Add(name, value);
-                }
-            }
+            return (uri, altEndpoint);
         }
     }
 }
