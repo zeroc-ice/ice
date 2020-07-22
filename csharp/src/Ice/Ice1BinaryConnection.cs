@@ -484,8 +484,8 @@ namespace ZeroC.Ice
 
                 // If the send got cancelled, throw now. This isn't a fatal connection error, the next pending
                 // outgoing will be sent because we ignore the cancelation exception above.
-                // TODO: is it really a good idea to cancel the request here? The stream/request ID assigned for the
-                // the request won't be used.
+                // TODO: is it really a good idea to cancel the request here with ice1?  The stream/request ID assigned
+                // for the request won't be used.
                 cancel.ThrowIfCancellationRequested();
 
                 // Perform the write

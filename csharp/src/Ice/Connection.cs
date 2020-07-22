@@ -346,6 +346,32 @@ namespace ZeroC.Ice
             }
 
             await CloseAsync(exception).ConfigureAwait(false);
+
+            async Task PerformGracefulCloseAsync()
+            {
+                if (!(_exception is ConnectionClosedByPeerException))
+                {
+                    // Wait for the all the dispatch to be completed to ensure the responses are sent.
+                    if (_dispatchTaskCompletionSource != null)
+                    {
+                        await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
+                    }
+                }
+
+                CancellationToken timeoutToken;
+                CancellationTokenSource? source = null;
+                TimeSpan timeout = _communicator.CloseTimeout;
+                if (timeout > TimeSpan.Zero)
+                {
+                    source = new CancellationTokenSource();
+                    source.CancelAfter(timeout);
+                    timeoutToken = source.Token;
+                }
+
+                await BinaryConnection.CloseAsync(_exception!, timeoutToken);
+
+                source?.Dispose();
+            }
         }
 
         internal void Monitor(TimeSpan now, Acm acm)
@@ -421,7 +447,7 @@ namespace ZeroC.Ice
                 Debug.Assert(_state > ConnectionState.Validating);
                 Debug.Assert(_state < ConnectionState.Closing);
 
-                streamId = BinaryConnection.NewStream(!oneway);
+                streamId = BinaryConnection.NewStream(bidirectional: !oneway);
                 if (streamId > 0)
                 {
                     var responseTaskSource = new TaskCompletionSource<IncomingResponseFrame>();
@@ -435,19 +461,9 @@ namespace ZeroC.Ice
                     childObserver?.Attach();
                 }
 
-                // Ensure the frame isn't bigger than what we can send with the transport.
-                // TODO: XXX: remove?
-                // if (OldProtocol)
-                // {
-                //     Transceiver.CheckSendSize(request.Size + Ice1Definitions.HeaderSize + 4);
-                // }
-                // else
-                // {
-                //     Transceiver.CheckSendSize(request.Size + Ice2Definitions.HeaderSize + 4);
-                // }
                 // TODO: this returns a ValueTask
                 // TODO: fin = oneway isn't correct for ice2
-                writeTask = BinaryConnection.SendAsync(streamId, request, oneway, cancel).AsTask();
+                writeTask = BinaryConnection.SendAsync(streamId, request, fin: oneway, cancel).AsTask();
             }
 
             try
@@ -594,6 +610,74 @@ namespace ZeroC.Ice
                 }
             }
             await _closeTask!.ConfigureAwait(false);
+
+            async Task PerformCloseAsync()
+            {
+                // Close the transport
+                try
+                {
+                    await BinaryConnection.DisposeAsync();
+                }
+                catch (Exception ex)
+                {
+                    _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{BinaryConnection}");
+                }
+
+                if (_state > ConnectionState.Validating && _communicator.TraceLevels.Network >= 1)
+                {
+                    var s = new StringBuilder();
+                    s.Append("closed ");
+                    s.Append(Endpoint.TransportName);
+                    s.Append(" connection\n");
+                    s.Append(ToString());
+
+                    //
+                    // Trace the cause of unexpected connection closures
+                    //
+                    if (!(_exception is ConnectionClosedException ||
+                          _exception is ConnectionIdleException ||
+                          _exception is ObjectDisposedException))
+                    {
+                        s.Append('\n');
+                        s.Append(_exception);
+                    }
+
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
+                }
+
+                // Yield to ensure the code below is executed from a separate thread pool thread. PerformCloseAsync
+                // is called with the connection's mutex locked and the code below is not safe to call with this
+                // mutex locked.
+                await Task.Yield();
+
+                // Notify the pending requests of the connection closure
+                foreach ((TaskCompletionSource<IncomingResponseFrame> Source, bool _) request in _requests.Values)
+                {
+                    request.Source.SetException(_exception!);
+                }
+
+                // Raise the Closed event
+                try
+                {
+                    _closed?.Invoke(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                }
+
+                // Wait for all the dispatch to complete before removing the connection from the factory and notifying
+                // the observer
+                if (_dispatchTaskCompletionSource != null)
+                {
+                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
+                }
+
+                // Remove the connection from the factory, must be called without the connection mutex locked
+                _manager.Remove(this);
+
+                _observer?.Detach();
+            }
         }
 
         private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, int requestId)
@@ -673,7 +757,8 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    // TODO: support for cancellation
+                    // TODO: support for cancellation, the sending of the response should be canceled if the client
+                    // cancels the requests (ice2)
                     await BinaryConnection.SendAsync(requestId, response, fin: true, cancel: default);
                 }
                 catch (Exception ex)
@@ -681,100 +766,6 @@ namespace ZeroC.Ice
                     _ = CloseAsync(ex);
                 }
             }
-        }
-
-        private async Task PerformCloseAsync()
-        {
-            // Close the transport
-            try
-            {
-                await BinaryConnection.DisposeAsync();
-            }
-            catch (Exception ex)
-            {
-                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{BinaryConnection}");
-            }
-
-            if (_state > ConnectionState.Validating && _communicator.TraceLevels.Network >= 1)
-            {
-                var s = new StringBuilder();
-                s.Append("closed ");
-                s.Append(Endpoint.TransportName);
-                s.Append(" connection\n");
-                s.Append(ToString());
-
-                //
-                // Trace the cause of unexpected connection closures
-                //
-                if (!(_exception is ConnectionClosedException ||
-                      _exception is ConnectionIdleException ||
-                      _exception is ObjectDisposedException))
-                {
-                    s.Append('\n');
-                    s.Append(_exception);
-                }
-
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
-            }
-
-            // Yield to ensure the code below is executed from a separate thread pool thread. PerformCloseAsync
-            // is called with the connection's mutex locked and the code below is not safe to call with this
-            // mutex locked.
-            await Task.Yield();
-
-            // Notify the pending requests of the connection closure
-            foreach ((TaskCompletionSource<IncomingResponseFrame> CompletionSource, bool _) request in _requests.Values)
-            {
-                request.CompletionSource.SetException(_exception!);
-            }
-
-            // Raise the Closed event
-            try
-            {
-                _closed?.Invoke(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-            }
-
-            // Wait for all the dispatch to complete before removing the connection from the factory and notifying
-            // the observer
-            if (_dispatchTaskCompletionSource != null)
-            {
-                await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
-            }
-
-            // Remove the connection from the factory, must be called without the connection mutex locked
-            _manager.Remove(this);
-
-            _observer?.Detach();
-        }
-
-        private async Task PerformGracefulCloseAsync()
-        {
-            if (!(_exception is ConnectionClosedByPeerException))
-            {
-                // Wait for the all the dispatch to be completed to ensure the responses are sent.
-                if (_dispatchTaskCompletionSource != null)
-                {
-                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
-                }
-            }
-
-            CancellationToken timeoutToken;
-            CancellationTokenSource? source = null;
-            TimeSpan timeout = _communicator.CloseTimeout;
-            if (timeout > TimeSpan.Zero)
-            {
-                source = new CancellationTokenSource();
-                source.CancelAfter(timeout);
-                timeoutToken = source.Token;
-            }
-
-            await BinaryConnection.CloseAsync(_exception!, timeoutToken);
-
-            source?.Dispose();
         }
 
         private async ValueTask ReceiveAndDispatchFrameAsync()
@@ -792,8 +783,8 @@ namespace ZeroC.Ice
                     {
                         if (frame == null)
                         {
+                            // TODO: this indicates that the stream was reset (ice2).
                             Debug.Assert(fin);
-                            // TODO: this indicates that the stream was reset.
                         }
                         else if (frame is IncomingRequestFrame requestFrame)
                         {
@@ -824,10 +815,9 @@ namespace ZeroC.Ice
                                     out (TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource,
                                         bool Synchronous) request))
                             {
-                                // We can't call SetResult directly from here as it might be trigger the continuations
-                                // to run synchronously and it wouldn't be safe to run a continuation with the mutex
-                                // locked.
-                                //
+                                // Unless i's a Synchronous request whose continuation is safe to call from here since
+                                // it won't call user code, we can't call SetResult directly here as if could end up
+                                // running user code with mutex locked.
                                 if (request.Synchronous)
                                 {
                                     request.TaskCompletionSource.SetResult(responseFrame);
@@ -976,6 +966,7 @@ namespace ZeroC.Ice
             // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (state == ConnectionState.Active)
             {
+                _acmLastActivity = Time.Elapsed;
                 _monitor.Add(this);
             }
             else if (_state == ConnectionState.Active)
