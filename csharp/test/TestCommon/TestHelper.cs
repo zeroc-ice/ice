@@ -99,9 +99,9 @@ namespace Test
                 {
                     sb.Append(host);
                 }
-                sb.Append(":");
+                sb.Append(':');
                 sb.Append(GetTestPort(properties, num));
-                sb.Append("/");
+                sb.Append('/');
                 sb.Append(identity);
                 return sb.ToString();
             }

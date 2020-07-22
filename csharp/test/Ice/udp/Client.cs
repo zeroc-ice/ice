@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -12,12 +13,12 @@ namespace ZeroC.Ice.Test.UDP
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.SndSize"] = "16K";
             properties["Ice.Default.Protocol"] = "ice1"; // TODO: see comment in server
-            await using var communicator = Initialize(properties);
-            AllTests.allTests(this);
+            await using Communicator communicator = Initialize(properties);
+            AllTests.Run(this);
 
             int num;
             try

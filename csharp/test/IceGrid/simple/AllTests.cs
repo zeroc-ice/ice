@@ -3,14 +3,15 @@
 //
 
 using System;
-using ZeroC.Ice;
+using System.Collections.Generic;
 using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
     public class AllTests
     {
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -26,8 +27,8 @@ namespace ZeroC.IceGrid.Test.Simple
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing locator finder... ");
-            Identity finderId = new Identity("LocatorFinder", "Ice");
-            ILocatorFinderPrx? finder =
+            var finderId = new Identity("LocatorFinder", "Ice");
+            var finder =
                 ILocatorFinderPrx.CheckedCast(communicator.DefaultLocator!.Clone(finderId, IObjectPrx.Factory));
             TestHelper.Assert(finder != null && finder.GetLocator() != null);
             Console.Out.WriteLine("ok");
@@ -35,7 +36,7 @@ namespace ZeroC.IceGrid.Test.Simple
             Console.Out.Write("testing discovery... ");
             {
                 // Add test well-known object
-                IRegistryPrx? registry = IRegistryPrx.Parse(
+                var registry = IRegistryPrx.Parse(
                     communicator.DefaultLocator!.Identity.Category + "/Registry", communicator);
 
                 IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
@@ -47,7 +48,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 // Ensure the IceGrid discovery locator can discover the
                 // registries and make sure locator requests are forwarded.
                 //
-                var properties = communicator.GetProperties();
+                Dictionary<string, string>? properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
                 properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
                 properties["IceLocatorDiscovery.Port"] = helper.GetTestPort(99).ToString();
@@ -102,7 +103,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     {
                     }
 
-                    using var adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
+                    using ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
                     adapter.Activate();
                 }
 
@@ -189,8 +190,7 @@ namespace ZeroC.IceGrid.Test.Simple
             Console.Out.WriteLine("ok");
         }
 
-        public static void
-        allTestsWithDeploy(TestHelper helper)
+        public static void RunWithDeploy(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

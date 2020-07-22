@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Binding
             properties["Ice.Warn.Connections"] = "0";
 
             await using Communicator communicator = Initialize(properties);
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

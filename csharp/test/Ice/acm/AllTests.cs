@@ -14,19 +14,41 @@ namespace ZeroC.Ice.Test.ACM
 {
     public class Logger : ILogger
     {
+        public string Prefix => "";
+
+        private const string DateFormat = "d";
+        private const string TimeFormat = "HH:mm:ss:fff";
+
+        private readonly string _name;
+        private readonly List<string> _messages = new List<string>();
         private readonly object _mutex = new object();
+        private readonly TextWriter _output;
+        private bool _started;
+
         public Logger(string name, TextWriter output)
         {
             _name = name;
             _output = output;
         }
 
-        public void Start()
+        public ILogger CloneWithPrefix(string prefix) => this;
+
+        public void Error(string message)
         {
             lock (_mutex)
             {
-                _started = true;
-                Dump();
+                var s = new System.Text.StringBuilder(_name);
+                s.Append(' ');
+                s.Append(DateTime.Now.ToString(DateFormat, CultureInfo.CurrentCulture));
+                s.Append(' ');
+                s.Append(DateTime.Now.ToString(TimeFormat, CultureInfo.CurrentCulture));
+                s.Append(" error : ");
+                s.Append(message);
+                _messages.Add(s.ToString());
+                if (_started)
+                {
+                    Dump();
+                }
             }
         }
 
@@ -42,17 +64,26 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
+        public void Start()
+        {
+            lock (_mutex)
+            {
+                _started = true;
+                Dump();
+            }
+        }
+
         public void Trace(string category, string message)
         {
             lock (_mutex)
             {
                 var s = new System.Text.StringBuilder(_name);
                 s.Append(' ');
-                s.Append(DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+                s.Append(DateTime.Now.ToString(DateFormat, CultureInfo.CurrentCulture));
                 s.Append(' ');
-                s.Append(DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+                s.Append(DateTime.Now.ToString(TimeFormat, CultureInfo.CurrentCulture));
                 s.Append(' ');
-                s.Append("[");
+                s.Append('[');
                 s.Append(category);
                 s.Append("] ");
                 s.Append(message);
@@ -70,9 +101,9 @@ namespace ZeroC.Ice.Test.ACM
             {
                 var s = new System.Text.StringBuilder(_name);
                 s.Append(' ');
-                s.Append(DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+                s.Append(DateTime.Now.ToString(DateFormat, CultureInfo.CurrentCulture));
                 s.Append(' ');
-                s.Append(DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+                s.Append(DateTime.Now.ToString(TimeFormat, CultureInfo.CurrentCulture));
                 s.Append(" warning : ");
                 s.Append(message);
                 _messages.Add(s.ToString());
@@ -83,29 +114,6 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public void Error(string message)
-        {
-            lock (_mutex)
-            {
-                var s = new System.Text.StringBuilder(_name);
-                s.Append(' ');
-                s.Append(DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
-                s.Append(' ');
-                s.Append(DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
-                s.Append(" error : ");
-                s.Append(message);
-                _messages.Add(s.ToString());
-                if (_started)
-                {
-                    Dump();
-                }
-            }
-        }
-
-        public string Prefix => "";
-
-        public ILogger CloneWithPrefix(string prefix) => this;
-
         private void Dump()
         {
             foreach (string line in _messages)
@@ -114,18 +122,11 @@ namespace ZeroC.Ice.Test.ACM
             }
             _messages.Clear();
         }
-
-        private readonly string _name;
-        private bool _started;
-        private const string _date = "d";
-        private const string _time = "HH:mm:ss:fff";
-        private readonly TextWriter _output;
-        private readonly List<string> _messages = new List<string>();
     }
 
     public abstract class TestCase
     {
-        protected readonly object _mutex = new object();
+        protected readonly object Mutex = new object();
 
         public TestCase(string name, IRemoteCommunicatorPrx com, TestHelper helper)
         {
@@ -205,16 +206,16 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.GetConnection()!.Closed += (sender, args) =>
                     {
-                        lock (_mutex)
+                        lock (Mutex)
                         {
                             Closed = true;
-                            Monitor.Pulse(_mutex);
+                            Monitor.Pulse(Mutex);
                         }
                     };
 
                 proxy.GetConnection()!.HeartbeatReceived += (sender, args) =>
                     {
-                        lock (_mutex)
+                        lock (Mutex)
                         {
                             ++Heartbeat;
                         }
@@ -224,18 +225,18 @@ namespace ZeroC.Ice.Test.ACM
             }
             catch (Exception ex)
             {
-                _msg = "unexpected exception:\n" + ex.ToString();
+                _msg = $"unexpected exception:\n{ex}";
             }
         }
 
         public void WaitForClosed()
         {
-            lock (_mutex)
+            lock (Mutex)
             {
                 TimeSpan now = Time.Elapsed;
                 while (!Closed)
                 {
-                    Monitor.Wait(_mutex, TimeSpan.FromSeconds(30));
+                    Monitor.Wait(Mutex, TimeSpan.FromSeconds(30));
                     if (Time.Elapsed - now > TimeSpan.FromSeconds(30))
                     {
                         TestHelper.Assert(false); // Waited for more than 30s for close, something's wrong.
@@ -285,7 +286,7 @@ namespace ZeroC.Ice.Test.ACM
 
     public class AllTests
     {
-        public class InvocationHeartbeatTest : TestCase
+        private class InvocationHeartbeatTest : TestCase
         {
             // Faster ACM to make sure we receive enough ACM heartbeats
             public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -294,14 +295,14 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.Sleep(4);
 
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 4);
                 }
             }
         }
 
-        public class InvocationNoHeartbeatTest : TestCase
+        private class InvocationNoHeartbeatTest : TestCase
         {
             // Disable heartbeat on invocations
             public InvocationNoHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -321,7 +322,7 @@ namespace ZeroC.Ice.Test.ACM
                     proxy.InterruptSleep();
 
                     WaitForClosed();
-                    lock (_mutex)
+                    lock (Mutex)
                     {
                         TestHelper.Assert(Heartbeat == 0);
                     }
@@ -329,7 +330,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class InvocationHeartbeatCloseOnIdleTest : TestCase
+        private class InvocationHeartbeatCloseOnIdleTest : TestCase
         {
             public InvocationHeartbeatCloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper) :
                 base("invocation with no heartbeat and close on idle", com, helper)
@@ -343,7 +344,7 @@ namespace ZeroC.Ice.Test.ACM
                 // No close on invocation, the call should succeed this time.
                 proxy.Sleep(3);
 
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!Closed);
@@ -351,7 +352,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class CloseOnIdleTest : TestCase
+        private class CloseOnIdleTest : TestCase
         {
             // Only close on idle
             public CloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -361,7 +362,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection connection = proxy.GetConnection()!;
                 WaitForClosed();
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     try
@@ -376,7 +377,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class CloseOnInvocationTest : TestCase
+        private class CloseOnInvocationTest : TestCase
         {
             // Only close on invocation
             public CloseOnInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -386,7 +387,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Thread.Sleep(3000); // Idle for 3 seconds
 
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!Closed);
@@ -394,7 +395,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class CloseOnIdleAndInvocationTest : TestCase
+        private class CloseOnIdleAndInvocationTest : TestCase
         {
             // Only close on idle and invocation
             public CloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -404,7 +405,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection connection = proxy.GetConnection()!;
                 WaitForClosed();
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                 }
@@ -419,7 +420,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class ForcefulCloseOnIdleAndInvocationTest : TestCase
+        private class ForcefulCloseOnIdleAndInvocationTest : TestCase
         {
             // Only close on idle and invocation
             public ForcefulCloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -429,7 +430,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection connection = proxy.GetConnection()!;
                 WaitForClosed();
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                 }
@@ -444,7 +445,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class HeartbeatOnIdleTest : TestCase
+        private class HeartbeatOnIdleTest : TestCase
         {
             // Enable server heartbeats.
             public HeartbeatOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -454,14 +455,14 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Thread.Sleep(3000);
 
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 3);
                 }
             }
         }
 
-        public class HeartbeatAlwaysTest : TestCase
+        private class HeartbeatAlwaysTest : TestCase
         {
             // Enable server heartbeats.
             public HeartbeatAlwaysTest(IRemoteCommunicatorPrx com, TestHelper helper) :
@@ -475,14 +476,14 @@ namespace ZeroC.Ice.Test.ACM
                     Thread.Sleep(300);
                 }
 
-                lock (_mutex)
+                lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 3);
                 }
             }
         }
 
-        public class HeartbeatManualTest : TestCase
+        private class HeartbeatManualTest : TestCase
         {
             public HeartbeatManualTest(IRemoteCommunicatorPrx com, TestHelper helper) :
                 base("manual heartbeats", com, helper)
@@ -505,7 +506,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public class SetAcmTest : TestCase
+        private class SetAcmTest : TestCase
         {
             public SetAcmTest(IRemoteCommunicatorPrx com, TestHelper helper) :
                 base("setACM/getACM", com, helper) => SetClientAcm(15, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
@@ -580,7 +581,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

@@ -15,16 +15,7 @@ namespace ZeroC.Ice.Test.Threading
             await using Communicator communicator = Initialize(ref args);
             try
             {
-                AllTests.allTests(this, false).AsTask().Result.Shutdown();
-            }
-            catch (AggregateException ex)
-            {
-                if (ex.InnerException is TestFailedException failedEx)
-                {
-                    GetWriter().WriteLine($"test failed: {failedEx.Reason}");
-                    Assert(false);
-                }
-                throw;
+                await AllTests.Run(this, false).AsTask().Result.ShutdownAsync();
             }
             catch (TestFailedException ex)
             {

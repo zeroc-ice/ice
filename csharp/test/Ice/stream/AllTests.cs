@@ -43,10 +43,10 @@ namespace ZeroC.Ice.Test.Stream
             {
                 i2.MoveNext();
                 TestHelper.Assert(i1.Current != null);
-                if (i1.Current is ICollection)
+                if (i1.Current is ICollection collection)
                 {
                     TestHelper.Assert(i2.Current is ICollection);
-                    if (!Compare((ICollection)i1.Current, (ICollection)i2.Current))
+                    if (!Compare(collection, (ICollection)i2.Current))
                     {
                         return false;
                     }
@@ -59,9 +59,9 @@ namespace ZeroC.Ice.Test.Stream
             return true;
         }
 
-        public static int allTests(TestHelper helper)
+        public static int Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            //Communicator? communicator = helper.Communicator();
 
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing primitive types... ");

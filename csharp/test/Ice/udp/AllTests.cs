@@ -52,24 +52,25 @@ namespace ZeroC.Ice.Test.UDP
                 }
             }
 
-            private int _replies = 0;
+            private int _replies;
         }
 
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
-            PingReplyI replyI = new PingReplyI();
+            var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram);
             adapter.Activate();
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
-            var obj = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0, "udp"),
-                                        communicator).Clone(invocationMode: InvocationMode.Datagram);
+            ITestIntfPrx obj = ITestIntfPrx.Parse(
+                helper.GetTestProxy("test", 0, "udp"),
+                communicator).Clone(invocationMode: InvocationMode.Datagram);
 
             try
             {
@@ -114,7 +115,7 @@ namespace ZeroC.Ice.Test.UDP
                 {
                     while (true)
                     {
-                        seq = new byte[seq.Length * 2 + 10];
+                        seq = new byte[(seq.Length * 2) + 10];
                         replyI.Reset();
                         obj.SendByteSeq(seq, reply);
                         replyI.WaitReply(1, TimeSpan.FromSeconds(10));

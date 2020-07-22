@@ -11,9 +11,9 @@ namespace ZeroC.Ice.Test.Tagged
     {
         public override async Task RunAsync(string[] args)
         {
-            await using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            var adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new Initial());
             await adapter.ActivateAsync();
             ServerReady();

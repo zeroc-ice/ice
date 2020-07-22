@@ -9,6 +9,9 @@ namespace ZeroC.Ice.Test.Interceptor
 {
     internal sealed class Interceptor : IObject
     {
+        private string? _lastOperation;
+        private readonly IObject _servant;
+
         internal Interceptor(IObject servant) => _servant = servant;
 
         public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
@@ -72,18 +75,14 @@ namespace ZeroC.Ice.Test.Interceptor
             return await vt.ConfigureAwait(false);
         }
 
-        internal bool AsyncCompletion { get ; private set; } = false;
+        internal bool AsyncCompletion { get ; private set; }
 
-        internal string? getLastOperation() => _lastOperation;
+        internal string? GetLastOperation() => _lastOperation;
 
-        internal void
-        clear()
+        internal void Clear()
         {
             _lastOperation = null;
             AsyncCompletion = false;
         }
-
-        private readonly IObject _servant;
-        private string? _lastOperation;
     }
 }

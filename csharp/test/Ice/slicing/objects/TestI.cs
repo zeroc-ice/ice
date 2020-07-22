@@ -144,7 +144,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
         public (B, B) ParamTest2(Current current)
         {
-            var (p1, p2) = ParamTest1(current);
+            (B p1, B p2) = ParamTest1(current);
             return (p2, p1);
         }
 
@@ -191,13 +191,13 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
         public (B, B, B) ReturnTest1(Current current)
         {
-            var (p1, p2) = ParamTest1(current);
+            (B p1, B p2) = ParamTest1(current);
             return (p1, p1, p2);
         }
 
         public (B, B, B) ReturnTest2(Current current)
         {
-            var (p1, p2) = ParamTest1(current);
+            (B p1, B p2) = ParamTest1(current);
             return (p2, p2, p1);
         }
 

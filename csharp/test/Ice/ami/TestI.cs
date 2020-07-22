@@ -130,7 +130,7 @@ namespace ZeroC.Ice.Test.AMI
         }
 
         private bool _shutdown;
-        private TaskCompletionSource<object?>? _pending = null;
+        private TaskCompletionSource<object?>? _pending;
         private int _value;
     }
 

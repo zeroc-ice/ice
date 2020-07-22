@@ -12,8 +12,7 @@ namespace ZeroC.Ice.Test.Admin
 {
     public class AllTests
     {
-        public static void
-        TestFacets(Communicator com, bool builtInFacets, bool filtered)
+        public static void TestFacets(Communicator com, bool builtInFacets, bool filtered)
         {
             if (builtInFacets && !filtered)
             {
@@ -123,7 +122,7 @@ namespace ZeroC.Ice.Test.Admin
             }
         }
 
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -181,9 +180,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestFacets(com, true, false);
             }
             {
-                //
                 // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
-                //
                 var properties = new Dictionary<string, string>()
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -203,9 +200,7 @@ namespace ZeroC.Ice.Test.Admin
             output.Write("testing process facet... ");
             output.Flush();
             {
-                //
-                // Test: Verify that Process::shutdown() operation shuts down the communicator.
-                //
+                // Test: Verify that Process.Shutdown() operation shuts down the communicator.
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -239,15 +234,11 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 IPropertiesAdminPrx pa = obj.Clone("Properties", IPropertiesAdminPrx.Factory);
 
-                //
-                // Test: PropertiesAdmin::getProperty()
-                //
+                // Test: PropertiesAdmin.GetProperty()
                 TestHelper.Assert(pa.GetProperty("Prop2") == "2");
                 TestHelper.Assert(pa.GetProperty("Bogus").Length == 0);
 
-                //
-                // Test: PropertiesAdmin::getProperties()
-                //
+                // Test: PropertiesAdmin.GetProperties()
                 Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
                 TestHelper.Assert(pd.Count == 6);
                 TestHelper.Assert(pd["Ice.ProgramName"] == "server");
@@ -259,9 +250,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 Dictionary<string, string> changes;
 
-                //
-                // Test: PropertiesAdmin::setProperties()
-                //
+                // Test: PropertiesAdmin.SetProperties()
                 var setProps = new Dictionary<string, string>
                 {
                     { "Prop1", "10" }, // Changed
@@ -311,9 +300,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 ILoggerAdminPrx logger = obj.Clone("Logger", ILoggerAdminPrx.Factory);
 
-                //
                 // Get all
-                //
                 (LogMessage[] logMessages, string prefix) =
                     logger.GetLog(Array.Empty<LogMessageType>(), Array.Empty<string>(), -1);
 
@@ -324,9 +311,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(logMessages[2].Message.Equals("error"));
                 TestHelper.Assert(logMessages[3].Message.Equals("print"));
 
-                //
                 // Get only errors and warnings
-                //
                 com.Error("error2");
                 com.Print("print2");
                 com.Trace("testCat", "trace2");
@@ -344,9 +329,7 @@ namespace ZeroC.Ice.Test.Admin
                     TestHelper.Assert(msg.Type == LogMessageType.ErrorMessage || msg.Type == LogMessageType.WarningMessage);
                 }
 
-                //
                 // Get only errors and traces with Cat = "testCat"
-                //
                 com.Trace("testCat2", "A");
                 com.Trace("testCat", "trace3");
                 com.Trace("testCat2", "B");
@@ -363,9 +346,7 @@ namespace ZeroC.Ice.Test.Admin
                         (msg.Type == LogMessageType.TraceMessage && msg.TraceCategory.Equals("testCat")));
                 }
 
-                //
                 // Same, but limited to last 2 messages(trace3 + error3)
-                //
                 com.Error("error3");
 
                 (logMessages, prefix) = logger.GetLog(messageTypes, categories, 2);
@@ -375,9 +356,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(logMessages[0].Message.Equals("trace3"));
                 TestHelper.Assert(logMessages[1].Message.Equals("error3"));
 
-                //
                 // Now, test RemoteLogger
-                //
                 ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter",
                     "tcp -h localhost", serializeDispatch: true);
 
@@ -387,9 +366,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 adapter.Activate();
 
-                //
                 // No filtering
-                //
                 (logMessages, prefix) = logger.GetLog(Array.Empty<LogMessageType>(), Array.Empty<string>(), -1);
 
                 logger.AttachRemoteLogger(myProxy, Array.Empty<LogMessageType>(), Array.Empty<string>(), -1);
@@ -415,9 +392,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(logger.DetachRemoteLogger(myProxy));
                 TestHelper.Assert(!logger.DetachRemoteLogger(myProxy));
 
-                //
                 // Use Error + Trace with "traceCat" filter with 4 limit
-                //
                 (logMessages, prefix) = logger.GetLog(messageTypes, categories, 4);
                 TestHelper.Assert(logMessages.Length == 4);
 
@@ -440,9 +415,7 @@ namespace ZeroC.Ice.Test.Admin
                 remoteLogger.CheckNextLog(LogMessageType.TraceMessage, "rtrace2", "testCat");
                 remoteLogger.CheckNextLog(LogMessageType.ErrorMessage, "rerror2", "");
 
-                //
                 // Attempt reconnection with slightly different proxy
-                //
                 try
                 {
                     logger.AttachRemoteLogger(myProxy.Clone(oneway: true), messageTypes, categories, 4);
@@ -460,9 +433,7 @@ namespace ZeroC.Ice.Test.Admin
             output.Write("testing custom facet... ");
             output.Flush();
             {
-                //
                 // Test: Verify that the custom facet is present.
-                //
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -481,10 +452,7 @@ namespace ZeroC.Ice.Test.Admin
             output.Write("testing facet filtering... ");
             output.Flush();
             {
-                //
-                // Test: Set Ice.Admin.Facets to expose only the Properties facet,
-                // meaning no other facet is available.
-                //
+                // Test: Set Ice.Admin.Facets to expose only the Properties facet, meaning no other facet is available.
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -515,10 +483,7 @@ namespace ZeroC.Ice.Test.Admin
                 com.Destroy();
             }
             {
-                //
-                // Test: Set Ice.Admin.Facets to expose only the Process facet,
-                // meaning no other facet is available.
-                //
+                // Test: Set Ice.Admin.Facets to expose only the Process facet, meaning no other facet is available.
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -549,10 +514,7 @@ namespace ZeroC.Ice.Test.Admin
                 com.Destroy();
             }
             {
-                //
-                // Test: Set Ice.Admin.Facets to expose only the TestFacet facet,
-                // meaning no other facet is available.
-                //
+                // Test: Set Ice.Admin.Facets to expose only the TestFacet facet, meaning no other facet is available.
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -583,10 +545,7 @@ namespace ZeroC.Ice.Test.Admin
                 com.Destroy();
             }
             {
-                //
-                // Test: Set Ice.Admin.Facets to expose two facets. Use whitespace to separate the
-                // facet names.
-                //
+                // Test: Set Ice.Admin.Facets to expose two facets. Use whitespace to separate the facet names.
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -612,10 +571,7 @@ namespace ZeroC.Ice.Test.Admin
                 com.Destroy();
             }
             {
-                //
-                // Test: Set Ice.Admin.Facets to expose two facets. Use a comma to separate the
-                // facet names.
-                //
+                // Test: Set Ice.Admin.Facets to expose two facets. Use a comma to separate the facet names.
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
@@ -650,7 +606,12 @@ namespace ZeroC.Ice.Test.Admin
 
         private class RemoteLogger : IRemoteLogger
         {
+            private readonly Queue<LogMessage> _initMessages = new Queue<LogMessage>();
+            private readonly Queue<LogMessage> _logMessages = new Queue<LogMessage>();
             private readonly object _mutex = new object();
+            private string? _prefix;
+            private int _receivedCalls;
+
             public void Init(string prefix, LogMessage[] messages, Current current)
             {
                 lock (_mutex)
@@ -713,11 +674,6 @@ namespace ZeroC.Ice.Test.Admin
                     }
                 }
             }
-
-            private int _receivedCalls = 0;
-            private string? _prefix;
-            private readonly Queue<LogMessage> _initMessages = new Queue<LogMessage>();
-            private readonly Queue<LogMessage> _logMessages = new Queue<LogMessage>();
         }
     }
 }
