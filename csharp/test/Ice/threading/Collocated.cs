@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -42,7 +41,7 @@ namespace ZeroC.Ice.Test.Threading
 
             try
             {
-                await AllTests.Run(this, true).AsTask();
+                await AllTests.Run(this, true);
             }
             catch (TestFailedException ex)
             {

@@ -15,7 +15,8 @@ namespace ZeroC.Ice.Test.Threading
             await using Communicator communicator = Initialize(ref args);
             try
             {
-                await AllTests.Run(this, false).AsTask().Result.ShutdownAsync();
+                ITestIntfPrx server = await AllTests.Run(this, false);
+                await server.ShutdownAsync();
             }
             catch (TestFailedException ex)
             {

@@ -23,7 +23,7 @@ namespace ZeroC.Glacier2.Test.Router
             //
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Default.Protocol"] = "ice1";
-            await using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
 
             IObjectPrx routerBase;
             {
@@ -45,7 +45,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                IRouterFinderPrx finder = IRouterFinderPrx.Parse(GetTestProxy("Ice/RouterFinder", 50), communicator);
+                var finder = IRouterFinderPrx.Parse(GetTestProxy("Ice/RouterFinder", 50), communicator);
                 Assert(finder.GetRouter()!.Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
@@ -169,7 +169,7 @@ namespace ZeroC.Glacier2.Test.Router
 
             {
                 Console.Out.Write("pinging object with client endpoint... ");
-                IObjectPrx baseC = IObjectPrx.Parse(GetTestProxy("collocated", 50), communicator);
+                var baseC = IObjectPrx.Parse(GetTestProxy("collocated", 50), communicator);
                 try
                 {
                     baseC.IcePing();
@@ -210,9 +210,9 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Flush();
                 callbackReceiverImpl = new CallbackReceiver();
                 callbackReceiver = callbackReceiverImpl;
-                Identity callbackReceiverIdent = new Identity("callbackReceiver", category);
+                var callbackReceiverIdent = new Identity("callbackReceiver", category);
                 twowayR = adapter.Add(callbackReceiverIdent, callbackReceiver, ICallbackReceiverPrx.Factory);
-                Identity fakeCallbackReceiverIdent = new Identity("callbackReceiver", "dummy");
+                var fakeCallbackReceiverIdent = new Identity("callbackReceiver", "dummy");
                 fakeTwowayR = adapter.Add(fakeCallbackReceiverIdent, callbackReceiver,
                                             ICallbackReceiverPrx.Factory);
                 Console.Out.WriteLine("ok");
@@ -223,8 +223,10 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Flush();
                 ICallbackPrx oneway = twoway.Clone(oneway: true);
                 ICallbackReceiverPrx onewayR = twowayR.Clone(oneway: true);
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "o";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "o"
+                };
                 oneway.InitiateCallback(onewayR, context);
                 callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
@@ -233,8 +235,10 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing twoway callback... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 twoway.InitiateCallback(twowayR, context);
                 callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
@@ -243,8 +247,10 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("ditto, but with user exception... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 try
                 {
                     twoway.InitiateCallbackEx(twowayR, context);
@@ -262,8 +268,10 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("trying twoway callback with fake category... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 try
                 {
                     twoway.InitiateCallback(fakeTwowayR, context);
@@ -278,8 +286,10 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing whether other allowed category is accepted... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 ICallbackPrx otherCategoryTwoway =
                     twoway.Clone(Identity.Parse("c2/callback"), ICallbackPrx.Factory);
                 otherCategoryTwoway.InitiateCallback(twowayR, context);
@@ -290,8 +300,10 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing whether disallowed category gets rejected... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 try
                 {
                     ICallbackPrx otherCategoryTwoway =
@@ -308,8 +320,10 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing whether user-id as category is accepted... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 ICallbackPrx otherCategoryTwoway =
                     twoway.Clone(Identity.Parse("_userid/callback"), ICallbackPrx.Factory);
                 otherCategoryTwoway.InitiateCallback(twowayR, context);

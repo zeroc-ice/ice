@@ -98,7 +98,7 @@ namespace ZeroC.Ice.Test.Threading
             TestHelper.Assert(TaskScheduler.Current == TaskScheduler.Default);
         }
 
-        public static async ValueTask<ITestIntfPrx> Run(TestHelper helper, bool collocated)
+        public static async Task<ITestIntfPrx> Run(TestHelper helper, bool collocated)
         {
             Communicator communicator = helper.Communicator()!;
             TestHelper.Assert(communicator != null);
@@ -107,7 +107,7 @@ namespace ZeroC.Ice.Test.Threading
             Dictionary<string, string> properties = communicator.GetProperties();
             System.IO.TextWriter output = helper.GetWriter();
 
-            // Use the Default task scheduler to run continuations tests with the 3 object adpaters
+            // Use the Default task scheduler to run continuations tests with the 3 object adapters
             // setup by the server, each object adapter uses a different task scheduler.
             output.Write("testing continuations with default task scheduler... ");
             {
@@ -165,7 +165,7 @@ namespace ZeroC.Ice.Test.Threading
                 // With the concurrent task scheduler, at most 5 requests can be dispatched concurrently (this is
                 // configured on the server side).
                 var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 2), communicator);
-                Task.WaitAll(Enumerable.Range(0, 20).Select(idx => proxy.ConcurrentAsync(5)).ToArray());
+                await Task.WhenAll(Enumerable.Range(0, 20).Select(idx => proxy.ConcurrentAsync(5)).ToArray());
             }
             output.WriteLine("ok");
 

@@ -59,8 +59,9 @@ namespace ZeroC.Ice.Test.Threading
                 }
                 else if (_level > level)
                 {
+                    int currentLevel = _level;
                     Monitor.Wait(_mutex);
-                    throw new TestFailedException($"task scheduler concurrency level exceeded {_level} > {level}");
+                    throw new TestFailedException($"task scheduler concurrency level exceeded {currentLevel} > {level}");
                 }
             }
 
