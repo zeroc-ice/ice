@@ -1383,17 +1383,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // If it's an Ice1 proxy, we check if the connection matches an endpoint with the compression flag
-                // enabled. If it's the case, we'll use compression.
-                bool compress = false;
-                if (Protocol == Protocol.Ice1)
-                {
-                    // Use compression if the first matching endpoint uses compression. We make sure to compare
-                    // endpoints with the same timeout value to ignore the timeout.
-                    compress = endpoints.First(endpoint => connection.Endpoints.Exists(connectionEndpoint =>
-                        endpoint.NewTimeout(connectionEndpoint.Timeout).Equals(connectionEndpoint))).HasCompressionFlag;
-                }
-                return new ConnectionRequestHandler(connection, compress);
+                return new ConnectionRequestHandler(connection);
             }
             catch (Exception ex)
             {
@@ -1706,7 +1696,7 @@ namespace ZeroC.Ice
             }
 
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection, false);
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
         }
     }
 }

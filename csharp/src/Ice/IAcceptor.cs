@@ -2,49 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public interface IAcceptor
+    public interface IAcceptor : IDisposable
     {
-        void Close();
-        Endpoint Listen();
-        bool StartAccept(AsyncCallback callback, object state);
-        void FinishAccept();
-        ITransceiver Accept();
-        string ToString();
-        string ToDetailedString();
+        Endpoint Endpoint { get; }
 
-        // TODO: temporary hack, it will be removed with the transport refactoring
-        Task<ITransceiver> AcceptAsync()
-        {
-            var result = new TaskCompletionSource<ITransceiver>();
-            if (StartAccept(state =>
-            {
-                try
-                {
-                    var acceptor = (IAcceptor)state;
-                    acceptor.FinishAccept();
-                    result.SetResult(acceptor.Accept());
-                }
-                catch (System.Exception ex)
-                {
-                    result.SetException(ex);
-                }
-            }, this))
-            {
-                try
-                {
-                    FinishAccept();
-                    result.SetResult(Accept());
-                }
-                catch (System.Exception ex)
-                {
-                    result.SetException(ex);
-                }
-            }
-            return result.Task;
-        }
+        /// <summary>Accepts a new transport</summary>
+        ValueTask<ITransceiver> AcceptAsync();
+
+        string ToDetailedString();
     }
 }

@@ -33,17 +33,6 @@ namespace ZeroC.Ice
         private AsyncCallback? _writeCallback;
         private IAsyncResult? _writeResult;
 
-        public Connection CreateConnection(
-            IConnectionManager manager,
-            Endpoint endpoint,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter)
-        {
-            Debug.Assert(endpoint.IsSecure);
-            return new TcpConnection(manager, endpoint, this, connector, connectionId, adapter);
-        }
-
         public Socket? Fd() => _delegate.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)

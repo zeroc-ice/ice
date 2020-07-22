@@ -10,6 +10,8 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
+    // TODO: eliminate this class and change Connection to implement IRequestHandler? Or could it be useful for
+    // upcoming client interceptors?
     internal class ConnectionRequestHandler : IRequestHandler
     {
         public ValueTask<IncomingResponseFrame> SendRequestAsync(
@@ -21,7 +23,6 @@ namespace ZeroC.Ice
             CancellationToken cancel) =>
             _connection.SendRequestAsync(outgoingRequestFrame,
                                          oneway,
-                                         _compress,
                                          synchronous,
                                          observer,
                                          progress,
@@ -29,13 +30,11 @@ namespace ZeroC.Ice
 
         public Connection GetConnection() => _connection;
 
-        public ConnectionRequestHandler(Connection connection, bool compress)
+        public ConnectionRequestHandler(Connection connection)
         {
             _connection = connection;
-            _compress = compress;
         }
 
         private readonly Connection _connection;
-        private readonly bool _compress;
     }
 }

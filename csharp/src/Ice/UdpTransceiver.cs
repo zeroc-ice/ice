@@ -14,12 +14,6 @@ namespace ZeroC.Ice
     {
         internal System.Net.IPEndPoint? McastAddress { get; private set; }
 
-        public Connection CreateConnection(
-            IConnectionManager manager,
-            Endpoint endpoint,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) => new UdpConnection(manager, endpoint, this, connector, connectionId, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
