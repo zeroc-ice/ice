@@ -30,10 +30,7 @@ namespace ZeroC.Ice
 
         public Connection GetConnection() => _connection;
 
-        public ConnectionRequestHandler(Connection connection)
-        {
-            _connection = connection;
-        }
+        public ConnectionRequestHandler(Connection connection) => _connection = connection;
 
         private readonly Connection _connection;
     }

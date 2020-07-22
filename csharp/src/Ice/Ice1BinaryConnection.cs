@@ -407,8 +407,7 @@ namespace ZeroC.Ice
             if (frame is OutgoingRequestFrame requestFrame)
             {
                 writeBuffer = Ice1Definitions.GetRequestData(requestFrame, streamId);
-                // TODO: Add support for OutgoingRequestFrame.Compress
-                //compress = requestFrame.Compress;
+                compress = requestFrame.Compress;
                 ProtocolTrace.TraceFrame(Endpoint.Communicator, writeBuffer[0], requestFrame);
             }
             else if (frame is OutgoingResponseFrame responseFrame)
