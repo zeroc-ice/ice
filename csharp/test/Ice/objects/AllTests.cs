@@ -342,6 +342,25 @@ public class AllTests : TestCommon.TestApp
             test(false);
         }
         WriteLine("ok");
+
+        Write("testing sending class cycle... ");
+        Flush();
+        {
+            var rec = new Test.Recursive();
+            rec.v = rec;
+            var acceptsCycles = initial.acceptsClassCycles();
+            try
+            {
+                initial.setCycle(rec);
+                test(acceptsCycles);
+            }
+            catch(Ice.UnknownLocalException)
+            {
+                test(!acceptsCycles);
+            }
+
+        }
+        WriteLine("ok");
 #if SILVERLIGHT
         initial.shutdown();
 #else

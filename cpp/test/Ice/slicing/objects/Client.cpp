@@ -41,8 +41,9 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
 
         //
-        // For this test, we enable object collection.
+        // For this test, we allow class cycles and enableobject collection.
         //
+        initData.properties->setProperty("Ice.AcceptClassCycles", "1");
         initData.properties->setProperty("Ice.CollectObjects", "1");
 
         communicator = Ice::initialize(argc, argv, initData);

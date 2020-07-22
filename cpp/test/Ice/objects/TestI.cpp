@@ -203,6 +203,19 @@ InitialI::supportsClassGraphDepthMax(const Ice::Current&)
 }
 
 void
+InitialI::setCycle(const RecursivePtr& r, const Ice::Current&)
+{
+    // break the cycle
+    assert(r);
+    r->v = 0;
+}
+
+bool
+InitialI::acceptsClassCycles(const Ice::Current& c)
+{
+    return c.adapter->getCommunicator()->getProperties()->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
+}
+void
 InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 {
     _b1->preMarshalInvoked = false;

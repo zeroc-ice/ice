@@ -67,19 +67,19 @@ def allTests(communicator):
     b1 = initial.getB1()
     test(b1)
     print("ok")
-    
+
     sys.stdout.write("getting B2... ")
     sys.stdout.flush()
     b2 = initial.getB2()
     test(b2)
     print("ok")
-    
+
     sys.stdout.write("getting C... ")
     sys.stdout.flush()
     c = initial.getC()
     test(c)
     print("ok")
-    
+
     sys.stdout.write("getting D... ")
     sys.stdout.flush()
     d = initial.getD()
@@ -97,7 +97,7 @@ def allTests(communicator):
     test(f.e2.checkValues())
     test(f._e1.checkValues())
     print("ok")
-    
+
     sys.stdout.write("getting I, J, H... ")
     sys.stdout.flush()
     i = initial.getI()
@@ -107,7 +107,7 @@ def allTests(communicator):
     h = initial.getH()
     test(isinstance(h, Test.H))
     print("ok")
-    
+
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
     d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")));
@@ -116,7 +116,7 @@ def allTests(communicator):
     test(d1.a3.name == "a3")
     test(d1.a4.name == "a4")
     print("ok")
-    
+
     sys.stdout.write("throw EDerived... ")
     sys.stdout.flush()
     try:
@@ -135,7 +135,7 @@ def allTests(communicator):
     initial.setI(TestI.JI())
     initial.setI(TestI.HI())
     print("ok")
-    
+
     sys.stdout.write("checking consistency... ")
     sys.stdout.flush()
     test(b1 != b2)
@@ -170,7 +170,7 @@ def allTests(communicator):
     test(c)
     test(d)
     print("ok")
-    
+
     sys.stdout.write("checking consistency... ")
     sys.stdout.flush()
     test(b1 != b2)
@@ -220,7 +220,7 @@ def allTests(communicator):
     print("ok")
 
     # Don't run this test with collocation, this should work with collocation
-    # but the test isn't written to support it (we'd need support for the 
+    # but the test isn't written to support it (we'd need support for the
     # streaming interface)
     if initial.ice_getConnection():
         sys.stdout.write("testing UnexpectedObjectException... ")
@@ -243,5 +243,17 @@ def allTests(communicator):
             print(sys.exc_info())
             test(False)
         print("ok")
+
+    sys.stdout.write("testing sending class cycle... ")
+    sys.stdout.flush()
+    rec = Test.Recursive()
+    rec.v = rec
+    acceptsCycles = initial.acceptsClassCycles()
+    try:
+        initial.setCycle(rec)
+        test(acceptsCycles)
+    except Ice.UnknownLocalException:
+        test(not acceptsCycles)
+    print("ok")
 
     return initial

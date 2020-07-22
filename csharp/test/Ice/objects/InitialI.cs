@@ -103,6 +103,15 @@ public sealed class InitialI : Initial
         return true;
     }
 
+    public override void setCycle(Test.Recursive r, Ice.Current current)
+    {
+    }
+
+    public override bool acceptsClassCycles(Ice.Current current)
+    {
+        return true;
+    }
+
     public override void throwEDerived(Ice.Current current)
     {
         throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));

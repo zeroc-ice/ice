@@ -168,6 +168,11 @@ dictionary<string, Object*> ObjectPrxDict;  // For Objective-C only
 dictionary<string, Base> BaseDict;          // For Objective-C only
 dictionary<string, Base*> BasePrxDict;      // For Objective-C only
 
+class Recursive
+{
+    Recursive v;
+};
+
 class Initial
 {
     void shutdown();
@@ -177,6 +182,9 @@ class Initial
     D getD();
     E getE();
     F getF();
+
+    void setCycle(Recursive r);
+    bool acceptsClassCycles();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 

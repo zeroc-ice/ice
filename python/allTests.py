@@ -43,6 +43,7 @@ tests = [
     ("Ice/operations", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
+    ("Ice/admin", ["core"]),
     ("Ice/custom", ["core"]),
     ("Ice/checksum", ["core"]),
     ("Ice/timeout", ["core", "nocompress"]),

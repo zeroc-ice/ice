@@ -137,6 +137,10 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         {
             data.properties = Ice::createProperties();
         }
+
+        // Always accept cycles in Ruby
+        data.properties->setProperty("Ice.AcceptClassCycles", "1");
+
         //
         // Disable collocation optimization, otherwise an invocation on a
         // collocated servant results in a CollocationOptimizationException
@@ -181,7 +185,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 
             throw;
         }
-        
+
         //
         // Replace the contents of the given argument list with the filtered arguments.
         //
@@ -371,7 +375,7 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
             volatile VALUE value = createString(q->second);
             callRuby(rb_hash_aset, result, key, value);
         }
-        return result; 
+        return result;
     }
     ICE_RUBY_CATCH
     return Qnil;

@@ -207,6 +207,9 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     data.compactIdResolver = new IdResolver;
 
+    // Always accept cycles in Python
+    data.properties->setProperty("Ice.AcceptClassCycles", "1");
+
     Ice::CommunicatorPtr communicator;
     try
     {
@@ -1725,7 +1728,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* obj)
     {
         return 0;
     }
-    
+
     string str;
 
     try

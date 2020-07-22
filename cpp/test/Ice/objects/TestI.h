@@ -108,6 +108,9 @@ public:
     virtual void setRecursive(const Test::RecursivePtr&, const Ice::Current&);
     virtual bool supportsClassGraphDepthMax(const Ice::Current&);
 
+    virtual void setCycle(const Test::RecursivePtr&, const Ice::Current&);
+    virtual bool acceptsClassCycles(const Ice::Current&);
+
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
     virtual Test::IPtr getI(const Ice::Current&);
     virtual Test::IPtr getJ(const Ice::Current&);

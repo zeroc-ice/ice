@@ -74,25 +74,25 @@ def allTests(communicator)
     b1 = initial.getB1()
     test(b1)
     puts "ok"
-    
+
     print "getting B2... "
     STDOUT.flush
     b2 = initial.getB2()
     test(b2)
     puts "ok"
-    
+
     print "getting C... "
     STDOUT.flush
     c = initial.getC()
     test(c)
     puts "ok"
-    
+
     print "getting D... "
     STDOUT.flush
     d = initial.getD()
     test(d)
     puts "ok"
-    
+
     print "checking consistency... "
     STDOUT.flush
     test(b1 != b2)
@@ -127,7 +127,7 @@ def allTests(communicator)
     test(c)
     test(d)
     puts "ok"
-    
+
     print "checking consistency... "
     STDOUT.flush
     test(b1 != b2)
@@ -192,7 +192,7 @@ def allTests(communicator)
     h = initial.getH()
     test(i)
     puts "ok"
-    
+
     print "getting D1... "
     STDOUT.flush
     d1 = initial.getD1(Test::D1.new(Test::A1.new("a1"), Test::A1.new("a2"), Test::A1.new("a3"), Test::A1.new("a4")))
@@ -201,7 +201,7 @@ def allTests(communicator)
     test(d1.a3.name == "a3")
     test(d1.a4.name == "a4")
     puts "ok"
-    
+
     print "throw EDerived... "
     STDOUT.flush
     begin
@@ -264,6 +264,19 @@ def allTests(communicator)
         puts $!
         print ex.backtrace.join("\n")
         test(false)
+    end
+    puts "ok"
+
+    print "testing sending class cycle... "
+    STDOUT.flush
+    rec = Test::Recursive.new
+    rec.v = rec
+    acceptsCycles = initial.acceptsClassCycles()
+    begin
+        initial.setCycle(rec)
+        test(acceptsCycles)
+    rescue Ice::UnknownLocalException => ex
+        test(!acceptsCycles)
     end
     puts "ok"
 

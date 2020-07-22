@@ -132,6 +132,12 @@ class InitialI(Test.Initial):
     def getF(self, current=None):
         return self._f
 
+    def setCycle(self, r, current):
+        pass
+
+    def acceptsClassCycles(self, current):
+        return True
+
     def getAll(self, current=None):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False

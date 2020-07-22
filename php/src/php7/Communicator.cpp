@@ -923,6 +923,14 @@ ZEND_FUNCTION(Ice_initialize)
 
     initData.compactIdResolver = new IdResolver();
 
+    if(!initData.properties)
+    {
+        initData.properties = Ice::createProperties();
+    }
+
+    // Always accept cycles in PHP
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+
     CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, hasArgs, initData);
     if(!info)
     {

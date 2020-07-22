@@ -57,7 +57,7 @@ class D
 {
     A theA;
     B theB;
-    C theC;    
+    C theC;
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked();
@@ -141,7 +141,7 @@ exception EDerived extends EBase
 
 module Inner
 {
-    
+
 class A
 {
     ::Test::A theA;
@@ -169,6 +169,11 @@ exception Ex
 
 };
 
+class Recursive
+{
+    Recursive v;
+};
+
 class Initial
 {
     void shutdown();
@@ -178,6 +183,9 @@ class Initial
     D getD();
     E getE();
     F getF();
+
+    void setCycle(Recursive r);
+    bool acceptsClassCycles();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
@@ -193,10 +201,10 @@ class Initial
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
     Compact getCompact();
-    
+
     Inner::A getInnerA();
     Inner::Sub::A getInnerSubA();
-    
+
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
 };

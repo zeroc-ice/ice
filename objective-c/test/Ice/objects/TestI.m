@@ -207,6 +207,16 @@
     return _f;
 }
 
+-(void) setCycle:(TestObjectsRecursive*)r current:(ICECurrent*) current
+{
+    // break the cycle
+    r.v = nil;
+}
+
+-(BOOL) acceptsClassCycles:(ICECurrent*) current
+{
+    return [[[[current adapter] getCommunicator] getProperties] getPropertyAsInt:@"Ice.AcceptClassCycles"] > 0;
+}
 
 -(void) getAll:(TestObjectsB **)b1 b2:(TestObjectsB **)b2 theC:(TestObjectsC **)theC theD:(TestObjectsD **)theD current:(ICECurrent *)current;
 {

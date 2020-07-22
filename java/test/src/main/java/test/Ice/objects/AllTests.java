@@ -328,6 +328,25 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing sending class cycle... ");
+        out.flush();
+        {
+            Recursive rec = new Recursive();
+            rec.v = rec;
+            boolean acceptsCycles = initial.acceptsClassCycles();
+            try
+            {
+                initial.setCycle(rec);
+                test(acceptsCycles);
+            }
+            catch(Ice.UnknownLocalException ex)
+            {
+                test(!acceptsCycles);
+            }
+        }
+        out.println("ok");
+
+
         return initial;
     }
 }

@@ -187,6 +187,9 @@ class Initial
     void setRecursive(Recursive p);
     bool supportsClassGraphDepthMax();
 
+    void setCycle(Recursive r);
+    bool acceptsClassCycles();
+
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
     I getI();

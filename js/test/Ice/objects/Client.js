@@ -508,6 +508,29 @@
             {
                 test(ex.reason == "Inner::Sub::Ex");
                 out.writeLine("ok");
+                out.write("testing sending class cycle... ");
+                return initial.acceptsClassCycles();
+            }
+        ).then(
+            function(acceptsClassCycles)
+            {
+                var rec = new Test.Recursive();
+                rec.v = rec;
+                return initial.setCycle(rec).then(
+                    function()
+                {
+                        test(acceptsClassCycles);
+                    },
+                    function(ex)
+                    {
+                        test(!acceptsClassCycles);
+                    }
+                );
+            }
+        ).then(
+            function()
+            {
+                out.writeLine("ok");
                 return initial.shutdown();
             }
         ).then(

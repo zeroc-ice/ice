@@ -1065,6 +1065,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _batchAutoFlushSize(0),
     _classGraphDepthMax(0),
     _collectObjects(false),
+    _acceptClassCycles(false),
     _implicitContext(0),
     _stringConverter(IceUtil::getProcessStringConverter()),
     _wstringConverter(IceUtil::getProcessWstringConverter()),
@@ -1321,6 +1322,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         }
 
         const_cast<bool&>(_collectObjects) = _initData.properties->getPropertyAsInt("Ice.CollectObjects") > 0;
+
+        const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
         //
         // Client ACM enabled by default. Server ACM disabled by default.

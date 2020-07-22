@@ -8,52 +8,67 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.5](#changes-in-ice-365)
+- [Changes since Ice 3.6.5](#changes-since-ice-365)
   - [General Changes](#general-changes)
+- [Changes in Ice 3.6.5](#changes-in-ice-365)
+  - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.4](#changes-in-ice-364)
-  - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-2)
-  - [C# Changes](#c-changes-3)
-  - [Java Changes](#java-changes-1)
-  - [JavaScript Changes](#javascript-changes)
-- [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes-2)
-  - [C++ Changes](#c-changes-4)
+  - [C++ Changes](#c-changes-2)
+  - [CSharp Changes](#csharp-changes)
+  - [Java Changes](#java-changes-1)
+  - [JavaScript Changes](#javascript-changes-1)
+- [Changes in Ice 3.6.3](#changes-in-ice-363)
+  - [General Changes](#general-changes-3)
+  - [C++ Changes](#c-changes-3)
   - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes-1)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
-  - [General Changes](#general-changes-3)
-  - [C++ Changes](#c-changes-5)
-  - [C# Changes](#c-changes-6)
+  - [General Changes](#general-changes-4)
+  - [C++ Changes](#c-changes-4)
+  - [C# Changes](#c-changes-5)
   - [Java Changes](#java-changes-2)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
-  - [General Changes](#general-changes-4)
-  - [C++ Changes](#c-changes-7)
-  - [JavaScript Changes](#javascript-changes-1)
+  - [General Changes](#general-changes-5)
+  - [C++ Changes](#c-changes-6)
+  - [JavaScript Changes](#javascript-changes-2)
   - [PHP Changes](#php-changes-2)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
-  - [General Changes](#general-changes-5)
-  - [C++ Changes](#c-changes-8)
-  - [C# Changes](#c-changes-9)
+  - [General Changes](#general-changes-6)
+  - [C++ Changes](#c-changes-7)
+  - [C# Changes](#c-changes-8)
   - [Java Changes](#java-changes-3)
-  - [JavaScript Changes](#javascript-changes-2)
+  - [JavaScript Changes](#javascript-changes-3)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-3)
   - [Ruby Changes](#ruby-changes-1)
 
+# Changes since Ice 3.6.5
+
+These are the changes since Ice 3.6.5.
+
+## General Changes
+
+- Add support for detection of class cycles during unmarshaling in C++
+  and Objective-C. A `MarshalException` is thrown when a cycle is detected.
+
+  The property `Ice.AcceptClassCycles` can be set to a value greater than `0`
+  to change this behavior.
+
 # Changes in Ice 3.6.5
 
-These are the changes since Ice 3.6.4 included in this pre-release.
+These are the changes since Ice 3.6.4.
 
 ## General Changes
 

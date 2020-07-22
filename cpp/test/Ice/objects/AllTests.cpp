@@ -331,10 +331,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
         }
         cout << "ok" << endl;
+
     }
     catch(const Ice::ObjectNotExistException&)
     {
     }
+
+    cout << "testing sending class cycle... " << flush;
+    {
+        RecursivePtr rec = new Recursive;
+        rec->v = rec;
+        bool acceptsCycles = initial->acceptsClassCycles();
+        try
+        {
+            initial->setCycle(rec);
+            test(acceptsCycles);
+        }
+        catch(const Ice::UnknownLocalException&)
+        {
+            // expected when the remote server does not accept cycles
+            // and throws a MarshalException
+            test(!acceptsCycles);
+        }
+        rec->v = 0;
+    }
+    cout << "ok" << endl;
 
     return initial;
 }

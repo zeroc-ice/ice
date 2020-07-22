@@ -68,6 +68,17 @@ public final class InitialI extends Initial
     }
 
     @Override
+    public void setCycle(Recursive r, Ice.Current current)
+    {
+    }
+
+    @Override
+    public boolean acceptsClassCycles(Ice.Current current)
+    {
+        return true;
+    }
+
+    @Override
     public void
     getAll(BHolder b1, BHolder b2, CHolder c, DHolder d, Ice.Current current)
     {
