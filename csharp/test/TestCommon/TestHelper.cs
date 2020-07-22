@@ -57,11 +57,43 @@ namespace Test
                 }
             }
 
-            var sb = new StringBuilder();
-            sb.Append(transport);
-            sb.Append(" -p ");
-            sb.Append(GetTestPort(properties, num));
-            return sb.ToString();
+            bool uriFormat = true;
+            // TODO: switch to a different test-only property to select the protocol
+            if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
+            {
+                if (protocolValue == "ice1")
+                {
+                    uriFormat = false;
+                }
+            }
+
+            if (uriFormat)
+            {
+                var sb = new StringBuilder("ice+");
+                sb.Append(transport);
+                sb.Append("://");
+                string host = GetTestHost(properties);
+                if (host.Contains(':'))
+                {
+                    sb.Append('[');
+                    sb.Append(host);
+                    sb.Append(']');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
+                sb.Append(':');
+                sb.Append(GetTestPort(properties, num));
+                return sb.ToString();
+            }
+            else
+            {
+                var sb = new StringBuilder(transport);
+                sb.Append(" -p ");
+                sb.Append(GetTestPort(properties, num));
+                return sb.ToString();
+            }
         }
 
         public string GetTestProxy(string identity, int num = 0, string? transport = null) =>

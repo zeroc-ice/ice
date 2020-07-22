@@ -128,13 +128,15 @@ namespace ZeroC.Ice.Test.Admin
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             TextWriter output = helper.GetWriter();
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+
             output.Write("testing communicator operations... ");
             output.Flush();
             {
                 // Test: Exercise AddAdminFacet, FindAdminFacet, RemoveAdminFacet with a typical configuration.
                 var properties = new Dictionary<string, string>
                 {
-                    ["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1",
+                    ["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0",
                     ["Ice.Admin.InstanceName"] = "Test"
                 };
                 using var com = new Communicator(properties);
@@ -144,7 +146,7 @@ namespace ZeroC.Ice.Test.Admin
                 // Test: Verify that the operations work correctly in the presence of facet filters.
                 var properties = new Dictionary<string, string>
                 {
-                    ["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1",
+                    ["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0",
                     ["Ice.Admin.InstanceName"] = "Test",
                     ["Ice.Admin.Facets"] = "Properties"
                 };
@@ -186,7 +188,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var properties = new Dictionary<string, string>()
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.DelayCreation", "1" }
                 };
@@ -208,7 +210,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" }
                 };
                 IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
@@ -227,7 +229,7 @@ namespace ZeroC.Ice.Test.Admin
             {
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Prop1", "1" },
                     { "Prop2", "2" },
@@ -249,13 +251,14 @@ namespace ZeroC.Ice.Test.Admin
                 // Test: PropertiesAdmin::getProperties()
                 //
                 Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
-                TestHelper.Assert(pd.Count == 6);
+                TestHelper.Assert(pd.Count == 7);
                 TestHelper.Assert(pd["Ice.ProgramName"] == "server");
-                TestHelper.Assert(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1");
+                TestHelper.Assert(pd["Ice.Admin.Endpoints"] == (ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0"));
                 TestHelper.Assert(pd["Ice.Admin.InstanceName"] == "Test");
                 TestHelper.Assert(pd["Prop1"] == "1");
                 TestHelper.Assert(pd["Prop2"] == "2");
                 TestHelper.Assert(pd["Prop3"] == "3");
+                TestHelper.Assert(pd["Ice.Default.Protocol"] == communicator.DefaultProtocol.GetName());
 
                 Dictionary<string, string> changes;
 
@@ -296,7 +299,7 @@ namespace ZeroC.Ice.Test.Admin
             {
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "NullLogger", "1" }
                 };
@@ -379,7 +382,7 @@ namespace ZeroC.Ice.Test.Admin
                 // Now, test RemoteLogger
                 //
                 ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter",
-                    "tcp -h localhost", serializeDispatch: true);
+                    ice1 ? "tcp -h localhost" : "ice+tcp://localhost:0", serializeDispatch: true);
 
                 var remoteLogger = new RemoteLogger();
 
@@ -465,7 +468,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" }
                 };
                 IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
@@ -487,7 +490,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Properties" }
                 };
@@ -521,7 +524,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Process" }
                 };
@@ -555,7 +558,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "TestFacet" }
                 };
@@ -589,7 +592,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Properties TestFacet" }
                 };
@@ -618,7 +621,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 var props = new Dictionary<string, string>
                 {
-                    { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                    { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "TestFacet, Process" }
                 };

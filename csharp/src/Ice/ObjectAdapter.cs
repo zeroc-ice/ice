@@ -31,6 +31,10 @@ namespace ZeroC.Ice
         /// <value>The object adapter's name.</value>
         public string Name { get; }
 
+        /// <summary>Gets the protocol of this object adapter. The format of this object adapter's Endpoints property
+        /// determines this protocol.</summary>
+        public Protocol Protocol { get; }
+
         /// <summary>Indicates whether or not this object adapter serializes the dispatching of requests received
         /// over the same connection.</summary>
         /// <value>The serialize dispatch value.</value>
@@ -87,6 +91,7 @@ namespace ZeroC.Ice
             new Dictionary<IdentityPlusFacet, IObject>();
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
             new List<IncomingConnectionFactory>();
+        private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new object();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
@@ -236,7 +241,7 @@ namespace ZeroC.Ice
         /// <returns>The corresponding servant in the ASM, or null if the servant was not found.</returns>
         public IObject? Find(string identityAndFacet)
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return Find(identity, facet);
         }
 
@@ -299,7 +304,7 @@ namespace ZeroC.Ice
         public T Add<T>(string identityAndFacet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return Add(identity, facet, servant, proxyFactory);
         }
 
@@ -310,7 +315,7 @@ namespace ZeroC.Ice
         /// <param name="servant">The servant to add.</param>
         public void Add(string identityAndFacet, IObject servant)
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             Add(identity, facet, servant);
         }
 
@@ -377,7 +382,7 @@ namespace ZeroC.Ice
         /// <returns>The servant that was just removed from the ASM, or null if the servant was not found.</returns>
         public IObject? Remove(string identityAndFacet)
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return Remove(identity, facet);
         }
 
@@ -506,7 +511,7 @@ namespace ZeroC.Ice
         /// <returns>A proxy for the object with the given identity and facet.</returns>
         public T CreateProxy<T>(string identityAndFacet, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return CreateProxy(identity, facet, factory);
         }
 
@@ -538,7 +543,7 @@ namespace ZeroC.Ice
         public T CreateDirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
             where T : class, IObjectPrx
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return CreateDirectProxy(identity, facet, factory);
         }
 
@@ -567,7 +572,7 @@ namespace ZeroC.Ice
         public T CreateIndirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
             where T : class, IObjectPrx
         {
-            (Identity identity, string facet) = UriParser.Parse(identityAndFacet);
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return CreateIndirectProxy(identity, facet, factory);
         }
 
@@ -723,6 +728,7 @@ namespace ZeroC.Ice
                 _id = "";
                 _replicaGroupId = "";
                 _acm = Communicator.ServerAcm;
+                Protocol = Communicator.DefaultProtocol;
                 return;
             }
 
@@ -761,6 +767,7 @@ namespace ZeroC.Ice
 
                 if (router != null)
                 {
+                    Protocol = router.Protocol;
                     _routerInfo = Communicator.GetRouterInfo(router);
                     Debug.Assert(_routerInfo != null);
 
@@ -788,11 +795,30 @@ namespace ZeroC.Ice
                     // it, for example, to fill in the real port number.
                     if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
                     {
-                        endpoints = ParseEndpoints(value, true);
+                        if (UriParser.IsEndpointUri(value))
+                        {
+                            Protocol = Protocol.Ice2;
+                            endpoints = UriParser.ParseEndpoints(value, Communicator);
+                        }
+                        else
+                        {
+                            Protocol = Protocol.Ice1;
+                            endpoints = ParseIce1Endpoints(value, true);
+                            if (Communicator.GetProperty($"{Name}.ProxyOptions") is string proxyOptions)
+                            {
+                                _invocationMode = ParseProxyOptions(proxyOptions);
+                            }
+                        }
 
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
                                 new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
+                    }
+                    else
+                    {
+                        // TODO: better fallback!
+                        Protocol = Communicator.DefaultProtocol;
+                        Debug.Assert(Protocol != default);
                     }
 
                     if (endpoints == null || endpoints.Count == 0)
@@ -912,21 +938,18 @@ namespace ZeroC.Ice
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
-                // TODO: currently the object adapter supports a single protocol (Ice.Default.Protocol), a single
-                // encoding (Ice.Default.Encoding) and we don't read OA ProxyOptions for the ice1 invocation mode.
-
                 return new Reference(adapterId: adapterId,
                                      communicator: Communicator,
-                                     encoding: Communicator.DefaultEncoding,
+                                     encoding: Protocol.GetEncoding(),
                                      endpoints: adapterId.Length == 0 ? _publishedEndpoints : Array.Empty<Endpoint>(),
                                      facet: facet,
                                      identity: identity,
-                                     invocationMode: InvocationMode.Twoway,
-                                     protocol: Communicator.DefaultProtocol);
+                                     invocationMode: _invocationMode,
+                                     protocol: Protocol);
             }
         }
 
-        private IReadOnlyList<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
+        private IReadOnlyList<Endpoint> ParseIce1Endpoints(string endpts, bool oaEndpoints)
         {
             int beg;
             int end = 0;
@@ -1005,6 +1028,17 @@ namespace ZeroC.Ice
             return endpoints;
         }
 
+        private InvocationMode ParseProxyOptions(string proxyOptions) =>
+            proxyOptions.Trim() switch
+            {
+                "-t" => InvocationMode.Twoway,
+                "-o" => InvocationMode.Oneway,
+                "-d" => InvocationMode.Datagram,
+                "-O" => throw new NotSupportedException("batch oneway is not supported in ProxyOptions"),
+                "-D" => throw new NotSupportedException("batch datagram is not supported in ProxyOptions"),
+                _ => throw new InvalidConfigurationException($"cannot parse ProxyOptions {proxyOptions}")
+            };
+
         private async Task<IReadOnlyList<Endpoint>> ComputePublishedEndpointsAsync()
         {
             IReadOnlyList<Endpoint>? endpoints = null;
@@ -1020,7 +1054,24 @@ namespace ZeroC.Ice
                 // endpoints.
                 if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
                 {
-                    endpoints = ParseEndpoints(value, false);
+                    if (UriParser.IsEndpointUri(value))
+                    {
+                        if (Protocol == Protocol.Ice1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
+                        }
+                        endpoints = UriParser.ParseEndpoints(value, Communicator);
+                    }
+                    else
+                    {
+                        if (Protocol == Protocol.Ice2)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
+                        }
+                        endpoints = ParseIce1Endpoints(value, false);
+                    }
                 }
                 if (endpoints == null || endpoints.Count == 0)
                 {
@@ -1038,11 +1089,32 @@ namespace ZeroC.Ice
 
             if (Communicator.TraceLevels.Network >= 1 && endpoints.Count > 0)
             {
-                var s = new StringBuilder("published endpoints for object adapter `");
-                s.Append(Name);
-                s.Append("':\n");
-                s.Append(string.Join(":", endpoints));
-                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, s.ToString());
+                var sb = new StringBuilder("published endpoints for object adapter `");
+
+                if (Protocol == Protocol.Ice1)
+                {
+                    sb.Append(Name);
+                    sb.Append("':\n");
+                    sb.Append(string.Join(":", endpoints));
+                }
+                else
+                {
+                    sb.AppendEndpoint(endpoints[0]);
+                    if (endpoints.Count > 1)
+                    {
+                        Transport mainTransport = endpoints[0].Transport;
+                        sb.Append("?alt-endpoint=");
+                        for (int i = 1; i < endpoints.Count; ++i)
+                        {
+                            if (i > 1)
+                            {
+                                sb.Append(',');
+                            }
+                            sb.AppendEndpoint(endpoints[i], "", mainTransport != endpoints[i].Transport, '$');
+                        }
+                    }
+                }
+                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, sb.ToString());
             }
 
             return endpoints;
