@@ -45,7 +45,7 @@ namespace Test
 
         public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
-            if (transport.Length == 0)
+            if (transport.Length == 0 || transport == "default")
             {
                 if (properties.TryGetValue("Ice.Default.Transport", out string? value))
                 {
@@ -184,6 +184,7 @@ namespace Test
 
         public int GetTestPort(int num) => GetTestPort(_communicator!.GetProperties(), num);
 
+        // TODO: switch to ushort
         public static int GetTestPort(Dictionary<string, string> properties, int num)
         {
             int basePort = 12010;

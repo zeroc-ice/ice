@@ -12,7 +12,14 @@ namespace ZeroC.Ice.Test.Info
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0) + ":" + GetTestEndpoint(0, "udp"));
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0) + ":" + GetTestEndpoint(0, "udp"));
+            }
+            else
+            {
+                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            }
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
             await adapter.ActivateAsync();

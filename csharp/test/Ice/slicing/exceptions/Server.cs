@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
             await using Communicator communicator = Initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0) + " -t 2000");
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("Test", new TestIntf());
             await adapter.ActivateAsync();

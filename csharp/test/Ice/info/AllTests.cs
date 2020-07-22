@@ -16,7 +16,8 @@ namespace ZeroC.Ice.Test.Info
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            bool oldProtocol = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            string transport = communicator.DefaultTransport;
             var output = helper.GetWriter();
             output.Write("testing proxy endpoint information... ");
             output.Flush();
@@ -28,7 +29,7 @@ namespace ZeroC.Ice.Test.Info
                 string ice2Prx = "ice+tcp://tcphost:10000/test?source-address=10.10.10.10" +
                     "&alt-endpoint=ice+universal://unihost:10000?transport=100$option=ABCD";
 
-                var p1 = IObjectPrx.Parse(oldProtocol ? ice1Prx : ice2Prx, communicator);
+                var p1 = IObjectPrx.Parse(ice1 ? ice1Prx : ice2Prx, communicator);
 
                 var endps = p1.Endpoints;
 
@@ -37,14 +38,14 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.Host == "tcphost");
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
                 TestHelper.Assert(tcpEndpoint["source-address"] == "10.10.10.10");
-                if (oldProtocol)
+                if (ice1)
                 {
                     TestHelper.Assert(tcpEndpoint["timeout"] == "1200");
                     TestHelper.Assert(tcpEndpoint["compress"] == "true");
                 }
                 TestHelper.Assert(!tcpEndpoint.IsDatagram);
 
-                if (oldProtocol)
+                if (ice1)
                 {
                     Endpoint udpEndpoint = endps[1];
                     TestHelper.Assert(udpEndpoint.Host == "udphost");
@@ -110,7 +111,8 @@ namespace ZeroC.Ice.Test.Info
                 adapter.Dispose();
 
                 int port = helper.GetTestPort(1);
-                communicator.SetProperty("TestAdapter.Endpoints", $"default -h * -p {port}");
+                communicator.SetProperty("TestAdapter.Endpoints",
+                    ice1 ? $"default -h 0.0.0.0 -p {port}" : $"ice+{transport}://[::0]:{port}");
                 communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.GetTestEndpoint(1));
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
@@ -135,7 +137,7 @@ namespace ZeroC.Ice.Test.Info
             int endpointPort = helper.GetTestPort(0);
 
             ITestIntfPrx testIntf;
-            if (oldProtocol)
+            if (ice1)
             {
                 testIntf = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0) + ":" +
                                               helper.GetTestEndpoint(0, "udp"), communicator);
@@ -162,7 +164,7 @@ namespace ZeroC.Ice.Test.Info
                 int port = int.Parse(ctx["port"]);
                 TestHelper.Assert(port > 0);
 
-                if (oldProtocol)
+                if (ice1)
                 {
                     Endpoint udpEndpoint =
                         testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!.Endpoint;
@@ -244,7 +246,7 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(ctx["ws.Sec-WebSocket-Key"] != null);
                 }
 
-                if (oldProtocol)
+                if (ice1)
                 {
                     connection = (IPConnection)testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
 
