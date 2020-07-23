@@ -4,18 +4,19 @@
 
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.Tagged
 {
     public class AllTests
     {
-        public static IInitialPrx allTests(TestHelper helper)
+        public static IInitialPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
 
-            var output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
 
             output.Write("testing tagged data members... ");
@@ -26,10 +27,10 @@ namespace ZeroC.Ice.Test.Tagged
             oo1.A = 15;
             TestHelper.Assert(oo1.A.HasValue && oo1.A == 15);
 
-            OneTagged oo2 = new OneTagged(16);
+            var oo2 = new OneTagged(16);
             TestHelper.Assert(oo2.A.HasValue && oo2.A == 16);
 
-            MultiTagged mo1 = new MultiTagged();
+            var mo1 = new MultiTagged();
             mo1.A = 15;
             mo1.B = true;
             mo1.C = 19;
@@ -42,14 +43,18 @@ namespace ZeroC.Ice.Test.Tagged
             mo1.K = mo1;
             mo1.Bs = new byte[] { 5 };
             mo1.Ss = new string[] { "test", "test2" };
-            mo1.Iid = new Dictionary<int, int>();
-            mo1.Iid.Add(4, 3);
-            mo1.Sid = new Dictionary<string, int>();
-            mo1.Sid.Add("test", 10);
-            FixedStruct fs = new FixedStruct();
+            mo1.Iid = new Dictionary<int, int>
+            {
+                { 4, 3 }
+            };
+            mo1.Sid = new Dictionary<string, int>
+            {
+                { "test", 10 }
+            };
+            var fs = new FixedStruct();
             fs.M = 78;
             mo1.Fs = fs;
-            VarStruct vs = new VarStruct();
+            var vs = new VarStruct();
             vs.M = "hello";
             mo1.Vs = vs;
 
@@ -59,14 +64,22 @@ namespace ZeroC.Ice.Test.Tagged
             mo1.Vss = new VarStruct[] { vs };
             mo1.Oos = new OneTagged[] { oo1 };
 
-            mo1.Ied = new Dictionary<int, MyEnum>();
-            mo1.Ied.Add(4, MyEnum.MyEnumMember);
-            mo1.Ifsd = new Dictionary<int, FixedStruct>();
-            mo1.Ifsd.Add(4, fs);
-            mo1.Ivsd = new Dictionary<int, VarStruct>();
-            mo1.Ivsd.Add(5, vs);
-            mo1.Iood = new Dictionary<int, OneTagged?>();
-            mo1.Iood.Add(5, new OneTagged(15));
+            mo1.Ied = new Dictionary<int, MyEnum>
+            {
+                { 4, MyEnum.MyEnumMember }
+            };
+            mo1.Ifsd = new Dictionary<int, FixedStruct>
+            {
+                { 4, fs }
+            };
+            mo1.Ivsd = new Dictionary<int, VarStruct>
+            {
+                { 5, vs }
+            };
+            mo1.Iood = new Dictionary<int, OneTagged?>
+            {
+                { 5, new OneTagged(15) }
+            };
 
             mo1.Bos = new bool[] { false, true, false };
             mo1.Ser = new SerializableClass(56);
@@ -225,7 +238,7 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo5.Vil!.SequenceEqual(mo1.Vil));
 
             // Clear the first half of the tagged members
-            MultiTagged mo6 = new MultiTagged();
+            var mo6 = new MultiTagged();
             mo6.B = mo5.B;
             mo6.D = mo5.D;
             mo6.F = mo5.F;
@@ -332,11 +345,13 @@ namespace ZeroC.Ice.Test.Tagged
             }
 
             {
-                TaggedWithCustom owc1 = new TaggedWithCustom();
-                owc1.L = new List<SmallStruct>();
-                owc1.L.Add(new SmallStruct(5));
-                owc1.L.Add(new SmallStruct(6));
-                owc1.L.Add(new SmallStruct(7));
+                var owc1 = new TaggedWithCustom();
+                owc1.L = new List<SmallStruct>
+                {
+                    new SmallStruct(5),
+                    new SmallStruct(6),
+                    new SmallStruct(7)
+                };
                 owc1.S = new ClassVarStruct(5);
                 var owc2 = (TaggedWithCustom?)initial.PingPong(owc1);
                 TestHelper.Assert(owc2 != null);
@@ -385,22 +400,22 @@ namespace ZeroC.Ice.Test.Tagged
             // TODO: simplify  It was using the 1.0 encoding with operations whose
             // only class parameters were tagged.
             //
-            OneTagged? oo = new OneTagged(53);
+            var oo = new OneTagged(53);
             initial.SendTaggedClass(true, oo);
 
             oo = initial.ReturnTaggedClass(true);
             TestHelper.Assert(oo != null);
 
-            Recursive[] recursive1 = new Recursive[1];
+            var recursive1 = new Recursive[1];
             recursive1[0] = new Recursive();
-            Recursive[] recursive2 = new Recursive[1];
+            var recursive2 = new Recursive[1];
             recursive2[0] = new Recursive();
             recursive1[0].Value = recursive2;
-            Recursive outer = new Recursive();
+            var outer = new Recursive();
             outer.Value = recursive1;
             initial.PingPong(outer);
 
-            G? g = new G();
+            var g = new G();
             g.Gg1Opt = new G1("gg1Opt");
             g.Gg2 = new G2(10);
             g.Gg2Opt = new G2(20);
@@ -428,7 +443,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             output.Write("testing marshaling of large containers with fixed size elements... ");
             output.Flush();
-            MultiTagged? mc = new MultiTagged();
+            var mc = new MultiTagged();
 
             mc.Bs = new byte[1000];
             mc.Shs = new short[300];
@@ -473,7 +488,7 @@ namespace ZeroC.Ice.Test.Tagged
             output.Write("testing tag marshaling... ");
             output.Flush();
             {
-                B? b = new B();
+                var b = new B();
                 var b2 = (B?)initial.PingPong(b);
                 TestHelper.Assert(b2 != null);
                 TestHelper.Assert(!b2.Ma.HasValue);
@@ -514,7 +529,7 @@ namespace ZeroC.Ice.Test.Tagged
             output.Write("testing marshalling of objects with tagged objects...");
             output.Flush();
             {
-                F? f = new F();
+                var f = new F();
 
                 f.Af = new A();
                 f.Ae = f.Af;
@@ -600,7 +615,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 bool? p1 = null;
-                var (p2, p3) = initial.OpBool(p1);
+                (bool? p2, bool? p3) = initial.OpBool(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpBool(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -608,7 +623,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = true;
                 (p2, p3) = initial.OpBool(p1);
                 TestHelper.Assert(p2 == true && p3 == true);
-                var r = initial.OpBoolAsync(p1).Result;
+                (bool? ReturnValue, bool? p3) r = initial.OpBoolAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == true && r.p3 == true);
                 (p2, p3) = initial.OpBool(true);
                 TestHelper.Assert(p2 == true && p3 == true);
@@ -635,7 +650,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 short? p1 = null;
-                var (p2, p3) = initial.OpShort(p1);
+                (short? p2, short? p3) = initial.OpShort(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpShort(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -643,7 +658,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = 56;
                 (p2, p3) = initial.OpShort(p1);
                 TestHelper.Assert(p2 == 56 && p3 == 56);
-                var r = initial.OpShortAsync(p1).Result;
+                (short? ReturnValue, short? p3) r = initial.OpShortAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.OpShort(p1);
                 TestHelper.Assert(p2 == 56 && p3 == 56);
@@ -670,7 +685,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 int? p1 = null;
-                var (p2, p3) = initial.OpInt(p1);
+                (int? p2, int? p3) = initial.OpInt(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpInt(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -678,7 +693,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = 56;
                 (p2, p3) = initial.OpInt(p1);
                 TestHelper.Assert(p2 == 56 && p3 == 56);
-                var r = initial.OpIntAsync(p1).Result;
+                (int? ReturnValue, int? p3) r = initial.OpIntAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.OpInt(p1);
                 TestHelper.Assert(p2 == 56 && p3 == 56);
@@ -705,7 +720,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 long? p1 = null;
-                var (p2, p3) = initial.OpLong(p1);
+                (long? p2, long? p3) = initial.OpLong(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpLong(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -713,7 +728,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = 56;
                 (p2, p3) = initial.OpLong(p1);
                 TestHelper.Assert(p2 == 56 && p3 == 56);
-                var r = initial.OpLongAsync(p1).Result;
+                (long? ReturnValue, long? p3) r = initial.OpLongAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == 56 && r.p3 == 56);
                 (p2, p3) = initial.OpLong(p1);
                 TestHelper.Assert(p2 == 56 && p3 == 56);
@@ -740,7 +755,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 float? p1 = null;
-                var (p2, p3) = initial.OpFloat(p1);
+                (float? p2, float? p3) = initial.OpFloat(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpFloat(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -748,7 +763,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = 1.0f;
                 (p2, p3) = initial.OpFloat(p1);
                 TestHelper.Assert(p2 == 1.0f && p3 == 1.0f);
-                var r = initial.OpFloatAsync(p1).Result;
+                (float? ReturnValue, float? p3) r = initial.OpFloatAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == 1.0f && r.p3 == 1.0f);
                 (p2, p3) = initial.OpFloat(p1);
                 TestHelper.Assert(p2 == 1.0f && p3 == 1.0f);
@@ -775,7 +790,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 double? p1 = null;
-                var (p2, p3) = initial.OpDouble(p1);
+                (double? p2, double? p3) = initial.OpDouble(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpDouble(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -783,7 +798,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = 1.0;
                 (p2, p3) = initial.OpDouble(p1);
                 TestHelper.Assert(p2 == 1.0 && p3 == 1.0);
-                var r = initial.OpDoubleAsync(p1).Result;
+                (double? ReturnValue, double? p3) r = initial.OpDoubleAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == 1.0 && r.p3 == 1.0);
                 (p2, p3) = initial.OpDouble(p1);
                 TestHelper.Assert(p2 == 1.0 && p3 == 1.0);
@@ -810,7 +825,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 string? p1 = null;
-                var (p2, p3) = initial.OpString(p1);
+                (string? p2, string? p3) = initial.OpString(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpString(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -820,7 +835,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = "test";
                 (p2, p3) = initial.OpString(p1);
                 TestHelper.Assert(p2 == "test" && p3 == "test");
-                var r = initial.OpStringAsync(p1).Result;
+                (string? ReturnValue, string? p3) r = initial.OpStringAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == "test" && r.p3 == "test");
                 (p2, p3) = initial.OpString(p1);
                 TestHelper.Assert(p2 == "test" && p3 == "test");
@@ -847,7 +862,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 MyEnum? p1 = null;
-                var (p2, p3) = initial.OpMyEnum(p1);
+                (MyEnum? p2, MyEnum? p3) = initial.OpMyEnum(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpMyEnum(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -855,7 +870,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = MyEnum.MyEnumMember;
                 (p2, p3) = initial.OpMyEnum(p1);
                 TestHelper.Assert(p2 == MyEnum.MyEnumMember && p3 == MyEnum.MyEnumMember);
-                var r = initial.OpMyEnumAsync(p1).Result;
+                (MyEnum? ReturnValue, MyEnum? p3) r = initial.OpMyEnumAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.p3 == MyEnum.MyEnumMember);
                 (p2, p3) = initial.OpMyEnum(p1);
                 TestHelper.Assert(p2 == MyEnum.MyEnumMember && p3 == MyEnum.MyEnumMember);
@@ -878,7 +893,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 SmallStruct? p1 = null;
-                var (p2, p3) = initial.OpSmallStruct(p1);
+                (SmallStruct? p2, SmallStruct? p3) = initial.OpSmallStruct(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpSmallStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -886,7 +901,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = new SmallStruct(56);
                 (p2, p3) = initial.OpSmallStruct(p1);
                 TestHelper.Assert(p2!.Value.M == 56 && p3!.Value.M == 56);
-                var r = initial.OpSmallStructAsync(p1).Result;
+                (SmallStruct? ReturnValue, SmallStruct? p3) r = initial.OpSmallStructAsync(p1).Result;
                 TestHelper.Assert(p2!.Value.M == 56 && p3!.Value.M == 56);
                 (p2, p3) = initial.OpSmallStruct(p1);
                 TestHelper.Assert(p2!.Value.M == 56 && p3!.Value.M == 56);
@@ -911,7 +926,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 FixedStruct? p1 = null;
-                var (p2, p3) = initial.OpFixedStruct(p1);
+                (FixedStruct? p2, FixedStruct? p3) = initial.OpFixedStruct(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpFixedStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -919,7 +934,7 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = new FixedStruct(56);
                 (p2, p3) = initial.OpFixedStruct(p1);
                 TestHelper.Assert(p2!.Value.M == 56 && p3!.Value.M == 56);
-                var r = initial.OpFixedStructAsync(p1).Result;
+                (FixedStruct? ReturnValue, FixedStruct? p3) r = initial.OpFixedStructAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.p3!.Value.M == 56);
                 (p2, p3) = initial.OpFixedStruct(p1);
                 TestHelper.Assert(p2!.Value.M == 56 && p3!.Value.M == 56);
@@ -943,7 +958,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 VarStruct? p1 = null;
-                var (p2, p3) = initial.OpVarStruct(p1);
+                (VarStruct? p2, VarStruct? p3) = initial.OpVarStruct(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpVarStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -956,7 +971,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpVarStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                var r = initial.OpVarStructAsync(p1).Result;
+                (VarStruct? ReturnValue, VarStruct? p3) r = initial.OpVarStructAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue!.Value.M.Equals("test") && r.p3!.Value.M.Equals("test"));
                 (p2, p3) = initial.OpVarStruct(p1);
                 TestHelper.Assert(p2!.Value.M.Equals("test") && p3!.Value.M.Equals("test"));
@@ -1006,7 +1021,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 OneTagged? p1 = null;
-                var (p2, p3) = initial.OpOneTagged(p1);
+                (OneTagged? p2, OneTagged? p3) = initial.OpOneTagged(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpOneTagged(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1014,12 +1029,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = new OneTagged(58);
                 (p2, p3) = initial.OpOneTagged(p1);
                 TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
-                var r = initial.OpOneTaggedAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.A == 58 && r.p3!.A == 58);
+                (p2, p3) = initial.OpOneTaggedAsync(p1).Result;
+                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
                 (p2, p3) = initial.OpOneTagged(p1);
                 TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
-                r = initial.OpOneTaggedAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.A == 58 && r.p3!.A == 58);
+                (p2, p3) = initial.OpOneTaggedAsync(p1).Result;
+                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
 
                 (p2, p3) = initial.OpOneTagged(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1037,7 +1052,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 byte[]? p1 = null;
-                var (p2, p3) = initial.OpByteSeq(p1);
+                (byte[]? p2, byte[]? p3) = initial.OpByteSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpByteSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1045,12 +1060,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToArray();
                 (p2, p3) = initial.OpByteSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpByteSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpByteSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpByteSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpByteSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpByteSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpByteSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1077,12 +1092,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(_ => true).ToArray();
                 (p2, p3) = initial.OpBoolSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpBoolSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpBoolSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpBoolSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpBoolSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpBoolSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpBoolSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1100,7 +1115,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 short[]? p1 = null;
-                var (p2, p3) = initial.OpShortSeq(p1);
+                (short[]? p2, short[]? p3) = initial.OpShortSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpShortSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1108,13 +1123,13 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToArray();
                 (p2, p3) = initial.OpShortSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpShortSeqAsync(p1).Result;
+                (p2, p3) = initial.OpShortSeqAsync(p1).Result;
 
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpShortSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpShortSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpShortSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpShortSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1132,7 +1147,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 int[]? p1 = null;
-                var (p2, p3) = initial.OpIntSeq(p1);
+                (int[]? p2, int[]? p3) = initial.OpIntSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpIntSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1140,18 +1155,22 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(_ => 56).ToArray();
                 (p2, p3) = initial.OpIntSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpIntSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpIntSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpIntSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
-                r = initial.OpIntSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
+                (p2, p3) = initial.OpIntSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpIntSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntSeq", idempotent: false,
-                    format: null, context: null, p1,
+                requestFrame = OutgoingRequestFrame.WithParamList(
+                    initial,
+                    "opIntSeq",
+                    idempotent: false,
+                    format: null,
+                    context: null, p1,
                     (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1163,7 +1182,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 long[]? p1 = null;
-                var (p2, p3) = initial.OpLongSeq(p1);
+                (long[]? p2, long[]? p3) = initial.OpLongSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpLongSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1171,12 +1190,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(_ => 56L).ToArray();
                 (p2, p3) = initial.OpLongSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpLongSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpLongSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpLongSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
-                r = initial.OpLongSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
+                (p2, p3) = initial.OpLongSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpLongSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1194,7 +1213,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 float[]? p1 = null;
-                var (p2, p3) = initial.OpFloatSeq(p1);
+                (float[]? p2, float[]? p3) = initial.OpFloatSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpFloatSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1202,12 +1221,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToArray();
                 (p2, p3) = initial.OpFloatSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpFloatSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpFloatSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpFloatSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpFloatSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpFloatSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpFloatSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1225,7 +1244,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 double[]? p1 = null;
-                var (p2, p3) = initial.OpDoubleSeq(p1);
+                (double[]? p2, double[]? p3) = initial.OpDoubleSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpDoubleSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1233,12 +1252,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToArray();
                 (p2, p3) = initial.OpDoubleSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpDoubleSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpDoubleSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpDoubleSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
-                r = initial.OpDoubleSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
+                (p2, p3) = initial.OpDoubleSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpDoubleSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1257,7 +1276,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 string[]? p1 = null;
-                var (p2, p3) = initial.OpStringSeq(p1);
+                (string[]? p2, string[]? p3) = initial.OpStringSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpStringSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1265,12 +1284,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
                 (p2, p3) = initial.OpStringSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpStringSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpStringSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpStringSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpStringSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpStringSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpStringSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1290,7 +1309,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 SmallStruct[]? p1 = null;
-                var (p2, p3) = initial.OpSmallStructSeq(p1);
+                (SmallStruct[]? p2, SmallStruct[]? p3) = initial.OpSmallStructSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpSmallStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1298,12 +1317,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 10).Select(_ => new SmallStruct()).ToArray();
                 (p2, p3) = initial.OpSmallStructSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpSmallStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpSmallStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpSmallStructSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpSmallStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpSmallStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpSmallStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1324,7 +1343,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 List<SmallStruct>? p1 = null;
-                var (p2, p3) = initial.OpSmallStructList(p1);
+                (List<SmallStruct>? p2, List<SmallStruct>? p3) = initial.OpSmallStructList(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpSmallStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1336,12 +1355,12 @@ namespace ZeroC.Ice.Test.Tagged
                 }
                 (p2, p3) = initial.OpSmallStructList(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
-                var r = initial.OpSmallStructListAsync(p1).Result;
+                (p2, p3) = initial.OpSmallStructListAsync(p1).Result;
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
                 (p2, p3) = initial.OpSmallStructList(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
-                r = initial.OpSmallStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1));
+                (p2, p3) = initial.OpSmallStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
 
                 (p2, p3) = initial.OpSmallStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1371,7 +1390,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 FixedStruct[]? p1 = null;
-                var (p2, p3) = initial.OpFixedStructSeq(p1);
+                (FixedStruct[]? p2, FixedStruct[]? p3) = initial.OpFixedStructSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpFixedStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1379,12 +1398,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 10).Select(_ => new FixedStruct()).ToArray();
                 (p2, p3) = initial.OpFixedStructSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpFixedStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpFixedStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpFixedStructSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpFixedStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpFixedStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpFixedStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1405,7 +1424,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 LinkedList<FixedStruct>? p1 = null;
-                var (p2, p3) = initial.OpFixedStructList(p1);
+                (LinkedList<FixedStruct>? p2, LinkedList<FixedStruct>? p3) = initial.OpFixedStructList(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpFixedStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1417,12 +1436,12 @@ namespace ZeroC.Ice.Test.Tagged
                 }
                 (p2, p3) = initial.OpFixedStructList(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpFixedStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpFixedStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpFixedStructList(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpFixedStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpFixedStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpFixedStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1451,7 +1470,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 VarStruct[]? p1 = null;
-                var (p2, p3) = initial.OpVarStructSeq(p1);
+                (VarStruct[]? p2, VarStruct[]? p3) = initial.OpVarStructSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpVarStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1459,12 +1478,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = Enumerable.Range(0, 10).Select(_ => new VarStruct("")).ToArray();
                 (p2, p3) = initial.OpVarStructSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpVarStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpVarStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpVarStructSeq(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpVarStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpVarStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpVarStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1485,7 +1504,7 @@ namespace ZeroC.Ice.Test.Tagged
             if (supportsCsharpSerializable)
             {
                 SerializableClass? p1 = null;
-                var (p2, p3) = initial.OpSerializable(p1);
+                (SerializableClass? p2, SerializableClass? p3) = initial.OpSerializable(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpSerializable(null);
                 TestHelper.Assert(p2 == null && p3 == null);
@@ -1493,12 +1512,12 @@ namespace ZeroC.Ice.Test.Tagged
                 p1 = new SerializableClass(58);
                 (p2, p3) = initial.OpSerializable(p1);
                 TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
-                var r = initial.OpSerializableAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Equals(p1) && r.p3!.Equals(p1));
+                (p2, p3) = initial.OpSerializableAsync(p1).Result;
+                TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
                 (p2, p3) = initial.OpSerializable(p1);
                 TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
-                r = initial.OpSerializableAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Equals(p1) && r.p3!.Equals(p1));
+                (p2, p3) = initial.OpSerializableAsync(p1).Result;
+                TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
 
                 (p2, p3) = initial.OpSerializable(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1517,22 +1536,24 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 Dictionary<int, int>? p1 = null;
-                var (p2, p3) = initial.OpIntIntDict(p1);
+                (Dictionary<int, int>? p2, Dictionary<int, int>? p3) = initial.OpIntIntDict(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpIntIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                p1 = new Dictionary<int, int>();
-                p1.Add(1, 2);
-                p1.Add(2, 3);
+                p1 = new Dictionary<int, int>
+                {
+                    { 1, 2 },
+                    { 2, 3 }
+                };
                 (p2, p3) = initial.OpIntIntDict(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpIntIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpIntIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpIntIntDict(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpIntIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpIntIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpIntIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1555,22 +1576,24 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 Dictionary<string, int>? p1 = null;
-                var (p2, p3) = initial.OpStringIntDict(p1);
+                (Dictionary<string, int>? p2, Dictionary<string, int>? p3) = initial.OpStringIntDict(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpStringIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                p1 = new Dictionary<string, int>();
-                p1.Add("1", 1);
-                p1.Add("2", 2);
+                p1 = new Dictionary<string, int>
+                {
+                    { "1", 1 },
+                    { "2", 2 }
+                };
                 (p2, p3) = initial.OpStringIntDict(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                var r = initial.OpStringIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpStringIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 (p2, p3) = initial.OpStringIntDict(p1);
                 TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                r = initial.OpStringIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
+                (p2, p3) = initial.OpStringIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
 
                 (p2, p3) = initial.OpStringIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1596,22 +1619,24 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 Dictionary<int, OneTagged?>? p1 = null;
-                var (p2, p3) = initial.OpIntOneTaggedDict(p1);
+                (Dictionary<int, OneTagged?>? p2, Dictionary<int, OneTagged?>? p3) = initial.OpIntOneTaggedDict(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
                 (p2, p3) = initial.OpIntOneTaggedDict(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                p1 = new Dictionary<int, OneTagged?>();
-                p1.Add(1, new OneTagged(58));
-                p1.Add(2, new OneTagged(59));
+                p1 = new Dictionary<int, OneTagged?>
+                {
+                    { 1, new OneTagged(58) },
+                    { 2, new OneTagged(59) }
+                };
                 (p2, p3) = initial.OpIntOneTaggedDict(p1);
                 TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
-                var r = initial.OpIntOneTaggedDictAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue![1]!.A == 58 && r.p3![1]!.A == 58);
+                (p2, p3) = initial.OpIntOneTaggedDictAsync(p1).Result;
+                TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
                 (p2, p3) = initial.OpIntOneTaggedDict(p1);
                 TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
-                r = initial.OpIntOneTaggedDictAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue![1]!.A == 58 && r.p3![1]!.A == 58);
+                (p2, p3) = initial.OpIntOneTaggedDictAsync(p1).Result;
+                TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
 
                 (p2, p3) = initial.OpIntOneTaggedDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1656,7 +1681,7 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     int? a = 30;
                     string? b = "test";
-                    OneTagged? o = new OneTagged(53);
+                    var o = new OneTagged(53);
                     initial.OpTaggedException(a, b, o);
                 }
                 catch (TaggedException ex)
@@ -1687,7 +1712,7 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     int? a = 30;
                     string? b = "test2";
-                    OneTagged? o = new OneTagged(53);
+                    var o = new OneTagged(53);
                     initial.OpDerivedException(a, b, o);
                 }
                 catch (DerivedException ex)
@@ -1719,7 +1744,7 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     int? a = 30;
                     string? b = "test2";
-                    OneTagged? o = new OneTagged(53);
+                    var o = new OneTagged(53);
                     initial.OpRequiredException(a, b, o);
                 }
                 catch (RequiredException ex)
@@ -1764,8 +1789,10 @@ namespace ZeroC.Ice.Test.Tagged
                     (p3, p2) = initial.OpMDict2(null);
                     TestHelper.Assert(p2 == null && p3 == null);
 
-                    p1 = new Dictionary<string, int>();
-                    p1["test"] = 54;
+                    p1 = new Dictionary<string, int>
+                    {
+                        ["test"] = 54
+                    };
                     (p3, p2) = initial.OpMDict2(p1);
                     TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 }

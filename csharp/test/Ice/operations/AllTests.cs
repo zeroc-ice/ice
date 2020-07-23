@@ -19,8 +19,8 @@ namespace ZeroC.Ice.Test.Operations
 
             output.Write("testing twoway operations... ");
             output.Flush();
-            Twoways.twoways(helper, cl);
-            Twoways.twoways(helper, derivedProxy);
+            Twoways.Run(helper, cl);
+            Twoways.Run(helper, derivedProxy);
             derivedProxy.OpDerived();
             output.WriteLine("ok");
 
@@ -31,8 +31,8 @@ namespace ZeroC.Ice.Test.Operations
 
             output.Write("testing twoway operations with AMI... ");
             output.Flush();
-            TwowaysAMI.twowaysAMI(helper, cl);
-            TwowaysAMI.twowaysAMI(helper, derivedProxy);
+            TwowaysAMI.Run(helper, cl);
+            TwowaysAMI.Run(helper, derivedProxy);
             output.WriteLine("ok");
 
             output.Write("testing oneway operations with AMI... ");

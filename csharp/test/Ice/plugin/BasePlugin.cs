@@ -22,24 +22,24 @@ namespace ZeroC.Ice.Test.Plugin
     }
     public abstract class BasePlugin : IPlugin
     {
-        public BasePlugin(Communicator communicator) => _communicator = communicator;
+        protected Communicator Communicator;
+        protected bool Initialized;
+        protected bool Destroyed;
+        protected BasePlugin? Other;
 
-        public bool isInitialized() => _initialized;
+        public BasePlugin(Communicator communicator) => Communicator = communicator;
 
-        public bool isDestroyed() => _destroyed;
+        public bool IsInitialized() => Initialized;
+
+        public bool IsDestroyed() => Destroyed;
 
         public abstract void Initialize();
         public virtual async ValueTask DisposeAsync()
         {
-            if (_other != null)
+            if (Other != null)
             {
-                await _other.DisposeAsync();
+                await Other.DisposeAsync();
             }
         }
-
-        protected Communicator _communicator;
-        protected bool _initialized = false;
-        protected bool _destroyed = false;
-        protected BasePlugin? _other = null;
     }
 }

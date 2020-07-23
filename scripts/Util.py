@@ -3381,14 +3381,6 @@ class CSharpMapping(Mapping):
             if self.uwp or self.android or "iphone" in self.buildPlatform:
                 self.xamarin = True
 
-        def getProps(self, process, current):
-            props = Mapping.Config.getProps(self, process, current)
-            # TODO: Remove once all the mapping supports the new Ice.Default.Transport property
-            if "Ice.Default.Transport" in props and isinstance(process.getMapping(current), CSharpMapping):
-                del props["Ice.Default.Transport"]
-                props["Ice.Default.Transport"] = self.transport
-            return props
-
     def getBinTargetFramework(self, current):
         return current.config.binTargetFramework
 

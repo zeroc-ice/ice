@@ -9,14 +9,11 @@ namespace ZeroC.Ice.Test.Threading
 {
     public sealed class TestIntf : ITestIntf
     {
-        private TaskScheduler _scheduler;
+        private readonly TaskScheduler _scheduler;
         private int _level;
-        private object _mutex = new object();
+        private readonly object _mutex = new object();
 
-        public TestIntf(TaskScheduler scheduler)
-        {
-            _scheduler = scheduler;
-        }
+        public TestIntf(TaskScheduler scheduler) => _scheduler = scheduler;
 
         public void PingSync(Current current)
         {
@@ -62,8 +59,9 @@ namespace ZeroC.Ice.Test.Threading
                 }
                 else if (_level > level)
                 {
+                    int currentLevel = _level;
                     Monitor.Wait(_mutex);
-                    throw new TestFailedException($"task scheduler concurrency level exceeded {_level} > {level}");
+                    throw new TestFailedException($"task scheduler concurrency level exceeded {currentLevel} > {level}");
                 }
             }
 

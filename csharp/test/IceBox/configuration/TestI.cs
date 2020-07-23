@@ -10,7 +10,7 @@ namespace ZeroC.IceBox.Test.Configuration
 {
     public class TestIntf : ITestIntf
     {
-        private string[] _args;
+        private readonly string[] _args;
 
         public TestIntf(string[] args) => _args = args;
 

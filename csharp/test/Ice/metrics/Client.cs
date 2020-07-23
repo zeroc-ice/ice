@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.ConnectTimeout"] = "500ms";
 
             await using Communicator? communicator = Initialize(properties, observer: observer);
-            IMetricsPrx metrics = AllTests.allTests(this, observer);
+            IMetricsPrx metrics = AllTests.Run(this, observer);
             await metrics.ShutdownAsync();
         }
 

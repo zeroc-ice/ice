@@ -587,9 +587,29 @@ namespace ZeroC.Ice
             int retry = 5;
             while (true)
             {
+                var addresses = new List<IPEndPoint>();
                 try
                 {
-                    var addresses = new List<IPEndPoint>();
+                    // Trying to parse the IP address is necessary to handle wildcard addresses such as 0.0.0.0 or ::0
+                    // since GetHostAddressesAsync fails to resolve them.
+                    var a = IPAddress.Parse(host);
+                    if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                        (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
+                    {
+                        addresses.Add(new IPEndPoint(a, port));
+                        return addresses;
+                    }
+                    else
+                    {
+                        throw new DNSException(host);
+                    }
+                }
+                catch (FormatException)
+                {
+                }
+
+                try
+                {
                     foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))
                     {
                         if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||

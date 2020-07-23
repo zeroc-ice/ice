@@ -25,7 +25,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             {
                 num = 0;
             }
-            AllTests.allTests(this, num);
+            AllTests.Run(this, num);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

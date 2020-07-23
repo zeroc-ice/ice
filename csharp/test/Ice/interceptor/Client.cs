@@ -15,30 +15,30 @@ namespace ZeroC.Ice.Test.Interceptor
 
     public class Client : TestHelper
     {
-        private void runTest(IMyObjectPrx prx, Interceptor interceptor)
+        private void Run(IMyObjectPrx prx, Interceptor interceptor)
         {
             System.IO.TextWriter output = GetWriter();
             output.Write("testing simple interceptor... ");
             output.Flush();
-            Assert(interceptor.getLastOperation() == null);
+            Assert(interceptor.GetLastOperation() == null);
             Assert(!interceptor.AsyncCompletion);
             prx.IcePing();
-            Assert(interceptor.getLastOperation()!.Equals("ice_ping"));
+            Assert(interceptor.GetLastOperation()!.Equals("ice_ping"));
             Assert(!interceptor.AsyncCompletion);
             string typeId = prx.IceId();
-            Assert(interceptor.getLastOperation()!.Equals("ice_id"));
+            Assert(interceptor.GetLastOperation()!.Equals("ice_id"));
             Assert(!interceptor.AsyncCompletion);
             Assert(prx.IceIsA(typeId));
-            Assert(interceptor.getLastOperation()!.Equals("ice_isA"));
+            Assert(interceptor.GetLastOperation()!.Equals("ice_isA"));
             Assert(!interceptor.AsyncCompletion);
             Assert(prx.Add(33, 12) == 45);
-            Assert(interceptor.getLastOperation()!.Equals("add"));
+            Assert(interceptor.GetLastOperation()!.Equals("add"));
             Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing retry... ");
             output.Flush();
             Assert(prx.AddWithRetry(33, 12) == 45);
-            Assert(interceptor.getLastOperation()!.Equals("addWithRetry"));
+            Assert(interceptor.GetLastOperation()!.Equals("addWithRetry"));
             Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing remote exception... ");
@@ -52,12 +52,12 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 // expected
             }
-            Assert(interceptor.getLastOperation()!.Equals("badAdd"));
+            Assert(interceptor.GetLastOperation()!.Equals("badAdd"));
             Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing ONE... ");
             output.Flush();
-            interceptor.clear();
+            interceptor.Clear();
             try
             {
                 prx.NotExistAdd(33, 12);
@@ -67,7 +67,7 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 // expected
             }
-            Assert(interceptor.getLastOperation()!.Equals("notExistAdd"));
+            Assert(interceptor.GetLastOperation()!.Equals("notExistAdd"));
             Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
@@ -77,22 +77,22 @@ namespace ZeroC.Ice.Test.Interceptor
             output.WriteLine("ok");
         }
 
-        private void runAmdAssert(IMyObjectPrx prx, Interceptor interceptor)
+        private void RunAmd(IMyObjectPrx prx, Interceptor interceptor)
         {
             System.IO.TextWriter output = GetWriter();
             output.Write("testing simple interceptor... ");
             output.Flush();
-            Assert(interceptor.getLastOperation() == null);
+            Assert(interceptor.GetLastOperation() == null);
             Assert(!interceptor.AsyncCompletion);
             Assert(prx.AmdAdd(33, 12) == 45);
-            Assert(interceptor.getLastOperation()!.Equals("amdAdd"));
+            Assert(interceptor.GetLastOperation()!.Equals("amdAdd"));
             Assert(interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
             output.Write("testing retry... ");
             output.Flush();
             Assert(prx.AmdAddWithRetry(33, 12) == 45);
-            Assert(interceptor.getLastOperation()!.Equals("amdAddWithRetry"));
+            Assert(interceptor.GetLastOperation()!.Equals("amdAddWithRetry"));
             Assert(interceptor.AsyncCompletion);
 
             {
@@ -103,7 +103,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 for (int i = 0; i < 10; ++i)
                 {
                     Assert(prx.AmdAdd(33, 12, ctx) == 45);
-                    Assert(interceptor.getLastOperation()!.Equals("amdAdd"));
+                    Assert(interceptor.GetLastOperation()!.Equals("amdAdd"));
                     Assert(interceptor.AsyncCompletion);
                 }
             }
@@ -120,13 +120,13 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 // expected
             }
-            Assert(interceptor.getLastOperation()!.Equals("amdBadAdd"));
+            Assert(interceptor.GetLastOperation()!.Equals("amdBadAdd"));
             Assert(interceptor.AsyncCompletion);
             Console.WriteLine("ok");
 
             output.Write("testing ONE... ");
             output.Flush();
-            interceptor.clear();
+            interceptor.Clear();
             try
             {
                 prx.AmdNotExistAdd(33, 12);
@@ -136,7 +136,7 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 // expected
             }
-            Assert(interceptor.getLastOperation()!.Equals("amdNotExistAdd"));
+            Assert(interceptor.GetLastOperation()!.Equals("amdNotExistAdd"));
             Assert(interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
@@ -164,10 +164,10 @@ namespace ZeroC.Ice.Test.Interceptor
             System.IO.TextWriter output = GetWriter();
 
             output.WriteLine("With sync dispatch");
-            runTest(prx, interceptor);
+            Run(prx, interceptor);
             output.WriteLine("Now with AMD");
-            interceptor.clear();
-            runAmdAssert(prx, interceptor);
+            interceptor.Clear();
+            RunAmd(prx, interceptor);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
@@ -187,6 +187,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     { operation, kind }
                 };
+
                 try
                 {
                     prx.IcePing(ctx);
