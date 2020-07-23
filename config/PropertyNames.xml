@@ -266,12 +266,14 @@ generated from the section label.
         <suffix name="ACM" class="acm"/>
         <suffix name="AdapterId" />
         <suffix name="Endpoints" />
+        <suffix name="IncomingFrameSizeMax" />
         <suffix name="Locator" class="proxy"/>
         <suffix name="PublishedEndpoints" />
         <suffix name="ReplicaGroupId" />
         <suffix name="Router" class="proxy"/>
         <suffix name="ProxyOptions" />
         <suffix name="ThreadPool" class="threadpool" />
+        <!-- TODO: Remove replaced by IncomingFrameSizeMax -->
         <suffix name="MessageSizeMax" />
     </class>
 
@@ -354,12 +356,14 @@ generated from the section label.
         <property name="HTTPProxyHost" />
         <property name="HTTPProxyPort" />
         <property name="ImplicitContext" />
+        <property name="IncomingFrameSizeMax" />
         <property name="InitPlugins" />
         <property name="IPv4" />
         <property name="IPv6" />
         <property name="LogFile" />
         <property name="LogFile.SizeMax" />
         <property name="LogStdErr.Convert"/>
+        <!-- TODO: remove replaced by IncomingFrameSizeMax -->
         <property name="MessageSizeMax" />
         <property name="Nohup" />
         <property name="NullHandleAbort" />

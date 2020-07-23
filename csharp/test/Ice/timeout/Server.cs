@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Timeout
             properties["Ice.Warn.Connections"] = "0";
 
             // The client sends large messages to cause the transport buffers to fill up.
-            properties["Ice.MessageSizeMax"] = "20M";
+            properties["Ice.IncomingFrameSizeMax"] = "20M";
 
             // Limit the recv buffer size, this test relies on the socket send() blocking after sending a given
             // amount of data.

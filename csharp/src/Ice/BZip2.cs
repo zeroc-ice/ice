@@ -225,7 +225,7 @@ namespace ZeroC.Ice
             if (decompressedSize > frameSizeMax)
             {
                 throw new InvalidDataException(
-                    $"decompressed size of {decompressedSize} bytes is greater than Ice.MessageSizeMax value");
+                    $"decompressed size of {decompressedSize} bytes is greater than Ice.IncomingFrameSizeMax value");
             }
 
             byte[] decompressed = new byte[decompressedSize];

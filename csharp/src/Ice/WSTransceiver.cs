@@ -144,7 +144,7 @@ namespace ZeroC.Ice
                             //
                             // Enlarge the buffer and try to read more.
                             //
-                            if (_readBufferOffset + 1024 > _communicator.FrameSizeMax)
+                            if (_readBufferOffset + 1024 > _communicator.IncomingFrameSizeMax)
                             {
                                 throw new WSMemoryLimitException();
                             }

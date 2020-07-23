@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Exceptions
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.MessageSizeMax"] = "10K";
+            properties["Ice.IncomingFrameSizeMax"] = "10K";
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             IThrowerPrx thrower = AllTests.Run(this);
