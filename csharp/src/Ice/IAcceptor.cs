@@ -11,7 +11,7 @@ namespace ZeroC.Ice
     {
         Endpoint Endpoint { get; }
 
-        /// <summary>Accepts a new transport</summary>
+        /// <summary>Accepts a new connection.</summary>
         ValueTask<ITransceiver> AcceptAsync();
 
         string ToDetailedString();

@@ -18,13 +18,13 @@ namespace ZeroC.Ice
 
         private readonly int _compressionLevel;
         private readonly int _frameSizeMax;
-        private Action _heartbeatCallback;
+        private Action? _heartbeatCallback;
         private readonly bool _incoming;
-        private int _nextStreamId;
+        private int _nextRequestId;
         private Task _receiveTask = Task.CompletedTask;
-        private Action<int> _receivedCallback;
+        private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
-        private Action<int> _sentCallback;
+        private Action<int>? _sentCallback;
         private readonly bool _warn;
         private readonly bool _warnUdp;
 
@@ -99,13 +99,14 @@ namespace ZeroC.Ice
                 if (_incoming) // The server side has the active role for connection validation.
                 {
                     int offset = 0;
-                    while (offset < _validateConnectionFrame.GetByteCount())
+                    int length = _validateConnectionFrame.GetByteCount();
+                    while (offset < length)
                     {
                         offset += await Transceiver.WriteAsync(_validateConnectionFrame,
-                                                                offset,
-                                                                cancel).ConfigureAwait(false);
+                                                               offset,
+                                                               cancel).ConfigureAwait(false);
                     }
-                    Debug.Assert(offset == _validateConnectionFrame.GetByteCount());
+                    Debug.Assert(offset == length);
                 }
                 else // The client side has the passive role for connection validation.
                 {
@@ -114,8 +115,8 @@ namespace ZeroC.Ice
                     while (offset < Ice1Definitions.HeaderSize)
                     {
                         offset += await Transceiver.ReadAsync(readBuffer,
-                                                                offset,
-                                                                cancel).ConfigureAwait(false);
+                                                              offset,
+                                                              cancel).ConfigureAwait(false);
                     }
 
                     Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
@@ -143,12 +144,12 @@ namespace ZeroC.Ice
                     ProtocolTrace.TraceSend(Endpoint.Communicator,
                                             Endpoint.Protocol,
                                             Ice1Definitions.ValidateConnectionFrame);
-                    _sentCallback(Ice1Definitions.ValidateConnectionFrame.Length);
+                    _sentCallback!(Ice1Definitions.ValidateConnectionFrame.Length);
                 }
                 else
                 {
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                    _receivedCallback(readBuffer.Count);
+                    _receivedCallback!(readBuffer.Count);
                 }
             }
 
@@ -177,7 +178,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<(int StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
+        public async ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
         {
             while (true)
             {
@@ -207,12 +208,28 @@ namespace ZeroC.Ice
             }
         }
 
-        public int NewStream(bool bidirectional) => bidirectional ? ++_nextStreamId : 0;
+        public long NewStream(bool bidirectional)
+        {
+            if (bidirectional)
+            {
+                int streamId = ++_nextRequestId;
+                if (streamId <= 0)
+                {
+                    _nextRequestId = 0;
+                    streamId = ++_nextRequestId;
+                }
+                return streamId;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
-        public ValueTask ResetAsync(int streamId) =>
+        public ValueTask ResetAsync(long streamId) =>
             throw new NotSupportedException("ice1 transports don't support stream reset");
 
-        public async ValueTask SendAsync(int streamId, object frame, bool fin, CancellationToken cancel) =>
+        public async ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel) =>
             await SendFrameAsync(streamId, frame, cancel);
 
         public override string ToString() => Transceiver.ToString()!;
@@ -227,8 +244,6 @@ namespace ZeroC.Ice
             _warn = Endpoint.Communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = Endpoint.Communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
             _compressionLevel = Endpoint.Communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
-            _sentCallback = _receivedCallback = _ => {};
-            _heartbeatCallback = () => {};
 
             if (_compressionLevel < 1)
             {
@@ -310,7 +325,7 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.ValidateConnection:
                 {
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                    _heartbeatCallback();
+                    _heartbeatCallback!();
                     return default;
                 }
 
@@ -334,7 +349,7 @@ namespace ZeroC.Ice
             if (Endpoint.IsDatagram)
             {
                 readBuffer = await Transceiver.ReadAsync().ConfigureAwait(false);
-                _receivedCallback(readBuffer.Count);
+                _receivedCallback!(readBuffer.Count);
             }
             else
             {
@@ -343,7 +358,7 @@ namespace ZeroC.Ice
                 while (offset < Ice1Definitions.HeaderSize)
                 {
                     offset += await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
-                    _receivedCallback(readBuffer.Count);
+                    _receivedCallback!(readBuffer.Count);
                 }
             }
 
@@ -384,7 +399,7 @@ namespace ZeroC.Ice
 
                     // Trace the receive progress within the loop as we might be receiving significant amount
                     // of data here.
-                    _receivedCallback(bytesReceived);
+                    _receivedCallback!(bytesReceived);
                 }
             }
             else if (size > readBuffer.Count)
@@ -398,7 +413,7 @@ namespace ZeroC.Ice
             return readBuffer;
         }
 
-        private async ValueTask PerformSendFrameAsync(int streamId, object frame)
+        private async ValueTask PerformSendFrameAsync(long streamId, object frame)
         {
             List<ArraySegment<byte>> writeBuffer;
 
@@ -406,14 +421,14 @@ namespace ZeroC.Ice
             bool compress = false;
             if (frame is OutgoingRequestFrame requestFrame)
             {
-                writeBuffer = Ice1Definitions.GetRequestData(requestFrame, streamId);
+                writeBuffer = Ice1Definitions.GetRequestData(requestFrame, (int)streamId);
                 compress = requestFrame.Compress;
                 ProtocolTrace.TraceFrame(Endpoint.Communicator, writeBuffer[0], requestFrame);
             }
             else if (frame is OutgoingResponseFrame responseFrame)
             {
                 Debug.Assert(streamId > 0);
-                writeBuffer = Ice1Definitions.GetResponseData(responseFrame, streamId);
+                writeBuffer = Ice1Definitions.GetResponseData(responseFrame, (int)streamId);
                 compress = responseFrame.CompressionStatus > 0;
                 ProtocolTrace.TraceFrame(Endpoint.Communicator, writeBuffer[0], responseFrame);
             }
@@ -436,7 +451,7 @@ namespace ZeroC.Ice
 
                 if (compressed != null)
                 {
-                    writeBuffer = compressed!;
+                    writeBuffer = compressed;
                     size = writeBuffer.GetByteCount();
                 }
                 else // Message not compressed, request compressed response, if any.
@@ -455,18 +470,18 @@ namespace ZeroC.Ice
             {
                 int bytesSent = await Transceiver.WriteAsync(writeBuffer, offset).ConfigureAwait(false);
                 offset += bytesSent;
-                _sentCallback(bytesSent);
+                _sentCallback!(bytesSent);
             }
         }
 
-        private Task SendFrameAsync(int streamId, object frame, CancellationToken cancel)
+        private Task SendFrameAsync(long streamId, object frame, CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
             ValueTask sendTask = QueueAsync(streamId, frame, cancel);
             _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
             return _sendTask;
 
-            async ValueTask QueueAsync(int streamId, object frame, CancellationToken cancel)
+            async ValueTask QueueAsync(long streamId, object frame, CancellationToken cancel)
             {
                 // Wait for the previous send to complete
                 try

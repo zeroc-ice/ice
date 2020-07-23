@@ -34,15 +34,15 @@ namespace ZeroC.Ice
             CancellationToken cancel);
 
         /// <summary>Receives a new frame.</summary>
-        ValueTask<(int StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel);
+        ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel);
 
         /// <summary>Creates a new stream.</summary>
-        int NewStream(bool bidirectional);
+        long NewStream(bool bidirectional);
 
         /// <summary>Resets the given stream.</summary>
-        ValueTask ResetAsync(int streamId);
+        ValueTask ResetAsync(long streamId);
 
         /// <summary>Sends the given frame on an existing stream.</summary>
-        ValueTask SendAsync(int streamId, object frame, bool fin, CancellationToken cancel);
+        ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel);
     }
 }

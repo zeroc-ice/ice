@@ -154,8 +154,8 @@ namespace ZeroC.Ice
         private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private IConnectionObserver? _observer;
-        private readonly Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
-            new Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
+        private readonly Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
+            new Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private ConnectionState _state; // The current state.
         private bool _validated;
         private readonly bool _warn;
@@ -358,17 +358,15 @@ namespace ZeroC.Ice
                     }
                 }
 
-                CancellationToken timeoutToken;
                 CancellationTokenSource? source = null;
                 TimeSpan timeout = _communicator.CloseTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
                     source = new CancellationTokenSource();
                     source.CancelAfter(timeout);
-                    timeoutToken = source.Token;
                 }
 
-                await BinaryConnection.CloseAsync(_exception!, timeoutToken);
+                await BinaryConnection.CloseAsync(_exception!, source?.Token ?? default);
 
                 source?.Dispose();
             }
@@ -432,7 +430,7 @@ namespace ZeroC.Ice
             IChildInvocationObserver? childObserver = null;
             Task writeTask;
             Task<IncomingResponseFrame>? responseTask = null;
-            int streamId;
+            long streamId;
             lock (_mutex)
             {
                 //
@@ -680,7 +678,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, int requestId)
+        private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long requestId)
         {
             IDispatchObserver? dispatchObserver = null;
             OutgoingResponseFrame? response = null;
@@ -738,7 +736,7 @@ namespace ZeroC.Ice
                     // Send the response if there's a response
                     if (_state < ConnectionState.Closed && response != null)
                     {
-                        _ = SendResponse(requestId, response);
+                        _ = SendResponseAsync(requestId, response);
                     }
 
                     // Decrease the dispatch count
@@ -753,7 +751,7 @@ namespace ZeroC.Ice
                 dispatchObserver?.Detach();
             }
 
-            async Task SendResponse(int requestId, OutgoingResponseFrame response)
+            async Task SendResponseAsync(long requestId, OutgoingResponseFrame response)
             {
                 try
                 {
@@ -774,7 +772,7 @@ namespace ZeroC.Ice
             {
                 while (true)
                 {
-                    (int streamId, object? frame, bool fin) =
+                    (long streamId, object? frame, bool fin) =
                         await BinaryConnection.ReceiveAsync(default).ConfigureAwait(false);
 
                     Func<ValueTask>? incoming = null;
@@ -815,7 +813,7 @@ namespace ZeroC.Ice
                                     out (TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource,
                                         bool Synchronous) request))
                             {
-                                // Unless i's a Synchronous request whose continuation is safe to call from here since
+                                // Unless i's a synchronous request whose continuation is safe to call from here since
                                 // it won't call user code, we can't call SetResult directly here as if could end up
                                 // running user code with mutex locked.
                                 if (request.Synchronous)

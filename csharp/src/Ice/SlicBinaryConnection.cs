@@ -19,7 +19,7 @@ namespace ZeroC.Ice
         private readonly int _frameSizeMax;
         private Action _heartbeatCallback;
         private readonly bool _incoming;
-        private int _nextStreamId;
+        private long _nextStreamId;
         private Task _receiveTask = Task.CompletedTask;
         private Action<int> _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
@@ -159,7 +159,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<(int StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
+        public async ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
         {
             while (true)
             {
@@ -189,12 +189,12 @@ namespace ZeroC.Ice
             }
         }
 
-        public int NewStream(bool bidirectional) => bidirectional ? ++_nextStreamId : 0;
+        public long NewStream(bool bidirectional) => bidirectional ? ++_nextStreamId : 0;
 
-        public ValueTask ResetAsync(int streamId) =>
+        public ValueTask ResetAsync(long streamId) =>
             throw new NotSupportedException("ice2 transports don't support stream reset");
 
-        public async ValueTask SendAsync(int streamId, object frame, bool fin, CancellationToken cancel) =>
+        public async ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel) =>
             await SendFrameAsync(streamId, frame, cancel);
 
         public override string ToString() => Transceiver.ToString()!;
@@ -311,7 +311,7 @@ namespace ZeroC.Ice
             return readBuffer;
         }
 
-        private async ValueTask PerformSendFrameAsync(int streamId, object frame)
+        private async ValueTask PerformSendFrameAsync(long streamId, object frame)
         {
             List<ArraySegment<byte>> writeBuffer;
 
@@ -345,14 +345,14 @@ namespace ZeroC.Ice
             }
         }
 
-        private Task SendFrameAsync(int streamId, object frame, CancellationToken cancel)
+        private Task SendFrameAsync(long streamId, object frame, CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
             ValueTask sendTask = QueueAsync(streamId, frame, cancel);
             _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
             return _sendTask;
 
-            async ValueTask QueueAsync(int streamId, object frame, CancellationToken cancel)
+            async ValueTask QueueAsync(long streamId, object frame, CancellationToken cancel)
             {
                 // Wait for the previous send to complete
                 try

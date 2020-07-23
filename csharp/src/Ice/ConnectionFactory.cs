@@ -517,7 +517,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string ToString() => _acceptor!.ToString()!;
+        public override string ToString() => _acceptor.ToString()!;
 
         internal TcpIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish, Acm acm)
             : base(endpoint, publish)
@@ -531,12 +531,12 @@ namespace ZeroC.Ice
             // if we want to provide port sharing for multiple listening endpoints.
             _acceptor = new TcpAcceptor((TcpEndpoint)Endpoint, _adapter);
 
-            Endpoint = _acceptor!.Endpoint;
+            Endpoint = _acceptor.Endpoint;
 
             if (_communicator.TraceLevels.Network >= 1)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                    $"listening for {Endpoint.TransportName} connections\n{_acceptor!.ToDetailedString()}");
+                    $"listening for {Endpoint.TransportName} connections\n{_acceptor.ToDetailedString()}");
             }
         }
 
@@ -552,14 +552,10 @@ namespace ZeroC.Ice
 
                 // Start the asynchronous operation from the thread pool to prevent eventually accepting
                 // synchronously new connections from this thread.
-                if (_adapter.TaskScheduler != null)
-                {
-                    Task.Factory.StartNew(AcceptAsync, default, TaskCreationOptions.None, _adapter.TaskScheduler);
-                }
-                else
-                {
-                    Task.Run(AcceptAsync);
-                }
+                Task.Factory.StartNew(AcceptAsync,
+                                      default,
+                                      TaskCreationOptions.None,
+                                      _adapter.TaskScheduler ?? TaskScheduler.Default);
             }
         }
 
@@ -606,7 +602,6 @@ namespace ZeroC.Ice
                 Connection connection;
                 lock (_mutex)
                 {
-                    Debug.Assert(transceiver != null);
                     if (_disposed)
                     {
                         try
@@ -650,7 +645,6 @@ namespace ZeroC.Ice
                     _connections.Add(connection);
                 }
 
-                Debug.Assert(connection != null);
                 try
                 {
                     // We don't wait for the connection to be activated. This could take a while for some transports
@@ -700,31 +694,22 @@ namespace ZeroC.Ice
             Communicator communicator = adapter.Communicator;
             AcmMonitor = new ConnectionAcmMonitor(Acm.Disabled, communicator.Logger);
 
-            ITransceiver? transceiver = null;
+            ITransceiver transceiver = Endpoint.GetTransceiver()!;
+            if (communicator.TraceLevels.Network >= 2)
+            {
+                communicator.Logger.Trace(communicator.TraceLevels.NetworkCategory,
+                    $"attempting to bind to {Endpoint.TransportName} socket\n{transceiver}");
+            }
+
             try
             {
-                transceiver = Endpoint.GetTransceiver();
-                Debug.Assert(transceiver != null);
-
-                if (communicator.TraceLevels.Network >= 2)
-                {
-                    communicator.Logger.Trace(communicator.TraceLevels.NetworkCategory,
-                        $"attempting to bind to {Endpoint.TransportName} socket\n{transceiver}");
-                }
                 Endpoint = transceiver.Bind();
-
                 _connection = Endpoint.CreateConnection(this, transceiver, null, "", adapter);
                 _ = _connection.StartAsync();
             }
-            catch (Exception)
+            catch
             {
-                try
-                {
-                    transceiver?.Close();
-                }
-                catch
-                {
-                }
+                transceiver.Close();
                 throw;
             }
         }

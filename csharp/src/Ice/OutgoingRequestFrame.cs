@@ -72,7 +72,7 @@ namespace ZeroC.Ice
         public int Size { get; private set; }
 
         // Whether or not to Compress the content of the frame with Ice1
-        internal bool Compress;
+        internal bool Compress { get; }
 
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }

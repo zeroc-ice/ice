@@ -48,7 +48,7 @@ namespace ZeroC.Ice
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
                 ostr.WriteByte((byte)ReplyStatus.OK);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                return new OutgoingResponseFrame(current.Request, data);
+                return new OutgoingResponseFrame(current.IncomingRequestFrame, data);
             });
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
@@ -63,7 +63,7 @@ namespace ZeroC.Ice
                                                                T value,
                                                                OutputStreamWriter<T> writer)
         {
-            var response = new OutgoingResponseFrame(current.Request);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
@@ -89,7 +89,7 @@ namespace ZeroC.Ice
                                                                OutputStreamValueWriter<T> writer)
             where T : struct
         {
-            var response = new OutgoingResponseFrame(current.Request);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);

@@ -144,7 +144,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public IRemoteObserver GetRemoteObserver(Connection c, int a, int b)
+        public IRemoteObserver GetRemoteObserver(Connection c, long a, int b)
         {
             lock (Mutex)
             {
@@ -157,7 +157,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public ICollocatedObserver GetCollocatedObserver(ObjectAdapter adapter, int a, int b)
+        public ICollocatedObserver GetCollocatedObserver(ObjectAdapter adapter, long a, int b)
         {
             lock (Mutex)
             {
@@ -308,7 +308,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public IDispatchObserver GetDispatchObserver(Current current, int requestId, int s)
+        public IDispatchObserver GetDispatchObserver(Current current, long requestId, int s)
         {
             lock (_mutex)
             {
