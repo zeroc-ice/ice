@@ -131,26 +131,31 @@ namespace ZeroC.Ice.Test.Threading
                                         TaskCreationOptions.None, schedulers.ExclusiveScheduler).Unwrap();
             output.WriteLine("ok");
 
-            output.Write("testing server-side default task scheduler concurrency... ");
+            if (!AssemblyUtil.IsWindows)
             {
-                // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
-                // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
-                // of concurrency but in theory it could be much higher.
-                var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-                try
+                // TODO enable Windows once we investigate why this tests hang
+                // see: https://github.com/zeroc-ice/ice/issues/968
+                output.Write("testing server-side default task scheduler concurrency... ");
                 {
-                    Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
+                    // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
+                    // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
+                    // of concurrency but in theory it could be much higher.
+                    var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+                    try
+                    {
+                        Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
+                    }
+                    catch (AggregateException ex)
+                    {
+                        // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
+                        // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
+                        // 4 additional concurrent calls.
+                        TestHelper.Assert(ex.InnerExceptions.Count < 5);
+                    }
+                    proxy.Reset();
                 }
-                catch (AggregateException ex)
-                {
-                    // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
-                    // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
-                    // 4 additional concurrent calls.
-                    TestHelper.Assert(ex.InnerExceptions.Count < 5);
-                }
-                proxy.Reset();
+                output.WriteLine("ok");
             }
-            output.WriteLine("ok");
 
             output.Write("testing server-side exclusive task scheduler... ");
             {
