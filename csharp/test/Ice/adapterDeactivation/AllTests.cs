@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            bool oldProtocol = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
             TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
@@ -73,12 +73,13 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Write("testing object adapter published endpoints... ");
             output.Flush();
             {
-                communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+                communicator.SetProperty("PAdapter.PublishedEndpoints",
+                    ice1 ? "tcp -h localhost -p 12345 -t 30000" : "ice+tcp://localhost:12345");
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("PAdapter");
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 Endpoint? endpt = adapter.GetPublishedEndpoints()[0];
                 TestHelper.Assert(endpt != null);
-                if (oldProtocol)
+                if (ice1)
                 {
                     TestHelper.Assert(endpt.ToString()!.Equals("tcp -h localhost -p 12345 -t 30000"));
                 }
@@ -87,7 +88,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                     TestHelper.Assert(endpt.ToString()!.Equals("ice+tcp://localhost:12345"));
                 }
 
-                var prx = IObjectPrx.Parse(oldProtocol ?
+                var prx = IObjectPrx.Parse(ice1 ?
                     "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000" :
                     "ice+tcp://localhost:12346/dummy?alt-endpoint=localhost:12347", communicator);
                 adapter.SetPublishedEndpoints(prx.Endpoints);
@@ -98,17 +99,19 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 adapter.RefreshPublishedEndpoints();
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 TestHelper.Assert(adapter.GetPublishedEndpoints()[0].Equals(endpt));
-                communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
+                communicator.SetProperty("PAdapter.PublishedEndpoints",
+                    ice1 ? "tcp -h localhost -p 12345 -t 20000" : "ice+tcp://localhost:12345");
                 adapter.RefreshPublishedEndpoints();
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
 
-                if (oldProtocol)
+                if (ice1)
                 {
-                    TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
+                    TestHelper.Assert(
+                        adapter.GetPublishedEndpoints()[0].ToString() == "tcp -h localhost -p 12345 -t 20000");
                 }
                 else
                 {
-                    TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("ice+tcp://localhost:12345"));
+                    TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString() == "ice+tcp://localhost:12345");
                 }
                 adapter.Dispose();
             }
@@ -136,7 +139,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 ObjectAdapter adapter = communicator.CreateObjectAdapterWithRouter(router);
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 string endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
-                if (oldProtocol)
+                if (ice1)
                 {
                     TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
                 }
@@ -147,7 +150,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 adapter.RefreshPublishedEndpoints();
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
 
-                if (oldProtocol)
+                if (ice1)
                 {
                     TestHelper.Assert(
                         adapter.GetPublishedEndpoints()[0].ToString() == "tcp -h localhost -p 23457 -t 60000");

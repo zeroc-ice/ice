@@ -16,11 +16,11 @@ namespace ZeroC.Ice
     internal static class UriParser
     {
         /// <summary>Provides the proxy options parsed by the UriParser.</summary>
-        internal class ProxyOptions
+        internal struct ProxyOptions
         {
             // TODO: add more proxy options
-            internal Encoding? Encoding { get; set; }
-            internal Protocol? Protocol { get; set; }
+            internal Encoding? Encoding;
+            internal Protocol? Protocol;
         }
 
         // Common options for the ice and ice[+transport] parsers we register for each transport.
@@ -31,97 +31,59 @@ namespace ZeroC.Ice
             GenericUriParserOptions.IriParsing |
             GenericUriParserOptions.NoUserInfo;
 
-        /// <summary>Checks if a string is an ice or ice+transport URI, and not a proxy or endpoint string using the
-        /// ice1 string format.</summary>
+        /// <summary>Checks if a string is an ice+transport URI, and not an endpoint string using the ice1 string
+        /// format.</summary>
+        /// <param name="s">The string to check.</param>
+        /// <returns>True when the string is most likely an ice+transport URI; otherwise, false.</returns>
+        internal static bool IsEndpointUri(string s) => s.StartsWith("ice+") && s.Contains("://");
+
+        /// <summary>Checks if a string is an ice or ice+transport URI, and not a proxy string using the ice1 string
+        /// format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice or ice+transport URI; otherwise, false.</returns>
-        internal static bool IsUri(string s) => s.StartsWith("ice:") || (s.StartsWith("ice+") && s.Contains("://"));
+        internal static bool IsProxyUri(string s) => s.StartsWith("ice:") || IsEndpointUri(s);
 
-        /// <summary>Parses an ice or ice+transport URI string.</summary>
+        /// <summary>Parses an ice+transport URI string that represents one or more object adapter endpoints.</summary>
         /// <param name="uriString">The URI string to parse.</param>
         /// <param name="communicator">The communicator.</param>
-        /// <param name="proxyOptions">When not null, the uriString represents a proxy and this method parses proxy
-        /// options into this parameter.</param>
-        /// <returns>The Uri and endpoints of the ice or ice+transport URI.</returns>
-        internal static (Uri Uri, IReadOnlyList<Endpoint> Endpoints) Parse(
-            string uriString,
-            Communicator communicator,
-            ProxyOptions? proxyOptions = null)
+        /// <returns>The list of endpoints.</returns>
+        internal static IReadOnlyList<Endpoint> ParseEndpoints(string uriString, Communicator communicator) =>
+            Parse(uriString, oaEndpoints: true, communicator).Endpoints;
+
+        /// <summary>Parses a relative URI [category/]name[#facet] into an identity and facet.</summary>
+        internal static (Identity Identity, string Facet) ParseIdentityAndFacet(string uriString)
         {
-            Debug.Assert(IsUri(uriString));
-
-            try
+            // First extract the facet, if any
+            string facet = "";
+            string path;
+            int hashPos = uriString.IndexOf('#');
+            if (hashPos != -1 && hashPos != uriString.Length - 1)
             {
-                bool iceScheme = uriString.StartsWith("ice:");
-                if (iceScheme && proxyOptions == null)
-                {
-                    throw new FormatException("an object adapter endpoint supports only ice+transport URIs");
-                }
-
-                Dictionary<string, string>? endpointOptions = iceScheme ? null : new Dictionary<string, string>();
-
-                (Uri uri, string? altEndpoint) = InitialParse(uriString, proxyOptions, endpointOptions);
-
-                List<Endpoint>? endpoints = null;
-
-                if (endpointOptions != null) // i.e. not ice scheme
-                {
-                    endpoints = new List<Endpoint>
-                    {
-                        CreateEndpoint(communicator, proxyOptions, endpointOptions, uri, uriString)
-                    };
-
-                    if (altEndpoint != null)
-                    {
-                        foreach (string endpointStr in altEndpoint.Split(','))
-                        {
-                            if (endpointStr.StartsWith("ice:"))
-                            {
-                                throw new FormatException(
-                                    $"invalid URI scheme for endpoint `{endpointStr}': must be empty or ice+transport");
-                            }
-
-                            string altUriString = endpointStr;
-                            if (!altUriString.StartsWith("ice+"))
-                            {
-                                altUriString = $"{uri.Scheme}://{altUriString}";
-                            }
-
-                            // The separator for endpoint options in alt-endpoint is $, and we replace these $ by &
-                            // before sending the string the main parser (InitialParse), which uses & as separator.
-                            altUriString = altUriString.Replace('$', '&');
-
-                            // No need to clear endpointOptions before reusing it since CreateEndpoint consumes all the
-                            // endpoint options
-                            Debug.Assert(endpointOptions.Count == 0);
-
-                            (Uri endpointUri, string? endpointAltEndpoint) =
-                                InitialParse(altUriString, proxyOptions: null, endpointOptions);
-
-                            if (endpointAltEndpoint != null)
-                            {
-                                throw new FormatException(
-                                    $"invalid option `alt-endpoint' in endpoint `{endpointStr}'");
-                            }
-
-                            Debug.Assert(endpointUri.AbsolutePath[0] == '/'); // there is always a first segment
-                            if (endpointUri.AbsolutePath.Length > 1 || endpointUri.Fragment.Length > 0)
-                            {
-                                throw new FormatException(
-                                    $"endpoint `{endpointStr}' must not specify a path or fragment");
-                            }
-                            endpoints.Add(
-                                CreateEndpoint(communicator, proxyOptions, endpointOptions, endpointUri, endpointStr));
-                        }
-                    }
-                }
-                return (uri, (IReadOnlyList<Endpoint>?)endpoints ?? ImmutableArray<Endpoint>.Empty);
+                facet = Uri.UnescapeDataString(uriString.Substring(hashPos + 1));
+                path = uriString[0..hashPos];
             }
-            catch (Exception ex)
+            else
             {
-                // Give context to the exception.
-                throw new FormatException($"failed to parse URI `{uriString}'", ex);
+                path = uriString;
             }
+            return (Identity.Parse(path), facet);
+        }
+
+        /// <summary>Parses an ice or ice+transport URI string that represents a proxy.</summary>
+        /// <param name="uriString">The URI string to parse.</param>
+        /// <param name="communicator">The communicator.</param>
+        /// <returns>The components of the proxy.</returns>
+        internal static (IReadOnlyList<Endpoint> Endpoints,
+                        List<string> Path,
+                        ProxyOptions ProxyOptions,
+                        string Facet) ParseProxy(string uriString, Communicator communicator)
+        {
+            (Uri uri, IReadOnlyList<Endpoint> endpoints, ProxyOptions proxyOptions) =
+                Parse(uriString, oaEndpoints: false, communicator);
+
+            string facet = uri.Fragment.Length >= 2 ? Uri.UnescapeDataString(uri.Fragment.TrimStart('#')) : "";
+            var path = uri.AbsolutePath.TrimStart('/').Split('/').Select(s => Uri.UnescapeDataString(s)).ToList();
+            return (endpoints, path, proxyOptions, facet);
         }
 
         /// <summary>Registers the ice and ice+universal schemes.</summary>
@@ -147,15 +109,14 @@ namespace ZeroC.Ice
 
         private static Endpoint CreateEndpoint(
             Communicator communicator,
-            ProxyOptions? proxyOptions,
+            bool oaEndpoint,
             Dictionary<string, string> options,
+            Protocol protocol,
             Uri uri,
             string uriString)
         {
             Debug.Assert(uri.Scheme.StartsWith("ice+"));
             string transportName = uri.Scheme.Substring(4); // i.e. chop-off "ice+"
-
-            Protocol protocol = proxyOptions?.Protocol ?? Protocol.Ice2;
 
             ushort port;
             checked
@@ -168,7 +129,7 @@ namespace ZeroC.Ice
 
             if (transportName == "universal")
             {
-                if (proxyOptions == null)
+                if (oaEndpoint)
                 {
                     throw new FormatException("ice+universal cannot specify an object adapter endpoint");
                 }
@@ -204,7 +165,7 @@ namespace ZeroC.Ice
                                                 uri.DnsSafeHost,
                                                 port,
                                                 options,
-                                                oaEndpoint: proxyOptions == null,
+                                                oaEndpoint,
                                                 uriString) ??
                 new UniversalEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
 
@@ -215,15 +176,22 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
-        private static (Uri Uri, string? AltEndpoint) InitialParse(
+        /// <summary>Creates a Uri and parses its query.</summary>
+        /// <param name="uriString">The string to parse.</param>
+        /// <param name="pureEndpoints">When true, the string represents one or more endpoints, and proxy options are
+        /// not allowed in the query.</param>
+        /// <param name="endpointOptions">A dictionary that accepts the parsed endpoint options. Set to null when
+        /// parsing an ice URI (and in this case pureEndpoints must be false).</param>
+        /// <returns>The parsed URI, the alt-endpoint option (if set) and the ProxyOptions struct.</returns>
+        private static (Uri Uri, string? AltEndpoint, ProxyOptions ProxyOptions) InitialParse(
             string uriString,
-            ProxyOptions? proxyOptions,
+            bool pureEndpoints,
             Dictionary<string, string>? endpointOptions)
         {
             if (endpointOptions == null) // i.e. ice scheme
             {
                 Debug.Assert(uriString.StartsWith("ice:"));
-                Debug.Assert(proxyOptions != null);
+                Debug.Assert(!pureEndpoints);
 
                 string body = uriString.Substring(4);
                 if (body.StartsWith("//"))
@@ -243,9 +211,19 @@ namespace ZeroC.Ice
 
             var uri = new Uri(uriString);
 
+            if (pureEndpoints)
+            {
+                Debug.Assert(uri.AbsolutePath[0] == '/'); // there is always a first segment
+                if (uri.AbsolutePath.Length > 1 || uri.Fragment.Length > 0)
+                {
+                    throw new FormatException($"endpoint `{uriString}' must not specify a path or fragment");
+                }
+            }
+
             string[] nvPairs = uri.Query.Length >= 2 ? uri.Query.TrimStart('?').Split('&') : Array.Empty<string>();
 
             string? altEndpoint = null;
+            ProxyOptions proxyOptions = default;
 
             foreach (string p in nvPairs)
             {
@@ -259,7 +237,7 @@ namespace ZeroC.Ice
 
                 if (name == "encoding")
                 {
-                    if (proxyOptions == null)
+                    if (pureEndpoints)
                     {
                         throw new FormatException($"encoding is not a valid option for endpoint `{uriString}'");
                     }
@@ -271,7 +249,7 @@ namespace ZeroC.Ice
                 }
                 else if (name == "protocol")
                 {
-                    if (proxyOptions == null)
+                    if (pureEndpoints)
                     {
                         throw new FormatException($"protocol is not a valid option for endpoint `{uriString}'");
                     }
@@ -305,7 +283,95 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            return (uri, altEndpoint);
+            return (uri, altEndpoint, proxyOptions);
+        }
+
+        /// <summary>Parses an ice or ice+transport URI string.</summary>
+        /// <param name="uriString">The URI string to parse.</param>
+        /// <param name="oaEndpoints">True when parsing the endpoints of an object adapter; false when parsing a proxy.
+        /// </param>
+        /// <param name="communicator">The communicator.</param>
+        /// <returns>The Uri and endpoints of the ice or ice+transport URI.</returns>
+        private static (Uri Uri, IReadOnlyList<Endpoint> Endpoints, ProxyOptions ProxyOptions) Parse(
+            string uriString,
+            bool oaEndpoints,
+            Communicator communicator)
+        {
+            Debug.Assert(IsProxyUri(uriString));
+
+            try
+            {
+                bool iceScheme = uriString.StartsWith("ice:");
+                if (iceScheme && oaEndpoints)
+                {
+                    throw new FormatException("an object adapter endpoint supports only ice+transport URIs");
+                }
+
+                Dictionary<string, string>? endpointOptions = iceScheme ? null : new Dictionary<string, string>();
+
+                (Uri uri, string? altEndpoint, ProxyOptions proxyOptions) =
+                    InitialParse(uriString, pureEndpoints: oaEndpoints, endpointOptions);
+
+                Protocol protocol = proxyOptions.Protocol ?? Protocol.Ice2;
+
+                List<Endpoint>? endpoints = null;
+
+                if (endpointOptions != null) // i.e. not ice scheme
+                {
+                    endpoints = new List<Endpoint>
+                    {
+                        CreateEndpoint(communicator, oaEndpoints, endpointOptions, protocol, uri, uriString)
+                    };
+
+                    if (altEndpoint != null)
+                    {
+                        foreach (string endpointStr in altEndpoint.Split(','))
+                        {
+                            if (endpointStr.StartsWith("ice:"))
+                            {
+                                throw new FormatException(
+                                    $"invalid URI scheme for endpoint `{endpointStr}': must be empty or ice+transport");
+                            }
+
+                            string altUriString = endpointStr;
+                            if (!altUriString.StartsWith("ice+"))
+                            {
+                                altUriString = $"{uri.Scheme}://{altUriString}";
+                            }
+
+                            // The separator for endpoint options in alt-endpoint is $, and we replace these $ by &
+                            // before sending the string the main parser (InitialParse), which uses & as separator.
+                            altUriString = altUriString.Replace('$', '&');
+
+                            // No need to clear endpointOptions before reusing it since CreateEndpoint consumes all the
+                            // endpoint options
+                            Debug.Assert(endpointOptions.Count == 0);
+
+                            (Uri endpointUri, string? endpointAltEndpoint, _) =
+                                InitialParse(altUriString, pureEndpoints: true, endpointOptions);
+
+                            if (endpointAltEndpoint != null)
+                            {
+                                throw new FormatException(
+                                    $"invalid option `alt-endpoint' in endpoint `{endpointStr}'");
+                            }
+
+                            endpoints.Add(CreateEndpoint(communicator,
+                                                         oaEndpoints,
+                                                         endpointOptions,
+                                                         protocol,
+                                                         endpointUri,
+                                                         endpointStr));
+                        }
+                    }
+                }
+                return (uri, (IReadOnlyList<Endpoint>?)endpoints ?? ImmutableArray<Endpoint>.Empty, proxyOptions);
+            }
+            catch (Exception ex)
+            {
+                // Give context to the exception.
+                throw new FormatException($"failed to parse URI `{uriString}'", ex);
+            }
         }
     }
 }

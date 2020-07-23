@@ -32,7 +32,14 @@ namespace ZeroC.Ice.Test.ACM
                 communicator.SetProperty($"{name}.ACM.Heartbeat", Enum.Parse<AcmHeartbeat>(heartbeatValue).ToString());
             }
 
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{transport} -h \"{host}\"");
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            if (!ice1 && host.Contains(':'))
+            {
+                host = $"[{host}]";
+            }
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name,
+                ice1 ? $"{transport} -h \"{host}\"" : $"ice+{transport}://{host}:0");
+
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 

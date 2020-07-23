@@ -23,7 +23,8 @@ interface RemoteObjectAdapter
 
 interface RemoteCommunicator
 {
-    RemoteObjectAdapter* createObjectAdapter(string name, string endpoints);
+    RemoteObjectAdapter createObjectAdapter(string name, string transport);
+    RemoteObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
 

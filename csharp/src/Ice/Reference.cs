@@ -70,7 +70,7 @@ namespace ZeroC.Ice
                 throw new FormatException("empty string is invalid");
             }
 
-            return UriParser.IsUri(proxyString) ? ParseUri(proxyString, communicator, propertyPrefix) :
+            return UriParser.IsProxyUri(proxyString) ? ParseUri(proxyString, communicator, propertyPrefix) :
                 ParseIce1Format(proxyString, communicator, propertyPrefix);
         }
 
@@ -734,11 +734,8 @@ namespace ZeroC.Ice
 
         private static Reference ParseUri(string uriString, Communicator communicator, string? propertyPrefix)
         {
-            var proxyOptions = new UriParser.ProxyOptions();
-            (Uri uri, IReadOnlyList<Endpoint> endpoints) = UriParser.Parse(uriString, communicator, proxyOptions);
-
-            string facet = uri.Fragment.Length >= 2 ? Uri.UnescapeDataString(uri.Fragment.TrimStart('#')) : "";
-            var path = uri.AbsolutePath.TrimStart('/').Split('/').Select(s => Uri.UnescapeDataString(s)).ToList();
+            (IReadOnlyList<Endpoint> endpoints, List<string> path, UriParser.ProxyOptions proxyOptions, string facet) =
+                UriParser.ParseProxy(uriString, communicator);
 
             string adapterId = "";
             Identity identity;

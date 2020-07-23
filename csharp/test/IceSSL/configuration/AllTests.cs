@@ -86,7 +86,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
             var factory = IServerFactoryPrx.Parse(factoryRef, communicator);
 
-            string defaultHost = communicator.GetProperty("Ice.Default.Host") ?? "";
+            string host = communicator.GetProperty("Ice.Default.Host") ?? "127.0.0.1";
             string defaultDir = $"{testDir}/../certs";
             Dictionary<string, string> defaultProperties = communicator.GetProperties();
             defaultProperties["IceSSL.DefaultDir"] = defaultDir;
@@ -272,7 +272,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                         });
 
-                    ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
+                    bool ice1 = serverCommunicator.DefaultProtocol == Protocol.Ice1;
+                    ObjectAdapter adapter = serverCommunicator.CreateObjectAdapterWithEndpoints(
+                            "MyAdapter", ice1 ? "ssl" : $"ice+ssl://{host}:0");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
                     adapter.Activate();
                     prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
@@ -316,7 +318,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                         });
 
-                    ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
+                    bool ice1 = serverCommunicator.DefaultProtocol == Protocol.Ice1;
+                    ObjectAdapter adapter = serverCommunicator.CreateObjectAdapterWithEndpoints(
+                        "MyAdapter", ice1 ? "ssl" : $"ice+ssl://{host}:0");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
                     adapter.Activate();
                     prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
@@ -555,7 +559,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1 as that is the IP address used
                     // in the test certificates.
-                    if (defaultHost.Equals("127.0.0.1"))
+                    if (host.Equals("127.0.0.1"))
                     {
                         // Test using localhost as target host.
                         var props = new Dictionary<string, string>(defaultProperties)

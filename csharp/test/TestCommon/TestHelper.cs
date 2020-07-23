@@ -45,7 +45,7 @@ namespace Test
 
         public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
-            if (transport.Length == 0)
+            if (transport.Length == 0 || transport == "default")
             {
                 if (properties.TryGetValue("Ice.Default.Transport", out string? value))
                 {
@@ -57,11 +57,43 @@ namespace Test
                 }
             }
 
-            var sb = new StringBuilder();
-            sb.Append(transport);
-            sb.Append(" -p ");
-            sb.Append(GetTestPort(properties, num));
-            return sb.ToString();
+            bool uriFormat = true;
+            // TODO: switch to a different test-only property to select the protocol
+            if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
+            {
+                if (protocolValue == "ice1")
+                {
+                    uriFormat = false;
+                }
+            }
+
+            if (uriFormat)
+            {
+                var sb = new StringBuilder("ice+");
+                sb.Append(transport);
+                sb.Append("://");
+                string host = GetTestHost(properties);
+                if (host.Contains(':'))
+                {
+                    sb.Append('[');
+                    sb.Append(host);
+                    sb.Append(']');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
+                sb.Append(':');
+                sb.Append(GetTestPort(properties, num));
+                return sb.ToString();
+            }
+            else
+            {
+                var sb = new StringBuilder(transport);
+                sb.Append(" -p ");
+                sb.Append(GetTestPort(properties, num));
+                return sb.ToString();
+            }
         }
 
         public string GetTestProxy(string identity, int num = 0, string? transport = null) =>
@@ -152,6 +184,7 @@ namespace Test
 
         public int GetTestPort(int num) => GetTestPort(_communicator!.GetProperties(), num);
 
+        // TODO: switch to ushort
         public static int GetTestPort(Dictionary<string, string> properties, int num)
         {
             int basePort = 12010;

@@ -8,21 +8,17 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx CreateObjectAdapter(string name, string endpts, Current current)
+        public IRemoteObjectAdapterPrx CreateObjectAdapter(string name, string transport, Current current)
         {
             int retry = 5;
             while (true)
             {
                 try
                 {
-                    Communicator communicator = current.Adapter.Communicator;
-                    string endpoints = endpts;
-                    if (endpoints.IndexOf("-p") < 0)
-                    {
-                        endpoints = TestHelper.GetTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
-                    }
+                    string endpoints =
+                        TestHelper.GetTestEndpoint(current.Communicator.GetProperties(), _nextPort++, transport);
 
-                    ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+                    ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
                     return current.Adapter.AddWithUUID(
                         new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
                 }
@@ -34,6 +30,12 @@ namespace ZeroC.Ice.Test.Binding
                     }
                 }
             }
+        }
+
+        public IRemoteObjectAdapterPrx CreateObjectAdapterWithEndpoints(string name, string endpoints, Current current)
+        {
+            ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+            return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
         // Collocated call.

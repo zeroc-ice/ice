@@ -56,6 +56,9 @@ namespace ZeroC.Ice.Test.Admin
                 logger = new NullLogger();
             }
 
+            props.Add("Ice.Default.Protocol", current.Communicator.DefaultProtocol.GetName());
+
+            //
             // Initialize a new communicator.
             var communicator = new Communicator(props, logger: logger);
 

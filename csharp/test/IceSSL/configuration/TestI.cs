@@ -78,7 +78,16 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     RequireClientCertificate = requireClientCertificate
                 });
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            string host = "";
+            if (!ice1)
+            {
+                host = communicator.GetProperty("Ice.Default.Host") ?? "[::0]";
+            }
+
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(
+                "ServerAdapter", ice1 ? "ssl" : $"ice+ssl://{host}:0");
             var server = new SSLServer(communicator);
             IServerPrx prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;

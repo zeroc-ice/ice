@@ -448,21 +448,21 @@ namespace ZeroC.Ice.Test.Binding
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
-                    adapters.Add(com.CreateObjectAdapter("Adapter36", endpoints[2].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter36", endpoints[2].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter36");
                     }
                     obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
-                    adapters.Add(com.CreateObjectAdapter("Adapter35", endpoints[1].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter35", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter35");
                     }
                     obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
-                    adapters.Add(com.CreateObjectAdapter("Adapter34", endpoints[0].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter34", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter34");
@@ -633,19 +633,19 @@ namespace ZeroC.Ice.Test.Binding
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
-                    adapters.Add(com.CreateObjectAdapter("Adapter66", endpoints[2].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter66", endpoints[2].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter66");
                     }
 
-                    adapters.Add(com.CreateObjectAdapter("Adapter65", endpoints[1].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter65", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter65");
                     }
 
-                    adapters.Add(com.CreateObjectAdapter("Adapter64", endpoints[0].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter64", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter64");
@@ -707,19 +707,19 @@ namespace ZeroC.Ice.Test.Binding
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
-                    adapters.Add(com.CreateObjectAdapter("AdapterAMI66", endpoints[2].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("AdapterAMI66", endpoints[2].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(GetAdapterNameWithAMI(obj) == "AdapterAMI66");
                     }
 
-                    adapters.Add(com.CreateObjectAdapter("AdapterAMI65", endpoints[1].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("AdapterAMI65", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(GetAdapterNameWithAMI(obj) == "AdapterAMI65");
                     }
 
-                    adapters.Add(com.CreateObjectAdapter("AdapterAMI64", endpoints[0].ToString())!);
+                    adapters.Add(com.CreateObjectAdapterWithEndpoints("AdapterAMI64", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(GetAdapterNameWithAMI(obj) == "AdapterAMI64");
@@ -729,31 +729,34 @@ namespace ZeroC.Ice.Test.Binding
             }
             output.WriteLine("ok");
 
-            output.Write("testing endpoint mode filtering... ");
-            output.Flush();
+            if (communicator.DefaultProtocol == Protocol.Ice1)
             {
-                var adapters = new List<IRemoteObjectAdapterPrx>
+                output.Write("testing endpoint mode filtering... ");
+                output.Flush();
                 {
-                    com.CreateObjectAdapter("Adapter71", "default")!,
-                    com.CreateObjectAdapter("Adapter72", "udp")!
-                };
+                    var adapters = new List<IRemoteObjectAdapterPrx>
+                    {
+                        com.CreateObjectAdapter("Adapter71", "default"),
+                        com.CreateObjectAdapter("Adapter72", "udp")
+                    };
 
-                ITestIntfPrx obj = CreateTestIntfPrx(adapters);
-                TestHelper.Assert(obj.GetAdapterName().Equals("Adapter71"));
+                    ITestIntfPrx obj = CreateTestIntfPrx(adapters);
+                    TestHelper.Assert(obj.GetAdapterName().Equals("Adapter71"));
 
-                ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram);
-                TestHelper.Assert(obj.GetConnection() != testUDP.GetConnection());
-                try
-                {
-                    testUDP.GetAdapterName();
-                    TestHelper.Assert(false);
+                    ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram);
+                    TestHelper.Assert(obj.GetConnection() != testUDP.GetConnection());
+                    try
+                    {
+                        testUDP.GetAdapterName();
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // expected
+                    }
                 }
-                catch (InvalidOperationException)
-                {
-                    // expected
-                }
+                output.WriteLine("ok");
             }
-            output.WriteLine("ok");
             if (communicator.GetProperty("Ice.Plugin.IceSSL") != null)
             {
                 output.Write("testing secure and non-secure endpoints... ");
@@ -790,7 +793,7 @@ namespace ZeroC.Ice.Test.Binding
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
                     if (communicator.DefaultProtocol == Protocol.Ice1)
                     {
-                        com.CreateObjectAdapter("Adapter83", obj.Endpoints[1].ToString()); // Recreate a tcp OA.
+                        com.CreateObjectAdapterWithEndpoints("Adapter83", obj.Endpoints[1].ToString()); // Recreate a tcp OA.
 
                         for (int i = 0; i < 5; i++)
                         {

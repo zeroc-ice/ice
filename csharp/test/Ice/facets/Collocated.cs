@@ -16,9 +16,9 @@ namespace ZeroC.Ice.Test.Facets
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
             adapter.Add("d", d);
-            adapter.Add("d", "facetABCD", d);
-            adapter.Add("d", "facetEF", new F());
-            adapter.Add("d", "facetGH", new H(communicator));
+            adapter.Add("d#facetABCD", d);
+            adapter.Add("d#facetEF", new F());
+            adapter.Add("d#facetGH", new H(communicator));
             AllTests.Run(this);
         }
 
