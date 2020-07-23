@@ -150,6 +150,7 @@ namespace ZeroC.Ice
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
         internal Acm ClientAcm { get; }
+        internal int CompressionLevel { get; }
         internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
@@ -159,6 +160,10 @@ namespace ZeroC.Ice
         internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
+        internal bool WarnConnections { get; }
+        internal bool WarnDatagrams { get; }
+        internal bool WarnDispatch { get; }
+        internal bool WarnUnknownProperties { get; }
 
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
@@ -464,6 +469,18 @@ namespace ZeroC.Ice
 
                 int frameSizeMax = GetPropertyAsByteSize("Ice.MessageSizeMax") ?? 1024 * 1024;
                 FrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
+
+                WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
+                WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
+                WarnDispatch = GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
+                WarnUnknownProperties = GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
+
+                int compressionLevel = GetPropertyAsInt("Ice.Compression.Level") ?? 1;
+                if (compressionLevel < 1 || compressionLevel > 9)
+                {
+                    throw new InvalidConfigurationException(@$"invalid value for Ice.Compression.Level: `{
+                        compressionLevel}', it must be an integer between 1 and 9");
+                }
 
                 // TODO: switch to 0 default
                 AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;

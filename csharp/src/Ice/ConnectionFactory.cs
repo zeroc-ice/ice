@@ -483,7 +483,6 @@ namespace ZeroC.Ice
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private bool _disposed;
         private readonly object _mutex = new object();
-        private readonly bool _warn;
 
         public override async ValueTask DisposeAsync()
         {
@@ -524,7 +523,6 @@ namespace ZeroC.Ice
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
-            _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
 
             // TODO: for ice2, support for multiple endpoints for the same acceptor and not one acceptor per endpoint
@@ -635,7 +633,7 @@ namespace ZeroC.Ice
                             // Ignore
                         }
 
-                        if (_warn)
+                        if (_communicator.WarnConnections)
                         {
                             _communicator.Logger.Warning($"connection exception:\n{ex}\n{_acceptor}");
                         }

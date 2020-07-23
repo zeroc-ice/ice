@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Diagnostics;
 
 using ZeroC.Ice.Instrumentation;
@@ -17,7 +16,7 @@ namespace ZeroC.Ice
         {
             bool unhandledException = ex is UnhandledException;
 
-            if (unhandledException && (current.Adapter.Communicator.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false))
+            if (unhandledException && current.Adapter.Communicator.WarnDispatch)
             {
                 Warning((UnhandledException)ex, current);
             }
