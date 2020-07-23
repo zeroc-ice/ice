@@ -176,6 +176,23 @@ namespace ZeroC.Ice
         // Returns a connector for this endpoint, or empty list if no connector is available.
         public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endpointSelection);
 
+        /// <summary>Creates a new connection to the given endpoint.</summary>
+        /// <param name="manager">The connection manager which owns the connection.</param>
+        /// <param name="transceiver">The transceiver to use for the connection.</param>
+        /// <param name="connector">The connector associated with the new connection, this is always null for incoming
+        /// connections.</param>
+        /// <param name="connectionId">The connection ID associated with the new connection. This is always an empty
+        /// string for incoming connections.</param>
+        /// <param name="adapter">The adapter associated with the new connection, this is always null for outgoing
+        /// connections.</param>
+        /// <returns>A new connection to the given endpoint.</returns>
+        public abstract Connection CreateConnection(
+            IConnectionManager manager,
+            ITransceiver? transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter);
+
         // Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on server side
         // or if no host was specified on client side.
         public abstract IEnumerable<Endpoint> ExpandIfWildcard();
@@ -185,9 +202,6 @@ namespace ZeroC.Ice
         // used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if it uses a fixed
         // port, null otherwise).
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
-
-        // Returns an acceptor for this endpoint, or null if no acceptor is available.
-        public abstract IAcceptor? GetAcceptor(string adapterName);
 
         // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
         // acceptor.
@@ -331,12 +345,12 @@ namespace ZeroC.Ice
             {
                 if (sb.Length > 0)
                 {
-                    sb.Append(" ");
+                    sb.Append(' ');
                 }
                 sb.Append(option);
                 if (argument != null)
                 {
-                    sb.Append(" ");
+                    sb.Append(' ');
                     sb.Append(argument);
                 }
             }

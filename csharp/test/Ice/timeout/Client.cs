@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Timeout
@@ -11,7 +12,7 @@ namespace ZeroC.Ice.Test.Timeout
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
 
             // For this test, we want to disable retries.
             properties["Ice.RetryIntervals"] = "-1";
@@ -23,7 +24,7 @@ namespace ZeroC.Ice.Test.Timeout
             // of data.
             properties["Ice.TCP.SndSize"] = "50K";
             await using Communicator communicator = Initialize(properties);
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

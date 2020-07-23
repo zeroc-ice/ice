@@ -41,7 +41,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
         public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        private Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
+        private readonly Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
     }
 
     public sealed class TestIntf : ITestIntf

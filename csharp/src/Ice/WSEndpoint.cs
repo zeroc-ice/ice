@@ -69,12 +69,12 @@ namespace ZeroC.Ice
                     bool addQuote = _resource.IndexOf(':') != -1;
                     if (addQuote)
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                     sb.Append(_resource);
                     if (addQuote)
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                 }
                 else
@@ -89,6 +89,21 @@ namespace ZeroC.Ice
                 }
             }
         }
+
+        public override Connection CreateConnection(
+            IConnectionManager manager,
+            ITransceiver? transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter) =>
+            new WSConnection(manager,
+                this,
+                Protocol == Protocol.Ice1? (IBinaryConnection)
+                new Ice1BinaryConnection(transceiver!, this, adapter) :
+                new SlicBinaryConnection(transceiver!, this, adapter),
+                connector,
+                connectionId,
+                adapter);
 
         internal WSEndpoint(
             Communicator communicator,

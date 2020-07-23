@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.UDP
             {
                 reply!.Reply();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -42,10 +42,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             try
             {
-                //
-                // Ensure sending too much data doesn't cause the UDP connection
-                // to be closed.
-                //
+                // Ensure sending too much data doesn't cause the UDP connection to be closed.
                 TestHelper.Assert(current.Connection != null);
                 try
                 {

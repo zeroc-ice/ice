@@ -41,7 +41,7 @@ namespace ZeroC.Ice
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
         private readonly Connection? _fixedConnection;
-        private int _hashCode = 0;
+        private int _hashCode;
         private volatile IRequestHandler? _requestHandler; // readonly when IsFixed is true
 
         public static bool operator ==(Reference? lhs, Reference? rhs)
@@ -322,7 +322,7 @@ namespace ZeroC.Ice
                 {
                     foreach (Endpoint e in Endpoints)
                     {
-                        sb.Append(":");
+                        sb.Append(':');
                         sb.Append(e);
                     }
                 }
@@ -1380,17 +1380,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // If it's an Ice1 proxy, we check if the connection matches an endpoint with the compression flag
-                // enabled. If it's the case, we'll use compression.
-                bool compress = false;
-                if (Protocol == Protocol.Ice1)
-                {
-                    // Use compression if the first matching endpoint uses compression. We make sure to compare
-                    // endpoints with the same timeout value to ignore the timeout.
-                    compress = endpoints.First(endpoint => connection.Endpoints.Exists(connectionEndpoint =>
-                        endpoint.NewTimeout(connectionEndpoint.Timeout).Equals(connectionEndpoint))).HasCompressionFlag;
-                }
-                return new ConnectionRequestHandler(connection, compress);
+                return new ConnectionRequestHandler(connection);
             }
             catch (Exception ex)
             {
@@ -1703,7 +1693,7 @@ namespace ZeroC.Ice
             }
 
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection, false);
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
         }
     }
 }

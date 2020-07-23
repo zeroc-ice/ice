@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.DictMapping
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyClass());
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
-            AllTests.allTests(this, true);
+            AllTests.Run(this, true);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

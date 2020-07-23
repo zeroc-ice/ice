@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
@@ -13,19 +14,20 @@ namespace ZeroC.IceGrid.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            await using var communicator = Initialize(ref args,
-                                                      new Dictionary<string, string>
-                                                      {
-                                                          ["Ice.Default.Protocol"] = "ice1",
-                                                          ["Ice.Default.Encoding"] = "1.1"
-                                                      });
+            await using Communicator communicator = Initialize(
+                ref args,
+                new Dictionary<string, string>
+                {
+                    ["Ice.Default.Protocol"] = "ice1",
+                    ["Ice.Default.Encoding"] = "1.1"
+                });
             if (args.Any(v => v.Equals("--with-deploy")))
             {
-                AllTests.allTestsWithDeploy(this);
+                AllTests.RunWithDeploy(this);
             }
             else
             {
-                AllTests.allTests(this);
+                AllTests.Run(this);
             }
         }
 

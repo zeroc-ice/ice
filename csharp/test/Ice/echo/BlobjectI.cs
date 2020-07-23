@@ -12,7 +12,8 @@ namespace ZeroC.Ice.Test.Echo
         public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
             TestHelper.Assert(current.Connection != null);
-            IObjectPrx proxy = current.Connection.CreateProxy(current.Identity, IObjectPrx.Factory).Clone(current.Facet,
+            IObjectPrx proxy = current.Connection.CreateProxy(current.Identity, IObjectPrx.Factory).Clone(
+                current.Facet,
                 IObjectPrx.Factory, oneway: current.IsOneway);
             return proxy.ForwardAsync(current.IsOneway, request);
         }

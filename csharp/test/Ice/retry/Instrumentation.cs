@@ -10,55 +10,53 @@ namespace ZeroC.Ice.Test.Retry
 {
     public class Instrumentation
     {
-        private static object mutex = new object();
+        private static readonly object _mutex = new object();
+        private static int _nFailure;
+        private static int _nInvocation;
+        private static int _nRetry;
 
         private class InvocationObserver : IInvocationObserver
         {
-            public void
-            Attach()
+
+            public void Attach()
             {
             }
 
-            public void
-            Detach()
+            public void Detach()
             {
-                lock (mutex)
+                lock (_mutex)
                 {
-                    ++nInvocation;
+                    ++_nInvocation;
                 }
             }
 
-            public void
-            Failed(string msg)
+            public void Failed(string msg)
             {
-                lock (mutex)
+                lock (_mutex)
                 {
-                    ++nFailure;
+                    ++_nFailure;
                 }
             }
 
-            public void
-            Retried()
+            public void Retried()
             {
-                lock (mutex)
+                lock (_mutex)
                 {
-                    ++nRetry;
+                    ++_nRetry;
                 }
             }
 
-            public void
-            RemoteException()
+            public void RemoteException()
             {
             }
 
-            public IRemoteObserver? GetRemoteObserver(Connection connection, int requestId, int size) => null;
+            public IRemoteObserver? GetRemoteObserver(Connection connection, long requestId, int size) => null;
 
-            public ICollocatedObserver?
-            GetCollocatedObserver(ObjectAdapter adapter, int i, int j) => null;
+            public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long i, int j) => null;
 
         }
 
-        private static IInvocationObserver invocationObserver = new InvocationObserver();
+        private static readonly IInvocationObserver _invocationObserver = new InvocationObserver();
 
         private class CommunicatorObserverI : ICommunicatorObserver
         {
@@ -72,21 +70,20 @@ namespace ZeroC.Ice.Test.Retry
                 IConnectionObserver? observer) => null;
 
             public IInvocationObserver? GetInvocationObserver(IObjectPrx? p, string o,
-                IReadOnlyDictionary<string, string> c) => invocationObserver;
+                IReadOnlyDictionary<string, string> c) => _invocationObserver;
 
-            public IDispatchObserver? GetDispatchObserver(Current c, int requestId, int i) => null;
+            public IDispatchObserver? GetDispatchObserver(Current c, long requestId, int i) => null;
 
             public void SetObserverUpdater(IObserverUpdater? u)
             {
             }
         }
 
-        private static ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+        private static readonly ICommunicatorObserver _communicatorObserver = new CommunicatorObserverI();
 
-        public static ICommunicatorObserver GetObserver() => communicatorObserver;
+        public static ICommunicatorObserver GetObserver() => _communicatorObserver;
 
-        private static void
-        testEqual(ref int value, int expected)
+        private static void TestEqual(ref int value, int expected)
         {
             if (expected < 0)
             {
@@ -97,7 +94,7 @@ namespace ZeroC.Ice.Test.Retry
             int retry = 0;
             while (++retry < 100)
             {
-                lock (mutex)
+                lock (_mutex)
                 {
                     if (value == expected)
                     {
@@ -115,31 +112,17 @@ namespace ZeroC.Ice.Test.Retry
             value = 0;
         }
 
-        public static void
-        testRetryCount(int expected) => testEqual(ref nRetry, expected);
+        public static void TestRetryCount(int expected) => TestEqual(ref _nRetry, expected);
 
-        public static void
-        testFailureCount(int expected)
+        public static void TestFailureCount(int expected) => TestEqual(ref _nFailure, expected);
+
+        public static void TestInvocationCount(int expected) => TestEqual(ref _nInvocation, expected);
+
+        public static void TestInvocationReset()
         {
-            testEqual(ref nFailure, expected);
+            _nRetry = 0;
+            _nFailure = 0;
+            _nInvocation = 0;
         }
-
-        public static void
-        testInvocationCount(int expected)
-        {
-            testEqual(ref nInvocation, expected);
-        }
-
-        public static void
-        testInvocationReset()
-        {
-            nRetry = 0;
-            nFailure = 0;
-            nInvocation = 0;
-        }
-
-        private static int nRetry = 0;
-        private static int nFailure = 0;
-        private static int nInvocation = 0;
     }
 }

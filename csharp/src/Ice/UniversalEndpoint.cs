@@ -37,7 +37,7 @@ namespace ZeroC.Ice
 
         internal const ushort DefaultUniversalPort = 0;
 
-        private int _hashCode = 0; // 0 is a special value that means not initialized.
+        private int _hashCode; // 0 is a special value that means not initialized.
 
         private readonly IReadOnlyList<string> _options = Array.Empty<string>();
 
@@ -86,6 +86,13 @@ namespace ZeroC.Ice
         public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
+        public override Connection CreateConnection(
+            IConnectionManager manager,
+            ITransceiver? transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter) => null!;
+
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {
             publishedEndpoint = null;
@@ -94,7 +101,6 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
 
-        public override IAcceptor? GetAcceptor(string adapterName) => null;
         public override ITransceiver? GetTransceiver() => null;
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)

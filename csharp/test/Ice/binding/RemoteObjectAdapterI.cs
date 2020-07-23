@@ -28,7 +28,7 @@ namespace ZeroC.Ice.Test.Binding
             }
         }
 
-        private ObjectAdapter _adapter;
-        private ITestIntfPrx _testIntf;
+        private readonly ObjectAdapter _adapter;
+        private readonly ITestIntfPrx _testIntf;
     }
 }

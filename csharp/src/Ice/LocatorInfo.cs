@@ -271,7 +271,9 @@ namespace ZeroC.Ice
                 try
                 {
                     // TODO: Fix FindAdapterById to return non-null proxy
-                    IObjectPrx? proxy = await Locator.FindAdapterByIdAsync(reference.AdapterId).ConfigureAwait(false);
+                    IObjectPrx? proxy = await Locator.FindAdapterByIdAsync(
+                        reference.AdapterId,
+                        cancel: CancellationToken.None).ConfigureAwait(false);
                     if (proxy != null && !proxy.IceReference.IsIndirect)
                     {
                         // Cache the adapter endpoints.
@@ -347,7 +349,9 @@ namespace ZeroC.Ice
                 try
                 {
                     // TODO: Fix FindObjectById to return non-null proxy
-                    IObjectPrx? proxy = await Locator.FindObjectByIdAsync(reference.Identity).ConfigureAwait(false);
+                    IObjectPrx? proxy = await Locator.FindObjectByIdAsync(
+                        reference.Identity,
+                        cancel: CancellationToken.None).ConfigureAwait(false);
                     if (proxy != null && !proxy.IceReference.IsWellKnown)
                     {
                         // Cache the object reference.
@@ -412,10 +416,10 @@ namespace ZeroC.Ice
             Debug.Assert(r.IsWellKnown);
             var s = new System.Text.StringBuilder();
             s.Append(msg);
-            s.Append("\n");
+            s.Append('\n');
             s.Append("well-known proxy = ");
             s.Append(r.ToString());
-            s.Append("\n");
+            s.Append('\n');
             s.Append("adapter = ");
             s.Append(resolved.AdapterId);
             r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCategory, s.ToString());

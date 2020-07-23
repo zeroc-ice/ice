@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Location
 {
     public class AllTests
     {
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -49,7 +49,7 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing ice_locator and ice_getLocator... ");
             TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, communicator.DefaultLocator!));
-            ILocatorPrx anotherLocator =
+            var anotherLocator =
                 ILocatorPrx.Parse(ice1 ? "anotherLocator" : "ice:anotherLocator", communicator);
             base1 = base1.Clone(locator: anotherLocator);
             TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, anotherLocator));
@@ -108,7 +108,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj2.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -122,7 +122,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj6.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -136,7 +136,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj3.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -144,7 +144,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj2.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -154,7 +154,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj2.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -162,7 +162,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj3.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -172,7 +172,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj2.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -182,7 +182,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 obj3.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -194,7 +194,7 @@ namespace ZeroC.Ice.Test.Location
                 TestHelper.Assert(obj5 != null);
                 obj5.IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -350,7 +350,7 @@ namespace ZeroC.Ice.Test.Location
                     IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -378,7 +378,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -460,7 +460,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", communicator).IcePing();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }

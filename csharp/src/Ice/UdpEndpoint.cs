@@ -35,7 +35,7 @@ namespace ZeroC.Ice
         internal int McastTtl { get; } = -1;
 
         private readonly bool _connect;
-        private int _hashCode = 0;
+        private int _hashCode;
 
         public override bool Equals(Endpoint? other)
         {
@@ -89,12 +89,12 @@ namespace ZeroC.Ice
                 sb.Append(" --interface ");
                 if (addQuote)
                 {
-                    sb.Append("\"");
+                    sb.Append('"');
                 }
                 sb.Append(McastInterface);
                 if (addQuote)
                 {
-                    sb.Append("\"");
+                    sb.Append('"');
                 }
             }
 
@@ -131,7 +131,17 @@ namespace ZeroC.Ice
 
         public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
-        public override IAcceptor? GetAcceptor(string adapterName) => null;
+        public override Connection CreateConnection(
+             IConnectionManager manager,
+             ITransceiver? transceiver,
+             IConnector? connector,
+             string connectionId,
+             ObjectAdapter? adapter) => new UdpConnection(manager,
+                                                          this,
+                                                          new Ice1BinaryConnection(transceiver!, this, adapter),
+                                                          connector,
+                                                          connectionId,
+                                                          adapter);
 
         public override ITransceiver GetTransceiver() =>
             new UdpTransceiver(this, Communicator, Host, Port, McastInterface, _connect);

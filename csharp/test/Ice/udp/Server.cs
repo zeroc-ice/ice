@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Test;
@@ -13,7 +14,7 @@ namespace ZeroC.Ice.Test.UDP
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.RcvSize"] = "16K";
 
@@ -22,11 +23,9 @@ namespace ZeroC.Ice.Test.UDP
             // ice2, and use only ice1 for the udp object adapter.
             properties["Ice.Default.Protocol"] = "ice1";
 
-            string? value;
-            int ipv6;
             if (AssemblyUtil.IsMacOS &&
-                properties.TryGetValue("Ice.IPv6", out value) &&
-                int.TryParse(value, out ipv6) && ipv6 > 0)
+                properties.TryGetValue("Ice.IPv6", out string? value) &&
+                int.TryParse(value, out int ipv6) && ipv6 > 0)
             {
                 // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
                 properties["Ice.IPv4"] = "0";
@@ -55,10 +54,9 @@ namespace ZeroC.Ice.Test.UDP
                 await adapter2.ActivateAsync();
             }
 
-            StringBuilder endpoint = new StringBuilder();
-            //
+            var endpoint = new StringBuilder();
+
             // Use loopback to prevent other machines to answer.
-            //
             if (communicator.GetProperty("Ice.IPv6") == "1")
             {
                 endpoint.Append("udp -h \"ff15::1:1\"");

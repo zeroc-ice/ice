@@ -2,18 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.Facets
 {
     public class AllTests
     {
-        public static IGPrx allTests(TestHelper helper)
+        public static IGPrx Run(TestHelper helper)
         {
 
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             output.Write("testing Ice.Admin.Facets property... ");
             TestHelper.Assert(communicator.GetPropertyAsList("Ice.Admin.Facets") == null);
             communicator.SetProperty("Ice.Admin.Facets", "foobar");
@@ -49,7 +51,7 @@ namespace ZeroC.Ice.Test.Facets
                 adapter.Add("d#facetABCD", obj);
                 TestHelper.Assert(false);
             }
-            catch (System.ArgumentException)
+            catch (ArgumentException)
             {
             }
             adapter.Remove("d#facetABCD");

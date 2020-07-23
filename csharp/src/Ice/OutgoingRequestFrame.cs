@@ -71,6 +71,9 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count.</summary>
         public int Size { get; private set; }
 
+        // Whether or not to Compress the content of the frame with Ice1
+        internal bool Compress { get; }
+
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
 
@@ -193,6 +196,10 @@ namespace ZeroC.Ice
             Protocol = proxy.Protocol;
             Protocol.CheckSupported();
             Encoding = proxy.Encoding;
+            // TODO: when we add back compression support on the client side, assign to true for Ice1 requests to
+            // get the connection to compress the request at the protocol level. The Ice1BinaryConnection checks
+            // this property to figure out if the request needs to be compressed.
+            Compress = false;
             Data = new List<ArraySegment<byte>>();
             Identity = proxy.Identity;
             Facet = proxy.Facet;

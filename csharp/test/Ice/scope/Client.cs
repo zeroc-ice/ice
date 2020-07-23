@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Scope
             var output = GetWriter();
             output.Write("test using same type name in different Slice modules... ");
             output.Flush();
-            AllTests.allTests(this);
+            AllTests.Run(this);
             output.WriteLine("ok");
         }
 

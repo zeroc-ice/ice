@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics
@@ -13,7 +14,7 @@ namespace ZeroC.Ice.Test.Metrics
         {
             var observer = new CommunicatorObserver();
 
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             bool ice1 = false;
             if (properties.TryGetValue("Ice.Default.Protocol", out string? value))
             {
@@ -32,7 +33,7 @@ namespace ZeroC.Ice.Test.Metrics
             adapter.Add("metrics", new Metrics());
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            IMetricsPrx metrics = AllTests.allTests(this, observer);
+            IMetricsPrx metrics = AllTests.Run(this, observer);
             await metrics.ShutdownAsync();
         }
 

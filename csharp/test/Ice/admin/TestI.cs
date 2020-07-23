@@ -36,8 +36,7 @@ namespace ZeroC.Ice.Test.Admin
 
         public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
 
-        // Note that we are executing in a thread of the *main* communicator,
-        // not the one that is being shut down.
+        // Note that we are executing in a thread of the *main* communicator, not the one that is being shut down.
         public void WaitForShutdown(Current current) => _communicator.WaitForShutdownAsync().Wait();
 
         public void Destroy(Current current) => _communicator.Dispose();
@@ -49,9 +48,7 @@ namespace ZeroC.Ice.Test.Admin
     {
         public IRemoteCommunicatorPrx CreateCommunicator(Dictionary<string, string> props, Current current)
         {
-            //
             // Prepare the property set using the given properties.
-            //
             ILogger? logger = null;
             if (props.TryGetValue("NullLogger", out string? value) &&
                 int.TryParse(value, out int nullLogger) && nullLogger > 0)
@@ -63,12 +60,9 @@ namespace ZeroC.Ice.Test.Admin
 
             //
             // Initialize a new communicator.
-            //
             var communicator = new Communicator(props, logger: logger);
 
-            //
             // Install a custom admin facet.
-            //
             try
             {
                 var testFacet = new TestFacet();
@@ -80,9 +74,8 @@ namespace ZeroC.Ice.Test.Admin
 
             // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
             var servant = new RemoteCommunicator(communicator);
-            var propFacet = communicator.FindAdminFacet("Properties");
 
-            if (propFacet is IPropertiesAdmin admin)
+            if (communicator.FindAdminFacet("Properties") is IPropertiesAdmin admin)
             {
                 admin.Updated += (_, updates) => servant.Updated(updates);
             }

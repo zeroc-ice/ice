@@ -83,11 +83,7 @@ namespace ZeroC.Ice.Test.Exceptions
         // Only supported with callback based AMD API
         public ValueTask ThrowAfterExceptionAsync(Current current) => throw new A(); //throw new Exception();
 
-        public ValueTask ThrowAConvertedToUnhandledAsync(Current current)
-        {
-            var a = new A();
-            a.ConvertToUnhandled = true;
-            throw a;
-        }
+        public ValueTask ThrowAConvertedToUnhandledAsync(Current current) =>
+            throw new A() { ConvertToUnhandled = true };
     }
 }

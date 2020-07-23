@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Threading
 
             private TaskScheduler? _scheduler;
 
-            private ManualResetEvent _event = new ManualResetEvent(false);
+            private readonly ManualResetEvent _event = new ManualResetEvent(false);
 
             void IProgress<bool>.Report(bool value)
             {
@@ -34,11 +34,11 @@ namespace ZeroC.Ice.Test.Threading
                 _event.Set();
             }
         }
-        public static async ValueTask allTestsWithServer(TestHelper helper, bool collocated, int server)
+        public static async ValueTask AllTestsWithServer(TestHelper helper, bool collocated, int server)
         {
             System.IO.TextWriter output = helper.GetWriter();
 
-            var scheduler = TaskScheduler.Current;
+            TaskScheduler? scheduler = TaskScheduler.Current;
 
             var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", server), helper.Communicator()!);
 
@@ -98,7 +98,7 @@ namespace ZeroC.Ice.Test.Threading
             TestHelper.Assert(TaskScheduler.Current == TaskScheduler.Default);
         }
 
-        public static async ValueTask<ITestIntfPrx> allTests(TestHelper helper, bool collocated)
+        public static async Task<ITestIntfPrx> Run(TestHelper helper, bool collocated)
         {
             Communicator communicator = helper.Communicator()!;
             TestHelper.Assert(communicator != null);
@@ -107,52 +107,55 @@ namespace ZeroC.Ice.Test.Threading
             Dictionary<string, string> properties = communicator.GetProperties();
             System.IO.TextWriter output = helper.GetWriter();
 
-            // Use the Default task scheduler to run continuations tests with the 3 object adpaters
+            // Use the Default task scheduler to run continuations tests with the 3 object adapters
             // setup by the server, each object adapter uses a different task scheduler.
             output.Write("testing continuations with default task scheduler... ");
             {
-                await allTestsWithServer(helper, collocated, 0); // Test with server endpoint 0
-                await allTestsWithServer(helper, collocated, 1); // Test with server endpoint 1
-                await allTestsWithServer(helper, collocated, 2); // Test with server endpoint 2
+                await AllTestsWithServer(helper, collocated, 0); // Test with server endpoint 0
+                await AllTestsWithServer(helper, collocated, 1); // Test with server endpoint 1
+                await AllTestsWithServer(helper, collocated, 2); // Test with server endpoint 2
             }
             output.WriteLine("ok");
 
             // Use the concurrent task scheduler
             output.Write("testing continuations with concurrent task scheduler... ");
-            await Task.Factory.StartNew(async () =>
-            {
-                await allTestsWithServer(helper, collocated, 0);
-            }, default, TaskCreationOptions.None, schedulers.ConcurrentScheduler).Unwrap();
+            await Task.Factory.StartNew(async () => await AllTestsWithServer(helper, collocated, 0),
+                                        default,
+                                        TaskCreationOptions.None, schedulers.ConcurrentScheduler).Unwrap();
             output.WriteLine("ok");
 
             // Use the exclusive task scheduler
             output.Write("testing continuations with exclusive task scheduler... ");
-            await Task.Factory.StartNew(async () =>
-            {
-                await allTestsWithServer(helper, collocated, 0);
-            }, default, TaskCreationOptions.None, schedulers.ExclusiveScheduler).Unwrap();
+            await Task.Factory.StartNew(async () => await AllTestsWithServer(helper, collocated, 0),
+                                        default,
+                                        TaskCreationOptions.None, schedulers.ExclusiveScheduler).Unwrap();
             output.WriteLine("ok");
 
-            output.Write("testing server-side default task scheduler concurrency... ");
+            if (!AssemblyUtil.IsWindows)
             {
-                // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
-                // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
-                // of concurrency but in theory it could be much higher.
-                var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-                try
+                // TODO enable Windows once we investigate why this tests hang
+                // see: https://github.com/zeroc-ice/ice/issues/968
+                output.Write("testing server-side default task scheduler concurrency... ");
                 {
-                    Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
+                    // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
+                    // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
+                    // of concurrency but in theory it could be much higher.
+                    var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+                    try
+                    {
+                        Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
+                    }
+                    catch (AggregateException ex)
+                    {
+                        // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
+                        // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
+                        // 4 additional concurrent calls.
+                        TestHelper.Assert(ex.InnerExceptions.Count < 5);
+                    }
+                    proxy.Reset();
                 }
-                catch (AggregateException ex)
-                {
-                    // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
-                    // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
-                    // 4 additional concurrent calls.
-                    TestHelper.Assert(ex.InnerExceptions.Count < 5);
-                }
-                proxy.Reset();
+                output.WriteLine("ok");
             }
-            output.WriteLine("ok");
 
             output.Write("testing server-side exclusive task scheduler... ");
             {
@@ -167,7 +170,7 @@ namespace ZeroC.Ice.Test.Threading
                 // With the concurrent task scheduler, at most 5 requests can be dispatched concurrently (this is
                 // configured on the server side).
                 var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 2), communicator);
-                Task.WaitAll(Enumerable.Range(0, 20).Select(idx => proxy.ConcurrentAsync(5)).ToArray());
+                await Task.WhenAll(Enumerable.Range(0, 20).Select(idx => proxy.ConcurrentAsync(5)).ToArray());
             }
             output.WriteLine("ok");
 

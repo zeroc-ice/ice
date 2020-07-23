@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Proxy
 {
     public class AllTests
     {
-        public static IMyClassPrx allTests(TestHelper helper)
+        public static IMyClassPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -137,7 +137,7 @@ namespace ZeroC.Ice.Test.Proxy
             var baseProxy = IObjectPrx.Parse(rf, communicator);
             TestHelper.Assert(baseProxy != null);
 
-            IObjectPrx b1 = IObjectPrx.Parse("ice:test", communicator);
+            var b1 = IObjectPrx.Parse("ice:test", communicator);
             TestHelper.Assert(b1.Identity.Name == "test" && b1.Identity.Category.Length == 0 &&
                               b1.AdapterId.Length == 0 && b1.Facet.Length == 0);
 
@@ -487,7 +487,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             if (b1.GetConnection() is Connection connection) // not coloc-optimized target
             {
-                var b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
+                IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 if (connection.Endpoint.Protocol == Protocol.Ice1)
                 {
                     TestHelper.Assert(b2.ToString() == "fixed -t -e 1.1");
@@ -506,8 +506,8 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.SetProperty(propertyPrefix, helper.GetTestProxy("test", 0));
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
             TestHelper.Assert(
-                    b1.Identity.Name == "test" && b1.Identity.Category.Length == 0 &&
-                    b1.AdapterId.Length == 0 && b1.Facet.Length == 0);
+                b1.Identity.Name == "test" && b1.Identity.Category.Length == 0 &&
+                b1.AdapterId.Length == 0 && b1.Facet.Length == 0);
 
             string property;
 
@@ -607,14 +607,14 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing IObjectPrx.ToProperty... ");
             output.Flush();
 
-            var router = IRouterPrx.Parse("ice:router?encoding=1.1", communicator).Clone(
+            IRouterPrx router = IRouterPrx.Parse("ice:router?encoding=1.1", communicator).Clone(
                 cacheConnection: true,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: TimeSpan.FromSeconds(200),
                 invocationTimeout: 1500);
 
-            var locator = ILocatorPrx.Parse("ice:locator", communicator).Clone(
+            ILocatorPrx? locator = ILocatorPrx.Parse("ice:locator", communicator).Clone(
                 cacheConnection: false,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
@@ -780,10 +780,14 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(!compObj.Clone(clearRouter: true).Equals(compObj.Clone(router: rtr2)));
             TestHelper.Assert(!compObj.Clone(router: rtr1).Equals(compObj.Clone(router: rtr2)));
 
-            Dictionary<string, string> ctx1 = new Dictionary<string, string>();
-            ctx1["ctx1"] = "v1";
-            Dictionary<string, string> ctx2 = new Dictionary<string, string>();
-            ctx2["ctx2"] = "v2";
+            var ctx1 = new Dictionary<string, string>
+            {
+                ["ctx1"] = "v1"
+            };
+            var ctx2 = new Dictionary<string, string>
+            {
+                ["ctx2"] = "v2"
+            };
             TestHelper.Assert(compObj.Clone(context: new Dictionary<string, string>()).Equals(
                               compObj.Clone(context: new Dictionary<string, string>())));
             TestHelper.Assert(compObj.Clone(context: ctx1).Equals(compObj.Clone(context: ctx1)));
@@ -816,10 +820,13 @@ namespace ZeroC.Ice.Test.Proxy
             compObj2 = IObjectPrx.Parse("ice:MyAdapter1//foo", communicator);
             TestHelper.Assert(!compObj1.Equals(compObj2));
 
-            var endpts1 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator).Endpoints;
-            var endpts2 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10001/foo", communicator).Endpoints;
+            IReadOnlyList<Endpoint> endpts1 =
+                IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator).Endpoints;
+            IReadOnlyList<Endpoint> endpts2 =
+                IObjectPrx.Parse("ice+tcp://127.0.0.1:10001/foo", communicator).Endpoints;
             TestHelper.Assert(!endpts1[0].Equals(endpts2[0]));
-            TestHelper.Assert(endpts1[0].Equals(IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator).Endpoints[0]));
+            TestHelper.Assert(endpts1[0].Equals(
+                IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator).Endpoints[0]));
 
             if (baseProxy.GetConnection() is Connection baseConnection)
             {
@@ -855,12 +862,14 @@ namespace ZeroC.Ice.Test.Proxy
             Dictionary<string, string> c = cl.GetContext();
             TestHelper.Assert(c == null || c.Count == 0);
 
-            c = new Dictionary<string, string>();
-            c["one"] = "hello";
-            c["two"] = "world";
+            c = new Dictionary<string, string>
+            {
+                ["one"] = "hello",
+                ["two"] = "world"
+            };
             cl = IMyClassPrx.CheckedCast(baseProxy, c);
             Dictionary<string, string> c2 = cl!.GetContext();
-            TestHelper.Assert(c.DictionaryEqual(c2));
+            TestHelper.Assert(c.DictionaryEquals(c2));
             output.WriteLine("ok");
 
             output.Write("testing ice_fixed... ");
@@ -874,9 +883,11 @@ namespace ZeroC.Ice.Test.Proxy
                     prx.IcePing();
                     TestHelper.Assert(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection2).Facet == "facet");
                     TestHelper.Assert(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection2).IsOneway);
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
-                    ctx["one"] = "hello";
-                    ctx["two"] = "world";
+                    var ctx = new Dictionary<string, string>
+                    {
+                        ["one"] = "hello",
+                        ["two"] = "world"
+                    };
                     TestHelper.Assert(cl.Clone(fixedConnection: connection2).Context.Count == 0);
                     TestHelper.Assert(cl.Clone(context: ctx, fixedConnection: connection2).Context.Count == 2);
                     TestHelper.Assert(cl.Clone(fixedConnection: connection2).InvocationTimeout == -1);
@@ -899,7 +910,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             output.Write("testing encoding versioning... ");
             string ref13 = helper.GetTestProxy("test", 0);
-            var cl13 = IMyClassPrx.Parse(ref13, communicator).Clone(encoding: new Encoding(1, 3));
+            IMyClassPrx cl13 = IMyClassPrx.Parse(ref13, communicator).Clone(encoding: new Encoding(1, 3));
             try
             {
                 cl13.IcePing();
@@ -981,7 +992,7 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing communicator shutdown/destroy... ");
             output.Flush();
             {
-                Communicator com = new Communicator();
+                var com = new Communicator();
                 com.ShutdownAsync();
                 com.WaitForShutdownAsync();
                 com.Dispose();

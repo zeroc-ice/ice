@@ -33,14 +33,6 @@ namespace ZeroC.Ice
     {
         internal SslStream? SslStream => (_delegate as SslTransceiver)?.SslStream;
 
-        public Connection CreateConnection(
-            IConnectionManager manager,
-            Endpoint endpoint,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) =>
-            new WSConnection(manager, endpoint, this, connector, connectionId, adapter);
-
         public Socket? Fd() => _delegate.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -758,7 +750,7 @@ namespace ZeroC.Ice
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (value.IndexOf("upgrade") == -1)
+            else if (!value.Contains("upgrade"))
             {
                 throw new WebSocketException($"invalid value `{value}' for Connection field");
             }
@@ -912,7 +904,7 @@ namespace ZeroC.Ice
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (value.IndexOf("upgrade") == -1)
+            else if (!value.Contains("upgrade"))
             {
                 throw new WebSocketException($"invalid value `{value}' for Connection field");
             }

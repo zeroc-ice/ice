@@ -72,14 +72,10 @@ namespace ZeroC.Ice
 
         public static bool RecvTruncated(SocketException ex) => SocketErrorCode(ex) == SocketError.MessageSize;
 
-        public static bool Timeout(System.IO.IOException ex)
-        {
-            //
+        public static bool Timeout(System.IO.IOException ex) =>
             // TODO: Instead of testing for an English substring, we need to examine the inner
             // exception (if there is one).
-            //
-            return ex.Message.IndexOf("period of time", StringComparison.Ordinal) >= 0;
-        }
+            ex.Message.Contains("period of time");
 
         public static bool IsMulticast(IPEndPoint addr)
         {
@@ -591,9 +587,29 @@ namespace ZeroC.Ice
             int retry = 5;
             while (true)
             {
+                var addresses = new List<IPEndPoint>();
                 try
                 {
-                    var addresses = new List<IPEndPoint>();
+                    // Trying to parse the IP address is necessary to handle wildcard addresses such as 0.0.0.0 or ::0
+                    // since GetHostAddressesAsync fails to resolve them.
+                    var a = IPAddress.Parse(host);
+                    if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                        (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
+                    {
+                        addresses.Add(new IPEndPoint(a, port));
+                        return addresses;
+                    }
+                    else
+                    {
+                        throw new DNSException(host);
+                    }
+                }
+                catch (FormatException)
+                {
+                }
+
+                try
+                {
                     foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))
                     {
                         if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||

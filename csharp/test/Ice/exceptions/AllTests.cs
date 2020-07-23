@@ -3,17 +3,18 @@
 //
 
 using System;
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public class AllTests
     {
-        public static IThrowerPrx allTests(TestHelper helper)
+        public static IThrowerPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             {
                 output.Write("testing object adapter registration exceptions... ");
                 ObjectAdapter first;
@@ -40,14 +41,8 @@ namespace ZeroC.Ice.Test.Exceptions
 
                 try
                 {
-                    ObjectAdapter second =
-                        communicator.CreateObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
+                    _ = communicator.CreateObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                     TestHelper.Assert(false);
-
-                    //
-                    // Quell mono error that variable second isn't used.
-                    //
-                    second.Dispose();
                 }
                 catch (ArgumentException)
                 {
@@ -116,7 +111,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 TestHelper.Assert(ex.AMem == 1);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -130,7 +125,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 TestHelper.Assert(ex.DMem == -1);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -145,7 +140,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.AMem == 1);
                 TestHelper.Assert(ex.BMem == 2);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -161,7 +156,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.BMem == 2);
                 TestHelper.Assert(ex.CMem == 3);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -180,7 +175,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 TestHelper.Assert(ex.AMem == 1);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -195,7 +190,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.AMem == 1);
                 TestHelper.Assert(ex.BMem == 2);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -215,7 +210,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.AMem == 1);
                 TestHelper.Assert(ex.BMem == 2);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -231,7 +226,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.BMem == 2);
                 TestHelper.Assert(ex.CMem == 3);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -247,7 +242,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.BMem == 2);
                 TestHelper.Assert(ex.CMem == 3);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -265,7 +260,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (A)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -278,7 +273,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (B)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -291,7 +286,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (C)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -310,7 +305,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 catch (InvalidDataException)
                 {
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -327,7 +322,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 {
                     // Expected with JS bidir server
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -376,7 +371,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     TestHelper.Assert(ex.Id.Equals(identity));
                     TestHelper.Assert(ex.Message.Contains("servant")); // verify we don't get system message
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -401,7 +396,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     TestHelper.Assert(ex.Message.Contains("with facet")); // verify we don't get system message
                 }
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -422,7 +417,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
                 TestHelper.Assert(ex.Message.Contains("could not find operation")); // verify we don't get system message
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -441,7 +436,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                  TestHelper.Assert(ex.Message.Contains("unhandled exception")); // verify we get custom message
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -453,7 +448,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (UnhandledException)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -470,7 +465,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (UnhandledException)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -486,7 +481,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (UnhandledException)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -499,7 +494,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 thrower.ThrowAfterResponse();
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -512,7 +507,7 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (A)
             {
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -553,7 +548,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.DMem == -1);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -581,7 +576,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.DMem == -1);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -606,7 +601,7 @@ namespace ZeroC.Ice.Test.Exceptions
                         TestHelper.Assert(ex.AMem == 1);
                         TestHelper.Assert(ex.BMem == 2);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -632,7 +627,7 @@ namespace ZeroC.Ice.Test.Exceptions
                         TestHelper.Assert(ex.BMem == 2);
                         TestHelper.Assert(ex.CMem == 3);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -662,7 +657,7 @@ namespace ZeroC.Ice.Test.Exceptions
                         TestHelper.Assert(ex.AMem == 1);
                         TestHelper.Assert(ex.BMem == 2);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -687,7 +682,7 @@ namespace ZeroC.Ice.Test.Exceptions
                         TestHelper.Assert(ex.BMem == 2);
                         TestHelper.Assert(ex.CMem == 3);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -713,7 +708,7 @@ namespace ZeroC.Ice.Test.Exceptions
                         TestHelper.Assert(ex.BMem == 2);
                         TestHelper.Assert(ex.CMem == 3);
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -741,7 +736,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (A)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -764,7 +759,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (B)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -787,7 +782,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (C)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -818,7 +813,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.Id.Equals(identity));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -848,7 +843,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.Facet.Equals("no such facet"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -878,7 +873,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -906,7 +901,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -929,7 +924,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -956,7 +951,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -983,7 +978,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (A)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1006,7 +1001,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (B)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1029,7 +1024,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (C)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1060,7 +1055,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.Id.Equals(identity));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1090,7 +1085,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.Facet.Equals("no such facet"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1120,7 +1115,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1148,7 +1143,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1171,7 +1166,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1198,7 +1193,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -1224,7 +1219,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (UnhandledException)
                     {
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }

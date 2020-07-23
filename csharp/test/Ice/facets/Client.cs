@@ -9,11 +9,10 @@ namespace ZeroC.Ice.Test.Facets
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
-            AllTests.allTests(this).Shutdown();
-            return Task.CompletedTask;
+            await using Communicator communicator = Initialize(ref args);
+            AllTests.Run(this).Shutdown();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

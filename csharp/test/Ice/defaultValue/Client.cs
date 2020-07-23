@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.DefaultValue
     {
         public override Task RunAsync(string[] args)
         {
-            AllTests.allTests(this);
+            AllTests.Run(this);
             return Task.CompletedTask;
         }
 

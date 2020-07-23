@@ -46,7 +46,7 @@ namespace ZeroC.Ice.Instrumentation
         /// <param name="requestId">The request ID of the request being dispatched.</param>
         /// <param name="size">The size of the dispatch.</param>
         /// <returns>The dispatch observer to instrument the dispatch.</returns>
-        IDispatchObserver? GetDispatchObserver(Current current, int requestId, int size);
+        IDispatchObserver? GetDispatchObserver(Current current, long requestId, int size);
 
         /// <summary>This method should return an observer for the given endpoint information. The Ice run-time calls
         /// this method to resolve an endpoint and obtain the list of connectors. For IP endpoints, this typically
@@ -102,14 +102,14 @@ namespace ZeroC.Ice.Instrumentation
         /// <param name="requestId">The ID of the invocation.</param>
         /// <param name="size">The size of the invocation in bytes.</param>
         /// <returns>The observer to instrument the collocated invocation.</returns>
-        ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, int requestId, int size);
+        ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long requestId, int size);
 
         /// <summary>Get a remote observer for this invocation.</summary>
         /// <param name="connection">The connection information.</param>
         /// <param name="requestId">The invocation request ID.</param>
         /// <param name="size">The size of the invocation in bytes.</param>
         /// <returns>The observer to instrument the remote invocation.</returns>
-        IRemoteObserver? GetRemoteObserver(Connection connection, int requestId, int size);
+        IRemoteObserver? GetRemoteObserver(Connection connection, long requestId, int size);
 
         /// <summary>Remote exception notification.</summary>
         void RemoteException();

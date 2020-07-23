@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public class Twoways
     {
-        internal static void twoways(TestHelper helper, IMyClassPrx p)
+        internal static void Run(TestHelper helper, IMyClassPrx p)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -836,9 +836,11 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-                di1[10] = true;
-                di1[100] = false;
+                var di1 = new Dictionary<byte, bool>
+                {
+                    [10] = true,
+                    [100] = false
+                };
                 Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
                 di2[10] = true;
                 di2[11] = false;
@@ -846,7 +848,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpByteBoolD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[10] == true);
                 TestHelper.Assert(ro[11] == false);
@@ -865,7 +867,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpShortIntD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[110] == -1);
                 TestHelper.Assert(ro[111] == -100);
@@ -884,7 +886,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpUShortUIntD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[110] == 1);
                 TestHelper.Assert(ro[111] == 100);
@@ -903,7 +905,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpLongFloatD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[999999110L] == -1.1f);
                 TestHelper.Assert(ro[999999120L] == -100.4f);
@@ -922,7 +924,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpStringStringD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro["foo"].Equals("abc -1.1"));
                 TestHelper.Assert(ro["FOO"].Equals("abc -100.4"));
@@ -941,7 +943,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpStringMyEnumD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro["abc"] == MyEnum.enum1);
                 TestHelper.Assert(ro["qwerty"] == MyEnum.enum3);
@@ -958,7 +960,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpMyEnumStringD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 3);
                 TestHelper.Assert(ro[MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(ro[MyEnum.enum2].Equals("Hello!!"));
@@ -981,7 +983,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var (ro, _do) = p.OpMyStructMyEnumD(di1, di2);
 
-                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(_do.DictionaryEquals(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[s11] == MyEnum.enum1);
                 TestHelper.Assert(ro[s12] == MyEnum.enum2);
@@ -1765,15 +1767,15 @@ namespace ZeroC.Ice.Test.Operations
                 }
                 {
                     Dictionary<string, string> r = p.OpContext(ctx);
-                    TestHelper.Assert(r.DictionaryEqual(ctx));
+                    TestHelper.Assert(r.DictionaryEquals(ctx));
                 }
                 {
                     var p2 = p.Clone(context: ctx);
-                    TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
+                    TestHelper.Assert(p2.Context.DictionaryEquals(ctx));
                     Dictionary<string, string> r = p2.OpContext();
-                    TestHelper.Assert(r.DictionaryEqual(ctx));
+                    TestHelper.Assert(r.DictionaryEquals(ctx));
                     r = p2.OpContext(ctx);
-                    TestHelper.Assert(r.DictionaryEqual(ctx));
+                    TestHelper.Assert(r.DictionaryEquals(ctx));
                 }
             }
 
@@ -1784,7 +1786,7 @@ namespace ZeroC.Ice.Test.Operations
                 communicator.CurrentContext["three"] = "THREE";
 
                 var p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-                TestHelper.Assert(p3.OpContext().DictionaryEqual(communicator.CurrentContext));
+                TestHelper.Assert(p3.OpContext().DictionaryEquals(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -1807,16 +1809,16 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(communicator.DefaultContext.Count == 0);
                 communicator.DefaultContext = prxContext;
                 TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
-                TestHelper.Assert(communicator.DefaultContext.DictionaryEqual(prxContext));
+                TestHelper.Assert(communicator.DefaultContext.DictionaryEquals(prxContext));
 
                 p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
 
                 communicator.CurrentContext.Clear();
-                TestHelper.Assert(p3.OpContext().DictionaryEqual(prxContext));
+                TestHelper.Assert(p3.OpContext().DictionaryEquals(prxContext));
 
                 communicator.CurrentContext = ctx;
-                TestHelper.Assert(p3.OpContext().DictionaryEqual(combined));
+                TestHelper.Assert(p3.OpContext().DictionaryEquals(combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
@@ -1893,7 +1895,7 @@ namespace ZeroC.Ice.Test.Operations
                 p1["test"] = "test";
                 Dictionary<string, string> p2, p3;
                 (p3, p2) = p.OpMDict2(p1);
-                TestHelper.Assert(p2.DictionaryEqual(p1) && p3.DictionaryEqual(p1));
+                TestHelper.Assert(p2.DictionaryEquals(p1) && p3.DictionaryEquals(p1));
             }
         }
     }

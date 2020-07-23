@@ -24,6 +24,10 @@ namespace ZeroC.Ice.Test.AMI
 
         public class ProgressCallback : IProgress<bool>
         {
+            private readonly object _mutex = new object();
+            private bool _sent;
+            private bool _sentSynchronously;
+
             public bool Sent
             {
                 get
@@ -60,10 +64,6 @@ namespace ZeroC.Ice.Test.AMI
                 }
             }
 
-            private readonly object _mutex = new object();
-            private bool _sent = false;
-            private bool _sentSynchronously = false;
-
             public void Report(bool sentSynchronously)
             {
                 SentSynchronously = sentSynchronously;
@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.AMI
 
         private class CallbackBase
         {
-            private bool _called = false;
+            private bool _called;
             private readonly object _mutex = new object();
 
             public virtual void Check()
@@ -113,7 +113,7 @@ namespace ZeroC.Ice.Test.AMI
             private readonly Thread _thread;
         }
 
-        public static void allTests(TestHelper helper, bool collocated)
+        public static void Run(TestHelper helper, bool collocated)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -486,7 +486,7 @@ namespace ZeroC.Ice.Test.AMI
                         await p.CloseAsync(CloseMode.Forcefully);
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                         // Run blocking IcePing() on another thread from the continuation to ensure there's no deadlock
                         // if the continuaion blocks and wait for another thread to complete an invocation with the
@@ -541,8 +541,7 @@ namespace ZeroC.Ice.Test.AMI
                     var context = new Dictionary<string, string>();
                     for (int i = 0; i < 50; ++i)
                     {
-                        // Async serialization only works once the connection is established and if there's no
-                        // retries
+                        // Async serialization only works once the connection is established and if there's no retries
                         serialized.IcePing();
                         for (int j = 0; j < tasks.Length; ++j)
                         {
@@ -685,10 +684,8 @@ namespace ZeroC.Ice.Test.AMI
                 output.Write("testing graceful close connection with wait... ");
                 output.Flush();
                 {
-                    //
-                    // Local case: begin a request, close the connection gracefully, and make sure it waits
-                    // for the request to complete.
-                    //
+                    // Local case: begin a request, close the connection gracefully, and make sure it waits for the
+                    // request to complete.
                     Connection con = p.GetConnection()!;
                     var cb = new CallbackBase();
                     con.Closed += (sender, args) => cb.Called();
@@ -698,16 +695,12 @@ namespace ZeroC.Ice.Test.AMI
                     cb.Check();
                 }
                 {
-                    //
                     // Remote case.
-                    //
                     byte[] seq = new byte[1024 * 10];
 
-                    //
-                    // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-                    // The goal is to make sure that none of the opWithPayload fail even if the server closes
-                    // the connection gracefully in between.
-                    //
+                    // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod. The goal
+                    // is to make sure that none of the opWithPayload fail even if the server closes the connection
+                    // gracefully in between.
                     int maxQueue = 2;
                     bool done = false;
                     while (!done && maxQueue < 50)
@@ -754,11 +747,9 @@ namespace ZeroC.Ice.Test.AMI
                 output.Write("testing graceful close connection without wait... ");
                 output.Flush();
                 {
-                    //
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
                     // invocation to fail with ConnectionClosedLocallyException.
-                    //
                     p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
                     Connection con = p.GetConnection()!;
                     var cb = new CallbackBase();
@@ -777,10 +768,8 @@ namespace ZeroC.Ice.Test.AMI
                     }
                     p.FinishDispatch();
 
-                    //
-                    // Remote case: the server closes the connection gracefully, which means the connection
-                    // will not be closed until all pending dispatched requests have completed.
-                    //
+                    // Remote case: the server closes the connection gracefully, which means the connection will not
+                    // be closed until all pending dispatched requests have completed.
                     con = p.GetConnection()!;
                     cb = new CallbackBase();
                     con.Closed += (sender, args) => cb.Called();
@@ -794,10 +783,8 @@ namespace ZeroC.Ice.Test.AMI
                 output.Write("testing forceful close connection... ");
                 output.Flush();
                 {
-                    //
                     // Local case: start an operation and then close the connection forcefully on the client side.
                     // There will be no retry and we expect the invocation to fail with ConnectionClosedLocallyException.
-                    //
                     p.IcePing();
                     Connection con = p.GetConnection()!;
                     var cb = new CallbackBase();
@@ -816,11 +803,9 @@ namespace ZeroC.Ice.Test.AMI
                     }
                     p.FinishDispatch();
 
-                    //
-                    // Remote case: the server closes the connection forcefully. This causes the request to fail
-                    // with a ConnectionLostException. Since the close() operation is not idempotent, the client
-                    // will not retry.
-                    //
+                    // Remote case: the server closes the connection forcefully. This causes the request to fail with
+                    // a ConnectionLostException. Since the close() operation is not idempotent, the client will not
+                    // retry.
                     try
                     {
                         p.Close(CloseMode.Forcefully);

@@ -15,17 +15,19 @@ namespace ZeroC.Ice
         public Connection? Connection { get; }
         // TODO: should this be a IReadOnlyDictionary<string, string>?
         public Dictionary<string, string> Context { get; }
-        public Encoding Encoding { get; }
-        public string Facet { get; }
-        public Identity Identity { get; }
-        public bool IsIdempotent { get; }
+        public Encoding Encoding => IncomingRequestFrame.Encoding;
+        public string Facet => IncomingRequestFrame.Facet;
+        public Identity Identity => IncomingRequestFrame.Identity;
+        public bool IsIdempotent => IncomingRequestFrame.IsIdempotent;
         public bool IsOneway { get; }
-        public string Operation { get; }
-        public Protocol Protocol { get; }
+        public string Operation => IncomingRequestFrame.Operation;
+        public Protocol Protocol => IncomingRequestFrame.Protocol;
+
+        internal IncomingRequestFrame IncomingRequestFrame { get; }
 
         internal Current(
             ObjectAdapter adapter,
-            IncomingRequestFrame request,
+            IncomingRequestFrame incomingRequestFrame,
             bool oneway,
             CancellationToken cancel,
             Connection? connection = null)
@@ -33,14 +35,9 @@ namespace ZeroC.Ice
             Adapter = adapter;
             CancellationToken = cancel;
             Connection = connection;
-            Context = new Dictionary<string, string>(request.Context);
-            Encoding = request.Encoding;
-            Facet = request.Facet;
-            Identity = request.Identity;
-            IsIdempotent = request.IsIdempotent;
+            Context = new Dictionary<string, string>(incomingRequestFrame.Context);
             IsOneway = oneway;
-            Operation = request.Operation;
-            Protocol = request.Protocol;
+            IncomingRequestFrame = incomingRequestFrame;
         }
     }
 }

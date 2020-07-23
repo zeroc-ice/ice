@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Test;
 
@@ -10,29 +11,23 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 {
     public partial class PNode
     {
-        partial void Initialize()
-        {
-            ++counter;
-        }
-        internal static int counter = 0;
+        internal static int Counter;
+        partial void Initialize() => ++Counter;
     }
 
     public partial class Preserved
     {
-        partial void Initialize()
-        {
-            ++counter;
-        }
-        internal static int counter = 0;
+        internal static int Counter;
+        partial void Initialize() => ++Counter;
     }
 
     public class AllTests
     {
-        public static ITestIntfPrx allTests(TestHelper helper)
+        public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var output = helper.GetWriter();
+            TextWriter? output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
@@ -159,7 +154,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 SBase? sb = testPrx.SBSKnownDerivedAsSBaseAsync().Result;
                 TestHelper.Assert(sb != null && sb.Sb.Equals("SBSKnownDerived.sb"));
-                SBSKnownDerived sbskd = (SBSKnownDerived)sb;
+                var sbskd = (SBSKnownDerived)sb;
                 TestHelper.Assert(sbskd != null);
                 TestHelper.Assert(sbskd.Sbskd.Equals("SBSKnownDerived.sbskd"));
             }
@@ -273,8 +268,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 {
                     try
                     {
-                        var o = testPrx.SUnknownAsObjectAsync().Result;
-                        var unknown = o as UnknownSlicedClass;
+                        var unknown = (UnknownSlicedClass?)testPrx.SUnknownAsObjectAsync().Result;
                         TestHelper.Assert(unknown != null);
                         TestHelper.Assert(unknown.TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Objects::SUnknown"));
                     }
@@ -284,7 +278,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                         TestHelper.Assert(false);
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     output.WriteLine(ex.ToString());
                     TestHelper.Assert(false);
@@ -314,7 +308,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("one-element cycle (AMI)... ");
             output.Flush();
             {
-                var b = testPrx.OneElementCycleAsync().Result;
+                B? b = testPrx.OneElementCycleAsync().Result;
                 TestHelper.Assert(b != null);
                 TestHelper.Assert(b.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B"));
                 TestHelper.Assert(b.Sb.Equals("B1.sb"));
@@ -403,7 +397,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                 TestHelper.Assert(b1.Pb != null);
                 TestHelper.Assert(b1.Pb != b1);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 TestHelper.Assert(d1 != null);
                 TestHelper.Assert(d1.Sd1.Equals("D1.sd1"));
                 TestHelper.Assert(d1.Pd1 != null);
@@ -507,7 +501,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                 TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                 TestHelper.Assert(b1.Pb == b2);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 TestHelper.Assert(d1 != null);
                 TestHelper.Assert(d1.Sd1.Equals("D1.sd1"));
                 TestHelper.Assert(d1.Pd1 == b2);
@@ -525,7 +519,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                     TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                     TestHelper.Assert(b1.Pb == b2);
-                    D1 d1 = (D1)b1;
+                    var d1 = (D1)b1;
                     TestHelper.Assert(d1 != null);
                     TestHelper.Assert(d1.Sd1.Equals("D1.sd1"));
                     TestHelper.Assert(d1.Pd1 == b2);
@@ -547,15 +541,13 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("param ptr slicing with known first (AMI)... ");
             output.Flush();
             {
-                var result = testPrx.ParamTest1Async().Result;
-                B? b1 = result.p1;
-                B? b2 = result.p2;
+                (B? b1, B? b2) = testPrx.ParamTest1Async().Result;
 
                 TestHelper.Assert(b1 != null);
                 TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                 TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                 TestHelper.Assert(b1.Pb == b2);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 TestHelper.Assert(d1 != null);
                 TestHelper.Assert(d1.Sd1.Equals("D1.sd1"));
                 TestHelper.Assert(d1.Pd1 == b2);
@@ -580,7 +572,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                     TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                     TestHelper.Assert(b1.Pb == b2);
-                    D1 d1 = (D1)b1;
+                    var d1 = (D1)b1;
                     TestHelper.Assert(d1 != null);
                     TestHelper.Assert(d1.Sd1.Equals("D1.sd1"));
                     TestHelper.Assert(d1.Pd1 == b2);
@@ -602,14 +594,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("param ptr slicing with unknown first (AMI)... ");
             output.Flush();
             {
-                var result = testPrx.ParamTest2Async().Result;
-                B? b2 = result.p2;
-                B? b1 = result.p1;
+                (B? b2, B? b1) = testPrx.ParamTest2Async().Result;
                 TestHelper.Assert(b1 != null);
                 TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                 TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                 TestHelper.Assert(b1.Pb == b2);
-                D1 d1 = (D1)b1;
+                var d1 = (D1)b1;
                 TestHelper.Assert(d1 != null);
                 TestHelper.Assert(d1.Sd1.Equals("D1.sd1"));
                 TestHelper.Assert(d1.Pd1 == b2);
@@ -627,8 +617,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    var (ret, p1, p2) = testPrx.ReturnTest1();
-                    TestHelper.Assert(ret == p1);
+                    (B? b1, B? b2, _) = testPrx.ReturnTest1();
+                    TestHelper.Assert(b1 == b2);
                 }
                 catch (Exception ex)
                 {
@@ -641,8 +631,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("return value identity with known first (AMI)... ");
             output.Flush();
             {
-                var result = testPrx.ReturnTest1Async().Result;
-                TestHelper.Assert(result.ReturnValue == result.p1);
+                (B? b1, B? b2, _) = testPrx.ReturnTest1Async().Result;
+                TestHelper.Assert(b1 == b2);
             }
             output.WriteLine("ok");
 
@@ -651,8 +641,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    var (ret, p1, p2) = testPrx.ReturnTest2();
-                    TestHelper.Assert(ret == p1);
+                    (B? b1, B? b2, B? b3) = testPrx.ReturnTest2();
+                    TestHelper.Assert(b1 == b2);
                 }
                 catch (Exception ex)
                 {
@@ -665,8 +655,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("return value identity with unknown first (AMI)... ");
             output.Flush();
             {
-                var result = testPrx.ReturnTest2Async().Result;
-                TestHelper.Assert(result.ReturnValue == result.p2);
+                (B? b1, B? b2, _) = testPrx.ReturnTest2Async().Result;
+                TestHelper.Assert(b1 == b2);
             }
             output.WriteLine("ok");
 
@@ -675,10 +665,10 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    D1 d1 = new D1();
+                    var d1 = new D1();
                     d1.Sb = "D1.sb";
                     d1.Sd1 = "D1.sd1";
-                    D3 d3 = new D3();
+                    var d3 = new D3();
                     d3.Pb = d1;
                     d3.Sb = "D3.sb";
                     d3.Sd3 = "D3.sd3";
@@ -691,7 +681,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     TestHelper.Assert(b1 != null);
                     TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                     TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
-                    D1 p1 = (D1)b1;
+                    var p1 = (D1)b1;
                     TestHelper.Assert(p1 != null);
                     TestHelper.Assert(p1.Sd1.Equals("D1.sd1"));
                     TestHelper.Assert(p1.Pd1 == b1.Pb);
@@ -699,11 +689,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     B? b2 = b1.Pb;
                     TestHelper.Assert(b2 != null);
                     TestHelper.Assert(b2.Sb.Equals("D3.sb"));
-                    TestHelper.Assert(b2.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B")); // Sliced by server
+                    // Sliced by server
+                    TestHelper.Assert(b2.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B"));
                     TestHelper.Assert(b2.Pb == b1);
                     try
                     {
-                        D3 p3 = (D3)b2;
+                        var p3 = (D3)b2;
                         TestHelper.Assert(false);
                         D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
                     }
@@ -727,10 +718,10 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("return value identity for input params known first (AMI)... ");
             output.Flush();
             {
-                D1 d1 = new D1();
+                var d1 = new D1();
                 d1.Sb = "D1.sb";
                 d1.Sd1 = "D1.sd1";
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.Pb = d1;
                 d3.Sb = "D3.sb";
                 d3.Sd3 = "D3.sd3";
@@ -743,7 +734,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 TestHelper.Assert(b1 != null);
                 TestHelper.Assert(b1.Sb.Equals("D1.sb"));
                 TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
-                D1 p1 = (D1)b1;
+                var p1 = (D1)b1;
                 TestHelper.Assert(p1 != null);
                 TestHelper.Assert(p1.Sd1.Equals("D1.sd1"));
                 TestHelper.Assert(p1.Pd1 == b1.Pb);
@@ -755,7 +746,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 TestHelper.Assert(b2.Pb == b1);
                 try
                 {
-                    D3 p3 = (D3)b2;
+                    var p3 = (D3)b2;
                     TestHelper.Assert(false);
                     D3 tmp = p3;
                     p3 = tmp; // Stop compiler warning about unused variable.
@@ -776,10 +767,10 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    D1 d1 = new D1();
+                    var d1 = new D1();
                     d1.Sb = "D1.sb";
                     d1.Sd1 = "D1.sd1";
-                    D3 d3 = new D3();
+                    var d3 = new D3();
                     d3.Pb = d1;
                     d3.Sb = "D3.sb";
                     d3.Sd3 = "D3.sd3";
@@ -795,9 +786,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
                     try
                     {
-                        D3 p1 = (D3)b1;
-                        TestHelper.Assert(false);
-                        D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
+                        var p1 = (D3)b1;
+                        TestHelper.Assert(p1 != null);
                     }
                     catch (InvalidCastException)
                     {
@@ -808,7 +798,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     TestHelper.Assert(b2.Sb.Equals("D1.sb"));
                     TestHelper.Assert(b2.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                     TestHelper.Assert(b2.Pb == b1);
-                    D1 p3 = (D1)b2;
+                    var p3 = (D1)b2;
                     TestHelper.Assert(p3 != null);
                     TestHelper.Assert(p3.Sd1.Equals("D1.sd1"));
                     TestHelper.Assert(p3.Pd1 == b1);
@@ -829,10 +819,10 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("return value identity for input params unknown first (AMI)... ");
             output.Flush();
             {
-                D1 d1 = new D1();
+                var d1 = new D1();
                 d1.Sb = "D1.sb";
                 d1.Sd1 = "D1.sd1";
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.Pb = d1;
                 d3.Sb = "D3.sb";
                 d3.Sd3 = "D3.sd3";
@@ -848,10 +838,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
                 try
                 {
-                    D3 p1 = (D3)b1;
-                    TestHelper.Assert(false);
-                    D3 tmp = p1;
-                    p1 = tmp; // Stop compiler warning about unused variable.
+                    var p1 = (D3)b1;
+                    TestHelper.Assert(p1 != null);
                 }
                 catch (InvalidCastException)
                 {
@@ -862,7 +850,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 TestHelper.Assert(b2.Sb.Equals("D1.sb"));
                 TestHelper.Assert(b2.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::D1"));
                 TestHelper.Assert(b2.Pb == b1);
-                D1 p3 = (D1)b2;
+                var p3 = (D1)b2;
                 TestHelper.Assert(p3 != null);
                 TestHelper.Assert(p3.Sd1.Equals("D1.sd1"));
                 TestHelper.Assert(p3.Pd1 == b1);
@@ -879,7 +867,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    var (ret, p1, p2) = testPrx.ParamTest3();
+                    (B? ret, B? p1, B? p2) = testPrx.ParamTest3();
 
                     TestHelper.Assert(p1 != null);
                     TestHelper.Assert(p1.Sb.Equals("D2.sb (p1 1)"));
@@ -907,11 +895,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("remainder unmarshaling (3 instances) (AMI)... ");
             output.Flush();
             {
-                var result = testPrx.ParamTest3Async().Result;
+                (B? ret, B? p1, B? p2) = testPrx.ParamTest3Async().Result;
 
-                B? ret = result.ReturnValue;
-                B? p1 = result.p1;
-                B? p2 = result.p2;
                 TestHelper.Assert(p1 != null);
                 TestHelper.Assert(p1.Sb.Equals("D2.sb (p1 1)"));
                 TestHelper.Assert(p1.Pb == null);
@@ -934,7 +919,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    var (ret, b) = testPrx.ParamTest4();
+                    (B? ret, B? b) = testPrx.ParamTest4();
 
                     TestHelper.Assert(b != null);
                     TestHelper.Assert(b.Sb.Equals("D4.sb (1)"));
@@ -957,19 +942,17 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("remainder unmarshaling (4 instances) (AMI)... ");
             output.Flush();
             {
-                var result = testPrx.ParamTest4Async().Result;
-                B? ret = result.ReturnValue;
-                B? b = result.p;
+                (B? b1, B? b2) = testPrx.ParamTest4Async().Result;
 
-                TestHelper.Assert(b != null);
-                TestHelper.Assert(b.Sb.Equals("D4.sb (1)"));
-                TestHelper.Assert(b.Pb == null);
-                TestHelper.Assert(b.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B"));
+                TestHelper.Assert(b2 != null);
+                TestHelper.Assert(b2.Sb.Equals("D4.sb (1)"));
+                TestHelper.Assert(b2.Pb == null);
+                TestHelper.Assert(b2.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B"));
 
-                TestHelper.Assert(ret != null);
-                TestHelper.Assert(ret.Sb.Equals("B.sb (2)"));
-                TestHelper.Assert(ret.Pb == null);
-                TestHelper.Assert(ret.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B"));
+                TestHelper.Assert(b1 != null);
+                TestHelper.Assert(b1.Sb.Equals("B.sb (2)"));
+                TestHelper.Assert(b1.Pb == null);
+                TestHelper.Assert(b1.GetType().GetIceTypeId()!.Equals("::ZeroC::Ice::Test::Slicing::Objects::B"));
             }
             output.WriteLine("ok");
 
@@ -978,17 +961,17 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    B b1 = new B();
+                    var b1 = new B();
                     b1.Sb = "B.sb(1)";
                     b1.Pb = b1;
 
-                    D3 d3 = new D3();
+                    var d3 = new D3();
                     d3.Sb = "D3.sb";
                     d3.Pb = d3;
                     d3.Sd3 = "D3.sd3";
                     d3.Pd3 = b1;
 
-                    B b2 = new B();
+                    var b2 = new B();
                     b2.Sb = "B.sb(2)";
                     b2.Pb = b1;
 
@@ -1010,17 +993,17 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("param ptr slicing, instance marshaled in unknown derived as base (AMI)... ");
             output.Flush();
             {
-                B b1 = new B();
+                var b1 = new B();
                 b1.Sb = "B.sb(1)";
                 b1.Pb = b1;
 
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.Sb = "D3.sb";
                 d3.Pb = d3;
                 d3.Sd3 = "D3.sd3";
                 d3.Pd3 = b1;
 
-                B b2 = new B();
+                var b2 = new B();
                 b2.Sb = "B.sb(2)";
                 b2.Pb = b1;
 
@@ -1038,18 +1021,18 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 try
                 {
-                    D1 d11 = new D1();
+                    var d11 = new D1();
                     d11.Sb = "D1.sb(1)";
                     d11.Pb = d11;
                     d11.Sd1 = "D1.sd1(1)";
 
-                    D3 d3 = new D3();
+                    var d3 = new D3();
                     d3.Sb = "D3.sb";
                     d3.Pb = d3;
                     d3.Sd3 = "D3.sd3";
                     d3.Pd3 = d11;
 
-                    D1 d12 = new D1();
+                    var d12 = new D1();
                     d12.Sb = "D1.sb(2)";
                     d12.Pb = d12;
                     d12.Sd1 = "D1.sd1(2)";
@@ -1072,18 +1055,18 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ");
             output.Flush();
             {
-                D1 d11 = new D1();
+                var d11 = new D1();
                 d11.Sb = "D1.sb(1)";
                 d11.Pb = d11;
                 d11.Sd1 = "D1.sd1(1)";
 
-                D3 d3 = new D3();
+                var d3 = new D3();
                 d3.Sb = "D3.sb";
                 d3.Pb = d3;
                 d3.Sd3 = "D3.sd3";
                 d3.Pd3 = d11;
 
-                D1 d12 = new D1();
+                var d12 = new D1();
                 d12.Sb = "D1.sb(2)";
                 d12.Pb = d12;
                 d12.Sd1 = "D1.sd1(2)";
@@ -1105,30 +1088,30 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 {
                     SS3 ss;
                     {
-                        B ss1b = new B();
+                        var ss1b = new B();
                         ss1b.Sb = "B.sb";
                         ss1b.Pb = ss1b;
 
-                        D1 ss1d1 = new D1();
+                        var ss1d1 = new D1();
                         ss1d1.Sb = "D1.sb";
                         ss1d1.Sd1 = "D1.sd1";
                         ss1d1.Pb = ss1b;
 
-                        D3 ss1d3 = new D3();
+                        var ss1d3 = new D3();
                         ss1d3.Sb = "D3.sb";
                         ss1d3.Sd3 = "D3.sd3";
                         ss1d3.Pb = ss1b;
 
-                        B ss2b = new B();
+                        var ss2b = new B();
                         ss2b.Sb = "B.sb";
                         ss2b.Pb = ss1b;
 
-                        D1 ss2d1 = new D1();
+                        var ss2d1 = new D1();
                         ss2d1.Sb = "D1.sb";
                         ss2d1.Sd1 = "D1.sd1";
                         ss2d1.Pb = ss2b;
 
-                        D3 ss2d3 = new D3();
+                        var ss2d3 = new D3();
                         ss2d3.Sb = "D3.sb";
                         ss2d3.Sd3 = "D3.sd3";
                         ss2d3.Pb = ss2b;
@@ -1139,13 +1122,13 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                         ss2d1.Pd1 = ss1d3;
                         ss2d3.Pd3 = ss1d1;
 
-                        SS1 ss1 = new SS1(Array.Empty<B>());
+                        var ss1 = new SS1(Array.Empty<B>());
                         ss1.S = new B[3];
                         ss1.S[0] = ss1b;
                         ss1.S[1] = ss1d1;
                         ss1.S[2] = ss1d3;
 
-                        SS2 ss2 = new SS2(Array.Empty<B>());
+                        var ss2 = new SS2(Array.Empty<B>());
                         ss2.S = new B[3];
                         ss2.S[0] = ss2b;
                         ss2.S[1] = ss2d1;
@@ -1194,30 +1177,30 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 SS3 ss;
                 {
-                    B ss1b = new B();
+                    var ss1b = new B();
                     ss1b.Sb = "B.sb";
                     ss1b.Pb = ss1b;
 
-                    D1 ss1d1 = new D1();
+                    var ss1d1 = new D1();
                     ss1d1.Sb = "D1.sb";
                     ss1d1.Sd1 = "D1.sd1";
                     ss1d1.Pb = ss1b;
 
-                    D3 ss1d3 = new D3();
+                    var ss1d3 = new D3();
                     ss1d3.Sb = "D3.sb";
                     ss1d3.Sd3 = "D3.sd3";
                     ss1d3.Pb = ss1b;
 
-                    B ss2b = new B();
+                    var ss2b = new B();
                     ss2b.Sb = "B.sb";
                     ss2b.Pb = ss1b;
 
-                    D1 ss2d1 = new D1();
+                    var ss2d1 = new D1();
                     ss2d1.Sb = "D1.sb";
                     ss2d1.Sd1 = "D1.sd1";
                     ss2d1.Pb = ss2b;
 
-                    D3 ss2d3 = new D3();
+                    var ss2d3 = new D3();
                     ss2d3.Sb = "D3.sb";
                     ss2d3.Sd3 = "D3.sd3";
                     ss2d3.Pb = ss2b;
@@ -1228,13 +1211,13 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     ss2d1.Pd1 = ss1d3;
                     ss2d3.Pd3 = ss1d1;
 
-                    SS1 ss1 = new SS1(Array.Empty<B>());
+                    var ss1 = new SS1(Array.Empty<B>());
                     ss1.S = new B[3];
                     ss1.S[0] = ss1b;
                     ss1.S[1] = ss1d1;
                     ss1.S[2] = ss1d3;
 
-                    SS2 ss2 = new SS2(Array.Empty<B>());
+                    var ss2 = new SS2(Array.Empty<B>());
                     ss2.S = new B[3];
                     ss2.S[0] = ss2b;
                     ss2.S[1] = ss2d1;
@@ -1335,14 +1318,15 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 for (i = 0; i < 10; ++i)
                 {
                     string s = "D1." + i.ToString();
-                    D1 d1 = new D1();
+                    var d1 = new D1();
                     d1.Sb = s;
                     d1.Pb = d1;
                     d1.Sd1 = s;
                     bin[i] = d1;
                 }
 
-                var result = testPrx.DictionaryTestAsync(bin).Result;
+                (Dictionary<int, B?> ReturnValue, Dictionary<int, B?> bout) result =
+                    testPrx.DictionaryTestAsync(bin).Result;
                 Dictionary<int, B?> rv = result.ReturnValue;
                 Dictionary<int, B?> bout = result.bout;
 
@@ -1367,7 +1351,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     string s = "D1." + (i * 20).ToString();
                     TestHelper.Assert(b.Sb.Equals(s));
                     TestHelper.Assert(b.Pb == (i == 0 ? null : rv[(i - 1) * 20]));
-                    D1 d1 = (D1)b;
+                    var d1 = (D1)b;
                     TestHelper.Assert(d1 != null);
                     TestHelper.Assert(d1.Sd1.Equals(s));
                     TestHelper.Assert(d1.Pd1 == d1);
@@ -1468,7 +1452,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     try
                     {
                         TestHelper.Assert(ae.InnerException != null);
-                        DerivedException e = (DerivedException)ae.InnerException;
+                        var e = (DerivedException)ae.InnerException;
                         TestHelper.Assert(e.Sbe.Equals("sbe"));
                         TestHelper.Assert(e.Pb != null);
                         TestHelper.Assert(e.Pb.Sb.Equals("sb1"));
@@ -1531,7 +1515,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     try
                     {
                         TestHelper.Assert(ae.InnerException != null);
-                        DerivedException e = (DerivedException)ae.InnerException;
+                        var e = (DerivedException)ae.InnerException;
                         TestHelper.Assert(e.Sbe.Equals("sbe"));
                         TestHelper.Assert(e.Pb != null);
                         TestHelper.Assert(e.Pb.Sb.Equals("sb1"));
@@ -1588,7 +1572,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     try
                     {
                         TestHelper.Assert(ae.InnerException != null);
-                        BaseException e = (BaseException)ae.InnerException;
+                        var e = (BaseException)ae.InnerException;
                         TestHelper.Assert(e.Sbe.Equals("sbe"));
                         TestHelper.Assert(e.Pb != null);
                         TestHelper.Assert(e.Pb.Sb.Equals("sb d2"));
@@ -1641,7 +1625,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
                 PBase? r = testPrx.ExchangePBase(pd);
                 TestHelper.Assert(r != null);
-                PDerived p2 = (PDerived)r;
+                var p2 = (PDerived)r;
                 TestHelper.Assert(p2.Pi == 3);
                 TestHelper.Assert(p2.Ps.Equals("preserved"));
                 TestHelper.Assert(p2.Pb == p2);
@@ -1655,7 +1639,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 //
                 // Server only knows the base (non-preserved) type, so the object is sliced.
                 //
-                PCUnknown pu = new PCUnknown();
+                var pu = new PCUnknown();
                 pu.Pi = 3;
                 pu.Pu = "preserved";
 
@@ -1674,12 +1658,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 // Server only knows the intermediate type Preserved. The object will be sliced to
                 // Preserved for the 1.0 encoding; otherwise it should be returned intact.
                 //
-                PCDerived pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
+                var pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
                 PBase? r = testPrx.ExchangePBase(pcd);
                 TestHelper.Assert(r is PCDerived);
-                PCDerived p2 = (PCDerived)r;
+                var p2 = (PCDerived)r;
                 TestHelper.Assert(p2.Pi == 3);
                 TestHelper.Assert(p2.Pbs[0] == p2);
             }
@@ -1693,12 +1677,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 // Server only knows the intermediate type Preserved. The object will be sliced to
                 // Preserved for the 1.0 encoding; otherwise it should be returned intact.
                 //
-                CompactPCDerived pcd = new CompactPCDerived(3, "", null, Array.Empty<PBase>());
+                var pcd = new CompactPCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
                 PBase? r = testPrx.ExchangePBase(pcd);
                 TestHelper.Assert(r is CompactPCDerived);
-                CompactPCDerived p2 = (CompactPCDerived)r;
+                var p2 = (CompactPCDerived)r;
                 TestHelper.Assert(p2.Pi == 3);
                 TestHelper.Assert(p2.Pbs[0] == p2);
             }
@@ -1708,20 +1692,16 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
-                // Send an object that will have multiple preserved slices in the server.
-                // The object will be sliced to Preserved for the 1.0 encoding.
-                //
-                PCDerived3 pcd = new PCDerived3(3, "", null, Array.Empty<PBase>(), 0, null);
+                // Send an object that will have multiple preserved slices in the server. The object will be sliced
+                // to Preserved for the 1.0 encoding.
+                var pcd = new PCDerived3(3, "", null, Array.Empty<PBase>(), 0, null);
 
-                //
                 // Sending more than 254 objects exercises the encoding for object ids.
-                //
                 pcd.Pbs = new PBase[300];
                 int i;
                 for (i = 0; i < 300; ++i)
                 {
-                    PCDerived2 p2 = new PCDerived2(i, "", null, Array.Empty<PBase>(), i);
+                    var p2 = new PCDerived2(i, "", null, Array.Empty<PBase>(), i);
                     p2.Pbs = new PBase?[] { null }; // Nil reference. This slice should not have an indirection table.
                     pcd.Pbs[i] = p2;
                 }
@@ -1730,7 +1710,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
                 PBase? r = testPrx.ExchangePBase(pcd);
                 TestHelper.Assert(r is PCDerived3);
-                PCDerived3 p3 = (PCDerived3)r;
+                var p3 = (PCDerived3)r;
                 TestHelper.Assert(p3.Pi == 3);
                 for (i = 0; i < 300; ++i)
                 {
@@ -1789,7 +1769,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 //
                 // Server only knows the base (non-preserved) type, so the object is sliced.
                 //
-                PCUnknown pu = new PCUnknown();
+                var pu = new PCUnknown();
                 pu.Pi = 3;
                 pu.Pu = "preserved";
 
@@ -1804,12 +1784,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 // Server only knows the intermediate type Preserved. The object will be sliced to
                 // Preserved for the 1.0 encoding; otherwise it should be returned intact.
                 //
-                PCDerived pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
+                var pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
                 PBase? r = testPrx.ExchangePBaseAsync(pcd).Result;
                 TestHelper.Assert(r != null);
-                PCDerived p2 = (PCDerived)r;
+                var p2 = (PCDerived)r;
                 TestHelper.Assert(p2.Pi == 3);
                 TestHelper.Assert(p2.Pbs[0] == p2);
             }
@@ -1890,16 +1870,16 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 // Relay a graph through the server.
                 //
                 {
-                    PNode c = new PNode();
+                    var c = new PNode();
                     c.Next = new PNode();
                     c.Next.Next = new PNode();
                     c.Next.Next.Next = c;
 
-                    TestHelper.Assert(PNode.counter == 3);
+                    TestHelper.Assert(PNode.Counter == 3);
                     PNode? n = testPrx.ExchangePNode(c);
                     TestHelper.Assert(n != null);
-                    TestHelper.Assert(PNode.counter == 6);
-                    PNode.counter = 0;
+                    TestHelper.Assert(PNode.Counter == 6);
+                    PNode.Counter = 0;
                     n.Next = null;
                 }
 
@@ -1909,11 +1889,11 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 // objects.
                 //
                 {
-                    TestHelper.Assert(PNode.counter == 0);
+                    TestHelper.Assert(PNode.Counter == 0);
                     Preserved? p = testPrx.PBSUnknownAsPreservedWithGraph();
                     testPrx.CheckPBSUnknownWithGraph(p);
-                    TestHelper.Assert(PNode.counter == 3);
-                    PNode.counter = 0;
+                    TestHelper.Assert(PNode.Counter == 3);
+                    PNode.Counter = 0;
                 }
 
                 //
@@ -1924,11 +1904,11 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 // outer.iceSlicedData_.outer
                 //
                 {
-                    Preserved.counter = 0;
+                    Preserved.Counter = 0;
                     Preserved? p = testPrx.PBSUnknown2AsPreservedWithGraph();
                     testPrx.CheckPBSUnknown2WithGraph(p);
-                    TestHelper.Assert(Preserved.counter == 1);
-                    Preserved.counter = 0;
+                    TestHelper.Assert(Preserved.Counter == 1);
+                    Preserved.Counter = 0;
                 }
 
                 //
@@ -1944,7 +1924,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 //
                 try
                 {
-                    TestHelper.Assert(Preserved.counter == 0);
+                    TestHelper.Assert(Preserved.Counter == 0);
 
                     try
                     {
@@ -1952,10 +1932,10 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     }
                     catch (PreservedException)
                     {
-                        TestHelper.Assert(Preserved.counter == 1);
+                        TestHelper.Assert(Preserved.Counter == 1);
                     }
 
-                    Preserved.counter = 0;
+                    Preserved.Counter = 0;
                 }
                 catch (Exception ex)
                 {

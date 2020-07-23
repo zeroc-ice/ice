@@ -12,52 +12,52 @@ namespace ZeroC.Ice.Test.SeqMapping
     {
         private const int Length = 100;
 
-        internal static void twoways(Communicator communicator, IMyClassPrx p)
+        internal static void Run(Communicator communicator, IMyClassPrx p)
         {
             {
-                var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToArray();
-                var (r, o) = p.OpAByteS(i);
+                byte[]? i = Enumerable.Range(0, Length).Select(x => (byte)x).ToArray();
+                (byte[] r, byte[] o) = p.OpAByteS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToList();
-                var (r, o) = p.OpLByteS(i);
+                var i = new List<byte>(Enumerable.Range(0, Length).Select(x => (byte)x));
+                (List<byte> r, List<byte> o) = p.OpLByteS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new LinkedList<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var (r, o) = p.OpKByteS(i);
+                var i = new LinkedList<byte>(Enumerable.Range(0, Length).Select(x => (byte)x));
+                (LinkedList<byte> r, LinkedList<byte> o) = p.OpKByteS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new Queue<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var (r, o) = p.OpQByteS(i);
+                var i = new Queue<byte>(Enumerable.Range(0, Length).Select(x => (byte)x));
+                (Queue<byte> r, Queue<byte> o) = p.OpQByteS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new Stack<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var (r, o) = p.OpSByteS(i);
+                var i = new Stack<byte>(Enumerable.Range(0, Length).Select(x => (byte)x));
+                (Stack<byte> r, Stack<byte> o) = p.OpSByteS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new Custom<byte>(Enumerable.Range(0, Length).Select(x => (byte)x).ToArray());
-                var (r, o) = p.OpCByteS(i);
+                var i = new Custom<byte>(Enumerable.Range(0, Length).Select(x => (byte)x));
+                (Custom<byte> r, Custom<byte> o) = p.OpCByteS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray();
+                bool[]? i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray();
                 var (r, o) = p.OpABoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));

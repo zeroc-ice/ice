@@ -178,12 +178,12 @@ namespace ZeroC.Ice
                     bool addQuote = Host.IndexOf(':') != -1;
                     if (addQuote)
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                     sb.Append(Host);
                     if (addQuote)
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                 }
 
@@ -197,12 +197,12 @@ namespace ZeroC.Ice
                     sb.Append(" --sourceAddress ");
                     if (addQuote)
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                     sb.Append(sourceAddr);
                     if (addQuote)
                     {
-                        sb.Append("\"");
+                        sb.Append('"');
                     }
                 }
             }

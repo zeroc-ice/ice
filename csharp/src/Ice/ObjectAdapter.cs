@@ -582,7 +582,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return _incomingConnectionFactories.Select(factory => factory.Endpoint()).ToArray();
+                return _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).ToArray();
             }
         }
 
@@ -627,7 +627,7 @@ namespace ZeroC.Ice
                                                  CreateDirectProxy(new Identity("dummy", ""),
                                                  IObjectPrx.Factory));
             }
-            catch (Exception)
+            catch
             {
                 lock (_mutex)
                 {
@@ -699,7 +699,7 @@ namespace ZeroC.Ice
                                                  CreateDirectProxy(new Identity("dummy", ""),
                                                  IObjectPrx.Factory));
             }
-            catch (Exception)
+            catch
             {
                 lock (_mutex)
                 {
@@ -711,7 +711,11 @@ namespace ZeroC.Ice
         }
 
         // Called by Communicator
-        internal ObjectAdapter(Communicator communicator, string name, bool serializeDispatch, TaskScheduler? scheduler,
+        internal ObjectAdapter(
+            Communicator communicator,
+            string name,
+            bool serializeDispatch,
+            TaskScheduler? scheduler,
             IRouterPrx? router)
         {
             Communicator = communicator;
@@ -810,9 +814,13 @@ namespace ZeroC.Ice
                             }
                         }
 
+                        // TODO: Add support for QuicIncomingConnectionFactory and support for sharing the same
+                        // incoming connection for multiple TCP based ice2 transports such as tcp/ws.
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
-                                new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
+                                expanded.IsDatagram ? (IncomingConnectionFactory)
+                                    new DatagramIncomingConnectionFactory(this, expanded, publishedEndpoint) :
+                                    new TcpIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
                     }
                     else
                     {
@@ -1083,7 +1091,7 @@ namespace ZeroC.Ice
                     // the same published endpoint.
 
                     endpoints = _incomingConnectionFactories.SelectMany(factory =>
-                        factory.Endpoint().ExpandIfWildcard()).Distinct().ToArray();
+                        factory.PublishedEndpoint.ExpandIfWildcard()).Distinct().ToArray();
                 }
             }
 

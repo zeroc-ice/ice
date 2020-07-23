@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.Properties
                     { "Ice.Config", "config/escapes.cfg" }
                 };
 
-                Assert(properties.DictionaryEqual(props));
+                Assert(properties.DictionaryEquals(props));
                 Console.Out.WriteLine("ok");
             }
 

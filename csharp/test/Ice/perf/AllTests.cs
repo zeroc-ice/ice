@@ -55,7 +55,7 @@ namespace ZeroC.Ice.Test.Perf
             RunTest(output, repetitions, name, () => invocation(size), () => invocation(0));
         }
 
-        public static IPerformancePrx allTests(TestHelper helper)
+        public static IPerformancePrx Run(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
             TestHelper.Assert(communicator != null);

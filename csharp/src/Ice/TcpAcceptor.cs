@@ -7,146 +7,66 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Text;
 
 namespace ZeroC.Ice
 {
     internal class TcpAcceptor : IAcceptor
     {
-        public virtual void Close()
+        // TODO: add support for multiple endpoint listening on the same tcp port (possibly tcp/ssl/ws)
+        public Endpoint Endpoint { get; }
+
+        private readonly ObjectAdapter _adapter;
+        private readonly Socket _fd;
+        private readonly IPEndPoint _addr;
+
+        public async ValueTask<ITransceiver> AcceptAsync()
         {
-            if (_acceptFd != null)
-            {
-                Network.CloseSocketNoThrow(_acceptFd);
-            }
-            if (_fd != null)
-            {
-                Network.CloseSocketNoThrow(_fd);
-            }
+            Socket fd = await _fd.AcceptAsync().ConfigureAwait(false);
+
+            // TODO: read data from the socket to figure out if were are accepting a tcp/ssl/ws connection.
+
+            return ((TcpEndpoint)Endpoint).CreateTransceiver(new StreamSocket(Endpoint.Communicator, fd),
+                                                             _adapter.Name);
         }
 
-        public virtual Endpoint Listen()
-        {
-            try
-            {
-                Debug.Assert(_fd != null);
-                _addr = Network.DoBind(_fd, _addr);
-                Network.DoListen(_fd, _backlog);
-            }
-            catch (SystemException)
-            {
-                _fd = null;
-                throw;
-            }
-            _endpoint = (TcpEndpoint)_endpoint.NewPort(EffectivePort());
-            return _endpoint;
-        }
-
-        public virtual bool StartAccept(AsyncCallback callback, object state)
-        {
-            try
-            {
-                Debug.Assert(_fd != null);
-                _result = _fd.BeginAccept(delegate(IAsyncResult result)
-                                          {
-                                              if (!result.CompletedSynchronously)
-                                              {
-                                                  Debug.Assert(result.AsyncState != null);
-                                                  callback(result.AsyncState);
-                                              }
-                                          }, state);
-            }
-            catch (SocketException ex)
-            {
-                throw new TransportException(ex);
-            }
-            return _result.CompletedSynchronously;
-        }
-
-        public virtual void FinishAccept()
-        {
-            if (_fd != null)
-            {
-                _acceptFd = null;
-                try
-                {
-                    _acceptFd = _fd.EndAccept(_result);
-                }
-                catch (SocketException ex)
-                {
-                    _acceptError = new TransportException(ex);
-                }
-            }
-        }
-
-        public virtual ITransceiver Accept()
-        {
-            if (_acceptFd == null)
-            {
-                Debug.Assert(_acceptError != null);
-                throw _acceptError;
-            }
-
-            Socket acceptFd = _acceptFd;
-            _acceptFd = null;
-            _acceptError = null;
-            return _endpoint.CreateTransceiver(new StreamSocket(_communicator, acceptFd), _adapterName);
-        }
-
-        public override string ToString() => Network.AddrToString(_addr);
+        public void Dispose() => Network.CloseSocketNoThrow(_fd);
 
         public string ToDetailedString()
         {
             var s = new StringBuilder("local address = ");
             s.Append(ToString());
 
-            List<string> intfs =
-                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), _communicator.IPVersion, true);
-            if (intfs.Count != 0)
+            List<string> interfaces =
+                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), Endpoint.Communicator.IPVersion, true);
+            if (interfaces.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
-                s.Append(string.Join(", ", intfs.ToArray()));
+                s.Append(string.Join(", ", interfaces));
             }
             return s.ToString();
         }
 
-        public ushort EffectivePort() => (ushort)_addr.Port;
+        public override string ToString() => Network.AddrToString(_addr);
 
-        internal TcpAcceptor(
-            TcpEndpoint endpoint,
-            Communicator communicator,
-            string host,
-            ushort port,
-            string adapterName)
+        internal TcpAcceptor(TcpEndpoint endpoint, ObjectAdapter adapter)
         {
-            _adapterName = adapterName;
-            _endpoint = endpoint;
-            _communicator = communicator;
-            _backlog = communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
+            _adapter = adapter;
 
-            try
-            {
-                int ipVersion = _communicator.IPVersion;
-                _addr = Network.GetAddressForServerEndpoint(host, port, ipVersion, _communicator.PreferIPv6);
-                _fd = Network.CreateServerSocket(false, _addr.AddressFamily, ipVersion);
-                Network.SetBlock(_fd, false);
-                Network.SetTcpBufSize(_fd, _communicator);
-            }
-            catch (Exception)
-            {
-                _fd = null;
-                throw;
-            }
+            _addr = Network.GetAddressForServerEndpoint(endpoint.Host,
+                                                        endpoint.Port,
+                                                        endpoint.Communicator.IPVersion,
+                                                        endpoint.Communicator.PreferIPv6);
+
+            _fd = Network.CreateServerSocket(false, _addr.AddressFamily, endpoint.Communicator.IPVersion);
+            Network.SetBlock(_fd, false);
+            Network.SetTcpBufSize(_fd, endpoint.Communicator);
+
+            _addr = Network.DoBind(_fd, _addr);
+            Network.DoListen(_fd, endpoint.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511);
+
+            Endpoint = endpoint.NewPort((ushort)_addr.Port);
         }
-
-        private readonly string _adapterName;
-        private TcpEndpoint _endpoint;
-        private readonly Communicator _communicator;
-        private Socket? _fd;
-        private Socket? _acceptFd;
-        private Exception? _acceptError;
-        private readonly int _backlog;
-        private IPEndPoint _addr;
-        private IAsyncResult? _result;
     }
 }
