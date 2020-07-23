@@ -13,10 +13,10 @@ namespace ZeroC.Ice.Test.Perf
         {
             await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            var adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ObjectAdapter? adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("perf", new PerformanceI());
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

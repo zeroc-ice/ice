@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Objects
             adapter.Add("F21", new F2());
             var uoet = new UnexpectedObjectExceptionTest();
             adapter.Add("uoet", uoet);
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

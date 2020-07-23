@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.NetworkProxy
 {
     public class AllTests
     {
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -18,7 +19,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??
                             communicator.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 0;
 
-            var output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             output.Write("testing connection... ");
             output.Flush();
             {
@@ -49,7 +50,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
                     testPrx.IcePing();
                     TestHelper.Assert(false);
                 }
-                catch (System.Exception)
+                catch
                 {
                 }
             }

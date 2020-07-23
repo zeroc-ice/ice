@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Enums
 {
     public class AllTests
     {
-        public static ITestIntfPrx allTests(TestHelper helper)
+        public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

@@ -3,20 +3,21 @@
 //
 
 using Test;
+using System.IO;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
     public class AllTests
     {
-        public static IMyClassPrx allTests(TestHelper helper, bool collocated)
+        public static IMyClassPrx Run(TestHelper helper, bool collocated)
         {
-            var communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             output.Write("testing twoway operations... ");
             output.Flush();
-            Twoways.twoways(communicator, cl);
+            Twoways.Run(communicator, cl);
             output.WriteLine("ok");
 
             if (!collocated)

@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -14,7 +15,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             // TODO: we currently force ice1 for this test because Ice.Default.Protocol is the only way to select
             // the protocol used by object adapters. Once this is fixed, we should run this test with both ice1 and
             // ice2, and use only ice1 for the udp object adapter.

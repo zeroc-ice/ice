@@ -27,8 +27,8 @@ namespace ZeroC.Ice.Test.Hash
             {
                 var rand = new Random();
                 for (i = 0; proxyCollisions < maxCollisions &&
-                        endpointCollisions < maxCollisions &&
-                        i < maxIterations; ++i)
+                     endpointCollisions < maxCollisions &&
+                     i < maxIterations; ++i)
                 {
                     string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}";
 
@@ -62,14 +62,10 @@ namespace ZeroC.Ice.Test.Hash
                         {
                             seenEndpoint[endpoint.GetHashCode()] = endpoint;
                         }
-                        //
                         // Check the same endpoint produce always the same hash
-                        //
                         Assert(endpoint.GetHashCode() == endpoint.GetHashCode());
                     }
-                    //
                     // Check the same proxy produce always the same hash
-                    //
                     Assert(obj.GetHashCode() == obj.GetHashCode());
                 }
                 Assert(proxyCollisions < maxCollisions);
@@ -91,9 +87,7 @@ namespace ZeroC.Ice.Test.Hash
                         {
                             seenProxy[ProxyComparer.Identity.GetHashCode(obj)] = obj;
                         }
-                        //
                         // Check the same proxy produce always the same hash
-                        //
                         Assert(ProxyComparer.Identity.GetHashCode(obj) == ProxyComparer.Identity.GetHashCode(obj));
                     }
                     Assert(proxyCollisions < maxCollisions);
@@ -118,10 +112,9 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenProxy[ProxyComparer.IdentityAndFacet.GetHashCode(obj)] = obj;
                     }
-                    //
                     // Check the same proxy produce always the same hash
-                    //
-                    Assert(ProxyComparer.IdentityAndFacet.GetHashCode(obj) == ProxyComparer.IdentityAndFacet.GetHashCode(obj));
+                    Assert(ProxyComparer.IdentityAndFacet.GetHashCode(obj) ==
+                           ProxyComparer.IdentityAndFacet.GetHashCode(obj));
                 }
                 Assert(proxyCollisions < maxCollisions);
             }
@@ -154,31 +147,42 @@ namespace ZeroC.Ice.Test.Hash
             Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
             Assert(IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator).GetHashCode() == proxyMap["prx3"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() == proxyMap["prx4"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() ==
+                   proxyMap["prx4"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() == proxyMap["prx6"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx7"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() ==
+                   proxyMap["prx6"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator).GetHashCode() ==
+                   proxyMap["prx7"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx9"]);
+            Assert(
+                IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() ==
+                proxyMap["prx9"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
 
             Assert(ProxyComparer.Identity.GetHashCode(prx1) == ProxyComparer.Identity.GetHashCode(prx1));
-            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx1) == ProxyComparer.IdentityAndFacet.GetHashCode(prx1));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx1) ==
+                   ProxyComparer.IdentityAndFacet.GetHashCode(prx1));
 
             Assert(ProxyComparer.Identity.GetHashCode(prx3) == ProxyComparer.Identity.GetHashCode(prx3));
-            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx3) == ProxyComparer.IdentityAndFacet.GetHashCode(prx3));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx3) ==
+                   ProxyComparer.IdentityAndFacet.GetHashCode(prx3));
 
             Assert(ProxyComparer.Identity.GetHashCode(prx4) == ProxyComparer.Identity.GetHashCode(prx4));
-            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx4) == ProxyComparer.IdentityAndFacet.GetHashCode(prx4));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx4) ==
+                   ProxyComparer.IdentityAndFacet.GetHashCode(prx4));
 
             Assert(ProxyComparer.Identity.GetHashCode(prx6) == ProxyComparer.Identity.GetHashCode(prx6));
-            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx6) == ProxyComparer.IdentityAndFacet.GetHashCode(prx6));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx6) ==
+                   ProxyComparer.IdentityAndFacet.GetHashCode(prx6));
 
             Assert(ProxyComparer.Identity.GetHashCode(prx7) == ProxyComparer.Identity.GetHashCode(prx7));
-            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx7) == ProxyComparer.IdentityAndFacet.GetHashCode(prx7));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx7) ==
+                   ProxyComparer.IdentityAndFacet.GetHashCode(prx7));
 
             Assert(ProxyComparer.Identity.GetHashCode(prx9) == ProxyComparer.Identity.GetHashCode(prx9));
-            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx9) == ProxyComparer.IdentityAndFacet.GetHashCode(prx9));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx9) ==
+                   ProxyComparer.IdentityAndFacet.GetHashCode(prx9));
 
             Console.Error.WriteLine("ok");
 
@@ -204,17 +208,13 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenException[ex.GetHashCode()] = ex;
                     }
-                    //
                     // Check the same exception produce always the same hash
-                    //
                     Assert(ex.GetHashCode() == ex.GetHashCode());
                 }
                 Assert(exceptionCollisions < maxCollisions);
             }
 
-            //
             // Same as above but with numbers in high ranges
-            //
             {
                 var seenException = new Dictionary<int, OtherException>();
                 var rand = new Random();
@@ -223,9 +223,9 @@ namespace ZeroC.Ice.Test.Hash
                 for (i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
                 {
                     var ex = new OtherException((rand.Next(100) * 2) ^ 30,
-                                                    (rand.Next(100) * 2) ^ 30,
-                                                    (rand.Next(100) * 2) ^ 30,
-                                                    false);
+                                                (rand.Next(100) * 2) ^ 30,
+                                                (rand.Next(100) * 2) ^ 30,
+                                                false);
 
                     if (seenException.ContainsKey(ex.GetHashCode()))
                     {
@@ -239,9 +239,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenException[ex.GetHashCode()] = ex;
                     }
-                    //
                     // Check the same exception produce always the same hash
-                    //
                     Assert(ex.GetHashCode() == ex.GetHashCode());
                 }
                 Assert(exceptionCollisions < maxCollisions);
@@ -269,9 +267,7 @@ namespace ZeroC.Ice.Test.Hash
                         seenException[ex.GetHashCode()] = ex;
                     }
 
-                    //
                     // Check the same exception produce always the same hash
-                    //
                     Assert(ex.GetHashCode() == ex.GetHashCode());
 
                     ex = new InvalidLengthException(v);
@@ -288,9 +284,7 @@ namespace ZeroC.Ice.Test.Hash
                         seenException[ex.GetHashCode()] = ex;
                     }
 
-                    //
                     // Check the same exception produce always the same hash
-                    //
                     Assert(ex.GetHashCode() == ex.GetHashCode());
                 }
                 Assert(exceptionCollisions < maxCollisions);
@@ -319,9 +313,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenPointF[pf.GetHashCode()] = pf;
                     }
-                    //
                     // Check the same struct produce always the same hash
-                    //
                     Assert(pf.GetHashCode() == pf.GetHashCode());
                 }
                 Assert(structCollisions < maxCollisions);
@@ -343,9 +335,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenPointD[pd.GetHashCode()] = pd;
                     }
-                    //
                     // Check the same struct produce always the same hash
-                    //
                     Assert(pd.GetHashCode() == pd.GetHashCode());
                 }
                 Assert(structCollisions < maxCollisions);
@@ -374,9 +364,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenPolyline[polyline.GetHashCode()] = polyline;
                     }
-                    //
                     // Check the same struct produce always the same hash
-                    //
                     Assert(polyline.GetHashCode() == polyline.GetHashCode());
                 }
                 Assert(structCollisions < maxCollisions);
@@ -408,9 +396,8 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenColorPalette[colorPalette.GetHashCode()] = colorPalette;
                     }
-                    //
+
                     // Check the same struct produce always the same hash
-                    //
                     Assert(colorPalette.GetHashCode() == colorPalette.GetHashCode());
                 }
                 Assert(structCollisions < maxCollisions);
@@ -432,9 +419,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenColor[c.GetHashCode()] = c;
                     }
-                    //
                     // Check the same struct produce always the same hash
-                    //
                     Assert(c.GetHashCode() == c.GetHashCode());
                 }
                 Assert(structCollisions < maxCollisions);
@@ -461,9 +446,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         seenDraw[draw.GetHashCode()] = draw;
                     }
-                    //
                     // Check the same struct produce always the same hash
-                    //
                     Assert(draw.GetHashCode() == draw.GetHashCode());
                 }
                 Assert(structCollisions < maxCollisions);

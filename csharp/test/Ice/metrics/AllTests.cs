@@ -748,7 +748,7 @@ namespace ZeroC.Ice.Test.Metrics
                     prx.IcePing();
                     prx.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
-                catch (System.Exception)
+                catch
                 {
                 }
 
@@ -773,7 +773,7 @@ namespace ZeroC.Ice.Test.Metrics
                 {
                     dnsException = true;
                 }
-                catch (System.Exception)
+                catch
                 {
                     // Some DNS servers don't fail on unknown DNS names.
                     // TODO: what's the point of this test then?

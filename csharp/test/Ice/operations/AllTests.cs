@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public class AllTests
     {
-        public static IMyClassPrx allTests(TestHelper helper)
+        public static IMyClassPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Operations
 
             output.Write("testing oneway operations... ");
             output.Flush();
-            Oneways.oneways(cl);
+            Oneways.Run(cl);
             output.WriteLine("ok");
 
             output.Write("testing twoway operations with AMI... ");

@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Exceptions
             properties["Ice.MessageSizeMax"] = "10K";
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            IThrowerPrx thrower = AllTests.allTests(this);
+            IThrowerPrx thrower = AllTests.Run(this);
             await thrower.ShutdownAsync();
         }
 

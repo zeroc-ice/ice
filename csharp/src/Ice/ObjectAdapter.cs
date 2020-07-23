@@ -654,7 +654,7 @@ namespace ZeroC.Ice
                                                  CreateDirectProxy(new Identity("dummy", ""),
                                                  IObjectPrx.Factory));
             }
-            catch (Exception)
+            catch
             {
                 lock (_mutex)
                 {
@@ -726,7 +726,7 @@ namespace ZeroC.Ice
                                                  CreateDirectProxy(new Identity("dummy", ""),
                                                  IObjectPrx.Factory));
             }
-            catch (Exception)
+            catch
             {
                 lock (_mutex)
                 {

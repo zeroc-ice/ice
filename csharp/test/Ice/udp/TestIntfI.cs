@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.UDP
             {
                 reply!.Reply();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }

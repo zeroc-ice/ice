@@ -361,7 +361,7 @@ namespace ZeroC.Glacier2.Test.Router
                 {
                     router.DestroySession();
                 }
-                catch (System.Exception)
+                catch
                 {
                     Assert(false);
                 }

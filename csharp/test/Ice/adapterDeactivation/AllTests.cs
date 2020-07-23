@@ -220,7 +220,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 obj.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (Exception)
+            catch
             {
                 output.WriteLine("ok");
             }

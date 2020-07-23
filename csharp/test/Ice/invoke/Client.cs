@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Invoke
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            IMyClassPrx myClass = AllTests.allTests(this);
+            IMyClassPrx myClass = AllTests.Run(this);
             await myClass.ShutdownAsync();
         }
 

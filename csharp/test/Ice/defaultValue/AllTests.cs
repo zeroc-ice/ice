@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.DefaultValue
 {
     public class AllTests
     {
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             TextWriter output = helper.GetWriter();
             output.Write("testing default values... ");

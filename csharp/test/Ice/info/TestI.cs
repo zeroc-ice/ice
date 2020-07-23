@@ -37,9 +37,11 @@ namespace ZeroC.Ice.Test.Info
         public IReadOnlyDictionary<string, string> GetConnectionInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
-            var ctx = new Dictionary<string, string>();
-            ctx["adapterName"] = current.Connection.Adapter?.Name ?? "";
-            ctx["incoming"] = current.Connection.IsIncoming ? "true" : "false";
+            var ctx = new Dictionary<string, string>
+            {
+                ["adapterName"] = current.Connection.Adapter?.Name ?? "",
+                ["incoming"] = current.Connection.IsIncoming ? "true" : "false"
+            };
 
             var ipConnection = current.Connection as IPConnection;
             TestHelper.Assert(ipConnection != null);

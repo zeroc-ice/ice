@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using Test;
@@ -12,12 +13,12 @@ namespace ZeroC.Ice.Test.Info
 {
     public class AllTests
     {
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             bool oldProtocol = communicator.DefaultProtocol == Protocol.Ice1;
-            var output = helper.GetWriter();
+            TextWriter? output = helper.GetWriter();
             output.Write("testing proxy endpoint information... ");
             output.Flush();
             {
@@ -30,7 +31,7 @@ namespace ZeroC.Ice.Test.Info
 
                 var p1 = IObjectPrx.Parse(oldProtocol ? ice1Prx : ice2Prx, communicator);
 
-                var endps = p1.Endpoints;
+                IReadOnlyList<Endpoint> endps = p1.Endpoints;
 
                 Endpoint tcpEndpoint = endps[0];
                 TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && !tcpEndpoint.IsSecure);
@@ -80,12 +81,12 @@ namespace ZeroC.Ice.Test.Info
                     "\" -t 15000:udp -h \"" + host + "\"");
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
-                var endpoints = adapter.GetEndpoints();
+                IReadOnlyList<Endpoint> endpoints = adapter.GetEndpoints();
                 TestHelper.Assert(endpoints.Count == 2);
-                var publishedEndpoints = adapter.GetPublishedEndpoints();
+                IReadOnlyList<Endpoint> publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
-                var tcpEndpoint = endpoints[0];
+                Endpoint tcpEndpoint = endpoints[0];
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP ||
                                   tcpEndpoint.Transport == Transport.SSL ||
@@ -119,7 +120,7 @@ namespace ZeroC.Ice.Test.Info
                 publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(publishedEndpoints.Count == 1);
 
-                foreach (var endpoint in endpoints)
+                foreach (Endpoint endpoint in endpoints)
                 {
                     TestHelper.Assert(endpoint.Port == port);
                 }
@@ -175,7 +176,7 @@ namespace ZeroC.Ice.Test.Info
             output.Write("testing connection information... ");
             output.Flush();
             {
-                IPConnection connection = (IPConnection)testIntf.GetConnection()!;
+                var connection = (IPConnection)testIntf.GetConnection()!;
 
                 TestHelper.Assert(!connection.IsIncoming);
                 TestHelper.Assert(connection.Adapter == null);

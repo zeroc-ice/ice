@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.Objects
@@ -36,11 +37,11 @@ namespace ZeroC.Ice.Test.Objects
 
     public class AllTests
     {
-        public static IInitialPrx allTests(TestHelper helper)
+        public static IInitialPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var output = helper.GetWriter();
+            TextWriter? output = helper.GetWriter();
 
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
             TestHelper.Assert(initial != null);
@@ -92,7 +93,7 @@ namespace ZeroC.Ice.Test.Objects
 
             output.Write("getting B1, B2, C, and D all at once... ");
             output.Flush();
-            var (b1out, b2out, cout, dout) = initial.GetAll();
+            (B? b1out, B? b2out, C? cout, D? dout) = initial.GetAll();
             TestHelper.Assert(b1out != null);
             TestHelper.Assert(b2out != null);
             TestHelper.Assert(cout != null);
@@ -134,8 +135,8 @@ namespace ZeroC.Ice.Test.Objects
                 TestHelper.Assert(((L)v3!).Data.Equals("l"));
             }
             {
-                L l = new L("l");
-                AnyClass[] v1 = new AnyClass[] { l };
+                var l = new L("l");
+                var v1 = new AnyClass[] { l };
                 (AnyClass?[] v3, AnyClass?[] v2) = initial.OpClassSeq(v1);
                 TestHelper.Assert(((L)v2[0]!).Data.Equals("l"));
                 TestHelper.Assert(((L)v3[0]!).Data.Equals("l"));
@@ -205,7 +206,7 @@ namespace ZeroC.Ice.Test.Objects
             output.Write("testing recursive type... ");
             output.Flush();
             var top = new Recursive();
-            var p = top;
+            Recursive p = top;
             int depth = 0;
             try
             {

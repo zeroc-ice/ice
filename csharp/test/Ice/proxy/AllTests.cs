@@ -869,7 +869,7 @@ namespace ZeroC.Ice.Test.Proxy
             };
             cl = IMyClassPrx.CheckedCast(baseProxy, c);
             Dictionary<string, string> c2 = cl!.GetContext();
-            TestHelper.Assert(c.DictionaryEqual(c2));
+            TestHelper.Assert(c.DictionaryEquals(c2));
             output.WriteLine("ok");
 
             output.Write("testing ice_fixed... ");

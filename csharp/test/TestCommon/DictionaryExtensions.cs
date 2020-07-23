@@ -14,8 +14,9 @@ namespace Test
         /// <param name="rhs">The second dictionary to compare.</param>
         /// <returns>True if the two dictionaries have the exact same entries using the value's default equality
         /// comparison; otherwise, false.</returns>
-        public static bool DictionaryEqual<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue>? lhs,
-                                                         IReadOnlyDictionary<TKey, TValue>? rhs) where TKey : notnull
+        public static bool DictionaryEquals<TKey, TValue>(
+            this IReadOnlyDictionary<TKey, TValue> lhs,
+            IReadOnlyDictionary<TKey, TValue> rhs) where TKey : notnull
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -31,6 +32,31 @@ namespace Test
             foreach (KeyValuePair<TKey, TValue> entry in lhs)
             {
                 if (!rhs.TryGetValue(entry.Key, out TValue value) || !comparer.Equals(entry.Value, value))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool DictionaryEquals<TKey, TValue>(
+            this IReadOnlyDictionary<TKey, TValue> lhs,
+            IReadOnlyDictionary<TKey, TValue> rhs,
+            System.Func<TValue, TValue, bool> equals) where TKey : notnull
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (lhs == null || rhs == null || lhs.Count != rhs.Count)
+            {
+                return false;
+            }
+
+            foreach (KeyValuePair<TKey, TValue> entry in lhs)
+            {
+                if (!rhs.TryGetValue(entry.Key, out TValue value) || !equals(entry.Value, value))
                 {
                     return false;
                 }

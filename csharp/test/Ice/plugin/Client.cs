@@ -46,7 +46,7 @@ namespace ZeroC.Ice.Test.Plugin
                     });
                     Assert(false);
                 }
-                catch (Exception)
+                catch
                 {
                     // Expected
                 }
@@ -110,7 +110,7 @@ namespace ZeroC.Ice.Test.Plugin
                         { "Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail"}
                     });
                 }
-                catch (Exception)
+                catch
                 {
                     // Expected
                 }

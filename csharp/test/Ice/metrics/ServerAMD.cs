@@ -28,7 +28,7 @@ namespace ZeroC.Ice.Test.Metrics
             await adapter.ActivateAsync();
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
-            var adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
+            ObjectAdapter adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter2.Add("metrics", new MetricsAsync());
             await adapter2.ActivateAsync();

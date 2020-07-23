@@ -101,9 +101,9 @@ namespace ZeroC.Ice.Test.Objects
         public bool HasF3(Current current) => true;
 
         private ObjectAdapter _adapter;
-        private B _b1;
-        private B _b2;
-        private C _c;
-        private D _d;
+        private readonly B _b1;
+        private readonly B _b2;
+        private readonly C _c;
+        private readonly D _d;
     }
 }

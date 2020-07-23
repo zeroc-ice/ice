@@ -27,25 +27,13 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
-        public int Count
-        {
-            get
-            {
-                return _list.Count;
-            }
-        }
+        public int Count => _list.Count;
 
         public T this[int index]
         {
-            get
-            {
-                return _list[index];
-            }
+            get => _list[index];
 
-            set
-            {
-                _list[index] = value;
-            }
+            set => _list[index] = value;
 
         }
 
@@ -59,7 +47,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             }
             try
             {
-                Custom<T> tmp = (Custom<T>)o;
+                var tmp = (Custom<T>)o;
                 IEnumerator<T> e = tmp.GetEnumerator();
                 foreach (T elmt in _list)
                 {
@@ -84,7 +72,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 }
                 return true;
             }
-            catch (System.Exception)
+            catch
             {
                 return false;
             }
@@ -92,6 +80,6 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public override int GetHashCode() => base.GetHashCode();
 
-        private List<T> _list = new List<T>();
+        private readonly List<T> _list = new List<T>();
     }
 }

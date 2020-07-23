@@ -616,7 +616,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             {
                                 server!.IcePing();
                             }
-                            catch (Exception)
+                            catch
                             {
                                 // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
                                 TestHelper.Assert(IsCatalinaOrGreater);
@@ -689,7 +689,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             {
                                 server.IcePing();
                             }
-                            catch(Exception)
+                            catch
                             {
                                 TestHelper.Assert(false);
                             }
@@ -1234,7 +1234,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         new Communicator(ref args, clientProperties);
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                         // Expected.
                     }
@@ -1276,7 +1276,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server!.IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                     }
                     fact.DestroyServer(server);
@@ -1332,7 +1332,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server!.IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                     }
                     fact.DestroyServer(server);
@@ -1367,7 +1367,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server!.IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                     }
                     fact.DestroyServer(server);
@@ -1508,7 +1508,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server!.IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                     }
                     fact.DestroyServer(server);
@@ -1626,7 +1626,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server!.IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                     }
                     fact.DestroyServer(server);

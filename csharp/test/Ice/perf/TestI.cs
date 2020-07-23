@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Perf
 {
     public sealed class PerformanceI : IPerformance
     {
-        private static byte[] _bytes = new byte[Constants.ByteSeqSize];
+        private static readonly byte[] _bytes = new byte[Constants.ByteSeqSize];
 
         public void SendBytes(byte[] seq, Current current)
         {

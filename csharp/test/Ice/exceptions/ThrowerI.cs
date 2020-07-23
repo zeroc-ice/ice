@@ -56,21 +56,13 @@ namespace ZeroC.Ice.Test.Exceptions
 
         public void ThrowAfterResponse(Current current)
         {
-            //
             // Only relevant for AMD.
-            //
         }
 
-        //
         // Only relevant for AMD.
-        //
         public void ThrowAfterException(Current current) => throw new A();
 
-        public void ThrowAConvertedToUnhandled(Current current)
-        {
-            var a = new A();
-            a.ConvertToUnhandled = true;
-            throw a;
-        }
+        public void ThrowAConvertedToUnhandled(Current current) =>
+            throw new A() { ConvertToUnhandled = true };
     }
 }

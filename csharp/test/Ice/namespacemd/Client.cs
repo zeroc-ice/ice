@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -11,10 +12,10 @@ namespace ZeroC.Ice.Test.NamespaceMD
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
-            await using var communicator = Initialize(properties);
-            var initial = AllTests.allTests(this);
+            await using Communicator communicator = Initialize(properties);
+            IInitialPrx initial = AllTests.Run(this);
             await initial.ShutdownAsync();
         }
 

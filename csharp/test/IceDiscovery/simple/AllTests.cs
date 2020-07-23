@@ -230,7 +230,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                         IObjectPrx.Parse("controller0@control0", comm).IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Exception)
+                    catch
                     {
                     }
                 }

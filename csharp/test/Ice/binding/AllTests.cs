@@ -229,7 +229,7 @@ namespace ZeroC.Ice.Test.Binding
                         {
                             proxies[i].IcePing();
                         }
-                        catch (Exception)
+                        catch
                         {
                         }
                     }
@@ -253,7 +253,7 @@ namespace ZeroC.Ice.Test.Binding
                         {
                             a.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                         }
-                        catch (Exception)
+                        catch
                         {
                             // Expected if adapter is down.
                         }

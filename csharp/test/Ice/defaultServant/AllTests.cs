@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.IO;
 using Test;
 
@@ -9,8 +10,7 @@ namespace ZeroC.Ice.Test.DefaultServant
 {
     public class AllTests
     {
-        public static void
-        Run(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             TextWriter output = helper.GetWriter();
             Communicator? communicator = helper.Communicator();
@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.DefaultServant
                 oa.AddDefaultForCategory("foo", new MyObject());
                 TestHelper.Assert(false); // duplicate registration not allowed
             }
-            catch (System.ArgumentException)
+            catch (ArgumentException)
             {
                 // Expected
             }
@@ -45,12 +45,12 @@ namespace ZeroC.Ice.Test.DefaultServant
             string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
             IMyObjectPrx? prx = null;
-            for (int idx = 0; idx < 5; ++idx)
+            foreach (string name in names)
             {
-                identity = new Identity(names[idx], identity.Category);
+                identity = new Identity(name, identity.Category);
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
-                TestHelper.Assert(prx.GetName() == names[idx]);
+                TestHelper.Assert(prx.GetName() == name);
             }
 
             identity = new Identity("ObjectNotExist", identity.Category);
@@ -76,9 +76,9 @@ namespace ZeroC.Ice.Test.DefaultServant
             }
 
             identity = new Identity(identity.Name, "bar");
-            for (int idx = 0; idx < 5; idx++)
+            foreach (string name in names)
             {
-                identity = new Identity(names[idx], identity.Category);
+                identity = new Identity(name, identity.Category);
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
 
                 try
@@ -130,7 +130,7 @@ namespace ZeroC.Ice.Test.DefaultServant
                 oa.AddDefault(servant);
                 TestHelper.Assert(false);
             }
-            catch (System.ArgumentException)
+            catch (ArgumentException)
             {
                 // Expected
             }
@@ -143,12 +143,12 @@ namespace ZeroC.Ice.Test.DefaultServant
             r = oa.Find("x/y");
             TestHelper.Assert(r == defaultServant);
 
-            for (int idx = 0; idx < 5; ++idx)
+            foreach (string name in names)
             {
-                identity = new Identity(names[idx], "");
+                identity = new Identity(name, "");
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
-                TestHelper.Assert(prx.GetName() == names[idx]);
+                TestHelper.Assert(prx.GetName() == name);
             }
 
             removed = oa.RemoveDefault();

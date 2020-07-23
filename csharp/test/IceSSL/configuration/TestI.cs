@@ -21,7 +21,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
                 TestHelper.Assert(tcpConnection.RemoteCertificate == null);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -80,7 +80,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 });
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
             var server = new SSLServer(communicator);
-            var prx = adapter.AddWithUUID(server, IServerPrx.Factory);
+            IServerPrx prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;
             adapter.Activate();
             return prx;
@@ -102,6 +102,6 @@ namespace ZeroC.IceSSL.Test.Configuration
         }
 
         private readonly string _defaultDir;
-        private Dictionary<Identity, SSLServer> _servers = new Dictionary<Identity, SSLServer>();
+        private readonly Dictionary<Identity, SSLServer> _servers = new Dictionary<Identity, SSLServer>();
     }
 }

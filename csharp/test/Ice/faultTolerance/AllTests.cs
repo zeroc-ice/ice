@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -28,14 +27,14 @@ namespace ZeroC.Ice.Test.FaultTolerance
             catch (TransportException)
             {
             }
-            catch (Exception)
+            catch
             {
                 output.WriteLine(ex.ToString());
                 TestHelper.Assert(false);
             }
         }
 
-        public static void allTests(TestHelper helper, List<int> ports)
+        public static void Run(TestHelper helper, List<int> ports)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -158,7 +157,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     }
                     else
                     {
-                        output.Write("aborting server #" + i + " with AMI... ");
+                        output.Write($"aborting server #{i} with AMI... ");
                         output.Flush();
                         try
                         {
@@ -177,7 +176,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 {
                     if (!ami)
                     {
-                        output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
+                        output.Write($"aborting server #{i} and #{i + 1} with idempotent call... ");
                         output.Flush();
                         try
                         {
@@ -199,7 +198,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     }
                     else
                     {
-                        output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
+                        output.Write($"aborting server #{i} and #{i + 1} with idempotent AMI call... ");
                         output.Flush();
                         try
                         {
@@ -228,7 +227,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 obj.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (Exception)
+            catch
             {
                 output.WriteLine("ok");
             }

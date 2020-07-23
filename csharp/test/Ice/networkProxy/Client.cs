@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
         public override async Task RunAsync(string[] args)
         {
             await using var communicator = Initialize(ref args);
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

@@ -35,7 +35,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -95,7 +95,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -132,7 +132,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -348,7 +348,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     process.IcePing();
                     Assert(false);
                 }
-                catch (Exception)
+                catch
                 {
                     Console.Out.WriteLine("ok");
                 }

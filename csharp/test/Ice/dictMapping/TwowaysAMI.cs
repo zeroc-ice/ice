@@ -8,64 +8,12 @@ using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
-    public static class DictionaryExtension
-    {
-        public static bool DictionaryEquals<TKey, TValue>(this Dictionary<TKey, TValue> self,
-                                                          Dictionary<TKey, TValue> other) where TKey : notnull
-                                                                                          where TValue : notnull
-        {
-            if (self.Count != other.Count)
-            {
-                return false;
-            }
-
-            foreach (KeyValuePair<TKey, TValue> entry in self)
-            {
-
-                if (!other.TryGetValue(entry.Key, out TValue value))
-                {
-                    return false;
-                }
-
-                if (!value.Equals(entry.Value))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool DictionaryEquals<TKey, TValue>(
-            this Dictionary<TKey, TValue> self,
-            Dictionary<TKey, TValue> other,
-            System.Func<TValue, TValue, bool> equals) where TKey : notnull
-        {
-            if (self.Count != other.Count)
-            {
-                return false;
-            }
-
-            foreach (KeyValuePair<TKey, TValue> entry in self)
-            {
-
-                if (!other.TryGetValue(entry.Key, out TValue value))
-                {
-                    return false;
-                }
-
-                if (!equals(value, entry.Value))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
     public class TwowaysAMI
     {
         private class CallbackBase
         {
             private readonly object _mutex = new object();
+            private bool _called;
             internal CallbackBase() => _called = false;
 
             public virtual void Check()
@@ -90,11 +38,9 @@ namespace ZeroC.Ice.Test.DictMapping
                     System.Threading.Monitor.Pulse(this);
                 }
             }
-
-            private bool _called;
         }
 
-        internal static void twowaysAMI(IMyClassPrx p)
+        internal static void Run(IMyClassPrx p)
         {
             {
                 var i = new Dictionary<int, int>

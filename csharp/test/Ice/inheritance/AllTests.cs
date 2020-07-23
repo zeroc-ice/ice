@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Inheritance
 {
     public class AllTests
     {
-        public static IInitialPrx allTests(TestHelper helper)
+        public static IInitialPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

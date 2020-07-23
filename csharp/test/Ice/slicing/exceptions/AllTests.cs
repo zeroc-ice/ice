@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Test;
 
@@ -33,14 +34,14 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             public void ClientPrivateException(Current current) => throw new ClientPrivateException("ClientPrivate");
         }
 
-        public static ITestIntfPrx allTests(TestHelper helper)
+        public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var output = helper.GetWriter();
+            TextWriter? output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            ITestIntfPrx testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
+            var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
             output.WriteLine("ok");
 
             output.Write("base... ");
@@ -299,7 +300,8 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 {
                     TestHelper.Assert(ki.B.Equals("KnownIntermediate.b"));
                     TestHelper.Assert(ki.Ki.Equals("KnownIntermediate.ki"));
-                    TestHelper.Assert(ki.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownIntermediate"));
+                    TestHelper.Assert(ki.GetType().FullName!.Equals(
+                        "ZeroC.Ice.Test.Slicing.Exceptions.KnownIntermediate"));
                 }
                 catch
                 {
