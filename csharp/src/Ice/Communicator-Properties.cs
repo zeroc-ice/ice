@@ -47,7 +47,7 @@ namespace ZeroC.Ice
 
         /// <summary>Gets the value of a property as a bool. If the property is not set, returns null.</summary>
         /// <param name="name">The property name.</param>
-        /// <returns>True if the property value is the "1" or "True"; false if "0" or "False". Strings are
+        /// <returns>True if the property value is the "1" or "True", false if "0" or "False", or null. Values are
         /// case-insensitive.</returns>
         public bool? GetPropertyAsBool(string name)
         {
