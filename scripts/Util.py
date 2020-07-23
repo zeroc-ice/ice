@@ -551,8 +551,8 @@ class Mapping(object):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["config=", "platform=", "transport=", "target=", "compress", "ipv6", "no-ipv6", "serialize",
-                         "mx", "cprops=", "sprops="])
+            return ("", ["config=", "platform=", "transport=", "protocol=", "target=", "compress", "ipv6", "no-ipv6",
+                         "serialize", "mx", "cprops=", "sprops="])
 
         @classmethod
         def usage(self):
@@ -563,6 +563,7 @@ class Mapping(object):
             print("")
             print("Mapping options:")
             print("--transport=<value>   Run with the given transport.")
+            print("--protocol=<value>    Run with the given protocol.")
             print("--compress            Run the tests with protocol compression.")
             print("--ipv6                Use IPv6 addresses.")
             print("--serialize           Run with connection serialization.")
@@ -589,6 +590,7 @@ class Mapping(object):
 
             self.pathOverride = ""
             self.transport = "tcp"
+            self.protocol = "ice2"
             self.compress = False
             self.serialize = False
             self.ipv6 = False
@@ -720,7 +722,7 @@ class Mapping(object):
             # options that are set on the JS configuration.
             #
             clone = copy.copy(self)
-            for o in current.config.parsedOptions + ["transport"]:
+            for o in current.config.parsedOptions + ["transport", "protocol"]:
                 if o not in ["buildConfig", "buildPlatform"]:
                     setattr(clone, o, getattr(current.config, o))
             clone.parsedOptions = current.config.parsedOptions
@@ -735,6 +737,8 @@ class Mapping(object):
                 props["Ice.Warn.Connections"] = True
                 if self.transport:
                     props["Ice.Default.Transport"] = self.transport
+                if self.protocol:
+                    props["Ice.Default.Protocol"] = self.protocol
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:

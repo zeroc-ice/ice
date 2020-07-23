@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace ZeroC.Ice
@@ -34,6 +35,7 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count</summary>
         public int Size => Data.Count;
 
+        internal byte CompressionStatus { get; }
         internal ArraySegment<byte> Data { get; }
 
         /// <summary>Creates a new IncomingRequestFrame.</summary>
@@ -61,6 +63,7 @@ namespace ZeroC.Ice
             else
             {
                 // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
+                // TODO: read the compression status from the encapsulation data
             }
             Encoding = encoding;
         }
@@ -70,6 +73,15 @@ namespace ZeroC.Ice
         internal IncomingRequestFrame(OutgoingRequestFrame frame)
             : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data))
         {
+        }
+
+        internal IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, byte compressionStatus)
+            : this(protocol, data)
+        {
+            // IncomingRequestFrame with compression status is only supported with Ice1, compression is handled
+            // by the 2.0 encoding with Ice2.
+            Debug.Assert(protocol == Protocol.Ice1);
+            CompressionStatus = compressionStatus;
         }
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload

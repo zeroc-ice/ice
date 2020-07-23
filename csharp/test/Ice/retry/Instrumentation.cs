@@ -50,9 +50,9 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
 
-            public IRemoteObserver? GetRemoteObserver(Connection connection, int requestId, int size) => null;
+            public IRemoteObserver? GetRemoteObserver(Connection connection, long requestId, int size) => null;
 
-            public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, int i, int j) => null;
+            public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long i, int j) => null;
 
         }
 
@@ -72,7 +72,7 @@ namespace ZeroC.Ice.Test.Retry
             public IInvocationObserver? GetInvocationObserver(IObjectPrx? p, string o,
                 IReadOnlyDictionary<string, string> c) => _invocationObserver;
 
-            public IDispatchObserver? GetDispatchObserver(Current c, int requestId, int i) => null;
+            public IDispatchObserver? GetDispatchObserver(Current c, long requestId, int i) => null;
 
             public void SetObserverUpdater(IObserverUpdater? u)
             {

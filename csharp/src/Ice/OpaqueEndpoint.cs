@@ -96,7 +96,11 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
 
-        public override IAcceptor? GetAcceptor(string adapterName) => null;
+        public override Connection CreateConnection(IConnectionManager manager,
+                                                    ITransceiver? transceiver,
+                                                    IConnector? connector,
+                                                    string connectionId,
+                                                    ObjectAdapter? adapter) => null!;
         public override ITransceiver? GetTransceiver() => null;
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)

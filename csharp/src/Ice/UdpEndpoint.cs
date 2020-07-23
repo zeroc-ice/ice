@@ -131,7 +131,17 @@ namespace ZeroC.Ice
 
         public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
-        public override IAcceptor? GetAcceptor(string adapterName) => null;
+        public override Connection CreateConnection(
+             IConnectionManager manager,
+             ITransceiver? transceiver,
+             IConnector? connector,
+             string connectionId,
+             ObjectAdapter? adapter) => new UdpConnection(manager,
+                                                          this,
+                                                          new Ice1BinaryConnection(transceiver!, this, adapter),
+                                                          connector,
+                                                          connectionId,
+                                                          adapter);
 
         public override ITransceiver GetTransceiver() =>
             new UdpTransceiver(this, Communicator, Host, Port, McastInterface, _connect);

@@ -110,8 +110,20 @@ namespace ZeroC.Ice
         public override Endpoint NewTimeout(TimeSpan timeout) =>
             timeout == Timeout ? this : CreateIPEndpoint(Host, Port, HasCompressionFlag, timeout);
 
-        public override IAcceptor GetAcceptor(string adapterName) =>
-            new TcpAcceptor(this, Communicator, Host, Port, adapterName);
+       public override Connection CreateConnection(
+            IConnectionManager manager,
+            ITransceiver? transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter) =>
+            new TcpConnection(manager,
+                              this,
+                              Protocol == Protocol.Ice1 ? (IBinaryConnection)
+                                new Ice1BinaryConnection(transceiver!, this, adapter) :
+                                new SlicBinaryConnection(transceiver!, this, adapter),
+                              connector,
+                              connectionId,
+                              adapter);
         public override ITransceiver? GetTransceiver() => null;
 
         internal TcpEndpoint(
