@@ -479,7 +479,7 @@ namespace ZeroC.Ice
                 if (compressionLevel < 1 || compressionLevel > 9)
                 {
                     throw new InvalidConfigurationException(@$"invalid value for Ice.Compression.Level: `{
-                        compressionLevel}' it must be an integer between 1 and 9");
+                        compressionLevel}', it must be an integer between 1 and 9");
                 }
 
                 // TODO: switch to 0 default
