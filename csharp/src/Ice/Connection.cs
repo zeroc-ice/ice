@@ -158,7 +158,6 @@ namespace ZeroC.Ice
             new Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private ConnectionState _state; // The current state.
         private bool _validated;
-        private readonly bool _warn;
 
         /// <summary>Manually closes the connection using the specified closure mode.</summary>
         /// <param name="mode">Determines how the connection will be closed.</param>
@@ -288,7 +287,6 @@ namespace ZeroC.Ice
             Endpoint = endpoint;
             Endpoints = new List<Endpoint>() { endpoint };
             _adapter = adapter;
-            _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _dispatchCount = 0;
             _state = ConnectionState.Validating;
         }
@@ -593,13 +591,13 @@ namespace ZeroC.Ice
             }
         }
 
-        private async Task CloseAsync(Exception? exception)
+        private async Task CloseAsync(Exception exception)
         {
             lock (_mutex)
             {
                 if (_state < ConnectionState.Closed)
                 {
-                    SetState(ConnectionState.Closed, exception ?? _exception!);
+                    SetState(ConnectionState.Closed, exception);
                     if (_dispatchCount > 0)
                     {
                         _dispatchTaskCompletionSource ??= new TaskCompletionSource<bool>();
@@ -915,7 +913,7 @@ namespace ZeroC.Ice
                 _exception = exception;
 
                 // We don't warn if we are not validated.
-                if (_warn && _validated)
+                if (_communicator.WarnConnections && _validated)
                 {
                     // Don't warn about certain expected exceptions.
                     if (!(_exception is ConnectionClosedException ||

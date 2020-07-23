@@ -739,7 +739,7 @@ namespace ZeroC.Ice
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
             // Warn about unknown object adapter properties.
-            if (unknownProps.Count != 0 && (Communicator.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true))
+            if (unknownProps.Count != 0 && Communicator.WarnUnknownProperties)
             {
                 var message = new StringBuilder("found unknown properties for object adapter `");
                 message.Append(Name);

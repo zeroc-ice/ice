@@ -134,9 +134,9 @@ class Ice(Component):
             if current.config.ipv6 and testId in ["Ice/udp"]:
                 return False
 
-        # Only Ice/IceBox tests support running with the ice2 protocol for now
+        # Only IceGrid/Glacier2 tests don't support running with the ice2 protocol for now
         # TODO: remove once ice2 is supported with all the mappings
-        if not parent in ["Ice", "IceBox"]:
+        if parent in ["IceGrid", "Glacier2"]:
             return current.config.protocol == "ice1"
 
         return True

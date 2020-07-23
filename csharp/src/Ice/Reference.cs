@@ -1528,7 +1528,7 @@ namespace ZeroC.Ice
             if (propertyPrefix != null && propertyPrefix.Length > 0)
             {
                 // Warn about unknown properties.
-                if (communicator.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true)
+                if (communicator.WarnUnknownProperties)
                 {
                     communicator.CheckForUnknownProperties(propertyPrefix);
                 }
