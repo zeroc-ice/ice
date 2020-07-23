@@ -150,7 +150,7 @@ namespace ZeroC.Ice
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
         internal Acm ClientAcm { get; }
-        internal int FrameSizeMax { get; }
+        internal int IncomingFrameSizeMax { get; }
         internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
@@ -462,8 +462,8 @@ namespace ZeroC.Ice
                 ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
                 ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
 
-                int frameSizeMax = GetPropertyAsByteSize("Ice.MessageSizeMax") ?? 1024 * 1024;
-                FrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
+                int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
+                IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
                 // TODO: switch to 0 default
                 AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;

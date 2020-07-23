@@ -205,7 +205,7 @@ namespace ZeroC.Ice
             Endpoint = endpoint;
 
             _incoming = adapter != null;
-            _frameSizeMax = adapter?.FrameSizeMax ?? Endpoint.Communicator.FrameSizeMax;
+            _frameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             _sentCallback = _receivedCallback = _ => {};
             _heartbeatCallback = () => {};
         }
@@ -281,7 +281,7 @@ namespace ZeroC.Ice
 
             if (size > _frameSizeMax)
             {
-                throw new InvalidDataException($"frame with {size} bytes exceeds Ice.MessageSizeMax value");
+                throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
             }
 
             // Read the remainder of the frame if needed

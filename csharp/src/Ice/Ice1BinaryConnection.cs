@@ -17,7 +17,7 @@ namespace ZeroC.Ice
         public ITransceiver Transceiver { get; }
 
         private readonly int _compressionLevel;
-        private readonly int _frameSizeMax;
+        private readonly int _incomingFrameSizeMax;
         private Action? _heartbeatCallback;
         private readonly bool _incoming;
         private int _nextRequestId;
@@ -240,7 +240,7 @@ namespace ZeroC.Ice
             Endpoint = endpoint;
 
             _incoming = adapter != null;
-            _frameSizeMax = adapter?.FrameSizeMax ?? Endpoint.Communicator.FrameSizeMax;
+            _incomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             _warn = Endpoint.Communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = Endpoint.Communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
             _compressionLevel = Endpoint.Communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
@@ -264,7 +264,7 @@ namespace ZeroC.Ice
             {
                 if (BZip2.IsLoaded)
                 {
-                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, _frameSizeMax);
+                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, _incomingFrameSizeMax);
                 }
                 else
                 {
@@ -370,9 +370,9 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received ice1 frame with only {size} bytes");
             }
 
-            if (size > _frameSizeMax)
+            if (size > _incomingFrameSizeMax)
             {
-                throw new InvalidDataException($"frame with {size} bytes exceeds Ice.MessageSizeMax value");
+                throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
             }
 
             // Read the remainder of the frame if needed

@@ -39,7 +39,7 @@ namespace ZeroC.Ice
         /// <summary>Returns the TaskScheduler used to dispatch requests.</summary>
         public TaskScheduler? TaskScheduler { get; }
 
-        internal int FrameSizeMax { get; }
+        internal int IncomingFrameSizeMax { get; }
 
         private static readonly string[] _suffixes =
         {
@@ -788,8 +788,9 @@ namespace ZeroC.Ice
             _replicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
             _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
-            int frameSizeMax = Communicator.GetPropertyAsByteSize($"{Name}.MessageSizeMax") ?? Communicator.FrameSizeMax;
-            FrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
+            int frameSizeMax =
+                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
+            IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
             try
             {
