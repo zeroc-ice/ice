@@ -1042,8 +1042,8 @@ namespace ZeroC.Ice
                 "-t" => InvocationMode.Twoway,
                 "-o" => InvocationMode.Oneway,
                 "-d" => InvocationMode.Datagram,
-                "-O" => throw new NotSupportedException("batch oneway is not supported in ProxyOptions"),
-                "-D" => throw new NotSupportedException("batch datagram is not supported in ProxyOptions"),
+                "-O" => throw new NotSupportedException($"batch oneway is not supported in {Name}.ProxyOptions"),
+                "-D" => throw new NotSupportedException($"batch datagram is not supported in {Name}.ProxyOptions"),
                 _ => throw new InvalidConfigurationException($"cannot parse ProxyOptions {proxyOptions}")
             };
 

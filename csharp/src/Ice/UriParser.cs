@@ -176,6 +176,13 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
+        /// <summary>Creates a Uri and parses its query.</summary>
+        /// <param name="uriString">The string to parse.</param>
+        /// <param name="pureEndpoints">When true, the string represents one or more endpoints, and proxy options are
+        /// not allowed in the query.</param>
+        /// <param name="endpointOptions">A dictionary that accepts the parsed endpoint options. Set to null when
+        /// parsing an ice URI (and in this case pureEndpoints must be false).</param>
+        /// <returns>The parsed URI, the alt-endpoint option (if set) and the ProxyOptions struct.</returns>
         private static (Uri Uri, string? AltEndpoint, ProxyOptions ProxyOptions) InitialParse(
             string uriString,
             bool pureEndpoints,
