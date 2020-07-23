@@ -78,6 +78,63 @@ namespace ZeroC.Ice.Test.Properties
             }
 
             {
+                Console.Out.Write("testing configuration properties as bool... ");
+                var boolProperties = new Dictionary<string, string>
+                {
+                    { "Bool.True.Integer", "1" },
+                    { "Bool.True.LowerCase", "true" },
+                    { "Bool.True.UpperCase", "TRUE" },
+                    { "Bool.True.InitialUpperCase", "True" },
+
+                    { "Bool.False.Integer", "0" },
+                    { "Bool.False.LowerCase", "false" },
+                    { "Bool.False.UpperCase", "FALSE" },
+                    { "Bool.False.InitialLowerCase", "False" },
+
+                    {"Bool.Bad.Integer", "2"},
+                    {"Bool.Bad.Empty", ""},
+                    {"Bool.Bad.NonTrueFalseWord", "hello"},
+                    {"Bool.Bad.Yes", "yes"}
+                };
+
+                await using var communicator = new Communicator(boolProperties);
+
+                {
+                    var value = communicator.GetPropertyAsBool("Bool.True.Integer");
+                    Assert(value == true);
+                    value = communicator.GetPropertyAsBool("Bool.True.LowerCase");
+                    Assert(value == true);
+                    value = communicator.GetPropertyAsBool("Bool.True.UpperCase");
+                    Assert(value == true);
+                    value = communicator.GetPropertyAsBool("Bool.True.InitialUpperCase");
+                    Assert(value == true);
+
+                    value = communicator.GetPropertyAsBool("Bool.False.Integer");
+                    Assert(value == false);
+                    value = communicator.GetPropertyAsBool("Bool.False.LowerCase");
+                    Assert(value == false);
+                    value = communicator.GetPropertyAsBool("Bool.False.UpperCase");
+                    Assert(value == false);
+                    value = communicator.GetPropertyAsBool("Bool.False.InitialLowerCase");
+                    Assert(value == false);
+                }
+
+                foreach (string property in communicator.GetProperties("Bool.Bad").Keys)
+                {
+                    try
+                    {
+                        _ = communicator.GetPropertyAsBool(property);
+                        Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+                }
+
+                Console.Out.WriteLine("ok");
+            }
+
+            {
                 Console.Out.Write("testing configuration properties as TimeSpan... ");
                 var timeSpanProperties = new Dictionary<string, string>
                 {
