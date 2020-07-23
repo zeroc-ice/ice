@@ -160,9 +160,10 @@ namespace ZeroC.Ice
         internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
-
         internal bool WarnConnections { get; }
         internal bool WarnDatagrams { get; }
+        internal bool WarnDispatch { get; }
+        internal bool WarnUnknownProperties { get; }
 
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
@@ -471,6 +472,9 @@ namespace ZeroC.Ice
 
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
                 WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
+                WarnDispatch = GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
+                WarnUnknownProperties = GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
+
                 int compressionLevel = GetPropertyAsInt("Ice.Compression.Level") ?? 1;
                 if (compressionLevel < 1 || compressionLevel > 9)
                 {
