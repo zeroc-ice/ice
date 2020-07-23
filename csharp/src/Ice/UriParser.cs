@@ -31,7 +31,7 @@ namespace ZeroC.Ice
             GenericUriParserOptions.IriParsing |
             GenericUriParserOptions.NoUserInfo;
 
-        /// <summary>Checks if a string is an ice+transport URI, and not a endpoint string using the ice1 string
+        /// <summary>Checks if a string is an ice+transport URI, and not an endpoint string using the ice1 string
         /// format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice+transport URI; otherwise, false.</returns>

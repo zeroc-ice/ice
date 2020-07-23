@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 Protocol.Ice1 => Encoding.V1_1,
                 Protocol.Ice2 => Encoding.V2_0,
                 _ => throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
-                }' is not supported by this Ice runtime ({Runtime.StringVersion})")
+                    }' is not supported by this Ice runtime ({Runtime.StringVersion})")
             };
 
         /// <summary>Returns the name of this protocol in lowercase, e.g. "ice1" or "ice2".</summary>

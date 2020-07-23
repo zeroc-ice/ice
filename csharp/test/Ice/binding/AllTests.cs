@@ -735,10 +735,10 @@ namespace ZeroC.Ice.Test.Binding
                 output.Flush();
                 {
                     var adapters = new List<IRemoteObjectAdapterPrx>
-                {
-                    com.CreateObjectAdapter("Adapter71", "default"),
-                    com.CreateObjectAdapter("Adapter72", "udp")
-                };
+                    {
+                        com.CreateObjectAdapter("Adapter71", "default"),
+                        com.CreateObjectAdapter("Adapter72", "udp")
+                    };
 
                     ITestIntfPrx obj = CreateTestIntfPrx(adapters);
                     TestHelper.Assert(obj.GetAdapterName().Equals("Adapter71"));
