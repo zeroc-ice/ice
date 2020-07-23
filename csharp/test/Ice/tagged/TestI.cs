@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Tagged
                                         OneTagged? o,
                                         Current current)
         {
-            RequiredException e = new RequiredException();
+            var e = new RequiredException();
             e.A = a;
             e.B = b;
             e.O = o;

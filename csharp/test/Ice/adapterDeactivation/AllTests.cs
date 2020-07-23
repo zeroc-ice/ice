@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.IO;
 using System.Linq;
 using Test;
 
@@ -10,12 +11,12 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public class AllTests
     {
-        public static ITestIntfPrx allTests(TestHelper helper)
+        public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             bool oldProtocol = communicator.DefaultProtocol == Protocol.Ice1;
-            var output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
             var baseprx = IObjectPrx.Parse(helper.GetTestProxy("test", 0), communicator);
@@ -73,9 +74,9 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Flush();
             {
                 communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
-                var adapter = communicator.CreateObjectAdapter("PAdapter");
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("PAdapter");
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
-                var endpt = adapter.GetPublishedEndpoints()[0];
+                Endpoint? endpt = adapter.GetPublishedEndpoints()[0];
                 TestHelper.Assert(endpt != null);
                 if (oldProtocol)
                 {
@@ -118,7 +119,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             {
                 output.Write("testing object adapter with bi-dir connection... ");
                 output.Flush();
-                var adapter = communicator.CreateObjectAdapter();
+                ObjectAdapter adapter = communicator.CreateObjectAdapter();
                 connection.Adapter = adapter;
                 connection.Adapter = null;
                 adapter.Dispose();
@@ -131,8 +132,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Flush();
             {
                 var routerId = new Identity("router", "");
-                var router = baseprx.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
-                var adapter = communicator.CreateObjectAdapterWithRouter(router);
+                IRouterPrx router = baseprx.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
+                ObjectAdapter adapter = communicator.CreateObjectAdapterWithRouter(router);
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 string endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
                 if (oldProtocol)
@@ -193,7 +194,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Write("testing object adapter creation with port in use... ");
             output.Flush();
             {
-                var adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1", helper.GetTestEndpoint(10));
+                ObjectAdapter adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1", helper.GetTestEndpoint(10));
                 try
                 {
                     communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.GetTestEndpoint(10));

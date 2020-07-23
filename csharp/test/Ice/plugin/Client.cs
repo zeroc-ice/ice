@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Write("testing plug-in load order... ");
                 Console.Out.Flush();
 
-                using var communicator = Initialize(new Dictionary<string, string>()
+                using Communicator communicator = Initialize(new Dictionary<string, string>()
                 {
                     { "Ice.Plugin.PluginOne", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFactory" },
                     { "Ice.Plugin.PluginTwo", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginTwoFactory" },
@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.Plugin
 
                 MyPlugin p4;
                 {
-                    using var communicator = Initialize(new Dictionary<string, string>()
+                    using Communicator communicator = Initialize(new Dictionary<string, string>()
                     {
                         { "Ice.Plugin.PluginOne", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFactory" },
                         { "Ice.Plugin.PluginTwo", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginTwoFactory" },
@@ -91,9 +91,9 @@ namespace ZeroC.Ice.Test.Plugin
 
                     communicator.InitializePlugins();
 
-                    Assert(p4.isInitialized());
+                    Assert(p4.IsInitialized());
                 }
-                Assert(p4.isDestroyed());
+                Assert(p4.IsDestroyed());
                 Console.WriteLine("ok");
             }
 
@@ -120,9 +120,12 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class MyPlugin : IPlugin
         {
-            public bool isInitialized() => _initialized;
+            private bool _destroyed;
+            private bool _initialized;
 
-            public bool isDestroyed() => _destroyed;
+            public bool IsInitialized() => _initialized;
+
+            public bool IsDestroyed() => _destroyed;
 
             public void Initialize() => _initialized = true;
 
@@ -131,9 +134,6 @@ namespace ZeroC.Ice.Test.Plugin
                 _destroyed = true;
                 return new ValueTask(Task.CompletedTask);
             }
-
-            private bool _initialized = false;
-            private bool _destroyed = false;
         }
     }
 }

@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Timeout
@@ -11,7 +12,7 @@ namespace ZeroC.Ice.Test.Timeout
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
 
             // This test kills connections, so we don't want warnings.
             properties["Ice.Warn.Connections"] = "0";
@@ -28,12 +29,12 @@ namespace ZeroC.Ice.Test.Timeout
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
-            var adapter = communicator.CreateObjectAdapter("TestAdapter",
-                                                           taskScheduler: schedulerPair.ExclusiveScheduler);
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter",
+                                                                      taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter.Add("timeout", new Timeout());
             adapter.Activate();
 
-            var controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
+            ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
             controllerAdapter.Activate();
 

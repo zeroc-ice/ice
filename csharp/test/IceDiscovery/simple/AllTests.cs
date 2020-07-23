@@ -4,17 +4,17 @@
 
 using System;
 using System.Collections.Generic;
-using ZeroC.Ice;
+using System.IO;
 using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery.Test.Simple
 {
     public class AllTests
     {
-        public static void
-        allTests(TestHelper helper, int num)
+        public static void Run(TestHelper helper, int num)
         {
-            var output = helper.GetWriter();
+            TextWriter output = helper.GetWriter();
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             var proxies = new List<IControllerPrx>();
@@ -156,10 +156,12 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
                 IObjectPrx.Parse(ice1 ? "object @ rg" : "ice:rg//object", communicator).IcePing();
 
-                List<string> adapterIds = new List<string>();
-                adapterIds.Add("oa1");
-                adapterIds.Add("oa2");
-                adapterIds.Add("oa3");
+                var adapterIds = new List<string>
+                {
+                    "oa1",
+                    "oa2",
+                    "oa3"
+                };
                 ITestIntfPrx intf = ITestIntfPrx.Parse(ice1 ? "object" : "ice:object", communicator).Clone(
                     cacheConnection: false,
                     locatorCacheTimeout: TimeSpan.Zero);
@@ -219,7 +221,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 }
 
                 {
-                    var properties = communicator.GetProperties();
+                    Dictionary<string, string> properties = communicator.GetProperties();
                     properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                     using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
@@ -233,7 +235,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                     }
                 }
                 {
-                    var properties = communicator.GetProperties();
+                    Dictionary<string, string> properties = communicator.GetProperties();
                     string intf = communicator.GetProperty("IceDiscovery.Interface") ?? "";
                     if (intf.Length > 0)
                     {

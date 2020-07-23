@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public class Twoways
     {
-        internal static void twoways(TestHelper helper, IMyClassPrx p)
+        internal static void Run(TestHelper helper, IMyClassPrx p)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -836,9 +836,11 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-                di1[10] = true;
-                di1[100] = false;
+                var di1 = new Dictionary<byte, bool>
+                {
+                    [10] = true,
+                    [100] = false
+                };
                 Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
                 di2[10] = true;
                 di2[11] = false;

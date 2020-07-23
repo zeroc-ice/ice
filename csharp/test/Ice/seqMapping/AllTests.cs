@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             {
                 output.Write("testing twoway operations with AMI... ");
                 output.Flush();
-                TwowaysAMI.twowaysAMI(communicator, cl);
+                TwowaysAMI.Run(communicator, cl);
                 output.WriteLine("ok");
             }
             return cl;

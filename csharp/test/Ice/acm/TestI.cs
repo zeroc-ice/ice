@@ -4,6 +4,7 @@
 
 using Test;
 using System;
+using System.Threading;
 
 namespace ZeroC.Ice.Test.ACM
 {
@@ -41,6 +42,9 @@ namespace ZeroC.Ice.Test.ACM
 
     public class RemoteObjectAdapter : IRemoteObjectAdapter
     {
+        private readonly ObjectAdapter _adapter;
+        private readonly ITestIntfPrx _testIntf;
+
         public RemoteObjectAdapter(ObjectAdapter adapter)
         {
             _adapter = adapter;
@@ -51,19 +55,17 @@ namespace ZeroC.Ice.Test.ACM
         public ITestIntfPrx GetTestIntf(Current current) => _testIntf;
 
         public void Deactivate(Current current) => _adapter.Dispose();
-
-        private readonly ObjectAdapter _adapter;
-        private readonly ITestIntfPrx _testIntf;
     }
 
     public class TestIntf : ITestIntf
     {
+        private HeartbeatCallback? _callback;
         private readonly object _mutex = new object();
         public void Sleep(int delay, Current current)
         {
             lock (_mutex)
             {
-                System.Threading.Monitor.Wait(_mutex, TimeSpan.FromSeconds(delay));
+                Monitor.Wait(_mutex, TimeSpan.FromSeconds(delay));
             }
         }
 
@@ -71,19 +73,21 @@ namespace ZeroC.Ice.Test.ACM
         {
             lock (_mutex)
             {
-                System.Threading.Monitor.PulseAll(_mutex);
+                Monitor.PulseAll(_mutex);
             }
         }
 
-        public class HeartbeatCallbackI
+        public class HeartbeatCallback
         {
+            private int _count;
             private readonly object _mutex = new object();
+
             public void Heartbeat()
             {
                 lock (_mutex)
                 {
                     ++_count;
-                    System.Threading.Monitor.PulseAll(_mutex);
+                    Monitor.PulseAll(_mutex);
                 }
             }
 
@@ -93,17 +97,15 @@ namespace ZeroC.Ice.Test.ACM
                 {
                     while (_count < count)
                     {
-                        System.Threading.Monitor.Wait(_mutex);
+                        Monitor.Wait(_mutex);
                     }
                 }
             }
-
-            private int _count = 0;
         }
 
         public void StartHeartbeatCount(Current current)
         {
-            _callback = new HeartbeatCallbackI();
+            _callback = new HeartbeatCallback();
             current.Connection!.HeartbeatReceived += (sender, args) => _callback.Heartbeat();
         }
 
@@ -112,7 +114,5 @@ namespace ZeroC.Ice.Test.ACM
             TestHelper.Assert(_callback != null);
             _callback.WaitForCount(count);
         }
-
-        private HeartbeatCallbackI? _callback;
     }
 }

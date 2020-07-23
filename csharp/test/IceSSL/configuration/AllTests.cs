@@ -39,15 +39,14 @@ namespace ZeroC.IceSSL.Test.Configuration
         private static bool IsCatalinaOrGreater =>
             AssemblyUtil.IsMacOS && Environment.OSVersion.Version.Major >= 19;
 
-        private static X509Certificate2 createCertificate(string certPEM) =>
+        private static X509Certificate2 CreateCertificate(string certPEM) =>
             new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
 
         private static Dictionary<string, string>
         CreateProperties(Dictionary<string, string> defaultProperties, string? cert = null, string? ca = null)
         {
             var properties = new Dictionary<string, string>(defaultProperties);
-            string? value;
-            if (defaultProperties.TryGetValue("IceSSL.DefaultDir", out value))
+            if (defaultProperties.TryGetValue("IceSSL.DefaultDir", out string? value))
             {
                 properties["IceSSL.DefaultDir"] = value;
             }
@@ -79,7 +78,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             return properties;
         }
 
-        public static IServerFactoryPrx allTests(TestHelper helper, string testDir)
+        public static IServerFactoryPrx Run(TestHelper helper, string testDir)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -92,27 +91,23 @@ namespace ZeroC.IceSSL.Test.Configuration
             Dictionary<string, string> defaultProperties = communicator.GetProperties();
             defaultProperties["IceSSL.DefaultDir"] = defaultDir;
 
+            // Load the CA certificates. We could use the IceSSL.ImportCert property, but it would be nice to remove
+            // the CA certificates when the test finishes, so this test manually installs the certificates in the
+            // LocalMachine:AuthRoot store.
             //
-            // Load the CA certificates. We could use the IceSSL.ImportCert property, but
-            // it would be nice to remove the CA certificates when the test finishes, so
-            // this test manually installs the certificates in the LocalMachine:AuthRoot
-            // store.
-            //
-            // Note that the client and server are assumed to run on the same machine,
-            // so the certificates installed by the client are also available to the
-            // server.
-            //
+            // Note that the client and server are assumed to run on the same machine, so the certificates installed
+            // by the client are also available to the server.
             string caCert1File = defaultDir + "/cacert1.pem";
             string caCert2File = defaultDir + "/cacert2.pem";
-            X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
-            X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
+            var caCert1 = new X509Certificate2(caCert1File);
+            var caCert2 = new X509Certificate2(caCert2File);
 
-            TestHelper.Assert(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert1File)).RawData,
+            TestHelper.Assert(Enumerable.SequenceEqual(CreateCertificate(File.ReadAllText(caCert1File)).RawData,
                 caCert1.RawData));
-            TestHelper.Assert(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert2File)).RawData,
+            TestHelper.Assert(Enumerable.SequenceEqual(CreateCertificate(File.ReadAllText(caCert2File)).RawData,
                 caCert2.RawData));
 
-            X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
+            var store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
             bool isAdministrator = false;
             if (AssemblyUtil.IsWindows)
             {
@@ -405,7 +400,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    var server = fact.CreateServer(serverProperties, false);
+                    IServerPrx? server = fact.CreateServer(serverProperties, false);
                     try
                     {
                         server!.NoCert();
@@ -423,7 +418,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -447,7 +442,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.VerifyPeer"] = "2";
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     try
                     {
                         var clientCert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
@@ -467,7 +462,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    var server = fact.CreateServer(serverProperties, false);
+                    IServerPrx? server = fact.CreateServer(serverProperties, false);
                     try
                     {
                         server!.IcePing();
@@ -491,7 +486,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -516,7 +511,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "cacert2");
-                    var server = fact.CreateServer(serverProperties, false);
+                    IServerPrx? server = fact.CreateServer(serverProperties, false);
                     try
                     {
                         server!.IcePing();
@@ -538,7 +533,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "cacert2");
-                    var server = fact.CreateServer(serverProperties, false);
+                    IServerPrx? server = fact.CreateServer(serverProperties, false);
                     try
                     {
                         server!.IcePing();
@@ -563,8 +558,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                     if (defaultHost.Equals("127.0.0.1"))
                     {
                         // Test using localhost as target host.
-                        var props = new Dictionary<string, string>(defaultProperties);
-                        props["Ice.Default.Host"] = "localhost";
+                        var props = new Dictionary<string, string>(defaultProperties)
+                        {
+                            ["Ice.Default.Host"] = "localhost"
+                        };
 
                         // This must succeed, the target host matches the certificate DNS altName.
                         {
@@ -573,7 +570,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -593,7 +590,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -614,7 +611,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn3", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -635,7 +632,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn4", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -656,7 +653,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn5", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -732,16 +729,14 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
                             }
                             catch (TransportException ex)
                             {
-                                //
                                 // macOS catalina does not check the certificate common name
-                                //
                                 if (!AssemblyUtil.IsMacOS)
                                 {
                                     Console.WriteLine(ex.ToString());
@@ -751,16 +746,14 @@ namespace ZeroC.IceSSL.Test.Configuration
                             fact.DestroyServer(server);
                         }
 
-                        //
                         // Target host does not match the certificate DNS altName, connection should fail.
-                        //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                             using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            var server = fact.CreateServer(serverProperties, true);
+                            IServerPrx? server = fact.CreateServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -831,7 +824,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     TestHelper.Assert(server != null);
                     try
                     {
@@ -942,7 +935,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                            var server = fact.CreateServer(serverProperties, false);
+                            IServerPrx? server = fact.CreateServer(serverProperties, false);
                             try
                             {
                                 var tcpConnection = (TcpConnection)server!.GetConnection()!;
@@ -1024,7 +1017,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         });
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     try
                     {
                         TestHelper.Assert(server != null);
@@ -1080,7 +1073,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.Protocols"] = "tls1_2, tls1_3";
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
 
                     server!.IcePing();
                     fact.DestroyServer(server);
@@ -1094,7 +1087,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.Protocols"] = "tls1_2";
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     server!.IcePing();
 
                     fact.DestroyServer(server);
@@ -1109,9 +1102,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 Console.Out.Write("testing expired certificates... ");
                 Console.Out.Flush();
                 {
-                    //
                     // This should fail because the server's certificate is expired.
-                    //
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
@@ -1134,14 +1125,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.DestroyServer(server);
                 }
                 {
-                    //
                     // This should fail because the client's certificate is expired.
-                    //
                     clientProperties["IceSSL.CertFile"] = "c_rsa_ca1_exp.p12";
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    var server = fact.CreateServer(serverProperties, true);
+                    IServerPrx? server = fact.CreateServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1764,7 +1753,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                     using var comm = new Communicator(ref args, clientProperties);
-                    IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server"] = "CN=Server";
                     IServerPrx? server = fact.CreateServer(serverProperties, true);

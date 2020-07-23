@@ -13,6 +13,10 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class Plugin : IPlugin
         {
+            private readonly string[] _args;
+            private bool _destroyed;
+            private bool _initialized;
+
             public Plugin(string[] args) => _args = args;
 
             public void Initialize()
@@ -41,10 +45,6 @@ namespace ZeroC.Ice.Test.Plugin
                     Console.WriteLine("Plugin not destroyed");
                 }
             }
-
-            private bool _initialized = false;
-            private bool _destroyed = false;
-            private string[] _args;
         }
     }
 }
