@@ -599,7 +599,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (unknownProps.Count != 0 && (communicator.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true))
+            if (unknownProps.Count != 0 && communicator.WarnUnknownProperties)
             {
                 var message = new StringBuilder("found unknown IceMX properties for `");
                 message.Append(prefix[0..^1]);

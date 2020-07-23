@@ -16,7 +16,6 @@ namespace ZeroC.Ice
         public Endpoint Endpoint { get; }
         public ITransceiver Transceiver { get; }
 
-        private readonly int _compressionLevel;
         private readonly int _incomingFrameSizeMax;
         private Action? _heartbeatCallback;
         private readonly bool _incoming;
@@ -25,8 +24,6 @@ namespace ZeroC.Ice
         private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
         private Action<int>? _sentCallback;
-        private readonly bool _warn;
-        private readonly bool _warnUdp;
 
         private static readonly List<ArraySegment<byte>> _closeConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.CloseConnectionFrame };
@@ -241,18 +238,6 @@ namespace ZeroC.Ice
 
             _incoming = adapter != null;
             _incomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
-            _warn = Endpoint.Communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _warnUdp = Endpoint.Communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
-            _compressionLevel = Endpoint.Communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
-
-            if (_compressionLevel < 1)
-            {
-                _compressionLevel = 1;
-            }
-            else if (_compressionLevel > 9)
-            {
-                _compressionLevel = 9;
-            }
         }
 
         private (int, object?) ParseFrame(ArraySegment<byte> readBuffer)
@@ -279,7 +264,7 @@ namespace ZeroC.Ice
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
                     if (Endpoint.IsDatagram)
                     {
-                        if (_warn)
+                        if (Endpoint.Communicator.WarnConnections)
                         {
                             Endpoint.Communicator.Logger.Warning(
                                 $"ignoring close connection frame for datagram connection:\n{this}");
@@ -404,7 +389,7 @@ namespace ZeroC.Ice
             }
             else if (size > readBuffer.Count)
             {
-                if (_warnUdp)
+                if (Endpoint.Communicator.WarnDatagrams)
                 {
                     Endpoint.Communicator.Logger.Warning($"maximum datagram size of {readBuffer.Count} exceeded");
                 }
@@ -446,7 +431,10 @@ namespace ZeroC.Ice
                 List<ArraySegment<byte>>? compressed = null;
                 if (size >= 100)
                 {
-                    compressed = BZip2.Compress(writeBuffer, size, Ice1Definitions.HeaderSize, _compressionLevel);
+                    compressed = BZip2.Compress(writeBuffer,
+                                                size,
+                                                Ice1Definitions.HeaderSize,
+                                                Endpoint.Communicator.CompressionLevel);
                 }
 
                 if (compressed != null)
