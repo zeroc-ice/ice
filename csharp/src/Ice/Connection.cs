@@ -593,13 +593,13 @@ namespace ZeroC.Ice
             }
         }
 
-        private async Task CloseAsync(Exception? exception)
+        private async Task CloseAsync(Exception exception)
         {
             lock (_mutex)
             {
                 if (_state < ConnectionState.Closed)
                 {
-                    SetState(ConnectionState.Closed, exception ?? _exception!);
+                    SetState(ConnectionState.Closed, exception);
                     if (_dispatchCount > 0)
                     {
                         _dispatchTaskCompletionSource ??= new TaskCompletionSource<bool>();
