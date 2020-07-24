@@ -11,11 +11,10 @@ using System.Linq;
 namespace ZeroC.Ice
 {
 
-    /// <summary>Provides helper methods to parse and print URI strings that comply with the ice and ice+transport
-    /// URI schemes.</summary>
+    /// <summary>Provides helper methods to parse proxy and endpoint strings in the URI format.</summary>
     internal static class UriParser
     {
-        /// <summary>Provides the proxy options parsed by the UriParser.</summary>
+        /// <summary>The proxy options parsed by the UriParser.</summary>
         internal struct ProxyOptions
         {
             // TODO: add more proxy options
@@ -23,7 +22,7 @@ namespace ZeroC.Ice
             internal Protocol? Protocol;
         }
 
-        // Common options for the ice and ice[+transport] parsers we register for each transport.
+        // Common options for the generic URI parsers registered for the ice and ice+transport schemes.
         private const GenericUriParserOptions ParserOptions =
             GenericUriParserOptions.DontConvertPathBackslashes |
             GenericUriParserOptions.DontUnescapePathDotsAndSlashes |

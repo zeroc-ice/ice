@@ -675,7 +675,7 @@ namespace ZeroC.Ice
                     }
 
                     string es = s[beg..end];
-                    endpoints.Add(Endpoint.Parse(es, Protocol.Ice1, communicator, false));
+                    endpoints.Add(Ice1Parser.ParseEndpoint(es, communicator, false));
                 }
 
                 Debug.Assert(endpoints.Count > 0);
