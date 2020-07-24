@@ -104,54 +104,47 @@ namespace ZeroC.Ice.Test.UDP
             }
             TestHelper.Assert(ret == true);
 
-            if (!(communicator.GetPropertyAsBool("Ice.Override.Compress") ?? false))
+            byte[] seq = new byte[1024];
+            try
             {
-                //
-                // Only run this test if compression is disabled, the test expect fixed message size
-                // to be sent over the wire.
-                //
-                byte[] seq = new byte[1024];
-                try
+                while (true)
                 {
-                    while (true)
-                    {
-                        seq = new byte[(seq.Length * 2) + 10];
-                        replyI.Reset();
-                        obj.SendByteSeq(seq, reply);
-                        replyI.WaitReply(1, TimeSpan.FromSeconds(10));
-                    }
-                }
-                catch (DatagramLimitException)
-                {
-                    //
-                    // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-                    // will be throw when try to send a packet bigger than that.
-                    //
-                    TestHelper.Assert(seq.Length > 16384);
-                }
-                obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-                communicator.SetProperty("Ice.UDP.SndSize", "64K");
-                seq = new byte[50000];
-                try
-                {
+                    seq = new byte[(seq.Length * 2) + 10];
                     replyI.Reset();
                     obj.SendByteSeq(seq, reply);
+                    replyI.WaitReply(1, TimeSpan.FromSeconds(10));
+                }
+            }
+            catch (DatagramLimitException)
+            {
+                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
+                // will be throw when try to send a packet bigger than that.
+                //
+                TestHelper.Assert(seq.Length > 16384);
+            }
+            obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+            communicator.SetProperty("Ice.UDP.SndSize", "64K");
+            seq = new byte[50000];
+            try
+            {
+                replyI.Reset();
+                obj.SendByteSeq(seq, reply);
 
-                    bool b = replyI.WaitReply(1, TimeSpan.FromMilliseconds(500));
-                    //
-                    // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                    // should not be delivered.
-                    //
-                    TestHelper.Assert(!b);
-                }
-                catch (DatagramLimitException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    Console.Out.WriteLine(ex);
-                    TestHelper.Assert(false);
-                }
+                bool b = replyI.WaitReply(1, TimeSpan.FromMilliseconds(500));
+                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
+                // should not be delivered.
+                //
+                TestHelper.Assert(!b);
+            }
+            catch (DatagramLimitException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Console.Out.WriteLine(ex);
+                TestHelper.Assert(false);
             }
 
             Console.Out.WriteLine("ok");
