@@ -641,8 +641,6 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointTransport", transportName, output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
-                TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "60000", output);
-                TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False", output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", host, output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", port, output);
 
@@ -721,9 +719,6 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
                             c, output);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
-                            c, output);
-                TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c, output);
-                TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
                             c, output);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", port, c, output);
@@ -808,8 +803,6 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTransport", transportName, c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);
-                TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "60000", c, output);
-                TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "False", c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port, c, output);
 
@@ -924,8 +917,6 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTransport", transportName, op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op, output);
-                TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op, output);
-                TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "False", op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", host, op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", port, op, output);
 

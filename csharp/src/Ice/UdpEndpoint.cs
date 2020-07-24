@@ -14,8 +14,6 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the UDP transport.</summary>
     internal sealed class UdpEndpoint : IPEndpoint
     {
-        // We cannot move HasCompressionFlag to IPEndpoint because of it's marshaled after the timeout in TcpEndpoint
-        public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => true;
 
         public override string? this[string option] =>
@@ -35,6 +33,7 @@ namespace ZeroC.Ice
         internal int McastTtl { get; } = -1;
 
         private readonly bool _connect;
+        private readonly bool _hasCompressionFlag;
         private int _hashCode;
 
         public override bool Equals(Endpoint? other)
@@ -44,7 +43,7 @@ namespace ZeroC.Ice
                 return true;
             }
             return other is UdpEndpoint udpEndpoint &&
-                HasCompressionFlag == udpEndpoint.HasCompressionFlag &&
+                _hasCompressionFlag == udpEndpoint._hasCompressionFlag &&
                 _connect == udpEndpoint._connect &&
                 McastInterface == udpEndpoint.McastInterface &&
                 McastTtl == udpEndpoint.McastTtl &&
@@ -64,7 +63,7 @@ namespace ZeroC.Ice
                 var hash = new HashCode();
                 hash.Add(base.GetHashCode());
                 hash.Add(_connect);
-                hash.Add(HasCompressionFlag);
+                hash.Add(_hasCompressionFlag);
                 hash.Add(McastInterface);
                 hash.Add(McastTtl);
                 int hashCode = hash.ToHashCode();
@@ -109,7 +108,7 @@ namespace ZeroC.Ice
                 sb.Append(" -c");
             }
 
-            if (HasCompressionFlag)
+            if (_hasCompressionFlag)
             {
                 sb.Append(" -z");
             }
@@ -121,15 +120,13 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 base.WriteOptions(ostr);
-                ostr.WriteBool(HasCompressionFlag);
+                ostr.WriteBool(_hasCompressionFlag);
             }
             else
             {
                 ostr.WriteSize(0);
             }
         }
-
-        public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
         public override Connection CreateConnection(
              IConnectionManager manager,
@@ -161,7 +158,7 @@ namespace ZeroC.Ice
             McastInterface = mcastInterface;
             McastTtl = mttl;
             _connect = connect;
-            HasCompressionFlag = compressionFlag;
+            _hasCompressionFlag = compressionFlag;
         }
 
         // Constructor for unmarshaling.
@@ -172,7 +169,7 @@ namespace ZeroC.Ice
             _connect = false;
             if (protocol == Protocol.Ice1)
             {
-                HasCompressionFlag = istr.ReadBool();
+                _hasCompressionFlag = istr.ReadBool();
             }
             else
             {
@@ -206,7 +203,7 @@ namespace ZeroC.Ice
                     throw new FormatException(
                         $"unexpected argument `{argument}' provided for -z option in `{endpointString}'");
                 }
-                HasCompressionFlag = true;
+                _hasCompressionFlag = true;
                 options.Remove("-z");
             }
 
@@ -255,11 +252,7 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
             new UdpConnector(this, addr);
 
-        private protected override IPEndpoint CreateIPEndpoint(
-            string host,
-            ushort port,
-            bool compressionFlag,
-            TimeSpan timeout) =>
+        private protected override IPEndpoint CloneWithHostAndPort(string host, ushort port) =>
             new UdpEndpoint(Communicator,
                             Protocol,
                             host,
@@ -268,6 +261,6 @@ namespace ZeroC.Ice
                             McastInterface,
                             McastTtl,
                             _connect,
-                            compressionFlag);
+                            _hasCompressionFlag);
     }
 }

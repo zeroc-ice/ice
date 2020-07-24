@@ -195,19 +195,15 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override IPEndpoint CreateIPEndpoint(
-            string host,
-            ushort port,
-            bool compressionFlag,
-            TimeSpan timeout) =>
+        private protected override IPEndpoint CloneWithHostAndPort(string host, ushort port) =>
             new WSEndpoint(Communicator,
                            Protocol,
                            Transport,
                            host,
                            port,
                            SourceAddress,
-                           timeout,
-                           compressionFlag,
+                           Timeout,
+                           HasCompressionFlag,
                            _resource);
 
         internal override ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)

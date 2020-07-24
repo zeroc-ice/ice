@@ -39,11 +39,6 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.Host == "tcphost");
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
                 TestHelper.Assert(tcpEndpoint["source-address"] == "10.10.10.10");
-                if (ice1)
-                {
-                    TestHelper.Assert(tcpEndpoint["timeout"] == "1200");
-                    TestHelper.Assert(tcpEndpoint["compress"] == "true");
-                }
                 TestHelper.Assert(!tcpEndpoint.IsDatagram);
 
                 if (ice1)
@@ -54,8 +49,6 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(udpEndpoint["interface"] == "eth0");
                     TestHelper.Assert(udpEndpoint["ttl"] == "5");
                     TestHelper.Assert(udpEndpoint["source-address"] == "10.10.10.10");
-                    TestHelper.Assert(udpEndpoint["timeout"] == null);
-                    TestHelper.Assert(udpEndpoint["compress"] == null);
                     TestHelper.Assert(!udpEndpoint.IsSecure);
                     TestHelper.Assert(udpEndpoint.IsDatagram);
                     TestHelper.Assert(udpEndpoint.Transport == Transport.UDP);
@@ -96,7 +89,6 @@ namespace ZeroC.Ice.Test.Info
 
                 TestHelper.Assert(tcpEndpoint.Host == host);
                 TestHelper.Assert(tcpEndpoint.Port > 0);
-                TestHelper.Assert(tcpEndpoint.Timeout == TimeSpan.FromMilliseconds(15000));
 
                 Endpoint udpEndpoint = endpoints[1];
                 TestHelper.Assert(udpEndpoint.Host == host);
@@ -155,13 +147,10 @@ namespace ZeroC.Ice.Test.Info
             {
                 Endpoint tcpEndpoint = testIntf.GetConnection()!.Endpoint;
                 TestHelper.Assert(tcpEndpoint.Port == endpointPort);
-
-                TestHelper.Assert(tcpEndpoint["compress"] == null);
                 TestHelper.Assert(tcpEndpoint.Host == defaultHost);
 
                 Dictionary<string, string> ctx = testIntf.GetEndpointInfoAsContext();
                 TestHelper.Assert(ctx["host"] == tcpEndpoint.Host);
-                TestHelper.Assert(ctx["compress"] == "false");
                 int port = int.Parse(ctx["port"]);
                 TestHelper.Assert(port > 0);
 

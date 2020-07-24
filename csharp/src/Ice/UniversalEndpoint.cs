@@ -80,9 +80,6 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint) => false;
 
-        public override Endpoint NewTimeout(TimeSpan t) => this;
-        public override Endpoint NewCompressionFlag(bool compress) => this;
-
         public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 

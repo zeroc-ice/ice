@@ -84,9 +84,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
-            compressionFlag == HasCompressionFlag ? this : CreateIPEndpoint(Host, Port, compressionFlag, Timeout);
-
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
             Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
@@ -148,10 +145,8 @@ namespace ZeroC.Ice
             }
             else
             {
-                return addresses.Select(address => CreateIPEndpoint(Network.EndpointAddressToString(address),
-                                                                    Network.EndpointPort(address),
-                                                                    HasCompressionFlag,
-                                                                    Timeout));
+                return addresses.Select(address => CloneWithHostAndPort(Network.EndpointAddressToString(address),
+                                                                        Network.EndpointPort(address)));
             }
         }
 
@@ -164,7 +159,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => CreateIPEndpoint(host, Port, HasCompressionFlag, Timeout));
+                return hosts.Select(host => CloneWithHostAndPort(host, Port));
             }
         }
 
@@ -221,7 +216,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return CreateIPEndpoint(Host, port, HasCompressionFlag, Timeout);
+                return CloneWithHostAndPort(Host, port);
             }
         }
 
@@ -356,11 +351,6 @@ namespace ZeroC.Ice
 
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
-        // TODO: rename to Clone and make parameters optional?
-        private protected abstract IPEndpoint CreateIPEndpoint(
-            string host,
-            ushort port,
-            bool compressionFlag,
-            TimeSpan timeout);
+        private protected abstract IPEndpoint CloneWithHostAndPort(string host, ushort port);
     }
 }

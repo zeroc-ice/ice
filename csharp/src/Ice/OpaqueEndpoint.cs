@@ -19,8 +19,6 @@ namespace ZeroC.Ice
     /// </summary>
     internal sealed class OpaqueEndpoint : Endpoint
     {
-        public override bool HasCompressionFlag => false;
-
         public override string Host => "";
 
         public override string? this[string option] =>
@@ -81,9 +79,6 @@ namespace ZeroC.Ice
             Debug.Assert(false);
             throw new NotImplementedException("cannot write the options of an opaque endpoint");
         }
-
-        public override Endpoint NewTimeout(TimeSpan t) => this;
-        public override Endpoint NewCompressionFlag(bool compress) => this;
 
         public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());

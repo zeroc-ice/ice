@@ -13,11 +13,12 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the TCP transport.</summary>
     internal class TcpEndpoint : IPEndpoint
     {
-        public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => false;
         public override bool IsSecure => Transport == Transport.SSL;
-        public override TimeSpan Timeout { get; } = DefaultTimeout;
         public override Transport Transport { get; }
+
+        protected readonly bool HasCompressionFlag;
+        protected readonly TimeSpan Timeout = TimeSpan.FromSeconds(60);
 
         private int _hashCode;
 
@@ -106,9 +107,6 @@ namespace ZeroC.Ice
                 ostr.WriteSize(0); // empty sequence of options
             }
         }
-
-        public override Endpoint NewTimeout(TimeSpan timeout) =>
-            timeout == Timeout ? this : CreateIPEndpoint(Host, Port, HasCompressionFlag, timeout);
 
        public override Connection CreateConnection(
             IConnectionManager manager,
@@ -228,19 +226,15 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        private protected override IPEndpoint CreateIPEndpoint(
-            string host,
-            ushort port,
-            bool compressionFlag,
-            TimeSpan timeout) =>
+        private protected override IPEndpoint CloneWithHostAndPort(string host, ushort port) =>
             new TcpEndpoint(Communicator,
                             Transport,
                             Protocol,
                             host,
                             port,
                             SourceAddress,
-                            timeout,
-                            compressionFlag);
+                            Timeout,
+                            HasCompressionFlag);
 
         internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {
