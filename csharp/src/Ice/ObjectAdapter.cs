@@ -808,11 +808,8 @@ namespace ZeroC.Ice
                         else
                         {
                             Protocol = Protocol.Ice1;
-                            endpoints = ParseIce1Endpoints(value, true);
-                            if (Communicator.GetProperty($"{Name}.ProxyOptions") is string proxyOptions)
-                            {
-                                _invocationMode = ParseProxyOptions(proxyOptions);
-                            }
+                            endpoints = Ice1Parser.ParseEndpoints(value, communicator);
+                            _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
                         }
 
                         // TODO: Add support for QuicIncomingConnectionFactory and support for sharing the same
@@ -958,93 +955,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private IReadOnlyList<Endpoint> ParseIce1Endpoints(string endpts, bool oaEndpoints)
-        {
-            int beg;
-            int end = 0;
-
-            string delim = " \t\n\r";
-
-            var endpoints = new List<Endpoint>();
-            while (end < endpts.Length)
-            {
-                beg = StringUtil.FindFirstNotOf(endpts, delim, end);
-                if (beg == -1)
-                {
-                    if (endpoints.Count != 0)
-                    {
-                        throw new FormatException("invalid empty object adapter endpoint");
-                    }
-                    break;
-                }
-
-                end = beg;
-                while (true)
-                {
-                    end = endpts.IndexOf(':', end);
-                    if (end == -1)
-                    {
-                        end = endpts.Length;
-                        break;
-                    }
-                    else
-                    {
-                        bool quoted = false;
-                        int quote = beg;
-                        while (true)
-                        {
-                            quote = endpts.IndexOf('\"', quote);
-                            if (quote == -1 || end < quote)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                quote = endpts.IndexOf('\"', ++quote);
-                                if (quote == -1)
-                                {
-                                    break;
-                                }
-                                else if (end < quote)
-                                {
-                                    quoted = true;
-                                    break;
-                                }
-                                ++quote;
-                            }
-                        }
-                        if (!quoted)
-                        {
-                            break;
-                        }
-                        ++end;
-                    }
-                }
-
-                if (end == beg)
-                {
-                    throw new FormatException("invalid empty object adapter endpoint");
-                }
-
-                string s = endpts[beg..end];
-                endpoints.Add(Ice1Parser.ParseEndpoint(s, Communicator, oaEndpoints));
-                ++end;
-            }
-
-            return endpoints;
-        }
-
-        private InvocationMode ParseProxyOptions(string proxyOptions) =>
-            proxyOptions.Trim() switch
-            {
-                "-t" => InvocationMode.Twoway,
-                "-o" => InvocationMode.Oneway,
-                "-d" => InvocationMode.Datagram,
-                "-O" => throw new NotSupportedException($"batch oneway is not supported in {Name}.ProxyOptions"),
-                "-D" => throw new NotSupportedException($"batch datagram is not supported in {Name}.ProxyOptions"),
-                _ => throw new InvalidConfigurationException($"cannot parse ProxyOptions {proxyOptions}")
-            };
-
         private async Task<IReadOnlyList<Endpoint>> ComputePublishedEndpointsAsync()
         {
             IReadOnlyList<Endpoint>? endpoints = null;
@@ -1076,7 +986,7 @@ namespace ZeroC.Ice
                             throw new InvalidConfigurationException(
                                 $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
                         }
-                        endpoints = ParseIce1Endpoints(value, false);
+                        endpoints = Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
                     }
                 }
                 if (endpoints == null || endpoints.Count == 0)

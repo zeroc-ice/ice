@@ -49,6 +49,25 @@ namespace ZeroC.Ice
         internal static IReadOnlyList<Endpoint> ParseEndpoints(string uriString, Communicator communicator) =>
             Parse(uriString, oaEndpoints: true, communicator).Endpoints;
 
+        /// <summary>Converts the string representation of an identity to its equivalent Identity struct.</summary>
+        /// <param name="path">A string [escapedCategory/]escapedName.</param>
+        /// <exception cref="FormatException">s is not in the correct format.</exception>
+        /// <returns>An Identity equivalent to the identity contained in path.</returns>
+        internal static Identity ParseIdentity(string path)
+        {
+            string[] segments = path.Split('/');
+            Debug.Assert(segments.Length > 0);
+            (string name, string category) = segments.Length switch
+            {
+                1 => (Uri.UnescapeDataString(segments[0]), ""),
+                2 => (Uri.UnescapeDataString(segments[1]), Uri.UnescapeDataString(segments[0])),
+                _ => throw new FormatException($"too many path segments in identity `{path}'"),
+            };
+
+            return name.Length > 0 ? new Identity(name, category) :
+                throw new FormatException($"invalid empty name in identity `{path}'");
+        }
+
         /// <summary>Parses a relative URI [category/]name[#facet] into an identity and facet.</summary>
         internal static (Identity Identity, string Facet) ParseIdentityAndFacet(string uriString)
         {
@@ -65,7 +84,7 @@ namespace ZeroC.Ice
             {
                 path = uriString;
             }
-            return (Identity.Parse(path), facet);
+            return (ParseIdentity(path), facet);
         }
 
         /// <summary>Parses an ice or ice+transport URI string that represents a proxy.</summary>
@@ -73,9 +92,9 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         /// <returns>The components of the proxy.</returns>
         internal static (IReadOnlyList<Endpoint> Endpoints,
-                        List<string> Path,
-                        ProxyOptions ProxyOptions,
-                        string Facet) ParseProxy(string uriString, Communicator communicator)
+                         List<string> Path,
+                         ProxyOptions ProxyOptions,
+                         string Facet) ParseProxy(string uriString, Communicator communicator)
         {
             (Uri uri, IReadOnlyList<Endpoint> endpoints, ProxyOptions proxyOptions) =
                 Parse(uriString, oaEndpoints: false, communicator);
