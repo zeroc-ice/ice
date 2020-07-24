@@ -1,4 +1,4 @@
-Service3OA.Endpoints=default -p 12012 -h 127.0.0.1
+Service3OA.Endpoints=ice+tcp://127.0.0.1:12012
 
 #Ice.ProgramName
 Service=3
