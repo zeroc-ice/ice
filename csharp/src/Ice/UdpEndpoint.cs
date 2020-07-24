@@ -21,6 +21,7 @@ namespace ZeroC.Ice
             {
                 "interface" => McastInterface,
                 "ttl" => McastTtl.ToString(CultureInfo.InvariantCulture),
+                "compress" => HasCompressionFlag ? "true" : null,
                 _ => base[option],
             };
 
@@ -32,8 +33,9 @@ namespace ZeroC.Ice
         /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
         internal int McastTtl { get; } = -1;
 
+        private bool HasCompressionFlag { get; }
+
         private readonly bool _connect;
-        private readonly bool _hasCompressionFlag;
         private int _hashCode;
 
         public override bool Equals(Endpoint? other)
@@ -43,7 +45,6 @@ namespace ZeroC.Ice
                 return true;
             }
             return other is UdpEndpoint udpEndpoint &&
-                _hasCompressionFlag == udpEndpoint._hasCompressionFlag &&
                 _connect == udpEndpoint._connect &&
                 McastInterface == udpEndpoint.McastInterface &&
                 McastTtl == udpEndpoint.McastTtl &&
@@ -63,7 +64,7 @@ namespace ZeroC.Ice
                 var hash = new HashCode();
                 hash.Add(base.GetHashCode());
                 hash.Add(_connect);
-                hash.Add(_hasCompressionFlag);
+                hash.Add(HasCompressionFlag);
                 hash.Add(McastInterface);
                 hash.Add(McastTtl);
                 int hashCode = hash.ToHashCode();
@@ -108,7 +109,7 @@ namespace ZeroC.Ice
                 sb.Append(" -c");
             }
 
-            if (_hasCompressionFlag)
+            if (HasCompressionFlag)
             {
                 sb.Append(" -z");
             }
@@ -120,7 +121,7 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 base.WriteOptions(ostr);
-                ostr.WriteBool(_hasCompressionFlag);
+                ostr.WriteBool(HasCompressionFlag);
             }
             else
             {
@@ -158,7 +159,7 @@ namespace ZeroC.Ice
             McastInterface = mcastInterface;
             McastTtl = mttl;
             _connect = connect;
-            _hasCompressionFlag = compressionFlag;
+            HasCompressionFlag = compressionFlag;
         }
 
         // Constructor for unmarshaling.
@@ -169,7 +170,7 @@ namespace ZeroC.Ice
             _connect = false;
             if (protocol == Protocol.Ice1)
             {
-                _hasCompressionFlag = istr.ReadBool();
+                HasCompressionFlag = istr.ReadBool();
             }
             else
             {
@@ -203,7 +204,7 @@ namespace ZeroC.Ice
                     throw new FormatException(
                         $"unexpected argument `{argument}' provided for -z option in `{endpointString}'");
                 }
-                _hasCompressionFlag = true;
+                HasCompressionFlag = true;
                 options.Remove("-z");
             }
 
@@ -252,15 +253,24 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
             new UdpConnector(this, addr);
 
-        private protected override IPEndpoint CloneWithHostAndPort(string host, ushort port) =>
-            new UdpEndpoint(Communicator,
-                            Protocol,
-                            host,
-                            port,
-                            SourceAddress,
-                            McastInterface,
-                            McastTtl,
-                            _connect,
-                            _hasCompressionFlag);
+        private protected override IPEndpoint Clone(string host, ushort port)
+        {
+            if (host == Host && port == Port)
+            {
+                return this;
+            }
+            else
+            {
+                return new UdpEndpoint(Communicator,
+                                       Protocol,
+                                       host,
+                                       port,
+                                       SourceAddress,
+                                       McastInterface,
+                                       McastTtl,
+                                       _connect,
+                                       HasCompressionFlag);
+            }
+        }
     }
 }

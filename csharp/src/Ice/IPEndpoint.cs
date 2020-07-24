@@ -145,8 +145,8 @@ namespace ZeroC.Ice
             }
             else
             {
-                return addresses.Select(address => CloneWithHostAndPort(Network.EndpointAddressToString(address),
-                                                                        Network.EndpointPort(address)));
+                return addresses.Select(address => Clone(Network.EndpointAddressToString(address),
+                                                         Network.EndpointPort(address)));
             }
         }
 
@@ -159,7 +159,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => CloneWithHostAndPort(host, Port));
+                return hosts.Select(host => Clone(host, Port));
             }
         }
 
@@ -216,7 +216,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return CloneWithHostAndPort(Host, port);
+                return Clone(Host, port);
             }
         }
 
@@ -351,6 +351,6 @@ namespace ZeroC.Ice
 
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
-        private protected abstract IPEndpoint CloneWithHostAndPort(string host, ushort port);
+        private protected abstract IPEndpoint Clone(string host, ushort port);
     }
 }

@@ -17,8 +17,20 @@ namespace ZeroC.Ice
         public override bool IsSecure => Transport == Transport.SSL;
         public override Transport Transport { get; }
 
-        protected readonly bool HasCompressionFlag;
-        protected readonly TimeSpan Timeout = TimeSpan.FromSeconds(60);
+        public override string? this[string option] =>
+            option switch
+            {
+                "compress" => HasCompressionFlag ? "true" : null,
+                "timeout" => Timeout != DefaultTimeout ?
+                             Timeout.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) : null,
+                _ => base[option],
+            };
+
+        private protected bool HasCompressionFlag { get; }
+        private protected TimeSpan Timeout { get; } = DefaultTimeout;
+
+        /// <summary>The default timeout for ice1 endpoints.</summary>
+        protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
         private int _hashCode;
 
@@ -32,7 +44,6 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 return other is TcpEndpoint tcpEndpoint &&
-                    HasCompressionFlag == tcpEndpoint.HasCompressionFlag &&
                     Timeout == tcpEndpoint.Timeout &&
                     base.Equals(tcpEndpoint);
             }
@@ -55,7 +66,7 @@ namespace ZeroC.Ice
                 int hashCode;
                 if (Protocol == Protocol.Ice1)
                 {
-                    hashCode = HashCode.Combine(base.GetHashCode(), HasCompressionFlag, Timeout);
+                    hashCode = HashCode.Combine(base.GetHashCode(), Timeout);
                 }
                 else
                 {
@@ -108,20 +119,20 @@ namespace ZeroC.Ice
             }
         }
 
-       public override Connection CreateConnection(
-            IConnectionManager manager,
-            ITransceiver? transceiver,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) =>
-            new TcpConnection(manager,
-                              this,
-                              Protocol == Protocol.Ice1 ? (IBinaryConnection)
-                                new Ice1BinaryConnection(transceiver!, this, adapter) :
-                                new SlicBinaryConnection(transceiver!, this, adapter),
-                              connector,
-                              connectionId,
-                              adapter);
+        public override Connection CreateConnection(
+             IConnectionManager manager,
+             ITransceiver? transceiver,
+             IConnector? connector,
+             string connectionId,
+             ObjectAdapter? adapter) =>
+             new TcpConnection(manager,
+                               this,
+                               Protocol == Protocol.Ice1 ? (IBinaryConnection)
+                                 new Ice1BinaryConnection(transceiver!, this, adapter) :
+                                 new SlicBinaryConnection(transceiver!, this, adapter),
+                               connector,
+                               connectionId,
+                               adapter);
         public override ITransceiver? GetTransceiver() => null;
 
         internal TcpEndpoint(
@@ -226,15 +237,24 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        private protected override IPEndpoint CloneWithHostAndPort(string host, ushort port) =>
-            new TcpEndpoint(Communicator,
-                            Transport,
-                            Protocol,
-                            host,
-                            port,
-                            SourceAddress,
-                            Timeout,
-                            HasCompressionFlag);
+        private protected override IPEndpoint Clone(string host, ushort port)
+        {
+            if (host == Host && port == Port)
+            {
+                return this;
+            }
+            else
+            {
+                return new TcpEndpoint(Communicator,
+                                       Transport,
+                                       Protocol,
+                                       host,
+                                       port,
+                                       SourceAddress,
+                                       Timeout,
+                                       HasCompressionFlag);
+            }
+        }
 
         internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {

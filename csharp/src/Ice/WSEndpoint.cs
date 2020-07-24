@@ -195,7 +195,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override IPEndpoint CloneWithHostAndPort(string host, ushort port) =>
+        private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(Communicator,
                            Protocol,
                            Transport,
