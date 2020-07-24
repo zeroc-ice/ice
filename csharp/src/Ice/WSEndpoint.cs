@@ -124,16 +124,14 @@ namespace ZeroC.Ice
                    timeout,
                    compressionFlag) => _resource = resource;
 
-        // Constructor for parsing a string in the ice1 format.
-        // TODO: remove protocol, as it should be ice1-only.
+        // Constructor for ice1 endpoint parsing.
         internal WSEndpoint(
             Communicator communicator,
             Transport transport,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, transport, protocol, options, oaEndpoint, endpointString)
+            : base(communicator, transport, options, oaEndpoint, endpointString)
         {
             if (options.TryGetValue("-r", out string? argument))
             {

@@ -15,18 +15,17 @@ namespace ZeroC.Ice
         // ice1 format parsing
         public Endpoint Create(
             Transport transport,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString) =>
             transport switch
             {
                 var tv when tv == Transport.TCP || tv == Transport.SSL =>
-                    new TcpEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString),
+                    new TcpEndpoint(_communicator, transport, options, oaEndpoint, endpointString),
                 var tv when tv == Transport.WS || tv == Transport.WSS =>
-                    new WSEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString),
+                    new WSEndpoint(_communicator, transport, options, oaEndpoint, endpointString),
                 Transport.UDP =>
-                    new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString),
+                    new UdpEndpoint(_communicator, options, oaEndpoint, endpointString),
                 _ => throw new NotSupportedException(
                     $"cannot create endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };
@@ -63,8 +62,8 @@ namespace ZeroC.Ice
                     new TcpEndpoint(istr, _communicator, transport, protocol),
                 var tv when tv == Transport.WS || tv == Transport.WSS =>
                     new WSEndpoint(istr, _communicator, transport, protocol),
-                Transport.UDP =>
-                    new UdpEndpoint(istr, _communicator, protocol),
+                var tv when tv == Transport.UDP && protocol == Protocol.Ice1 =>
+                    new UdpEndpoint(istr, _communicator),
                 _ => throw new NotSupportedException(
                     $"cannot read endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };

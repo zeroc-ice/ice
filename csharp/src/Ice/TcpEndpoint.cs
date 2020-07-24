@@ -183,14 +183,14 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol, host, port, options, oaEndpoint) => Transport = transport;
 
+        // Constructor for ice1 endpoint parsing.
         internal TcpEndpoint(
             Communicator communicator,
             Transport transport,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol, options, oaEndpoint, endpointString)
+            : base(communicator, options, oaEndpoint, endpointString)
         {
             Transport = transport;
             if (options.TryGetValue("-t", out string? argument))

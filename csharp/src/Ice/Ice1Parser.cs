@@ -573,7 +573,7 @@ namespace ZeroC.Ice
 
             if (communicator.FindEndpointFactory(transportName) is (IEndpointFactory factory, Transport transport))
             {
-                Endpoint endpoint = factory.Create(transport, Protocol.Ice1, options, oaEndpoint, endpointString);
+                Endpoint endpoint = factory.Create(transport, options, oaEndpoint, endpointString);
                 if (options.Count > 0)
                 {
                     throw new FormatException(

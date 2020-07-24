@@ -278,15 +278,14 @@ namespace ZeroC.Ice
             }
         }
 
+        // Constructor for ice1 endpoint parsing.
         private protected IPEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol)
+            : base(communicator, Protocol.Ice1)
         {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2); // TODO: ice1-only
             if (options.TryGetValue("-h", out string? argument))
             {
                 Host = argument ??
