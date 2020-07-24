@@ -14,8 +14,6 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the UDP transport.</summary>
     internal sealed class UdpEndpoint : IPEndpoint
     {
-        // We cannot move HasCompressionFlag to IPEndpoint because of it's marshaled after the timeout in TcpEndpoint
-        public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => true;
 
         public override string? this[string option] =>
@@ -23,6 +21,7 @@ namespace ZeroC.Ice
             {
                 "interface" => McastInterface,
                 "ttl" => McastTtl.ToString(CultureInfo.InvariantCulture),
+                "compress" => HasCompressionFlag ? "true" : null,
                 _ => base[option],
             };
 
@@ -34,6 +33,8 @@ namespace ZeroC.Ice
         /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
         internal int McastTtl { get; } = -1;
 
+        private bool HasCompressionFlag { get; }
+
         private readonly bool _connect;
         private int _hashCode;
 
@@ -44,7 +45,6 @@ namespace ZeroC.Ice
                 return true;
             }
             return other is UdpEndpoint udpEndpoint &&
-                HasCompressionFlag == udpEndpoint.HasCompressionFlag &&
                 _connect == udpEndpoint._connect &&
                 McastInterface == udpEndpoint.McastInterface &&
                 McastTtl == udpEndpoint.McastTtl &&
@@ -128,8 +128,6 @@ namespace ZeroC.Ice
                 ostr.WriteSize(0);
             }
         }
-
-        public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
         public override Connection CreateConnection(
              IConnectionManager manager,
@@ -255,19 +253,24 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
             new UdpConnector(this, addr);
 
-        private protected override IPEndpoint CreateIPEndpoint(
-            string host,
-            ushort port,
-            bool compressionFlag,
-            TimeSpan timeout) =>
-            new UdpEndpoint(Communicator,
-                            Protocol,
-                            host,
-                            port,
-                            SourceAddress,
-                            McastInterface,
-                            McastTtl,
-                            _connect,
-                            compressionFlag);
+        private protected override IPEndpoint Clone(string host, ushort port)
+        {
+            if (host == Host && port == Port)
+            {
+                return this;
+            }
+            else
+            {
+                return new UdpEndpoint(Communicator,
+                                       Protocol,
+                                       host,
+                                       port,
+                                       SourceAddress,
+                                       McastInterface,
+                                       McastTtl,
+                                       _connect,
+                                       HasCompressionFlag);
+            }
+        }
     }
 }

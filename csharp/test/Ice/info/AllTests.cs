@@ -96,7 +96,7 @@ namespace ZeroC.Ice.Test.Info
 
                 TestHelper.Assert(tcpEndpoint.Host == host);
                 TestHelper.Assert(tcpEndpoint.Port > 0);
-                TestHelper.Assert(tcpEndpoint.Timeout == TimeSpan.FromMilliseconds(15000));
+                TestHelper.Assert(tcpEndpoint["timeout"] is string value && int.Parse(value) == 15000);
 
                 Endpoint udpEndpoint = endpoints[1];
                 TestHelper.Assert(udpEndpoint.Host == host);

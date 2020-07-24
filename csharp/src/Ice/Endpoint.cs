@@ -20,12 +20,6 @@ namespace ZeroC.Ice
         /// <summary>Gets the communicator that created this endpoint.</summary>
         public Communicator Communicator { get; }
 
-        /// <summary>Indicates whether or not this endpoint's compression flag is set. When the compression flag is
-        /// set, a request sent to this endpoint using the ice1 protocol is automatically compressed using bzip2 if
-        /// the request's uncompressed size is greater than 100 bytes. Only applies to ice1.</summary>
-        /// <value>True when the compression flag is set; otherwise, false.</value>
-        public virtual bool HasCompressionFlag => false;
-
         /// <summary>The host name or address.</summary>
         public abstract string Host { get; }
 
@@ -51,11 +45,8 @@ namespace ZeroC.Ice
                 {
                     return option switch
                     {
-                        "compress" => HasCompressionFlag ? "true" : null,
                         "host" => Host.Length > 0 ? Host : null,
                         "port" => Port != DefaultPort ? Port.ToString(CultureInfo.InvariantCulture) : null,
-                        "timeout" => Timeout != DefaultTimeout ?
-                            Timeout.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) : null,
                         _ => null,
                     };
                 }
@@ -76,9 +67,6 @@ namespace ZeroC.Ice
         /// ice2, it's ice+transport (ice+tcp, ice+quic etc.) or ice+universal.</summary>
         public virtual string Scheme => Protocol == Protocol.Ice1 ? TransportName : $"ice+{TransportName}";
 
-        /// <summary>The timeout for the endpoint. This timeout is no longer used since Ice 4.0.</summary>
-        public virtual TimeSpan Timeout => DefaultTimeout;
-
         /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
         public abstract Transport Transport { get; }
 
@@ -91,9 +79,6 @@ namespace ZeroC.Ice
         /// <summary>Indicates whether or not this endpoint has options with non default values that ToString would
         /// print. Always true for ice1 endpoints.</summary>
         protected internal abstract bool HasOptions { get; }
-
-        /// <summary>The default timeout for ice1 endpoints.</summary>
-        protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
@@ -164,14 +149,6 @@ namespace ZeroC.Ice
         /// include the host and port; with ice2, the host and port are not considered options.</summary>
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
-
-        // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
-        // Otherwise the same endpoint is returned.
-        public abstract Endpoint NewTimeout(TimeSpan t);
-
-        // Returns a new endpoint with a different compression flag, provided that compression is supported by the
-        // endpoint. Otherwise the same endpoint is returned.
-        public abstract Endpoint NewCompressionFlag(bool compressionFlag);
 
         // Returns a connector for this endpoint, or empty list if no connector is available.
         public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endpointSelection);
