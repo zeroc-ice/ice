@@ -135,22 +135,6 @@ namespace ZeroC.Ice
                                adapter);
         public override ITransceiver? GetTransceiver() => null;
 
-        internal TcpEndpoint(
-            Communicator communicator,
-            Transport transport,
-            Protocol protocol,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress,
-            TimeSpan timeout,
-            bool compressionFlag)
-            : base(communicator, protocol, host, port, sourceAddress)
-        {
-            Transport = transport;
-            HasCompressionFlag = compressionFlag;
-            Timeout = timeout;
-        }
-
         // Constructor for unmarshaling
         internal TcpEndpoint(
             InputStream istr,
@@ -234,9 +218,14 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this, addr, proxy);
-
+        // Clone constructor
+        private protected TcpEndpoint(TcpEndpoint endpoint, string host, ushort port)
+            : base(endpoint, host, port)
+        {
+            Transport = endpoint.Transport;
+            HasCompressionFlag = endpoint.HasCompressionFlag;
+            Timeout = endpoint.Timeout;
+        }
         private protected override IPEndpoint Clone(string host, ushort port)
         {
             if (host == Host && port == Port)
@@ -245,16 +234,12 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new TcpEndpoint(Communicator,
-                                       Transport,
-                                       Protocol,
-                                       host,
-                                       port,
-                                       SourceAddress,
-                                       Timeout,
-                                       HasCompressionFlag);
+                return new TcpEndpoint(this, host, port);
             }
         }
+
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+            new TcpConnector(this, addr, proxy);
 
         internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {

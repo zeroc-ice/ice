@@ -227,13 +227,14 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
             new UdpConnector(this, addr);
 
-        private UdpEndpoint(UdpEndpoint other, string host, ushort port)
-            : base(other.Communicator, Protocol.Ice1, host, port, other.SourceAddress)
+        // Clone constructor
+        private UdpEndpoint(UdpEndpoint endpoint, string host, ushort port)
+            : base(endpoint, host, port)
         {
-            McastInterface = other.McastInterface;
-            McastTtl = other.McastTtl;
-            _connect = other._connect;
-            HasCompressionFlag = other.HasCompressionFlag;
+            McastInterface = endpoint.McastInterface;
+            McastTtl = endpoint.McastTtl;
+            _connect = endpoint._connect;
+            HasCompressionFlag = endpoint.HasCompressionFlag;
         }
 
         private protected override IPEndpoint Clone(string host, ushort port)

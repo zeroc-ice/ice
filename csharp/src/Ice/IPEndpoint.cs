@@ -220,18 +220,13 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected IPEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress)
-            : base(communicator, protocol)
+        // Clone constructor
+        private protected IPEndpoint(IPEndpoint endpoint, string host, ushort port)
+            : base(endpoint.Communicator, endpoint.Protocol)
         {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = host;
             Port = port;
-            SourceAddress = sourceAddress;
+            SourceAddress = endpoint.SourceAddress;
         }
 
         // Constructor for URI parsing.
@@ -244,7 +239,7 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol)
         {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
+            Debug.Assert(protocol == Protocol.Ice2);
             Host = host;
             Port = port;
             if (!oaEndpoint) // parsing a URI that represents a proxy

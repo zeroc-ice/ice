@@ -105,25 +105,6 @@ namespace ZeroC.Ice
                 connectionId,
                 adapter);
 
-        internal WSEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            Transport transport,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress,
-            TimeSpan timeout,
-            bool compressionFlag,
-            string resource)
-            : base(communicator,
-                   transport,
-                   protocol,
-                   host,
-                   port,
-                   sourceAddress,
-                   timeout,
-                   compressionFlag) => _resource = resource;
-
         // Constructor for ice1 endpoint parsing.
         internal WSEndpoint(
             Communicator communicator,
@@ -193,16 +174,12 @@ namespace ZeroC.Ice
             }
         }
 
+         // Clone constructor
+        private WSEndpoint(WSEndpoint endpoint, string host, ushort port)
+            : base(endpoint, host, port) => _resource = endpoint._resource;
+
         private protected override IPEndpoint Clone(string host, ushort port) =>
-            new WSEndpoint(Communicator,
-                           Protocol,
-                           Transport,
-                           host,
-                           port,
-                           SourceAddress,
-                           Timeout,
-                           HasCompressionFlag,
-                           _resource);
+            new WSEndpoint(this, host, port);
 
         internal override ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {
