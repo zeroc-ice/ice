@@ -87,16 +87,9 @@ namespace ZeroC.Ice
             base.AppendOptions(sb, optionSeparator);
             if (Protocol == Protocol.Ice1)
             {
-                if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
-                {
-                    // We use "-1" instead of "infinite" for compatibility with Ice 3.5.
-                    sb.Append(" -t -1");
-                }
-                else
-                {
-                    sb.Append(" -t ");
-                    sb.Append(Timeout.TotalMilliseconds);
-                }
+                // InfiniteTimeSpan yields -1 and we use -1 instead of "infinite" for compatibility with Ice 3.5.
+                sb.Append(" -t ");
+                sb.Append(Timeout.TotalMilliseconds);
 
                 if (HasCompressionFlag)
                 {
