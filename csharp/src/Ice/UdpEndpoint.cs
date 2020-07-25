@@ -237,16 +237,7 @@ namespace ZeroC.Ice
             HasCompressionFlag = endpoint.HasCompressionFlag;
         }
 
-        private protected override IPEndpoint Clone(string host, ushort port)
-        {
-            if (host == Host && port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return new UdpEndpoint(this, host, port);
-            }
-        }
+        private protected override IPEndpoint Clone(string host, ushort port) =>
+            new UdpEndpoint(this, host, port);
     }
 }

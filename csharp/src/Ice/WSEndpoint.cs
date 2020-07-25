@@ -98,9 +98,9 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter) =>
             new WSConnection(manager,
                 this,
-                Protocol == Protocol.Ice1? (IBinaryConnection)
-                new Ice1BinaryConnection(transceiver!, this, adapter) :
-                new SlicBinaryConnection(transceiver!, this, adapter),
+                Protocol == Protocol.Ice1 ? (IBinaryConnection)
+                    new Ice1BinaryConnection(transceiver!, this, adapter) :
+                    new SlicBinaryConnection(transceiver!, this, adapter),
                 connector,
                 connectionId,
                 adapter);
@@ -189,8 +189,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName),
-                    Host, _resource);
+                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName), Host, _resource);
             }
         }
     }

@@ -159,7 +159,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => Clone(host, Port));
+                return hosts.Select(host => Clone(host));
             }
         }
 
@@ -208,26 +208,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IPEndpoint NewPort(ushort port)
-        {
-            if (port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return Clone(Host, port);
-            }
-        }
-
-        // Clone constructor
-        private protected IPEndpoint(IPEndpoint endpoint, string host, ushort port)
-            : base(endpoint.Communicator, endpoint.Protocol)
-        {
-            Host = host;
-            Port = port;
-            SourceAddress = endpoint.SourceAddress;
-        }
+        internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
 
         // Constructor for URI parsing.
         private protected IPEndpoint(
@@ -343,8 +324,20 @@ namespace ZeroC.Ice
             // else SourceAddress remains null
         }
 
+        // Constructor for Clone
+        private protected IPEndpoint(IPEndpoint endpoint, string host, ushort port)
+            : base(endpoint.Communicator, endpoint.Protocol)
+        {
+            Host = host;
+            Port = port;
+            SourceAddress = endpoint.SourceAddress;
+        }
+
+        /// <summary>Creates a clone with the specified host and port.</summary>
+        private protected abstract IPEndpoint Clone(string host, ushort port);
+
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
-        private protected abstract IPEndpoint Clone(string host, ushort port);
+        private IPEndpoint Clone(string host) => host == Host ? this : Clone(host, Port);
     }
 }

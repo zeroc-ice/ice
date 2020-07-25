@@ -226,17 +226,9 @@ namespace ZeroC.Ice
             HasCompressionFlag = endpoint.HasCompressionFlag;
             Timeout = endpoint.Timeout;
         }
-        private protected override IPEndpoint Clone(string host, ushort port)
-        {
-            if (host == Host && port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return new TcpEndpoint(this, host, port);
-            }
-        }
+
+        private protected override IPEndpoint Clone(string host, ushort port) =>
+            new TcpEndpoint(this, host, port);
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
