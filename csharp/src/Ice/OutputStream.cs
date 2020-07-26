@@ -1566,7 +1566,7 @@ namespace ZeroC.Ice
             WriteFixedLengthSize20(size, data);
 
         // Constructor for protocol frame header and other non-encapsulated data.
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt = default)
         {
             _mainEncoding = encoding;
             Encoding = encoding;
@@ -1578,13 +1578,13 @@ namespace ZeroC.Ice
                 _currentSegment = ArraySegment<byte>.Empty;
                 _capacity = 0;
                 Size = 0;
-                _tail = new Position(0, 0);
+                _tail = default;
             }
             else
             {
-                _tail = startAt ?? new Position(0, 0);
+                _tail = startAt;
                 _currentSegment = _segmentList[_tail.Segment];
-                Size = Distance(new Position(0, 0));
+                Size = Distance(default);
                 _capacity = 0;
                 foreach (ArraySegment<byte> segment in _segmentList)
                 {

@@ -132,19 +132,7 @@ namespace ZeroC.Ice
         public Encoding Encoding { get; private set; }
 
         /// <summary>The 0-based position (index) in the underlying buffer.</summary>
-        internal int Pos
-        {
-            get => _pos;
-            set
-            {
-                if (value < 0 || value > _buffer.Count)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(Pos),
-                        "the position value is outside the buffer bounds");
-                }
-                _pos = value;
-            }
-        }
+        internal int Pos => _pos;
 
         /// <summary>The sliced-off slices held by the current instance, if any.</summary>
         internal SlicedData? SlicedData
@@ -175,7 +163,7 @@ namespace ZeroC.Ice
         private bool OldEncoding => Encoding == Encoding.V1_1;
 
         // The byte buffer we are reading.
-        private ArraySegment<byte> _buffer;
+        private ReadOnlyMemory<byte> _buffer;
 
         // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData _current;
@@ -214,17 +202,17 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a bool from the stream.</summary>
         /// <returns>The bool read from the stream.</returns>
-        public bool ReadBool() => _buffer[_pos++] == 1;
+        public bool ReadBool() => _buffer.Span[_pos++] == 1;
 
         /// <summary>Reads a byte from the stream.</summary>
         /// <returns>The byte read from the stream.</returns>
-        public byte ReadByte() => _buffer[_pos++];
+        public byte ReadByte() => _buffer.Span[_pos++];
 
         /// <summary>Reads a double from the stream.</summary>
         /// <returns>The double read from the stream.</returns>
         public double ReadDouble()
         {
-            double value = BitConverter.ToDouble(_buffer.AsSpan(_pos, sizeof(double)));
+            double value = BitConverter.ToDouble(_buffer.Span.Slice(_pos, sizeof(double)));
             _pos += sizeof(double);
             return value;
         }
@@ -233,7 +221,7 @@ namespace ZeroC.Ice
         /// <returns>The float read from the stream.</returns>
         public float ReadFloat()
         {
-            float value = BitConverter.ToSingle(_buffer.AsSpan(_pos, sizeof(float)));
+            float value = BitConverter.ToSingle(_buffer.Span.Slice(_pos, sizeof(float)));
             _pos += sizeof(float);
             return value;
         }
@@ -242,7 +230,7 @@ namespace ZeroC.Ice
         /// <returns>The int read from the stream.</returns>
         public int ReadInt()
         {
-            int value = BitConverter.ToInt32(_buffer.AsSpan(_pos, sizeof(int)));
+            int value = BitConverter.ToInt32(_buffer.Span.Slice(_pos, sizeof(int)));
             _pos += sizeof(int);
             return value;
         }
@@ -251,7 +239,7 @@ namespace ZeroC.Ice
         /// <returns>The long read from the stream.</returns>
         public long ReadLong()
         {
-            long value = BitConverter.ToInt64(_buffer.AsSpan(_pos, sizeof(long)));
+            long value = BitConverter.ToInt64(_buffer.Span.Slice(_pos, sizeof(long)));
             _pos += sizeof(long);
             return value;
         }
@@ -260,7 +248,7 @@ namespace ZeroC.Ice
         /// <returns>The short read from the stream.</returns>
         public short ReadShort()
         {
-            short value = BitConverter.ToInt16(_buffer.AsSpan(_pos, sizeof(short)));
+            short value = BitConverter.ToInt16(_buffer.Span.Slice(_pos, sizeof(short)));
             _pos += sizeof(short);
             return value;
         }
@@ -278,7 +266,7 @@ namespace ZeroC.Ice
             {
                 return "";
             }
-            string value = _utf8.GetString(_buffer.AsSpan(_pos, size));
+            string value = _utf8.GetString(_buffer.Span.Slice(_pos, size));
             _pos += size;
             return value;
         }
@@ -287,7 +275,7 @@ namespace ZeroC.Ice
         /// <returns>The uint read from the stream.</returns>
         public uint ReadUInt()
         {
-            uint value = BitConverter.ToUInt32(_buffer.AsSpan(_pos, sizeof(uint)));
+            uint value = BitConverter.ToUInt32(_buffer.Span.Slice(_pos, sizeof(uint)));
             _pos += sizeof(uint);
             return value;
         }
@@ -296,7 +284,7 @@ namespace ZeroC.Ice
         /// <returns>The ulong read from the stream.</returns>
         public ulong ReadULong()
         {
-            ulong value = BitConverter.ToUInt64(_buffer.AsSpan(_pos, sizeof(ulong)));
+            ulong value = BitConverter.ToUInt64(_buffer.Span.Slice(_pos, sizeof(ulong)));
             _pos += sizeof(ulong);
             return value;
         }
@@ -305,7 +293,7 @@ namespace ZeroC.Ice
         /// <returns>The ushort read from the stream.</returns>
         public ushort ReadUShort()
         {
-            ushort value = BitConverter.ToUInt16(_buffer.AsSpan(_pos, sizeof(ushort)));
+            ushort value = BitConverter.ToUInt16(_buffer.Span.Slice(_pos, sizeof(ushort)));
             _pos += sizeof(ushort);
             return value;
         }
@@ -332,7 +320,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The long read from the stream.</returns>
         public long ReadVarLong() =>
-            (_buffer[_pos] & 0x03) switch
+            (_buffer.Span[_pos] & 0x03) switch
             {
                 0 => (sbyte)ReadByte() >> 2,
                 1 => ReadShort() >> 2,
@@ -362,7 +350,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The ulong read from the stream.</returns>
         public ulong ReadVarULong() =>
-            (_buffer[_pos] & 0x03) switch
+            (_buffer.Span[_pos] & 0x03) switch
             {
                 0 => (uint)ReadByte() >> 2,   // cast to uint to use operator >> for uint instead of int, which is
                 1 => (uint)ReadUShort() >> 2, // later implicitly converted to ulong
@@ -381,7 +369,7 @@ namespace ZeroC.Ice
             int elementSize = Unsafe.SizeOf<T>();
             var value = new T[ReadAndCheckSeqSize(elementSize)];
             int byteCount = elementSize * value.Length;
-            _buffer.AsSpan(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
+            _buffer.Span.Slice(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
             _pos += byteCount;
             return value;
         }
@@ -1031,7 +1019,7 @@ namespace ZeroC.Ice
             int size = (bitSequenceSize >> 3) + ((bitSequenceSize & 0x07) != 0 ? 1 : 0);
             int startPos = _pos;
             _pos += size;
-            return new ReadOnlyBitSequence(_buffer.AsSpan(startPos, size));
+            return new ReadOnlyBitSequence(_buffer.Span.Slice(startPos, size));
         }
 
         /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
@@ -1041,7 +1029,7 @@ namespace ZeroC.Ice
         internal static void ReadEmptyEncapsulation(
             Communicator communicator,
             Encoding encoding,
-            ArraySegment<byte> buffer)
+            ReadOnlyMemory<byte> buffer)
         {
             var istr = new InputStream(communicator, encoding, buffer);
             istr.SkipTaggedParams();
@@ -1056,7 +1044,7 @@ namespace ZeroC.Ice
         internal static T ReadEncapsulation<T>(
             Communicator communicator,
             Encoding encoding,
-            ArraySegment<byte> buffer,
+            ReadOnlyMemory<byte> buffer,
             InputStreamReader<T> payloadReader)
         {
             var istr = new InputStream(communicator, encoding, buffer);
@@ -1152,14 +1140,10 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="pos">The initial position in the buffer.</param>
-        internal InputStream(Encoding encoding, ArraySegment<byte> buffer, int pos = 0)
+        internal InputStream(Encoding encoding, ReadOnlyMemory<byte> buffer)
         {
-            // TODO: pos should always be 0 and buffer should be a slice as needed.
-            // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
-            // headers.
             _buffer = buffer;
-            _pos = pos;
+            _pos = 0;
             Encoding = encoding;
         }
 
@@ -1167,14 +1151,14 @@ namespace ZeroC.Ice
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
         {
-            (int Size, Encoding Encoding) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
+            (int Size, Encoding Encoding) result = ReadEncapsulationHeader(Encoding, _buffer.Span.Slice(_pos));
             if (OldEncoding)
             {
                 _pos += 6; // 4 bytes for the encaps size + 2 bytes for the encoding
             }
             else
             {
-                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
+                _pos += (1 << (_buffer.Span[_pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
             }
             return result;
         }
@@ -1211,7 +1195,7 @@ namespace ZeroC.Ice
                 else if (encoding.IsSupported)
                 {
                     Encoding previousEncoding = Encoding;
-                    ArraySegment<byte> previousBuffer = _buffer;
+                    ReadOnlyMemory<byte> previousBuffer = _buffer;
                     int previousPos = _pos;
                     int previousMinTotalSeqSize = _minTotalSeqSize;
                     Encoding = encoding;
@@ -1261,7 +1245,7 @@ namespace ZeroC.Ice
 
         internal void Skip(int size)
         {
-            if (size < 0 || size > _buffer.Count - _pos)
+            if (size < 0 || size > _buffer.Length - _pos)
             {
                 throw new IndexOutOfRangeException($"cannot skip {size} bytes");
             }
@@ -1304,7 +1288,7 @@ namespace ZeroC.Ice
         private InputStream(
             Communicator communicator,
             Encoding encoding,
-            ArraySegment<byte> buffer)
+            ReadOnlyMemory<byte> buffer)
         {
             _communicator = communicator;
             _pos = 0;
@@ -1325,9 +1309,9 @@ namespace ZeroC.Ice
 
         private void CheckEndOfBuffer()
         {
-            if (_pos != _buffer.Count)
+            if (_pos != _buffer.Length)
             {
-                throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in the InputStream buffer");
+                throw new InvalidDataException($"{_buffer.Length - _pos} bytes remaining in the InputStream buffer");
             }
         }
 
@@ -1353,7 +1337,7 @@ namespace ZeroC.Ice
             // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
             _minTotalSeqSize += minSize;
 
-            if (_pos + minSize > _buffer.Count || _minTotalSeqSize > _buffer.Count)
+            if (_pos + minSize > _buffer.Length || _minTotalSeqSize > _buffer.Length)
             {
                 throw new InvalidDataException("invalid sequence size");
             }
@@ -1365,7 +1349,7 @@ namespace ZeroC.Ice
             int size = (bitSequenceSize >> 3) + ((bitSequenceSize & 0x07) != 0 ? 1 : 0);
             int startPos = _pos;
             _pos += size;
-            return _buffer.AsMemory(startPos, size);
+            return _buffer.Slice(startPos, size);
         }
 
         private TDict ReadDictionary<TDict, TKey, TValue>(
@@ -1445,8 +1429,8 @@ namespace ZeroC.Ice
 
         private int ReadSpan(Span<byte> span)
         {
-            int length = Math.Min(span.Length, _buffer.Count - _pos);
-            _buffer.AsSpan(_pos, length).CopyTo(span);
+            int length = Math.Min(span.Length, _buffer.Length - _pos);
+            _buffer.Span.Slice(_pos, length).CopyTo(span);
             _pos += length;
             return length;
         }
@@ -1471,7 +1455,7 @@ namespace ZeroC.Ice
 
             while (true)
             {
-                if (_buffer.Count - _pos <= 0)
+                if (_buffer.Length - _pos <= 0)
                 {
                     return false; // End of encapsulation also indicates end of tagged parameters.
                 }
@@ -1537,7 +1521,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = _buffer[_pos];
+                byte b = _buffer.Span[_pos];
                 Skip(1 << (b & 0x03));
             }
         }
@@ -1590,7 +1574,7 @@ namespace ZeroC.Ice
             // Skip remaining unread tagged parameters.
             while (true)
             {
-                if (_buffer.Count - _pos <= 0)
+                if (_buffer.Length - _pos <= 0)
                 {
                     return false; // End of encapsulation also indicates end of tagged parameters.
                 }

@@ -45,7 +45,7 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames.GetOrAdd((current.Protocol, current.Encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
+                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
                 ostr.WriteByte((byte)ReplyStatus.OK);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 return new OutgoingResponseFrame(current.IncomingRequestFrame, data);
@@ -162,7 +162,7 @@ namespace ZeroC.Ice
             OutputStream ostr;
             if (exception is DispatchException dispatchException)
             {
-                ostr = new OutputStream(Protocol.GetEncoding(), Data, new OutputStream.Position(0, 0));
+                ostr = new OutputStream(Protocol.GetEncoding(), Data);
                 if (dispatchException is PreExecutionException preExecutionException)
                 {
                     ReplyStatus replyStatus = preExecutionException switch
