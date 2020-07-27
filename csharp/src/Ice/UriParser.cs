@@ -51,7 +51,7 @@ namespace ZeroC.Ice
 
         /// <summary>Converts the string representation of an identity to its equivalent Identity struct.</summary>
         /// <param name="path">A string [escapedCategory/]escapedName.</param>
-        /// <exception cref="FormatException">s is not in the correct format.</exception>
+        /// <exception cref="FormatException">Thrown when <c>path</c> is not in the correct format.</exception>
         /// <returns>An Identity equivalent to the identity contained in path.</returns>
         internal static Identity ParseIdentity(string path)
         {

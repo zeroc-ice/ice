@@ -191,8 +191,7 @@ namespace ZeroC.Ice
                 preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
 
                 property = $"{propertyPrefix}.Router";
-                IRouterPrx? router = communicator.GetPropertyAsProxy(property, IRouterPrx.Factory);
-                if (router != null)
+                if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
                 {
                     if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
                     {
