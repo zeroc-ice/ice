@@ -26,7 +26,7 @@ namespace ZeroC.Ice
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
                 Debug.Assert(_current.PosAfterIndirectionTable != null && _current.IndirectionTable != null);
-                _pos = _current.PosAfterIndirectionTable.Value;
+                Pos = _current.PosAfterIndirectionTable.Value;
                 _current.PosAfterIndirectionTable = null;
                 _current.IndirectionTable = null;
             }
@@ -322,11 +322,11 @@ namespace ZeroC.Ice
                     throw new InvalidDataException("slice has indirection table but does not have a size");
                 }
 
-                int savedPos = _pos;
-                _pos = savedPos + _current.SliceSize;
+                int savedPos = Pos;
+                Pos = savedPos + _current.SliceSize;
                 _current.IndirectionTable = ReadIndirectionTable();
-                _current.PosAfterIndirectionTable = _pos;
-                _pos = savedPos;
+                _current.PosAfterIndirectionTable = Pos;
+                Pos = savedPos;
             }
         }
 
@@ -403,7 +403,7 @@ namespace ZeroC.Ice
                 // Read all the deferred indirection tables now that the instance is inserted in _instanceMap.
                 if (_current.DeferredIndirectionTableList11?.Count > 0)
                 {
-                    int savedPos = _pos;
+                    int savedPos = Pos;
 
                     Debug.Assert(_current.Slices?.Count == _current.DeferredIndirectionTableList11.Count);
                     for (int i = 0; i < _current.DeferredIndirectionTableList11.Count; ++i)
@@ -411,13 +411,13 @@ namespace ZeroC.Ice
                         int pos = _current.DeferredIndirectionTableList11[i];
                         if (pos > 0)
                         {
-                            _pos = pos;
+                            Pos = pos;
                             _current.Slices[i].Instances = Array.AsReadOnly(ReadIndirectionTable());
                         }
                         // else remains empty
                     }
 
-                    _pos = savedPos;
+                    Pos = savedPos;
                 }
 
                 if (readIndirectionTable)
@@ -618,9 +618,9 @@ namespace ZeroC.Ice
                     // indirection table and later on when we read it. We only want to add this typeId to the list and
                     // assign it an index when it's the first time we read it, so we save the largest position we read
                     // to figure out when to add to the list.
-                    if (_pos > _posAfterLatestInsertedTypeId11)
+                    if (Pos > _posAfterLatestInsertedTypeId11)
                     {
-                        _posAfterLatestInsertedTypeId11 = _pos;
+                        _posAfterLatestInsertedTypeId11 = Pos;
                         _typeIdMap11.Add(typeId);
                     }
                     return (typeId, null);
@@ -677,7 +677,7 @@ namespace ZeroC.Ice
                             throw new InvalidDataException("size of slice missing");
                         }
                         int sliceSize = ReadSliceSize11();
-                        _pos += sliceSize; // we need a temporary sliceSize because ReadSliceSize11 updates _pos.
+                        Pos += sliceSize; // we need a temporary sliceSize because ReadSliceSize11 updates _pos.
 
                         // If this slice has an indirection table, skip it too.
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
@@ -759,7 +759,7 @@ namespace ZeroC.Ice
                 _current.DeferredIndirectionTableList11 ??= new List<int>();
                 if (hasIndirectionTable)
                 {
-                    int savedPos = _pos;
+                    int savedPos = Pos;
                     SkipIndirectionTable11();
                     _current.DeferredIndirectionTableList11.Add(savedPos); // we want to later read the deepest first
                 }
@@ -772,7 +772,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_current.PosAfterIndirectionTable != null);
                 // Move past indirection table
-                _pos = _current.PosAfterIndirectionTable.Value;
+                Pos = _current.PosAfterIndirectionTable.Value;
                 _current.PosAfterIndirectionTable = null;
             }
 

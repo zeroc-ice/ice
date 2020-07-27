@@ -205,7 +205,7 @@ namespace ZeroC.Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
             Identity.IceWrite(ostr);
             ostr.WriteFacet(Facet);
             ostr.WriteString(operation);
