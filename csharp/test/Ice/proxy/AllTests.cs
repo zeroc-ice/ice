@@ -260,6 +260,9 @@ namespace ZeroC.Ice.Test.Proxy
                 communicator);
             TestHelper.Assert(b1.Identity.Name == "test" && b1.AdapterId.Length == 0);
 
+            b1 = IObjectPrx.Parse("test:tcp -h localhost -p 10000 -t infinite", communicator);
+            TestHelper.Assert(b1.ToString() == "test -t -e 1.1:tcp -h localhost -p 10000 -t -1");
+
             b1 = IObjectPrx.Parse("test@adapter", communicator);
             TestHelper.Assert(b1.Identity.Name == "test" && b1.Identity.Category.Length == 0 &&
                     b1.AdapterId.Equals("adapter"));

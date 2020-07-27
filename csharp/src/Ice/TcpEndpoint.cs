@@ -87,16 +87,9 @@ namespace ZeroC.Ice
             base.AppendOptions(sb, optionSeparator);
             if (Protocol == Protocol.Ice1)
             {
-                if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
-                {
-                    // We use "-1" instead of "infinite" for compatibility with Ice 3.5.
-                    sb.Append(" -t -1");
-                }
-                else
-                {
-                    sb.Append(" -t ");
-                    sb.Append(Timeout.TotalMilliseconds);
-                }
+                // InfiniteTimeSpan yields -1 and we use -1 instead of "infinite" for compatibility with Ice 3.5.
+                sb.Append(" -t ");
+                sb.Append(Timeout.TotalMilliseconds);
 
                 if (HasCompressionFlag)
                 {
@@ -135,22 +128,6 @@ namespace ZeroC.Ice
                                adapter);
         public override ITransceiver? GetTransceiver() => null;
 
-        internal TcpEndpoint(
-            Communicator communicator,
-            Transport transport,
-            Protocol protocol,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress,
-            TimeSpan timeout,
-            bool compressionFlag)
-            : base(communicator, protocol, host, port, sourceAddress)
-        {
-            Transport = transport;
-            HasCompressionFlag = compressionFlag;
-            Timeout = timeout;
-        }
-
         // Constructor for unmarshaling
         internal TcpEndpoint(
             InputStream istr,
@@ -183,14 +160,14 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol, host, port, options, oaEndpoint) => Transport = transport;
 
+        // Constructor for ice1 endpoint parsing.
         internal TcpEndpoint(
             Communicator communicator,
             Transport transport,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol, options, oaEndpoint, endpointString)
+            : base(communicator, options, oaEndpoint, endpointString)
         {
             Transport = transport;
             if (options.TryGetValue("-t", out string? argument))
@@ -234,27 +211,20 @@ namespace ZeroC.Ice
             }
         }
 
+        // Clone constructor
+        private protected TcpEndpoint(TcpEndpoint endpoint, string host, ushort port)
+            : base(endpoint, host, port)
+        {
+            Transport = endpoint.Transport;
+            HasCompressionFlag = endpoint.HasCompressionFlag;
+            Timeout = endpoint.Timeout;
+        }
+
+        private protected override IPEndpoint Clone(string host, ushort port) =>
+            new TcpEndpoint(this, host, port);
+
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
-
-        private protected override IPEndpoint Clone(string host, ushort port)
-        {
-            if (host == Host && port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return new TcpEndpoint(Communicator,
-                                       Transport,
-                                       Protocol,
-                                       host,
-                                       port,
-                                       SourceAddress,
-                                       Timeout,
-                                       HasCompressionFlag);
-            }
-        }
 
         internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {

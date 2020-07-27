@@ -144,47 +144,21 @@ namespace ZeroC.Ice
         public override ITransceiver GetTransceiver() =>
             new UdpTransceiver(this, Communicator, Host, Port, McastInterface, _connect);
 
-        internal UdpEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress,
-            string mcastInterface,
-            int mttl,
-            bool connect,
-            bool compressionFlag)
-            : base(communicator, protocol, host, port, sourceAddress)
-        {
-            McastInterface = mcastInterface;
-            McastTtl = mttl;
-            _connect = connect;
-            HasCompressionFlag = compressionFlag;
-        }
-
         // Constructor for unmarshaling.
-        // TODO: should be ice1-only
-        internal UdpEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
-            : base(istr, communicator, protocol)
+        internal UdpEndpoint(InputStream istr, Communicator communicator)
+            : base(istr, communicator, Protocol.Ice1)
         {
-            _connect = false;
-            if (protocol == Protocol.Ice1)
-            {
-                HasCompressionFlag = istr.ReadBool();
-            }
-            else
-            {
-                SkipUnknownOptions(istr, istr.ReadSize());
-            }
+           _connect = false;
+           HasCompressionFlag = istr.ReadBool();
         }
 
+        // Constructor for ice1 endpoint parsing.
         internal UdpEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol, options, oaEndpoint, endpointString)
+            : base(communicator, options, oaEndpoint, endpointString)
         {
             if (options.TryGetValue("-c", out string? argument))
             {
@@ -253,24 +227,17 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
             new UdpConnector(this, addr);
 
-        private protected override IPEndpoint Clone(string host, ushort port)
+        // Clone constructor
+        private UdpEndpoint(UdpEndpoint endpoint, string host, ushort port)
+            : base(endpoint, host, port)
         {
-            if (host == Host && port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return new UdpEndpoint(Communicator,
-                                       Protocol,
-                                       host,
-                                       port,
-                                       SourceAddress,
-                                       McastInterface,
-                                       McastTtl,
-                                       _connect,
-                                       HasCompressionFlag);
-            }
+            McastInterface = endpoint.McastInterface;
+            McastTtl = endpoint.McastTtl;
+            _connect = endpoint._connect;
+            HasCompressionFlag = endpoint.HasCompressionFlag;
         }
+
+        private protected override IPEndpoint Clone(string host, ushort port) =>
+            new UdpEndpoint(this, host, port);
     }
 }

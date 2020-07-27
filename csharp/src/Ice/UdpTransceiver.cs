@@ -106,7 +106,7 @@ namespace ZeroC.Ice
             }
             _bound = true;
             Debug.Assert(_endpoint != null);
-            _endpoint = (UdpEndpoint)_endpoint.NewPort(EffectivePort());
+            _endpoint = (UdpEndpoint)_endpoint.Clone(EffectivePort());
             return _endpoint;
         }
 

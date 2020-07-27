@@ -98,42 +98,21 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter) =>
             new WSConnection(manager,
                 this,
-                Protocol == Protocol.Ice1? (IBinaryConnection)
-                new Ice1BinaryConnection(transceiver!, this, adapter) :
-                new SlicBinaryConnection(transceiver!, this, adapter),
+                Protocol == Protocol.Ice1 ? (IBinaryConnection)
+                    new Ice1BinaryConnection(transceiver!, this, adapter) :
+                    new SlicBinaryConnection(transceiver!, this, adapter),
                 connector,
                 connectionId,
                 adapter);
 
-        internal WSEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            Transport transport,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress,
-            TimeSpan timeout,
-            bool compressionFlag,
-            string resource)
-            : base(communicator,
-                   transport,
-                   protocol,
-                   host,
-                   port,
-                   sourceAddress,
-                   timeout,
-                   compressionFlag) => _resource = resource;
-
-        // Constructor for parsing a string in the ice1 format.
-        // TODO: remove protocol, as it should be ice1-only.
+        // Constructor for ice1 endpoint parsing.
         internal WSEndpoint(
             Communicator communicator,
             Transport transport,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, transport, protocol, options, oaEndpoint, endpointString)
+            : base(communicator, transport, options, oaEndpoint, endpointString)
         {
             if (options.TryGetValue("-r", out string? argument))
             {
@@ -195,16 +174,12 @@ namespace ZeroC.Ice
             }
         }
 
+         // Clone constructor
+        private WSEndpoint(WSEndpoint endpoint, string host, ushort port)
+            : base(endpoint, host, port) => _resource = endpoint._resource;
+
         private protected override IPEndpoint Clone(string host, ushort port) =>
-            new WSEndpoint(Communicator,
-                           Protocol,
-                           Transport,
-                           host,
-                           port,
-                           SourceAddress,
-                           Timeout,
-                           HasCompressionFlag,
-                           _resource);
+            new WSEndpoint(this, host, port);
 
         internal override ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {
@@ -214,8 +189,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName),
-                    Host, _resource);
+                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName), Host, _resource);
             }
         }
     }

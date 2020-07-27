@@ -159,7 +159,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => Clone(host, Port));
+                return hosts.Select(host => Clone(host));
             }
         }
 
@@ -208,31 +208,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IPEndpoint NewPort(ushort port)
-        {
-            if (port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return Clone(Host, port);
-            }
-        }
-
-        private protected IPEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress)
-            : base(communicator, protocol)
-        {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
-            Host = host;
-            Port = port;
-            SourceAddress = sourceAddress;
-        }
+        internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
 
         // Constructor for URI parsing.
         private protected IPEndpoint(
@@ -244,7 +220,7 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol)
         {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
+            Debug.Assert(protocol == Protocol.Ice2);
             Host = host;
             Port = port;
             if (!oaEndpoint) // parsing a URI that represents a proxy
@@ -278,15 +254,14 @@ namespace ZeroC.Ice
             }
         }
 
+        // Constructor for ice1 endpoint parsing.
         private protected IPEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol)
+            : base(communicator, Protocol.Ice1)
         {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2); // TODO: ice1-only
             if (options.TryGetValue("-h", out string? argument))
             {
                 Host = argument ??
@@ -349,8 +324,20 @@ namespace ZeroC.Ice
             // else SourceAddress remains null
         }
 
+        // Constructor for Clone
+        private protected IPEndpoint(IPEndpoint endpoint, string host, ushort port)
+            : base(endpoint.Communicator, endpoint.Protocol)
+        {
+            Host = host;
+            Port = port;
+            SourceAddress = endpoint.SourceAddress;
+        }
+
+        /// <summary>Creates a clone with the specified host and port.</summary>
+        private protected abstract IPEndpoint Clone(string host, ushort port);
+
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
-        private protected abstract IPEndpoint Clone(string host, ushort port);
+        private IPEndpoint Clone(string host) => host == Host ? this : Clone(host, Port);
     }
 }

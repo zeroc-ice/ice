@@ -70,8 +70,156 @@ namespace ZeroC.Ice
                 throw new FormatException("empty string is invalid");
             }
 
-            return UriParser.IsProxyUri(proxyString) ? ParseUri(proxyString, communicator, propertyPrefix) :
-                ParseIce1Format(proxyString, communicator, propertyPrefix);
+            string adapterId;
+            Encoding encoding;
+            IReadOnlyList<Endpoint> endpoints;
+            string facet;
+            Identity identity;
+            InvocationMode invocationMode = InvocationMode.Twoway;
+            Protocol protocol;
+
+            if (UriParser.IsProxyUri(proxyString))
+            {
+                List<string> path;
+                UriParser.ProxyOptions proxyOptions;
+                (endpoints, path, proxyOptions, facet) = UriParser.ParseProxy(proxyString, communicator);
+
+                protocol = proxyOptions.Protocol ?? Protocol.Ice2;
+                encoding = proxyOptions.Encoding ?? Encoding.V2_0;
+
+                adapterId = "";
+
+                switch (path.Count)
+                {
+                    case 0:
+                        // TODO: should we add a default identity "Default" or "Root" or "Main"?
+                        throw new FormatException($"missing identity in proxy `{proxyString}'");
+                    case 1:
+                        identity = new Identity(path[0], "");
+                        break;
+                    case 2:
+                        identity = new Identity(path[1], path[0]);
+                        break;
+                    case 3:
+                        adapterId = path[0];
+                        identity = new Identity(path[2], path[1]);
+                        // TODO: temporary
+                        if (endpoints.Count > 0 && adapterId.Length > 0)
+                        {
+                            throw new FormatException($"direct proxy `{proxyString}' cannot include a location");
+                        }
+                        break;
+                    default:
+                        // TODO: should we convert adapterId/location into a sequence<string>?
+                        throw new FormatException($"too many segments in path of proxy `{proxyString}'");
+                }
+
+                if (identity.Name.Length == 0)
+                {
+                    throw new FormatException($"invalid identity with empty name in proxy `{proxyString}'");
+                }
+            }
+            else
+            {
+                (identity, facet, invocationMode, encoding, adapterId, endpoints) =
+                    Ice1Parser.ParseProxy(proxyString, communicator);
+
+                protocol = Protocol.Ice1;
+            }
+
+            bool? cacheConnection = null;
+            IReadOnlyDictionary<string, string>? context = null;
+            EndpointSelectionType? endpointSelection = null;
+            int? invocationTimeout = null;
+            TimeSpan? locatorCacheTimeout = null;
+            LocatorInfo? locatorInfo = null;
+            bool? preferNonSecure = null;
+            RouterInfo? routerInfo = null;
+
+            // Override the defaults with the proxy properties if a property prefix is defined.
+            if (propertyPrefix != null && propertyPrefix.Length > 0)
+            {
+                // Warn about unknown properties.
+                if (communicator.WarnUnknownProperties)
+                {
+                    communicator.CheckForUnknownProperties(propertyPrefix);
+                }
+
+                cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
+
+                string property = $"{propertyPrefix}.Context.";
+                context = communicator.GetProperties(forPrefix: property).
+                    ToDictionary(e => e.Key.Substring(property.Length), e => e.Value);
+                if (context.Count == 0)
+                {
+                    context = null;
+                }
+
+                property = $"{propertyPrefix}.EndpointSelection";
+                try
+                {
+                    endpointSelection =
+                        communicator.GetProperty(property) is string endpointSelectionStr ?
+                            Enum.Parse<EndpointSelectionType>(endpointSelectionStr) : (EndpointSelectionType?)null;
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException($"cannot parse property `{property}'", ex);
+                }
+
+                property = $"{propertyPrefix}.InvocationTimeout";
+                invocationTimeout = communicator.GetPropertyAsInt(property);
+                if (invocationTimeout != null && invocationTimeout < 1 && invocationTimeout != -1)
+                {
+                    throw new InvalidConfigurationException(
+                        $"invalid value for property `{property}': `{invocationTimeout}'");
+                }
+
+                locatorInfo = communicator.GetLocatorInfo(
+                    communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
+
+                property = $"{propertyPrefix}.LocatorCacheTimeout";
+                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
+                if (locatorCacheTimeout != null &&
+                    locatorCacheTimeout < TimeSpan.Zero &&
+                    locatorCacheTimeout != Timeout.InfiniteTimeSpan)
+                {
+                    throw new InvalidConfigurationException(
+                        $"invalid value for property `{property}': `{locatorCacheTimeout}'");
+                }
+
+                preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
+
+                property = $"{propertyPrefix}.Router";
+                if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
+                {
+                    if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
+                    {
+                        throw new InvalidConfigurationException(
+                            $"`{property}={communicator.GetProperty(property)}': cannot set a router on a router");
+                    }
+                    routerInfo = communicator.GetRouterInfo(router);
+                }
+            }
+
+            return new Reference(adapterId: adapterId,
+                                 cacheConnection: cacheConnection ?? true,
+                                 communicator: communicator,
+                                 connectionId: "",
+                                 context: context ?? communicator.DefaultContext,
+                                 encoding: encoding,
+                                 endpointSelection: endpointSelection ?? communicator.DefaultEndpointSelection,
+                                 endpoints: endpoints,
+                                 facet: facet,
+                                 identity: identity,
+                                 invocationMode: invocationMode,
+                                 invocationTimeout: invocationTimeout ?? communicator.DefaultInvocationTimeout,
+                                 locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
+                                 locatorInfo:
+                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
+                                 preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
+                                 protocol: protocol,
+                                 routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
         }
 
         public override bool Equals(object? obj) => Equals(obj as Reference);
@@ -414,371 +562,6 @@ namespace ZeroC.Ice
                     sb.Append('&');
                 }
             }
-        }
-
-        // TODO: move to private section of the file (not done for ease of review)
-        /// <summary>Parses a string in the ice1 string format for proxies, and returns a new reference.</summary>
-        private static Reference ParseIce1Format(string s, Communicator communicator, string? propertyPrefix)
-        {
-            // TODO: rework this implementation
-
-            int beg = 0;
-            int end = 0;
-
-            const string delim = " \t\n\r";
-
-            // Extract the identity, which may be enclosed in single or double quotation marks.
-            string identityString;
-            end = StringUtil.CheckQuote(s, beg);
-            if (end == -1)
-            {
-                throw new FormatException($"mismatched quotes around identity in `{s}'");
-            }
-            else if (end == 0)
-            {
-                end = StringUtil.FindFirstOf(s, delim + ":@", beg);
-                if (end == -1)
-                {
-                    end = s.Length;
-                }
-                identityString = s[beg..end];
-            }
-            else
-            {
-                beg++; // Skip leading quote
-                identityString = s[beg..end];
-                end++; // Skip trailing quote
-            }
-
-            if (beg == end)
-            {
-                throw new FormatException($"no identity in `{s}'");
-            }
-
-            // Parsing the identity may raise FormatException.
-            var identity = Identity.Parse(identityString, uriFormat: false);
-
-            string facet = "";
-            InvocationMode invocationMode = InvocationMode.Twoway;
-            Encoding encoding = Ice1Definitions.Encoding;
-            string adapterId;
-
-            while (true)
-            {
-                beg = StringUtil.FindFirstNotOf(s, delim, end);
-                if (beg == -1)
-                {
-                    break;
-                }
-
-                if (s[beg] == ':' || s[beg] == '@')
-                {
-                    break;
-                }
-
-                end = StringUtil.FindFirstOf(s, delim + ":@", beg);
-                if (end == -1)
-                {
-                    end = s.Length;
-                }
-
-                if (beg == end)
-                {
-                    break;
-                }
-
-                string option = s[beg..end];
-                if (option.Length != 2 || option[0] != '-')
-                {
-                    throw new FormatException("expected a proxy option but found `{option}' in `{s}'");
-                }
-
-                // Check for the presence of an option argument. The argument may be enclosed in single or double
-                // quotation marks.
-                string? argument = null;
-                int argumentBeg = StringUtil.FindFirstNotOf(s, delim, end);
-                if (argumentBeg != -1)
-                {
-                    char ch = s[argumentBeg];
-                    if (ch != '@' && ch != ':' && ch != '-')
-                    {
-                        beg = argumentBeg;
-                        end = StringUtil.CheckQuote(s, beg);
-                        if (end == -1)
-                        {
-                            throw new FormatException($"mismatched quotes around value for {option} option in `{s}'");
-                        }
-                        else if (end == 0)
-                        {
-                            end = StringUtil.FindFirstOf(s, delim + ":@", beg);
-                            if (end == -1)
-                            {
-                                end = s.Length;
-                            }
-                            argument = s[beg..end];
-                        }
-                        else
-                        {
-                            beg++; // Skip leading quote
-                            argument = s[beg..end];
-                            end++; // Skip trailing quote
-                        }
-                    }
-                }
-
-                switch (option[1])
-                {
-                    case 'f':
-                        if (argument == null)
-                        {
-                            throw new FormatException($"no argument provided for -f option in `{s}'");
-                        }
-                        facet = StringUtil.UnescapeString(argument, 0, argument.Length, "");
-                        break;
-
-                    case 't':
-                        if (argument != null)
-                        {
-                            throw new FormatException(
-                                $"unexpected argument `{argument}' provided for -t option in `{s}'");
-                        }
-                        invocationMode = InvocationMode.Twoway;
-                        break;
-
-                    case 'o':
-                        if (argument != null)
-                        {
-                            throw new FormatException(
-                                $"unexpected argument `{argument}' provided for -o option in `{s}'");
-                        }
-                        invocationMode = InvocationMode.Oneway;
-                        break;
-
-                    case 'O':
-                        if (argument != null)
-                        {
-                            throw new FormatException(
-                                $"unexpected argument `{argument}' provided for -O option in `{s}'");
-                        }
-                        invocationMode = InvocationMode.BatchOneway;
-                        break;
-
-                    case 'd':
-                        if (argument != null)
-                        {
-                            throw new FormatException(
-                                $"unexpected argument `{argument}' provided for -d option in `{s}'");
-                        }
-                        invocationMode = InvocationMode.Datagram;
-                        break;
-
-                    case 'D':
-                        if (argument != null)
-                        {
-                            throw new FormatException(
-                                $"unexpected argument `{argument}' provided for -D option in `{s}'");
-                        }
-                        invocationMode = InvocationMode.BatchDatagram;
-                        break;
-
-                    case 's':
-                        if (argument != null)
-                        {
-                            throw new FormatException(
-                                $"unexpected argument `{argument}' provided for -s option in `{s}'");
-                        }
-                        communicator.Logger.Warning(
-                            $"while parsing `{s}': the `-s' proxy option no longer has any effect");
-                        break;
-
-                    case 'e':
-                        if (argument == null)
-                        {
-                            throw new FormatException($"no argument provided for -e option in `{s}'");
-                        }
-                        encoding = Encoding.Parse(argument);
-                        break;
-
-                    case 'p':
-                        if (argument == null)
-                        {
-                            throw new FormatException($"no argument provided for -p option in `{s}'");
-                        }
-                        if (argument != "1.0")
-                        {
-                            throw new FormatException($"invalid value for -p option in `{s}'");
-                        }
-                        break;
-
-                    default:
-                        throw new FormatException("unknown option `{option}' in `{s}'");
-                }
-            }
-
-            if (beg == -1)
-            {
-                return Create(adapterId: "", communicator, encoding, endpoints: ImmutableArray<Endpoint>.Empty, facet,
-                    identity, invocationMode, propertyPrefix, Protocol.Ice1);
-            }
-
-            var endpoints = new List<Endpoint>();
-
-            if (s[beg] == ':')
-            {
-                end = beg;
-
-                while (end < s.Length && s[end] == ':')
-                {
-                    beg = end + 1;
-
-                    end = beg;
-                    while (true)
-                    {
-                        end = s.IndexOf(':', end);
-                        if (end == -1)
-                        {
-                            end = s.Length;
-                            break;
-                        }
-                        else
-                        {
-                            bool quoted = false;
-                            int quote = beg;
-                            while (true)
-                            {
-                                quote = s.IndexOf('\"', quote);
-                                if (quote == -1 || end < quote)
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    quote = s.IndexOf('\"', ++quote);
-                                    if (quote == -1)
-                                    {
-                                        break;
-                                    }
-                                    else if (end < quote)
-                                    {
-                                        quoted = true;
-                                        break;
-                                    }
-                                    ++quote;
-                                }
-                            }
-                            if (!quoted)
-                            {
-                                break;
-                            }
-                            ++end;
-                        }
-                    }
-
-                    string es = s[beg..end];
-                    endpoints.Add(Endpoint.Parse(es, Protocol.Ice1, communicator, false));
-                }
-
-                Debug.Assert(endpoints.Count > 0);
-                return Create(adapterId: "", communicator, encoding, endpoints, facet, identity, invocationMode,
-                    propertyPrefix, Protocol.Ice1);
-            }
-            else if (s[beg] == '@')
-            {
-                beg = StringUtil.FindFirstNotOf(s, delim, beg + 1);
-                if (beg == -1)
-                {
-                    throw new FormatException($"missing adapter id in `{s}'");
-                }
-
-                string adapterstr;
-                end = StringUtil.CheckQuote(s, beg);
-                if (end == -1)
-                {
-                    throw new FormatException($"mismatched quotes around adapter id in `{s}'");
-                }
-                else if (end == 0)
-                {
-                    end = StringUtil.FindFirstOf(s, delim, beg);
-                    if (end == -1)
-                    {
-                        end = s.Length;
-                    }
-                    adapterstr = s[beg..end];
-                }
-                else
-                {
-                    beg++; // Skip leading quote
-                    adapterstr = s[beg..end];
-                    end++; // Skip trailing quote
-                }
-
-                if (end != s.Length && StringUtil.FindFirstNotOf(s, delim, end) != -1)
-                {
-                    throw new FormatException(
-                        $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
-                }
-
-                adapterId = StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
-
-                if (adapterId.Length == 0)
-                {
-                    throw new FormatException($"empty adapter id in proxy `{s}'");
-                }
-
-                return Create(adapterId, communicator, encoding, endpoints: Array.Empty<Endpoint>(), facet, identity,
-                    invocationMode, propertyPrefix, Protocol.Ice1);
-            }
-
-            throw new FormatException($"malformed proxy `{s}'");
-        }
-
-        private static Reference ParseUri(string uriString, Communicator communicator, string? propertyPrefix)
-        {
-            (IReadOnlyList<Endpoint> endpoints, List<string> path, UriParser.ProxyOptions proxyOptions, string facet) =
-                UriParser.ParseProxy(uriString, communicator);
-
-            string adapterId = "";
-            Identity identity;
-
-            switch (path.Count)
-            {
-                case 0:
-                    // TODO: should we add a default identity "Default" or "Root" or "Main"?
-                    throw new FormatException($"missing identity in proxy `{uriString}'");
-                case 1:
-                    identity = new Identity(path[0], "");
-                    break;
-                case 2:
-                    identity = new Identity(path[1], path[0]);
-                    break;
-                case 3:
-                    adapterId = path[0];
-                    identity = new Identity(path[2], path[1]);
-                    // TODO: temporary
-                    if (endpoints.Count > 0 && adapterId.Length > 0)
-                    {
-                        throw new FormatException($"direct proxy `{uriString}' cannot include a location");
-                    }
-                    break;
-                default:
-                    // TODO: should we convert adapterId/location into a sequence<string>?
-                    throw new FormatException($"too many segments in path of proxy `{uriString}'");
-            }
-
-            if (identity.Name.Length == 0)
-            {
-                throw new FormatException($"invalid identity with empty name in proxy `{uriString}'");
-            }
-
-            return Create(adapterId,
-                          communicator,
-                          proxyOptions.Encoding ?? Encoding.V2_0,
-                          endpoints,
-                          facet,
-                          identity,
-                          invocationMode: InvocationMode.Twoway,
-                          propertyPrefix,
-                          proxyOptions.Protocol ?? Protocol.Ice2);
         }
 
         /// <summary>Reads a reference from the input stream.</summary>
@@ -1502,113 +1285,6 @@ namespace ZeroC.Ice
             {
                 ostr.WriteString(AdapterId);
             }
-        }
-
-        // Helper factory method used by Parse.
-        private static Reference Create(string adapterId,
-                                        Communicator communicator,
-                                        Encoding encoding,
-                                        IReadOnlyList<Endpoint> endpoints,
-                                        string facet,
-                                        Identity identity,
-                                        InvocationMode invocationMode,
-                                        string? propertyPrefix,
-                                        Protocol protocol)
-        {
-            bool? cacheConnection = null;
-            IReadOnlyDictionary<string, string>? context = null;
-            EndpointSelectionType? endpointSelection = null;
-            int? invocationTimeout = null;
-            TimeSpan? locatorCacheTimeout = null;
-            LocatorInfo? locatorInfo = null;
-            bool? preferNonSecure = null;
-            RouterInfo? routerInfo = null;
-
-            // Override the defaults with the proxy properties if a property prefix is defined.
-            if (propertyPrefix != null && propertyPrefix.Length > 0)
-            {
-                // Warn about unknown properties.
-                if (communicator.WarnUnknownProperties)
-                {
-                    communicator.CheckForUnknownProperties(propertyPrefix);
-                }
-
-                cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
-
-                string property = $"{propertyPrefix}.Context.";
-                context = communicator.GetProperties(forPrefix: property).
-                    ToDictionary(e => e.Key.Substring(property.Length), e => e.Value);
-                if (context.Count == 0)
-                {
-                    context = null;
-                }
-
-                property = $"{propertyPrefix}.EndpointSelection";
-                try
-                {
-                    endpointSelection =
-                        communicator.GetProperty(property) is string endpointSelectionStr ?
-                            Enum.Parse<EndpointSelectionType>(endpointSelectionStr) : (EndpointSelectionType?)null;
-                }
-                catch (FormatException ex)
-                {
-                    throw new InvalidConfigurationException($"cannot parse property `{property}'", ex);
-                }
-
-                property = $"{propertyPrefix}.InvocationTimeout";
-                invocationTimeout = communicator.GetPropertyAsInt(property);
-                if (invocationTimeout != null && invocationTimeout < 1 && invocationTimeout != -1)
-                {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for property `{property}': `{invocationTimeout}'");
-                }
-
-                locatorInfo = communicator.GetLocatorInfo(
-                    communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
-
-                property = $"{propertyPrefix}.LocatorCacheTimeout";
-                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
-                if (locatorCacheTimeout != null &&
-                    locatorCacheTimeout < TimeSpan.Zero &&
-                    locatorCacheTimeout != Timeout.InfiniteTimeSpan)
-                {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for property `{property}': `{locatorCacheTimeout}'");
-                }
-
-                preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
-
-                property = $"{propertyPrefix}.Router";
-                IRouterPrx? router = communicator.GetPropertyAsProxy(property, IRouterPrx.Factory);
-                if (router != null)
-                {
-                    if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
-                    {
-                        throw new InvalidConfigurationException(
-                            $"`{property}={communicator.GetProperty(property)}': cannot set a router on a router");
-                    }
-                    routerInfo = communicator.GetRouterInfo(router);
-                }
-            }
-
-            return new Reference(adapterId: adapterId,
-                                 cacheConnection: cacheConnection ?? true,
-                                 communicator: communicator,
-                                 connectionId: "",
-                                 context: context ?? communicator.DefaultContext,
-                                 encoding: encoding,
-                                 endpointSelection: endpointSelection ?? communicator.DefaultEndpointSelection,
-                                 endpoints: endpoints,
-                                 facet: facet,
-                                 identity: identity,
-                                 invocationMode: invocationMode,
-                                 invocationTimeout: invocationTimeout ?? communicator.DefaultInvocationTimeout,
-                                 locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
-                                 locatorInfo:
-                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
-                                 preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
-                                 protocol: protocol,
-                                 routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
         }
 
         // Constructor for routable references, not bound to a connection

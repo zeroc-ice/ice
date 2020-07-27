@@ -66,7 +66,7 @@ namespace ZeroC.Ice
             _addr = Network.DoBind(_fd, _addr);
             Network.DoListen(_fd, endpoint.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511);
 
-            Endpoint = endpoint.NewPort((ushort)_addr.Port);
+            Endpoint = endpoint.Clone((ushort)_addr.Port);
         }
     }
 }
