@@ -3219,7 +3219,7 @@ yyreduce:
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged);
+        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
@@ -3248,7 +3248,7 @@ yyreduce:
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, value->v,
+        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
@@ -3276,7 +3276,7 @@ yyreduce:
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        yyval = st->createDataMember(name, type, false); // Dummy
+        yyval = st->createDataMember(name, type, false, 0); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
@@ -3301,7 +3301,7 @@ yyreduce:
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        yyval = st->createDataMember(IceUtil::generateUUID(), type, false); // Dummy
+        yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
