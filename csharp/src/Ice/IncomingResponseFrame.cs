@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(communicator, Protocol.GetEncoding(), Payload.Slice(1), reader);
+                return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(communicator, Protocol.GetEncoding(), Payload.Slice(1));
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
             }
             else
             {
@@ -96,7 +96,7 @@ namespace ZeroC.Ice
             if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
             {
                 int size;
-                (size, Encoding) = InputStream.ReadEncapsulationHeader(Protocol.GetEncoding(), Payload.AsSpan(1));
+                (size, Encoding) = Payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
                 if (Protocol == Protocol.Ice1 && size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
                 {
                     throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
@@ -121,37 +121,40 @@ namespace ZeroC.Ice
             switch (ReplyStatus)
             {
                 case ReplyStatus.UserException:
-                {
-                    return InputStream.ReadEncapsulation(communicator,
-                                                         Protocol.GetEncoding(),
-                                                         Payload.Slice(1),
-                                                         istr => istr.ReadException());
-                }
+                    return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(),
+                                                                         communicator,
+                                                                         istr => istr.ReadException());
+
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.FacetNotExistException:
                 case ReplyStatus.OperationNotExistException:
-                {
                     return ReadDispatchException();
-                }
+
                 default:
-                {
                     Debug.Assert(ReplyStatus == ReplyStatus.UnknownException ||
                                  ReplyStatus == ReplyStatus.UnknownLocalException ||
                                  ReplyStatus == ReplyStatus.UnknownUserException);
                     return ReadUnhandledException();
-                }
             }
         }
 
-        internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.ReadString(Protocol.GetEncoding(), Payload.Slice(1).AsSpan()),
-                                   Identity.Empty,
-                                   "",
-                                   "");
+        internal UnhandledException ReadUnhandledException()
+        {
+            var buffer = Payload.AsReadOnlySpan(1);
+            (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
+
+            if (size + sizeLength != buffer.Length)
+            {
+                throw new InvalidDataException(@$"buffer size {
+                    buffer.Length} for message does not match size length + message size {size + sizeLength}");
+            }
+
+            throw new UnhandledException(buffer.Slice(sizeLength).ReadString(), Identity.Empty, "", "");
+        }
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(Protocol.GetEncoding(), Payload.Slice(1));
+            var istr = new InputStream(Payload.Slice(1), Protocol.GetEncoding());
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();

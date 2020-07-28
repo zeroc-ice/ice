@@ -434,7 +434,7 @@ namespace ZeroC.Ice.Test.Exceptions
             }
             catch (UnhandledException ex)
             {
-                 TestHelper.Assert(ex.Message.Contains("unhandled exception")); // verify we get custom message
+                TestHelper.Assert(ex.Message.Contains("unhandled exception")); // verify we get custom message
             }
             catch
             {

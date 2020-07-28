@@ -169,7 +169,7 @@ namespace ZeroC.Ice
                     $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
                     nameof(payload));
             }
-            int size = InputStream.ReadFixedLengthSize(proxy.Protocol.GetEncoding(), payload.AsSpan(0, 4));
+            int size = payload.AsReadOnlySpan(0, 4).ReadFixedLengthSize(proxy.Protocol.GetEncoding());
             if (size != payload.Count)
             {
                 throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",

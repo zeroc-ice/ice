@@ -875,6 +875,17 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(c.DictionaryEquals(c2));
             output.WriteLine("ok");
 
+            if (communicator.DefaultProtocol == Protocol.Ice2)
+            {
+                output.Write("testing ice1 proxy in 2.0 encapsulation... ");
+                output.Flush();
+                var ice1Prx = IObjectPrx.Parse(
+                    "foo:tcp -h localhost -p 10000:udp -h localhost -p 10000", communicator);
+                var prx = IMyDerivedClassPrx.UncheckedCast(baseProxy).Echo(ice1Prx);
+                TestHelper.Assert(ice1Prx.Equals(prx));
+                output.WriteLine("ok");
+            }
+
             output.Write("testing ice_fixed... ");
             output.Flush();
             {

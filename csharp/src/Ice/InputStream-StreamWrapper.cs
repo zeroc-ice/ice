@@ -19,11 +19,12 @@ namespace ZeroC.Ice
 
             public override long Position
             {
-                get => throw new NotSupportedException();
+                get => _pos;
                 set => throw new NotSupportedException();
             }
 
-            private readonly InputStream _stream;
+            private readonly ReadOnlyMemory<byte> _buffer;
+            private int _pos;
 
             public override void Flush()
             {
@@ -31,11 +32,14 @@ namespace ZeroC.Ice
 
             public override int Read(byte[] buffer, int offset, int count) => Read(buffer.AsSpan(offset, count));
 
-            public override int Read(Span<byte> buffer)
+            public override int Read(Span<byte> span)
             {
                 try
                 {
-                    return _stream.ReadSpan(buffer);
+                    int length = Math.Min(span.Length, _buffer.Length - _pos);
+                    _buffer.Span.Slice(_pos, length).CopyTo(span);
+                    _pos += length;
+                    return length;
                 }
                 catch (Exception ex)
                 {
@@ -47,7 +51,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return _stream.ReadByte();
+                    return _buffer.Span[_pos++];
                 }
                 catch (Exception ex)
                 {
@@ -60,7 +64,7 @@ namespace ZeroC.Ice
             public override void Write(byte[] array, int offset, int count) => throw new NotSupportedException();
             public override void WriteByte(byte value) => throw new NotSupportedException();
 
-            internal StreamWrapper(InputStream istr) => _stream = istr;
+            internal StreamWrapper(ReadOnlyMemory<byte> buffer) => _buffer = buffer;
         }
     }
 }

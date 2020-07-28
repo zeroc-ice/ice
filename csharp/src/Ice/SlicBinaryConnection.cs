@@ -124,8 +124,8 @@ namespace ZeroC.Ice
                 // TODO: this is temporary code. With the 2.0 encoding, sizes are always variable-length
                 // with the length encoded on the first 2 bits of the size. Assuming the size is encoded
                 // on 4 bytes (like we do below) is not correct.
-                int size = InputStream.ReadFixedLengthSize(Endpoint.Protocol.GetEncoding(),
-                                                           readBuffer.AsSpan(10, 4));
+                int size =
+                    readBuffer.AsReadOnlySpan(10, 4).ReadFixedLengthSize(Endpoint.Protocol.GetEncoding());
                 if (size != Ice2Definitions.HeaderSize)
                 {
                     throw new InvalidDataException(
@@ -228,7 +228,7 @@ namespace ZeroC.Ice
                     var request = new IncomingRequestFrame(Endpoint.Protocol,
                                                            readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, request);
-                    return (InputStream.ReadInt(readBuffer.AsSpan(Ice2Definitions.HeaderSize, 4)), request);
+                    return (readBuffer.AsReadOnlySpan(Ice2Definitions.HeaderSize, 4).ReadInt(), request);
                 }
 
                 case Ice2Definitions.FrameType.Reply:
@@ -236,7 +236,7 @@ namespace ZeroC.Ice
                     var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
                                                                   readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, responseFrame);
-                    return (InputStream.ReadInt(readBuffer.AsSpan(14, 4)), responseFrame);
+                    return (readBuffer.AsReadOnlySpan(14, 4).ReadInt(), responseFrame);
                 }
 
                 case Ice2Definitions.FrameType.ValidateConnection:
@@ -273,7 +273,7 @@ namespace ZeroC.Ice
 
             // Check header
             Ice2Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
-            int size = InputStream.ReadFixedLengthSize(Endpoint.Protocol.GetEncoding(), readBuffer.Slice(10, 4));
+            int size = readBuffer.AsReadOnlySpan(10, 4).ReadFixedLengthSize(Endpoint.Protocol.GetEncoding());
             if (size < Ice2Definitions.HeaderSize)
             {
                 throw new InvalidDataException($"received ice2 frame with only {size} bytes");
