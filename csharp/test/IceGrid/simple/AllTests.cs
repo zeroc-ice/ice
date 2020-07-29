@@ -53,7 +53,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
                 properties["IceLocatorDiscovery.Port"] = helper.GetTestPort(99).ToString();
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
-                properties["AdapterForDiscoveryTest.Endpoints"] = "default";
+                properties["AdapterForDiscoveryTest.Endpoints"] = "default -h 127.0.0.1";
 
                 {
                     using var com = new Communicator(properties);

@@ -119,13 +119,13 @@ namespace ZeroC.Ice.Test.Hash
                 Assert(proxyCollisions < maxCollisions);
             }
 
-            var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator);
+            var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010", communicator);
             //Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");
-            var prx3 = IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator);
+            var prx3 = IObjectPrx.Parse("Glacier2/router:udp -h localhost -p 10012", communicator);
             var prx4 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator);
             //Ice.ObjectPrx prx5 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011");
             var prx6 = IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator);
-            var prx7 = IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator);
+            var prx7 = IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010 -t 10000", communicator);
             //Ice.ObjectPrx prx8 = communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000");
             var prx9 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator);
             //Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
@@ -144,15 +144,15 @@ namespace ZeroC.Ice.Test.Hash
             };
             //proxyMap["prx10"] = prx10.GetHashCode();
 
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator).GetHashCode() == proxyMap["prx3"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:udp -h localhost -p 10012", communicator).GetHashCode() == proxyMap["prx3"]);
             Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() ==
                    proxyMap["prx4"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
             Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() ==
                    proxyMap["prx6"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator).GetHashCode() ==
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010 -t 10000", communicator).GetHashCode() ==
                    proxyMap["prx7"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
             Assert(

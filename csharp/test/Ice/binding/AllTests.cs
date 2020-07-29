@@ -861,13 +861,13 @@ namespace ZeroC.Ice.Test.Binding
 
                 var anyipv4 = new Dictionary<string, string>(ipv4)
                 {
-                    ["Adapter.Endpoints"] = endpoint,
+                    ["Adapter.Endpoints"] = $"{endpoint} -h 0.0.0.0",
                     ["Adapter.PublishedEndpoints"] = $"{endpoint} -h 127.0.0.1"
                 };
 
                 var anyipv6 = new Dictionary<string, string>(ipv6)
                 {
-                    ["Adapter.Endpoints"] = endpoint,
+                    ["Adapter.Endpoints"] = $"{endpoint} -h \"::0\"",
                     ["Adapter.PublishedEndpoints"] = $"{endpoint} -h \".1\""
                 };
 
@@ -875,7 +875,7 @@ namespace ZeroC.Ice.Test.Binding
                 {
                     { "IPv4", "1" },
                     { "IPv6", "1"},
-                    { "Adapter.Endpoints", endpoint },
+                    { "Adapter.Endpoints", $"{endpoint} -h \"::0\"" },
                     { "Adapter.PublishedEndpoints", $"{endpoint} -h \"::1\":{endpoint} -h 127.0.0.1" }
                 };
 

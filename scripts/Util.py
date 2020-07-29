@@ -2943,9 +2943,9 @@ class Driver:
         print("--rfilter=<regex>     Run all the tests that do not match the given regex.")
         print("--languages=l1,l2,... List of comma-separated language mappings to test.")
         print("--rlanguages=l1,l2,.. List of comma-separated language mappings to not test.")
-        print("--host=<addr>         The IPv4 address to use for Ice.Default.Host.")
-        print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
-        print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
+        print("--host=<addr>         The IPv4 address to use for Ice.Default.Host & Test.Host.")
+        print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host & Test.Host.")
+        print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host & Test.Host.")
         print("--interface=<IP>      The multicast interface to use to discover controllers.")
         print("--controller-app      Start the process controller application.")
         print("--valgrind            Start executables with valgrind.")
@@ -2958,6 +2958,7 @@ class Driver:
         self.host = ""
         self.hostIPv6 = ""
         self.hostBT = ""
+        self.interface = "127.0.0.1"
         self.controllerApp = False
         self.valgrind = False
         self.languages = ",".join(os.environ.get("LANGUAGES", "").split(" "))
@@ -2982,7 +2983,6 @@ class Driver:
         (self.filters, self.rfilters) = ([re.compile(a) for a in self.filters], [re.compile(a) for a in self.rfilters])
 
         self.communicator = None
-        self.interface = ""
         self.processControllers = {}
 
     def setConfigs(self, configs):
@@ -3010,8 +3010,8 @@ class Driver:
     def isWorkerThread(self):
         return False
 
-    def getTestEndpoint(self, portnum, protocol="default"):
-        return "{0} -p {1}".format(protocol, self.getTestPort(portnum))
+    def getTestEndpoint(self, portnum, transport="default"):
+        return "{0} -h {1} -p {2}".format(transport, self.getHost(transport, False), self.getTestPort(portnum))
 
     def getTestPort(self, portnum):
         return 12010 + portnum
@@ -3022,11 +3022,13 @@ class Driver:
 
     def getProps(self, process, current):
         props = {}
+
         if isinstance(process, IceProcess):
-            if not self.host:
-                props["Ice.Default.Host"] = "0:0:0:0:0:0:0:1" if current.config.ipv6 else "127.0.0.1"
-            else:
-                props["Ice.Default.Host"] = self.host
+            # TODO: remove Ice.Default.Host and only use Test.Host
+            useTestHost = isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir()
+            hostProperty = "Test.Host" if useTestHost else "Ice.Default.Host"
+            props[hostProperty] = self.host or "0:0:0:0:0:0:0:1" if current.config.ipv6 else "127.0.0.1"
+
         return props
 
     def getMappings(self):

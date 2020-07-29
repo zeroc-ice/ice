@@ -87,9 +87,10 @@ class IceGridNode(ProcessFromBinDir, Server):
                 pass
 
     def getProps(self, current):
+        host = current.driver.getHost(current.config.transport, current.config.ipv6)
         props = {
             'IceGrid.InstanceName' : 'TestIceGrid',
-            'IceGrid.Node.Endpoints' : 'default',
+            'IceGrid.Node.Endpoints' : f'default -h {host}',
             'IceGrid.Node.WaitTime' : 240,
             'Ice.ProgramName' : 'icegridnode',
             'IceGrid.Node.Trace.Replica' : 0,
@@ -147,18 +148,19 @@ class IceGridRegistry(ProcessFromBinDir, Server):
                 pass
 
     def getProps(self, current):
+        host = current.driver.getHost(current.config.transport, current.config.ipv6)
         props = {
             'IceGrid.InstanceName' : 'TestIceGrid',
             'IceGrid.Registry.PermissionsVerifier' : 'TestIceGrid/NullPermissionsVerifier',
             'IceGrid.Registry.AdminPermissionsVerifier' : 'TestIceGrid/NullPermissionsVerifier',
             'IceGrid.Registry.SSLPermissionsVerifier' : 'TestIceGrid/NullSSLPermissionsVerifier',
             'IceGrid.Registry.AdminSSLPermissionsVerifier' : 'TestIceGrid/NullSSLPermissionsVerifier',
-            'IceGrid.Registry.Server.Endpoints' : 'default',
-            'IceGrid.Registry.Internal.Endpoints' : 'default',
+            'IceGrid.Registry.Server.Endpoints' : f'default -h {host}',
+            'IceGrid.Registry.Internal.Endpoints' : f'default -h {host}',
             'IceGrid.Registry.Client.Endpoints' : self.getEndpoints(current),
             'IceGrid.Registry.Discovery.Port' : current.driver.getTestPort(99),
-            'IceGrid.Registry.SessionManager.Endpoints' : 'default',
-            'IceGrid.Registry.AdminSessionManager.Endpoints' : 'default',
+            'IceGrid.Registry.SessionManager.Endpoints' : f'default -h {host}',
+            'IceGrid.Registry.AdminSessionManager.Endpoints' : f'default -h {host}',
             'IceGrid.Registry.SessionTimeout' : 60,
             'IceGrid.Registry.ReplicaName' : self.name,
             'Ice.ProgramName' : self.name,
@@ -243,6 +245,7 @@ class IceGridTestCase(TestCase):
             serverProps = Server().getProps(current)
             variables = {
                 "test.dir" : self.getPath(current),
+                "test.host": current.driver.getHost(current.config.transport, current.config.ipv6),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),

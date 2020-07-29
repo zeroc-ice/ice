@@ -19,12 +19,11 @@ namespace ZeroC.Ice.Test.Metrics
                 ice1 = value == "ice1";
             }
 
-            properties["Ice.Admin.Endpoints"] = ice1 ? "tcp" : "ice+tcp://127.0.0.1:0";
+            properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
             properties["Ice.Admin.InstanceName"] = "server";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.IncomingFrameSizeMax"] = "50M";
-            properties["Ice.Default.Host"] = "127.0.0.1";
 
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));

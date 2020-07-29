@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             Communicator communicator = current.Adapter.Communicator;
             string transport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
-            string host = communicator.GetProperty("Ice.Default.Host") ?? "127.0.0.1";
+            string host = communicator.GetProperty("Test.Host")!;
 
             string name = Guid.NewGuid().ToString();
             if (timeout >= 0)

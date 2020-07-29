@@ -67,12 +67,14 @@ namespace Test
                 }
             }
 
+            string host = GetTestHost(properties);
+
             if (uriFormat)
             {
                 var sb = new StringBuilder("ice+");
                 sb.Append(transport);
                 sb.Append("://");
-                string host = GetTestHost(properties);
+
                 if (host.Contains(':'))
                 {
                     sb.Append('[');
@@ -90,6 +92,17 @@ namespace Test
             else
             {
                 var sb = new StringBuilder(transport);
+                sb.Append(" -h ");
+                if (host.Contains(':'))
+                {
+                    sb.Append('"');
+                    sb.Append(host);
+                    sb.Append('"');
+                }
+                else
+                {
+                    sb.Append(host);
+                }
                 sb.Append(" -p ");
                 sb.Append(GetTestPort(properties, num));
                 return sb.ToString();
@@ -163,7 +176,7 @@ namespace Test
 
         public static string GetTestHost(Dictionary<string, string> properties)
         {
-            if (!properties.TryGetValue("Ice.Default.Host", out string? host))
+            if (!properties.TryGetValue("Test.Host", out string? host))
             {
                 host = "127.0.0.1";
             }

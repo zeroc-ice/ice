@@ -22,8 +22,8 @@ namespace ZeroC.Ice.Test.Proxy
             // ice1 proxies
             string[] ice1ProxyArray =
             {
-                "ice -t:tcp -p 10000",
-                "ice+tcp:ssl -p 10000",
+                "ice -t:tcp -h localhost -p 10000",
+                "ice+tcp:ssl -h localhost -p 10000",
             };
 
             // ice2 proxies
@@ -308,7 +308,7 @@ namespace ZeroC.Ice.Test.Proxy
             // The following tests are only for the ice1 format:
             b1 = IObjectPrx.Parse("id -f \"facet x\"", communicator);
             TestHelper.Assert(b1.Identity.Name == "id" && b1.Identity.Category.Length == 0 && b1.Facet == "facet x");
-            b1 = IObjectPrx.Parse("test -f facet:tcp", communicator);
+            b1 = IObjectPrx.Parse("test -f facet:tcp -h localhost", communicator);
             TestHelper.Assert(b1.Identity.Name == "test" && b1.Identity.Category.Length == 0 &&
                     b1.Facet == "facet" && b1.AdapterId.Length == 0);
             b1 = IObjectPrx.Parse("test -f \"facet:tcp\"", communicator);
