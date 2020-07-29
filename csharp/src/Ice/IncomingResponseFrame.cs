@@ -146,10 +146,10 @@ namespace ZeroC.Ice
             if (size + sizeLength != buffer.Length)
             {
                 throw new InvalidDataException(@$"buffer size {
-                    buffer.Length} for message does not match size length + message size {size + sizeLength}");
+                    buffer.Length} for message does not match size length plus message size of {size + sizeLength}");
             }
 
-            throw new UnhandledException(buffer.Slice(sizeLength).ReadString(), Identity.Empty, "", "");
+            return new UnhandledException(buffer.Slice(sizeLength).ReadString(), Identity.Empty, "", "");
         }
 
         internal DispatchException ReadDispatchException()

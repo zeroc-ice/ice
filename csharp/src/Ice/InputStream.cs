@@ -128,7 +128,7 @@ namespace ZeroC.Ice
             istr => istr.ReadVarULong();
 
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
-        /// <value>The current encoding.</value>
+        /// <value>The encoding.</value>
         public Encoding Encoding { get; }
 
         /// <summary>The 0-based position (index) in the underlying buffer.</summary>
@@ -151,7 +151,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // The communicator must be set when reading proxies, classes or an exception.
+        // The communicator must be set when reading a proxy, class, or exception.
         private readonly Communicator? _communicator;
 
         private bool OldEncoding => Encoding == Encoding.V1_1;
@@ -162,7 +162,7 @@ namespace ZeroC.Ice
         // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData _current;
 
-        // The current depth when reading nested class/exception instances.
+        // The current depth when reading nested class instances.
         private int _classGraphDepth;
 
         // True when reading a top-level encapsulation; otherwise, false.
@@ -1036,7 +1036,7 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of the buffer.</param>
-        /// <param name="communicator">The communicator (optional).</param>
+        /// <param name="communicator">The communicator.</param>
         /// <param name="startEncapsulation">When true, start reading an encapsulation in this byte buffer, and
         /// <c>encoding</c> represents the encoding of the header.</param>
         internal InputStream(
@@ -1150,7 +1150,7 @@ namespace ZeroC.Ice
                     endpoint = factory?.Read(istr, transport, protocol) ??
                         new UniversalEndpoint(istr, communicator, transport, protocol); // protocol is ice2 or greater
 
-                    if (istr == this)
+                    if (ReferenceEquals(istr, this))
                     {
                         // Make sure we read the full encaps
                         if (Pos != oldPos + size - 2)

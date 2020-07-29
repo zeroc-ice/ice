@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     {
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
-        /// <summary>Reads a value from the the buffer.</summary>
+        /// <summary>Reads a value from the buffer.</summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of the data in the buffer.</param>
@@ -34,7 +34,7 @@ namespace ZeroC.Ice
             return result;
         }
 
-        /// <summary>Reads a value from the the buffer that uses the Ice 2.0 encoding.</summary>
+        /// <summary>Reads a value from the buffer that uses the Ice 2.0 encoding.</summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="communicator">The communicator, which is mandatory only when reading proxies.</param>
@@ -48,7 +48,7 @@ namespace ZeroC.Ice
             Communicator communicator,
             InputStreamReader<T> reader) => buffer.Read(Encoding.V2_0, communicator, reader);
 
-        /// <summary>Reads a value from the the buffer. Value cannot contain any proxy.</summary>
+        /// <summary>Reads a value from the buffer. Value cannot contain any proxy.</summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of the data in the buffer.</param>
@@ -62,7 +62,7 @@ namespace ZeroC.Ice
             Encoding encoding,
             InputStreamReader<T> reader) => buffer.Read(encoding, null, reader);
 
-        /// <summary>Reads a value from the the buffer that uses the 2.0 encoding. Value cannot contain any proxy.
+        /// <summary>Reads a value from the buffer that uses the 2.0 encoding. Value cannot contain any proxy.
         /// </summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
@@ -239,7 +239,7 @@ namespace ZeroC.Ice
 
             checked // make sure we don't overflow
             {
-                return ((int)size, (1 << (buffer[0] & 0x03)));
+                return ((int)size, 1 << (buffer[0] & 0x03));
             }
         }
     }
