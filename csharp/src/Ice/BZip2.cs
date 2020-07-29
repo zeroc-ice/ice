@@ -216,7 +216,7 @@ namespace ZeroC.Ice
         internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int frameSizeMax)
         {
             Debug.Assert(IsLoaded);
-            int decompressedSize = InputStream.ReadInt(compressed.AsSpan(headerSize, 4));
+            int decompressedSize = compressed.AsReadOnlySpan(headerSize, 4).ReadInt();
             if (decompressedSize <= headerSize)
             {
                 throw new InvalidDataException(

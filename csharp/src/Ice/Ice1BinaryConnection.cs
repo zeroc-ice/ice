@@ -124,7 +124,7 @@ namespace ZeroC.Ice
                             }' before receiving the validate connection frame");
                     }
 
-                    int size = InputStream.ReadInt(readBuffer.AsSpan(10, 4));
+                    int size = readBuffer.AsReadOnlySpan(10, 4).ReadInt();
                     if (size != Ice1Definitions.HeaderSize)
                     {
                         throw new InvalidDataException(
@@ -283,13 +283,13 @@ namespace ZeroC.Ice
                                                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
                                                            compressionStatus);
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, request);
-                    return (InputStream.ReadInt(readBuffer.AsSpan(Ice1Definitions.HeaderSize, 4)), request);
+                    return (readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt(), request);
                 }
 
                 case Ice1Definitions.FrameType.RequestBatch:
                 {
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                    int invokeNum = InputStream.ReadInt(readBuffer.AsSpan(Ice1Definitions.HeaderSize, 4));
+                    int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
                     {
                         throw new InvalidDataException(
@@ -304,7 +304,7 @@ namespace ZeroC.Ice
                     var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
                                                                   readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, responseFrame);
-                    return (InputStream.ReadInt(readBuffer.AsSpan(14, 4)), responseFrame);
+                    return (readBuffer.AsReadOnlySpan(14, 4).ReadInt(), responseFrame);
                 }
 
                 case Ice1Definitions.FrameType.ValidateConnection:
@@ -349,7 +349,7 @@ namespace ZeroC.Ice
 
             // Check header
             Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
-            int size = InputStream.ReadInt(readBuffer.Slice(10, 4));
+            int size = readBuffer.AsReadOnlySpan(10, 4).ReadInt();
             if (size < Ice1Definitions.HeaderSize)
             {
                 throw new InvalidDataException($"received ice1 frame with only {size} bytes");

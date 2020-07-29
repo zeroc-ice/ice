@@ -790,7 +790,7 @@ namespace ZeroC.Ice
         public void WriteSerializable(object o)
         {
             var w = new StreamWrapper(this);
-            IFormatter f = new BinaryFormatter();
+            var f = new BinaryFormatter();
             f.Serialize(w, o);
             w.Close();
         }

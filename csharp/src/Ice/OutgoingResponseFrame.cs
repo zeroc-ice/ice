@@ -124,8 +124,8 @@ namespace ZeroC.Ice
                         nameof(payload));
                 }
 
-                (int size, Encoding encapsEncoding) = InputStream.ReadEncapsulationHeader(
-                    Protocol.GetEncoding(), payload.AsSpan(1));
+                (int size, Encoding encapsEncoding) =
+                    payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 if (size + 4 + 1 != payload.Count) // 4 = size length with 1.1 encoding
                 {

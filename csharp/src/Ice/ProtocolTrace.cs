@@ -20,8 +20,8 @@ namespace ZeroC.Ice
                 frame.Protocol,
                 header[8], // Frame type
                 header[9], // Compression Status
-                InputStream.ReadFixedLengthSize(frame.Protocol.GetEncoding(), header.Slice(10, 4)), // Request size
-                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id
+                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
+                header.Slice(14, 4).ReadInt(), // Request-Id
                 frame.Identity,
                 frame.Facet,
                 frame.Operation,
@@ -39,8 +39,8 @@ namespace ZeroC.Ice
                 frame.Protocol,
                 header[8], // Frame type
                 header[9], // Compression Status
-                InputStream.ReadFixedLengthSize(frame.Protocol.GetEncoding(), header.Slice(10, 4)), // Request size
-                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
+                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
+                header.Slice(14, 4).ReadInt(), // Request-Id,
                 frame.ReplyStatus,
                 frame.Encoding);
 
@@ -54,8 +54,8 @@ namespace ZeroC.Ice
                 frame.Protocol,
                 header[8], // Frame type
                 header[9], // Compression Status
-                InputStream.ReadFixedLengthSize(frame.Protocol.GetEncoding(), header.Slice(10, 4)), // Request size
-                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
+                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
+                header.Slice(14, 4).ReadInt(), // Request-Id,
                 frame.Identity,
                 frame.Facet,
                 frame.Operation,
@@ -73,8 +73,8 @@ namespace ZeroC.Ice
                 frame.Protocol,
                 header[8], // Frame type
                 header[9], // Compression Status
-                InputStream.ReadFixedLengthSize(frame.Protocol.GetEncoding(), header.Slice(10, 4)), // Request size
-                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
+                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
+                header.Slice(14, 4).ReadInt(), // Request-Id,
                 frame.ReplyStatus,
                 frame.Encoding);
 
@@ -221,7 +221,7 @@ namespace ZeroC.Ice
                 PrintHeader(protocol,
                             header[8],
                             header[9],
-                            InputStream.ReadFixedLengthSize(protocol.GetEncoding(), header.Slice(10, 4)),
+                            header.Slice(10, 4).ReadFixedLengthSize(protocol.GetEncoding()),
                             s);
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }

@@ -46,7 +46,7 @@ namespace ZeroC.Ice
             Data = data;
             Protocol = protocol;
 
-            var istr = new InputStream(Protocol.GetEncoding(), data);
+            var istr = new InputStream(data, Protocol.GetEncoding());
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
@@ -89,7 +89,7 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         // TODO: we currently need the communicator only to skip (read) tagged classes.
         public void ReadEmptyParamList(Communicator communicator) =>
-            InputStream.ReadEmptyEncapsulation(communicator, Protocol.GetEncoding(), Payload);
+            Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
 
         /// <summary>Reads the request frame parameter list.</summary>
         /// <param name="communicator">The communicator.</param>
@@ -98,6 +98,6 @@ namespace ZeroC.Ice
         /// <returns>The request parameters, when the frame parameter list contains multiple parameters
         /// they must be return as a tuple.</returns>
         public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader) =>
-            InputStream.ReadEncapsulation(communicator, Protocol.GetEncoding(), Payload, reader);
+            Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
     }
 }

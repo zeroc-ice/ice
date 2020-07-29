@@ -1044,7 +1044,7 @@ namespace ZeroC.Ice
                     {
                         // Uses network byte order
                         _readPayloadLength = System.Net.IPAddress.NetworkToHostOrder(
-                            InputStream.ReadShort(_readBuffer.Slice(_readBufferPos, 2)));
+                            _readBuffer.AsReadOnlySpan(_readBufferPos, 2).ReadShort());
                         if (_readPayloadLength < 0)
                         {
                             _readPayloadLength += 65536;
@@ -1055,7 +1055,7 @@ namespace ZeroC.Ice
                     {
                         // Uses network byte order.
                         long length = System.Net.IPAddress.NetworkToHostOrder(
-                            InputStream.ReadLong(_readBuffer.Slice(_readBufferPos, 8)));
+                            _readBuffer.AsReadOnlySpan(_readBufferPos, 8).ReadLong());
                         _readBufferPos += 8;
                         if (length < 0 || length > int.MaxValue)
                         {
