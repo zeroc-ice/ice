@@ -163,24 +163,27 @@ namespace ZeroC.Ice
             if (exception is DispatchException dispatchException)
             {
                 ostr = new OutputStream(Protocol.GetEncoding(), Data);
-                if (dispatchException is PreExecutionException preExecutionException)
+                bool writeFields = true;
+                switch (dispatchException)
                 {
-                    ReplyStatus replyStatus = preExecutionException switch
-                    {
-                        ObjectNotExistException _ => ReplyStatus.ObjectNotExistException,
-                        OperationNotExistException _ => ReplyStatus.OperationNotExistException,
-                        _ => throw new ArgumentException("unknown PreExecutionException", nameof(exception))
-                    };
-
-                    ostr.WriteByte((byte)replyStatus);
-                    preExecutionException.Id.IceWrite(ostr);
-                    ostr.WriteFacet(preExecutionException.Facet);
-                    ostr.WriteString(preExecutionException.Operation);
+                    case ObjectNotExistException _:
+                        ostr.WriteByte((byte)ReplyStatus.ObjectNotExistException);
+                        break;
+                    case OperationNotExistException _:
+                        ostr.WriteByte((byte)ReplyStatus.OperationNotExistException);
+                        break;
+                    default:
+                        ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
+                        ostr.WriteString(dispatchException.Message);
+                        writeFields = false;
+                        break;
                 }
-                else
+
+                if (writeFields)
                 {
-                    ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
-                    ostr.WriteString(dispatchException.Message);
+                    dispatchException.Id.IceWrite(ostr);
+                    ostr.WriteFacet(dispatchException.Facet);
+                    ostr.WriteString(dispatchException.Operation);
                 }
             }
             else

@@ -19,14 +19,6 @@ namespace ZeroC.Ice
                 : $"failed to dispatch request for operation `{Operation}' on Ice object `{Id}' with facet `{Facet}'";
     }
 
-    public partial class PreExecutionException
-    {
-        public PreExecutionException(Current current)
-            : base(current)
-        {
-        }
-    }
-
     public partial class ObjectNotExistException
     {
         public ObjectNotExistException(Current current)
