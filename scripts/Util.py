@@ -3027,7 +3027,7 @@ class Driver:
             # TODO: remove Ice.Default.Host and only use Test.Host
             useTestHost = isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir()
             hostProperty = "Test.Host" if useTestHost else "Ice.Default.Host"
-            props[hostProperty] = self.host or "0:0:0:0:0:0:0:1" if current.config.ipv6 else "127.0.0.1"
+            props[hostProperty] = self.host or "::1" if current.config.ipv6 else "127.0.0.1"
 
         return props
 

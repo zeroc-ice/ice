@@ -825,31 +825,27 @@ namespace ZeroC.Ice.Test.Binding
                 var ipv4 = new Dictionary<string, string>()
                 {
                     { "IPv4", "1" },
-                    { "IPv6", "0" },
-                    { "Adapter.Endpoints", "tcp -h localhost" }
+                    { "IPv6", "0" }
                     };
 
                 var ipv6 = new Dictionary<string, string>()
                 {
                     { "IPv4", "0" },
-                    { "IPv6", "1" },
-                    { "Adapter.Endpoints", "tcp -h localhost" }
+                    { "IPv6", "1" }
                 };
 
                 var bothPreferIPv4 = new Dictionary<string, string>()
                 {
                     { "IPv4", "1" },
                     { "IPv6", "1" },
-                    { "PreferIPv6Address", "0" },
-                    { "Adapter.Endpoints", "tcp -h localhost" }
+                    { "PreferIPv6Address", "0" }
                 };
 
                 var bothPreferIPv6 = new Dictionary<string, string>()
                 {
                     { "IPv4", "1" },
                     { "IPv6", "1" },
-                    { "PreferIPv6Address", "1" },
-                    { "Adapter.Endpoints", "tcp -h localhost" }
+                    { "PreferIPv6Address", "1" }
                 };
 
                 Dictionary<string, string>[] clientProps =
@@ -857,36 +853,42 @@ namespace ZeroC.Ice.Test.Binding
                     ipv4, ipv6, bothPreferIPv4, bothPreferIPv6
                 };
 
-                string endpoint = "tcp -p " + helper.GetTestPort(2).ToString();
+                Func<string, string> getEndpoint = host =>
+                    TestHelper.GetTestEndpoint(new Dictionary<string, string>(communicator.GetProperties(""))
+                    {
+                        ["Test.Host"] = host
+                    },
+                    2,
+                    "tcp");
 
                 var anyipv4 = new Dictionary<string, string>(ipv4)
                 {
-                    ["Adapter.Endpoints"] = $"{endpoint} -h 0.0.0.0",
-                    ["Adapter.PublishedEndpoints"] = $"{endpoint} -h 127.0.0.1"
+                    ["Adapter.Endpoints"] = getEndpoint("0.0.0.0"),
+                    ["Adapter.PublishedEndpoints"] = getEndpoint("127.0.0.1")
                 };
 
                 var anyipv6 = new Dictionary<string, string>(ipv6)
                 {
-                    ["Adapter.Endpoints"] = $"{endpoint} -h \"::0\"",
-                    ["Adapter.PublishedEndpoints"] = $"{endpoint} -h \".1\""
+                    ["Adapter.Endpoints"] = getEndpoint("::0"),
+                    ["Adapter.PublishedEndpoints"] = getEndpoint("::1")
                 };
 
                 var anyboth = new Dictionary<string, string>()
                 {
                     { "IPv4", "1" },
                     { "IPv6", "1"},
-                    { "Adapter.Endpoints", $"{endpoint} -h \"::0\"" },
-                    { "Adapter.PublishedEndpoints", $"{endpoint} -h \"::1\":{endpoint} -h 127.0.0.1" }
+                    { "Adapter.Endpoints", getEndpoint("::0")},
+                    { "Adapter.PublishedEndpoints", getEndpoint("localhost") }
                 };
 
                 var localipv4 = new Dictionary<string, string>(ipv4)
                 {
-                    ["Adapter.Endpoints"] = "tcp -h 127.0.0.1"
+                    ["Adapter.Endpoints"] = getEndpoint("127.0.0.1")
                 };
 
                 var localipv6 = new Dictionary<string, string>(ipv6)
                 {
-                    ["Adapter.Endpoints"] = "tcp -h \"::1\""
+                    ["Adapter.Endpoints"] = getEndpoint("::1")
                 };
 
                 Dictionary<string, string>[] serverProps =

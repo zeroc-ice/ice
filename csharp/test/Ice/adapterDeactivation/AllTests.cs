@@ -34,10 +34,10 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 output.Write("creating/destroying/recreating object adapter... ");
                 output.Flush();
                 ObjectAdapter adapter =
-                    communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "tcp -h localhost");
+                    communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", helper.GetTestEndpoint(1));
                 try
                 {
-                    communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "tcp -h localhost");
+                    communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", helper.GetTestEndpoint(2));
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentException)
@@ -48,7 +48,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 //
                 // Use a different port than the first adapter to avoid an "address already in use" error.
                 //
-                adapter = communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "tcp -h localhost");
+                adapter = communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", helper.GetTestEndpoint(2));
                 adapter.Dispose();
                 output.WriteLine("ok");
             }
