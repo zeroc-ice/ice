@@ -1193,6 +1193,35 @@ namespace ZeroC.Ice
             return facets.Length == 1 ? facets[0] : "";
         }
 
+        internal Exception ReadIce1Exception(ReplyStatus replyStatus)
+        {
+            Debug.Assert(OldEncoding);
+            switch (replyStatus)
+            {
+                case ReplyStatus.UserException:
+                    return ReadException();
+
+                case ReplyStatus.FacetNotExistException:
+                case ReplyStatus.ObjectNotExistException:
+                case ReplyStatus.OperationNotExistException:
+                    var identity = new Identity(this);
+                    string facet = ReadFacet();
+                    string operation = ReadString();
+
+                    if (replyStatus == ReplyStatus.OperationNotExistException)
+                    {
+                        return new OperationNotExistException(identity, facet, operation);
+                    }
+                    else
+                    {
+                        return new ObjectNotExistException(identity, facet, operation);
+                    }
+
+                default:
+                    return new UnhandledException(ReadString(), Identity.Empty, "", "");
+            }
+        }
+
         internal void Skip(int size)
         {
             if (size < 0 || size > _buffer.Length - Pos)

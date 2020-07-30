@@ -415,8 +415,8 @@ namespace ZeroC.Ice
                                                                progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            // TODO: would be good to move the code below into IncomingResponseFrame
-                            // TODO: observer notification with ice2
+                            // TODO: rework this code, in particular the observer notification. Also it does not
+                            // work correctly for ice2 responses that contain a 1.1 payload, when it should.
                             if (proxy.Protocol == Protocol.Ice1)
                             {
                                 switch (response.ReplyStatus)
@@ -426,14 +426,11 @@ namespace ZeroC.Ice
                                     case ReplyStatus.UserException:
                                         observer?.RemoteException();
                                         break;
-                                    case ReplyStatus.ObjectNotExistException:
-                                    case ReplyStatus.FacetNotExistException:
-                                    case ReplyStatus.OperationNotExistException:
-                                        throw response.ReadDispatchException();
-                                    case ReplyStatus.UnknownException:
-                                    case ReplyStatus.UnknownLocalException:
-                                    case ReplyStatus.UnknownUserException:
-                                        throw response.ReadUnhandledException();
+                                    default:
+                                        var istr = new InputStream(response.Payload.Slice(1), Ice1Definitions.Encoding);
+                                        Exception exception = istr.ReadIce1Exception(response.ReplyStatus);
+                                        istr.CheckEndOfBuffer(skipTaggedParams: false);
+                                        throw exception;
                                 }
                             }
                             return response;

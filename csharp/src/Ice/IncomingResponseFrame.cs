@@ -32,25 +32,40 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
-        // TODO: this is really a oneway pseudo-response. Should we rename the method? Simplify further the frame?
+        // Oneway pseudo-response
         internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
             _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
+                OutputStream ostr;
                 if (key.Protocol == Protocol.Ice1)
                 {
-                    var ostr = new OutputStream(Ice1Definitions.Encoding, data);
-                    ostr.WriteByte((byte)ReplyStatus.OK);
-                    _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                    // Byte status OK followed by encapsulation (empty for 1.1, with Success response type for 2.0)
+                    byte[] buffer = new byte[256];
+                    buffer[0] = (byte)ReplyStatus.OK;
+                    data.Add(buffer);
+                    ostr = new OutputStream(Ice1Definitions.Encoding,
+                                            data,
+                                            new OutputStream.Position(0, 1),
+                                            key.Encoding,
+                                            FormatType.Compact);
                 }
                 else
                 {
                     Debug.Assert(key.Protocol == Protocol.Ice2);
-                    var ostr =
-                        new OutputStream(Ice2Definitions.Encoding, data, default, key.Encoding, FormatType.Compact);
-                    ostr.WriteByte((byte)ResponseType.Success);
-                    ostr.Save();
+                    // Just an encapsulation
+                    ostr = new OutputStream(Ice2Definitions.Encoding,
+                                            data,
+                                            default,
+                                            key.Encoding,
+                                            FormatType.Compact);
                 }
+
+                if (key.Encoding == Encoding.V2_0)
+                {
+                    ostr.WriteByte((byte)ResponseType.Success);
+                }
+                ostr.Save();
                 Debug.Assert(data.Count == 1);
                 return new IncomingResponseFrame(key.Protocol, data[0]);
             });
@@ -63,30 +78,40 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
         {
-            if (Protocol == Protocol.Ice1)
+            // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
+            // context.
+
+            InputStream istr = PrepareReadReturnValue(communicator);
+            ResponseType responseType;
+
+            if (istr.Encoding == Encoding.V2_0)
             {
-                return ReplyStatus == ReplyStatus.OK ?
-                    Payload.AsReadOnlyMemory(1).ReadEncapsulation(Ice1Definitions.Encoding, communicator, reader) :
-                    throw ReadException(communicator);
-            }
-            else
-            {
-                Debug.Assert(Protocol == Protocol.Ice2);
-                var istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
                 byte responseTypeByte = istr.ReadByte();
                 if (responseTypeByte > 1)
                 {
                     throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
                 }
+                responseType = (ResponseType)responseTypeByte;
+            }
+            else
+            {
+                responseType = ReplyStatus == ReplyStatus.OK ? ResponseType.Success : ResponseType.Failure;
+            }
 
-                if ((ResponseType)responseTypeByte == ResponseType.Success)
-                {
-                    return reader(istr);
-                }
-                else
-                {
-                    throw istr.ReadException();
-                }
+            if (responseType == ResponseType.Success)
+            {
+                T result = reader(istr);
+                // If the reader throws an exception such as InvalidDataException, we don't check we reached the
+                // end of the buffer.
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+                return result;
+            }
+            else
+            {
+                Exception exception = istr.Encoding == Encoding.V1_1 ?
+                    istr.ReadIce1Exception(ReplyStatus) : istr.ReadException();
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+                throw exception;
             }
         }
 
@@ -95,35 +120,36 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
-            if (Protocol == Protocol.Ice1)
+            // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
+            // context.
+
+            InputStream istr = PrepareReadReturnValue(communicator);
+            ResponseType responseType;
+
+            if (istr.Encoding == Encoding.V2_0)
             {
-                if (ReplyStatus == ReplyStatus.OK)
-                {
-                    Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Ice1Definitions.Encoding, communicator);
-                }
-                else
-                {
-                    throw ReadException(communicator);
-                }
-            }
-            else
-            {
-                Debug.Assert(Protocol == Protocol.Ice2);
-                var istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
                 byte responseTypeByte = istr.ReadByte();
                 if (responseTypeByte > 1)
                 {
                     throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
                 }
+                responseType = (ResponseType)responseTypeByte;
+            }
+            else
+            {
+                responseType = ReplyStatus == ReplyStatus.OK ? ResponseType.Success : ResponseType.Failure;
+            }
 
-                if ((ResponseType)responseTypeByte == ResponseType.Success)
-                {
-                    istr.CheckEndOfBuffer(skipTaggedParams: true);
-                }
-                else
-                {
-                    throw istr.ReadException();
-                }
+            if (responseType == ResponseType.Success)
+            {
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+            }
+            else
+            {
+                Exception exception = istr.Encoding == Encoding.V1_1 ?
+                    istr.ReadIce1Exception(ReplyStatus) : istr.ReadException();
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+                throw exception;
             }
         }
 
@@ -151,29 +177,6 @@ namespace ZeroC.Ice
         public IncomingResponseFrame(OutgoingResponseFrame frame)
             : this(frame.Protocol, frame.Payload.ToArray())
         {
-        }
-
-        private Exception ReadException(Communicator communicator)
-        {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            switch (ReplyStatus)
-            {
-                case ReplyStatus.UserException:
-                    return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(),
-                                                                         communicator,
-                                                                         istr => istr.ReadException());
-
-                case ReplyStatus.ObjectNotExistException:
-                case ReplyStatus.FacetNotExistException:
-                case ReplyStatus.OperationNotExistException:
-                    return ReadDispatchException();
-
-                default:
-                    Debug.Assert(ReplyStatus == ReplyStatus.UnknownException ||
-                                 ReplyStatus == ReplyStatus.UnknownLocalException ||
-                                 ReplyStatus == ReplyStatus.UnknownUserException);
-                    return ReadUnhandledException();
-            }
         }
 
         internal UnhandledException ReadUnhandledException()
@@ -207,6 +210,35 @@ namespace ZeroC.Ice
             {
                 return new ObjectNotExistException(identity, facet, operation);
             }
+        }
+
+        private InputStream PrepareReadReturnValue(Communicator communicator)
+        {
+            InputStream istr;
+
+            if (Protocol == Protocol.Ice1)
+            {
+                // Reply status followed by data that depends on this byte status.
+                if (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException)
+                {
+                    istr = new InputStream(Payload.Slice(1),
+                                           Ice1Definitions.Encoding,
+                                           communicator,
+                                           startEncapsulation: true);
+                }
+                else
+                {
+                    istr = new InputStream(Payload.Slice(1), Ice1Definitions.Encoding);
+                }
+            }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice2);
+                // Always an encapsulation.
+                istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
+            }
+
+            return istr;
         }
     }
 }
