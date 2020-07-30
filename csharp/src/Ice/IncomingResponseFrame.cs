@@ -81,22 +81,7 @@ namespace ZeroC.Ice
             // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
             // context.
 
-            InputStream istr = PrepareReadReturnValue(communicator);
-            ResponseType responseType;
-
-            if (istr.Encoding == Encoding.V2_0)
-            {
-                byte responseTypeByte = istr.ReadByte();
-                if (responseTypeByte > 1)
-                {
-                    throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
-                }
-                responseType = (ResponseType)responseTypeByte;
-            }
-            else
-            {
-                responseType = ReplyStatus == ReplyStatus.OK ? ResponseType.Success : ResponseType.Failure;
-            }
+            (InputStream istr, ResponseType responseType) = PrepareReadReturnValue(communicator);
 
             if (responseType == ResponseType.Success)
             {
@@ -123,22 +108,7 @@ namespace ZeroC.Ice
             // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
             // context.
 
-            InputStream istr = PrepareReadReturnValue(communicator);
-            ResponseType responseType;
-
-            if (istr.Encoding == Encoding.V2_0)
-            {
-                byte responseTypeByte = istr.ReadByte();
-                if (responseTypeByte > 1)
-                {
-                    throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
-                }
-                responseType = (ResponseType)responseTypeByte;
-            }
-            else
-            {
-                responseType = ReplyStatus == ReplyStatus.OK ? ResponseType.Success : ResponseType.Failure;
-            }
+            (InputStream istr, ResponseType responseType) = PrepareReadReturnValue(communicator);
 
             if (responseType == ResponseType.Success)
             {
@@ -172,47 +142,7 @@ namespace ZeroC.Ice
             Payload = payload;
         }
 
-        // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
-        // the frame has a single segment.
-        public IncomingResponseFrame(OutgoingResponseFrame frame)
-            : this(frame.Protocol, frame.Payload.ToArray())
-        {
-        }
-
-        internal UnhandledException ReadUnhandledException()
-        {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            var buffer = Payload.AsReadOnlySpan(1);
-            (int size, int sizeLength) = buffer.ReadSize(Ice1Definitions.Encoding);
-
-            if (size + sizeLength != buffer.Length)
-            {
-                throw new InvalidDataException(@$"buffer size {
-                    buffer.Length} for message does not match size length plus message size of {size + sizeLength}");
-            }
-
-            return new UnhandledException(buffer.Slice(sizeLength).ReadString(), Identity.Empty, "", "");
-        }
-
-        internal DispatchException ReadDispatchException()
-        {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            var istr = new InputStream(Payload.Slice(1), Ice1Definitions.Encoding);
-            var identity = new Identity(istr);
-            string facet = istr.ReadFacet();
-            string operation = istr.ReadString();
-
-            if (ReplyStatus == ReplyStatus.OperationNotExistException)
-            {
-                return new OperationNotExistException(identity, facet, operation);
-            }
-            else
-            {
-                return new ObjectNotExistException(identity, facet, operation);
-            }
-        }
-
-        private InputStream PrepareReadReturnValue(Communicator communicator)
+        private (InputStream Istr, ResponseType ResponseType) PrepareReadReturnValue(Communicator communicator)
         {
             InputStream istr;
 
@@ -238,7 +168,23 @@ namespace ZeroC.Ice
                 istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
             }
 
-            return istr;
+            ResponseType responseType;
+
+            if (istr.Encoding == Encoding.V2_0)
+            {
+                byte responseTypeByte = istr.ReadByte();
+                if (responseTypeByte > 1)
+                {
+                    throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
+                }
+                responseType = (ResponseType)responseTypeByte;
+            }
+            else
+            {
+                responseType = ReplyStatus == ReplyStatus.OK ? ResponseType.Success : ResponseType.Failure;
+            }
+
+            return (istr, responseType);
         }
     }
 }

@@ -97,7 +97,7 @@ namespace ZeroC.Ice
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         // TODO: should we pass the payload as a list of segments, or maybe add a separate
         // ctor that accepts a list of segments instead of a single segment
-        internal OutgoingResponseFrame(IncomingRequestFrame request, ArraySegment<byte> payload)
+        public OutgoingResponseFrame(IncomingRequestFrame request, ArraySegment<byte> payload)
             : this(request)
         {
             // TODO: do we need all these checks? If yes, add checks for ice2; if no, remove them from ice1.
@@ -160,6 +160,7 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 // Always byte status followed by data that depends on this byte status.
+                // replyStatus is always ReplyStatus.OK for encoding 2.0
                 if (replyStatus == ReplyStatus.UserException || replyStatus == ReplyStatus.OK)
                 {
                     byte[] buffer = new byte[256];
@@ -173,7 +174,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    ostr = new OutputStream(Ice1Definitions.Encoding, Data);
+                    ostr = new OutputStream(Ice1Definitions.Encoding, Data); // not an encapsulation
                     ostr.WriteByte((byte)replyStatus);
                 }
             }
@@ -190,7 +191,7 @@ namespace ZeroC.Ice
                 // TODO: when Encoding = 1.1, add binary context with reply status.
             }
 
-            if (request.Encoding == Encoding.V1_1)
+            if (Encoding == Encoding.V1_1)
             {
                 switch (replyStatus)
                 {
@@ -213,6 +214,7 @@ namespace ZeroC.Ice
             }
             else
             {
+                Debug.Assert(Encoding == Encoding.V2_0);
                 ostr.WriteByte((byte)ResponseType.Failure);
                 ostr.WriteException(exception);
             }
