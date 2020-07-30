@@ -15,11 +15,10 @@ namespace ZeroC.Ice.Test.Metrics
             var observer = new CommunicatorObserver();
 
             Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Admin.Endpoints"] = "tcp";
+            properties["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
             properties["Ice.Admin.InstanceName"] = "client";
             properties["Ice.Admin.DelayCreation"] = "1";
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.Default.Host"] = "127.0.0.1";
             properties["Ice.ConnectTimeout"] = "500ms";
 
             await using Communicator? communicator = Initialize(properties, observer: observer);
