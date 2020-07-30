@@ -100,9 +100,6 @@ protected:
     std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);
     std::string getTagFormat(const TypePtr&);
-    bool isClassType(const TypePtr&);
-
-    bool containsClassMembers(const StructPtr&);
 
     std::string getValue(const std::string&, const TypePtr&);
     void writeConstantValue(IceUtilInternal::Output& out, const TypePtr&, const SyntaxTreeBasePtr&,

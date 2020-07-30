@@ -487,10 +487,9 @@ public:
     virtual DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
                                            const std::string& = "", const std::string& = "");
     DataMemberList dataMembers() const;
-    DataMemberList sortedTaggedDataMembers() const;
-    DataMemberList classDataMembers() const;
+    std::pair<DataMemberList, DataMemberList> sortedDataMembers() const;
     bool hasDataMembers() const;
-    bool hasDefaultValues() const;
+    virtual bool hasBaseDataMembers() const;
     ContainedList contents() const override;
     bool uses(const ContainedPtr&) const override;
 
@@ -617,11 +616,9 @@ public:
     ClassDefPtr base() const;
     ClassList allBases() const;
     DataMemberList allDataMembers() const;
-    DataMemberList allClassDataMembers() const;
-    bool canBeCyclic() const;
     bool isA(const std::string&) const;
     bool inheritsMetaData(const std::string&) const;
-    bool hasBaseDataMembers() const;
+    bool hasBaseDataMembers() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
     int compactId() const;
@@ -716,9 +713,7 @@ public:
     DataMemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
     DataMemberList parameters() const;
     DataMemberList inParameters() const;
-    void inParameters(DataMemberList&, DataMemberList&) const;
     DataMemberList outParameters() const;
-    void outParameters(DataMemberList&, DataMemberList&) const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     ContainedList contents() const override;
@@ -799,6 +794,8 @@ public:
 
     std::string typeId() const override;
     bool usesClasses() const override;
+    bool isClassType() const override;
+    bool isInterfaceType() const override;
     size_t minWireSize() const override;
     std::string getTagFormat() const override;
     bool isVariableLength() const override;
@@ -823,13 +820,12 @@ public:
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
                                    const std::string& = "", const std::string& = "") override;
     DataMemberList allDataMembers() const;
-    DataMemberList allClassDataMembers() const;
     ExceptionPtr base() const;
     ExceptionList allBases() const;
     bool isBaseOf(const ExceptionPtr&) const;
     bool usesClasses(bool) const;
     bool inheritsMetaData(const std::string&) const;
-    bool hasBaseDataMembers() const;
+    bool hasBaseDataMembers() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
 

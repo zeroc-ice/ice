@@ -57,20 +57,18 @@ isConstexprType(const TypePtr& constType)
             }
         }
     }
-    else if(EnumPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) ||
+    else if (EnumPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) ||
         ClassDeclPtr::dynamicCast(type))
     {
         return true;
     }
     else
     {
-        StructPtr s = StructPtr::dynamicCast(type);
-        if(s)
+        if (StructPtr s = StructPtr::dynamicCast(type))
         {
-            DataMemberList members = s->dataMembers();
-            for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+            for (const auto& member : s->dataMembers())
             {
-                if(!isConstexprType((*i)->type()))
+                if (!isConstexprType(member->type()))
                 {
                     return false;
                 }
@@ -1624,51 +1622,22 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
-    ExceptionPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList baseDataMembers;
+    const ExceptionPtr base = p->base();
+    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
+    const DataMemberList baseDataMembers = base ? base->allDataMembers() : DataMemberList();
 
-    vector<string> params;
     vector<string> allParameters;
-    vector<string> baseParams;
     map<string, CommentPtr> allComments;
 
-    string fileParam = "file";
-    string lineParam = "line";
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        params.push_back(fixKwd((*q)->name()));
-    }
+        string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getMetaData(), _useWstring);
+        allParameters.push_back(typeName + " " + fixKwd(member->name()));
 
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-    {
-        string typeName = inputTypeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetaData(), _useWstring);
-        allParameters.push_back(typeName + " " + fixKwd((*q)->name()));
-
-        CommentPtr comment = (*q)->parseComment(false);
-        if(comment)
+        if (CommentPtr comment = member->parseComment(false))
         {
-            allComments[(*q)->name()] = comment;
-        }
-
-        if((*q)->name() == "file")
-        {
-            fileParam = "file_";
-        }
-        else if((*q)->name() == "line")
-        {
-            fileParam = "line_";
-        }
-    }
-
-    if(base)
-    {
-        baseDataMembers = base->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
-        {
-            baseParams.push_back(fixKwd((*q)->name()));
+            allComments[member->name()] = comment;
         }
     }
 
@@ -1778,7 +1747,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains a tuple containing all of the exception's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, p->allDataMembers(), _useWstring);
+    writeIceTuple(H, allDataMembers, _useWstring);
 
     H << sp;
     H << nl << "/**";
@@ -3303,8 +3272,6 @@ Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
     ClassDefPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
 
     H << sp;
     writeDocSummary(H, p);
@@ -3331,13 +3298,6 @@ Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
     C << eb;
-
-    vector<string> params;
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        params.push_back(fixKwd((*q)->name()));
-    }
 
     H << sp << nl << name << "() = default;";
 
@@ -3528,16 +3488,16 @@ bool
 Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& derived, const ClassDefPtr& base)
 {
     const string scope = fixKwd(derived->scope());
-    DataMemberList allDataMembers = base->allDataMembers();
-    if(allDataMembers.empty())
+    DataMemberList allBaseDataMembers = base->allDataMembers();
+    if(allBaseDataMembers.empty())
     {
         return false;
     }
 
     string upcall = "(";
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
-        if(q != allDataMembers.begin())
+        if(q != allBaseDataMembers.begin())
         {
             upcall += ", ";
         }
@@ -3709,7 +3669,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers(), false);
+    writeStreamHelpers(H, p);
 
     return false;
 }
@@ -3717,14 +3677,14 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    writeStreamHelpers(H,c, c->dataMembers(), c->hasBaseDataMembers());
+    writeStreamHelpers(H, c);
     return false;
 }
 
 void
 Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    writeStreamHelpers(H,p, p->dataMembers(), p->hasBaseDataMembers());
+    writeStreamHelpers(H, p);
 }
 
 void

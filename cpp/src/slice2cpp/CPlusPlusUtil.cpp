@@ -166,35 +166,15 @@ writeMarshalUnmarshalParams(Output& out, const DataMemberList& params, const Ope
     {
         stream = marshal ? "ostr" : "istr";
     }
+    string streamOp = marshal ? "->writeAll" : "->readAll";
 
-    //
+    const auto [requiredParams, taggedParams] = getSortedMembers(params);
+
     // Marshal required parameters.
-    //
-    DataMemberList requiredParams;
-    DataMemberList taggedParams;
-    for (const auto& param : params)
-    {
-        if(param->tagged())
-        {
-            taggedParams.push_back(param);
-        }
-        else
-        {
-            requiredParams.push_back(param);
-        }
-    }
-
     if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsTagged()))
     {
         out << nl;
-        if(marshal)
-        {
-            out << stream << "->writeAll";
-        }
-        else
-        {
-            out << stream << "->readAll";
-        }
+        out << stream << streamOp;
         out << spar;
         for(const auto& param : requiredParams)
         {
@@ -207,36 +187,14 @@ writeMarshalUnmarshalParams(Output& out, const DataMemberList& params, const Ope
         out << epar << ";";
     }
 
-    if(!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
+    if (!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
     {
-        //
-        // Sort tagged parameters by tag.
-        //
-        class SortFn
-        {
-        public:
-            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-            {
-                return lhs->tag() < rhs->tag();
-            }
-        };
-        taggedParams.sort(SortFn::compare);
-
         out << nl;
-        if(marshal)
-        {
-            out << stream << "->writeAll";
-        }
-        else
-        {
-            out << stream << "->readAll";
-        }
+        out << stream << streamOp;
         out << spar;
 
         {
-            //
             // Tags
-            //
             ostringstream os;
             os << '{';
             bool checkReturnType = op && op->returnIsTagged();
@@ -879,47 +837,20 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
 }
 
 void
-Slice::writeStreamHelpers(Output& out,
-                          const ContainedPtr& c,
-                          DataMemberList dataMembers,
-                          bool hasBaseDataMembers)
+Slice::writeStreamHelpers(Output& out, const DataMemberContainerPtr& cont)
 {
     // If c is a class/exception whose base class contains data members (recursively), then we need to generate
     // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
     // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
     // is not an issue for structs.
-    if(dataMembers.empty() && !hasBaseDataMembers)
+    bool hasBaseDataMembers = cont->hasBaseDataMembers();
+    if (!cont->hasDataMembers() && !hasBaseDataMembers)
     {
         return;
     }
 
-    DataMemberList requiredMembers;
-    DataMemberList taggedMembers;
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if((*q)->tagged())
-        {
-            taggedMembers.push_back(*q);
-        }
-        else
-        {
-            requiredMembers.push_back(*q);
-        }
-    }
-
-    // Sort tagged data members
-    class SortFn
-    {
-    public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
-    };
-    taggedMembers.sort(SortFn::compare);
-
-    string scoped = c->scoped();
+    const auto [requiredMembers, taggedMembers] = cont->sortedDataMembers();
+    string scoped = cont->scoped();
     string fullName = fixKwd(scoped);
     string holder = "v.";
 
@@ -929,7 +860,7 @@ Slice::writeStreamHelpers(Output& out,
     // Only generate StreamWriter specializations if we are generating
     // with tagged data members and no base class data members
     //
-    if(!taggedMembers.empty() || hasBaseDataMembers)
+    if (!taggedMembers.empty() || hasBaseDataMembers)
     {
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter<" << fullName << ", S>";

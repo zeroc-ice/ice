@@ -936,7 +936,7 @@ struct_def
     //
     StructPtr st = StructPtr::dynamicCast($$);
     assert(st);
-    if(st->dataMembers().empty())
+    if (!st->hasDataMembers())
     {
         unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
@@ -1245,93 +1245,43 @@ data_member
 : tagged_type_id
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    DataMemberPtr dm;
-    if(cl)
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        DataMemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        unit->currentContainer()->checkIntroduced(def->name, dm);
+        $$ = dm;
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag);
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag);
-    }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
-    $$ = dm;
 }
 | tagged_type_id '=' const_initializer
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
-
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    DataMemberPtr dm;
-    if(cl)
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
+        DataMemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+                                                value->valueAsString, value->valueAsLiteral);
+        unit->currentContainer()->checkIntroduced(def->name, dm);
+        $$ = dm;
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
-    }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
-    $$ = dm;
 }
 | type keyword
 {
     TypePtr type = TypePtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        $$ = cl->createDataMember(name, type, false, 0); // Dummy
+        $$ = cont->createDataMember(name, type, false, 0); // Dummy
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        $$ = st->createDataMember(name, type, false, 0); // Dummy
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        $$ = ex->createDataMember(name, type, false, 0); // Dummy
-    }
-    assert($$);
     unit->error("keyword `" + name + "' cannot be used as data member name");
 }
 | type
 {
     TypePtr type = TypePtr::dynamicCast($1);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        $$ = cl->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
+        $$ = cont->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
-    }
-    assert($$);
     unit->error("missing data member name");
 }
 ;

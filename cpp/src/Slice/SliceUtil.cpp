@@ -658,11 +658,10 @@ Slice::snakeCase(const std::string& name)
     return os.str();
 }
 
-DataMemberList
-Slice::sortForMarshaling(const DataMemberList& members)
+void
+Slice::sortMembers(DataMemberList& members)
 {
-    DataMemberList result = members;
-    result.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs) -> bool
+    members.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs) -> bool
     {
         if (lhs->tagged() && rhs->tagged())
         {
@@ -679,6 +678,60 @@ Slice::sortForMarshaling(const DataMemberList& members)
             return !lhs->tagged();
         }
     });
+}
+
+pair<DataMemberList, DataMemberList>
+Slice::getSortedMembers(const DataMemberList& members)
+{
+    DataMemberList required, tagged;
+    for (const auto& member : members)
+    {
+        (member->tagged() ? tagged : required).push_back(member);
+    }
+    sortMembers(tagged);
+    return make_pair(move(required), move(tagged));
+}
+
+DataMemberList
+Slice::getSortedTaggedMembers(const DataMemberList& members)
+{
+    DataMemberList result;
+    for (const auto& member : members)
+    {
+        if (member->tagged())
+        {
+            result.push_back(member);
+        }
+    }
+    sortMembers(result);
+    return result;
+}
+
+DataMemberList
+Slice::getRequiredMembers(const DataMemberList& members)
+{
+    DataMemberList result;
+    for (const auto& member : members)
+    {
+        if (!member->tagged())
+        {
+            result.push_back(member);
+        }
+    }
+    return result;
+}
+
+DataMemberList
+Slice::getClassTypeMembers(const DataMemberList& members)
+{
+    DataMemberList result;
+    for (const auto& member : members)
+    {
+        if (member->type()->isClassType())
+        {
+            result.push_back(member);
+        }
+    }
     return result;
 }
 

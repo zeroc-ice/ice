@@ -1212,54 +1212,6 @@ SwiftGenerator::getTagFormat(const TypePtr& type)
     return "." + type->getTagFormat();
 }
 
-bool
-SwiftGenerator::isClassType(const TypePtr& p)
-{
-    TypePtr type = unwrapIfOptional(p);
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && builtin->kind() == Builtin::KindAnyClass) || ClassDeclPtr::dynamicCast(type);
-}
-
-bool
-SwiftGenerator::containsClassMembers(const StructPtr& s)
-{
-    DataMemberList dm = s->dataMembers();
-    for(DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
-    {
-        if(isClassType((*i)->type()))
-        {
-            return true;
-        }
-
-        StructPtr st = StructPtr::dynamicCast((*i)->type());
-        if(st && containsClassMembers(st))
-        {
-            return true;
-        }
-
-        SequencePtr seq = SequencePtr::dynamicCast((*i)->type());
-        if(seq)
-        {
-            st = StructPtr::dynamicCast(seq->type());
-            if(isClassType(seq->type()) || (st && containsClassMembers(st)))
-            {
-                return true;
-            }
-        }
-
-        DictionaryPtr dict = DictionaryPtr::dynamicCast((*i)->type());
-        if(dict)
-        {
-            st = StructPtr::dynamicCast(dict->valueType());
-            if(isClassType(dict->valueType()) || (st && containsClassMembers(st)))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 void
 SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
                                         bool required,
@@ -2084,7 +2036,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
     {
         string param;
-        if(isClassType(q->type))
+        if(q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2099,7 +2051,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     for(ParamInfoList::const_iterator q = taggedOutParams.begin(); q != taggedOutParams.end(); ++q)
     {
         string param;
-        if(isClassType(q->type))
+        if(q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2162,7 +2114,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         if(q->param)
         {
             string param;
-            if(isClassType(q->type))
+            if(q->type->isClassType())
             {
                 out << nl << "var iceP_" << q->name << ": " << q->typeStr;
                 param = "iceP_" + q->name;
@@ -2178,7 +2130,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
     for(ParamInfoList::const_iterator q = taggedInParams.begin(); q != taggedInParams.end(); ++q)
     {
         string param;
-        if(isClassType(q->type))
+        if(q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;

@@ -75,35 +75,6 @@ extern int slice__flex_debug;
 
 namespace
 {
-    DataMemberList
-    filterSortedTaggedDataMembers(const DataMemberList& members)
-    {
-        DataMemberList result;
-        for (const auto& member : members)
-        {
-            if (member->tagged())
-            {
-                result.push_back(member);
-            }
-        }
-
-        result.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        });
-        return result;
-    }
-
-    void
-    sortTaggedParameters(DataMemberList& params)
-    {
-        // Sort tagged parameters by tag.
-        params.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        });
-    }
-
     bool
     isMutableAfterReturnType(const TypePtr& type)
     {
@@ -1707,24 +1678,10 @@ Slice::DataMemberContainer::dataMembers() const
     return _dataMembers;
 }
 
-DataMemberList
-Slice::DataMemberContainer::sortedTaggedDataMembers() const
+pair<DataMemberList, DataMemberList>
+Slice::DataMemberContainer::sortedDataMembers() const
 {
-    return filterSortedTaggedDataMembers(dataMembers());
-}
-
-DataMemberList
-Slice::DataMemberContainer::classDataMembers() const
-{
-    DataMemberList result;
-    for (const auto& member : _dataMembers)
-    {
-        if (unwrapIfOptional(member->type())->isClassType())
-        {
-            result.push_back(member);
-        }
-    }
-    return result;
+    return getSortedMembers(_dataMembers);
 }
 
 bool
@@ -1734,15 +1691,8 @@ Slice::DataMemberContainer::hasDataMembers() const
 }
 
 bool
-Slice::DataMemberContainer::hasDefaultValues() const
+Slice::DataMemberContainer::hasBaseDataMembers() const
 {
-    for (const auto& member : _dataMembers)
-    {
-        if (member->defaultValueType())
-        {
-            return true;
-        }
-    }
     return false;
 }
 
@@ -2669,51 +2619,13 @@ Slice::ClassDef::allBases() const
 DataMemberList
 Slice::ClassDef::allDataMembers() const
 {
-    DataMemberList result;
-
+    DataMemberList result = _dataMembers;
     // Check if we have a base class. If so, recursively get the data members of the base(s).
     if (_base)
     {
-        result = _base->allDataMembers();
+        result.splice(result.begin(), _base->allDataMembers());
     }
-
-    // Append this class's data members.
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-
     return result;
-}
-
-// Return the class data members of this class and its parent classes, in base-to-derived order.
-DataMemberList
-Slice::ClassDef::allClassDataMembers() const
-{
-    DataMemberList result;
-
-    if (_base)
-    {
-        result = _base->allClassDataMembers();
-    }
-
-    // Append this class's class members.
-    result.splice(result.end(), classDataMembers());
-    return result;
-}
-
-bool
-Slice::ClassDef::canBeCyclic() const
-{
-    if (_base && _base->canBeCyclic())
-    {
-        return true;
-    }
-    for (const auto& member : _dataMembers)
-    {
-        if (member->type()->usesClasses())
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool
@@ -3255,14 +3167,26 @@ Slice::Optional::usesClasses() const
     return _underlying->usesClasses();
 }
 
+bool
+Slice::Optional::isClassType() const
+{
+    return _underlying->isClassType();
+}
+
+bool
+Slice::Optional::isInterfaceType() const
+{
+    return _underlying->isInterfaceType();
+}
+
 size_t
 Slice::Optional::minWireSize() const
 {
-    if (_underlying->isClassType())
+    if (isClassType())
     {
         return 1;
     }
-    else if (_underlying->isInterfaceType())
+    else if (isInterfaceType())
     {
         return 2;
     }
@@ -3300,10 +3224,10 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                                    const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                    const string& defaultLiteral)
 {
-    // Check whether any bases have defined a member with the same name already.
-    for (const auto& base : allBases())
+    if (_base)
     {
-        for (const auto& member : base->dataMembers())
+        // Check whether any bases have defined a member with the same name already.
+        for (const auto& member : _base->allDataMembers())
         {
             if (member->name() == name)
             {
@@ -3318,7 +3242,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             {
                 ExceptionPtr container = ExceptionPtr::dynamicCast(member->container());
                 _unit->error("data member `" + name + "' differs only in capitalization from the data member named `"
-                             + member->name() + "', which is defined in a base exception");
+                                + member->name() + "', which is defined in a base exception");
                 _unit->note(member, "data member `" + member->name() + "' is defined in the exception `"
                             + container->name() + "'");
             }
@@ -3333,35 +3257,12 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
 DataMemberList
 Slice::Exception::allDataMembers() const
 {
-    DataMemberList result;
-
-    // Check if we have a base exception. If so, recursively
-    // get the data members of the base exception(s).
+    DataMemberList result = _dataMembers;
+    // Check if we have a base exception. If so, recursively get the data members of the base exception(s).
     if (_base)
     {
-        result = _base->allDataMembers();
+        result.splice(result.begin(), _base->allDataMembers());
     }
-
-    // Append this exceptions's data members.
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-
-    return result;
-}
-
-// Return the class data members of this exception and its parent exceptions, in base-to-derived order.
-DataMemberList
-Slice::Exception::allClassDataMembers() const
-{
-    DataMemberList result;
-
-    // Check if we have a base exception. If so, recursively get the class data members of the base exception(s).
-    if (_base)
-    {
-        result = _base->allClassDataMembers();
-    }
-
-    // Append this exceptions's class data members.
-    result.splice(result.end(), classDataMembers());
     return result;
 }
 
@@ -4186,7 +4087,7 @@ Slice::Operation::inBitSequenceSize() const
         {
             if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
-                if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+                if (!optional->isClassType() && !optional->isInterfaceType())
                 {
                     length++;
                 }
@@ -4206,7 +4107,7 @@ Slice::Operation::returnBitSequenceSize() const
         {
             if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
-                if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+                if (!optional->isClassType() && !optional->isInterfaceType())
                 {
                     length++;
                 }
@@ -4218,7 +4119,7 @@ Slice::Operation::returnBitSequenceSize() const
     {
         if (auto optional = OptionalPtr::dynamicCast(_returnType))
         {
-            if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+            if (!optional->isClassType() && !optional->isInterfaceType())
             {
                 length++;
             }
@@ -4351,30 +4252,10 @@ Slice::Operation::inParameters() const
     return _inParameters;
 }
 
-void
-Slice::Operation::inParameters(DataMemberList& requiredParams, DataMemberList& taggedParams) const
-{
-    for (const auto& param : _inParameters)
-    {
-        (param->tagged() ? taggedParams : requiredParams).push_back(param);
-    }
-    sortTaggedParameters(taggedParams);
-}
-
 DataMemberList
 Slice::Operation::outParameters() const
 {
     return _outParameters;
-}
-
-void
-Slice::Operation::outParameters(DataMemberList& requiredParams, DataMemberList& taggedParams) const
-{
-    for (const auto& param : _outParameters)
-    {
-        (param->tagged() ? taggedParams : requiredParams).push_back(param);
-    }
-    sortTaggedParameters(taggedParams);
 }
 
 ExceptionList

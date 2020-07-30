@@ -73,10 +73,18 @@ std::string camelCase(const std::string&);
 std::string pascalCase(const std::string&);
 std::string snakeCase(const std::string&);
 
-// Returns a new list of data members sorted as follows:
-// - non-tagged data members listed first but kept in the same order
-// - tagged data members listed last and sorted in tag order
-DataMemberList sortForMarshaling(const DataMemberList&);
+// Sorts a list of members in place as follows:
+// - non-tagged members listed first but kept in the same order
+// - tagged members listed last and sorted in tag order
+void sortMembers(DataMemberList& members);
+// Returns a pair of lists corresponding to the outputs of sortedTaggedMembers and requiredMembers respectively.
+std::pair<DataMemberList, DataMemberList> getSortedMembers(const DataMemberList& members);
+// Returns a new list containing all the tagged members of the provided list, sorted by tag.
+DataMemberList getSortedTaggedMembers(const DataMemberList& members);
+// Returns a new list containing all the untagged members of the provided list, in their original order.
+DataMemberList getRequiredMembers(const DataMemberList& members);
+// Returns a new list containing all the members of the provided list that use classes, in their original order.
+DataMemberList getClassTypeMembers(const DataMemberList& members);
 
 // Returns the size of the bit sequence used to encode the optional elements in this data member list.
 size_t getBitSequenceSize(const DataMemberList&);

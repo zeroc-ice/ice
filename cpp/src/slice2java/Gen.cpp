@@ -294,8 +294,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             p->tagged()) << ' ' << fixKwd(name) << ';';
     }
 
-    DataMemberList requiredParams, taggedParams;
-    op->outParameters(requiredParams, taggedParams);
+    const auto [requiredParams, taggedParams] = getSortedMembers(outParams);
 
     out << sp << nl << "public void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
     out << sb;
@@ -458,8 +457,8 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
         << currentParamName << ");";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
-    DataMemberList requiredParams, taggedParams;
-    op->outParameters(requiredParams, taggedParams);
+    const auto [requiredParams, taggedParams] = getSortedMembers(outParams);
+
     int iter = 0;
     for(const auto& pli : requiredParams)
     {
@@ -654,9 +653,9 @@ Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
 void
 Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, const OperationPtr& op)
 {
+    const auto [requiredParams, taggedParams] = getSortedMembers(op->inParameters());
+
     int iter = 0;
-    DataMemberList requiredParams, taggedParams;
-    op->inParameters(requiredParams, taggedParams);
     for(const auto pli : requiredParams)
     {
         string paramName = "iceP_" + pli->name();
@@ -1057,8 +1056,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             //
             // Unmarshal 'in' parameters.
             //
-            DataMemberList requiredParams, taggedParams;
-            op->inParameters(requiredParams, taggedParams);
+            const auto [requiredParams, taggedParams] = getSortedMembers(op->inParameters());
             int iter = 0;
             for(const auto& pli : requiredParams)
             {
@@ -1287,8 +1285,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     ClassDefPtr base = p->base();
 
     int iter;
-    DataMemberList members = p->dataMembers();
-    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+    auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1330,16 +1327,13 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     out << sb;
     out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     iter = 0;
-    for(const auto& d : members)
+    for(const auto& member : requiredMembers)
     {
-        if(!d->tagged())
-        {
-            writeMarshalDataMember(out, package, d, iter);
-        }
+        writeMarshalDataMember(out, package, member, iter);
     }
-    for(const auto& d : taggedMembers)
+    for(const auto& member : taggedMembers)
     {
-        writeMarshalDataMember(out, package, d, iter);
+        writeMarshalDataMember(out, package, member, iter);
     }
     out << nl << "ostr_.endSlice();";
     if(base)
@@ -1347,9 +1341,6 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
         out << nl << "super._iceWriteImpl(ostr_);";
     }
     out << eb;
-
-    DataMemberList classMembers = p->classDataMembers();
-    DataMemberList allClassMembers = p->allClassDataMembers();
 
     out << sp;
     writeHiddenDocComment(out);
@@ -1359,16 +1350,13 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     out << nl << "istr_.startSlice();";
 
     iter = 0;
-    for(const auto& d : members)
+    for(const auto& member : requiredMembers)
     {
-        if(!d->tagged())
-        {
-            writeUnmarshalDataMember(out, package, d, iter);
-        }
+        writeUnmarshalDataMember(out, package, member, iter);
     }
-    for(const auto& d : taggedMembers)
+    for(const auto& member : taggedMembers)
     {
-        writeUnmarshalDataMember(out, package, d, iter);
+        writeUnmarshalDataMember(out, package, member, iter);
     }
 
     out << nl << "istr_.endSlice();";
@@ -2062,46 +2050,26 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string package = getPackage(p);
     string absolute = getUnqualified(p);
-    DataMemberList members = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
+    const DataMemberList members = p->dataMembers();
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
 
     open(absolute, p->file());
 
     Output& out = output();
 
-    //
     // Check for annotated types to import the corresponding annotations.
-    //
-    bool hasOptionals = false;
-    bool hasRequiredDataMembers = false;
-    for(const auto& d : p->allDataMembers())
-    {
-        if(d->tagged())
-        {
-            hasOptionals = true;
-            if(hasRequiredDataMembers)
-            {
-                break;
-            }
-        }
-        else
-        {
-            hasRequiredDataMembers = true;
-            if(hasOptionals)
-            {
-                break;
-            }
-        }
-    }
-
-    if(hasOptionals || hasRequiredDataMembers)
+    const auto [allRequiredMembers, allTaggedMembers] = getSortedMembers(allDataMembers);
+    const bool hasRequiredMembers = !allRequiredMembers.empty();
+    const bool hasTaggedMembers = !allTaggedMembers.empty();
+    if (hasRequiredMembers || hasTaggedMembers)
     {
         out << sp;
-        if(hasRequiredDataMembers)
+        if (hasRequiredMembers)
         {
             out << nl << "import org.checkerframework.checker.nullness.qual.MonotonicNonNull;";
         }
-        if(hasOptionals)
+        if (hasTaggedMembers)
         {
             out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
         }
@@ -2171,21 +2139,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!allDataMembers.empty())
     {
-        bool hasTaggedMembers = false;
-        bool hasRequiredMembers = false;
-
-        for(const auto& d : allDataMembers)
-        {
-            if(d->tagged())
-            {
-                hasTaggedMembers = true;
-            }
-            else
-            {
-                hasRequiredMembers = true;
-            }
-        }
-
         //
         // Default constructor.
         //
@@ -2217,52 +2170,33 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 out << sp << nl << "public " << fixKwd(name) << spar;
                 vector<string> dataMember;
-                for(const auto d : allDataMembers)
+                for(const auto d : allRequiredMembers)
                 {
-                    if(!d->tagged())
-                    {
-                        string memberName = fixKwd(d->name());
-                        string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);
-                        dataMember.push_back(memberType + " " + memberName);
-                    }
+                    string memberName = fixKwd(d->name());
+                    string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);
+                    dataMember.push_back(memberType + " " + memberName);
                 }
                 out << dataMember << epar;
                 out << sb;
-                if(!baseDataMembers.empty())
+
+                const DataMemberList requiredBaseMembers = getRequiredMembers(baseDataMembers);
+                if (!requiredBaseMembers.empty())
                 {
-                    bool hasBaseRequired = false;
-                    for(const auto& d : baseDataMembers)
+                    out << nl << "super" << spar;
+                    vector<string> baseParamNames;
+                    for(const auto& member : requiredBaseMembers)
                     {
-                        if(!d->tagged())
-                        {
-                            hasBaseRequired = true;
-                            break;
-                        }
+                        baseParamNames.push_back(fixKwd(member->name()));
                     }
-                    if(hasBaseRequired)
-                    {
-                        out << nl << "super" << spar;
-                        vector<string> baseParamNames;
-                        for(const auto& d : baseDataMembers)
-                        {
-                            if(!d->tagged())
-                            {
-                                baseParamNames.push_back(fixKwd(d->name()));
-                            }
-                        }
-                        out << baseParamNames << epar << ';';
-                    }
+                    out << baseParamNames << epar << ';';
                 }
 
-                for(const auto& d : members)
+                for(const auto& member : requiredMembers)
                 {
-                    if(!d->tagged())
-                    {
-                        string paramName = fixKwd(d->name());
-                        out << nl << "this." << paramName << " = " << paramName << ';';
-                    }
+                    string paramName = fixKwd(member->name());
+                    out << nl << "this." << paramName << " = " << paramName << ';';
                 }
-                writeDataMemberInitializers(out, p->sortedTaggedDataMembers(), package);
+                writeDataMemberInitializers(out, taggedMembers, package);
                 out << eb;
             }
 
@@ -2500,38 +2434,19 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     string package = getPackage(p);
     string absolute = getUnqualified(p);
-    DataMemberList members = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
+    const DataMemberList members = p->dataMembers();
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList baseDataMembers = base ? base->allDataMembers() : DataMemberList();
 
     open(absolute, p->file());
 
     Output& out = output();
 
-    //
     // Check for annotated types to import the corresponding annotations.
-    //
-    bool hasTaggedMembers = false;
-    bool hasRequiredMembers = false;
-    for(const auto& d : p->allDataMembers())
-    {
-        if(d->tagged())
-        {
-            hasTaggedMembers = true;
-            if(hasRequiredMembers)
-            {
-                break;
-            }
-        }
-        else
-        {
-            hasRequiredMembers = true;
-            if(hasTaggedMembers)
-            {
-                break;
-            }
-        }
-    }
-
+    const auto [allRequiredMembers, allTaggedMembers] = getSortedMembers(allDataMembers);
+    const bool hasRequiredMembers = !allRequiredMembers.empty();
+    const bool hasTaggedMembers = !allTaggedMembers.empty();
     if(hasTaggedMembers || hasRequiredMembers)
     {
         out << sp;
@@ -2588,12 +2503,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if(!allDataMembers.empty())
     {
-        DataMemberList baseDataMembers;
-        if(base)
-        {
-            baseDataMembers = base->allDataMembers();
-        }
-
         //
         // A method cannot have more than 255 parameters (including the implicit "this" argument).
         //
@@ -2601,58 +2510,36 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if(hasRequiredMembers && hasTaggedMembers)
             {
-                bool hasBaseRequired = false;
-                for(const auto& d : baseDataMembers)
-                {
-                    if(!d->tagged())
-                    {
-                        hasBaseRequired = true;
-                        break;
-                    }
-                }
-
-                DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+                DataMemberList requiredBaseMembers = getRequiredMembers(baseDataMembers);
 
                 //
                 // Generate a constructor accepting parameters for just the required members.
                 //
                 out << sp << nl << "public " << name << spar;
                 vector<string> dataMember;
-                for(const auto& d : allDataMembers)
+                for(const auto& member : allRequiredMembers)
                 {
-                    if(!d->tagged())
-                    {
-                        string memberName = fixKwd(d->name());
-                        string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);
-                        dataMember.push_back(memberType + " " + memberName);
-                    }
+                    string memberName = fixKwd(member->name());
+                    string memberType = typeToString(member->type(), TypeModeMember, package, member->getMetaData(), true);
+                    dataMember.push_back(memberType + " " + memberName);
                 }
                 out << dataMember << epar;
                 out << sb;
-                if(!baseDataMembers.empty())
+                if (!requiredBaseMembers.empty())
                 {
-                    if(hasBaseRequired)
+                    out << nl << "super" << spar;
+                    vector<string> baseParamNames;
+                    for (const auto& member : requiredBaseMembers)
                     {
-                        out << nl << "super" << spar;
-                        vector<string> baseParamNames;
-                        for(const auto& d : baseDataMembers)
-                        {
-                            if(!d->tagged())
-                            {
-                                baseParamNames.push_back(fixKwd(d->name()));
-                            }
-                        }
-                        out << baseParamNames << epar << ';';
+                        baseParamNames.push_back(fixKwd(member->name()));
                     }
+                    out << baseParamNames << epar << ';';
                 }
 
-                for(const auto& d : members)
+                for (const auto& member : requiredMembers)
                 {
-                    if(!d->tagged())
-                    {
-                        string paramName = fixKwd(d->name());
-                        out << nl << "this." << paramName << " = " << paramName << ';';
-                    }
+                    string paramName = fixKwd(member->name());
+                    out << nl << "this." << paramName << " = " << paramName << ';';
                 }
                 writeDataMemberInitializers(out, taggedMembers, package);
                 out << eb;
@@ -2669,16 +2556,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     out << sp << nl << "public " << name << spar;
                     out << dataMember << epar;
                     out << sb;
-                    if(hasBaseRequired)
+                    if (!requiredBaseMembers.empty())
                     {
                         out << nl << "super" << spar;
                         vector<string> baseParamNames;
-                        for(const auto& d : baseDataMembers)
+                        for (const auto& member : requiredBaseMembers)
                         {
-                            if(!d->tagged())
-                            {
-                                baseParamNames.push_back(fixKwd(d->name()));
-                            }
+                            baseParamNames.push_back(fixKwd(member->name()));
                         }
                         baseParamNames.push_back(causeParamName);
                         out << baseParamNames << epar << ';';
@@ -2687,13 +2571,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     {
                         out << nl << "super(" << causeParamName << ");";
                     }
-                    for(const auto& d : members)
+                    for (const auto& member : requiredMembers)
                     {
-                        if(!d->tagged())
-                        {
-                            string paramName = fixKwd(d->name());
-                            out << nl << "this." << paramName << " = " << paramName << ';';
-                        }
+                        string paramName = fixKwd(member->name());
+                        out << nl << "this." << paramName << " = " << paramName << ';';
                     }
                     writeDataMemberInitializers(out, taggedMembers, package);
                     out << eb;
@@ -2718,10 +2599,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 out << nl << "super" << spar;
                 vector<string> baseParamNames;
-                DataMemberList baseDataMemberList = base->allDataMembers();
-                for(const auto& d : baseDataMemberList)
+                for (const auto& member : baseDataMembers)
                 {
-                    baseParamNames.push_back(fixKwd(d->name()));
+                    baseParamNames.push_back(fixKwd(member->name()));
                 }
 
                 out << baseParamNames << epar << ';';
@@ -2762,10 +2642,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 {
                     out << nl << "super" << spar;
                     vector<string> baseParamNames;
-                    DataMemberList baseDataMemberList = base->allDataMembers();
-                    for(const auto& d : baseDataMemberList)
+                    for (const auto& member : baseDataMembers)
                     {
-                        baseParamNames.push_back(fixKwd(d->name()));
+                        baseParamNames.push_back(fixKwd(member->name()));
                     }
                     baseParamNames.push_back(causeParamName);
                     out << baseParamNames << epar << ';';
@@ -2809,8 +2688,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
-    DataMemberList members = p->dataMembers();
-    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+    DataMemberList sortedMembers = p->dataMembers();
+    sortMembers(sortedMembers);
     int iter;
 
     if(preserved && !basePreserved)
@@ -2851,16 +2730,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sb;
     out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
     iter = 0;
-    for(const auto& d : members)
+    for(const auto& member : sortedMembers)
     {
-        if(!d->tagged())
-        {
-            writeMarshalDataMember(out, package, d, iter);
-        }
-    }
-    for(const auto& d : taggedMembers)
-    {
-        writeMarshalDataMember(out, package, d, iter);
+        writeMarshalDataMember(out, package, member, iter);
     }
     out << nl << "ostr_.endSlice();";
     if(base)
@@ -2869,9 +2741,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     out << eb;
 
-    DataMemberList classMembers = p->classDataMembers();
-    DataMemberList allClassMembers = p->allClassDataMembers();
-
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
@@ -2879,16 +2748,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sb;
     out << nl << "istr_.startSlice();";
     iter = 0;
-    for(const auto& d : members)
+    for(const auto& member : sortedMembers)
     {
-        if(!d->tagged())
-        {
-            writeUnmarshalDataMember(out, package, d, iter);
-        }
-    }
-    for(const auto& d : taggedMembers)
-    {
-        writeUnmarshalDataMember(out, package, d, iter);
+        writeUnmarshalDataMember(out, package, member, iter);
     }
     out << nl << "istr_.endSlice();";
     if(base)
@@ -3157,8 +3019,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         writeMarshalDataMember(out, package, d, iter, true);
     }
     out << eb;
-
-    DataMemberList classMembers = p->classDataMembers();
 
     out << sp << nl << "public void ice_readMembers(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr)";

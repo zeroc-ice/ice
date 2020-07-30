@@ -50,7 +50,7 @@ void writeAllocateCode(::IceUtilInternal::Output&, const DataMemberList&, const 
                        int = 0, const std::string& = "");
 
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
-void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
+void writeStreamHelpers(::IceUtilInternal::Output&, const DataMemberContainerPtr&);
 void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
 
 bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);

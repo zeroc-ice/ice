@@ -265,36 +265,35 @@ void
 Slice::CsVisitor::writeMarshalDataMembers(const DataMemberList& p, const string& ns, unsigned int baseTypes)
 {
 #ifndef NDEBUG
-    int currentTag = -1; // just to verify sortForMarshaling sorts correctly
+    int currentTag = -1; // just to verify sortMembers sorts correctly
 #endif
 
+    auto [requiredMembers, taggedMembers] = getSortedMembers(p);
     int bitSequenceIndex = -1;
-    size_t bitSequenceSize = getBitSequenceSize(p);
+    // Tagged members are encoded in a dictionary and don't count towards the optional bit sequence size.
+    size_t bitSequenceSize = getBitSequenceSize(requiredMembers);
     if (bitSequenceSize > 0)
     {
         _out << nl << "var bitSequence = ostr.WriteBitSequence(" << bitSequenceSize << ");";
         bitSequenceIndex = 0;
     }
 
-    for (const auto& member : sortForMarshaling(p))
+    for (const auto& member : requiredMembers)
     {
-        if (!member->tagged())
-        {
 #ifndef NDEBUG
             assert(currentTag == -1);
 #endif
             writeMarshalCode(_out, member->type(), bitSequenceIndex, true, ns,
                 "this." + fixId(dataMemberName(member), baseTypes), "ostr");
-        }
-        else
-        {
+    }
+    for (const auto& member : taggedMembers)
+    {
 #ifndef NDEBUG
             assert(member->tag() > currentTag);
             currentTag = member->tag();
 #endif
             writeTaggedMarshalCode(_out, OptionalPtr::dynamicCast(member->type()), true, ns,
                 "this." + fixId(dataMemberName(member), baseTypes), member->tag(), "ostr");
-        }
     }
 
     if (bitSequenceSize > 0)
@@ -306,28 +305,27 @@ Slice::CsVisitor::writeMarshalDataMembers(const DataMemberList& p, const string&
 void
 Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const string& ns, unsigned int baseTypes)
 {
+    auto [requiredMembers, taggedMembers] = getSortedMembers(p);
     int bitSequenceIndex = -1;
-    size_t bitSequenceSize = getBitSequenceSize(p);
+    // Tagged members are encoded in a dictionary and don't count towards the optional bit sequence size.
+    size_t bitSequenceSize = getBitSequenceSize(requiredMembers);
     if (bitSequenceSize > 0)
     {
         _out << nl << "var bitSequence = istr.ReadBitSequence(" << bitSequenceSize << ");";
         bitSequenceIndex = 0;
     }
 
-    for (const auto& member : sortForMarshaling(p))
+    for (const auto& member : requiredMembers)
     {
-        if (!member->tagged())
-        {
-            _out << nl;
-            writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns,
-                "this." + fixId(dataMemberName(member), baseTypes), "istr");
-        }
-        else
-        {
-            _out << nl;
-            writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(member->type()), ns,
-                "this." + fixId(dataMemberName(member), baseTypes), member->tag(), member, "istr");
-        }
+        _out << nl;
+        writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns,
+            "this." + fixId(dataMemberName(member), baseTypes), "istr");
+    }
+    for (const auto& member : taggedMembers)
+    {
+        _out << nl;
+        writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(member->type()), ns,
+            "this." + fixId(dataMemberName(member), baseTypes), member->tag(), member, "istr");
     }
 
     if (bitSequenceSize > 0)
