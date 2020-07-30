@@ -4,7 +4,7 @@
 
 namespace ZeroC.Ice
 {
-    /// <summary>The reply status used in ice1 response frames (also known as reply messages).</summary>
+    /// <summary>The reply status used in response frames with ice1.</summary>
     public enum ReplyStatus : byte
     {
         OK = 0,

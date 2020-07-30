@@ -12,9 +12,6 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
-        /// <summary>The encoding of the frame payload</summary>
-        public Encoding Encoding { get; }
-
         /// <summary>The response context. Always null with Ice1.</summary>
         public Dictionary<string, string>? Context { get; }
 
@@ -25,8 +22,8 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
-        public ReplyStatus ReplyStatus { get; }
+        /// <summary>The frame reply status <see cref="ReplyStatus"/>. Applies only to ice1 frames.</summary>
+        public ReplyStatus ReplyStatus => Protocol == Protocol.Ice1 ? (ReplyStatus)Payload[0] : ReplyStatus.OK;
 
         /// <summary>The frame byte count.</summary>
         public int Size => Payload.Count;
@@ -35,13 +32,25 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
-        public static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
+        // TODO: this is really a oneway pseudo-response. Should we rename the method? Simplify further the frame?
+        internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
             _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
-                ostr.WriteByte((byte)ReplyStatus.OK);
-                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                if (key.Protocol == Protocol.Ice1)
+                {
+                    var ostr = new OutputStream(Ice1Definitions.Encoding, data);
+                    ostr.WriteByte((byte)ReplyStatus.OK);
+                    _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                }
+                else
+                {
+                    Debug.Assert(key.Protocol == Protocol.Ice2);
+                    var ostr =
+                        new OutputStream(Ice2Definitions.Encoding, data, default, key.Encoding, FormatType.Compact);
+                    ostr.WriteByte((byte)ResponseType.Success);
+                    ostr.Save();
+                }
                 Debug.Assert(data.Count == 1);
                 return new IncomingResponseFrame(key.Protocol, data[0]);
             });
@@ -54,13 +63,30 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
         {
-            if (ReplyStatus == ReplyStatus.OK)
+            if (Protocol == Protocol.Ice1)
             {
-                return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+                return ReplyStatus == ReplyStatus.OK ?
+                    Payload.AsReadOnlyMemory(1).ReadEncapsulation(Ice1Definitions.Encoding, communicator, reader) :
+                    throw ReadException(communicator);
             }
             else
             {
-                throw ReadException(communicator);
+                Debug.Assert(Protocol == Protocol.Ice2);
+                var istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
+                byte responseTypeByte = istr.ReadByte();
+                if (responseTypeByte > 1)
+                {
+                    throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
+                }
+
+                if ((ResponseType)responseTypeByte == ResponseType.Success)
+                {
+                    return reader(istr);
+                }
+                else
+                {
+                    throw istr.ReadException();
+                }
             }
         }
 
@@ -69,13 +95,35 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
-            if (ReplyStatus == ReplyStatus.OK)
+            if (Protocol == Protocol.Ice1)
             {
-                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
+                if (ReplyStatus == ReplyStatus.OK)
+                {
+                    Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Ice1Definitions.Encoding, communicator);
+                }
+                else
+                {
+                    throw ReadException(communicator);
+                }
             }
             else
             {
-                throw ReadException(communicator);
+                Debug.Assert(Protocol == Protocol.Ice2);
+                var istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
+                byte responseTypeByte = istr.ReadByte();
+                if (responseTypeByte > 1)
+                {
+                    throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
+                }
+
+                if ((ResponseType)responseTypeByte == ResponseType.Success)
+                {
+                    istr.CheckEndOfBuffer(skipTaggedParams: true);
+                }
+                else
+                {
+                    throw istr.ReadException();
+                }
             }
         }
 
@@ -85,28 +133,17 @@ namespace ZeroC.Ice
         public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> payload)
         {
             Protocol = protocol;
-            byte replyStatus = payload[0];
-            if (replyStatus > 7)
+
+            if (Protocol == Protocol.Ice1)
             {
-                throw new InvalidDataException(
-                    $"received {Protocol.GetName()} response frame with unknown reply status `{replyStatus}'");
-            }
-            ReplyStatus = (ReplyStatus)replyStatus;
-            Payload = payload;
-            if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
-            {
-                int size;
-                (size, Encoding) = Payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
-                if (Protocol == Protocol.Ice1 && size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
+                byte replyStatus = payload[0];
+                if (replyStatus > 7)
                 {
-                    throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
+                    throw new InvalidDataException(
+                        $"received ice1 response frame with unknown reply status `{replyStatus}'");
                 }
-                // TODO: ice2
             }
-            else
-            {
-                Encoding = Protocol.GetEncoding();
-            }
+            Payload = payload;
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
@@ -118,6 +155,7 @@ namespace ZeroC.Ice
 
         private Exception ReadException(Communicator communicator)
         {
+            Debug.Assert(Protocol == Protocol.Ice1);
             switch (ReplyStatus)
             {
                 case ReplyStatus.UserException:
@@ -140,8 +178,9 @@ namespace ZeroC.Ice
 
         internal UnhandledException ReadUnhandledException()
         {
+            Debug.Assert(Protocol == Protocol.Ice1);
             var buffer = Payload.AsReadOnlySpan(1);
-            (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
+            (int size, int sizeLength) = buffer.ReadSize(Ice1Definitions.Encoding);
 
             if (size + sizeLength != buffer.Length)
             {
@@ -154,7 +193,8 @@ namespace ZeroC.Ice
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(Payload.Slice(1), Protocol.GetEncoding());
+            Debug.Assert(Protocol == Protocol.Ice1);
+            var istr = new InputStream(Payload.Slice(1), Ice1Definitions.Encoding);
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();

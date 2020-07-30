@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -23,8 +24,8 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
-        public ReplyStatus ReplyStatus => (ReplyStatus) Data[0][0];
+        /// <summary>The frame reply status <see cref="ReplyStatus"/>. Applies only to ice1.</summary>
+        public ReplyStatus ReplyStatus => Protocol == Protocol.Ice1 ? (ReplyStatus) Data[0][0] : ReplyStatus.OK;
 
         /// <summary>The frame byte count.</summary>
         public int Size { get; private set; }
@@ -45,9 +46,24 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames.GetOrAdd((current.Protocol, current.Encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
-                ostr.WriteByte((byte)ReplyStatus.OK);
-                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                if (key.Protocol == Protocol.Ice1)
+                {
+                    var ostr = new OutputStream(Ice1Definitions.Encoding, data);
+                    ostr.WriteByte((byte)ReplyStatus.OK);
+                    _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                }
+                else
+                {
+                    Debug.Assert(key.Protocol == Protocol.Ice2);
+                    // Write response encaps with a single byte.
+                    var ostr = new OutputStream(Ice2Definitions.Encoding,
+                                                data,
+                                                default,
+                                                key.Encoding,
+                                                FormatType.Compact);
+                    ostr.WriteByte((byte)ResponseType.Success);
+                    ostr.Save();
+                }
                 return new OutgoingResponseFrame(current.IncomingRequestFrame, data);
             });
 
@@ -64,11 +80,29 @@ namespace ZeroC.Ice
                                                                OutputStreamWriter<T> writer)
         {
             var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
-            byte[] buffer = new byte[256];
-            buffer[0] = (byte)ReplyStatus.OK;
-            response.Data.Add(buffer);
-            var ostr = new OutputStream(current.Protocol.GetEncoding(), response.Data, new OutputStream.Position(0, 1),
-                response.Encoding, format ?? current.Adapter.Communicator.DefaultFormat);
+
+            OutputStream ostr;
+            if (response.Protocol == Protocol.Ice1)
+            {
+                byte[] buffer = new byte[256];
+                buffer[0] = (byte)ReplyStatus.OK;
+                response.Data.Add(buffer);
+                ostr = new OutputStream(Ice1Definitions.Encoding,
+                                        response.Data,
+                                        new OutputStream.Position(0, 1),
+                                        response.Encoding,
+                                        format ?? current.Communicator.DefaultFormat);
+            }
+            else
+            {
+                Debug.Assert(response.Protocol == Protocol.Ice2);
+                ostr = new OutputStream(Ice2Definitions.Encoding,
+                                        response.Data,
+                                        default,
+                                        response.Encoding,
+                                        format ?? current.Communicator.DefaultFormat);
+                ostr.WriteByte((byte)ResponseType.Success);
+            }
             writer(ostr, value);
             ostr.Save();
             response.Finish();
@@ -90,14 +124,29 @@ namespace ZeroC.Ice
             where T : struct
         {
             var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
-            byte[] buffer = new byte[256];
-            buffer[0] = (byte)ReplyStatus.OK;
-            response.Data.Add(buffer);
-            var ostr = new OutputStream(current.Protocol.GetEncoding(),
+
+            OutputStream ostr;
+            if (response.Protocol == Protocol.Ice1)
+            {
+                byte[] buffer = new byte[256];
+                buffer[0] = (byte)ReplyStatus.OK;
+                response.Data.Add(buffer);
+                ostr = new OutputStream(Ice1Definitions.Encoding,
                                         response.Data,
                                         new OutputStream.Position(0, 1),
                                         response.Encoding,
-                                        format ?? current.Adapter.Communicator.DefaultFormat);
+                                        format ?? current.Communicator.DefaultFormat);
+            }
+            else
+            {
+                Debug.Assert(response.Protocol == Protocol.Ice2);
+                ostr = new OutputStream(Ice2Definitions.Encoding,
+                                        response.Data,
+                                        default,
+                                        response.Encoding,
+                                        format ?? current.Communicator.DefaultFormat);
+                ostr.WriteByte((byte)ResponseType.Success);
+            }
             writer(ostr, value);
             ostr.Save();
             response.Finish();
@@ -110,42 +159,39 @@ namespace ZeroC.Ice
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         // TODO: should we pass the payload as a list of segments, or maybe add a separate
         // ctor that accepts a list of segments instead of a single segment
-        public OutgoingResponseFrame(IncomingRequestFrame request, ArraySegment<byte> payload)
+        internal OutgoingResponseFrame(IncomingRequestFrame request, ArraySegment<byte> payload)
             : this(request)
         {
-            if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
-            {
-                // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes for an
-                // empty encapsulation.
-                if (payload.Count < 7)
-                {
-                    throw new ArgumentException(
-                        $"{nameof(payload)} should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
-                        nameof(payload));
-                }
-
-                (int size, Encoding encapsEncoding) =
-                    payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
-
-                if (size + 4 + 1 != payload.Count) // 4 = size length with 1.1 encoding
-                {
-                    throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count - 5}'",
-                        nameof(payload));
-                }
-
-                if (encapsEncoding != Encoding)
-                {
-                    throw new ArgumentException(@$"the payload encoding `{encapsEncoding
-                        }' must be the same as the supplied encoding `{Encoding}'",
-                        nameof(payload));
-                }
-            }
-
-            // No need to keep track of the compression status for Ice2, the compression is handled by
-            // the encapsulation. We need it for Ice1, since the compression is handled by protocol.
+            // TODO: do we need all these checks? If yes, add checks for ice2; if no, remove them from ice1.
             if (Protocol == Protocol.Ice1)
             {
-                CompressionStatus = request.CompressionStatus;
+                if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
+                {
+                    // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes for an
+                    // empty encapsulation.
+                    if (payload.Count < 7)
+                    {
+                        throw new ArgumentException(
+                            $"{nameof(payload)} should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
+                            nameof(payload));
+                    }
+
+                    (int size, Encoding encapsEncoding) =
+                        payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
+
+                    if (size + 4 + 1 != payload.Count) // 4 = size length with 1.1 encoding
+                    {
+                        throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count - 5}'",
+                            nameof(payload));
+                    }
+
+                    if (encapsEncoding != Encoding)
+                    {
+                        throw new ArgumentException(@$"the payload encoding `{encapsEncoding
+                            }' must be the same as the supplied encoding `{Encoding}'",
+                            nameof(payload));
+                    }
+                }
             }
 
             Data.Add(payload);
@@ -160,42 +206,57 @@ namespace ZeroC.Ice
             : this(request)
         {
             OutputStream ostr;
-            if (exception is DispatchException dispatchException)
-            {
-                ostr = new OutputStream(Protocol.GetEncoding(), Data);
-                bool writeFields = true;
-                switch (dispatchException)
-                {
-                    case ObjectNotExistException _:
-                        ostr.WriteByte((byte)ReplyStatus.ObjectNotExistException);
-                        break;
-                    case OperationNotExistException _:
-                        ostr.WriteByte((byte)ReplyStatus.OperationNotExistException);
-                        break;
-                    default:
-                        ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
-                        ostr.WriteString(dispatchException.Message);
-                        writeFields = false;
-                        break;
-                }
 
-                if (writeFields)
+            if (Protocol == Protocol.Ice1)
+            {
+                if (exception is DispatchException dispatchException)
                 {
-                    dispatchException.Id.IceWrite(ostr);
-                    ostr.WriteFacet(dispatchException.Facet);
-                    ostr.WriteString(dispatchException.Operation);
+                    ostr = new OutputStream(Ice1Definitions.Encoding, Data);
+                    bool writeFields = true;
+                    switch (dispatchException)
+                    {
+                        case ObjectNotExistException _:
+                            ostr.WriteByte((byte)ReplyStatus.ObjectNotExistException);
+                            break;
+                        case OperationNotExistException _:
+                            ostr.WriteByte((byte)ReplyStatus.OperationNotExistException);
+                            break;
+                        default:
+                            ostr.WriteByte((byte)ReplyStatus.UnknownLocalException);
+                            ostr.WriteString(dispatchException.Message);
+                            writeFields = false;
+                            break;
+                    }
+
+                    if (writeFields)
+                    {
+                        dispatchException.Id.IceWrite(ostr);
+                        ostr.WriteFacet(dispatchException.Facet);
+                        ostr.WriteString(dispatchException.Operation);
+                    }
+                }
+                else
+                {
+                    byte[] buffer = new byte[256];
+                    buffer[0] = (byte)ReplyStatus.UserException;
+                    Data.Add(buffer);
+                    ostr = new OutputStream(Ice1Definitions.Encoding,
+                                            Data,
+                                            new OutputStream.Position(0, 1),
+                                            Encoding,
+                                            FormatType.Sliced);
+                    ostr.WriteException(exception);
                 }
             }
             else
             {
-                byte[] buffer = new byte[256];
-                buffer[0] = (byte)ReplyStatus.UserException;
-                Data.Add(buffer);
-                ostr = new OutputStream(Protocol.GetEncoding(),
+                Debug.Assert(Protocol == Protocol.Ice2);
+                ostr = new OutputStream(Ice2Definitions.Encoding,
                                         Data,
-                                        new OutputStream.Position(0, 1),
+                                        default,
                                         Encoding,
                                         FormatType.Sliced);
+                ostr.WriteByte((byte)ResponseType.Failure);
                 ostr.WriteException(exception);
             }
 

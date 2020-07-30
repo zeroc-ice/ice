@@ -415,21 +415,26 @@ namespace ZeroC.Ice
                                                                progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            switch (response.ReplyStatus)
+                            // TODO: would be good to move the code below into IncomingResponseFrame
+                            // TODO: observer notification with ice2
+                            if (proxy.Protocol == Protocol.Ice1)
                             {
-                                case ReplyStatus.OK:
-                                    break;
-                                case ReplyStatus.UserException:
-                                    observer?.RemoteException();
-                                    break;
-                                case ReplyStatus.ObjectNotExistException:
-                                case ReplyStatus.FacetNotExistException:
-                                case ReplyStatus.OperationNotExistException:
-                                    throw response.ReadDispatchException();
-                                case ReplyStatus.UnknownException:
-                                case ReplyStatus.UnknownLocalException:
-                                case ReplyStatus.UnknownUserException:
-                                    throw response.ReadUnhandledException();
+                                switch (response.ReplyStatus)
+                                {
+                                    case ReplyStatus.OK:
+                                        break;
+                                    case ReplyStatus.UserException:
+                                        observer?.RemoteException();
+                                        break;
+                                    case ReplyStatus.ObjectNotExistException:
+                                    case ReplyStatus.FacetNotExistException:
+                                    case ReplyStatus.OperationNotExistException:
+                                        throw response.ReadDispatchException();
+                                    case ReplyStatus.UnknownException:
+                                    case ReplyStatus.UnknownLocalException:
+                                    case ReplyStatus.UnknownUserException:
+                                        throw response.ReadUnhandledException();
+                                }
                             }
                             return response;
                         }
