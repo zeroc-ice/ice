@@ -3,67 +3,68 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Timeout
 {
     public class AllTests
     {
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
-            var communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
+            var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
             try
             {
-                allTestsWithController(helper, controller);
+                RunWithController(helper, controller);
             }
-            catch (Exception)
+            catch
             {
                 // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
                 // the test from hanging on exit in case a connection which disables timeouts is still opened.
-                controller.resumeAdapter();
+                controller.ResumeAdapter();
                 throw;
             }
         }
 
-        public static void allTestsWithController(TestHelper helper, IControllerPrx controller)
+        public static void RunWithController(TestHelper helper, IControllerPrx controller)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
 
-            var timeout = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", communicator);
+            var timeout = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), communicator);
 
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing connect timeout... ");
             output.Flush();
             {
-                var properties = communicator.GetProperties();
+                Dictionary<string, string>? properties = communicator.GetProperties();
                 properties["Ice.ConnectTimeout"] = "100ms";
                 using var comm = new Communicator(properties);
 
-                var to = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", comm);
+                var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
                 // Expect ConnectTimeoutException.
-                controller.holdAdapter(-1);
+                controller.HoldAdapter(-1);
                 try
                 {
-                    to.op();
+                    to.Op();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
                 {
                     // Expected.
                 }
-                controller.resumeAdapter();
-                timeout.op(); // Ensure adapter is active.
+                controller.ResumeAdapter();
+                timeout.Op(); // Ensure adapter is active.
             }
             {
                 //
                 // Expect success.
                 //
-                controller.holdAdapter(100);
-                timeout.op();
+                controller.HoldAdapter(100);
+                timeout.Op();
             }
             output.WriteLine("ok");
 
@@ -76,30 +77,30 @@ namespace ZeroC.Ice.Test.Timeout
                 //
                 // Expect TimeoutException.
                 //
-                controller.holdAdapter(-1);
+                controller.HoldAdapter(-1);
                 timeout.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
                                                        AcmClose.OnInvocationAndIdle,
                                                        AcmHeartbeat.Off);
                 try
                 {
-                    timeout.sendData(seq);
+                    timeout.SendData(seq);
                     TestHelper.Assert(false);
                 }
                 catch (ConnectionTimeoutException)
                 {
                     // Expected.
                 }
-                controller.resumeAdapter();
-                timeout.op(); // Ensure adapter is active.
+                controller.ResumeAdapter();
+                timeout.Op(); // Ensure adapter is active.
             }
             {
                 //
                 // Expect success.
                 //
-                controller.holdAdapter(100);
+                controller.HoldAdapter(100);
                 try
                 {
-                    timeout.sendData(new byte[1000000]);
+                    timeout.SendData(new byte[1000000]);
                 }
                 catch (ConnectionTimeoutException)
                 {
@@ -112,12 +113,12 @@ namespace ZeroC.Ice.Test.Timeout
             output.Flush();
             {
                 timeout.IcePing(); // Makes sure a working connection is associated with the proxy
-                var connection = timeout.GetConnection();
-                var to = timeout.Clone(invocationTimeout: 100);
+                Connection? connection = timeout.GetConnection();
+                ITimeoutPrx? to = timeout.Clone(invocationTimeout: 100);
                 TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
-                    to.sleep(1000);
+                    to.Sleep(1000);
                     TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
@@ -128,7 +129,7 @@ namespace ZeroC.Ice.Test.Timeout
                 TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
-                    to.sleep(100);
+                    to.Sleep(100);
                 }
                 catch (TimeoutException)
                 {
@@ -140,10 +141,10 @@ namespace ZeroC.Ice.Test.Timeout
                 //
                 // Expect TimeoutException.
                 //
-                var to = timeout.Clone(invocationTimeout: 100);
+                ITimeoutPrx to = timeout.Clone(invocationTimeout: 100);
                 try
                 {
-                    to.sleepAsync(1000).Wait();
+                    to.SleepAsync(1000).Wait();
                 }
                 catch (AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
@@ -151,11 +152,9 @@ namespace ZeroC.Ice.Test.Timeout
                 timeout.IcePing();
             }
             {
-                //
                 // Expect success.
-                //
-                var to = timeout.Clone(invocationTimeout: 1000);
-                to.sleepAsync(100).Wait();
+                ITimeoutPrx to = timeout.Clone(invocationTimeout: 1000);
+                to.SleepAsync(100).Wait();
             }
 
            output.WriteLine("ok");
@@ -163,18 +162,18 @@ namespace ZeroC.Ice.Test.Timeout
             output.Write("testing close timeout... ");
             output.Flush();
             {
-                var properties = communicator.GetProperties();
+                Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.CloseTimeout"] = "100ms";
                 using var comm = new Communicator(properties);
 
-                var to = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", comm);
+                var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
-                var connection = to.GetConnection();
-                var connection2 = timeout.GetConnection(); // No close timeout
+                Connection? connection = to.GetConnection();
+                Connection? connection2 = timeout.GetConnection(); // No close timeout
 
                 TestHelper.Assert(connection != null && connection2 != null);
 
-                controller.holdAdapter(-1);
+                controller.HoldAdapter(-1);
 
                 // Make sure there's no ReadAsync pending
                 _ = to.IcePingAsync();
@@ -189,8 +188,8 @@ namespace ZeroC.Ice.Test.Timeout
                 connection2.Close(ConnectionClose.Gracefully);
                 TestHelper.Assert(!semaphore.Wait(500));
 
-                controller.resumeAdapter();
-                timeout.op(); // Ensure adapter is active.
+                controller.ResumeAdapter();
+                timeout.Op(); // Ensure adapter is active.
             }
             output.WriteLine("ok");
 
@@ -199,13 +198,14 @@ namespace ZeroC.Ice.Test.Timeout
             {
                 communicator.SetProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
-                var adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
                 adapter.Activate();
 
-                var proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
+                ITimeoutPrx proxy =
+                    adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
                 try
                 {
-                    proxy.sleep(500);
+                    proxy.Sleep(500);
                     TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
@@ -214,7 +214,7 @@ namespace ZeroC.Ice.Test.Timeout
 
                 try
                 {
-                    proxy.sleepAsync(500).Wait();
+                    proxy.SleepAsync(500).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ex) when (ex.InnerException is TimeoutException)
@@ -224,7 +224,7 @@ namespace ZeroC.Ice.Test.Timeout
             }
             output.WriteLine("ok");
 
-            controller.shutdown();
+            controller.Shutdown();
         }
     }
 }

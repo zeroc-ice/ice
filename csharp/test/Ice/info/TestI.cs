@@ -9,9 +9,9 @@ namespace ZeroC.Ice.Test.Info
 {
     public class TestIntf : ITestIntf
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        public IReadOnlyDictionary<string, string> getEndpointInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> GetEndpointInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Info
             ctx["compress"] = endpoint["compress"] ?? "false";
             ctx["datagram"] = endpoint.IsDatagram ? "true" : "false";
             ctx["secure"] = endpoint.IsSecure ? "true" : "false";
-            ctx["transport"] = endpoint.TransportName;
+            ctx["scheme"] = endpoint.Scheme;
 
             ctx["host"] = endpoint.Host;
             ctx["port"] = endpoint.Port.ToString();
@@ -34,12 +34,14 @@ namespace ZeroC.Ice.Test.Info
             return ctx;
         }
 
-        public IReadOnlyDictionary<string, string> getConnectionInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> GetConnectionInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
-            var ctx = new Dictionary<string, string>();
-            ctx["adapterName"] = current.Connection.Adapter?.Name ?? "";
-            ctx["incoming"] = current.Connection.IsIncoming ? "true" : "false";
+            var ctx = new Dictionary<string, string>
+            {
+                ["adapterName"] = current.Connection.Adapter?.Name ?? "",
+                ["incoming"] = current.Connection.IsIncoming ? "true" : "false"
+            };
 
             var ipConnection = current.Connection as IPConnection;
             TestHelper.Assert(ipConnection != null);

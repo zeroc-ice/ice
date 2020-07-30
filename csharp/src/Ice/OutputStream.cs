@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 
 namespace ZeroC.Ice
 {
@@ -791,7 +790,7 @@ namespace ZeroC.Ice
         public void WriteSerializable(object o)
         {
             var w = new StreamWrapper(this);
-            IFormatter f = new BinaryFormatter();
+            var f = new BinaryFormatter();
             f.Serialize(w, o);
             w.Close();
         }
@@ -1329,7 +1328,7 @@ namespace ZeroC.Ice
                 if (elementSize > 1)
                 {
                     // This size is redundant and optimized out by the encoding when elementSize is 1.
-                    WriteSize(v.Length == 0 ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
+                    WriteSize(v.IsEmpty ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
                 }
                 WriteSequence(v);
             }
@@ -1567,7 +1566,7 @@ namespace ZeroC.Ice
             WriteFixedLengthSize20(size, data);
 
         // Constructor for protocol frame header and other non-encapsulated data.
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
+        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt = default)
         {
             _mainEncoding = encoding;
             Encoding = encoding;
@@ -1579,13 +1578,13 @@ namespace ZeroC.Ice
                 _currentSegment = ArraySegment<byte>.Empty;
                 _capacity = 0;
                 Size = 0;
-                _tail = new Position(0, 0);
+                _tail = default;
             }
             else
             {
-                _tail = startAt ?? new Position(0, 0);
+                _tail = startAt;
                 _currentSegment = _segmentList[_tail.Segment];
-                Size = Distance(new Position(0, 0));
+                Size = Distance(default);
                 _capacity = 0;
                 foreach (ArraySegment<byte> segment in _segmentList)
                 {
@@ -1660,11 +1659,11 @@ namespace ZeroC.Ice
 
                     // 0 is a placeholder for the size.
                     WriteEncapsulationHeader(0, payloadEncoding, sizeLength);
-                    var previousEncoding = Encoding;
+                    Encoding previousEncoding = Encoding;
                     Encoding = payloadEncoding;
                     if (endpoint.Protocol == Protocol.Ice1)
                     {
-                        endpoint.IceWritePayload(this);
+                        endpoint.WriteOptions(this);
                     }
                     else
                     {

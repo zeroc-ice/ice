@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Operations
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             Assert(prx.GetConnection() == null);
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

@@ -55,8 +55,8 @@ namespace ZeroC.Glacier2
         private readonly ISessionCallback _callback;
         private string? _category;
         private Communicator? _communicator;
-        private bool _connected = false;
-        private bool _destroy = false;
+        private bool _connected;
+        private bool _destroy;
         private readonly string _finderStr;
         private readonly ILogger? _logger;
         private readonly object _mutex = new object();

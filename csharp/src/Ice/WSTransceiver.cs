@@ -9,7 +9,6 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace ZeroC.Ice
@@ -33,14 +32,6 @@ namespace ZeroC.Ice
     internal sealed class WSTransceiver : ITransceiver
     {
         internal SslStream? SslStream => (_delegate as SslTransceiver)?.SslStream;
-
-        public Connection CreateConnection(
-            Endpoint endpoint,
-            IAcmMonitor? monitor,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) =>
-            new WSConnection(endpoint, monitor, this, connector, connectionId, adapter);
 
         public Socket? Fd() => _delegate.Fd();
 
@@ -153,7 +144,7 @@ namespace ZeroC.Ice
                             //
                             // Enlarge the buffer and try to read more.
                             //
-                            if (_readBufferOffset + 1024 > _communicator.FrameSizeMax)
+                            if (_readBufferOffset + 1024 > _communicator.IncomingFrameSizeMax)
                             {
                                 throw new WSMemoryLimitException();
                             }
@@ -759,7 +750,7 @@ namespace ZeroC.Ice
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (value.IndexOf("upgrade") == -1)
+            else if (!value.Contains("upgrade"))
             {
                 throw new WebSocketException($"invalid value `{value}' for Connection field");
             }
@@ -913,7 +904,7 @@ namespace ZeroC.Ice
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if (value.IndexOf("upgrade") == -1)
+            else if (!value.Contains("upgrade"))
             {
                 throw new WebSocketException($"invalid value `{value}' for Connection field");
             }
@@ -1053,7 +1044,7 @@ namespace ZeroC.Ice
                     {
                         // Uses network byte order
                         _readPayloadLength = System.Net.IPAddress.NetworkToHostOrder(
-                            InputStream.ReadShort(_readBuffer.Slice(_readBufferPos, 2)));
+                            _readBuffer.AsReadOnlySpan(_readBufferPos, 2).ReadShort());
                         if (_readPayloadLength < 0)
                         {
                             _readPayloadLength += 65536;
@@ -1064,7 +1055,7 @@ namespace ZeroC.Ice
                     {
                         // Uses network byte order.
                         long length = System.Net.IPAddress.NetworkToHostOrder(
-                            InputStream.ReadLong(_readBuffer.Slice(_readBufferPos, 8)));
+                            _readBuffer.AsReadOnlySpan(_readBufferPos, 8).ReadLong());
                         _readBufferPos += 8;
                         if (length < 0 || length > int.MaxValue)
                         {

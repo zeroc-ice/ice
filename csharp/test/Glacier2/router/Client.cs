@@ -23,13 +23,13 @@ namespace ZeroC.Glacier2.Test.Router
             //
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Default.Protocol"] = "ice1";
-            await using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
 
             IObjectPrx routerBase;
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
-                routerBase = IObjectPrx.Parse($"Glacier2/router -e 1.1:{GetTestEndpoint(50)}", communicator);
+                routerBase = IObjectPrx.Parse(GetTestProxy("Glacier2/router", 50), communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -45,8 +45,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder -e 1.1:{GetTestEndpoint(50)}",
-                    communicator);
+                var finder = IRouterFinderPrx.Parse(GetTestProxy("Ice/RouterFinder", 50), communicator);
                 Assert(finder.GetRouter()!.Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
@@ -71,7 +70,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                twoway = ICallbackPrx.Parse($"c1/callback:{GetTestEndpoint(0)}", communicator);
+                twoway = ICallbackPrx.Parse(GetTestProxy("c1/callback", 0), communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -170,7 +169,7 @@ namespace ZeroC.Glacier2.Test.Router
 
             {
                 Console.Out.Write("pinging object with client endpoint... ");
-                IObjectPrx baseC = IObjectPrx.Parse($"collocated:{GetTestEndpoint(50)}", communicator);
+                var baseC = IObjectPrx.Parse(GetTestProxy("collocated", 50), communicator);
                 try
                 {
                     baseC.IcePing();
@@ -211,9 +210,9 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Flush();
                 callbackReceiverImpl = new CallbackReceiver();
                 callbackReceiver = callbackReceiverImpl;
-                Identity callbackReceiverIdent = new Identity("callbackReceiver", category);
+                var callbackReceiverIdent = new Identity("callbackReceiver", category);
                 twowayR = adapter.Add(callbackReceiverIdent, callbackReceiver, ICallbackReceiverPrx.Factory);
-                Identity fakeCallbackReceiverIdent = new Identity("callbackReceiver", "dummy");
+                var fakeCallbackReceiverIdent = new Identity("callbackReceiver", "dummy");
                 fakeTwowayR = adapter.Add(fakeCallbackReceiverIdent, callbackReceiver,
                                             ICallbackReceiverPrx.Factory);
                 Console.Out.WriteLine("ok");
@@ -224,50 +223,58 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Flush();
                 ICallbackPrx oneway = twoway.Clone(oneway: true);
                 ICallbackReceiverPrx onewayR = twowayR.Clone(oneway: true);
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "o";
-                oneway.initiateCallback(onewayR, context);
-                callbackReceiverImpl.callbackOK();
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "o"
+                };
+                oneway.InitiateCallback(onewayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("testing twoway callback... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
-                twoway.initiateCallback(twowayR, context);
-                callbackReceiverImpl.callbackOK();
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
+                twoway.InitiateCallback(twowayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("ditto, but with user exception... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 try
                 {
-                    twoway.initiateCallbackEx(twowayR, context);
+                    twoway.InitiateCallbackEx(twowayR, context);
                     Assert(false);
                 }
                 catch (CallbackException ex)
                 {
-                    Assert(ex.someValue == 3.14);
-                    Assert(ex.someString.Equals("3.14"));
+                    Assert(ex.SomeValue == 3.14);
+                    Assert(ex.SomeString.Equals("3.14"));
                 }
-                callbackReceiverImpl.callbackOK();
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("trying twoway callback with fake category... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 try
                 {
-                    twoway.initiateCallback(fakeTwowayR, context);
+                    twoway.InitiateCallback(fakeTwowayR, context);
                     Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -279,25 +286,29 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing whether other allowed category is accepted... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 ICallbackPrx otherCategoryTwoway =
                     twoway.Clone(Identity.Parse("c2/callback"), ICallbackPrx.Factory);
-                otherCategoryTwoway.initiateCallback(twowayR, context);
-                callbackReceiverImpl.callbackOK();
+                otherCategoryTwoway.InitiateCallback(twowayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("testing whether disallowed category gets rejected... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 try
                 {
                     ICallbackPrx otherCategoryTwoway =
                         twoway.Clone(Identity.Parse("c3/callback"), ICallbackPrx.Factory);
-                    otherCategoryTwoway.initiateCallback(twowayR, context);
+                    otherCategoryTwoway.InitiateCallback(twowayR, context);
                     Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -309,12 +320,14 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing whether user-id as category is accepted... ");
                 Console.Out.Flush();
-                Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] = "t";
+                var context = new Dictionary<string, string>
+                {
+                    ["_fwd"] = "t"
+                };
                 ICallbackPrx otherCategoryTwoway =
                     twoway.Clone(Identity.Parse("_userid/callback"), ICallbackPrx.Factory);
-                otherCategoryTwoway.initiateCallback(twowayR, context);
-                callbackReceiverImpl.callbackOK();
+                otherCategoryTwoway.InitiateCallback(twowayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -322,7 +335,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing server shutdown... ");
                 Console.Out.Flush();
-                twoway.shutdown();
+                twoway.Shutdown();
                 // No ping, otherwise the router prints a warning message if it's
                 // started with --Ice.Warn.Connections.
                 Console.Out.WriteLine("ok");
@@ -348,7 +361,7 @@ namespace ZeroC.Glacier2.Test.Router
                 {
                     router.DestroySession();
                 }
-                catch (System.Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -386,8 +399,7 @@ namespace ZeroC.Glacier2.Test.Router
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    process = IProcessPrx.Parse($"Glacier2/admin -e 1.1 -f Process:{GetTestEndpoint(51)}",
-                        communicator);
+                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin -f Process", 51), communicator);
                     Console.Out.WriteLine("ok");
                 }
 

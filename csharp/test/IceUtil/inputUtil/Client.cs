@@ -22,11 +22,11 @@ namespace ZeroC.IceUtil.Test.InputUtil
                 Assert(Options.Split("").Length == 0);
 
                 args = Options.Split("\"\"");
-                Assert(args.Length == 1 && args[0].Equals(""));
+                Assert(args.Length == 1 && args[0].Length == 0);
                 args = Options.Split("''");
-                Assert(args.Length == 1 && args[0].Equals(""));
+                Assert(args.Length == 1 && args[0].Length == 0);
                 args = Options.Split("$''");
-                Assert(args.Length == 1 && args[0].Equals(""));
+                Assert(args.Length == 1 && args[0].Length == 0);
 
                 args = Options.Split("-a -b -c");
                 Assert(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));

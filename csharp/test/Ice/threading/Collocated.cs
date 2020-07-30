@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -15,16 +14,20 @@ namespace ZeroC.Ice.Test.Threading
         {
             await using Communicator communicator = Initialize(ref args);
 
-            var adapter1 = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
+            ObjectAdapter adapter1 = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter1.Add("test", new TestIntf(TaskScheduler.Default));
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 5);
 
-            var adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(1),
+            ObjectAdapter? adapter2 = communicator.CreateObjectAdapterWithEndpoints(
+                "TestAdapterExclusiveTS",
+                GetTestEndpoint(1),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter2.Add("test", new TestIntf(schedulerPair.ExclusiveScheduler));
 
-            var adapter3 = communicator.CreateObjectAdapterWithEndpoints("TestAdapteConcurrentTS", GetTestEndpoint(2),
+            ObjectAdapter? adapter3 = communicator.CreateObjectAdapterWithEndpoints(
+                "TestAdapteConcurrentTS",
+                GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ConcurrentScheduler);
             adapter3.Add("test", new TestIntf(schedulerPair.ConcurrentScheduler));
 
@@ -38,20 +41,11 @@ namespace ZeroC.Ice.Test.Threading
 
             try
             {
-                AllTests.allTests(this, true).AsTask().Wait();
-            }
-            catch (AggregateException ex)
-            {
-                if (ex.InnerException is TestFailedException failedEx)
-                {
-                    GetWriter().WriteLine($"test failed: {failedEx.reason}");
-                    Assert(false);
-                }
-                throw;
+                await AllTests.Run(this, true);
             }
             catch (TestFailedException ex)
             {
-                GetWriter().WriteLine($"test failed: {ex.reason}");
+                GetWriter().WriteLine($"test failed: {ex.Reason}");
                 Assert(false);
                 throw;
             }

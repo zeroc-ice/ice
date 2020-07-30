@@ -9,24 +9,24 @@ namespace ZeroC.Ice.Test.DictMapping
 {
     public class AllTests
     {
-        public static IMyClassPrx allTests(TestHelper helper, bool collocated)
+        public static IMyClassPrx Run(TestHelper helper, bool collocated)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             TextWriter output = helper.GetWriter();
 
-            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
             output.Write("testing twoway operations... ");
             output.Flush();
-            Twoways.twoways(cl);
+            Twoways.Run(cl);
             output.WriteLine("ok");
 
             if (!collocated)
             {
                 output.Write("testing twoway operations with AMI... ");
                 output.Flush();
-                TwowaysAMI.twowaysAMI(cl);
+                TwowaysAMI.Run(cl);
                 output.WriteLine("ok");
             }
             return cl;

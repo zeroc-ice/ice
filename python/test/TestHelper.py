@@ -24,14 +24,14 @@ class TestHelper:
 
         port = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
 
-        return "{0} -p {1}".format(protocol, port)
+        return "{0} -h {1} -p {2}".format(protocol, host, port)
 
     def getTestHost(self, properties=None):
 
         if properties is None:
             properties = self._communicator.getProperties()
 
-        return properties.getPropertyWithDefaul("Ice.Default.Host", "127.0.0.1")
+        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1")
 
     def getTestProtocol(self, properties=None):
 

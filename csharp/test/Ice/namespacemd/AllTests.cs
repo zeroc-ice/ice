@@ -8,14 +8,14 @@ namespace ZeroC.Ice.Test.NamespaceMD
 {
     public class AllTests
     {
-        public static IInitialPrx allTests(TestHelper helper)
+        public static IInitialPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            var @base = IObjectPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+            var @base = IObjectPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");
@@ -28,14 +28,14 @@ namespace ZeroC.Ice.Test.NamespaceMD
             {
                 output.Write("testing types without package... ");
                 output.Flush();
-                NoNamespace.C1? c1 = initial.getNoNamespaceC2AsC1();
+                NoNamespace.C1? c1 = initial.GetNoNamespaceC2AsC1();
                 TestHelper.Assert(c1 != null);
                 TestHelper.Assert(c1 is NoNamespace.C2);
-                NoNamespace.C2? c2 = initial.getNoNamespaceC2AsC2();
+                NoNamespace.C2? c2 = initial.GetNoNamespaceC2AsC2();
                 TestHelper.Assert(c2 != null);
                 try
                 {
-                    initial.throwNoNamespaceE2AsE1();
+                    initial.ThrowNoNamespaceE2AsE1();
                     TestHelper.Assert(false);
                 }
                 catch (NoNamespace.E1 ex)
@@ -44,7 +44,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
                 }
                 try
                 {
-                    initial.throwNoNamespaceE2AsE2();
+                    initial.ThrowNoNamespaceE2AsE2();
                     TestHelper.Assert(false);
                 }
                 catch (NoNamespace.E2)
@@ -53,7 +53,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
                 }
                 try
                 {
-                    initial.throwNoNamespaceNotify();
+                    initial.ThrowNoNamespaceNotify();
                     TestHelper.Assert(false);
                 }
                 catch (NoNamespace.@notify)
@@ -68,14 +68,14 @@ namespace ZeroC.Ice.Test.NamespaceMD
                 output.Flush();
 
                 {
-                    WithNamespace.C1? c1 = initial.getWithNamespaceC2AsC1();
+                    WithNamespace.C1? c1 = initial.GetWithNamespaceC2AsC1();
                     TestHelper.Assert(c1 != null);
                     TestHelper.Assert(c1 is WithNamespace.C2);
-                    WithNamespace.C2? c2 = initial.getWithNamespaceC2AsC2();
+                    WithNamespace.C2? c2 = initial.GetWithNamespaceC2AsC2();
                     TestHelper.Assert(c2 != null);
                     try
                     {
-                        initial.throwWithNamespaceE2AsE1();
+                        initial.ThrowWithNamespaceE2AsE1();
                         TestHelper.Assert(false);
                     }
                     catch (WithNamespace.E1 ex)
@@ -84,7 +84,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
                     }
                     try
                     {
-                        initial.throwWithNamespaceE2AsE2();
+                        initial.ThrowWithNamespaceE2AsE2();
                         TestHelper.Assert(false);
                     }
                     catch (WithNamespace.E2)

@@ -1402,19 +1402,15 @@ def twoways(helper, p, bprx):
     s = Test.MyStruct1()
     s.tesT = "Test.MyStruct1.s"
     s.myClass = None
-    s.myStruct1 = "Test.MyStruct1.myStruct1"
     s = d.opMyStruct1(s)
     test(s.tesT == "Test.MyStruct1.s")
     test(s.myClass == None)
-    test(s.myStruct1 == "Test.MyStruct1.myStruct1")
     c = Test.MyClass1()
     c.tesT = "Test.MyClass1.testT"
     c.myClass = None
-    c.myClass1 = "Test.MyClass1.myClass1"
     c = d.opMyClass1(c)
     test(c.tesT == "Test.MyClass1.testT")
     test(c.myClass == None)
-    test(c.myClass1 == "Test.MyClass1.myClass1")
 
     p1 = p.opMStruct1()
     p1.e = Test.MyEnum.enum3

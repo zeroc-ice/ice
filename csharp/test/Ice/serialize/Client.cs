@@ -9,11 +9,10 @@ namespace ZeroC.Ice.Test.Serialize
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
-            AllTests.allTests(this);
-            return Task.CompletedTask;
+            await using Communicator? communicator = Initialize(ref args);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Inheritance
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new InitialI(adapter));
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

@@ -10,49 +10,43 @@ namespace ZeroC.IceDiscovery.Test.Simple
 {
     public sealed class Controller : IController
     {
-        public void
-        activateObjectAdapter(string name, string adapterId, string replicaGroupId, Current current)
+        public void ActivateObjectAdapter(string name, string adapterId, string replicaGroupId, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
             communicator.SetProperty($"{name}.AdapterId", adapterId);
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
-            communicator.SetProperty($"{name}.Endpoints", "default");
+            communicator.SetProperty($"{name}.Endpoints", "default -h 127.0.0.1");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();
         }
 
-        public void
-        deactivateObjectAdapter(string name, Current current)
+        public void DeactivateObjectAdapter(string name, Current current)
         {
             _adapters[name].Dispose();
             _adapters.Remove(name);
         }
 
-        public void
-        addObject(string oaName, string id, Current current)
+        public void AddObject(string oaName, string id, Current current)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
             _adapters[oaName].Add(id, new TestIntf());
         }
 
-        public void
-        removeObject(string oaName, string id, Current current)
+        public void RemoveObject(string oaName, string id, Current current)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
             _adapters[oaName].Remove(id);
         }
 
-        public void
-        shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        private Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
+        private readonly Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
     }
 
     public sealed class TestIntf : ITestIntf
     {
-        public string
-        getAdapterId(Current current) =>
+        public string GetAdapterId(Current current) =>
             current.Adapter.Communicator.GetProperty($"{current.Adapter.Name}.AdapterId") ?? "";
     }
 }

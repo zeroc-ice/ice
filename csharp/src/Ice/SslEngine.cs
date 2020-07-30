@@ -193,15 +193,15 @@ namespace ZeroC.Ice
             s.Append("SSL connection summary");
             if (description.Length > 0)
             {
-                s.Append("\n").Append(description);
+                s.Append('\n').Append(description);
             }
             s.Append("\nauthenticated = ").Append(stream.IsAuthenticated ? "yes" : "no");
             s.Append("\nencrypted = ").Append(stream.IsEncrypted ? "yes" : "no");
             s.Append("\nsigned = ").Append(stream.IsSigned ? "yes" : "no");
             s.Append("\nmutually authenticated = ").Append(stream.IsMutuallyAuthenticated ? "yes" : "no");
-            s.Append("\nhash algorithm = ").Append(stream.HashAlgorithm).Append("/").Append(stream.HashStrength);
-            s.Append("\ncipher algorithm = ").Append(stream.CipherAlgorithm).Append("/").Append(stream.CipherStrength);
-            s.Append("\nkey exchange algorithm = ").Append(stream.KeyExchangeAlgorithm).Append("/").Append(
+            s.Append("\nhash algorithm = ").Append(stream.HashAlgorithm).Append('/').Append(stream.HashStrength);
+            s.Append("\ncipher algorithm = ").Append(stream.CipherAlgorithm).Append('/').Append(stream.CipherStrength);
+            s.Append("\nkey exchange algorithm = ").Append(stream.KeyExchangeAlgorithm).Append('/').Append(
                 stream.KeyExchangeStrength);
             s.Append("\nprotocol = ").Append(stream.SslProtocol);
             _logger.Trace(SecurityTraceCategory, s.ToString());

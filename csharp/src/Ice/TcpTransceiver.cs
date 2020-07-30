@@ -11,12 +11,6 @@ namespace ZeroC.Ice
 {
     internal sealed class TcpTransceiver : ITransceiver
     {
-        public Connection CreateConnection(
-            Endpoint endpoint,
-            IAcmMonitor? monitor,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) => new TcpConnection(endpoint, monitor, this, connector, connectionId, adapter);
         public Socket? Fd() => _stream.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer) =>

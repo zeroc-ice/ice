@@ -4,6 +4,8 @@
 
 [[suppress-warning:reserved-identifier]]
 
+[[preserve-case]]
+
 module ZeroC::Slice::Test::Escape::Clash
 {
 

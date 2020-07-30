@@ -12,26 +12,28 @@ namespace ZeroC.Ice.Test.UDP
     {
         public class PingReplyI : IPingReply
         {
-            public void reply(Current current)
+            private readonly object _mutex = new object();
+
+            public void Reply(Current current)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     ++_replies;
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.Pulse(_mutex);
                 }
             }
 
-            public void reset()
+            public void Reset()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _replies = 0;
                 }
             }
 
-            public bool waitReply(int expectedReplies, TimeSpan timeout)
+            public bool WaitReply(int expectedReplies, TimeSpan timeout)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TimeSpan end = Time.Elapsed + timeout;
                     while (_replies < expectedReplies)
@@ -39,7 +41,7 @@ namespace ZeroC.Ice.Test.UDP
                         TimeSpan delay = end - Time.Elapsed;
                         if (delay > TimeSpan.Zero)
                         {
-                            System.Threading.Monitor.Wait(this, delay);
+                            System.Threading.Monitor.Wait(_mutex, delay);
                         }
                         else
                         {
@@ -50,31 +52,32 @@ namespace ZeroC.Ice.Test.UDP
                 }
             }
 
-            private int _replies = 0;
+            private int _replies;
         }
 
-        public static void allTests(TestHelper helper)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
+            communicator.SetProperty("ReplyAdapter.Endpoints", "udp -h localhost");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
-            PingReplyI replyI = new PingReplyI();
+            var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram);
             adapter.Activate();
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
-            var obj = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0, "udp"),
-                                        communicator).Clone(invocationMode: InvocationMode.Datagram);
+            ITestIntfPrx obj = ITestIntfPrx.Parse(
+                helper.GetTestProxy("test", 0, "udp"),
+                communicator).Clone(invocationMode: InvocationMode.Datagram);
 
             try
             {
-                int val = obj.getValue();
+                int val = obj.GetValue();
                 TestHelper.Assert(false);
             }
-            catch (System.InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 // expected
             }
@@ -83,11 +86,11 @@ namespace ZeroC.Ice.Test.UDP
             bool ret = false;
             while (nRetry-- > 0)
             {
-                replyI.reset();
-                obj.ping(reply);
-                obj.ping(reply);
-                obj.ping(reply);
-                ret = replyI.waitReply(3, TimeSpan.FromSeconds(2));
+                replyI.Reset();
+                obj.Ping(reply);
+                obj.Ping(reply);
+                obj.Ping(reply);
+                ret = replyI.WaitReply(3, TimeSpan.FromSeconds(2));
                 if (ret)
                 {
                     break; // Success
@@ -101,90 +104,86 @@ namespace ZeroC.Ice.Test.UDP
             }
             TestHelper.Assert(ret == true);
 
-            if (!(communicator.GetPropertyAsBool("Ice.Override.Compress") ?? false))
+            byte[] seq = new byte[1024];
+            try
+            {
+                while (true)
+                {
+                    seq = new byte[(seq.Length * 2) + 10];
+                    replyI.Reset();
+                    obj.SendByteSeq(seq, reply);
+                    replyI.WaitReply(1, TimeSpan.FromSeconds(10));
+                }
+            }
+            catch (DatagramLimitException)
             {
                 //
-                // Only run this test if compression is disabled, the test expect fixed message size
-                // to be sent over the wire.
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
+                // will be throw when try to send a packet bigger than that.
                 //
-                byte[] seq = new byte[1024];
-                try
-                {
-                    while (true)
-                    {
-                        seq = new byte[seq.Length * 2 + 10];
-                        replyI.reset();
-                        obj.sendByteSeq(seq, reply);
-                        replyI.waitReply(1, TimeSpan.FromSeconds(10));
-                    }
-                }
-                catch (DatagramLimitException)
-                {
-                    //
-                    // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-                    // will be throw when try to send a packet bigger than that.
-                    //
-                    TestHelper.Assert(seq.Length > 16384);
-                }
-                obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-                communicator.SetProperty("Ice.UDP.SndSize", "64000");
-                seq = new byte[50000];
-                try
-                {
-                    replyI.reset();
-                    obj.sendByteSeq(seq, reply);
+                TestHelper.Assert(seq.Length > 16384);
+            }
+            obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+            communicator.SetProperty("Ice.UDP.SndSize", "64K");
+            seq = new byte[50000];
+            try
+            {
+                replyI.Reset();
+                obj.SendByteSeq(seq, reply);
 
-                    bool b = replyI.waitReply(1, TimeSpan.FromMilliseconds(500));
-                    //
-                    // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                    // should not be delivered.
-                    //
-                    TestHelper.Assert(!b);
-                }
-                catch (DatagramLimitException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    Console.Out.WriteLine(ex);
-                    TestHelper.Assert(false);
-                }
+                bool b = replyI.WaitReply(1, TimeSpan.FromMilliseconds(500));
+                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
+                // should not be delivered.
+                //
+                TestHelper.Assert(!b);
+            }
+            catch (DatagramLimitException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Console.Out.WriteLine(ex);
+                TestHelper.Assert(false);
             }
 
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing udp multicast... ");
             Console.Out.Flush();
-            StringBuilder endpoint = new StringBuilder();
-            //
+
+            var sb = new StringBuilder("test -d:udp -h ");
+
             // Use loopback to prevent other machines to answer.
-            //
-            if (communicator.GetProperty("Ice.IPv6") == "1")
+            if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
             {
-                endpoint.Append("udp -h \"ff15::1:1\"");
-                if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
-                {
-                    endpoint.Append(" --interface \"::1\"");
-                }
+                sb.Append("\"ff15::1:1\"");
             }
             else
             {
-                endpoint.Append("udp -h 239.255.1.1");
-                if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
+                sb.Append("239.255.1.1");
+            }
+            sb.Append(" -p ");
+            sb.Append(helper.GetTestPort(10));
+            if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
+            {
+                if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
                 {
-                    endpoint.Append(" --interface 127.0.0.1");
+                    sb.Append(" --interface \"::1\"");
+                }
+                else
+                {
+                    sb.Append(" --interface 127.0.0.1");
                 }
             }
-            endpoint.Append(" -p ");
-            endpoint.Append(helper.GetTestPort(10));
-            var objMcast = ITestIntfPrx.Parse($"test -d:{endpoint}", communicator);
+            var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator);
 
             nRetry = 5;
             while (nRetry-- > 0)
             {
-                replyI.reset();
-                objMcast.ping(reply);
-                ret = replyI.waitReply(5, TimeSpan.FromSeconds(5));
+                replyI.Reset();
+                objMcast.Ping(reply);
+                ret = replyI.WaitReply(5, TimeSpan.FromSeconds(5));
                 if (ret)
                 {
                     break;
@@ -209,11 +208,11 @@ namespace ZeroC.Ice.Test.UDP
             nRetry = 5;
             while (nRetry-- > 0)
             {
-                replyI.reset();
-                obj.pingBiDir(reply.Identity);
-                obj.pingBiDir(reply.Identity);
-                obj.pingBiDir(reply.Identity);
-                ret = replyI.waitReply(3, TimeSpan.FromSeconds(2));
+                replyI.Reset();
+                obj.PingBiDir(reply.Identity);
+                obj.PingBiDir(reply.Identity);
+                obj.PingBiDir(reply.Identity);
+                ret = replyI.WaitReply(3, TimeSpan.FromSeconds(2));
                 if (ret)
                 {
                     break; // Success

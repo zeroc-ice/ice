@@ -2,7 +2,7 @@
   <application name="Test">
     <node name="localnode">
       <server id="server" exe="${test.dir}/${server.dir}/server.exe" pwd="." activation="on-demand">
-        <adapter name="TestAdapter" id="TestAdapter" endpoints="default">
+        <adapter name="TestAdapter" id="TestAdapter" endpoints="default -h ${test.host}">
           <object identity="test" type="Test"/>
         </adapter>
       </server>

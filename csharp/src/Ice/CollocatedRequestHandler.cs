@@ -186,7 +186,7 @@ namespace ZeroC.Ice
 
                     if (requestId != 0)
                     {
-                        outgoingResponseFrame = new OutgoingResponseFrame(current, actualEx);
+                        outgoingResponseFrame = new OutgoingResponseFrame(incomingRequest, actualEx);
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }

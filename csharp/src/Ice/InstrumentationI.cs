@@ -25,13 +25,13 @@ namespace ZeroC.Ice
     internal class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
     {
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
-        private readonly int _requestId;
+        private readonly long _requestId;
         private readonly string _id;
         private readonly int _size;
 
         public override void InitMetrics(CollocatedMetrics v) => v.Size += _size;
 
-        internal CollocatedInvocationHelper(ObjectAdapter adapter, int requestId, int size)
+        internal CollocatedInvocationHelper(ObjectAdapter adapter, long requestId, int size)
             : base(_attributeResolver)
         {
             _id = adapter.Name;
@@ -135,7 +135,7 @@ namespace ZeroC.Ice
             return null;
         }
 
-        public IDispatchObserver? GetDispatchObserver(Current current, int requestId, int size)
+        public IDispatchObserver? GetDispatchObserver(Current current, long requestId, int size)
         {
             if (_dispatch.IsEnabled)
             {
@@ -225,7 +225,7 @@ namespace ZeroC.Ice
 
                     if (_connection.ConnectionId.Length > 0)
                     {
-                        os.Append(" [").Append(_connection.ConnectionId).Append("]");
+                        os.Append(" [").Append(_connection.ConnectionId).Append(']');
                     }
                     _id = os.ToString();
                 }
@@ -250,10 +250,7 @@ namespace ZeroC.Ice
         {
             internal AttributeResolverI()
             {
-                Add("parent", obj =>
-                    {
-                        return (obj as ConnectionHelper)?._connection?.Adapter?.Name ?? "Communicator";
-                    });
+                Add("parent", obj => (obj as ConnectionHelper)?._connection?.Adapter?.Name ?? "Communicator");
                 Add("id", obj => (obj as ConnectionHelper)?.Id);
                 Add("state", obj => (obj as ConnectionHelper)?._state.ToString().ToLowerInvariant());
                 Add("incoming", obj => (obj as ConnectionHelper)?._connection.IsIncoming);
@@ -282,12 +279,6 @@ namespace ZeroC.Ice
                 Add("endpointTransport", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsSecure);
-                Add("endpointTimeout", obj =>
-                    {
-                        Endpoint? endpoint = (obj as ConnectionHelper)?._connection.Endpoint;
-                        return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
-                    });
-                Add("endpointCompress", obj => (obj as ConnectionHelper)?._connection.Endpoint?.HasCompressionFlag);
                 Add("endpointHost", obj => (obj as ConnectionHelper)?._connection.Endpoint.Host);
                 Add("endpointPort", obj => (obj as ConnectionHelper)?._connection.Endpoint.Port);
             }
@@ -324,14 +315,14 @@ namespace ZeroC.Ice
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Current _current;
-        private readonly int _requestId;
+        private readonly long _requestId;
 
         private string? _id;
         private readonly int _size;
 
         public override void InitMetrics(DispatchMetrics v) => v.Size += _size;
 
-        internal DispatchHelper(Current current, int requestId, int size)
+        internal DispatchHelper(Current current, long requestId, int size)
             : base(_attributeResolver)
         {
             _current = current;
@@ -380,12 +371,6 @@ namespace ZeroC.Ice
                 Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint.Transport);
                 Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsSecure);
-                Add("endpointTimeout", obj =>
-                    {
-                        Endpoint? endpoint = (obj as DispatchHelper)?.Connection.Endpoint;
-                        return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
-                    });
-                Add("endpointCompress", obj => (obj as DispatchHelper)?.Connection.Endpoint.HasCompressionFlag);
                 Add("endpointHost", obj => (obj as DispatchHelper)?.Connection.Endpoint.Host);
                 Add("endpointPort", obj => (obj as DispatchHelper)?.Connection.Endpoint.Port);
 
@@ -446,12 +431,6 @@ namespace ZeroC.Ice
                 Add("endpointTransport", obj => (obj as EndpointHelper)?._endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as EndpointHelper)?._endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as EndpointHelper)?._endpoint?.IsSecure);
-                Add("endpointTimeout", obj =>
-                    {
-                        Endpoint? endpoint = (obj as EndpointHelper)?._endpoint;
-                        return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
-                    });
-                Add("endpointCompress", obj => (obj as EndpointHelper)?._endpoint?.HasCompressionFlag);
                 Add("endpointHost", obj => (obj as EndpointHelper)?._endpoint.Host);
                 Add("endpointPort", obj => (obj as EndpointHelper)?._endpoint.Port);
             }
@@ -527,7 +506,7 @@ namespace ZeroC.Ice
     internal class InvocationObserver : ObserverWithDelegate<InvocationMetrics, IInvocationObserver>,
         IInvocationObserver
     {
-        public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, int requestId, int size) =>
+        public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long requestId, int size) =>
             GetObserver<CollocatedMetrics, CollocatedObserver, ICollocatedObserver>(
                 "Collocated",
                 new CollocatedInvocationHelper(adapter, requestId, size),
@@ -535,7 +514,7 @@ namespace ZeroC.Ice
 
         public IRemoteObserver? GetRemoteObserver(
             Connection connection,
-            int requestId,
+            long requestId,
             int size) =>
             GetObserver<RemoteMetrics, RemoteObserver, IRemoteObserver>(
                 "Remote",
@@ -646,13 +625,13 @@ namespace ZeroC.Ice
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Connection _connection;
-        private readonly int _requestId;
+        private readonly long _requestId;
         private readonly int _size;
         private string? _id;
 
         public override void InitMetrics(RemoteMetrics v) => v.Size += _size;
 
-        internal RemoteInvocationHelper(Connection connection, int requestId, int size)
+        internal RemoteInvocationHelper(Connection connection, long requestId, int size)
             : base(_attributeResolver)
         {
             _connection = connection;
@@ -697,12 +676,6 @@ namespace ZeroC.Ice
                 Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Transport);
                 Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.IsSecure);
-                Add("endpointTimeout", obj =>
-                    {
-                        Endpoint? endpoint = (obj as RemoteInvocationHelper)?._connection.Endpoint;
-                        return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
-                    });
-                Add("endpointCompress", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.HasCompressionFlag);
                 Add("endpointHost", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Host);
                 Add("endpointPort", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Port);
             }

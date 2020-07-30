@@ -9,11 +9,11 @@ namespace ZeroC.Ice.Test.Proxy
 {
     public sealed class MyDerivedClass : IMyDerivedClass
     {
-        public IObjectPrx? echo(IObjectPrx? obj, Current c) => obj;
+        public IObjectPrx? Echo(IObjectPrx? obj, Current c) => obj;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        public IReadOnlyDictionary<string, string> getContext(Current current) => _ctx!;
+        public IReadOnlyDictionary<string, string> GetContext(Current current) => _ctx!;
 
         public bool IceIsA(string typeId, Current current)
         {

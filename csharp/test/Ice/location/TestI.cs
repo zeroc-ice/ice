@@ -17,28 +17,28 @@ namespace ZeroC.Ice.Test.Location
             _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
-        public void shutdown(Current current) => _adapter1.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => _adapter1.Communicator.ShutdownAsync();
 
-        public IHelloPrx getHello(Current current) =>
+        public IHelloPrx GetHello(Current current) =>
             _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
 
-        public IHelloPrx getReplicatedHello(Current current) =>
+        public IHelloPrx GetReplicatedHello(Current current) =>
             _adapter1.CreateProxy("hello", IHelloPrx.Factory);
 
-        public void migrateHello(Current current)
+        public void MigrateHello(Current current)
         {
             var id = Identity.Parse("hello");
 
             IObject? servant = _adapter1.Remove(id);
             if (servant != null)
             {
-                _registry.addObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current);
+                _registry.AddObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current);
             }
             else
             {
                 servant = _adapter2.Remove(id);
                 TestHelper.Assert(servant != null);
-                _registry.addObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
+                _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
             }
         }
 

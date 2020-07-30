@@ -8,68 +8,17 @@ using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
-    public static class DictionaryExtension
-    {
-        public static bool DictionaryEquals<TKey, TValue>(this Dictionary<TKey, TValue> self,
-                                                          Dictionary<TKey, TValue> other) where TKey : notnull
-                                                                                          where TValue : notnull
-        {
-            if (self.Count != other.Count)
-            {
-                return false;
-            }
-
-            foreach (KeyValuePair<TKey, TValue> entry in self)
-            {
-
-                if (!other.TryGetValue(entry.Key, out TValue value))
-                {
-                    return false;
-                }
-
-                if (!value.Equals(entry.Value))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool DictionaryEquals<TKey, TValue>(
-            this Dictionary<TKey, TValue> self,
-            Dictionary<TKey, TValue> other,
-            System.Func<TValue, TValue, bool> equals) where TKey : notnull
-        {
-            if (self.Count != other.Count)
-            {
-                return false;
-            }
-
-            foreach (KeyValuePair<TKey, TValue> entry in self)
-            {
-
-                if (!other.TryGetValue(entry.Key, out TValue value))
-                {
-                    return false;
-                }
-
-                if (!equals(value, entry.Value))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
     public class TwowaysAMI
     {
         private class CallbackBase
         {
+            private readonly object _mutex = new object();
+            private bool _called;
             internal CallbackBase() => _called = false;
 
             public virtual void Check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
@@ -82,18 +31,16 @@ namespace ZeroC.Ice.Test.DictMapping
 
             public virtual void Called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;
                     System.Threading.Monitor.Pulse(this);
                 }
             }
-
-            private bool _called;
         }
 
-        internal static void twowaysAMI(IMyClassPrx p)
+        internal static void Run(IMyClassPrx p)
         {
             {
                 var i = new Dictionary<int, int>
@@ -102,7 +49,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     [1] = 0
                 };
 
-                (Dictionary<int, int> ReturnValue, Dictionary<int, int> o) = p.opNVAsync(i).Result;
+                (Dictionary<int, int> ReturnValue, Dictionary<int, int> o) = p.OpNVAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i));
             }
@@ -114,7 +61,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = "a"
                 };
 
-                (Dictionary<string, string> ReturnValue, Dictionary<string, string> o) = p.opNRAsync(i).Result;
+                (Dictionary<string, string> ReturnValue, Dictionary<string, string> o) = p.OpNRAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i));
             }
@@ -130,7 +77,7 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<int, int>> ReturnValue,
-                 Dictionary<string, Dictionary<int, int>> o) = p.opNDVAsync(i).Result;
+                 Dictionary<string, Dictionary<int, int>> o) = p.OpNDVAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
             }
@@ -146,7 +93,7 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<string, string>> ReturnValue,
-                 Dictionary<string, Dictionary<string, string>> o) = p.opNDRAsync(i).Result;
+                 Dictionary<string, Dictionary<string, string>> o) = p.OpNDRAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
             }
@@ -159,7 +106,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = ii
                 };
 
-                (Dictionary<string, int[]> ReturnValue, Dictionary<string, int[]> o) = p.opNDAISAsync(i).Result;
+                (Dictionary<string, int[]> ReturnValue, Dictionary<string, int[]> o) = p.OpNDAISAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
@@ -177,7 +124,7 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, List<int>> ReturnValue,
-                 Dictionary<string, List<int>> o) = p.opNDGISAsync(i).Result;
+                 Dictionary<string, List<int>> o) = p.OpNDGISAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
@@ -191,7 +138,7 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, string[]> ReturnValue,
-                 Dictionary<string, string[]> o) = p.opNDASSAsync(i).Result;
+                 Dictionary<string, string[]> o) = p.OpNDASSAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
@@ -209,7 +156,7 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, List<string>> ReturnValue,
-                 Dictionary<string, List<string>> o) = p.opNDGSSAsync(i).Result;
+                 Dictionary<string, List<string>> o) = p.OpNDGSSAsync(i).Result;
                 TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
                 TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }

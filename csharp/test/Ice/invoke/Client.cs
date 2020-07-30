@@ -12,8 +12,8 @@ namespace ZeroC.Ice.Test.Invoke
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            IMyClassPrx myClass = AllTests.allTests(this);
-            myClass.shutdown();
+            IMyClassPrx myClass = AllTests.Run(this);
+            await myClass.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

@@ -641,8 +641,6 @@ class LocalDriver(Driver):
     def getProps(self, process, current):
         props = Driver.getProps(self, process, current)
         if isinstance(process, IceProcess):
-            if current.host:
-                props["Ice.Default.Host"] = current.host
             # Ice process from the bin directory don't support Test.BasePort
             if not process.isFromBinDir() and hasattr(self.threadlocal, "num"):
                 props["Test.BasePort"] = 14000 + self.threadlocal.num * 100

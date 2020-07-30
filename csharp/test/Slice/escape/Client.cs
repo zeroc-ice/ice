@@ -10,26 +10,21 @@ using Test;
 
 public class Client : TestHelper
 {
-    public sealed class caseI : Icase
+    public sealed class Case : Icase
     {
-        public ValueTask<int>
-        catchAsync(int @checked, ZeroC.Ice.Current current)
-        {
-            return new ValueTask<int>(0);
-        }
+        public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current) => new ValueTask<int>(0);
     }
 
-    public sealed class decimalI : Idecimal
+    public sealed class Decimal : Idecimal
     {
         public void @default(ZeroC.Ice.Current current)
         {
         }
     }
 
-    public sealed class explicitI : Iexplicit
+    public sealed class Explicit : Iexplicit
     {
-        public ValueTask<int>
-        catchAsync(int @checked, ZeroC.Ice.Current current) => new ValueTask<int>(0);
+        public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current) => new ValueTask<int>(0);
 
         public void @default(ZeroC.Ice.Current current) => Assert(current.Operation == "default");
     }
@@ -48,24 +43,24 @@ public class Client : TestHelper
         }
     }
 
-    public static void
-    testtypes()
+    public static void Testtypes()
     {
-        var a = @as.@base;
+        @as a = @as.@base;
         Assert(a == @as.@base);
         var b = new @break();
         b.@readonly = 0;
         Assert(b.@readonly == 0);
-        var c = new caseI();
+        var c = new Case();
         Assert(c != null);
         IcasePrx? c1 = null;
         Assert(c1 == null);
-        int c2 = 0;
+        int c2;
         if (c1 != null)
         {
             c2 = c1.@catch(0);
+            Assert(c2 == 0);
         }
-        var d = new decimalI();
+        var d = new Decimal();
         Assert(d != null);
         IdecimalPrx? d1 = null;
         if (d1 != null)
@@ -81,6 +76,7 @@ public class Client : TestHelper
         if (f1 != null)
         {
             c2 = f1.@catch(0);
+            Assert(c2 == 0);
             f1.@default();
         }
         Assert(f1 == null);
@@ -94,25 +90,25 @@ public class Client : TestHelper
         i.@goto = 1;
         i.@if = 2;
         Assert(i != null);
-        var j = Constants.@protected;
+        int j = Constants.@protected;
         Assert(j == 0);
-        var k = Constants.@public;
+        int k = Constants.@public;
         Assert(k == 1);
     }
 
     public override async Task RunAsync(string[] args)
     {
         await using ZeroC.Ice.Communicator communicator = Initialize(ref args);
-        communicator.SetProperty("TestAdapter.Endpoints", "default");
+        communicator.SetProperty("TestAdapter.Endpoints", "default -h localhost");
         ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add("test", new decimalI());
+        adapter.Add("test", new Decimal());
         adapter.Add("test1", new Test1I());
         adapter.Add("test2", new Test2I());
         await adapter.ActivateAsync();
 
         Console.Out.Write("testing operation name... ");
         Console.Out.Flush();
-        var p = adapter.CreateProxy("test", IdecimalPrx.Factory);
+        IdecimalPrx p = adapter.CreateProxy("test", IdecimalPrx.Factory);
         p.@default();
         Console.Out.WriteLine("ok");
 
@@ -129,7 +125,7 @@ public class Client : TestHelper
 
         Console.Out.Write("testing types... ");
         Console.Out.Flush();
-        testtypes();
+        Testtypes();
         Console.Out.WriteLine("ok");
     }
 

@@ -8,63 +8,63 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
     public sealed class TestIntf : ITestIntf
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        public void baseAsBase(Current current) => throw new Base("Base.b");
+        public void BaseAsBase(Current current) => throw new Base("Base.b");
 
-        public void unknownDerivedAsBase(Current current) =>
+        public void UnknownDerivedAsBase(Current current) =>
             throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
 
-        public void knownDerivedAsBase(Current current) => throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
+        public void KnownDerivedAsBase(Current current) => throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-        public void knownDerivedAsKnownDerived(Current current) =>
+        public void KnownDerivedAsKnownDerived(Current current) =>
             throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-        public void unknownIntermediateAsBase(Current current) =>
+        public void UnknownIntermediateAsBase(Current current) =>
             throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
 
-        public void knownIntermediateAsBase(Current current) =>
+        public void KnownIntermediateAsBase(Current current) =>
             throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-        public void knownMostDerivedAsBase(Current current) =>
+        public void KnownMostDerivedAsBase(Current current) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public void knownIntermediateAsKnownIntermediate(Current current) =>
+        public void KnownIntermediateAsKnownIntermediate(Current current) =>
             throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-        public void knownMostDerivedAsKnownIntermediate(Current current) =>
+        public void KnownMostDerivedAsKnownIntermediate(Current current) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public void knownMostDerivedAsKnownMostDerived(Current current) =>
+        public void KnownMostDerivedAsKnownMostDerived(Current current) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public void unknownMostDerived1AsBase(Current current) =>
+        public void UnknownMostDerived1AsBase(Current current) =>
             throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-        public void unknownMostDerived1AsKnownIntermediate(Current current) =>
+        public void UnknownMostDerived1AsKnownIntermediate(Current current) =>
             throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-        public void unknownMostDerived2AsBase(Current current) =>
+        public void UnknownMostDerived2AsBase(Current current) =>
             throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-        public void unknownMostDerived2AsBaseCompact(Current current) =>
+        public void UnknownMostDerived2AsBaseCompact(Current current) =>
             throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-        public void knownPreservedAsBase(Current current) =>
+        public void KnownPreservedAsBase(Current current) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void knownPreservedAsKnownPreserved(Current current) =>
+        public void KnownPreservedAsKnownPreserved(Current current) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void serverPrivateException(Current current) => throw new ServerPrivateException("ServerPrivate");
+        public void ServerPrivateException(Current current) => throw new ServerPrivateException("ServerPrivate");
 
-        public void relayKnownPreservedAsBase(IRelayPrx? r, Current current)
+        public void RelayKnownPreservedAsBase(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.knownPreservedAsBase();
+                p.KnownPreservedAsBase();
             }
             catch (RemoteException ex)
             {
@@ -75,13 +75,13 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void relayKnownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
+        public void RelayKnownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.knownPreservedAsKnownPreserved();
+                p.KnownPreservedAsKnownPreserved();
             }
             catch (RemoteException ex)
             {
@@ -92,13 +92,13 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void relayClientPrivateException(IRelayPrx? r, Current current)
+        public void RelayClientPrivateException(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.clientPrivateException();
+                p.ClientPrivateException();
             }
             catch (RemoteException ex)
             {
@@ -109,25 +109,25 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void unknownPreservedAsBase(Current current)
+        public void UnknownPreservedAsBase(Current current)
         {
             var p = new SPreservedClass("bc", "spc");
             throw new SPreserved2("base", "preserved", "derived", p, p);
         }
 
-        public void unknownPreservedAsKnownPreserved(Current current)
+        public void UnknownPreservedAsKnownPreserved(Current current)
         {
             var p = new SPreservedClass("bc", "spc");
             throw new SPreserved2("base", "preserved", "derived", p, p);
         }
 
-        public void relayUnknownPreservedAsBase(IRelayPrx? r, Current current)
+        public void RelayUnknownPreservedAsBase(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.unknownPreservedAsBase();
+                p.UnknownPreservedAsBase();
             }
             catch (RemoteException ex)
             {
@@ -138,13 +138,13 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void relayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
+        public void RelayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.unknownPreservedAsKnownPreserved();
+                p.UnknownPreservedAsKnownPreserved();
             }
             catch (RemoteException ex)
             {

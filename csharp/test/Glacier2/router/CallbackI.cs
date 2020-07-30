@@ -9,15 +9,14 @@ namespace ZeroC.Glacier2.Test.Router
 {
     public sealed class Callback : ICallback
     {
-        public void
-        initiateCallback(ICallbackReceiverPrx? proxy, Current current) => proxy!.callback(current.Context);
+        public void InitiateCallback(ICallbackReceiverPrx? proxy, Current current) =>
+            proxy!.Callback(current.Context);
 
-        public void
-        initiateCallbackEx(ICallbackReceiverPrx? proxy, Current current)
+        public void InitiateCallbackEx(ICallbackReceiverPrx? proxy, Current current)
         {
             try
             {
-                proxy!.callbackEx(current.Context);
+                proxy!.CallbackEx(current.Context);
             }
             catch (RemoteException ex)
             {
@@ -26,46 +25,44 @@ namespace ZeroC.Glacier2.Test.Router
             }
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 
     public sealed class CallbackReceiver : ICallbackReceiver
     {
+        private readonly object _mutex = new object();
+        private bool _callback;
+
         public CallbackReceiver() => _callback = false;
 
-        public void
-        callback(Current current)
+        public void Callback(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 TestHelper.Assert(!_callback);
                 _callback = true;
-                System.Threading.Monitor.Pulse(this);
+                System.Threading.Monitor.Pulse(_mutex);
             }
         }
 
-        public void
-        callbackEx(Current current)
+        public void CallbackEx(Current current)
         {
-            callback(current);
+            Callback(current);
             throw new CallbackException(3.14, "3.14");
         }
 
-        public void
-        callbackOK()
+        public void CallbackOK()
         {
-            lock (this)
+            lock (_mutex)
             {
                 while (!_callback)
                 {
-                    System.Threading.Monitor.Wait(this, 30000);
+                    System.Threading.Monitor.Wait(_mutex, 30000);
                     TestHelper.Assert(_callback);
                 }
 
                 _callback = false;
             }
         }
-
-        private bool _callback;
     }
 }

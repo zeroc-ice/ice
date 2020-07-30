@@ -128,23 +128,11 @@ namespace ZeroC.Ice
             istr => istr.ReadVarULong();
 
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
-        /// <value>The current encoding.</value>
-        public Encoding Encoding { get; private set; }
+        /// <value>The encoding.</value>
+        public Encoding Encoding { get; }
 
         /// <summary>The 0-based position (index) in the underlying buffer.</summary>
-        internal int Pos
-        {
-            get => _pos;
-            set
-            {
-                if (value < 0 || value > _buffer.Count)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(Pos),
-                        "the position value is outside the buffer bounds");
-                }
-                _pos = value;
-            }
-        }
+        internal int Pos { get; private set; }
 
         /// <summary>The sliced-off slices held by the current instance, if any.</summary>
         internal SlicedData? SlicedData
@@ -163,25 +151,22 @@ namespace ZeroC.Ice
             }
         }
 
-        private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
-
-        // The communicator must be set when reading a non-empty encapsulation, as this encapsulation can contain
-        // proxies, classes or an exception.
+        // The communicator must be set when reading a proxy, class, or exception.
         private readonly Communicator? _communicator;
-
-        // True when reading a top-level encapsulation; otherwise, false.
-        private bool InEncapsulation => _communicator != null;
 
         private bool OldEncoding => Encoding == Encoding.V1_1;
 
         // The byte buffer we are reading.
-        private ArraySegment<byte> _buffer;
+        private readonly ReadOnlyMemory<byte> _buffer;
 
         // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData _current;
 
-        // The current depth when reading nested class/exception instances.
-        private int _classGraphDepth = 0;
+        // The current depth when reading nested class instances.
+        private int _classGraphDepth;
+
+        // True when reading a top-level encapsulation; otherwise, false.
+        private readonly bool _inEncapsulation;
 
         // Map of class instance ID to class instance.
         // When reading a top-level encapsulation:
@@ -193,13 +178,10 @@ namespace ZeroC.Ice
 
         // The sum of all the minimum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
-        private int _minTotalSeqSize = 0;
-
-        // The 0-based index in the buffer.
-        private int _pos;
+        private int _minTotalSeqSize;
 
         // See ReadTypeId11.
-        private int _posAfterLatestInsertedTypeId11 = 0;
+        private int _posAfterLatestInsertedTypeId11;
 
         // Map of type ID index to type ID sequence, used only for classes.
         // We assign a type ID index (starting with 1) to each type ID (type ID sequence) we read, in order.
@@ -214,18 +196,18 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a bool from the stream.</summary>
         /// <returns>The bool read from the stream.</returns>
-        public bool ReadBool() => _buffer[_pos++] == 1;
+        public bool ReadBool() => _buffer.Span[Pos++] == 1;
 
         /// <summary>Reads a byte from the stream.</summary>
         /// <returns>The byte read from the stream.</returns>
-        public byte ReadByte() => _buffer[_pos++];
+        public byte ReadByte() => _buffer.Span[Pos++];
 
         /// <summary>Reads a double from the stream.</summary>
         /// <returns>The double read from the stream.</returns>
         public double ReadDouble()
         {
-            double value = BitConverter.ToDouble(_buffer.AsSpan(_pos, sizeof(double)));
-            _pos += sizeof(double);
+            double value = BitConverter.ToDouble(_buffer.Span.Slice(Pos, sizeof(double)));
+            Pos += sizeof(double);
             return value;
         }
 
@@ -233,8 +215,8 @@ namespace ZeroC.Ice
         /// <returns>The float read from the stream.</returns>
         public float ReadFloat()
         {
-            float value = BitConverter.ToSingle(_buffer.AsSpan(_pos, sizeof(float)));
-            _pos += sizeof(float);
+            float value = BitConverter.ToSingle(_buffer.Span.Slice(Pos, sizeof(float)));
+            Pos += sizeof(float);
             return value;
         }
 
@@ -242,8 +224,8 @@ namespace ZeroC.Ice
         /// <returns>The int read from the stream.</returns>
         public int ReadInt()
         {
-            int value = BitConverter.ToInt32(_buffer.AsSpan(_pos, sizeof(int)));
-            _pos += sizeof(int);
+            int value = BitConverter.ToInt32(_buffer.Span.Slice(Pos, sizeof(int)));
+            Pos += sizeof(int);
             return value;
         }
 
@@ -251,8 +233,8 @@ namespace ZeroC.Ice
         /// <returns>The long read from the stream.</returns>
         public long ReadLong()
         {
-            long value = BitConverter.ToInt64(_buffer.AsSpan(_pos, sizeof(long)));
-            _pos += sizeof(long);
+            long value = BitConverter.ToInt64(_buffer.Span.Slice(Pos, sizeof(long)));
+            Pos += sizeof(long);
             return value;
         }
 
@@ -260,8 +242,8 @@ namespace ZeroC.Ice
         /// <returns>The short read from the stream.</returns>
         public short ReadShort()
         {
-            short value = BitConverter.ToInt16(_buffer.AsSpan(_pos, sizeof(short)));
-            _pos += sizeof(short);
+            short value = BitConverter.ToInt16(_buffer.Span.Slice(Pos, sizeof(short)));
+            Pos += sizeof(short);
             return value;
         }
 
@@ -278,17 +260,20 @@ namespace ZeroC.Ice
             {
                 return "";
             }
-            string value = _utf8.GetString(_buffer.AsSpan(_pos, size));
-            _pos += size;
-            return value;
+            else
+            {
+                string value = _buffer.Slice(Pos, size).Span.ReadString();
+                Pos += size;
+                return value;
+            }
         }
 
         /// <summary>Reads a uint from the stream.</summary>
         /// <returns>The uint read from the stream.</returns>
         public uint ReadUInt()
         {
-            uint value = BitConverter.ToUInt32(_buffer.AsSpan(_pos, sizeof(uint)));
-            _pos += sizeof(uint);
+            uint value = BitConverter.ToUInt32(_buffer.Span.Slice(Pos, sizeof(uint)));
+            Pos += sizeof(uint);
             return value;
         }
 
@@ -296,8 +281,8 @@ namespace ZeroC.Ice
         /// <returns>The ulong read from the stream.</returns>
         public ulong ReadULong()
         {
-            ulong value = BitConverter.ToUInt64(_buffer.AsSpan(_pos, sizeof(ulong)));
-            _pos += sizeof(ulong);
+            ulong value = BitConverter.ToUInt64(_buffer.Span.Slice(Pos, sizeof(ulong)));
+            Pos += sizeof(ulong);
             return value;
         }
 
@@ -305,8 +290,8 @@ namespace ZeroC.Ice
         /// <returns>The ushort read from the stream.</returns>
         public ushort ReadUShort()
         {
-            ushort value = BitConverter.ToUInt16(_buffer.AsSpan(_pos, sizeof(ushort)));
-            _pos += sizeof(ushort);
+            ushort value = BitConverter.ToUInt16(_buffer.Span.Slice(Pos, sizeof(ushort)));
+            Pos += sizeof(ushort);
             return value;
         }
 
@@ -332,7 +317,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The long read from the stream.</returns>
         public long ReadVarLong() =>
-            (_buffer[_pos] & 0x03) switch
+            (_buffer.Span[Pos] & 0x03) switch
             {
                 0 => (sbyte)ReadByte() >> 2,
                 1 => ReadShort() >> 2,
@@ -362,7 +347,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The ulong read from the stream.</returns>
         public ulong ReadVarULong() =>
-            (_buffer[_pos] & 0x03) switch
+            (_buffer.Span[Pos] & 0x03) switch
             {
                 0 => (uint)ReadByte() >> 2,   // cast to uint to use operator >> for uint instead of int, which is
                 1 => (uint)ReadUShort() >> 2, // later implicitly converted to ulong
@@ -381,8 +366,8 @@ namespace ZeroC.Ice
             int elementSize = Unsafe.SizeOf<T>();
             var value = new T[ReadAndCheckSeqSize(elementSize)];
             int byteCount = elementSize * value.Length;
-            _buffer.AsSpan(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
-            _pos += byteCount;
+            _buffer.Span.Slice(Pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
+            Pos += byteCount;
             return value;
         }
 
@@ -482,8 +467,15 @@ namespace ZeroC.Ice
         /// <summary>Reads a nullable proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
         /// <returns>The proxy read from the stream, or null.</returns>
-        public T? ReadNullableProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            Reference.Read(this, _communicator!) is Reference reference ? factory(reference) : null;
+        public T? ReadNullableProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
+        {
+            if (_communicator == null)
+            {
+                throw new InvalidOperationException(
+                    "cannot read a proxy from an input stream with a null communicator");
+            }
+            return Reference.Read(this, _communicator) is Reference reference ? factory(reference) : null;
+        }
 
         /// <summary>Reads a proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
@@ -530,10 +522,17 @@ namespace ZeroC.Ice
             int sz = ReadAndCheckSeqSize(1);
             if (sz == 0)
             {
-                throw new InvalidDataException("read an empty byte sequence for non-null serializable object");
+                throw new InvalidDataException("read an empty byte sequence for a serializable object");
             }
             var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator!));
-            return f.Deserialize(new StreamWrapper(this));
+            var streamWrapper = new StreamWrapper(_buffer.Slice(Pos, sz));
+            object result = f.Deserialize(streamWrapper);
+            if (streamWrapper.Position != sz)
+            {
+                throw new InvalidDataException($"{sz - streamWrapper.Position} bytes left in object stream");
+            }
+            Pos += sz;
+            return result;
         }
 
         /// <summary>Reads a sorted dictionary from the stream.</summary>
@@ -1029,152 +1028,82 @@ namespace ZeroC.Ice
         public ReadOnlyBitSequence ReadBitSequence(int bitSequenceSize)
         {
             int size = (bitSequenceSize >> 3) + ((bitSequenceSize & 0x07) != 0 ? 1 : 0);
-            int startPos = _pos;
-            _pos += size;
-            return new ReadOnlyBitSequence(_buffer.AsSpan(startPos, size));
-        }
-
-        /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
-        /// <param name="communicator">The communicator.</param>
-        /// <param name="encoding">The encoding of the buffer.</param>
-        /// <param name="buffer">The byte buffer.</param>
-        internal static void ReadEmptyEncapsulation(
-            Communicator communicator,
-            Encoding encoding,
-            ArraySegment<byte> buffer)
-        {
-            var istr = new InputStream(communicator, encoding, buffer);
-            istr.SkipTaggedParams();
-            istr.CheckEndOfBuffer();
-        }
-
-        /// <summary>Reads the contents of an encapsulation from the provided byte buffer.</summary>
-        /// <param name="communicator">The communicator.</param>
-        /// <param name="encoding">The encoding of the buffer.</param>
-        /// <param name="buffer">The byte buffer.</param>
-        /// <param name="payloadReader">The reader used to read the payload of this encapsulation.</param>
-        internal static T ReadEncapsulation<T>(
-            Communicator communicator,
-            Encoding encoding,
-            ArraySegment<byte> buffer,
-            InputStreamReader<T> payloadReader)
-        {
-            var istr = new InputStream(communicator, encoding, buffer);
-            T result = payloadReader(istr);
-            istr.SkipTaggedParams();
-            istr.CheckEndOfBuffer();
-            return result;
-        }
-
-        internal static (int Size, Encoding Encoding) ReadEncapsulationHeader(
-            Encoding encoding,
-            ReadOnlySpan<byte> buffer)
-        {
-            int sizeLength;
-            int size;
-
-            if (encoding == Encoding.V1_1)
-            {
-                sizeLength = 4;
-                size = ReadInt(buffer) - sizeLength; // Remove the size length which is included with the 1.1 encoding.
-                if (size < 0)
-                {
-                    throw new InvalidDataException(
-                        $"the 1.1 encapsulation's size ({size + sizeLength}) is too small");
-                }
-            }
-            else
-            {
-                sizeLength = 1 << (buffer[0] & 0x03);
-                size = ReadSize20(buffer);
-            }
-
-            if (sizeLength + size > buffer.Length)
-            {
-                throw new InvalidDataException(
-                    $"the encapsulation's size ({size}) extends beyond the end of the buffer");
-            }
-
-            return (size, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
-        }
-
-        internal static int ReadFixedLengthSize(Encoding encoding, ReadOnlySpan<byte> buffer)
-        {
-            if (encoding == Encoding.V1_1)
-            {
-                return ReadInt(buffer);
-            }
-            else
-            {
-                return ReadSize20(buffer);
-            }
-        }
-
-        internal static int ReadInt(ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
-        internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
-        internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
-
-        // TODO: this is a temporary helper for ice1-style unhandled exceptions.
-        internal static string ReadString(Encoding encoding, ReadOnlySpan<byte> span)
-        {
-            if (encoding == Encoding.V1_1)
-            {
-                return ReadString11(span);
-            }
-            else
-            {
-                int size = ReadSize20(span);
-                if (size == 0)
-                {
-                    return "";
-                }
-                else
-                {
-                    int sizeLength = 1 << (span[0] & 0x03);
-                    return _utf8.GetString(span.Slice(sizeLength, size));
-                }
-            }
-        }
-
-        internal static string ReadString11(ReadOnlySpan<byte> span)
-        {
-            int size = ReadSize11(span);
-            if (size == 0)
-            {
-                return "";
-            }
-            else
-            {
-                return _utf8.GetString(span.Slice(size < 255 ? 1 : 5, size));
-            }
+            int startPos = Pos;
+            Pos += size;
+            return new ReadOnlyBitSequence(_buffer.Span.Slice(startPos, size));
         }
 
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
-        /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="pos">The initial position in the buffer.</param>
-        internal InputStream(Encoding encoding, ArraySegment<byte> buffer, int pos = 0)
+        /// <param name="encoding">The encoding of the buffer.</param>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="startEncapsulation">When true, start reading an encapsulation in this byte buffer, and
+        /// <c>encoding</c> represents the encoding of the header.</param>
+        internal InputStream(
+            ReadOnlyMemory<byte> buffer,
+            Encoding encoding,
+            Communicator? communicator = null,
+            bool startEncapsulation = false)
         {
-            // TODO: pos should always be 0 and buffer should be a slice as needed.
-            // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
-            // headers.
+            _communicator = communicator;
+            Pos = 0;
             _buffer = buffer;
-            _pos = pos;
             Encoding = encoding;
+            Encoding.CheckSupported();
+
+            if (startEncapsulation)
+            {
+                // TODO: a null communicator should be ok for an empty encaps.
+                Debug.Assert(_communicator != null);
+
+                (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
+
+                // When startEncapsulation is true, the buffer must extend until the end of the encapsulation - it
+                // cannot include extra bytes.
+                if (Pos + size - 2 != _buffer.Length)
+                {
+                    throw new InvalidDataException(
+                        $"the buffer has {_buffer.Length - (Pos + size - 2)} bytes after the encapsulation");
+                }
+
+                // We slice the provided buffer to the encapsulation (minus its header).
+                _buffer = buffer.Slice(Pos);
+                Pos = 0;
+                Encoding = encapsEncoding;
+                Encoding.CheckSupported();
+            }
+            _inEncapsulation = startEncapsulation;
+        }
+
+        /// <summary>Verifies the input stream has reached the end of its underlying buffer.</summary>
+        /// <param name="skipTaggedParams">When true, first skips all remaining tagged parameters in the current
+        /// encapsulation.</param>
+        internal void CheckEndOfBuffer(bool skipTaggedParams)
+        {
+            if (skipTaggedParams)
+            {
+                Debug.Assert(_inEncapsulation);
+                SkipTaggedParams();
+            }
+
+            if (Pos != _buffer.Length)
+            {
+                throw new InvalidDataException($"{_buffer.Length - Pos} bytes remaining in the InputStream buffer");
+            }
         }
 
         /// <summary>Reads an encapsulation header from the stream.</summary>
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
         {
-            (int Size, Encoding Encoding) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
+            (int Size, Encoding Encoding) result = _buffer.Span.Slice(Pos).ReadEncapsulationHeader(Encoding);
             if (OldEncoding)
             {
-                _pos += 6; // 4 bytes for the encaps size + 2 bytes for the encoding
+                Pos += 6; // 4 bytes for the encaps size + 2 bytes for the encoding
             }
             else
             {
-                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
+                Pos += (1 << (_buffer.Span[Pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
             }
             return result;
         }
@@ -1186,42 +1115,55 @@ namespace ZeroC.Ice
         internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
         {
             var transport = (Transport)ReadShort();
-            IEndpointFactory? factory = communicator.IceFindEndpointFactory(transport);
+            // We only look up the factory for the transport if the protocol is supported.
+            IEndpointFactory? factory = protocol.IsSupported() ? communicator.IceFindEndpointFactory(transport) : null;
+
             Endpoint endpoint;
 
             if (protocol == Protocol.Ice1 || OldEncoding)
             {
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
 
-                // We need to read the encaps except for ice1 + unknown encoding or null factory.
-                if (protocol == Protocol.Ice1 && (!encoding.IsSupported || factory == null))
+                if (!encoding.IsSupported)
+                {
+                    // If we can't read the encaps, it's like we didn't find a factory.
+                    factory = null;
+                }
+
+                // We need to read the encaps except for ice1 + null factory.
+                if (protocol == Protocol.Ice1 && factory == null)
                 {
                     endpoint = new OpaqueEndpoint(
-                        communicator, transport, encoding, _buffer.Slice(_pos, size - 2).ToArray());
-                    _pos += size - 2;
+                        communicator, transport, encoding, _buffer.Slice(Pos, size - 2).ToArray());
+                    Pos += size - 2;
                 }
                 else if (encoding.IsSupported)
                 {
-                    Encoding previousEncoding = Encoding;
-                    ArraySegment<byte> previousBuffer = _buffer;
-                    int previousPos = _pos;
-                    int previousMinTotalSeqSize = _minTotalSeqSize;
-                    Encoding = encoding;
-                    _buffer = _buffer.Slice(_pos, size - 2);
-                    _pos = 0;
-                    _minTotalSeqSize = 0;
+                    int oldPos = Pos;
 
-                    endpoint = factory?.Read(this, transport, protocol) ??
-                        new OpaqueEndpoint(this, communicator, transport, protocol);  // protocol is ice2 or greater
+                    // The common situation is an ice1 proxy in 1.1 encaps, with endpoints encoded with 1.1 (no need to
+                    // create a new InputStream). A less common situation is an ice1 proxy in 2.0 encaps with
+                    // 1.1-encoded endpoints (we need a new InputStream in this case).
+                    InputStream istr = encoding == Encoding ?
+                        this : new InputStream(_buffer.Slice(Pos, size - 2), encoding);
 
-                    CheckEndOfBuffer();
+                    endpoint = factory?.Read(istr, transport, protocol) ??
+                        new UniversalEndpoint(istr, communicator, transport, protocol); // protocol is ice2 or greater
 
-                    // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
-                    // anything unless we succeed.
-                    Encoding = previousEncoding;
-                    _buffer = previousBuffer;
-                    _pos = previousPos + size - 2;
-                    _minTotalSeqSize = previousMinTotalSeqSize;
+                    if (ReferenceEquals(istr, this))
+                    {
+                        // Make sure we read the full encaps
+                        if (Pos != oldPos + size - 2)
+                        {
+                            throw new InvalidDataException(
+                                $"{oldPos + size - 2 - Pos} bytes left in endpoint encapsulation");
+                        }
+                    }
+                    else
+                    {
+                        istr.CheckEndOfBuffer(skipTaggedParams: false);
+                        Pos += size - 2;
+                    }
                 }
                 else
                 {
@@ -1234,7 +1176,7 @@ namespace ZeroC.Ice
             else
             {
                 endpoint = factory?.Read(this, transport, protocol) ??
-                    new OpaqueEndpoint(this, communicator, transport, protocol);
+                    new UniversalEndpoint(this, communicator, transport, protocol);
             }
             return endpoint;
         }
@@ -1253,74 +1195,11 @@ namespace ZeroC.Ice
 
         internal void Skip(int size)
         {
-            if (size < 0 || size > _buffer.Count - _pos)
+            if (size < 0 || size > _buffer.Length - Pos)
             {
                 throw new IndexOutOfRangeException($"cannot skip {size} bytes");
             }
-            _pos += size;
-        }
-
-        private static int ReadSize11(ReadOnlySpan<byte> buffer)
-        {
-            byte b = buffer[0];
-            if (b < 255)
-            {
-                return b;
-            }
-
-            int size = ReadInt(buffer.Slice(1, 4));
-            if (size < 0)
-            {
-                throw new InvalidDataException($"read invalid size: {size}");
-            }
-            return size;
-        }
-
-        private static int ReadSize20(ReadOnlySpan<byte> buffer)
-        {
-            ulong size = (buffer[0] & 0x03) switch
-            {
-                0 => (uint)buffer[0] >> 2,
-                1 => (uint)BitConverter.ToUInt16(buffer) >> 2,
-                2 => BitConverter.ToUInt32(buffer) >> 2,
-                _ => BitConverter.ToUInt64(buffer) >> 2
-            };
-
-            checked // make sure we don't overflow
-            {
-                return (int)size;
-            }
-        }
-
-        // This constructor starts a new encapsulation and as a result requires a communicator.
-        private InputStream(
-            Communicator communicator,
-            Encoding encoding,
-            ArraySegment<byte> buffer)
-        {
-            _communicator = communicator;
-            _pos = 0;
-            _buffer = buffer;
-            Encoding = encoding;
-            Encoding.CheckSupported();
-
-            (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
-
-            // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
-            // reads past the end of the encapsulation.
-            _buffer = buffer.Slice(_pos, size - 2);
-            _pos = 0;
-
-            Encoding = encapsEncoding;
-            Encoding.CheckSupported();
-        }
-
-        private void CheckEndOfBuffer()
-        {
-            if (_pos != _buffer.Count)
-            {
-                throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in the InputStream buffer");
-            }
+            Pos += size;
         }
 
         /// <summary>Reads a sequence size and makes sure there is enough space in the underlying buffer to read the
@@ -1345,7 +1224,7 @@ namespace ZeroC.Ice
             // maliciously the allocation of a large amount of memory before we read these sequences from the buffer.
             _minTotalSeqSize += minSize;
 
-            if (_pos + minSize > _buffer.Count || _minTotalSeqSize > _buffer.Count)
+            if (Pos + minSize > _buffer.Length || _minTotalSeqSize > _buffer.Length)
             {
                 throw new InvalidDataException("invalid sequence size");
             }
@@ -1355,9 +1234,9 @@ namespace ZeroC.Ice
         private ReadOnlyMemory<byte> ReadBitSequenceMemory(int bitSequenceSize)
         {
             int size = (bitSequenceSize >> 3) + ((bitSequenceSize & 0x07) != 0 ? 1 : 0);
-            int startPos = _pos;
-            _pos += size;
-            return _buffer.AsMemory(startPos, size);
+            int startPos = Pos;
+            Pos += size;
+            return _buffer.Slice(startPos, size);
         }
 
         private TDict ReadDictionary<TDict, TKey, TValue>(
@@ -1372,7 +1251,7 @@ namespace ZeroC.Ice
         {
             if (withBitSequence)
             {
-                var bitSequence = ReadBitSequence(size);
+                ReadOnlyBitSequence bitSequence = ReadBitSequence(size);
                 for (int i = 0; i < size; ++i)
                 {
                     TKey key = keyReader(this);
@@ -1401,7 +1280,7 @@ namespace ZeroC.Ice
             where TKey : notnull
             where TValue : struct
         {
-            var bitSequence = ReadBitSequence(size);
+            ReadOnlyBitSequence bitSequence = ReadBitSequence(size);
             for (int i = 0; i < size; ++i)
             {
                 TKey key = keyReader(this);
@@ -1437,9 +1316,9 @@ namespace ZeroC.Ice
 
         private int ReadSpan(Span<byte> span)
         {
-            int length = Math.Min(span.Length, _buffer.Count - _pos);
-            _buffer.AsSpan(_pos, length).CopyTo(span);
-            _pos += length;
+            int length = Math.Min(span.Length, _buffer.Length - Pos);
+            _buffer.Span.Slice(Pos, length).CopyTo(span);
+            Pos += length;
             return length;
         }
 
@@ -1450,7 +1329,7 @@ namespace ZeroC.Ice
         private bool ReadTaggedParamHeader(int tag, EncodingDefinitions.TagFormat expectedFormat)
         {
             // Tagged members/parameters can only be in the main encapsulation.
-            Debug.Assert(InEncapsulation);
+            Debug.Assert(_inEncapsulation);
 
             // The current slice has no tagged parameter.
             if (_current.InstanceType != InstanceType.None &&
@@ -1463,17 +1342,17 @@ namespace ZeroC.Ice
 
             while (true)
             {
-                if (_buffer.Count - _pos <= 0)
+                if (_buffer.Length - Pos <= 0)
                 {
                     return false; // End of encapsulation also indicates end of tagged parameters.
                 }
 
-                int savedPos = _pos;
+                int savedPos = Pos;
 
                 int v = ReadByte();
                 if (v == EncodingDefinitions.TaggedEndMarker)
                 {
-                    _pos = savedPos; // rewind
+                    Pos = savedPos; // rewind
                     return false;
                 }
 
@@ -1486,7 +1365,7 @@ namespace ZeroC.Ice
 
                 if (tag > requestedTag)
                 {
-                    _pos = savedPos; // rewind
+                    Pos = savedPos; // rewind
                     return false; // No tagged parameter with the requested tag.
                 }
                 else if (tag < requestedTag)
@@ -1529,7 +1408,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = _buffer[_pos];
+                byte b = _buffer.Span[Pos];
                 Skip(1 << (b & 0x03));
             }
         }
@@ -1577,20 +1456,19 @@ namespace ZeroC.Ice
             }
         }
 
-        private bool SkipTaggedParams()
+        private void SkipTaggedParams()
         {
-            // Skip remaining unread tagged parameters.
             while (true)
             {
-                if (_buffer.Count - _pos <= 0)
+                if (_buffer.Length - Pos <= 0)
                 {
-                    return false; // End of encapsulation also indicates end of tagged parameters.
+                    break;
                 }
 
                 int v = ReadByte();
                 if (v == EncodingDefinitions.TaggedEndMarker)
                 {
-                    return true;
+                    break;
                 }
 
                 var format = (EncodingDefinitions.TagFormat)(v & 0x07); // Read first 3 bits.
@@ -1624,9 +1502,9 @@ namespace ZeroC.Ice
             object? IEnumerator.Current => Current;
             public bool IsReadOnly => true;
             protected readonly InputStream InputStream;
-            protected int Pos = 0;
+            protected int Pos;
             private T _current;
-            private bool _enumeratorRetrieved = false;
+            private bool _enumeratorRetrieved;
 
             public IEnumerator<T> GetEnumerator()
             {

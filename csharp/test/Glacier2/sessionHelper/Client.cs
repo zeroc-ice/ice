@@ -13,6 +13,8 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 {
     public class Client : TestHelper
     {
+        private readonly object _mutex = new object();
+
         public class SessionCallback1 : ISessionCallback
         {
             private readonly Client _app;
@@ -33,7 +35,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -93,7 +95,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -130,7 +132,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Exception)
+                catch
                 {
                     Assert(false);
                 }
@@ -149,7 +151,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Default.Protocol"] = "ice1";
             properties["Ice.Default.Encoding"] = "1.1";
-            properties["Ice.Default.Router"] = $"Glacier2/router:{GetTestEndpoint(properties, 50)}";
+            properties["Ice.Default.Router"] = GetTestProxy("Glacier2/router", properties, 50);
 
             using Communicator communicator = Initialize(properties);
 
@@ -162,7 +164,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             //
             // Test to create a session with wrong userid/password
             //
-            lock (this)
+            lock (_mutex)
             {
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
@@ -173,7 +175,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     try
                     {
-                        if (!Monitor.Wait(this, 30000))
+                        if (!Monitor.Wait(_mutex, 30000))
                         {
                             Assert(false);
                         }
@@ -188,7 +190,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
             properties.Remove("Ice.Default.Router");
             factory = new SessionFactoryHelper(new SessionCallback4(this), properties);
-            lock (this)
+            lock (_mutex)
             {
                 Console.Out.Write("testing SessionHelper connect interrupt... ");
                 Console.Out.Flush();
@@ -204,7 +206,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     try
                     {
-                        if (!Monitor.Wait(this, 30000))
+                        if (!Monitor.Wait(_mutex, 30000))
                         {
                             Assert(false);
                         }
@@ -218,7 +220,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             }
 
             factory = new SessionFactoryHelper(new SessionCallback2(this), properties);
-            lock (this)
+            lock (_mutex)
             {
                 Console.Out.Write("testing SessionHelper connect... ");
                 Console.Out.Flush();
@@ -230,7 +232,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     try
                     {
-                        if (!Monitor.Wait(this, 30000))
+                        if (!Monitor.Wait(_mutex, 30000))
                         {
                             Assert(false);
                         }
@@ -250,7 +252,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.Flush();
                 try
                 {
-                    Assert(!session.GetCategoryForClient().Equals(""));
+                    Assert(session.GetCategoryForClient().Length > 0);
                 }
                 catch (SessionNotExistException)
                 {
@@ -262,7 +264,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                var twoway = ICallbackPrx.Parse($"callback:{GetTestEndpoint(0)}", session.Communicator!);
+                var twoway = ICallbackPrx.Parse(GetTestProxy("callback", 0), session.Communicator!);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("pinging server after session creation... ");
@@ -272,7 +274,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing server shutdown... ");
                 Console.Out.Flush();
-                twoway.shutdown();
+                twoway.Shutdown();
                 Console.Out.WriteLine("ok");
 
                 Assert(session.Communicator != null);
@@ -283,7 +285,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     try
                     {
-                        if (!Monitor.Wait(this, 30000))
+                        if (!Monitor.Wait(_mutex, 30000))
                         {
                             Assert(false);
                         }
@@ -303,7 +305,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.Flush();
                 try
                 {
-                    Assert(!session.GetCategoryForClient().Equals(""));
+                    Assert(session.GetCategoryForClient().Length > 0);
                     Assert(false);
                 }
                 catch (SessionNotExistException)
@@ -335,8 +337,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for process object... ");
-                    process = IProcessPrx.Parse($"Glacier2/admin -e 1.1 -f Process:{GetTestEndpoint(51)}",
-                                                communicator);
+                    process = IProcessPrx.Parse(GetTestProxy("Glacier2/admin -f Process", 51), communicator);
                     Console.Out.WriteLine("ok");
                 }
 
@@ -347,14 +348,14 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     process.IcePing();
                     Assert(false);
                 }
-                catch (Exception)
+                catch
                 {
                     Console.Out.WriteLine("ok");
                 }
             }
 
             factory = new SessionFactoryHelper(new SessionCallback3(this), properties);
-            lock (this)
+            lock (_mutex)
             {
                 Console.Out.Write("testing SessionHelper connect after router shutdown... ");
                 Console.Out.Flush();
@@ -367,7 +368,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     try
                     {
-                        if (!Monitor.Wait(this, 30000))
+                        if (!Monitor.Wait(_mutex, 30000))
                         {
                             Assert(false);
                         }
@@ -405,9 +406,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
         public void WakeUp()
         {
-            lock (this)
+            lock (_mutex)
             {
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 

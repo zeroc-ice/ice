@@ -10,18 +10,17 @@ namespace ZeroC.Ice.Test.Exceptions
 {
     public class Collocated : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
-            properties["Ice.MessageSizeMax"] = "10"; // 10KB max
-            using Communicator communicator = Initialize(properties);
+            properties["Ice.IncomingFrameSizeMax"] = "10K";
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("thrower", new Thrower());
-            AllTests.allTests(this);
-            return Task.CompletedTask;
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

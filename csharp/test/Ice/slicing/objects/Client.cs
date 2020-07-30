@@ -11,8 +11,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
     {
         public override async Task RunAsync(string[] args)
         {
-            await using var communicator = Initialize(ref args);
-            AllTests.allTests(this).shutdown();
+            await using Communicator communicator = Initialize(ref args);
+            await AllTests.Run(this).ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

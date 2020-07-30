@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.DictMapping
 {
     public class Twoways
     {
-        internal static void twoways(IMyClassPrx p)
+        internal static void Run(IMyClassPrx p)
         {
             {
                 var i = new Dictionary<int, int>
@@ -19,12 +19,10 @@ namespace ZeroC.Ice.Test.DictMapping
                     [1] = 0
                 };
 
-                Dictionary<int, int> o;
-                Dictionary<int, int> r;
-                (r, o) = p.opNV(i);
+                (Dictionary<int, int> r, Dictionary<int, int> o) = p.OpNV(i);
 
-                TestHelper.Assert(i.DictionaryEqual(o));
-                TestHelper.Assert(i.DictionaryEqual(r));
+                TestHelper.Assert(i.DictionaryEquals(o));
+                TestHelper.Assert(i.DictionaryEquals(r));
             }
 
             {
@@ -34,12 +32,10 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = "a"
                 };
 
-                Dictionary<string, string> o;
-                Dictionary<string, string> r;
-                (r, o) = p.opNR(i);
+                (Dictionary<string, string> r, Dictionary<string, string> o) = p.OpNR(i);
 
-                TestHelper.Assert(i.DictionaryEqual(o));
-                TestHelper.Assert(i.DictionaryEqual(r));
+                TestHelper.Assert(i.DictionaryEquals(o));
+                TestHelper.Assert(i.DictionaryEquals(r));
             }
 
             {
@@ -52,14 +48,12 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["a"] = id;
                 i["b"] = id;
 
-                Dictionary<string, Dictionary<int, int>> o;
-                Dictionary<string, Dictionary<int, int>> r;
-                (r, o) = p.opNDV(i);
+                (Dictionary<string, Dictionary<int, int>> r, Dictionary<string, Dictionary<int, int>> o) = p.OpNDV(i);
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(i[key].DictionaryEqual(o[key]));
-                    TestHelper.Assert(i[key].DictionaryEqual(r[key]));
+                    TestHelper.Assert(i[key].DictionaryEquals(o[key]));
+                    TestHelper.Assert(i[key].DictionaryEquals(r[key]));
                 }
             }
 
@@ -73,14 +67,13 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["a"] = id;
                 i["b"] = id;
 
-                Dictionary<string, Dictionary<string, string>> o;
-                Dictionary<string, Dictionary<string, string>> r;
-                (r, o) = p.opNDR(i);
+                (Dictionary<string, Dictionary<string, string>> r,
+                 Dictionary<string, Dictionary<string, string>> o) = p.OpNDR(i);
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(i[key].DictionaryEqual(o[key]));
-                    TestHelper.Assert(i[key].DictionaryEqual(r[key]));
+                    TestHelper.Assert(i[key].DictionaryEquals(o[key]));
+                    TestHelper.Assert(i[key].DictionaryEquals(r[key]));
                 }
             }
 
@@ -92,9 +85,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = ii
                 };
 
-                Dictionary<string, int[]> o;
-                Dictionary<string, int[]> r;
-                (r, o) = p.opNDAIS(i);
+                (Dictionary<string, int[]> r, Dictionary<string, int[]> o) = p.OpNDAIS(i);
 
                 foreach (string key in i.Keys)
                 {
@@ -115,9 +106,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = ii
                 };
 
-                Dictionary<string, List<int>> o;
-                Dictionary<string, List<int>> r;
-                (r, o) = p.opNDGIS(i);
+                (Dictionary<string, List<int>> r, Dictionary<string, List<int>> o) = p.OpNDGIS(i);
 
                 foreach (string key in i.Keys)
                 {
@@ -134,9 +123,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = ii
                 };
 
-                Dictionary<string, string[]> o;
-                Dictionary<string, string[]> r;
-                (r, o) = p.opNDASS(i);
+                (Dictionary<string, string[]> r, Dictionary<string, string[]> o) = p.OpNDASS(i);
 
                 foreach (string key in i.Keys)
                 {
@@ -157,9 +144,7 @@ namespace ZeroC.Ice.Test.DictMapping
                     ["b"] = ii
                 };
 
-                Dictionary<string, List<string>> o;
-                Dictionary<string, List<string>> r;
-                (r, o) = p.opNDGSS(i);
+                (Dictionary<string, List<string>> r, Dictionary<string, List<string>> o) = p.OpNDGSS(i);
 
                 foreach (string key in i.Keys)
                 {

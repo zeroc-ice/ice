@@ -73,7 +73,64 @@ namespace ZeroC.Ice.Test.Properties
                     { "Ice.Config", "config/escapes.cfg" }
                 };
 
-                Assert(properties.DictionaryEqual(props));
+                Assert(properties.DictionaryEquals(props));
+                Console.Out.WriteLine("ok");
+            }
+
+            {
+                Console.Out.Write("testing configuration properties as bool... ");
+                var boolProperties = new Dictionary<string, string>
+                {
+                    { "Bool.True.Integer", "1" },
+                    { "Bool.True.LowerCase", "true" },
+                    { "Bool.True.UpperCase", "TRUE" },
+                    { "Bool.True.InitialUpperCase", "True" },
+
+                    { "Bool.False.Integer", "0" },
+                    { "Bool.False.LowerCase", "false" },
+                    { "Bool.False.UpperCase", "FALSE" },
+                    { "Bool.False.InitialLowerCase", "False" },
+
+                    {"Bool.Bad.Integer", "2"},
+                    {"Bool.Bad.Empty", ""},
+                    {"Bool.Bad.NonTrueFalseWord", "hello"},
+                    {"Bool.Bad.Yes", "yes"}
+                };
+
+                await using var communicator = new Communicator(boolProperties);
+
+                {
+                    var value = communicator.GetPropertyAsBool("Bool.True.Integer");
+                    Assert(value == true);
+                    value = communicator.GetPropertyAsBool("Bool.True.LowerCase");
+                    Assert(value == true);
+                    value = communicator.GetPropertyAsBool("Bool.True.UpperCase");
+                    Assert(value == true);
+                    value = communicator.GetPropertyAsBool("Bool.True.InitialUpperCase");
+                    Assert(value == true);
+
+                    value = communicator.GetPropertyAsBool("Bool.False.Integer");
+                    Assert(value == false);
+                    value = communicator.GetPropertyAsBool("Bool.False.LowerCase");
+                    Assert(value == false);
+                    value = communicator.GetPropertyAsBool("Bool.False.UpperCase");
+                    Assert(value == false);
+                    value = communicator.GetPropertyAsBool("Bool.False.InitialLowerCase");
+                    Assert(value == false);
+                }
+
+                foreach (string property in communicator.GetProperties("Bool.Bad").Keys)
+                {
+                    try
+                    {
+                        _ = communicator.GetPropertyAsBool(property);
+                        Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+                }
+
                 Console.Out.WriteLine("ok");
             }
 
@@ -142,6 +199,83 @@ namespace ZeroC.Ice.Test.Properties
                 }
 
                 foreach (string property in communicator.GetProperties("Duration.Bad").Keys)
+                {
+                    try
+                    {
+                        _ = communicator.GetPropertyAsTimeSpan(property);
+                        Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+                }
+
+                Console.Out.WriteLine("ok");
+            }
+
+            {
+                Console.Out.Write("testing configuration properties as byte size... ");
+                var sizeProperties = new Dictionary<string, string>
+                {
+                    { "Size", "1" },
+                    { "Size.K", "1K" },
+                    { "Size.M", "1M" },
+                    { "Size.G", "1G" },
+
+                    { "Size.Zero", "0" },
+                    { "Size.Zero.K", "0K" },
+                    { "Size.Zero.M", "0M" },
+                    { "Size.Zero.G", "0G" },
+
+                    { "Size.MaxValue.K", $"{int.MaxValue}K" },
+                    { "Size.MaxValue.M", $"{int.MaxValue}M" },
+                    { "Size.MaxValue.G", $"{int.MaxValue}G" },
+
+                    { "Size.Bad.Word", "x"},
+                    { "Size.Bad.Negative", "-1B"},
+                    { "Size.Bad.InvalidUnit", "1b"},
+                    { "Size.Bad.NotANumber", "NaN"},
+                    { "Size.Bad.Double.B", "1.0" },
+                };
+
+                await using var communicator = new Communicator(sizeProperties);
+
+                {
+                    int? size = communicator.GetPropertyAsByteSize("Size");
+                    Assert(size == 1);
+
+                    size = communicator.GetPropertyAsByteSize("Size.K");
+                    Assert(size == 1024);
+
+                    size = communicator.GetPropertyAsByteSize("Size.M");
+                    Assert(size == 1024 * 1024);
+
+                    size = communicator.GetPropertyAsByteSize("Size.G");
+                    Assert(size == 1024 * 1024 * 1024);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.K");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.M");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.G");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.K");
+                    Assert(size == int.MaxValue);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.M");
+                    Assert(size == int.MaxValue);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.G");
+                    Assert(size == int.MaxValue);
+                }
+
+                foreach (string property in communicator.GetProperties("Size.Bad").Keys)
                 {
                     try
                     {

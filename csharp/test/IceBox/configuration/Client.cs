@@ -2,9 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-using Test;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceBox.Test.Configuration
 {
@@ -12,12 +13,16 @@ namespace ZeroC.IceBox.Test.Configuration
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
-            properties["Ice.Default.Host"] = "127.0.0.1";
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             await using Communicator communicator = Initialize(properties);
-            AllTests.allTests(this);
+            AllTests.Run(this);
             // Shutdown the IceBox server.
-            IProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
+            string transport = communicator.DefaultTransport.ToString().ToLowerInvariant();
+
+            await IProcessPrx.Parse(communicator.DefaultProtocol == Protocol.Ice1 ?
+                                    $"DemoIceBox/admin -f Process:{transport} -h 127.0.0.1 -p 9996" :
+                                    $"ice+{transport}://127.0.0.1:9996/DemoIceBox/admin#Process",
+                                    communicator).ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

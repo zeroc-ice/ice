@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.Invoke
                     throw new MyException();
                 }
                 return new ValueTask<OutgoingResponseFrame>(
-                    new OutgoingResponseFrame(current, new MyException()));
+                    new OutgoingResponseFrame(request, new MyException()));
             }
             else if (current.Operation.Equals("shutdown"))
             {

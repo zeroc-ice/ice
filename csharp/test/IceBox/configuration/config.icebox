@@ -1,5 +1,5 @@
 Ice.Admin.InstanceName=DemoIceBox
-Ice.Admin.Endpoints=default -p 9996 -h 127.0.0.1
+Ice.Admin.Endpoints=ice+tcp://127.0.0.1:9996
 Ice.ProgramName=IceBox
 
 IceBox.Service.Service1=msbuild\testservice\netcoreapp3.1\testservice.dll:ZeroC.IceBox.Test.Configuration.TestService --Ice.Config=config.service1 --Service1.ArgProp=1 --Service1.Ovrd=2 --Service1.Unset= -a --Arg=2

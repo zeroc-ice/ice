@@ -13,7 +13,7 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         internal SSLServer(Communicator communicator) => _communicator = communicator;
 
-        public void noCert(Current current)
+        public void NoCert(Current current)
         {
             try
             {
@@ -21,13 +21,13 @@ namespace ZeroC.IceSSL.Test.Configuration
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
                 TestHelper.Assert(tcpConnection.RemoteCertificate == null);
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
         }
 
-        public void checkCert(string subjectDN, string issuerDN, Current current)
+        public void CheckCert(string subjectDN, string issuerDN, Current current)
         {
             try
             {
@@ -37,13 +37,13 @@ namespace ZeroC.IceSSL.Test.Configuration
                 TestHelper.Assert(tcpConnection.RemoteCertificate.Subject.Equals(subjectDN));
                 TestHelper.Assert(tcpConnection.RemoteCertificate.Issuer.Equals(issuerDN));
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
         }
 
-        public void checkCipher(string cipher, Current current)
+        public void CheckCipher(string cipher, Current current)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
                 TestHelper.Assert(tcpConnection.NegotiatedCipherSuite!.ToString()!.Equals(cipher));
             }
-            catch (Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -66,7 +66,7 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         public ServerFactory(string defaultDir) => _defaultDir = defaultDir;
 
-        public IServerPrx createServer(
+        public IServerPrx CreateServer(
             Dictionary<string, string> properties,
             bool requireClientCertificate,
             Current current)
@@ -78,15 +78,20 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     RequireClientCertificate = requireClientCertificate
                 });
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            string host = TestHelper.GetTestHost(communicator.GetProperties());
+
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(
+                "ServerAdapter", ice1 ? $"ssl -h {host}" : $"ice+ssl://{host}:0");
             var server = new SSLServer(communicator);
-            var prx = adapter.AddWithUUID(server, IServerPrx.Factory);
+            IServerPrx prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;
             adapter.Activate();
             return prx;
         }
 
-        public void destroyServer(IServerPrx? srv, Current current)
+        public void DestroyServer(IServerPrx? srv, Current current)
         {
             if (_servers.TryGetValue(srv!.Identity, out SSLServer? server))
             {
@@ -95,13 +100,13 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        public void shutdown(Current current)
+        public void Shutdown(Current current)
         {
             TestHelper.Assert(_servers.Count == 0);
             current.Adapter.Communicator.ShutdownAsync();
         }
 
         private readonly string _defaultDir;
-        private Dictionary<Identity, SSLServer> _servers = new Dictionary<Identity, SSLServer>();
+        private readonly Dictionary<Identity, SSLServer> _servers = new Dictionary<Identity, SSLServer>();
     }
 }

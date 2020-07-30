@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace ZeroC.Ice
@@ -34,6 +35,7 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count</summary>
         public int Size => Data.Count;
 
+        internal byte CompressionStatus { get; }
         internal ArraySegment<byte> Data { get; }
 
         /// <summary>Creates a new IncomingRequestFrame.</summary>
@@ -44,7 +46,7 @@ namespace ZeroC.Ice
             Data = data;
             Protocol = protocol;
 
-            var istr = new InputStream(Protocol.GetEncoding(), data);
+            var istr = new InputStream(data, Protocol.GetEncoding());
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
@@ -61,6 +63,7 @@ namespace ZeroC.Ice
             else
             {
                 // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
+                // TODO: read the compression status from the encapsulation data
             }
             Encoding = encoding;
         }
@@ -72,12 +75,21 @@ namespace ZeroC.Ice
         {
         }
 
+        internal IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, byte compressionStatus)
+            : this(protocol, data)
+        {
+            // IncomingRequestFrame with compression status is only supported with Ice1, compression is handled
+            // by the 2.0 encoding with Ice2.
+            Debug.Assert(protocol == Protocol.Ice1);
+            CompressionStatus = compressionStatus;
+        }
+
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
         /// correspond to the empty parameter list.</summary>
         /// <param name="communicator">The communicator.</param>
         // TODO: we currently need the communicator only to skip (read) tagged classes.
         public void ReadEmptyParamList(Communicator communicator) =>
-            InputStream.ReadEmptyEncapsulation(communicator, Protocol.GetEncoding(), Payload);
+            Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
 
         /// <summary>Reads the request frame parameter list.</summary>
         /// <param name="communicator">The communicator.</param>
@@ -86,6 +98,6 @@ namespace ZeroC.Ice
         /// <returns>The request parameters, when the frame parameter list contains multiple parameters
         /// they must be return as a tuple.</returns>
         public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader) =>
-            InputStream.ReadEncapsulation(communicator, Protocol.GetEncoding(), Payload, reader);
+            Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
     }
 }

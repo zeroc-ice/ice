@@ -45,7 +45,7 @@ namespace ZeroC.Ice.Test.Perf
             Action<ReadOnlyMemory<T>> invocation, int size) where T : struct
         {
             var seq = new T[size];
-            var emptySeq = new T[0];
+            T[] emptySeq = Array.Empty<T>();
             RunTest(output, repetitions, name, () => invocation(seq), () => invocation(emptySeq));
         }
 
@@ -55,7 +55,7 @@ namespace ZeroC.Ice.Test.Perf
             RunTest(output, repetitions, name, () => invocation(size), () => invocation(0));
         }
 
-        public static IPerformancePrx allTests(TestHelper helper)
+        public static IPerformancePrx Run(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
             TestHelper.Assert(communicator != null);
@@ -65,11 +65,11 @@ namespace ZeroC.Ice.Test.Perf
             output.WriteLine("warning: performance test built with DEBUG");
 #endif
 
-            var perf = IPerformancePrx.Parse("perf:" + helper.GetTestEndpoint(0), communicator);
+            var perf = IPerformancePrx.Parse(helper.GetTestProxy("perf", 0), communicator);
 
             RunTest(output, 10000, "latency", () => perf.IcePing());
-            RunTest<byte>(output, 1000, "sending byte sequence", v => perf.sendBytes(v), Constants.ByteSeqSize);
-            RunTest<byte>(output, 1000, "received byte sequence", sz => perf.receiveBytes(sz), Constants.ByteSeqSize);
+            RunTest<byte>(output, 1000, "sending byte sequence", v => perf.SendBytes(v), Constants.ByteSeqSize);
+            RunTest<byte>(output, 1000, "received byte sequence", sz => perf.ReceiveBytes(sz), Constants.ByteSeqSize);
 
             return perf;
         }

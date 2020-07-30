@@ -1,5 +1,5 @@
 Ice.Admin.InstanceName=DemoIceBox
-Ice.Admin.Endpoints=default -p 9996 -h 127.0.0.1
+Ice.Admin.Endpoints=ice+tcp://127.0.0.1:9996
 Ice.ProgramName=IceBox2
 
 IceBox.InheritProperties=1

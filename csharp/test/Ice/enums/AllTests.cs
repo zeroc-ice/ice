@@ -10,11 +10,11 @@ namespace ZeroC.Ice.Test.Enums
 {
     public class AllTests
     {
-        public static ITestIntfPrx allTests(TestHelper helper)
+        public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            string sref = "test:" + helper.GetTestEndpoint(0);
+            string sref = helper.GetTestProxy("test", 0);
             var obj = IObjectPrx.Parse(sref, communicator);
             TestHelper.Assert(obj != null);
             var proxy = ITestIntfPrx.UncheckedCast(obj);

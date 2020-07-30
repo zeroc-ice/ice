@@ -10,7 +10,6 @@
 [[cpp:include:Glacier2/Config.h]]
 
 [[suppress-warning:reserved-identifier]]
-[[normalize-case]]
 [[js:module:ice]]
 
 [[python:pkgdir:Glacier2]]

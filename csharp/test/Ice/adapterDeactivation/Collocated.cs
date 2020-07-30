@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.AddDefault(new Servant());
 
-            AllTests.allTests(this);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

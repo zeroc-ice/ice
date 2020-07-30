@@ -6,12 +6,8 @@ namespace ZeroC.Ice.Test.Facets
 {
     public sealed class F : IF
     {
-        public F()
-        {
-        }
+        public string CallE(Current current) => "E";
 
-        public string callE(Current current) => "E";
-
-        public string callF(Current current) => "F";
+        public string CallF(Current current) => "F";
     }
 }

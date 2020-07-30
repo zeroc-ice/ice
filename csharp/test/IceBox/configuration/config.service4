@@ -1,4 +1,4 @@
-Service4OA.Endpoints=default -p 12013 -h 127.0.0.1
+Service4OA.Endpoints=ice+tcp://127.0.0.1:12013
 
 #Ice.ProgramName
 Service=4

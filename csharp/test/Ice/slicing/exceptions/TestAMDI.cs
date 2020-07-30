@@ -9,81 +9,69 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
     public sealed class TestIntfAsync : ITestIntfAsync
     {
-        public ValueTask shutdownAsync(Current current)
+        public ValueTask ShutdownAsync(Current current)
         {
-            current.Adapter.Communicator.ShutdownAsync();
+            _ = current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask baseAsBaseAsync(Current current) => throw new Base("Base.b");
+        public ValueTask BaseAsBaseAsync(Current current) => throw new Base("Base.b");
 
-        public ValueTask unknownDerivedAsBaseAsync(Current current) =>
+        public ValueTask UnknownDerivedAsBaseAsync(Current current) =>
             throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
 
-        public ValueTask knownDerivedAsBaseAsync(Current current) =>
+        public ValueTask KnownDerivedAsBaseAsync(Current current) =>
             throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-        public ValueTask
-        knownDerivedAsKnownDerivedAsync(Current current) =>
+        public ValueTask KnownDerivedAsKnownDerivedAsync(Current current) =>
             throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-        public ValueTask
-        unknownIntermediateAsBaseAsync(Current current) =>
+        public ValueTask UnknownIntermediateAsBaseAsync(Current current) =>
             throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
 
-        public ValueTask
-        knownIntermediateAsBaseAsync(Current current) =>
+        public ValueTask KnownIntermediateAsBaseAsync(Current current) =>
             throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-        public ValueTask
-        knownMostDerivedAsBaseAsync(Current current) =>
+        public ValueTask KnownMostDerivedAsBaseAsync(Current current) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public ValueTask
-        knownIntermediateAsKnownIntermediateAsync(Current current) =>
+        public ValueTask KnownIntermediateAsKnownIntermediateAsync(Current current) =>
             throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-        public ValueTask
-        knownMostDerivedAsKnownIntermediateAsync(Current current) =>
+        public ValueTask KnownMostDerivedAsKnownIntermediateAsync(Current current) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public ValueTask
-        knownMostDerivedAsKnownMostDerivedAsync(Current current) =>
+        public ValueTask KnownMostDerivedAsKnownMostDerivedAsync(Current current) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public ValueTask
-        unknownMostDerived1AsBaseAsync(Current current) =>
+        public ValueTask UnknownMostDerived1AsBaseAsync(Current current) =>
             throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-        public ValueTask
-        unknownMostDerived1AsKnownIntermediateAsync(Current current) =>
+        public ValueTask UnknownMostDerived1AsKnownIntermediateAsync(Current current) =>
             throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-        public ValueTask
-        unknownMostDerived2AsBaseAsync(Current current) =>
+        public ValueTask UnknownMostDerived2AsBaseAsync(Current current) =>
             throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-        public ValueTask
-        unknownMostDerived2AsBaseCompactAsync(Current current) =>
+        public ValueTask UnknownMostDerived2AsBaseCompactAsync(Current current) =>
             throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-        public ValueTask knownPreservedAsBaseAsync(Current current) =>
+        public ValueTask KnownPreservedAsBaseAsync(Current current) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public ValueTask
-        knownPreservedAsKnownPreservedAsync(Current current) =>
+        public ValueTask KnownPreservedAsKnownPreservedAsync(Current current) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public ValueTask serverPrivateExceptionAsync(Current current) => throw new ServerPrivateException("ServerPrivate");
+        public ValueTask ServerPrivateExceptionAsync(Current current) =>
+            throw new ServerPrivateException("ServerPrivate");
 
-        public ValueTask
-        relayKnownPreservedAsBaseAsync(IRelayPrx? r, Current current)
+        public async ValueTask RelayKnownPreservedAsBaseAsync(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.knownPreservedAsBase();
+                await p.KnownPreservedAsBaseAsync();
             }
             catch (RemoteException ex)
             {
@@ -92,17 +80,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw;
             }
             TestHelper.Assert(false);
-            return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask
-        relayKnownPreservedAsKnownPreservedAsync(IRelayPrx? r, Current current)
+        public async ValueTask RelayKnownPreservedAsKnownPreservedAsync(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.knownPreservedAsKnownPreserved();
+                await p.KnownPreservedAsKnownPreservedAsync();
             }
             catch (RemoteException ex)
             {
@@ -111,30 +97,27 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw;
             }
             TestHelper.Assert(false);
-            return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask unknownPreservedAsBaseAsync(Current current)
+        public ValueTask UnknownPreservedAsBaseAsync(Current current)
         {
             var p = new SPreservedClass("bc", "spc");
             throw new SPreserved2("base", "preserved", "derived", p, p);
         }
 
-        public ValueTask
-        unknownPreservedAsKnownPreservedAsync(Current current)
+        public ValueTask UnknownPreservedAsKnownPreservedAsync(Current current)
         {
             var p = new SPreservedClass("bc", "spc");
             throw new SPreserved2("base", "preserved", "derived", p, p);
         }
 
-        public ValueTask
-        relayUnknownPreservedAsBaseAsync(IRelayPrx? r, Current current)
+        public async ValueTask RelayUnknownPreservedAsBaseAsync(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.unknownPreservedAsBase();
+                await p.UnknownPreservedAsBaseAsync();
             }
             catch (RemoteException ex)
             {
@@ -143,17 +126,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw;
             }
             TestHelper.Assert(false);
-            return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask
-        relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx? r, Current current)
+        public async ValueTask RelayUnknownPreservedAsKnownPreservedAsync(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.unknownPreservedAsKnownPreserved();
+                await p.UnknownPreservedAsKnownPreservedAsync();
             }
             catch (RemoteException ex)
             {
@@ -162,16 +143,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw;
             }
             TestHelper.Assert(false);
-            return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask relayClientPrivateExceptionAsync(IRelayPrx? r, Current current)
+        public async ValueTask RelayClientPrivateExceptionAsync(IRelayPrx? r, Current current)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.clientPrivateException();
+                await p.ClientPrivateExceptionAsync();
             }
             catch (RemoteException ex)
             {
@@ -180,7 +160,6 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw;
             }
             TestHelper.Assert(false);
-            return new ValueTask(Task.CompletedTask);
         }
     }
 }

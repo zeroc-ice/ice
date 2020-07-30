@@ -12,11 +12,11 @@ namespace ZeroC.Ice.Test.SeqMapping
     {
         public override async Task RunAsync(string[] args)
         {
-            await using var communicator = Initialize(ref args);
-            var myClass = AllTests.allTests(this, false);
+            await using Communicator? communicator = Initialize(ref args);
+            IMyClassPrx myClass = AllTests.Run(this, false);
             Console.Out.Write("shutting down server... ");
             Console.Out.Flush();
-            myClass.shutdown();
+            await myClass.ShutdownAsync();
             Console.Out.WriteLine("ok");
         }
 

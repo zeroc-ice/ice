@@ -16,22 +16,6 @@ namespace ZeroC.Ice
 
     public interface ITransceiver
     {
-        /// <summary>Creates a new connection to the given endpoint.</summary>
-        /// <param name="endpoint">The endpoint to connect to.</param>
-        /// <param name="monitor">The ACM monitor object.</param>
-        /// <param name="connector">The connector associated with the new connection, this is always null for incoming
-        /// connections.</param>
-        /// <param name="connectionId">The connection ID associated with the new connection. This is always an empty
-        /// string for incoming connections.</param>
-        /// <param name="adapter">The adapter associated with the new connection, this is always null for outgoing
-        /// connections.</param>
-        /// <returns>A new connection to the given endpoint.</returns>
-        public Connection CreateConnection(
-            Endpoint endpoint,
-            IAcmMonitor? monitor,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter);
         Socket? Fd();
 
         /// <summary>
@@ -138,7 +122,7 @@ namespace ZeroC.Ice
                     {
                         ArraySegmentAndOffset result;
                         result = await self.ReadImplAsync(readBuffer, 0, false).ConfigureAwait(false);
-                        readBuffer = result.buffer;
+                        readBuffer = result.Buffer;
                     }
                     else if (status == SocketOperation.Write)
                     {
@@ -242,13 +226,14 @@ namespace ZeroC.Ice
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
         private class ArraySegmentAndOffset
         {
+            public ArraySegment<byte> Buffer;
+            public int Offset;
+
             public ArraySegmentAndOffset(ArraySegment<byte> buffer, int offset)
             {
-                this.buffer = buffer;
-                this.offset = offset;
+                Buffer = buffer;
+                Offset = offset;
             }
-            public ArraySegment<byte> buffer;
-            public int offset;
         };
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
@@ -256,7 +241,7 @@ namespace ZeroC.Ice
         {
             ArraySegmentAndOffset received =
                 await ReadImplAsync(ArraySegment<byte>.Empty, 0, true).WaitAsync(cancel).ConfigureAwait(false);
-            return received.buffer;
+            return received.Buffer;
         }
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
@@ -264,7 +249,7 @@ namespace ZeroC.Ice
         {
             ArraySegmentAndOffset received =
                 await ReadImplAsync(buffer, offset, true).WaitAsync(cancel).ConfigureAwait(false);
-            return received.offset - offset;
+            return received.Offset - offset;
         }
 
          // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
@@ -286,8 +271,8 @@ namespace ZeroC.Ice
                         int status;
                         lock (transceiver)
                         {
-                            transceiver.FinishRead(ref p.buffer, ref p.offset);
-                            status = transceiver.Read(ref p.buffer, ref p.offset);
+                            transceiver.FinishRead(ref p.Buffer, ref p.Offset);
+                            status = transceiver.Read(ref p.Buffer, ref p.Offset);
                         }
                         if ((status & SocketOperation.Write) != 0)
                         {
@@ -296,7 +281,7 @@ namespace ZeroC.Ice
                         }
                         if ((status & SocketOperation.Read) != 0 && !partial)
                         {
-                            result.SetResult(await transceiver.ReadImplAsync(p.buffer, p.offset,
+                            result.SetResult(await transceiver.ReadImplAsync(p.Buffer, p.Offset,
                                 false).ConfigureAwait(false));
                         }
                         else
@@ -312,7 +297,7 @@ namespace ZeroC.Ice
 
                 lock (self)
                 {
-                    if (self.StartRead(ref p.buffer, ref p.offset, ReadCallback, self))
+                    if (self.StartRead(ref p.Buffer, ref p.Offset, ReadCallback, self))
                     {
                         ReadCallback(self);
                     }

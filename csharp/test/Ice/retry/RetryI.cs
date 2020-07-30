@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Retry
 {
     public sealed class Retry : IRetry
     {
-        public void op(bool kill, Current current)
+        public void Op(bool kill, Current current)
         {
             if (kill)
             {
@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Retry
             }
         }
 
-        public int opIdempotent(int nRetry, Current current)
+        public int OpIdempotent(int nRetry, Current current)
         {
             if (nRetry > _counter)
             {
@@ -35,13 +35,13 @@ namespace ZeroC.Ice.Test.Retry
             return counter;
         }
 
-        public void opNotIdempotent(Current current) => throw new ConnectionLostException();
+        public void OpNotIdempotent(Current current) => throw new ConnectionLostException();
 
-        public void opSystemException(Current c) => throw new SystemFailure();
+        public void OpSystemException(Current c) => throw new SystemFailure();
 
-        public void sleep(int delay, Current c) => Thread.Sleep(delay);
+        public void Sleep(int delay, Current c) => Thread.Sleep(delay);
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private int _counter;
     }

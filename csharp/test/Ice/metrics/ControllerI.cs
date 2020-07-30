@@ -15,10 +15,10 @@ namespace ZeroC.Ice.Test.Metrics
 
         public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
 
-        public void hold(Current current) =>
+        public void Hold(Current current) =>
             _ = Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
 
-        public void resume(Current current) => _semaphore.Release();
+        public void Resume(Current current) => _semaphore.Release();
 
     }
 }

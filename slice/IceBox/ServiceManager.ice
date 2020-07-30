@@ -10,7 +10,6 @@
 [[cpp:include:IceBox/Config.h]]
 
 [[suppress-warning:reserved-identifier]]
-[[normalize-case]]
 [[js:module:ice]]
 
 [[python:pkgdir:IceBox]]

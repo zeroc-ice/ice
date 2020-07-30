@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -22,6 +23,13 @@ namespace ZeroC.Ice
 
         public override ushort Port { get; }
 
+        protected internal override bool HasOptions => Protocol == Protocol.Ice1 || SourceAddress != null;
+
+        // The default port with ice1 is 0.
+        protected internal override ushort DefaultPort => Protocol == Protocol.Ice1 ? (ushort)0 : DefaultIPPort;
+
+        internal const ushort DefaultIPPort = 4062;
+
         /// <summary>The source address of this IP endpoint.</summary>
         internal IPAddress? SourceAddress { get; }
 
@@ -32,47 +40,6 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() =>
             SourceAddress != null ? HashCode.Combine(base.GetHashCode(), SourceAddress) : base.GetHashCode();
-
-        public override string OptionsToString()
-        {
-            var sb = new StringBuilder();
-
-            if (Host.Length > 0)
-            {
-                sb.Append(" -h ");
-                bool addQuote = Host.IndexOf(':') != -1;
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-                sb.Append(Host);
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-            }
-
-            sb.Append(" -p ");
-            sb.Append(Port.ToString(CultureInfo.InvariantCulture));
-
-            if (SourceAddress != null)
-            {
-                string sourceAddr = SourceAddress.ToString();
-                bool addQuote = sourceAddr.IndexOf(':') != -1;
-                sb.Append(" --sourceAddress ");
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-                sb.Append(sourceAddr);
-                if (addQuote)
-                {
-                    sb.Append("\"");
-                }
-            }
-
-            return sb.ToString();
-        }
 
         public override bool IsLocal(Endpoint endpoint)
         {
@@ -104,14 +71,18 @@ namespace ZeroC.Ice
             }
         }
 
-        public override void IceWritePayload(OutputStream ostr)
+        protected internal override void WriteOptions(OutputStream ostr)
         {
-            ostr.WriteString(Host);
-            ostr.WriteInt(Port);
+            if (Protocol == Protocol.Ice1)
+            {
+                ostr.WriteString(Host);
+                ostr.WriteInt(Port);
+            }
+            else
+            {
+                Debug.Assert(false); // the derived class must provide the implementation
+            }
         }
-
-        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
-            compressionFlag == HasCompressionFlag ? this : CreateIPEndpoint(Host, Port, compressionFlag, Timeout);
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
@@ -174,10 +145,8 @@ namespace ZeroC.Ice
             }
             else
             {
-                return addresses.Select(address => CreateIPEndpoint(Network.EndpointAddressToString(address),
-                                                                    Network.EndpointPort(address),
-                                                                    HasCompressionFlag,
-                                                                    Timeout));
+                return addresses.Select(address => Clone(Network.EndpointAddressToString(address),
+                                                         Network.EndpointPort(address)));
             }
         }
 
@@ -190,34 +159,56 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => CreateIPEndpoint(host, Port, HasCompressionFlag, Timeout));
+                return hosts.Select(host => Clone(host));
             }
         }
 
-        internal IPEndpoint NewPort(ushort port)
+        protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
-            if (port == Port)
+            if (Protocol == Protocol.Ice1)
             {
-                return this;
+                if (Host.Length > 0)
+                {
+                    sb.Append(" -h ");
+                    bool addQuote = Host.IndexOf(':') != -1;
+                    if (addQuote)
+                    {
+                        sb.Append('"');
+                    }
+                    sb.Append(Host);
+                    if (addQuote)
+                    {
+                        sb.Append('"');
+                    }
+                }
+
+                sb.Append(" -p ");
+                sb.Append(Port.ToString(CultureInfo.InvariantCulture));
+
+                if (SourceAddress != null)
+                {
+                    string sourceAddr = SourceAddress.ToString();
+                    bool addQuote = sourceAddr.IndexOf(':') != -1;
+                    sb.Append(" --sourceAddress ");
+                    if (addQuote)
+                    {
+                        sb.Append('"');
+                    }
+                    sb.Append(sourceAddr);
+                    if (addQuote)
+                    {
+                        sb.Append('"');
+                    }
+                }
             }
-            else
+            else if (SourceAddress != null)
             {
-                return CreateIPEndpoint(Host, port, HasCompressionFlag, Timeout);
+                sb.Append("source-address=");
+                sb.Append(SourceAddress);
             }
         }
 
-        private protected IPEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            string host,
-            ushort port,
-            IPAddress? sourceAddress)
-            : base(communicator, protocol)
-        {
-            Host = host;
-            Port = port;
-            SourceAddress = sourceAddress;
-        }
+        internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
 
         // Constructor for URI parsing.
         private protected IPEndpoint(
@@ -229,12 +220,14 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol)
         {
+            Debug.Assert(protocol == Protocol.Ice2);
             Host = host;
             Port = port;
             if (!oaEndpoint) // parsing a URI that represents a proxy
             {
                 if (options.TryGetValue("source-address", out string? value))
                 {
+                    // IPAddress.Parse apparently accepts IPv6 addresses in square brackets
                     SourceAddress = IPAddress.Parse(value);
                     options.Remove("source-address");
                 }
@@ -245,6 +238,7 @@ namespace ZeroC.Ice
         private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
             : base(communicator, protocol)
         {
+            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = istr.ReadString();
 
             if (protocol == Protocol.Ice1)
@@ -260,13 +254,13 @@ namespace ZeroC.Ice
             }
         }
 
+        // Constructor for ice1 endpoint parsing.
         private protected IPEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol)
+            : base(communicator, Protocol.Ice1)
         {
             if (options.TryGetValue("-h", out string? argument))
             {
@@ -282,7 +276,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Host = Communicator.DefaultHost ?? "";
+                throw new FormatException($"no -h option in endpoint `{endpointString}'");
             }
 
             if (options.TryGetValue("-p", out argument))
@@ -330,13 +324,20 @@ namespace ZeroC.Ice
             // else SourceAddress remains null
         }
 
+        // Constructor for Clone
+        private protected IPEndpoint(IPEndpoint endpoint, string host, ushort port)
+            : base(endpoint.Communicator, endpoint.Protocol)
+        {
+            Host = host;
+            Port = port;
+            SourceAddress = endpoint.SourceAddress;
+        }
+
+        /// <summary>Creates a clone with the specified host and port.</summary>
+        private protected abstract IPEndpoint Clone(string host, ushort port);
+
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
-        // TODO: rename to Clone and make parameters optional?
-        private protected abstract IPEndpoint CreateIPEndpoint(
-            string host,
-            ushort port,
-            bool compressionFlag,
-            TimeSpan timeout);
+        private IPEndpoint Clone(string host) => host == Host ? this : Clone(host, Port);
     }
 }

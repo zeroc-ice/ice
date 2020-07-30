@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Diagnostics;
 
 using ZeroC.Ice.Instrumentation;
@@ -17,7 +16,7 @@ namespace ZeroC.Ice
         {
             bool unhandledException = ex is UnhandledException;
 
-            if (unhandledException && (current.Adapter.Communicator.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false))
+            if (unhandledException && current.Adapter.Communicator.WarnDispatch)
             {
                 Warning((UnhandledException)ex, current);
             }
@@ -42,16 +41,16 @@ namespace ZeroC.Ice
             var output = new System.Text.StringBuilder();
 
             output.Append("dispatch exception:");
-            output.Append("\nidentity: ").Append(current.Identity.ToString(current.Adapter.Communicator.ToStringMode));
-            output.Append("\nfacet: ").Append(StringUtil.EscapeString(current.Facet, "",
-                current.Adapter.Communicator.ToStringMode));
+            output.Append("\nidentity: ").Append(current.Identity.ToString(current.Communicator.ToStringMode));
+            output.Append("\nfacet: ").Append(
+                StringUtil.EscapeString(current.Facet, current.Communicator.ToStringMode));
             output.Append("\noperation: ").Append(current.Operation);
 
             if ((current.Connection as IPConnection)?.RemoteEndpoint is System.Net.IPEndPoint remoteEndpoint)
             {
                 output.Append("\nremote address: ").Append(remoteEndpoint);
             }
-            output.Append("\n");
+            output.Append('\n');
             output.Append(ex.ToString());
             current.Adapter.Communicator.Logger.Warning(output.ToString());
         }

@@ -71,6 +71,9 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count.</summary>
         public int Size { get; private set; }
 
+        // Whether or not to Compress the content of the frame with Ice1
+        internal bool Compress { get; }
+
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
 
@@ -166,7 +169,7 @@ namespace ZeroC.Ice
                     $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
                     nameof(payload));
             }
-            int size = InputStream.ReadFixedLengthSize(proxy.Protocol.GetEncoding(), payload.AsSpan(0, 4));
+            int size = payload.AsReadOnlySpan(0, 4).ReadFixedLengthSize(proxy.Protocol.GetEncoding());
             if (size != payload.Count)
             {
                 throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
@@ -193,12 +196,16 @@ namespace ZeroC.Ice
             Protocol = proxy.Protocol;
             Protocol.CheckSupported();
             Encoding = proxy.Encoding;
+            // TODO: when we add back compression support on the client side, assign to true for Ice1 requests to
+            // get the connection to compress the request at the protocol level. The Ice1BinaryConnection checks
+            // this property to figure out if the request needs to be compressed.
+            Compress = false;
             Data = new List<ArraySegment<byte>>();
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
             Identity.IceWrite(ostr);
             ostr.WriteFacet(Facet);
             ostr.WriteString(operation);

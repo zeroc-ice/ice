@@ -25,12 +25,12 @@ bool
 Slice::normalizeCase(const ContainedPtr& c)
 {
     auto fileMetaData = c->unit()->findDefinitionContext(c->file())->getMetaData();
-    if(find(begin(fileMetaData), end(fileMetaData), "normalize-case") != end(fileMetaData) ||
-       find(begin(fileMetaData), end(fileMetaData), "cs:normalize-case") != end(fileMetaData))
+    if(find(begin(fileMetaData), end(fileMetaData), "preserve-case") != end(fileMetaData) ||
+       find(begin(fileMetaData), end(fileMetaData), "cs:preserve-case") != end(fileMetaData))
     {
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 std::string
 Slice::operationName(const OperationPtr& op)

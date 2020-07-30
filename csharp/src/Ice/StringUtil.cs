@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -48,7 +49,7 @@ namespace ZeroC.Ice
             for (int i = start; i < len; i++)
             {
                 char ch = str[i];
-                if (match.IndexOf(ch) == -1)
+                if (!match.Contains(ch))
                 {
                     return i;
                 }
@@ -57,7 +58,7 @@ namespace ZeroC.Ice
             return -1;
         }
 
-        private static void EncodeChar(char c, StringBuilder sb, string? special, ToStringMode toStringMode)
+        private static void EncodeChar(char c, StringBuilder sb, ToStringMode toStringMode, char? special)
         {
             switch (c)
             {
@@ -129,7 +130,7 @@ namespace ZeroC.Ice
                     }
                 default:
                     {
-                        if (special != null && special.IndexOf(c) != -1)
+                        if (c == special)
                         {
                             sb.Append('\\');
                             sb.Append(c);
@@ -162,7 +163,7 @@ namespace ZeroC.Ice
                                     }
                                     sb.Append(octal);
                                 }
-                                else if (i < 32 || i == 127 || (toStringMode & ToStringMode.ASCII) != 0)
+                                else if (i < 32 || i == 127 || (toStringMode == ToStringMode.ASCII))
                                 {
                                     // append \\unnnn
                                     sb.Append("\\u");
@@ -190,34 +191,22 @@ namespace ZeroC.Ice
             }
         }
 
-        //
-        // Add escape sequences (such as "\n", or "\007") to the input string
-        //
-        public static string EscapeString(string s, string? special, ToStringMode toStringMode)
+        // Adds escape sequences (such as "\n", or "\007") to the input string
+        internal static string EscapeString(string s, ToStringMode toStringMode, char? special = null)
         {
-            if (special != null)
-            {
-                for (int i = 0; i < special.Length; ++i)
-                {
-                    if (special[i] < 32 || special[i] > 126)
-                    {
-                        throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                           nameof(special));
-                    }
-                }
-            }
+            Debug.Assert(special == null || (special >= 32 && special <= 126),
+                         "special character must be in ASCII range 32-126");
 
             if (toStringMode == ToStringMode.Compat)
             {
                 // Encode UTF-8 bytes
-
                 var utf8 = new UTF8Encoding();
                 byte[] bytes = utf8.GetBytes(s);
 
                 var result = new StringBuilder(bytes.Length);
                 for (int i = 0; i < bytes.Length; i++)
                 {
-                    EncodeChar((char)bytes[i], result, special, toStringMode);
+                    EncodeChar((char)bytes[i], result, toStringMode, special);
                 }
 
                 return result.ToString();
@@ -229,13 +218,13 @@ namespace ZeroC.Ice
                 for (int i = 0; i < s.Length; i++)
                 {
                     char c = s[i];
-                    if ((toStringMode & ToStringMode.Unicode) != 0 || !char.IsSurrogate(c))
+                    if ((toStringMode == ToStringMode.Unicode) || !char.IsSurrogate(c))
                     {
-                        EncodeChar(c, result, special, toStringMode);
+                        EncodeChar(c, result, toStringMode, special);
                     }
                     else
                     {
-                        Debug.Assert((toStringMode & ToStringMode.ASCII) != 0 && char.IsSurrogate(c));
+                        Debug.Assert((toStringMode == ToStringMode.ASCII) && char.IsSurrogate(c));
                         if (i + 1 == s.Length)
                         {
                             throw new System.ArgumentException("high surrogate without low surrogate", nameof(s));
@@ -498,7 +487,7 @@ namespace ZeroC.Ice
                         }
                     default:
                         {
-                            if (string.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
+                            if (string.IsNullOrEmpty(special) || !special.Contains(c))
                             {
                                 result.Append('\\'); // not in special, so we keep the backslash
                             }

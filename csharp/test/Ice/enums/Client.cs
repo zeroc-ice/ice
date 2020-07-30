@@ -9,12 +9,11 @@ namespace ZeroC.Ice.Test.Enums
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
-            ITestIntfPrx proxy = AllTests.allTests(this);
-            proxy.Shutdown();
-            return Task.CompletedTask;
+            await using Communicator communicator = Initialize(ref args);
+            ITestIntfPrx proxy = AllTests.Run(this);
+            await proxy.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

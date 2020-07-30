@@ -10,7 +10,6 @@
 [[cpp:include:IceGrid/Config.h]]
 
 [[suppress-warning:reserved-identifier]]
-[[normalize-case]]
 [[js:module:ice]]
 
 [[python:pkgdir:IceGrid]]

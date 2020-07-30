@@ -19,8 +19,8 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
 
             IServerFactoryPrx factory;
-            factory = AllTests.allTests(this, args[0]);
-            factory.shutdown();
+            factory = AllTests.Run(this, args[0]);
+            await factory.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

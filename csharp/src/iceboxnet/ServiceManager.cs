@@ -16,17 +16,17 @@ namespace ZeroC.IceBox
 {
     public sealed class ServiceManager : IServiceManager
     {
-        private readonly bool _adminEnabled = false;
-        private readonly HashSet<string>? _adminFacetFilter = null;
+        private readonly bool _adminEnabled;
+        private readonly HashSet<string>? _adminFacetFilter;
         private readonly string[] _argv; // Filtered server argument vector
         private readonly Communicator _communicator;
         private readonly ILogger _logger;
         private readonly object _mutex = new object();
         private readonly HashSet<IServiceObserverPrx> _observers = new HashSet<IServiceObserverPrx>();
-        private bool _pendingStatusChanges = false;
+        private bool _pendingStatusChanges;
         private readonly List<ServiceInfo> _services = new List<ServiceInfo>();
-        private Communicator? _sharedCommunicator = null;
-        private readonly int _traceServiceObserver = 0;
+        private Communicator? _sharedCommunicator;
+        private readonly int _traceServiceObserver;
 
         public ServiceManager(Communicator communicator, string[] args)
         {

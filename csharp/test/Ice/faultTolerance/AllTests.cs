@@ -3,9 +3,9 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
@@ -27,25 +27,55 @@ namespace ZeroC.Ice.Test.FaultTolerance
             catch (TransportException)
             {
             }
-            catch (Exception)
+            catch
             {
                 output.WriteLine(ex.ToString());
                 TestHelper.Assert(false);
             }
         }
 
-        public static void allTests(TestHelper helper, List<int> ports)
+        public static void Run(TestHelper helper, List<int> ports)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            string refString = "test";
-            for (int i = 0; i < ports.Count; i++)
+
+            // Build a multi-endpoint proxy by hand.
+            // TODO: should the TestHelper help with that?
+            string refString = helper.GetTestProxy("test", 0);
+            if (ports.Count > 1)
             {
-                refString += ":" + helper.GetTestEndpoint(ports[i]);
+                var sb = new StringBuilder(refString);
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    string transport = helper.GetTestTransport();
+                    for (int i = 1; i < ports.Count; ++i)
+                    {
+                        sb.Append($": {transport} -h ");
+                        sb.Append(helper.GetTestHost());
+                        sb.Append(" -p ");
+                        sb.Append(helper.GetTestPort(ports[i]));
+                    }
+                }
+                else
+                {
+                    sb.Append("?alt-endpoint=");
+                    for (int i = 1; i < ports.Count; ++i)
+                    {
+                        if (i > 1)
+                        {
+                            sb.Append(',');
+                        }
+                        sb.Append(helper.GetTestHost());
+                        sb.Append(':');
+                        sb.Append(helper.GetTestPort(ports[i]));
+                    }
+                }
+                refString = sb.ToString();
             }
+
             var basePrx = IObjectPrx.Parse(refString, communicator);
             output.WriteLine("ok");
 
@@ -70,7 +100,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 {
                     output.Write("testing server #" + i + "... ");
                     output.Flush();
-                    int pid = obj.pid();
+                    int pid = obj.Pid();
                     TestHelper.Assert(pid != oldPid);
                     output.WriteLine("ok");
                     oldPid = pid;
@@ -79,7 +109,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 {
                     output.Write("testing server #" + i + " with AMI... ");
                     output.Flush();
-                    int pid = obj.pidAsync().Result;
+                    int pid = obj.PidAsync().Result;
                     TestHelper.Assert(pid != oldPid);
                     output.WriteLine("ok");
                     oldPid = pid;
@@ -91,13 +121,13 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     {
                         output.Write("shutting down server #" + i + "... ");
                         output.Flush();
-                        obj.shutdown();
+                        obj.Shutdown();
                         output.WriteLine("ok");
                     }
                     else
                     {
                         output.Write("shutting down server #" + i + " with AMI... ");
-                        obj.shutdownAsync().Wait();
+                        obj.ShutdownAsync().Wait();
                         output.WriteLine("ok");
                     }
                 }
@@ -109,7 +139,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         output.Flush();
                         try
                         {
-                            obj.abort();
+                            obj.Abort();
                             TestHelper.Assert(false);
                         }
                         catch (ConnectionLostException)
@@ -127,11 +157,11 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     }
                     else
                     {
-                        output.Write("aborting server #" + i + " with AMI... ");
+                        output.Write($"aborting server #{i} with AMI... ");
                         output.Flush();
                         try
                         {
-                            obj.abortAsync().Wait();
+                            obj.AbortAsync().Wait();
                             TestHelper.Assert(false);
                         }
                         catch (AggregateException ex)
@@ -146,11 +176,11 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 {
                     if (!ami)
                     {
-                        output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
+                        output.Write($"aborting server #{i} and #{i + 1} with idempotent call... ");
                         output.Flush();
                         try
                         {
-                            obj.idempotentAbort();
+                            obj.IdempotentAbort();
                             TestHelper.Assert(false);
                         }
                         catch (ConnectionLostException)
@@ -168,11 +198,11 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     }
                     else
                     {
-                        output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
+                        output.Write($"aborting server #{i} and #{i + 1} with idempotent AMI call... ");
                         output.Flush();
                         try
                         {
-                            obj.idempotentAbortAsync().Wait();
+                            obj.IdempotentAbortAsync().Wait();
                             TestHelper.Assert(false);
                         }
                         catch (AggregateException ex)
@@ -197,7 +227,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 obj.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (Exception)
+            catch
             {
                 output.WriteLine("ok");
             }

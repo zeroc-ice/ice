@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Optional
         internal static ITestPrx Run(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
-            var test = ITestPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var test = ITestPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
             TextWriter output = helper.GetWriter();
             output.Write("testing BitSequence and ReadOnlyBitSequence... ");
@@ -166,14 +166,14 @@ namespace ZeroC.Ice.Test.Optional
             output.Write("testing operations with dictionary<K, V?> parameters... ");
             Dictionary<int, int?> intIntDict = new Dictionary<int, int?> { { 1, -5 }, { 3, null }, { 5, 19 },
                 { 7, -35000 }};
-            TestHelper.Assert(test.OpIntOptIntDict(intIntDict).DictionaryEqual(intIntDict));
-            TestHelper.Assert(test.OpTaggedIntOptIntDict(intIntDict)!.DictionaryEqual(intIntDict));
+            TestHelper.Assert(test.OpIntOptIntDict(intIntDict).DictionaryEquals(intIntDict));
+            TestHelper.Assert(test.OpTaggedIntOptIntDict(intIntDict)!.DictionaryEquals(intIntDict));
             TestHelper.Assert(test.OpTaggedIntOptIntDict(null) == null);
 
             Dictionary<int, string?> intStringDict = new Dictionary<int, string?> { { 1, "foo" }, { 3, "test" },
                 { 5, null }, { 7, "bar" }};
-            TestHelper.Assert(test.OpIntOptStringDict(intStringDict).DictionaryEqual(intStringDict));
-            TestHelper.Assert(test.OpTaggedIntOptStringDict(intStringDict)!.DictionaryEqual(intStringDict));
+            TestHelper.Assert(test.OpIntOptStringDict(intStringDict).DictionaryEquals(intStringDict));
+            TestHelper.Assert(test.OpTaggedIntOptStringDict(intStringDict)!.DictionaryEquals(intStringDict));
             TestHelper.Assert(test.OpTaggedIntOptStringDict(null) == null);
 
             output.WriteLine("ok");

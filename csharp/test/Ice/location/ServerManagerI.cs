@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Location
             _helper = helper;
         }
 
-        public void startServer(Current current)
+        public void StartServer(Current current)
         {
             foreach (Communicator? c in _communicators)
             {
@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.Location
                     adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
                     adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
 
-                    var locator = ILocatorPrx.Parse($"locator:{_helper.GetTestEndpoint(0)}", serverCommunicator);
+                    var locator = ILocatorPrx.Parse(_helper.GetTestProxy("locator", 0), serverCommunicator);
                     adapter.Locator = locator;
                     adapter2.Locator = locator;
 
@@ -91,7 +91,7 @@ namespace ZeroC.Ice.Test.Location
             }
         }
 
-        public void shutdown(Current current)
+        public void Shutdown(Current current)
         {
             foreach (Communicator c in _communicators)
             {

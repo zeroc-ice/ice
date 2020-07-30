@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics
@@ -13,13 +14,17 @@ namespace ZeroC.Ice.Test.Metrics
         {
             var observer = new CommunicatorObserver();
 
-            var properties = CreateTestProperties(ref args);
-            properties["Ice.Admin.Endpoints"] = "tcp";
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            bool ice1 = false;
+            if (properties.TryGetValue("Ice.Default.Protocol", out string? value))
+            {
+                ice1 = value == "ice1";
+            }
+            properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
             properties["Ice.Admin.InstanceName"] = "client";
             properties["Ice.Admin.DelayCreation"] = "1";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
-            properties["Ice.Default.Host"] = "127.0.0.1";
 
             await using Communicator communicator = Initialize(properties, observer: observer);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -27,8 +32,8 @@ namespace ZeroC.Ice.Test.Metrics
             adapter.Add("metrics", new Metrics());
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            IMetricsPrx metrics = AllTests.allTests(this, observer);
-            metrics.shutdown();
+            IMetricsPrx metrics = AllTests.Run(this, observer);
+            await metrics.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

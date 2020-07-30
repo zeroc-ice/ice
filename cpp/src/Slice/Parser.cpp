@@ -1637,6 +1637,23 @@ Slice::DataMemberContainer::createDataMember(const string& name, const TypePtr& 
     {
         return nullptr;
     }
+  
+    // Check whether the data member has the same name as it's enclosing container.
+    const string typeName = this->kindOf();
+    if (name == this->name())
+    {
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing " + typeName);
+        _unit->note(this, typeName + " `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
+    if (ciequals(name, this->name()))
+    {
+        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing " + typeName +
+                     " named `" + this->name() + "'");
+        _unit->note(this, typeName + " `" + this->name() + "' is defined here");
+        return nullptr;
+    }
 
     SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;

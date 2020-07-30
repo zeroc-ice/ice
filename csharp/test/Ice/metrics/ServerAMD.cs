@@ -13,12 +13,17 @@ namespace ZeroC.Ice.Test.Metrics
         public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
-            properties["Ice.Admin.Endpoints"] = "tcp";
+             bool ice1 = false;
+            if (properties.TryGetValue("Ice.Default.Protocol", out string? value))
+            {
+                ice1 = value == "ice1";
+            }
+
+            properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
             properties["Ice.Admin.InstanceName"] = "server";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
-            properties["Ice.MessageSizeMax"] = "50000";
-            properties["Ice.Default.Host"] = "127.0.0.1";
+            properties["Ice.IncomingFrameSizeMax"] = "50M";
 
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -28,7 +33,7 @@ namespace ZeroC.Ice.Test.Metrics
             await adapter.ActivateAsync();
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
-            var adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
+            ObjectAdapter adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter2.Add("metrics", new MetricsAsync());
             await adapter2.ActivateAsync();

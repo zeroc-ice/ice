@@ -344,7 +344,7 @@ namespace ZeroC.Ice
             {
                 // TODO: need protocol bridging when the protocols are not the same.
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
-                return new OutgoingResponseFrame(request.Protocol, request.Encoding, response.Payload);
+                return new OutgoingResponseFrame(request, response.Payload);
             }
         }
 
@@ -376,8 +376,9 @@ namespace ZeroC.Ice
             {
                 Reference reference = proxy.IceReference;
 
-                IReadOnlyDictionary<string, string>? context = request.Context ?? reference.CurrentContext();
-                IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy, request.Operation, context);
+                IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
+                                                                                     request.Operation,
+                                                                                     request.Context);
                 int retryCount = 0;
                 CancellationTokenSource? invocationTimeout = null;
                 if (reference.InvocationTimeout > 0)

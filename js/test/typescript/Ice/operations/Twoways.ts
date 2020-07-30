@@ -1427,19 +1427,15 @@ export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bi
         let s = new Test.MyStruct1();
         s.tesT = "Test.MyStruct1.s";
         s.myClass = null;
-        s.myStruct1 = "Test.MyStruct1.myStruct1";
         s = await d.opMyStruct1(s);
         test(s.tesT == "Test.MyStruct1.s");
         test(s.myClass === null);
-        test(s.myStruct1 == "Test.MyStruct1.myStruct1");
         let c = new Test.MyClass1();
         c.tesT = "Test.MyClass1.testT";
         c.myClass = null;
-        c.myClass1 = "Test.MyClass1.myClass1";
         c = await d.opMyClass1(c);
         test(c.tesT == "Test.MyClass1.testT");
         test(c.myClass === null);
-        test(c.myClass1 == "Test.MyClass1.myClass1");
     }
 
     {

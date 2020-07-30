@@ -9,13 +9,13 @@ namespace ZeroC.Ice.Test.Invoke
 {
     public class AllTests
     {
-        private const string _testString = "This is a test string";
+        private const string TestString = "This is a test string";
 
-        public static IMyClassPrx allTests(TestHelper helper)
+        public static IMyClassPrx Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             IMyClassPrx oneway = cl.Clone(oneway: true);
 
             System.IO.TextWriter output = helper.GetWriter();
@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Invoke
                 TestHelper.Assert(response.ReplyStatus == ReplyStatus.UserException);
 
                 request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
-                    format: null, context: null, _testString, OutputStream.IceWriterFromString);
+                    format: null, context: null, TestString, OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
@@ -48,7 +48,7 @@ namespace ZeroC.Ice.Test.Invoke
                         string s2 = istr.ReadString();
                         return (s1, s2);
                     });
-                TestHelper.Assert(s1.Equals(_testString) && s2.Equals(_testString));
+                TestHelper.Assert(s1.Equals(TestString) && s2.Equals(TestString));
             }
 
             for (int i = 0; i < 2; ++i)
@@ -72,7 +72,7 @@ namespace ZeroC.Ice.Test.Invoke
                 {
                     // expected
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -88,30 +88,30 @@ namespace ZeroC.Ice.Test.Invoke
                 IncomingResponseFrame response;
                 try
                 {
-                    response = oneway.InvokeAsync(request, oneway: true).Result;
+                    response = oneway.InvokeAsync(request, oneway: true).AsTask().Result;
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
 
                 request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
-                    format: null, context: null, _testString, OutputStream.IceWriterFromString);
+                    format: null, context: null, TestString, OutputStream.IceWriterFromString);
 
-                response = cl.InvokeAsync(request).Result;
+                response = cl.InvokeAsync(request).AsTask().Result;
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
                         string s1 = istr.ReadString();
                         string s2 = istr.ReadString();
                         return (s1, s2);
                     });
-                TestHelper.Assert(s1.Equals(_testString));
-                TestHelper.Assert(s2.Equals(_testString));
+                TestHelper.Assert(s1.Equals(TestString));
+                TestHelper.Assert(s2.Equals(TestString));
             }
 
             {
                 var request = OutgoingRequestFrame.WithEmptyParamList(cl, "opException", idempotent: false);
-                IncomingResponseFrame response = cl.InvokeAsync(request).Result;
+                IncomingResponseFrame response = cl.InvokeAsync(request).AsTask().Result;
 
                 try
                 {
@@ -121,7 +121,7 @@ namespace ZeroC.Ice.Test.Invoke
                 catch (MyException)
                 {
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }

@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Admin
 {
     public class TestFacet : ITestFacet
     {
-        public void op(Current current)
+        public void Op(Current current)
         {
         }
     }
@@ -20,38 +20,35 @@ namespace ZeroC.Ice.Test.Admin
 
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
-        public IObjectPrx? getAdmin(Current current) => _communicator.GetAdmin();
+        public IObjectPrx? GetAdmin(Current current) => _communicator.GetAdmin();
 
-        public IReadOnlyDictionary<string, string> getChanges(Current current) =>
+        public IReadOnlyDictionary<string, string> GetChanges(Current current) =>
             new Dictionary<string, string>(_changes!);
 
-        public void print(string message, Current current) => _communicator.Logger.Print(message);
+        public void Print(string message, Current current) => _communicator.Logger.Print(message);
 
-        public void trace(string category, string message, Current current) =>
+        public void Trace(string category, string message, Current current) =>
             _communicator.Logger.Trace(category, message);
 
-        public void warning(string message, Current current) => _communicator.Logger.Warning(message);
+        public void Warning(string message, Current current) => _communicator.Logger.Warning(message);
 
-        public void error(string message, Current current) => _communicator.Logger.Error(message);
+        public void Error(string message, Current current) => _communicator.Logger.Error(message);
 
-        public void shutdown(Current current) => _ = _communicator.ShutdownAsync();
+        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
 
-        // Note that we are executing in a thread of the *main* communicator,
-        // not the one that is being shut down.
-        public void waitForShutdown(Current current) => _communicator.WaitForShutdownAsync().Wait();
+        // Note that we are executing in a thread of the *main* communicator, not the one that is being shut down.
+        public void WaitForShutdown(Current current) => _communicator.WaitForShutdownAsync().Wait();
 
-        public void destroy(Current current) => _communicator.Dispose();
+        public void Destroy(Current current) => _communicator.Dispose();
 
         public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }
 
     public class RemoteCommunicatorFactoryI : IRemoteCommunicatorFactory
     {
-        public IRemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Current current)
+        public IRemoteCommunicatorPrx CreateCommunicator(Dictionary<string, string> props, Current current)
         {
-            //
             // Prepare the property set using the given properties.
-            //
             ILogger? logger = null;
             if (props.TryGetValue("NullLogger", out string? value) &&
                 int.TryParse(value, out int nullLogger) && nullLogger > 0)
@@ -59,14 +56,13 @@ namespace ZeroC.Ice.Test.Admin
                 logger = new NullLogger();
             }
 
-            //
-            // Initialize a new communicator.
-            //
-            var communicator = new Communicator(props, logger: logger);
+            props.Add("Ice.Default.Protocol", current.Communicator.DefaultProtocol.GetName());
 
             //
+            // Initialize a new communicator.
+            var communicator = new Communicator(props, logger: logger);
+
             // Install a custom admin facet.
-            //
             try
             {
                 var testFacet = new TestFacet();
@@ -78,9 +74,8 @@ namespace ZeroC.Ice.Test.Admin
 
             // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
             var servant = new RemoteCommunicator(communicator);
-            var propFacet = communicator.FindAdminFacet("Properties");
 
-            if (propFacet is IPropertiesAdmin admin)
+            if (communicator.FindAdminFacet("Properties") is IPropertiesAdmin admin)
             {
                 admin.Updated += (_, updates) => servant.Updated(updates);
             }
@@ -88,7 +83,7 @@ namespace ZeroC.Ice.Test.Admin
             return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private class NullLogger : ILogger
         {

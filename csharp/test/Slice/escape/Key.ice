@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[preserve-case]]
+
 module ZeroC::Slice::Test::Escape
 {
 

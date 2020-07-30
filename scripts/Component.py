@@ -11,6 +11,7 @@ class Ice(Component):
     # Options for all transports (ran only with Ice client/server tests defined for cross testing)
     transportOptions = {
         "transport" : ["tcp", "ssl", "wss", "ws"],
+        "protocol" : ["ice1", "ice2"],
         "compress" : [False, True],
         "ipv6" : [False, True],
         "serialize" : [False, True],
@@ -20,6 +21,7 @@ class Ice(Component):
     # Options for Ice tests, run tests with ssl and ws/ipv6/serial/mx/compress
     coreOptions = {
         "transport" : ["ssl", "ws"],
+        "protocol" : ["ice1", "ice2"],
         "compress" : [False, True],
         "ipv6" : [False, True],
         "serialize" : [False, True],
@@ -29,6 +31,7 @@ class Ice(Component):
     # Options for Ice services, run tests with ssl + mx
     serviceOptions = {
         "transport" : ["ssl"],
+        "protocol" : ["ice1"],
         "compress" : [False],
         "ipv6" : [False],
         "serialize" : [False],
@@ -130,6 +133,11 @@ class Ice(Component):
             #
             if current.config.ipv6 and testId in ["Ice/udp"]:
                 return False
+
+        # Only IceGrid/Glacier2 tests don't support running with the ice2 protocol for now
+        # TODO: remove once ice2 is supported with all the mappings
+        if parent in ["IceGrid", "Glacier2"]:
+            return current.config.protocol == "ice1"
 
         return True
 

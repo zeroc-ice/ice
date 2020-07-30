@@ -12,14 +12,8 @@ namespace ZeroC.Ice
 {
     internal sealed class UdpTransceiver : ITransceiver
     {
-        internal System.Net.IPEndPoint? McastAddress { get; private set; } = null;
+        internal System.Net.IPEndPoint? McastAddress { get; private set; }
 
-        public Connection CreateConnection(
-            Endpoint endpoint,
-            IAcmMonitor? monitor,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) => new UdpConnection(endpoint, monitor, this, connector, connectionId, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -112,7 +106,7 @@ namespace ZeroC.Ice
             }
             _bound = true;
             Debug.Assert(_endpoint != null);
-            _endpoint = (UdpEndpoint)_endpoint.NewPort(EffectivePort());
+            _endpoint = (UdpEndpoint)_endpoint.Clone(EffectivePort());
             return _endpoint;
         }
 
@@ -693,7 +687,7 @@ namespace ZeroC.Ice
                 SetBufSize(-1, -1);
                 Network.SetBlock(_fd, false);
             }
-            catch (System.Exception)
+            catch
             {
                 if (_readEventArgs != null)
                 {
@@ -742,7 +736,7 @@ namespace ZeroC.Ice
                 //
                 if (sizeRequested == -1)
                 {
-                    sizeRequested = _communicator.GetPropertyAsInt(prop) ?? dfltSize;
+                    sizeRequested = _communicator.GetPropertyAsByteSize(prop) ?? dfltSize;
                 }
                 //
                 // Check for sanity.
@@ -830,11 +824,11 @@ namespace ZeroC.Ice
         private readonly Socket _fd;
         private System.Net.EndPoint _addr;
         private readonly System.Net.IPEndPoint? _sourceAddr;
-        private System.Net.EndPoint? _peerAddr = null;
-        private readonly string? _mcastInterface = null;
+        private System.Net.EndPoint? _peerAddr;
+        private readonly string? _mcastInterface;
 
-        private readonly int _port = 0;
-        private bool _bound = false;
+        private readonly int _port;
+        private bool _bound;
 
         private SocketAsyncEventArgs? _writeEventArgs;
         private readonly SocketAsyncEventArgs _readEventArgs;

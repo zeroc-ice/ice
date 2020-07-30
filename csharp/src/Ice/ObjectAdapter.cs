@@ -31,6 +31,10 @@ namespace ZeroC.Ice
         /// <value>The object adapter's name.</value>
         public string Name { get; }
 
+        /// <summary>Gets the protocol of this object adapter. The format of this object adapter's Endpoints property
+        /// determines this protocol.</summary>
+        public Protocol Protocol { get; }
+
         /// <summary>Indicates whether or not this object adapter serializes the dispatching of requests received
         /// over the same connection.</summary>
         /// <value>The serialize dispatch value.</value>
@@ -39,7 +43,7 @@ namespace ZeroC.Ice
         /// <summary>Returns the TaskScheduler used to dispatch requests.</summary>
         public TaskScheduler? TaskScheduler { get; }
 
-        internal int FrameSizeMax { get; }
+        internal int IncomingFrameSizeMax { get; }
 
         private static readonly string[] _suffixes =
         {
@@ -87,10 +91,10 @@ namespace ZeroC.Ice
             new Dictionary<IdentityPlusFacet, IObject>();
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
             new List<IncomingConnectionFactory>();
+        private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new object();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
-        private readonly Reference? _reference;
         private readonly string _replicaGroupId;
         private readonly RouterInfo? _routerInfo;
 
@@ -127,35 +131,29 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
-                _activateTask ??= PerformActivateAsync();
+
+                // Activate the incoming connection factories to start accepting connections
+                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    factory.Activate();
+                }
+
+                _activateTask ??= UpdateLocatorRegistryAsync(_locatorInfo,
+                                                             CreateDirectProxy(new Identity("dummy", ""),
+                                                             IObjectPrx.Factory));
             }
             await _activateTask.ConfigureAwait(false);
 
-            async Task PerformActivateAsync()
+            if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
             {
-                await UpdateLocatorRegistryAsync(_locatorInfo,
-                                                 CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory)).ConfigureAwait(false);
-
-                if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
-                {
-                    Console.Out.WriteLine($"{Name} ready");
-                }
-
-                lock (_mutex)
-                {
-                    foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                    {
-                        factory.Activate();
-                    }
-                }
+                Console.Out.WriteLine($"{Name} ready");
             }
         }
 
+        /// <summary>Releases resources used by the object adapter.</summary>
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
-        /// <summary>Destroys the object adapter and cleans up all resources held by the object adapter. DisposeAsync
-        /// first deactivate the object adapter (if needed).</summary>
+        /// <summary>Releases resources used by the object adapter.</summary>
         public async ValueTask DisposeAsync()
         {
             lock (_mutex)
@@ -166,25 +164,26 @@ namespace ZeroC.Ice
 
             async Task PerformDisposeAsync()
             {
+                // Synchronously Dispose of the incoming connection factories to stop accepting new incoming requests
+                // or connections. This ensures that once DisposeAsync returns, no new requests will be dispatched.
+                Task[] tasks =
+                    _incomingConnectionFactories.Select(factory => factory.DisposeAsync().AsTask()).ToArray();
+
                 // Wait for activation to complete. This is necessary avoid out of order locator updates.
                 if (_activateTask != null)
                 {
-                    await _activateTask.ConfigureAwait(false);
+                    try
+                    {
+                        await _activateTask.ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // Ignore
+                    }
                 }
 
-                Task[] tasks = _incomingConnectionFactories.Select(factory => factory.DestroyAsync()).ToArray();
-
-                // Note: the router/locator infos and incoming connection factory list are immutable at this point.
                 try
                 {
-                    if (_routerInfo != null)
-                    {
-                        // Remove entry from the router manager.
-                        Communicator.EraseRouterInfo(_routerInfo.Router);
-
-                        // Clear this object adapter with the router.
-                        _routerInfo.Adapter = null;
-                    }
 
                     await UpdateLocatorRegistryAsync(_locatorInfo, null).ConfigureAwait(false);
                 }
@@ -207,9 +206,11 @@ namespace ZeroC.Ice
                     await _directDispatchCompletionSource.Task.ConfigureAwait(false);
                 }
 
+                // Wait for the incoming connection factories to be disposed.
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
+                Communicator.EraseRouterInfo(_routerInfo?.Router);
                 Communicator.RemoveObjectAdapter(this);
             }
         }
@@ -236,10 +237,13 @@ namespace ZeroC.Ice
 
         /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
         /// servants currently in the ASM.</summary>
-        /// <param name="identity">The stringified identity of the Ice object.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <returns>The corresponding servant in the ASM, or null if the servant was not found.</returns>
-        public IObject? Find(string identity, string facet = "") => Find(Identity.Parse(identity), facet);
+        public IObject? Find(string identityAndFacet)
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            return Find(identity, facet);
+        }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and facet. Adding a servant with an identity and facet that are already in the ASM throws
@@ -292,24 +296,28 @@ namespace ZeroC.Ice
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and facet. Adding a servant with an identity and facet that are already in the ASM throws
         /// ArgumentException.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(string, string, ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(string,ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
-        public T Add<T>(string identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
+        public T Add<T>(string identityAndFacet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
-            => Add(Identity.Parse(identity), facet, servant, proxyFactory);
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            return Add(identity, facet, servant, proxyFactory);
+        }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and facet. Adding a servant with an identity and facet that are already in the ASM throws
         /// ArgumentException.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="servant">The servant to add.</param>
-        public void Add(string identity, string facet, IObject servant)
-            => Add(Identity.Parse(identity), facet, servant);
+        public void Add(string identityAndFacet, IObject servant)
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            Add(identity, facet, servant);
+        }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and the default (empty) facet.</summary>
@@ -319,8 +327,9 @@ namespace ZeroC.Ice
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
         /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
-        public T Add<T>(Identity identity, IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
-            => Add(identity, "", servant, proxyFactory);
+        public T Add<T>(Identity identity, IObject servant, ProxyFactory<T> proxyFactory)
+            where T : class, IObjectPrx =>
+            Add(identity, "", servant, proxyFactory);
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
         /// identity and the default (empty) facet.</summary>
@@ -328,22 +337,6 @@ namespace ZeroC.Ice
         /// be empty.</param>
         /// <param name="servant">The servant to add.</param>
         public void Add(Identity identity, IObject servant) => Add(identity, "", servant);
-
-        /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// identity and the default (empty) facet.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="servant">The servant to add.</param>
-        /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(string, ProxyFactory{T})"/>.</param>
-        /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
-        public T Add<T>(string identity, IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
-            => Add(identity, "", servant, proxyFactory);
-
-        /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
-        /// identity and the default (empty) facet.</summary>
-        /// <param name="identity">The stringified identity of the Ice object incarnated by this servant.</param>
-        /// <param name="servant">The servant to add.</param>
-        public void Add(string identity, IObject servant) => Add(identity, "", servant);
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key a unique identity
         /// and the provided facet. This method creates the unique identity with a UUID name and an empty category.
@@ -354,8 +347,8 @@ namespace ZeroC.Ice
         /// for this parameter. See <see cref="CreateProxy{T}(Identity, string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T AddWithUUID<T>(string facet, IObject servant, ProxyFactory<T> proxyFactory)
-            where T : class, IObjectPrx
-            => Add(new Identity(Guid.NewGuid().ToString(), ""), facet, servant, proxyFactory);
+            where T : class, IObjectPrx =>
+            Add(new Identity(Guid.NewGuid().ToString(), ""), facet, servant, proxyFactory);
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key a unique identity
         /// and the default (empty) facet. This method creates the unique identity with a UUID name and an empty
@@ -364,8 +357,8 @@ namespace ZeroC.Ice
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
         /// for this parameter. See <see cref="CreateProxy{T}(Identity, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
-        public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx
-            => AddWithUUID("", servant, proxyFactory);
+        public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx =>
+            AddWithUUID("", servant, proxyFactory);
 
         /// <summary>Removes a servant previously added to the Active Servant Map (ASM) using Add.</summary>
         /// <param name="identity">The identity of the Ice object.</param>
@@ -385,10 +378,13 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Removes a servant previously added to the Active Servant Map (ASM) using Add.</summary>
-        /// <param name="identity">The stringified identity of the Ice object.</param>
-        /// <param name="facet">The facet of the Ice object.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <returns>The servant that was just removed from the ASM, or null if the servant was not found.</returns>
-        public IObject? Remove(string identity, string facet = "") => Remove(Identity.Parse(identity), facet);
+        public IObject? Remove(string identityAndFacet)
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            return Remove(identity, facet);
+        }
 
         /// <summary>Adds a category-specific default servant to this object adapter's Active Servant Map (ASM), using
         /// as key the provided category and facet.</summary>
@@ -411,8 +407,8 @@ namespace ZeroC.Ice
         /// as key the provided category and the default (empty) facet.</summary>
         /// <param name="category">The object identity category.</param>
         /// <param name="servant">The default servant to add.</param>
-        public void AddDefaultForCategory(string category, IObject servant)
-            => AddDefaultForCategory(category, "", servant);
+        public void AddDefaultForCategory(string category, IObject servant) =>
+            AddDefaultForCategory(category, "", servant);
 
         /// <summary>Removes a category-specific default servant previously added to the Active Servant Map (ASM) using
         /// AddDefaultForCategory.</summary>
@@ -502,31 +498,22 @@ namespace ZeroC.Ice
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateProxy(identity, "", factory);
+        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            CreateProxy(identity, "", factory);
 
         /// <summary>Creates a proxy for the object with the given identity and facet. If this object adapter is
         /// configured with an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group
         /// id is also defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
         /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="facet">The facet.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateProxy<T>(string identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateProxy(Identity.Parse(identity), facet, factory);
-
-        /// <summary>Creates a proxy for the object with the given identity. If this object adapter is configured with
-        /// an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group id is also
-        /// defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
-        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateProxy(identity, "", factory);
+        public T CreateProxy<T>(string identityAndFacet, ProxyFactory<T> factory) where T : class, IObjectPrx
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            return CreateProxy(identity, facet, factory);
+        }
 
         /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
         /// contains this object adapter's published endpoints.</summary>
@@ -544,28 +531,21 @@ namespace ZeroC.Ice
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateDirectProxy(identity, "", factory);
+        public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            CreateDirectProxy(identity, "", factory);
 
         /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
         /// contains this object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="facet">The facet.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateDirectProxy<T>(string identity, string facet, ProxyFactory<T> factory)
+        public T CreateDirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
             where T : class, IObjectPrx
-            => CreateDirectProxy(Identity.Parse(identity), facet, factory);
-
-        /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
-        /// object adapter's published endpoints.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateDirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateDirectProxy(identity, "", factory);
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            return CreateDirectProxy(identity, facet, factory);
+        }
 
         /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
         /// <param name="identity">The object's identity.</param>
@@ -581,26 +561,20 @@ namespace ZeroC.Ice
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateIndirectProxy(identity, "", factory);
+        public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            CreateIndirectProxy(identity, "", factory);
 
         /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="facet">The facet.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateIndirectProxy<T>(string identity, string facet, ProxyFactory<T> factory)
+        public T CreateIndirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
             where T : class, IObjectPrx
-            => CreateIndirectProxy(Identity.Parse(identity), facet, factory);
-
-        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
-        /// <param name="identity">The stringified identity of the object.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => CreateIndirectProxy(identity, "", factory);
+        {
+            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
+            return CreateIndirectProxy(identity, facet, factory);
+        }
 
         /// <summary>Retrieves the endpoints configured with this object adapter.</summary>
         /// <returns>The endpoints.</returns>
@@ -608,7 +582,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return _incomingConnectionFactories.Select(factory => factory.Endpoint()).ToArray();
+                return _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).ToArray();
             }
         }
 
@@ -653,7 +627,7 @@ namespace ZeroC.Ice
                                                  CreateDirectProxy(new Identity("dummy", ""),
                                                  IObjectPrx.Factory));
             }
-            catch (Exception)
+            catch
             {
                 lock (_mutex)
                 {
@@ -725,7 +699,7 @@ namespace ZeroC.Ice
                                                  CreateDirectProxy(new Identity("dummy", ""),
                                                  IObjectPrx.Factory));
             }
-            catch (Exception)
+            catch
             {
                 lock (_mutex)
                 {
@@ -737,7 +711,11 @@ namespace ZeroC.Ice
         }
 
         // Called by Communicator
-        internal ObjectAdapter(Communicator communicator, string name, bool serializeDispatch, TaskScheduler? scheduler,
+        internal ObjectAdapter(
+            Communicator communicator,
+            string name,
+            bool serializeDispatch,
+            TaskScheduler? scheduler,
             IRouterPrx? router)
         {
             Communicator = communicator;
@@ -753,15 +731,15 @@ namespace ZeroC.Ice
             {
                 _id = "";
                 _replicaGroupId = "";
-                _reference = Reference.Parse("dummy -t", Communicator);
                 _acm = Communicator.ServerAcm;
+                Protocol = Communicator.DefaultProtocol;
                 return;
             }
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
             // Warn about unknown object adapter properties.
-            if (unknownProps.Count != 0 && (Communicator.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true))
+            if (unknownProps.Count != 0 && Communicator.WarnUnknownProperties)
             {
                 var message = new StringBuilder("found unknown properties for object adapter `");
                 message.Append(Name);
@@ -783,24 +761,10 @@ namespace ZeroC.Ice
             _id = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
             _replicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
-            // Setup a reference to be used to get the default proxy options when creating new proxies. By default,
-            // create twoway proxies.
-            string proxyOptions = Communicator.GetProperty($"{Name}.ProxyOptions") ?? "-t";
-            _reference = Reference.Parse($"dummy {proxyOptions}", Communicator);
-
             _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
-            {
-                int defaultFrameSizeMax = Communicator.FrameSizeMax / 1024;
-                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultFrameSizeMax;
-                if (num < 1 || num > 0x7fffffff / 1024)
-                {
-                    FrameSizeMax = 0x7fffffff;
-                }
-                else
-                {
-                    FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
-                }
-            }
+            int frameSizeMax =
+                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
+            IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
             try
             {
@@ -808,6 +772,7 @@ namespace ZeroC.Ice
 
                 if (router != null)
                 {
+                    Protocol = router.Protocol;
                     _routerInfo = Communicator.GetRouterInfo(router);
                     Debug.Assert(_routerInfo != null);
 
@@ -835,11 +800,31 @@ namespace ZeroC.Ice
                     // it, for example, to fill in the real port number.
                     if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
                     {
-                        endpoints = ParseEndpoints(value, true);
+                        if (UriParser.IsEndpointUri(value))
+                        {
+                            Protocol = Protocol.Ice2;
+                            endpoints = UriParser.ParseEndpoints(value, Communicator);
+                        }
+                        else
+                        {
+                            Protocol = Protocol.Ice1;
+                            endpoints = Ice1Parser.ParseEndpoints(value, communicator);
+                            _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
+                        }
 
+                        // TODO: Add support for QuicIncomingConnectionFactory and support for sharing the same
+                        // incoming connection for multiple TCP based ice2 transports such as tcp/ws.
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
-                                new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
+                                expanded.IsDatagram ? (IncomingConnectionFactory)
+                                    new DatagramIncomingConnectionFactory(this, expanded, publishedEndpoint) :
+                                    new TcpIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
+                    }
+                    else
+                    {
+                        // TODO: better fallback!
+                        Protocol = Communicator.DefaultProtocol;
+                        Debug.Assert(Protocol != default);
                     }
 
                     if (endpoints == null || endpoints.Count == 0)
@@ -958,95 +943,16 @@ namespace ZeroC.Ice
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
-                Debug.Assert(_reference != null);
+
                 return new Reference(adapterId: adapterId,
                                      communicator: Communicator,
-                                     encoding: _reference.Encoding,
+                                     encoding: Protocol.GetEncoding(),
                                      endpoints: adapterId.Length == 0 ? _publishedEndpoints : Array.Empty<Endpoint>(),
                                      facet: facet,
                                      identity: identity,
-                                     invocationMode: _reference.InvocationMode,
-                                     protocol: _reference.Protocol);
+                                     invocationMode: _invocationMode,
+                                     protocol: Protocol);
             }
-        }
-
-        private IReadOnlyList<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
-        {
-            int beg;
-            int end = 0;
-
-            string delim = " \t\n\r";
-
-            var endpoints = new List<Endpoint>();
-            while (end < endpts.Length)
-            {
-                beg = StringUtil.FindFirstNotOf(endpts, delim, end);
-                if (beg == -1)
-                {
-                    if (endpoints.Count != 0)
-                    {
-                        throw new FormatException("invalid empty object adapter endpoint");
-                    }
-                    break;
-                }
-
-                end = beg;
-                while (true)
-                {
-                    end = endpts.IndexOf(':', end);
-                    if (end == -1)
-                    {
-                        end = endpts.Length;
-                        break;
-                    }
-                    else
-                    {
-                        bool quoted = false;
-                        int quote = beg;
-                        while (true)
-                        {
-                            quote = endpts.IndexOf('\"', quote);
-                            if (quote == -1 || end < quote)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                quote = endpts.IndexOf('\"', ++quote);
-                                if (quote == -1)
-                                {
-                                    break;
-                                }
-                                else if (end < quote)
-                                {
-                                    quoted = true;
-                                    break;
-                                }
-                                ++quote;
-                            }
-                        }
-                        if (!quoted)
-                        {
-                            break;
-                        }
-                        ++end;
-                    }
-                }
-
-                if (end == beg)
-                {
-                    throw new FormatException("invalid empty object adapter endpoint");
-                }
-
-                string s = endpts[beg..end];
-
-                // TODO: the DefaultProtocol should not be used for endpoints. We need a separate property that
-                // controls the protocol(s) that an OA listens on.
-                endpoints.Add(Endpoint.Parse(s, Communicator.DefaultProtocol, Communicator, oaEndpoints));
-                ++end;
-            }
-
-            return endpoints;
         }
 
         private async Task<IReadOnlyList<Endpoint>> ComputePublishedEndpointsAsync()
@@ -1064,7 +970,24 @@ namespace ZeroC.Ice
                 // endpoints.
                 if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
                 {
-                    endpoints = ParseEndpoints(value, false);
+                    if (UriParser.IsEndpointUri(value))
+                    {
+                        if (Protocol == Protocol.Ice1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
+                        }
+                        endpoints = UriParser.ParseEndpoints(value, Communicator);
+                    }
+                    else
+                    {
+                        if (Protocol == Protocol.Ice2)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
+                        }
+                        endpoints = Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
+                    }
                 }
                 if (endpoints == null || endpoints.Count == 0)
                 {
@@ -1076,17 +999,38 @@ namespace ZeroC.Ice
                     // the same published endpoint.
 
                     endpoints = _incomingConnectionFactories.SelectMany(factory =>
-                        factory.Endpoint().ExpandIfWildcard()).Distinct().ToArray();
+                        factory.PublishedEndpoint.ExpandIfWildcard()).Distinct().ToArray();
                 }
             }
 
             if (Communicator.TraceLevels.Network >= 1 && endpoints.Count > 0)
             {
-                var s = new StringBuilder("published endpoints for object adapter `");
-                s.Append(Name);
-                s.Append("':\n");
-                s.Append(string.Join(":", endpoints));
-                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, s.ToString());
+                var sb = new StringBuilder("published endpoints for object adapter `");
+
+                if (Protocol == Protocol.Ice1)
+                {
+                    sb.Append(Name);
+                    sb.Append("':\n");
+                    sb.Append(string.Join(":", endpoints));
+                }
+                else
+                {
+                    sb.AppendEndpoint(endpoints[0]);
+                    if (endpoints.Count > 1)
+                    {
+                        Transport mainTransport = endpoints[0].Transport;
+                        sb.Append("?alt-endpoint=");
+                        for (int i = 1; i < endpoints.Count; ++i)
+                        {
+                            if (i > 1)
+                            {
+                                sb.Append(',');
+                            }
+                            sb.AppendEndpoint(endpoints[i], "", mainTransport != endpoints[i].Transport, '$');
+                        }
+                    }
+                }
+                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, sb.ToString());
             }
 
             return endpoints;

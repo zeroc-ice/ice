@@ -1817,20 +1817,16 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";
     s.myClass = 0;
-    s.myStruct1 = "Test::MyStruct1::myStruct1";
     s = d->opMyStruct1(s);
     test(s.tesT == "Test::MyStruct1::s");
     test(s.myClass == 0);
-    test(s.myStruct1 == "Test::MyStruct1::myStruct1");
 
     Test::MyClass1Ptr c = std::make_shared<Test::MyClass1>();
     c->tesT = "Test::MyClass1::testT";
     c->myClass = 0;
-    c->myClass1 = "Test::MyClass1::myClass1";
     c = d->opMyClass1(c);
     test(c->tesT == "Test::MyClass1::testT");
     test(c->myClass == 0);
-    test(c->myClass1 == "Test::MyClass1::myClass1");
 
     Test::StringS seq;
     p->opStringS1(seq);

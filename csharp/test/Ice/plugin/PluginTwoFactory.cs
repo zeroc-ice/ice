@@ -18,19 +18,21 @@ namespace ZeroC.Ice.Test.Plugin
 
             public override void Initialize()
             {
-                var other = (BasePlugin?)_communicator.GetPlugin("PluginOne");
+                var other = (BasePlugin?)Communicator.GetPlugin("PluginOne");
                 TestHelper.Assert(other != null);
-                _other = other;
-                TestHelper.Assert(_other.isInitialized());
-                _initialized = true;
+                Other = other;
+                TestHelper.Assert(Other.IsInitialized());
+                Initialized = true;
             }
 
-            public override ValueTask DisposeAsync()
+            public override async ValueTask DisposeAsync()
             {
-                _destroyed = true;
-                TestHelper.Assert(_other != null);
-                TestHelper.Assert(!_other.isDestroyed());
-                return new ValueTask(Task.CompletedTask);
+                if (!Destroyed)
+                {
+                    Destroyed = true;
+                    await base.DisposeAsync();
+                    TestHelper.Assert(Other != null);
+                }
             }
         }
     }

@@ -12,7 +12,10 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Ice.Communicator communicator = Initialize(ref args);
+            var properties = CreateTestProperties(ref args);
+            // TODO: see server
+            properties["Ice.Default.Protocol"] = "ice1";
+            await using Ice.Communicator communicator = Initialize(properties);
             int num;
             try
             {
@@ -22,7 +25,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             {
                 num = 0;
             }
-            AllTests.allTests(this, num);
+            AllTests.Run(this, num);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

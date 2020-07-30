@@ -16,12 +16,10 @@ namespace ZeroC.Ice.Test.Facets
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
             adapter.Add("d", d);
-            adapter.Add("d", "facetABCD", d);
-            var f = new F();
-            adapter.Add("d", "facetEF", f);
-            var h = new H(communicator);
-            adapter.Add("d", "facetGH", h);
-            AllTests.allTests(this);
+            adapter.Add("d#facetABCD", d);
+            adapter.Add("d#facetEF", new F());
+            adapter.Add("d#facetGH", new H(communicator));
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

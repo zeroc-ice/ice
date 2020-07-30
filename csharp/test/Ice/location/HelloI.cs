@@ -6,7 +6,7 @@ namespace ZeroC.Ice.Test.Location
 {
     public class Hello : IHello
     {
-        public void sayHello(Current current)
+        public void SayHello(Current current)
         {
         }
     }

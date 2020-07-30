@@ -13,14 +13,14 @@ namespace ZeroC.Ice.Test.Operations
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            var myClass = AllTests.allTests(this);
+            var myClass = AllTests.Run(this);
 
             Console.Out.Write("testing server shutdown... ");
             Console.Out.Flush();
-            myClass.shutdown();
+            await myClass.ShutdownAsync();
             try
             {
-                myClass.IcePing();
+                await myClass.IcePingAsync();
                 Assert(false);
             }
             catch
