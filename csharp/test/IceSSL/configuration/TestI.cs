@@ -80,7 +80,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 });
 
             bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
-            string host = communicator.GetProperty("Test.Host")!;
+            string host = TestHelper.GetTestHost(communicator.GetProperties());
 
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(
                 "ServerAdapter", ice1 ? $"ssl -h {host}" : $"ice+ssl://{host}:0");

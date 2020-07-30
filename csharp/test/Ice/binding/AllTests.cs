@@ -854,7 +854,7 @@ namespace ZeroC.Ice.Test.Binding
                 };
 
                 Func<string, string> getEndpoint = host =>
-                    TestHelper.GetTestEndpoint(new Dictionary<string, string>(communicator.GetProperties(""))
+                    TestHelper.GetTestEndpoint(new Dictionary<string, string>(communicator.GetProperties())
                     {
                         ["Test.Host"] = host
                     },

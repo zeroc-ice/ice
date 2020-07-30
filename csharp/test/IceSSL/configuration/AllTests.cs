@@ -86,7 +86,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
             var factory = IServerFactoryPrx.Parse(factoryRef, communicator);
 
-            string host = communicator.GetProperty("Test.Host")!;
+            string host = TestHelper.GetTestHost(communicator.GetProperties());
             string defaultDir = $"{testDir}/../certs";
             Dictionary<string, string> defaultProperties = communicator.GetProperties();
             defaultProperties["IceSSL.DefaultDir"] = defaultDir;

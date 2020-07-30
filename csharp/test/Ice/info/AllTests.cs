@@ -148,7 +148,7 @@ namespace ZeroC.Ice.Test.Info
                 testIntf = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             }
 
-            string defaultHost = communicator.GetProperty("Test.Host")!;
+            string defaultHost = helper.GetTestHost();
 
             output.Write("test connection endpoint information... ");
             output.Flush();
