@@ -15,6 +15,9 @@ namespace ZeroC.Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Dictionary<string, string>? Context { get; }
 
+        /// <summary>The encoding of the frame payload.</summary>
+        public Encoding Encoding { get; }
+
         /// <summary>The payload of this response frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; }
@@ -129,17 +132,51 @@ namespace ZeroC.Ice
         public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> payload)
         {
             Protocol = protocol;
+            Payload = payload;
 
             if (Protocol == Protocol.Ice1)
             {
-                byte replyStatus = payload[0];
+                byte replyStatus = Payload[0];
                 if (replyStatus > 7)
                 {
                     throw new InvalidDataException(
                         $"received ice1 response frame with unknown reply status `{replyStatus}'");
                 }
+
+                if (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException)
+                {
+                    int size;
+                    int sizeLength;
+
+                    (size, sizeLength, Encoding) =
+                        Payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Ice1Definitions.Encoding);
+
+                    if (1 + sizeLength + size != Payload.Count)
+                    {
+                        throw new InvalidDataException(
+                            $"{Payload.Count - 1 - sizeLength - size} extra bytes in ice1 response frame");
+                    }
+                }
+                else
+                {
+                    Encoding = Ice1Definitions.Encoding;
+                }
             }
-            Payload = payload;
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice2);
+                int size;
+                int sizeLength;
+
+                (size, sizeLength, Encoding) =
+                        Payload.AsReadOnlySpan().ReadEncapsulationHeader(Ice2Definitions.Encoding);
+
+                if (sizeLength + size != Payload.Count)
+                {
+                    throw new InvalidDataException(
+                        $"{Payload.Count - sizeLength - size} extra bytes in ice2 response frame");
+                }
+            }
         }
 
         private (InputStream Istr, ResponseType ResponseType) PrepareReadReturnValue(Communicator communicator)

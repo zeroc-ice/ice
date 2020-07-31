@@ -54,17 +54,15 @@ namespace ZeroC.Ice
             Context = istr.ReadContext();
             Payload = Data.Slice(istr.Pos);
             (int size, Encoding encoding) = istr.ReadEncapsulationHeader();
-            if (protocol == Protocol.Ice1 && size + 4 != Payload.Count)
+
+            if (protocol == Protocol.Ice1 && (4 + size != Payload.Count))
             {
-                // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
-                // "4" corresponds to fixed-length size with the 1.1 encoding.
-                throw new InvalidDataException($"invalid request encapsulation size: {size}");
+                throw new InvalidDataException(
+                    $"{Payload.Count - 4 - size} bytes left in incoming ice1 frame after encapsulation");
             }
-            else
-            {
-                // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
-                // TODO: read the compression status from the encapsulation data
-            }
+
+            // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
+            // TODO: read the compression status from the encapsulation data
             Encoding = encoding;
         }
 

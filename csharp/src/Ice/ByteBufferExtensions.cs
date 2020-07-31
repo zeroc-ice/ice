@@ -154,7 +154,7 @@ namespace ZeroC.Ice
         internal static ReadOnlySpan<T> AsReadOnlySpan<T>(this ArraySegment<T> segment, int start, int length) =>
             segment.AsSpan(start, length);
 
-        internal static (int Size, Encoding Encoding) ReadEncapsulationHeader(
+        internal static (int Size, int SizeLength, Encoding Encoding) ReadEncapsulationHeader(
             this ReadOnlySpan<byte> buffer,
             Encoding encoding)
         {
@@ -182,7 +182,7 @@ namespace ZeroC.Ice
                     $"the encapsulation's size ({size}) extends beyond the end of the buffer");
             }
 
-            return (size, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
+            return (size, sizeLength, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
         }
 
         internal static int ReadFixedLengthSize(this ReadOnlySpan<byte> buffer, Encoding encoding)

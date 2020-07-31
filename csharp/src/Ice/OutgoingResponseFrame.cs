@@ -105,28 +105,20 @@ namespace ZeroC.Ice
             {
                 if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
                 {
-                    // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes for an
-                    // empty encapsulation.
-                    if (payload.Count < 7)
-                    {
-                        throw new ArgumentException(
-                            $"{nameof(payload)} should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
-                            nameof(payload));
-                    }
-
-                    (int size, Encoding encapsEncoding) =
+                    (int size, int sizeLength, Encoding encapsEncoding) =
                         payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
-
-                    if (size + 4 + 1 != payload.Count) // 4 = size length with 1.1 encoding
-                    {
-                        throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count - 5}'",
-                            nameof(payload));
-                    }
 
                     if (encapsEncoding != Encoding)
                     {
-                        throw new ArgumentException(@$"the payload encoding `{encapsEncoding
-                            }' must be the same as the supplied encoding `{Encoding}'",
+                        throw new ArgumentException(@$"the encoding of the response payload (`{encapsEncoding
+                            }') must match the encoding of the request payload (`{Encoding}')",
+                            nameof(payload));
+                    }
+
+                    if (1 + sizeLength + size != Payload.Count)
+                    {
+                        throw new ArgumentException(
+                            $"{Payload.Count - 1 - sizeLength - size} extra bytes in response payload",
                             nameof(payload));
                     }
                 }
