@@ -38,12 +38,12 @@ struct ParamInfo
     std::string typeStr;
     bool tagged;
     int tag;
-    ParamDeclPtr param; // 0 == return value
+    DataMemberPtr param; // 0 == return value
     OperationPtr operation;
 
     ParamInfo(const OperationPtr& operation, const std::string& name, const TypePtr& type, bool readOnly,
         bool tagged, int tag, const std::string& prefix = "");
-    ParamInfo(const ParamDeclPtr& param, bool readOnly, const std::string& prefix = "");
+    ParamInfo(const DataMemberPtr& param, bool readOnly, const std::string& prefix = "");
 };
 
 bool normalizeCase(const ContainedPtr&);
@@ -58,7 +58,7 @@ std::string helperName(const TypePtr&, const std::string&);
 
 std::string builtinSuffix(const BuiltinPtr&);
 
-std::string returnValueName(const ParamDeclList&);
+std::string returnValueName(const DataMemberList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);
 
@@ -147,7 +147,7 @@ private:
         bool visitStructStart(const StructPtr&) override;
         void visitStructEnd(const StructPtr&) override;
         void visitOperation(const OperationPtr&) override;
-        void visitParamDecl(const ParamDeclPtr&) override;
+        void visitParameter(const DataMemberPtr&) override;
         void visitDataMember(const DataMemberPtr&) override;
         void visitSequence(const SequencePtr&) override;
         void visitDictionary(const DictionaryPtr&) override;

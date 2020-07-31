@@ -75,35 +75,6 @@ extern int slice__flex_debug;
 
 namespace
 {
-    DataMemberList
-    filterSortedTaggedDataMembers(const DataMemberList& members)
-    {
-        DataMemberList result;
-        for (const auto& member : members)
-        {
-            if (member->tagged())
-            {
-                result.push_back(member);
-            }
-        }
-
-        result.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        });
-        return result;
-    }
-
-    void
-    sortTaggedParameters(ParamDeclList& params)
-    {
-        // Sort tagged parameters by tag.
-        params.sort([](const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        });
-    }
-
     bool
     isMutableAfterReturnType(const TypePtr& type)
     {
@@ -1401,14 +1372,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second != namedThing)
         {
-            // Parameters are in their own scope.
-            if ((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) ||
-               (!ParamDeclPtr::dynamicCast(it->second) && ParamDeclPtr::dynamicCast(namedThing)))
-            {
-                return true;
-            }
-
-            // Data members are in their own scope.
+            // Data members and parameters are in their own scope.
             if ((DataMemberPtr::dynamicCast(it->second) && !DataMemberPtr::dynamicCast(namedThing)) ||
                (!DataMemberPtr::dynamicCast(it->second) && DataMemberPtr::dynamicCast(namedThing)))
             {
@@ -1650,6 +1614,125 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
         }
     }
     return true;
+}
+
+// ----------------------------------------------------------------------
+// DataMemberContainer
+// ----------------------------------------------------------------------
+
+void
+Slice::DataMemberContainer::destroy()
+{
+    _dataMembers.clear();
+    Container::destroy();
+}
+
+DataMemberPtr
+Slice::DataMemberContainer::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
+                                             const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
+                                             const string& defaultLiteral)
+{
+    _unit->checkType(type);
+    if (!checkForRedefinition(this, name,  "data member"))
+    {
+        return nullptr;
+    }
+  
+    // Check whether the data member has the same name as it's enclosing container.
+    const string typeName = this->kindOf();
+    if (name == this->name())
+    {
+        _unit->error("data member `" + name + "' cannot have the same name as its enclosing " + typeName);
+        _unit->note(this, typeName + " `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
+    if (ciequals(name, this->name()))
+    {
+        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing " + typeName +
+                     " named `" + this->name() + "'");
+        _unit->note(this, typeName + " `" + this->name() + "' is defined here");
+        return nullptr;
+    }
+
+    SyntaxTreeBasePtr dvt = defaultValueType;
+    string dv = defaultValue;
+    string dl = defaultLiteral;
+
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    {
+        // Validate the default value.
+        if (!validateConstant(name, type, dvt, dv, false))
+        {
+            // Create the data member anyway, just without the default value.
+            dvt = nullptr;
+            dv.clear();
+            dl.clear();
+        }
+    }
+
+    if (tagged)
+    {
+        // Validate the tag.
+        for (const auto& member : _dataMembers)
+        {
+            if (member->tagged() && tag == member->tag())
+            {
+                _unit->error("tag for data member `" + name + "' is already in use");
+                break;
+            }
+        }
+    }
+
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(member);
+    return member;
+}
+
+DataMemberList
+Slice::DataMemberContainer::dataMembers() const
+{
+    return _dataMembers;
+}
+
+pair<DataMemberList, DataMemberList>
+Slice::DataMemberContainer::sortedDataMembers() const
+{
+    return getSortedMembers(_dataMembers);
+}
+
+bool
+Slice::DataMemberContainer::hasDataMembers() const
+{
+    return !_dataMembers.empty();
+}
+
+bool
+Slice::DataMemberContainer::hasBaseDataMembers() const
+{
+    return false;
+}
+
+ContainedList
+Slice::DataMemberContainer::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
+    return result;
+}
+
+bool
+Slice::DataMemberContainer::uses(const ContainedPtr&) const
+{
+    // No uses() implementation here. DataMember has its own uses().
+    return false;
+}
+
+Slice::DataMemberContainer::DataMemberContainer(const ContainerPtr& container, const std::string& name) :
+    SyntaxTreeBase(container->unit()),
+    Container(container->unit()),
+    Contained(container, name)
+{
 }
 
 // ----------------------------------------------------------------------
@@ -2488,8 +2571,7 @@ Slice::ClassDef::destroy()
 {
     _declaration = nullptr;
     _base = nullptr;
-    _dataMembers.clear();
-    Container::destroy();
+    DataMemberContainer::destroy();
 }
 
 DataMemberPtr
@@ -2497,28 +2579,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                                   const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                   const string& defaultLiteral)
 {
-    _unit->checkType(type);
-    if (!checkForRedefinition(this, name,  "data member"))
-    {
-        return nullptr;
-    }
-
-    // Check whether enclosing class has the same name.
-    if (name == this->name())
-    {
-        _unit->error("data member `" + name + "' cannot have the same name as its enclosing class");
-        _unit->note(this, "class `" + this->name() + "' is defined here");
-        return nullptr;
-    }
-
-    if (ciequals(name, this->name()))
-    {
-        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing class named `"
-                     + this->name() + "'");
-        _unit->note(this, "class `" + this->name() + "' is defined here");
-        return nullptr;
-    }
-
     // Check whether any bases have defined something with the same name already.
     if (_base)
     {
@@ -2544,38 +2604,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         }
     }
 
-    SyntaxTreeBasePtr dvt = defaultValueType;
-    string dv = defaultValue;
-    string dl = defaultLiteral;
-
-    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
-    {
-        // Validate the default value.
-        if (!validateConstant(name, type, dvt, dv, false))
-        {
-            // Create the data member anyway, just without the default value.
-            dvt = nullptr;
-            dv.clear();
-            dl.clear();
-        }
-    }
-
-    if (tagged)
-    {
-        // Validate the tag.
-        for (const auto& member : _dataMembers)
-        {
-            if (member->tagged() && tag == member->tag())
-            {
-                _unit->error("tag for data member `" + name + "' is already in use");
-                break;
-            }
-        }
-    }
-
-    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
-    _dataMembers.push_back(member);
-    return member;
+    return DataMemberContainer::createDataMember(name, type, tagged, tag, defaultValueType, defaultValue,
+                                                 defaultLiteral);
 }
 
 ClassDeclPtr
@@ -2602,81 +2632,17 @@ Slice::ClassDef::allBases() const
     return result;
 }
 
-DataMemberList
-Slice::ClassDef::dataMembers() const
-{
-    return _dataMembers;
-}
-
-DataMemberList
-Slice::ClassDef::sortedTaggedDataMembers() const
-{
-    return filterSortedTaggedDataMembers(dataMembers());
-}
-
 // Return the data members of this class and its parent classes, in base-to-derived order.
 DataMemberList
 Slice::ClassDef::allDataMembers() const
 {
-    DataMemberList result;
-
+    DataMemberList result = _dataMembers;
     // Check if we have a base class. If so, recursively get the data members of the base(s).
     if (_base)
     {
-        result = _base->allDataMembers();
-    }
-
-    // Append this class's data members.
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-
-    return result;
-}
-
-DataMemberList
-Slice::ClassDef::classDataMembers() const
-{
-    DataMemberList result;
-    for (const auto& member : _dataMembers)
-    {
-        if (unwrapIfOptional(member->type())->isClassType())
-        {
-            result.push_back(member);
-        }
+        result.splice(result.begin(), _base->allDataMembers());
     }
     return result;
-}
-
-// Return the class data members of this class and its parent classes, in base-to-derived order.
-DataMemberList
-Slice::ClassDef::allClassDataMembers() const
-{
-    DataMemberList result;
-
-    if (_base)
-    {
-        result = _base->allClassDataMembers();
-    }
-
-    // Append this class's class members.
-    result.splice(result.end(), classDataMembers());
-    return result;
-}
-
-bool
-Slice::ClassDef::canBeCyclic() const
-{
-    if (_base && _base->canBeCyclic())
-    {
-        return true;
-    }
-    for (const auto& member : _dataMembers)
-    {
-        if (member->type()->usesClasses())
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool
@@ -2690,26 +2656,6 @@ Slice::ClassDef::isA(const string& id) const
 }
 
 bool
-Slice::ClassDef::hasDataMembers() const
-{
-    return !_dataMembers.empty();
-}
-
-bool
-Slice::ClassDef::hasDefaultValues() const
-{
-    for (const auto& member : _dataMembers)
-    {
-        if (member->defaultValueType())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::ClassDef::inheritsMetaData(const string& meta) const
 {
     return _base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta));
@@ -2719,21 +2665,6 @@ bool
 Slice::ClassDef::hasBaseDataMembers() const
 {
     return _base && !_base->allDataMembers().empty();
-}
-
-ContainedList
-Slice::ClassDef::contents() const
-{
-    ContainedList result;
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-    return result;
-}
-
-bool
-Slice::ClassDef::uses(const ContainedPtr&) const
-{
-    // No uses() implementation here.
-    return false;
 }
 
 string
@@ -2783,6 +2714,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
+    DataMemberContainer(container, name),
     _base(base),
     _compactId(id)
 {
@@ -3252,14 +3184,26 @@ Slice::Optional::usesClasses() const
     return _underlying->usesClasses();
 }
 
+bool
+Slice::Optional::isClassType() const
+{
+    return _underlying->isClassType();
+}
+
+bool
+Slice::Optional::isInterfaceType() const
+{
+    return _underlying->isInterfaceType();
+}
+
 size_t
 Slice::Optional::minWireSize() const
 {
-    if (_underlying->isClassType())
+    if (isClassType())
     {
         return 1;
     }
-    else if (_underlying->isInterfaceType())
+    else if (isInterfaceType())
     {
         return 2;
     }
@@ -3289,8 +3233,7 @@ void
 Slice::Exception::destroy()
 {
     _base = nullptr;
-    _dataMembers.clear();
-    Container::destroy();
+    DataMemberContainer::destroy();
 }
 
 DataMemberPtr
@@ -3298,32 +3241,10 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                                    const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                    const string& defaultLiteral)
 {
-    _unit->checkType(type);
-    if (!checkForRedefinition(this, name, "data member"))
+    if (_base)
     {
-        return nullptr;
-    }
-
-    // Check whether enclosing exception has the same name.
-    if (name == this->name())
-    {
-        _unit->error("data member `" + name + "' cannot have the same name as its enclosing exception");
-        _unit->note(this, "exception `" + this->name() + "' is defined here");
-        return nullptr;
-    }
-
-    if (ciequals(name, this->name()))
-    {
-        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing exception named `"
-                     + this->name() + "'");
-        _unit->note(this, "exception `" + this->name() + "' is defined here");
-        return nullptr;
-    }
-
-    // Check whether any bases have defined a member with the same name already.
-    for (const auto& base : allBases())
-    {
-        for (const auto& member : base->dataMembers())
+        // Check whether any bases have defined a member with the same name already.
+        for (const auto& member : _base->allDataMembers())
         {
             if (member->name() == name)
             {
@@ -3338,106 +3259,27 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             {
                 ExceptionPtr container = ExceptionPtr::dynamicCast(member->container());
                 _unit->error("data member `" + name + "' differs only in capitalization from the data member named `"
-                             + member->name() + "', which is defined in a base exception");
+                                + member->name() + "', which is defined in a base exception");
                 _unit->note(member, "data member `" + member->name() + "' is defined in the exception `"
                             + container->name() + "'");
             }
         }
     }
 
-    SyntaxTreeBasePtr dvt = defaultValueType;
-    string dv = defaultValue;
-    string dl = defaultLiteral;
-
-    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
-    {
-        // Validate the default value.
-        if (!validateConstant(name, type, dvt, dv, false))
-        {
-            // Create the data member anyway, just without the default value.
-            dvt = nullptr;
-            dv.clear();
-            dl.clear();
-        }
-    }
-
-    if (tagged)
-    {
-        // Validate the tag.
-        for (const auto& member : _dataMembers)
-        {
-            if (member->tagged() && tag == member->tag())
-            {
-                _unit->error("tag for data member `" + name + "' is already in use");
-                break;
-            }
-        }
-    }
-
-    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
-    _dataMembers.push_back(member);
-    return member;
-}
-
-DataMemberList
-Slice::Exception::dataMembers() const
-{
-    return _dataMembers;
-}
-
-DataMemberList
-Slice::Exception::sortedTaggedDataMembers() const
-{
-    return filterSortedTaggedDataMembers(dataMembers());
+    return DataMemberContainer::createDataMember(name, type, tagged, tag, defaultValueType, defaultValue,
+                                                 defaultLiteral);
 }
 
 // Return the data members of this exception and its parent exceptions, in base-to-derived order.
 DataMemberList
 Slice::Exception::allDataMembers() const
 {
-    DataMemberList result;
-
-    // Check if we have a base exception. If so, recursively
-    // get the data members of the base exception(s).
+    DataMemberList result = _dataMembers;
+    // Check if we have a base exception. If so, recursively get the data members of the base exception(s).
     if (_base)
     {
-        result = _base->allDataMembers();
+        result.splice(result.begin(), _base->allDataMembers());
     }
-
-    // Append this exceptions's data members.
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-
-    return result;
-}
-
-DataMemberList
-Slice::Exception::classDataMembers() const
-{
-    DataMemberList result;
-    for (const auto& member : _dataMembers)
-    {
-        if (unwrapIfOptional(member->type())->isClassType())
-        {
-            result.push_back(member);
-        }
-    }
-    return result;
-}
-
-// Return the class data members of this exception and its parent exceptions, in base-to-derived order.
-DataMemberList
-Slice::Exception::allClassDataMembers() const
-{
-    DataMemberList result;
-
-    // Check if we have a base exception. If so, recursively get the class data members of the base exception(s).
-    if (_base)
-    {
-        result = _base->allClassDataMembers();
-    }
-
-    // Append this exceptions's class data members.
-    result.splice(result.end(), classDataMembers());
     return result;
 }
 
@@ -3478,21 +3320,6 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
     return false;
 }
 
-ContainedList
-Slice::Exception::contents() const
-{
-    ContainedList result;
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-    return result;
-}
-
-bool
-Slice::Exception::uses(const ContainedPtr&) const
-{
-    // No uses() implementation here. DataMember has its own uses().
-    return false;
-}
-
 bool
 Slice::Exception::usesClasses(bool includeTagged) const
 {
@@ -3504,19 +3331,6 @@ Slice::Exception::usesClasses(bool includeTagged) const
         }
     }
     return (_base && _base->usesClasses(includeTagged));
-}
-
-bool
-Slice::Exception::hasDefaultValues() const
-{
-    for (const auto& member : _dataMembers)
-    {
-        if (member->defaultValueType())
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool
@@ -3557,6 +3371,7 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
+    DataMemberContainer(container, name),
     _base(base)
 {
 }
@@ -3565,40 +3380,11 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // Struct
 // ----------------------------------------------------------------------
 
-void
-Slice::Struct::destroy()
-{
-    _dataMembers.clear();
-    Container::destroy();
-}
-
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged,
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
                                 const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                 const string& defaultLiteral)
 {
-    _unit->checkType(type);
-    if (!checkForRedefinition(this, name, "data member"))
-    {
-        return nullptr;
-    }
-
-    // Check whether enclosing struct has the same name.
-    if (name == this->name())
-    {
-        _unit->error("data member `" + name + "' cannot have the same name as its enclosing struct");
-        _unit->note(this, "struct `" + this->name() + "' is defined here");
-        return nullptr;
-    }
-
-    if (ciequals(name, this->name()))
-    {
-        _unit->error("data member `" + name + "' differs only in capitalization from its enclosing struct named `"
-                     + this->name() + "'");
-        _unit->note(this, "struct `" + this->name() + "' is defined here");
-        return nullptr;
-    }
-
     // Structs cannot contain themselves.
     if (type.get() == this)
     {
@@ -3606,64 +3392,13 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
         return nullptr;
     }
 
-    SyntaxTreeBasePtr dvt = defaultValueType;
-    string dv = defaultValue;
-    string dl = defaultLiteral;
-
-    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
-    {
-        // Validate the default value.
-        if (!validateConstant(name, type, dvt, dv, false))
-        {
-            // Create the data member anyway, just without the default value.
-            dvt = nullptr;
-            dv.clear();
-            dl.clear();
-        }
-    }
-
     if (tagged)
     {
         _unit->error("tagged data members are not supported in structs");
     }
 
-    DataMemberPtr member = new DataMember(this, name, type, false, -1, dvt, dv, dl);
-    _dataMembers.push_back(member);
-    return member;
-}
-
-DataMemberList
-Slice::Struct::dataMembers() const
-{
-    return _dataMembers;
-}
-
-DataMemberList
-Slice::Struct::classDataMembers() const
-{
-    DataMemberList result;
-    for (const auto& member : _dataMembers)
-    {
-        if (unwrapIfOptional(member->type())->isClassType())
-        {
-            result.push_back(member);
-        }
-    }
-    return result;
-}
-
-ContainedList
-Slice::Struct::contents() const
-{
-    ContainedList result;
-    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
-    return result;
-}
-
-bool
-Slice::Struct::uses(const ContainedPtr&) const
-{
-    return false;
+    return DataMemberContainer::createDataMember(name, type, tagged, tag, defaultValueType, defaultValue,
+                                                 defaultLiteral);
 }
 
 bool
@@ -3710,19 +3445,6 @@ Slice::Struct::isVariableLength() const
     return false;
 }
 
-bool
-Slice::Struct::hasDefaultValues() const
-{
-    for (const auto& member : _dataMembers)
-    {
-        if (member->defaultValueType())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 string
 Slice::Struct::kindOf() const
 {
@@ -3754,8 +3476,9 @@ Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
 Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
+    DataMemberContainer(container, name),
+    Type(container->unit()),
     Constructed(container, name)
 {
 }
@@ -4381,7 +4104,7 @@ Slice::Operation::inBitSequenceSize() const
         {
             if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
-                if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+                if (!optional->isClassType() && !optional->isInterfaceType())
                 {
                     length++;
                 }
@@ -4401,7 +4124,7 @@ Slice::Operation::returnBitSequenceSize() const
         {
             if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
-                if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+                if (!optional->isClassType() && !optional->isInterfaceType())
                 {
                     length++;
                 }
@@ -4413,7 +4136,7 @@ Slice::Operation::returnBitSequenceSize() const
     {
         if (auto optional = OptionalPtr::dynamicCast(_returnType))
         {
-            if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+            if (!optional->isClassType() && !optional->isInterfaceType())
             {
                 length++;
             }
@@ -4490,8 +4213,8 @@ Slice::Operation::hasMarshaledResult() const
     return false;
 }
 
-ParamDeclPtr
-Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
+DataMemberPtr
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
 {
     _unit->checkType(type);
     if (!checkForRedefinition(this, name, "parameter"))
@@ -4505,6 +4228,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         _unit->error("`" + name + "': in parameters cannot follow out parameters");
     }
 
+    DataMemberList& params = isOutParam ? _outParameters : _inParameters;
     if (tagged)
     {
         // Check for a duplicate tag.
@@ -4515,7 +4239,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
         else
         {
-            ParamDeclList params = isOutParam ? _outParameters : _inParameters;
             for (const auto& param : params)
             {
                 if (param->tagged() && param->tag() == tag)
@@ -4526,50 +4249,30 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr param = new ParamDecl(this, name, type, isOutParam, tagged, tag);
-    (isOutParam ? _outParameters : _inParameters).push_back(param);
+    DataMemberPtr param = new DataMember(this, name, type, tagged, tag);
+    params.push_back(param);
     return param;
 }
 
-ParamDeclList
+DataMemberList
 Slice::Operation::parameters() const
 {
-    ParamDeclList result;
+    DataMemberList result;
     result.insert(result.end(), _inParameters.begin(), _inParameters.end());
     result.insert(result.end(), _outParameters.begin(), _outParameters.end());
     return result;
 }
 
-ParamDeclList
+DataMemberList
 Slice::Operation::inParameters() const
 {
     return _inParameters;
 }
 
-void
-Slice::Operation::inParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
-{
-    for (const auto& param : _inParameters)
-    {
-        (param->tagged() ? taggedParams : requiredParams).push_back(param);
-    }
-    sortTaggedParameters(taggedParams);
-}
-
-ParamDeclList
+DataMemberList
 Slice::Operation::outParameters() const
 {
     return _outParameters;
-}
-
-void
-Slice::Operation::outParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
-{
-    for (const auto& param : _outParameters)
-    {
-        (param->tagged() ? taggedParams : requiredParams).push_back(param);
-    }
-    sortTaggedParameters(taggedParams);
 }
 
 ExceptionList
@@ -4736,64 +4439,6 @@ Slice::Operation::Operation(const ContainerPtr& container,
 }
 
 // ----------------------------------------------------------------------
-// ParamDecl
-// ----------------------------------------------------------------------
-
-TypePtr
-Slice::ParamDecl::type() const
-{
-    return _type;
-}
-
-bool
-Slice::ParamDecl::isOutParam() const
-{
-    return _isOutParam;
-}
-
-bool
-Slice::ParamDecl::tagged() const
-{
-    return _tagged;
-}
-
-int
-Slice::ParamDecl::tag() const
-{
-    return _tag;
-}
-
-bool
-Slice::ParamDecl::uses(const ContainedPtr& contained) const
-{
-    ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    return (contained2 && contained2 == contained);
-}
-
-string
-Slice::ParamDecl::kindOf() const
-{
-    return "parameter";
-}
-
-void
-Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
-{
-    visitor->visitParamDecl(this);
-}
-
-Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam,
-                            bool tagged, int tag) :
-    SyntaxTreeBase(container->unit()),
-    Contained(container, name),
-    _type(type),
-    _isOutParam(isOutParam),
-    _tagged(tagged),
-    _tag(tag)
-{
-}
-
-// ----------------------------------------------------------------------
 // DataMember
 // ----------------------------------------------------------------------
 
@@ -4843,12 +4488,17 @@ Slice::DataMember::uses(const ContainedPtr& contained) const
 string
 Slice::DataMember::kindOf() const
 {
+    if (OperationPtr::dynamicCast(this->container()))
+    {
+        return "parameter";
+    }
     return "data member";
 }
 
 void
 Slice::DataMember::visit(ParserVisitor* visitor, bool)
 {
+    assert(!OperationPtr::dynamicCast(this->container())); // Ensure this isn't being called for a parameter.
     visitor->visitDataMember(this);
 }
 

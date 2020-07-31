@@ -27,7 +27,7 @@ struct ParamInfo
     std::string typeStr;
     bool isTagged;
     int tag;
-    ParamDeclPtr param; // 0 == return value
+    DataMemberPtr param; // 0 == return value
 };
 
 typedef std::list<ParamInfo> ParamInfoList;
@@ -69,7 +69,7 @@ protected:
     void writeServantDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
     void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
 
-    std::string paramLabel(const std::string&, const ParamDeclList&);
+    std::string paramLabel(const std::string&, const DataMemberList&);
     std::string operationReturnType(const OperationPtr&);
     bool operationReturnIsTuple(const OperationPtr&);
     std::string operationReturnDeclaration(const OperationPtr&);
@@ -100,9 +100,6 @@ protected:
     std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);
     std::string getTagFormat(const TypePtr&);
-    bool isClassType(const TypePtr&);
-
-    bool containsClassMembers(const StructPtr&);
 
     std::string getValue(const std::string&, const TypePtr&);
     void writeConstantValue(IceUtilInternal::Output& out, const TypePtr&, const SyntaxTreeBasePtr&,

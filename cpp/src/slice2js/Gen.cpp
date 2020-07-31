@@ -99,18 +99,16 @@ printHeader(IceUtilInternal::Output& out)
 }
 
 string
-escapeParam(const ParamDeclList& params, const string& name)
+escapeParam(const DataMemberList& params, const string& name)
 {
-    string r = name;
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        if(Slice::JsGenerator::fixId((*p)->name()) == name)
+        if(Slice::JsGenerator::fixId(param->name()) == name)
         {
-            r = name + "_";
-            break;
+            return name + "_";
         }
     }
-    return r;
+    return name;
 }
 
 void
@@ -250,7 +248,7 @@ void
 writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type,
                  const StringList& preParams = StringList(), const StringList& postParams = StringList())
 {
-    ParamDeclList params;
+    DataMemberList params;
     switch (type)
     {
     case OpDocInParams:
@@ -270,7 +268,7 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
     }
 
     map<string, StringList> paramDoc = doc->parameters();
-    for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    for (auto p = params.begin(); p != params.end(); ++p)
     {
         map<string, StringList>::iterator q = paramDoc.find((*p)->name());
         if(q != paramDoc.end())
@@ -375,36 +373,30 @@ Slice::JsVisitor::imports() const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& taggedMembers)
+Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers)
 {
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    const auto [required, tagged] = getSortedMembers(dataMembers);
+    for (const auto& member : required)
     {
-        if(!(*q)->tagged())
-        {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), true);
-        }
+        writeMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), true);
     }
-
-    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
+    for (const auto& member : tagged)
     {
-        writeTaggedMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), true);
+        writeTaggedMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), member->tag(), true);
     }
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& taggedMembers)
+Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers)
 {
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    const auto [required, tagged] = getSortedMembers(dataMembers);
+    for (const auto& member : required)
     {
-        if(!(*q)->tagged())
-        {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), false);
-        }
+        writeMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), false);
     }
-
-    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
+    for (const auto& member : tagged)
     {
-        writeTaggedMarshalUnmarshalCode(_out, (*q)->type(), "this." + fixId((*q)->name()), (*q)->tag(), false);
+        writeTaggedMarshalUnmarshalCode(_out, member->type(), "this." + fixId(member->name()), member->tag(), false);
     }
 }
 
@@ -1295,7 +1287,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1399,13 +1390,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp;
             _out << nl << "_iceWriteMemberImpl(ostr)";
             _out << sb;
-            writeMarshalDataMembers(dataMembers, taggedMembers);
+            writeMarshalDataMembers(dataMembers);
             _out << eb;
 
             _out << sp;
             _out << nl << "_iceReadMemberImpl(istr)";
             _out << sb;
-            writeUnmarshalDataMembers(dataMembers, taggedMembers);
+            writeUnmarshalDataMembers(dataMembers);
             _out << eb;
         }
     }
@@ -1539,20 +1530,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             OperationPtr op = *q;
             const string name = fixId(op->name());
-            const ParamDeclList paramList = op->parameters();
             const TypePtr ret = op->returnType();
-            ParamDeclList inParams, outParams;
-            for (ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if ((*pli)->isOutParam())
-                {
-                    outParams.push_back(*pli);
-                }
-                else
-                {
-                    inParams.push_back(*pli);
-                }
-            }
+            const DataMemberList inParams = op->inParameters();
+            const DataMemberList outParams = op->outParameters();
 
             //
             // Each operation descriptor is a property. The key is the "on-the-wire"
@@ -1603,7 +1583,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (ret)
             {
                 _out << '[' << encodeTypeForOperation(ret);
-                const bool isObj = isClassType(ret);
+                const bool isObj = ret->isClassType();
                 if (isObj)
                 {
                     _out << ", true";
@@ -1626,7 +1606,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (!inParams.empty())
             {
                 _out << '[';
-                for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
+                for (auto pli = inParams.begin(); pli != inParams.end(); ++pli)
                 {
                     if (pli != inParams.begin())
                     {
@@ -1634,7 +1614,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     TypePtr t = (*pli)->type();
                     _out << '[' << encodeTypeForOperation(t);
-                    const bool isObj = isClassType(t);
+                    const bool isObj = t->isClassType();
                     if (isObj)
                     {
                         _out << ", true";
@@ -1659,7 +1639,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (!outParams.empty())
             {
                 _out << '[';
-                for (ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
+                for (auto pli = outParams.begin(); pli != outParams.end(); ++pli)
                 {
                     if (pli != outParams.begin())
                     {
@@ -1667,7 +1647,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     TypePtr t = (*pli)->type();
                     _out << '[' << encodeTypeForOperation(t);
-                    const bool isObj = isClassType(t);
+                    const bool isObj = t->isClassType();
                     if (isObj)
                     {
                         _out << ", true";
@@ -1751,7 +1731,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sp;
     _out << nl << "Slice.defineSequence(" << scope << ", \"" << propertyName << "\", "
          << "\"" << getHelper(type) << "\"" << ", " << (fixed ? "true" : "false");
-    if(isClassType(type))
+    if(type->isClassType())
     {
         _out<< ", \"" << typeToString(type) << "\"";
     }
@@ -1777,7 +1757,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     vector<string> allParamNames;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
@@ -1788,9 +1767,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
-    if(p->base())
+    if (base)
     {
-        baseDataMembers = p->base()->allDataMembers();
+        baseDataMembers = base->allDataMembers();
         for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
             baseParamNames.push_back(fixId((*q)->name()));
@@ -1866,13 +1845,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "_writeMemberImpl(ostr)";
         _out << sb;
-        writeMarshalDataMembers(dataMembers, taggedMembers);
+        writeMarshalDataMembers(dataMembers);
         _out << eb;
 
         _out << sp;
         _out << nl << "_readMemberImpl(istr)";
         _out << sb;
-        writeUnmarshalDataMembers(dataMembers, taggedMembers);
+        writeUnmarshalDataMembers(dataMembers);
         _out << eb;
     }
 
@@ -1957,13 +1936,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sp;
     _out << nl << "_write(ostr)";
     _out << sb;
-    writeMarshalDataMembers(dataMembers, DataMemberList());
+    writeMarshalDataMembers(dataMembers);
     _out << eb;
 
     _out << sp;
     _out << nl << "_read(istr)";
     _out << sb;
-    writeUnmarshalDataMembers(dataMembers, DataMemberList());
+    writeUnmarshalDataMembers(dataMembers);
     _out << eb;
 
     _out << sp;
@@ -2021,7 +2000,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
          << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
-    if(isClassType(valueType))
+    if(valueType->isClassType())
     {
         _out << ", \"" << typeToString(valueType) << "\"";
     }
@@ -2318,13 +2297,10 @@ Slice::Gen::TypeScriptRequireVisitor::visitClassDefStart(const ClassDefPtr& p)
         addImport(ContainedPtr::dynamicCast(p->base()), p);
     }
 
-    //
     // Add imports required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport((*i)->type(), p);
+        addImport(member->type(), p);
     }
 
     return false;
@@ -2354,10 +2330,9 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
             addImport(ret, p);
         }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (const auto& param : (*i)->parameters())
         {
-            addImport((*j)->type(), p);
+            addImport(param->type(), p);
         }
     }
     return false;
@@ -2366,13 +2341,10 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
 bool
 Slice::Gen::TypeScriptRequireVisitor::visitStructStart(const StructPtr& p)
 {
-    //
     // Add imports required for data members
-    //
-    const DataMemberList dataMembers = p->dataMembers();
-    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (const auto& member : p->dataMembers())
     {
-        addImport((*i)->type(), p);
+        addImport(member->type(), p);
     }
     return false;
 }
@@ -2389,13 +2361,10 @@ Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
         addImport(ContainedPtr::dynamicCast(base), p);
     }
 
-    //
     // Add imports required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport((*i)->type(), p);
+        addImport(member->type(), p);
     }
     return false;
 }
@@ -2513,13 +2482,10 @@ Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
         addAlias(TypePtr::dynamicCast(p->base()->declaration()), module);
     }
 
-    //
     // Add alias required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        addAlias((*i)->type(), module);
+        addAlias(member->type(), module);
     }
 
     return false;
@@ -2550,10 +2516,9 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
             addAlias(ret, module);
         }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (const auto& param : (*i)->parameters())
         {
-            addAlias((*j)->type(), module);
+            addAlias(param->type(), module);
         }
     }
     return false;
@@ -2562,14 +2527,10 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 {
-    ModulePtr module = ModulePtr::dynamicCast(p->container());
-    //
     // Add alias required for data members
-    //
-    const DataMemberList dataMembers = p->dataMembers();
-    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (const auto& member : p->dataMembers())
     {
-        addAlias((*i)->type(), module);
+        addAlias(member->type(), ModulePtr::dynamicCast(p->container()));
     }
     return false;
 }
@@ -2587,13 +2548,10 @@ Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
         addAlias(base, module);
     }
 
-    //
     // Add alias required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        addAlias((*i)->type(), module);
+        addAlias(member->type(), module);
     }
     return false;
 }
@@ -2737,20 +2695,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
-        const ParamDeclList paramList = op->parameters();
+        const DataMemberList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        ParamDeclList inParams, outParams;
-        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
-        {
-            if ((*r)->isOutParam())
-            {
-                outParams.push_back(*r);
-            }
-            else
-            {
-                inParams.push_back(*r);
-            }
-        }
+        const DataMemberList inParams = op->inParameters();
+        const DataMemberList outParams = op->outParameters();
 
         const string contextParam = escapeParam(paramList, "context");
         CommentPtr comment = op->parseComment(false);
@@ -2764,12 +2712,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
         _out << nl << fixId((*q)->name()) << spar;
-        for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+        for (const auto& param : inParams)
         {
-            _out << (fixId((*r)->name()) +
-                     ((*r)->tagged() ? "?" : "") +
-                     ":" +
-                     typeToString((*r)->type(), p, imports(), true, false, true));
+            _out << (fixId(param->name()) + (param->tagged() ? "?" : "") + ":" +
+                     typeToString(param->type(), p, imports(), true, false, true));
         }
         _out << "context?:Map<string, string>";
         _out << epar;
@@ -2792,7 +2738,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << typeToString(ret, p, imports(), true, false, true) << ", ";
             }
 
-            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+            for (auto i = outParams.begin(); i != outParams.end();)
             {
                 _out << typeToString((*i)->type(), p, imports(), true, false, true);
                 if (++i != outParams.end())
@@ -2839,20 +2785,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
-        const ParamDeclList paramList = op->parameters();
+        const DataMemberList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        ParamDeclList inParams, outParams;
-        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
-        {
-            if ((*r)->isOutParam())
-            {
-                outParams.push_back(*r);
-            }
-            else
-            {
-                inParams.push_back(*r);
-            }
-        }
+        const DataMemberList inParams = op->inParameters();
+        const DataMemberList outParams = op->outParameters();
 
         const string currentParam = escapeParam(inParams, "current");
         CommentPtr comment = p->parseComment(false);
@@ -2867,9 +2803,9 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
         _out << nl << "abstract " << fixId((*q)->name()) << spar;
-        for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+        for (const auto& param : inParams)
         {
-            _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
+            _out << (fixId(param->name()) + ":" + typeToString(param->type(), p, imports(), true, false, true));
         }
         _out << ("current:" + iceProxyPrefix + getUnqualified("Ice.Current", p->scope(), iceProxyPrefix));
         _out << epar << ":";
@@ -2892,7 +2828,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 os << typeToString(ret, p, imports(), true, false, true) << ", ";
             }
 
-            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+            for (auto i = outParams.begin(); i != outParams.end();)
             {
                 os << typeToString((*i)->type(), p, imports(), true, false, true);
                 if (++i != outParams.end())

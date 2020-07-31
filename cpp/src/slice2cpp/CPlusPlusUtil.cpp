@@ -153,7 +153,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const st
 }
 
 void
-writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
+writeMarshalUnmarshalParams(Output& out, const DataMemberList& params, const OperationPtr& op, bool marshal,
                             bool prepend, const string& customStream = "", const string& retP = "",
                             const string& obj = "")
 {
@@ -166,39 +166,19 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     {
         stream = marshal ? "ostr" : "istr";
     }
+    string streamOp = marshal ? "->writeAll" : "->readAll";
 
-    //
+    const auto [requiredParams, taggedParams] = getSortedMembers(params);
+
     // Marshal required parameters.
-    //
-    ParamDeclList requiredParams;
-    ParamDeclList taggedParams;
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
-    {
-        if((*p)->tagged())
-        {
-            taggedParams.push_back(*p);
-        }
-        else
-        {
-            requiredParams.push_back(*p);
-        }
-    }
-
     if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsTagged()))
     {
         out << nl;
-        if(marshal)
-        {
-            out << stream << "->writeAll";
-        }
-        else
-        {
-            out << stream << "->readAll";
-        }
+        out << stream << streamOp;
         out << spar;
-        for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+        for(const auto& param : requiredParams)
         {
-            out << objPrefix + fixKwd(prefix + (*p)->name());
+            out << objPrefix + fixKwd(prefix + param->name());
         }
         if(op && op->returnType() && !op->returnIsTagged())
         {
@@ -207,49 +187,27 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         out << epar << ";";
     }
 
-    if(!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
+    if (!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
     {
-        //
-        // Sort tagged parameters by tag.
-        //
-        class SortFn
-        {
-        public:
-            static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
-            {
-                return lhs->tag() < rhs->tag();
-            }
-        };
-        taggedParams.sort(SortFn::compare);
-
         out << nl;
-        if(marshal)
-        {
-            out << stream << "->writeAll";
-        }
-        else
-        {
-            out << stream << "->readAll";
-        }
+        out << stream << streamOp;
         out << spar;
 
         {
-            //
             // Tags
-            //
             ostringstream os;
             os << '{';
             bool checkReturnType = op && op->returnIsTagged();
             bool insertComma = false;
-            for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
+            for (const auto& param : taggedParams)
             {
-                if(checkReturnType && op->returnTag() < (*p)->tag())
+                if(checkReturnType && op->returnTag() < param->tag())
                 {
                     os << (insertComma ? ", " : "") << op->returnTag();
                     checkReturnType = false;
                     insertComma = true;
                 }
-                os << (insertComma ? ", " : "") << (*p)->tag();
+                os << (insertComma ? ", " : "") << param->tag();
                 insertComma = true;
             }
             if(checkReturnType)
@@ -265,14 +223,14 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             // Parameters
             //
             bool checkReturnType = op && op->returnIsTagged();
-            for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
+            for (const auto& param : taggedParams)
             {
-                if(checkReturnType && op->returnTag() < (*p)->tag())
+                if(checkReturnType && op->returnTag() < param->tag())
                 {
                     out << objPrefix + returnValueS;
                     checkReturnType = false;
                 }
-                out << objPrefix + fixKwd(prefix + (*p)->name());
+                out << objPrefix + fixKwd(prefix + param->name());
             }
             if(checkReturnType)
             {
@@ -798,21 +756,21 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
+Slice::writeMarshalCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
                         const string& customStream, const string& retP)
 {
     writeMarshalUnmarshalParams(out, params, op, true, prepend, customStream, retP);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
+Slice::writeUnmarshalCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
                           const string& customStream, const string& retP, const string& obj)
 {
     writeMarshalUnmarshalParams(out, params, op, false, prepend, customStream, retP, obj);
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
+Slice::writeAllocateCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
                          const string& clScope, int typeCtx, const string& customRet)
 {
     string prefix = prepend ? paramPrefix : "";
@@ -822,10 +780,10 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
         returnValueS = "ret";
     }
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        writeParamAllocateCode(out, (*p)->type(), (*p)->tagged(), clScope, fixKwd(prefix + (*p)->name()),
-                               (*p)->getMetaData(), typeCtx);
+        writeParamAllocateCode(out, param->type(), param->tagged(), clScope, fixKwd(prefix + param->name()),
+                               param->getMetaData(), typeCtx);
     }
 
     if(op && op->returnType())
@@ -879,47 +837,20 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
 }
 
 void
-Slice::writeStreamHelpers(Output& out,
-                          const ContainedPtr& c,
-                          DataMemberList dataMembers,
-                          bool hasBaseDataMembers)
+Slice::writeStreamHelpers(Output& out, const DataMemberContainerPtr& cont)
 {
     // If c is a class/exception whose base class contains data members (recursively), then we need to generate
     // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
     // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
     // is not an issue for structs.
-    if(dataMembers.empty() && !hasBaseDataMembers)
+    bool hasBaseDataMembers = cont->hasBaseDataMembers();
+    if (!cont->hasDataMembers() && !hasBaseDataMembers)
     {
         return;
     }
 
-    DataMemberList requiredMembers;
-    DataMemberList taggedMembers;
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        if((*q)->tagged())
-        {
-            taggedMembers.push_back(*q);
-        }
-        else
-        {
-            requiredMembers.push_back(*q);
-        }
-    }
-
-    // Sort tagged data members
-    class SortFn
-    {
-    public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
-    };
-    taggedMembers.sort(SortFn::compare);
-
-    string scoped = c->scoped();
+    const auto [requiredMembers, taggedMembers] = cont->sortedDataMembers();
+    string scoped = cont->scoped();
     string fullName = fixKwd(scoped);
     string holder = "v.";
 
@@ -929,7 +860,7 @@ Slice::writeStreamHelpers(Output& out,
     // Only generate StreamWriter specializations if we are generating
     // with tagged data members and no base class data members
     //
-    if(!taggedMembers.empty() || hasBaseDataMembers)
+    if (!taggedMembers.empty() || hasBaseDataMembers)
     {
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter<" << fullName << ", S>";

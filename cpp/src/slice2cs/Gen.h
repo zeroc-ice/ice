@@ -28,9 +28,9 @@ public:
 protected:
 
     void writeMarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
-                            const std::string& stream = "ostr", const std::string& obj = "");
+                            bool, const std::string& stream = "ostr", const std::string& obj = "");
     void writeUnmarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
-                              const std::string& stream = "istr");
+                              bool, const std::string& stream = "istr");
 
     void writeMarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
     void writeUnmarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);

@@ -1285,22 +1285,21 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
 
     out << nl << "%";
     out << nl << "% Parameters:";
-    const ParamDeclList inParams = p->inParameters();
     string ctxName = "context";
     string resultName = "result";
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    for (const auto& param : p->inParameters())
     {
-        if((*q)->name() == "context")
+        if (param->name() == "context")
         {
             ctxName = "context_";
         }
-        if((*q)->name() == "result")
+        if (param->name() == "result")
         {
             resultName = "result_";
         }
 
-        out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-        map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+        out << nl << "%   " << fixIdent(param->name()) << " (" << typeToString(param->type()) << ")";
+        map<string, StringList>::const_iterator r = doc.params.find(param->name());
         if(r != doc.params.end() && !r->second.empty())
         {
             out << " - ";
@@ -1316,12 +1315,12 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
     }
     else
     {
-        const ParamDeclList outParams = p->outParameters();
+        const DataMemberList outParams = p->outParameters();
         if(p->returnType() || !outParams.empty())
         {
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            for (const auto& param : outParams)
             {
-                if((*q)->name() == "result")
+                if (param->name() == "result")
                 {
                     resultName = "result_";
                 }
@@ -1359,10 +1358,10 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
                         writeDocLines(out, doc.returns, false, "     ");
                     }
                 }
-                for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                for (const auto& param : outParams)
                 {
-                    out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-                    map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+                    out << nl << "%   " << fixIdent(param->name()) << " (" << typeToString(param->type()) << ")";
+                    map<string, StringList>::const_iterator r = doc.params.find(param->name());
                     if(r != doc.params.end() && !r->second.empty())
                     {
                         out << " - ";
@@ -1601,7 +1600,7 @@ private:
         bool isTagged;
         int tag;
         int pos; // Only used for out params
-        ParamDeclPtr param; // 0 == return value
+        DataMemberPtr param; // 0 == return value
     };
     typedef list<ParamInfo> ParamInfoList;
 
@@ -1861,22 +1860,19 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "methods(Access=protected)";
     out.inc();
 
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
 
     out << nl << "function iceWriteImpl(obj, os)";
     out.inc();
     out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false")
         << ");";
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& member : requiredMembers)
     {
-        if(!(*d)->tagged())
-        {
-            marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
-        }
+        marshal(out, "os", "obj." + fixIdent(member->name()), member->type(), false, 0);
     }
-    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    for (const auto& member : taggedMembers)
     {
-        marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+        marshal(out, "os", "obj." + fixIdent(member->name()), member->type(), true, member->tag());
     }
     out << nl << "os.endSlice();";
     if(base)
@@ -1888,30 +1884,26 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "function iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& member : requiredMembers)
     {
-        if(!(*d)->tagged())
+        if (isClass(member->type()))
         {
-            if(isClass((*d)->type()))
-            {
-                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
-            }
-            else
-            {
-                unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
-            }
-        }
-    }
-    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
-    {
-        if(isClass((*d)->type()))
-        {
-            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true,
-                      (*d)->tag());
+            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(member->name()), member->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+            unmarshal(out, "is", "obj." + fixIdent(member->name()), member->type(), false, 0);
+        }
+    }
+    for (const auto& member : taggedMembers)
+    {
+        if (isClass(member->type()))
+        {
+            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(member->name()), member->type(), true, member->tag());
+        }
+        else
+        {
+            unmarshal(out, "is", "obj." + fixIdent(member->name()), member->type(), true, member->tag());
         }
     }
     out << nl << "is.endSlice();";
@@ -1922,7 +1914,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    DataMemberList classMembers = p->classDataMembers();
+    const DataMemberList classMembers = getClassTypeMembers(members);
     if(!classMembers.empty())
     {
         //
@@ -2698,7 +2690,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
-    const DataMemberList classMembers = p->classDataMembers();
+    const DataMemberList classMembers = getClassTypeMembers(members);
     if(!classMembers.empty() || !convertMembers.empty() || (preserved && !basePreserved))
     {
         out << nl << "methods(Hidden=true)";
@@ -2750,34 +2742,31 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "function obj = iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
+    for (const auto& member : requiredMembers)
     {
-        string m = fixExceptionMember((*q)->name());
-        if(!(*q)->tagged())
-        {
-            if(isClass((*q)->type()))
-            {
-                out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-                unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), false, 0);
-            }
-            else
-            {
-                unmarshal(out, "is", "obj." + m, (*q)->type(), false, 0);
-            }
-        }
-    }
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
-    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
-    {
-        string m = fixExceptionMember((*q)->name());
-        if(isClass((*q)->type()))
+        string m = fixExceptionMember(member->name());
+        if(isClass(member->type()))
         {
             out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), true, (*q)->tag());
+            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", member->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", "obj." + m, (*q)->type(), true, (*q)->tag());
+            unmarshal(out, "is", "obj." + m, member->type(), false, 0);
+        }
+    }
+    for (const auto& member : taggedMembers)
+    {
+        string m = fixExceptionMember(member->name());
+        if(isClass(member->type()))
+        {
+            out << nl << "obj." << m << " = IceInternal.ValueHolder();";
+            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", member->type(), true, member->tag());
+        }
+        else
+        {
+            unmarshal(out, "is", "obj." + m, member->type(), true, member->tag());
         }
     }
     out << nl << "is.endSlice();";
@@ -2823,7 +2812,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     writeCopyright(out, p->file());
 
     const DataMemberList members = p->dataMembers();
-    const DataMemberList classMembers = p->classDataMembers();
+    const DataMemberList classMembers = getClassTypeMembers(members);
 
     out << nl << "classdef " << name;
 
@@ -3688,16 +3677,15 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 CodeVisitor::ParamInfoList
 CodeVisitor::getAllInParams(const OperationPtr& op)
 {
-    const ParamDeclList l = op->inParameters();
     ParamInfoList r;
-    for(ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (const auto& param : op->inParameters())
     {
         ParamInfo info;
-        info.fixedName = fixIdent((*p)->name());
-        info.type = (*p)->type();
-        info.isTagged = (*p)->tagged();
-        info.tag = (*p)->tag();
-        info.param = *p;
+        info.fixedName = fixIdent(param->name());
+        info.type = param->type();
+        info.isTagged = param->tagged();
+        info.tag = param->tag();
+        info.param = param;
         r.push_back(info);
     }
     return r;
@@ -3736,7 +3724,7 @@ CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& requiredParams, 
 CodeVisitor::ParamInfoList
 CodeVisitor::getAllOutParams(const OperationPtr& op)
 {
-    ParamDeclList params = op->outParameters();
+    DataMemberList params = op->outParameters();
     ParamInfoList l;
     int pos = 1;
 
@@ -3746,9 +3734,9 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         info.fixedName = "result";
         info.pos = pos++;
 
-        for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            if((*p)->name() == "result")
+            if (param->name() == "result")
             {
                 info.fixedName = "result_";
                 break;
@@ -3760,15 +3748,15 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         l.push_back(info);
     }
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
         ParamInfo info;
-        info.fixedName = fixIdent((*p)->name());
-        info.type = (*p)->type();
-        info.isTagged = (*p)->tagged();
-        info.tag = (*p)->tag();
+        info.fixedName = fixIdent(param->name());
+        info.type = param->type();
+        info.isTagged = param->tagged();
+        info.tag = param->tag();
         info.pos = pos++;
-        info.param = *p;
+        info.param = param;
         l.push_back(info);
     }
 

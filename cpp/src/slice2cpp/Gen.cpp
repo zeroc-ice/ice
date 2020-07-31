@@ -57,20 +57,18 @@ isConstexprType(const TypePtr& constType)
             }
         }
     }
-    else if(EnumPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) ||
+    else if (EnumPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) ||
         ClassDeclPtr::dynamicCast(type))
     {
         return true;
     }
     else
     {
-        StructPtr s = StructPtr::dynamicCast(type);
-        if(s)
+        if (StructPtr s = StructPtr::dynamicCast(type))
         {
-            DataMemberList members = s->dataMembers();
-            for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+            for (const auto& member : s->dataMembers())
             {
-                if(!isConstexprType((*i)->type()))
+                if (!isConstexprType(member->type()))
                 {
                     return false;
                 }
@@ -217,7 +215,7 @@ toDllMemberExport(const string& dllExport)
 }
 
 void
-writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const ParamDeclList& inParams,
+writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const DataMemberList& inParams,
                     const string& scope)
 {
     if(inParams.empty())
@@ -301,18 +299,16 @@ condMove(bool moveIt, const string& str)
 }
 
 string
-escapeParam(const ParamDeclList& params, const string& name)
+escapeParam(const DataMemberList& params, const string& name)
 {
-    string r = name;
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        if(fixKwd((*p)->name()) == name)
+        if (fixKwd(param->name()) == name)
         {
-            r = name + "_";
-            break;
+            return name + "_";
         }
     }
-    return r;
+    return name;
 }
 
 void
@@ -468,7 +464,7 @@ void
 writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type,
                  const StringList& preParams = StringList(), const StringList& postParams = StringList())
 {
-    ParamDeclList params;
+    DataMemberList params;
     switch(type)
     {
         case OpDocInParams:
@@ -488,9 +484,9 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
     }
 
     map<string, StringList> paramDoc = doc->parameters();
-    for(ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        map<string, StringList>::iterator q = paramDoc.find((*p)->name());
+        map<string, StringList>::iterator q = paramDoc.find(param->name());
         if(q != paramDoc.end())
         {
             out << nl << " * @param " << fixKwd(q->first) << " ";
@@ -586,7 +582,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret, p->returnIsTagged(), clScope, p->getMetaData(), useWstring);
 
-    ParamDeclList outParams = p->outParameters();
+    DataMemberList outParams = p->outParameters();
 
     if((outParams.size() > 1) || (ret && outParams.size() > 0))
     {
@@ -595,9 +591,9 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
         //
         string returnValueS = "returnValue";
 
-        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            if((*q)->name() == "returnValue")
+            if (param->name() == "returnValue")
             {
                 returnValueS = "_returnValue";
             }
@@ -623,16 +619,16 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
             }
             H << nl << retS << " " << returnValueS << ";";
         }
-        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            string typeString = typeToString((*q)->type(), (*q)->tagged(), clScope, (*q)->getMetaData(), useWstring);
+            string typeString = typeToString(param->type(), param->tagged(), clScope, param->getMetaData(), useWstring);
 
-            map<string, StringList>::iterator r = paramComments.find((*q)->name());
+            map<string, StringList>::iterator r = paramComments.find(param->name());
             if(r != paramComments.end())
             {
                 H << nl << "/** " << getDocSentence(r->second) << " */";
             }
-            H << nl << typeString << " " << fixKwd((*q)->name()) << ";";
+            H << nl << typeString << " " << fixKwd(param->name()) << ";";
         }
         H << eb << ";";
     }
@@ -1275,11 +1271,10 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     p->setMetaData(metaData);
 
-    ParamDeclList params = p->parameters();
-    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    for (auto& param : p->parameters())
     {
-        metaData = validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), true);
-        (*q)->setMetaData(metaData);
+        metaData = validate(param->type(), param->getMetaData(), p->file(), param->line(), true);
+        param->setMetaData(metaData);
     }
 }
 
@@ -1627,51 +1622,22 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
-    ExceptionPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList baseDataMembers;
+    const ExceptionPtr base = p->base();
+    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
+    const DataMemberList baseDataMembers = base ? base->allDataMembers() : DataMemberList();
 
-    vector<string> params;
-    vector<string> allParamDecls;
-    vector<string> baseParams;
+    vector<string> allParameters;
     map<string, CommentPtr> allComments;
 
-    string fileParam = "file";
-    string lineParam = "line";
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        params.push_back(fixKwd((*q)->name()));
-    }
+        string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getMetaData(), _useWstring);
+        allParameters.push_back(typeName + " " + fixKwd(member->name()));
 
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-    {
-        string typeName = inputTypeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetaData(), _useWstring);
-        allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
-
-        CommentPtr comment = (*q)->parseComment(false);
-        if(comment)
+        if (CommentPtr comment = member->parseComment(false))
         {
-            allComments[(*q)->name()] = comment;
-        }
-
-        if((*q)->name() == "file")
-        {
-            fileParam = "file_";
-        }
-        else if((*q)->name() == "line")
-        {
-            fileParam = "line_";
-        }
-    }
-
-    if(base)
-    {
-        baseDataMembers = base->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
-        {
-            baseParams.push_back(fixKwd((*q)->name()));
+            allComments[member->name()] = comment;
         }
     }
 
@@ -1718,9 +1684,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << " */";
         H << nl << name << "(";
 
-        for(vector<string>::const_iterator q = allParamDecls.begin(); q != allParamDecls.end(); ++q)
+        for(vector<string>::const_iterator q = allParameters.begin(); q != allParameters.end(); ++q)
         {
-            if(q != allParamDecls.begin())
+            if(q != allParameters.begin())
             {
                 H << ", ";
             }
@@ -1781,7 +1747,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains a tuple containing all of the exception's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, p->allDataMembers(), _useWstring);
+    writeIceTuple(H, allDataMembers, _useWstring);
 
     H << sp;
     H << nl << "/**";
@@ -2182,9 +2148,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> futureOutParams;
     vector<string> lambdaOutParams;
 
-    ParamDeclList paramList = p->parameters();
-    ParamDeclList inParams = p->inParameters();
-    ParamDeclList outParams = p->outParameters();
+    DataMemberList paramList = p->parameters();
+    DataMemberList inParams = p->inParameters();
+    DataMemberList outParams = p->outParameters();
 
     string returnValueS = "returnValue";
     bool hasTaggedOutParams = false;
@@ -2202,42 +2168,39 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         hasTaggedOutParams |= p->returnIsTagged();
     }
 
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    for (const auto& inParam : inParams)
     {
-        string paramName = fixKwd((*q)->name());
-        StringList metaData = (*q)->getMetaData();
+        string paramName = fixKwd(inParam->name());
+        string typeString = inputTypeToString(inParam->type(), inParam->tagged(), clScope, inParam->getMetaData(),
+                                              _useWstring);
 
-        if((*q)->isOutParam())
+        params.push_back(typeString);
+        paramsDecl.push_back(typeString + ' ' + paramName);
+
+        inParamsS.push_back(typeString);
+        inParamsDecl.push_back(typeString + ' ' + paramName);
+        inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + inParam->name());
+    }
+
+    for (const auto& outParam : outParams)
+    {
+        StringList metaData = outParam->getMetaData();
+
+        // Use empty scope to get full qualified names in types used with future declarations.
+        futureOutParams.push_back(typeToString(outParam->type(), outParam->tagged(), "", metaData, _useWstring));
+        lambdaOutParams.push_back(typeToString(outParam->type(), outParam->tagged(), "", metaData,
+                                               _useWstring | TypeContextInParam));
+        string outputTypeString = outputTypeToString(outParam->type(), outParam->tagged(), clScope, metaData,
+                                                     _useWstring);
+
+        params.push_back(outputTypeString);
+        paramsDecl.push_back(outputTypeString + ' ' + fixKwd(outParam->name()));
+
+        hasTaggedOutParams |= outParam->tagged();
+
+        if (outParam->name() == "returnValue")
         {
-            //
-            // Use empty scope to get full qualified names in types used with future declarations.
-            //
-            futureOutParams.push_back(typeToString((*q)->type(), (*q)->tagged(), "", metaData, _useWstring));
-            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->tagged(), "", metaData,
-                                                   _useWstring | TypeContextInParam));
-
-            string outputTypeString = outputTypeToString((*q)->type(), (*q)->tagged(), clScope, metaData, _useWstring);
-
-            params.push_back(outputTypeString);
-            paramsDecl.push_back(outputTypeString + ' ' + paramName);
-
-            hasTaggedOutParams |= (*q)->tagged();
-
-            if((*q)->name() == "returnValue")
-            {
-                returnValueS = "_returnValue";
-            }
-        }
-        else
-        {
-            string typeString = inputTypeToString((*q)->type(), (*q)->tagged(), clScope, metaData, _useWstring);
-
-            params.push_back(typeString);
-            paramsDecl.push_back(typeString + ' ' + paramName);
-
-            inParamsS.push_back(typeString);
-            inParamsDecl.push_back(typeString + ' ' + paramName);
-            inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + (*q)->name());
+            returnValueS = "_returnValue";
         }
     }
 
@@ -2299,17 +2262,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << "_makePromiseOutgoing<" << futureT << ">";
 
     H << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    for (const auto& param : inParams)
     {
-        H << fixKwd((*q)->name());
+        H << fixKwd(param->name());
     }
     H << contextParam << epar << ".get();";
     if(futureOutParams.size() > 1)
     {
-        for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            H << nl << fixKwd((*q)->name()) << " = ";
-            H << condMove(isMovable((*q)->type()), "_result." + fixKwd((*q)->name())) + ";";
+            H << nl << fixKwd(param->name()) << " = ";
+            H << condMove(isMovable(param->type()), "_result." + fixKwd(param->name())) + ";";
         }
         if(ret)
         {
@@ -2339,9 +2302,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << "return _makePromiseOutgoing<" << futureT << ", P>" << spar;
 
     H << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    for (const auto& param : inParams)
     {
-        H << fixKwd((*q)->name());
+        H << fixKwd(param->name());
     }
     H << contextParam << epar << ";";
     H << eb;
@@ -2376,7 +2339,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.useCurrentPosAsIndent();
     if(!inParamsDecl.empty())
     {
-        for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
+        for(auto q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
         {
             if(q != inParamsDecl.begin())
             {
@@ -2447,9 +2410,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << "ret";
         }
-        for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            C << fixKwd(paramPrefix + (*q)->name());
+            C << fixKwd(paramPrefix + param->name());
         }
         C << epar << ";";
         C << eb;
@@ -2494,9 +2457,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             {
                 H << condMove(isMovable(ret), string("_result.") + returnValueS);
             }
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            for (const auto& param : outParams)
             {
-                H << condMove(isMovable((*q)->type()), "_result." + fixKwd((*q)->name()));
+                H << condMove(isMovable(param->type()), "_result." + fixKwd(param->name()));
             }
             H << epar << ";" << eb << ";";
         }
@@ -2508,9 +2471,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
           << "std::move(" + sentParam + ")"
           << "this";
         H << string("&" + getUnqualified(scoped, clScope.substr(2)) + "_iceI_" + name);
-        for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (const auto& param : inParams)
         {
-            H << fixKwd((*q)->name());
+            H << fixKwd(param->name());
         }
         H << contextParam << epar << ";";
         H << eb;
@@ -3001,9 +2964,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(interface->scope() + interface->name() + "::");
     string scoped = fixKwd(interface->scope() + interface->name() + "::" + p->name());
 
-    ParamDeclList inParams = p->inParameters();
-    ParamDeclList outParams = p->outParameters();
-    ParamDeclList paramList = p->parameters();
+    DataMemberList inParams = p->inParameters();
+    DataMemberList outParams = p->outParameters();
+    DataMemberList paramList = p->parameters();
 
     const bool amd = (interface->hasMetaData("amd") || p->hasMetaData("amd"));
 
@@ -3038,37 +3001,34 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         retS = returnTypeToString(ret, p->returnIsTagged(), interfaceScope, p->getMetaData(), _useWstring);
     }
 
-    for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
+    for (const auto& inParam : inParams)
     {
-        TypePtr type = (*q)->type();
-        string paramName = fixKwd((*q)->name());
-        bool isOutParam = (*q)->isOutParam();
-        string typeString;
-        int typeCtx = _useWstring;
-
-        if(!isOutParam)
-        {
-            params.push_back(typeToString(type, (*q)->tagged(), interfaceScope, (*q)->getMetaData(),
-                                          typeCtx | TypeContextInParam) + " " + paramName);
-            args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + (*q)->name()));
-        }
-        else
-        {
-            if(!p->hasMarshaledResult() && !amd)
-            {
-                params.push_back(
-                    outputTypeToString(type, (*q)->tagged(), interfaceScope, (*q)->getMetaData(), typeCtx) + " " +
-                    paramName);
-                args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + (*q)->name()));
-            }
-
-            string responseTypeS = inputTypeToString((*q)->type(), (*q)->tagged(), interfaceScope, (*q)->getMetaData(),
-                                                     typeCtx);
-            responseParams.push_back(responseTypeS + " " + paramName);
-            responseParamsDecl.push_back(responseTypeS + " " + paramPrefix + (*q)->name());
-            responseParamsImplDecl.push_back(responseTypeS + " " + paramPrefix + (*q)->name());
-        }
+        TypePtr type = inParam->type();
+        string paramName = fixKwd(inParam->name());
+        params.push_back(typeToString(type, inParam->tagged(), interfaceScope, inParam->getMetaData(),
+                                      _useWstring | TypeContextInParam) + " " + paramName);
+        args.push_back(condMove(isMovable(type), paramPrefix + inParam->name()));
     }
+
+    for (const auto& outParam : outParams)
+    {
+        TypePtr type = outParam->type();
+        string paramName = fixKwd(outParam->name());
+
+        if(!p->hasMarshaledResult() && !amd)
+        {
+            params.push_back(outputTypeToString(type, outParam->tagged(), interfaceScope, outParam->getMetaData(),
+                                                _useWstring) + " " + paramName);
+            args.push_back(paramPrefix + outParam->name());
+        }
+
+        string responseTypeS = inputTypeToString(outParam->type(), outParam->tagged(), interfaceScope,
+                                                    outParam->getMetaData(), _useWstring);
+        responseParams.push_back(responseTypeS + " " + paramName);
+        responseParamsDecl.push_back(responseTypeS + " " + paramPrefix + outParam->name());
+        responseParamsImplDecl.push_back(responseTypeS + " " + paramPrefix + outParam->name());
+    }
+
     if(amd)
     {
         if(p->hasMarshaledResult())
@@ -3114,9 +3074,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             paramComments = comment->parameters();
         }
         const string mrcurrent = escapeParam(outParams, "current");
-        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            map<string, StringList>::iterator r = paramComments.find((*q)->name());
+            map<string, StringList>::iterator r = paramComments.find(param->name());
             if(r != paramComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second);
@@ -3312,8 +3272,6 @@ Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
     ClassDefPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
 
     H << sp;
     writeDocSummary(H, p);
@@ -3340,13 +3298,6 @@ Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
     C << eb;
-
-    vector<string> params;
-
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        params.push_back(fixKwd((*q)->name()));
-    }
 
     H << sp << nl << name << "() = default;";
 
@@ -3537,16 +3488,16 @@ bool
 Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& derived, const ClassDefPtr& base)
 {
     const string scope = fixKwd(derived->scope());
-    DataMemberList allDataMembers = base->allDataMembers();
-    if(allDataMembers.empty())
+    DataMemberList allBaseDataMembers = base->allDataMembers();
+    if(allBaseDataMembers.empty())
     {
         return false;
     }
 
     string upcall = "(";
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
-        if(q != allDataMembers.begin())
+        if(q != allBaseDataMembers.begin())
         {
             upcall += ", ";
         }
@@ -3718,7 +3669,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers(), false);
+    writeStreamHelpers(H, p);
 
     return false;
 }
@@ -3726,14 +3677,14 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    writeStreamHelpers(H,c, c->dataMembers(), c->hasBaseDataMembers());
+    writeStreamHelpers(H, c);
     return false;
 }
 
 void
 Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    writeStreamHelpers(H,p, p->dataMembers(), p->hasBaseDataMembers());
+    writeStreamHelpers(H, p);
 }
 
 void
@@ -3948,20 +3899,8 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             scoped + "::" + resultStructName(opName, "", true) :
             returnTypeToString(ret, op->returnIsTagged(), "", op->getMetaData(), _useWstring);
 
-        ParamDeclList params = op->parameters();
-        ParamDeclList outParams;
-        ParamDeclList inParams;
-        for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
-        {
-            if((*q)->isOutParam())
-            {
-                outParams.push_back(*q);
-            }
-            else
-            {
-                inParams.push_back(*q);
-            }
-        }
+        DataMemberList inParams = op->inParameters();
+        DataMemberList outParams = op->outParameters();
 
         if(p->hasMetaData("amd") || op->hasMetaData("amd"))
         {
@@ -3969,10 +3908,10 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             H << sp << nl << "virtual void " << opName << "Async(";
             H.useCurrentPosAsIndent();
-            for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+            for (const auto& param : inParams)
             {
-                H << typeToString((*q)->type(), (*q)->tagged(), scope,
-                                  (*q)->getMetaData(), _useWstring | TypeContextInParam)
+                H << typeToString(param->type(), param->tagged(), scope,
+                                  param->getMetaData(), _useWstring | TypeContextInParam)
                   << "," << nl;
             }
 
@@ -3991,7 +3930,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                 }
 
-                for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+                for(auto q = outParams.begin(); q != outParams.end(); ++q)
                 {
                     if(q != outParams.begin())
                     {
@@ -4011,11 +3950,11 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             C << sp << nl << "void" << nl << scope << name << "I::" << opName << "Async(";
             C.useCurrentPosAsIndent();
-            for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+            for (const auto& param : inParams)
             {
-                C << typeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetaData(),
+                C << typeToString(param->type(), param->tagged(), scope, param->getMetaData(),
                                   _useWstring | TypeContextInParam);
-                C << ' ' << fixKwd((*q)->name()) << "," << nl;
+                C << ' ' << fixKwd(param->name()) << "," << nl;
             }
 
             C << "std::function<void(" << responseParams << ")> " << opName << "_response,";
@@ -4034,9 +3973,9 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 C << defaultValue(ret, scope, op->getMetaData());
             }
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            for (const auto& param : outParams)
             {
-                C << defaultValue((*q)->type(), scope, op->getMetaData());
+                C << defaultValue(param->type(), scope, op->getMetaData());
             }
 
             if(op->hasMarshaledResult())
@@ -4054,31 +3993,22 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             H << sp << nl << "virtual " << getUnqualified(retS, scope) << ' ' << fixKwd(opName) << '(';
             H.useCurrentPosAsIndent();
-            ParamDeclList paramList = op->hasMarshaledResult() ? inParams : op->parameters();
-            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+
+            for (const auto& param : inParams)
             {
-                if(q != paramList.begin())
+                H << typeToString(param->type(), param->tagged(), scope, param->getMetaData(),
+                                  _useWstring | TypeContextInParam)
+                << ',' << nl;
+            }
+            if (!op->hasMarshaledResult())
+            {
+                for (const auto& param : outParams)
                 {
-                    H << ',' << nl;
+                    H << outputTypeToString(param->type(), param->tagged(), scope, param->getMetaData(), _useWstring)
+                    << ',' << nl;
                 }
-                StringList metaData = (*q)->getMetaData();
-                string typeString;
-                if((*q)->isOutParam())
-                {
-                    typeString = outputTypeToString((*q)->type(), (*q)->tagged(), scope, metaData, _useWstring);
-                }
-                else
-                {
-                    typeString = typeToString((*q)->type(), (*q)->tagged(), scope, metaData,
-                                              _useWstring | TypeContextInParam);
-                }
-                H << typeString;
             }
 
-            if(!paramList.empty())
-            {
-                H << ',' << nl;
-            }
             H << "const Ice::Current&";
             H.restoreIndent();
 
@@ -4089,32 +4019,22 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             C << sp << nl << retS << nl;
             C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
             C.useCurrentPosAsIndent();
-            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+
+            for (const auto& param : inParams)
             {
-                if(q != paramList.begin())
+                C << typeToString(param->type(), param->tagged(), scope, param->getMetaData(),
+                                  _useWstring | TypeContextInParam)
+                  << " /*" << fixKwd(param->name()) << "*/" << ',' << nl;
+            }
+            if (!op->hasMarshaledResult())
+            {
+                for (const auto& param : outParams)
                 {
-                    C << ',' << nl;
-                }
-                StringList metaData = (*q)->getMetaData();
-                string typeString;
-                if((*q)->isOutParam())
-                {
-                    C << outputTypeToString((*q)->type(), (*q)->tagged(), scope, metaData, _useWstring)
-                      << " "
-                      << fixKwd((*q)->name());
-                }
-                else
-                {
-                    C << typeToString((*q)->type(), (*q)->tagged(), scope, metaData,
-                                      _useWstring | TypeContextInParam)
-                      << " /*" << fixKwd((*q)->name()) << "*/";
+                    C << outputTypeToString(param->type(), param->tagged(), scope, param->getMetaData(), _useWstring)
+                      << " " << fixKwd(param->name()) << ',' << nl;
                 }
             }
 
-            if(!paramList.empty())
-            {
-                C << ',' << nl;
-            }
             C << "const Ice::Current& current";
             C.restoreIndent();
             C << ')';
@@ -4135,7 +4055,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                         }
                     }
 
-                    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end();)
+                    for(auto q = outParams.begin(); q != outParams.end();)
                     {
                         C << defaultValue((*q)->type(), scope, op->getMetaData());
                         if(++q != outParams.end())
@@ -4148,9 +4068,10 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             else
             {
-                for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                for (const auto& param : outParams)
                 {
-                    C << nl << fixKwd((*q)->name()) << " = " << defaultValue((*q)->type(), scope, op->getMetaData()) << ";";
+                    C << nl << fixKwd(param->name()) << " = " << defaultValue(param->type(), scope, op->getMetaData())
+                      << ";";
                 }
 
                 if(ret)

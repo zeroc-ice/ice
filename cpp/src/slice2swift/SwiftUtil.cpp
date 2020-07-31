@@ -1212,54 +1212,6 @@ SwiftGenerator::getTagFormat(const TypePtr& type)
     return "." + type->getTagFormat();
 }
 
-bool
-SwiftGenerator::isClassType(const TypePtr& p)
-{
-    TypePtr type = unwrapIfOptional(p);
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && builtin->kind() == Builtin::KindAnyClass) || ClassDeclPtr::dynamicCast(type);
-}
-
-bool
-SwiftGenerator::containsClassMembers(const StructPtr& s)
-{
-    DataMemberList dm = s->dataMembers();
-    for(DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
-    {
-        if(isClassType((*i)->type()))
-        {
-            return true;
-        }
-
-        StructPtr st = StructPtr::dynamicCast((*i)->type());
-        if(st && containsClassMembers(st))
-        {
-            return true;
-        }
-
-        SequencePtr seq = SequencePtr::dynamicCast((*i)->type());
-        if(seq)
-        {
-            st = StructPtr::dynamicCast(seq->type());
-            if(isClassType(seq->type()) || (st && containsClassMembers(st)))
-            {
-                return true;
-            }
-        }
-
-        DictionaryPtr dict = DictionaryPtr::dynamicCast((*i)->type());
-        if(dict)
-        {
-            st = StructPtr::dynamicCast(dict->valueType());
-            if(isClassType(dict->valueType()) || (st && containsClassMembers(st)))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 void
 SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
                                         bool required,
@@ -1700,24 +1652,22 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 string
-SwiftGenerator::paramLabel(const string& param, const ParamDeclList& params)
+SwiftGenerator::paramLabel(const string& name, const DataMemberList& params)
 {
-    string s = param;
-    for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+    for (const auto& param : params)
     {
-        if((*q)->name() == param)
+        if(param->name() == name)
         {
-            s = "_" + s;
-            break;
+            return "_" + name;
         }
     }
-    return s;
+    return name;
 }
 
 bool
 SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 {
-    ParamDeclList outParams = op->outParameters();
+    DataMemberList outParams = op->outParameters();
     return (op->returnType() && outParams.size() > 0) || outParams.size() > 1;
 }
 
@@ -1731,7 +1681,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << "(";
     }
 
-    ParamDeclList outParams = op->outParameters();
+    DataMemberList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     if(returnType)
     {
@@ -1742,7 +1692,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << typeToString(returnType, op, op->getMetaData());
     }
 
-    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for(DataMemberList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
     {
         if(returnType || q != outParams.begin())
         {
@@ -1769,7 +1719,7 @@ std::string
 SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 {
     ostringstream os;
-    ParamDeclList outParams = op->outParameters();
+    DataMemberList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     bool returnIsTuple = operationReturnIsTuple(op);
 
@@ -1783,7 +1733,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
         os << ("iceP_" + paramLabel("returnValue", outParams));
     }
 
-    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for(DataMemberList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
     {
         if(returnType || q != outParams.begin())
         {
@@ -1806,7 +1756,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 {
     ostringstream os;
 
-    ParamDeclList inParams = op->inParameters();
+    DataMemberList inParams = op->inParameters();
     const bool isTuple = inParams.size() > 1;
 
     if(!inParams.empty())
@@ -1815,7 +1765,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
         {
             os << "(";
         }
-        for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (auto q = inParams.begin(); q != inParams.end(); ++q)
         {
             if(q != inParams.begin())
             {
@@ -1835,7 +1785,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
         {
             os << "(";
         }
-        for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (auto q = inParams.begin(); q != inParams.end(); ++q)
         {
             if(q != inParams.begin())
             {
@@ -1863,17 +1813,16 @@ SwiftGenerator::operationIsAmd(const OperationPtr& op)
 ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
-    const ParamDeclList l = op->inParameters();
     ParamInfoList r;
-    for(ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (const auto& param : op->inParameters())
     {
         ParamInfo info;
-        info.name = (*p)->name();
-        info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData());
-        info.isTagged = (*p)->tagged();
-        info.tag = (*p)->tag();
-        info.param = *p;
+        info.name = param->name();
+        info.type = param->type();
+        info.typeStr = typeToString(info.type, op, param->getMetaData());
+        info.isTagged = param->tagged();
+        info.tag = param->tag();
+        info.param = param;
         r.push_back(info);
     }
     return r;
@@ -1912,18 +1861,18 @@ SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& requiredParam
 ParamInfoList
 SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
-    ParamDeclList params = op->outParameters();
+    DataMemberList params = op->outParameters();
     ParamInfoList l;
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
         ParamInfo info;
-        info.name = (*p)->name();
-        info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData());
-        info.isTagged = (*p)->tagged();
-        info.tag = (*p)->tag();
-        info.param = *p;
+        info.name = param->name();
+        info.type = param->type();
+        info.typeStr = typeToString(info.type, op, param->getMetaData());
+        info.isTagged = param->tagged();
+        info.tag = param->tag();
+        info.param = param;
         l.push_back(info);
     }
 
@@ -2087,7 +2036,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
     {
         string param;
-        if(isClassType(q->type))
+        if(q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2102,7 +2051,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     for(ParamInfoList::const_iterator q = taggedOutParams.begin(); q != taggedOutParams.end(); ++q)
     {
         string param;
-        if(isClassType(q->type))
+        if(q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2165,7 +2114,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         if(q->param)
         {
             string param;
-            if(isClassType(q->type))
+            if(q->type->isClassType())
             {
                 out << nl << "var iceP_" << q->name << ": " << q->typeStr;
                 param = "iceP_" + q->name;
@@ -2181,7 +2130,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
     for(ParamInfoList::const_iterator q = taggedInParams.begin(); q != taggedInParams.end(); ++q)
     {
         string param;
-        if(isClassType(q->type))
+        if(q->type->isClassType())
         {
             out << nl << "var iceP_" << q->name << ": " << q->typeStr;
             param = "iceP_" + q->name;
@@ -2575,10 +2524,9 @@ SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
     assert(dc);
 
     p->setMetaData(validate(p, metaData, p->file(), p->line()));
-    ParamDeclList params = p->parameters();
-    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    for (auto& param : p->parameters())
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
+        param->setMetaData(validate(param->type(), param->getMetaData(), p->file(), param->line()));
     }
 }
 

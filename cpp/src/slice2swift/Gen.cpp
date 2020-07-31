@@ -161,10 +161,9 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
         addImport(ContainedPtr::dynamicCast(p->base()), p);
     }
 
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport((*i)->type(), p);
+        addImport(member->type(), p);
     }
 
     return false;
@@ -188,10 +187,9 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             addImport(ret, p);
         }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (const auto& param : (*i)->parameters())
         {
-            addImport((*j)->type(), p);
+            addImport(param->type(), p);
         }
     }
 
@@ -201,13 +199,10 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Gen::ImportVisitor::visitStructStart(const StructPtr& p)
 {
-    //
     // Add imports required for data members
-    //
-    const DataMemberList dataMembers = p->dataMembers();
-    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (const auto& member : p->dataMembers())
     {
-        addImport((*i)->type(), p);
+        addImport(member->type(), p);
     }
 
     return true;
@@ -225,13 +220,10 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
         addImport(ContainedPtr::dynamicCast(base), p);
     }
 
-    //
     // Add imports required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport((*i)->type(), p);
+        addImport(member->type(), p);
     }
     return true;
 }
@@ -552,7 +544,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const string tagFormat = getTagFormat(p);
 
-    bool isClass = containsClassMembers(p);
+    bool isClass = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
@@ -706,7 +698,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
-    if(isClassType(type))
+    if(type->isClassType())
     {
         out << nl << "var v = " << fixIdent(name) << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
@@ -850,7 +842,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
     out << nl << "var v = " << fixIdent(name) << "()";
-    if(isClassType(p->valueType()))
+    if(p->valueType()->isClassType())
     {
         out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
             << valueType << ">(size: sz)";
@@ -1350,9 +1342,9 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     const DataMemberList members = p->dataMembers();
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
     const DataMemberList allMembers = p->allDataMembers();
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
 
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
@@ -1390,17 +1382,13 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    for (const auto& member : requiredMembers)
     {
-        DataMemberPtr member = *i;
-        if(!member->tagged())
-        {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
-        }
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
     }
-    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    for (const auto& member : taggedMembers)
     {
-        writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), false, (*d)->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
     }
     out << nl << "try istr.endSlice()";
     if(base)
@@ -1415,18 +1403,13 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << name << "Traits.staticId, compactId: " << p->compactId()
         << ", last: " << (!base ? "true" : "false") << ")";
-    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    for (const auto& member : requiredMembers)
     {
-        DataMemberPtr member = *i;
-        TypePtr type = member->type();
-        if(!member->tagged())
-        {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
-        }
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
     }
-    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    for (const auto& member : taggedMembers)
     {
-        writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), true, (*d)->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
     if(base)

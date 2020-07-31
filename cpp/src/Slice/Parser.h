@@ -40,32 +40,6 @@ private:
     const std::string _reason;
 };
 
-#if defined(_WIN32)
-
-const IceUtil::Int64 Int32Max =  0x7fffffffi64;
-const IceUtil::Int64 Int32Min = -Int32Max - 1i64;
-
-#else
-
-#   if defined(INT32_MIN) && defined(INT32_MAX)
-
-const IceUtil::Int64 Int32Max =  INT32_MAX;
-const IceUtil::Int64 Int32Min =  INT32_MIN;
-
-#   else
-
-const IceUtil::Int64 Int32Max =  0x7fffffffLL;
-const IceUtil::Int64 Int32Min = -Int32Max - 1LL;
-
-#   endif
-
-#endif
-
-const IceUtil::Int64 Int16Max =  0x7fff;
-const IceUtil::Int64 Int16Min = -Int16Max - 1;
-const IceUtil::Int64 ByteMax = 0xff;
-const IceUtil::Int64 ByteMin = 0x00;
-
 enum NodeType
 {
     Dummy,
@@ -94,6 +68,7 @@ class Type;
 class Builtin;
 class Contained;
 class Container;
+class DataMemberContainer;
 class Module;
 class Constructed;
 class ClassDecl;
@@ -104,7 +79,6 @@ class Exception;
 class Optional;
 class Struct;
 class Operation;
-class ParamDecl;
 class DataMember;
 class Sequence;
 class Dictionary;
@@ -122,6 +96,7 @@ typedef ::IceUtil::Handle<Type> TypePtr;
 typedef ::IceUtil::Handle<Builtin> BuiltinPtr;
 typedef ::IceUtil::Handle<Contained> ContainedPtr;
 typedef ::IceUtil::Handle<Container> ContainerPtr;
+typedef ::IceUtil::Handle<DataMemberContainer> DataMemberContainerPtr;
 typedef ::IceUtil::Handle<Module> ModulePtr;
 typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
 typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
@@ -132,7 +107,6 @@ typedef ::IceUtil::Handle<Optional> OptionalPtr;
 typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
 typedef ::IceUtil::Handle<Operation> OperationPtr;
-typedef ::IceUtil::Handle<ParamDecl> ParamDeclPtr;
 typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
 typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
@@ -159,7 +133,6 @@ typedef std::list<EnumPtr> EnumList;
 typedef std::list<ConstPtr> ConstList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
-typedef std::list<ParamDeclPtr> ParamDeclList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
 
 // ----------------------------------------------------------------------
@@ -209,7 +182,7 @@ public:
     virtual bool visitStructStart(const StructPtr&) { return true; }
     virtual void visitStructEnd(const StructPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
-    virtual void visitParamDecl(const ParamDeclPtr&) { }
+    virtual void visitParameter(const DataMemberPtr&) { }
     virtual void visitDataMember(const DataMemberPtr&) { }
     virtual void visitSequence(const SequencePtr&) { }
     virtual void visitDictionary(const DictionaryPtr&) { }
@@ -503,6 +476,31 @@ protected:
 };
 
 // ----------------------------------------------------------------------
+// DataMemberContainer
+// ----------------------------------------------------------------------
+
+class DataMemberContainer : public virtual Container, public virtual Contained
+{
+public:
+
+    void destroy() override;
+    virtual DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+                                           const std::string& = "", const std::string& = "");
+    DataMemberList dataMembers() const;
+    std::pair<DataMemberList, DataMemberList> sortedDataMembers() const;
+    bool hasDataMembers() const;
+    virtual bool hasBaseDataMembers() const;
+    ContainedList contents() const override;
+    bool uses(const ContainedPtr&) const override;
+
+protected:
+
+    DataMemberContainer(const ContainerPtr&, const std::string&);
+
+    DataMemberList _dataMembers;
+};
+
+// ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
 
@@ -607,29 +605,20 @@ protected:
 // definition has at least one class declaration (but not vice versa),
 // so if you need the class as a "constructed type", use the
 // declaration() operation to navigate to the class declaration.
-class ClassDef : public virtual Container, public virtual Contained
+class ClassDef : public virtual DataMemberContainer, public virtual Contained
 {
 public:
 
     void destroy() override;
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
-                                   const std::string& = "", const std::string& = "");
+                                   const std::string& = "", const std::string& = "") override;
     ClassDeclPtr declaration() const;
     ClassDefPtr base() const;
     ClassList allBases() const;
-    DataMemberList dataMembers() const;
-    DataMemberList sortedTaggedDataMembers() const;
     DataMemberList allDataMembers() const;
-    DataMemberList classDataMembers() const;
-    DataMemberList allClassDataMembers() const;
-    bool canBeCyclic() const;
     bool isA(const std::string&) const;
-    bool hasDataMembers() const;
-    bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
-    bool hasBaseDataMembers() const;
-    ContainedList contents() const override;
-    bool uses(const ContainedPtr&) const override;
+    bool hasBaseDataMembers() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
     int compactId() const;
@@ -643,7 +632,6 @@ protected:
 
     ClassDeclPtr _declaration;
     ClassDefPtr _base;
-    std::list<DataMemberPtr> _dataMembers;
     int _compactId;
 };
 
@@ -722,12 +710,10 @@ public:
     Mode mode() const;
     Mode sendMode() const;
     bool hasMarshaledResult() const;
-    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
-    ParamDeclList parameters() const;
-    ParamDeclList inParameters() const;
-    void inParameters(ParamDeclList&, ParamDeclList&) const;
-    ParamDeclList outParameters() const;
-    void outParameters(ParamDeclList&, ParamDeclList&) const;
+    DataMemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
+    DataMemberList parameters() const;
+    DataMemberList inParameters() const;
+    DataMemberList outParameters() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     ContainedList contents() const override;
@@ -747,8 +733,8 @@ protected:
 
     friend class InterfaceDef;
 
-    std::list<ParamDeclPtr> _inParameters;
-    std::list<ParamDeclPtr> _outParameters;
+    DataMemberList _inParameters;
+    DataMemberList _outParameters;
     TypePtr _returnType;
     bool _returnIsTagged;
     int _returnTag;
@@ -808,6 +794,8 @@ public:
 
     std::string typeId() const override;
     bool usesClasses() const override;
+    bool isClassType() const override;
+    bool isInterfaceType() const override;
     size_t minWireSize() const override;
     std::string getTagFormat() const override;
     bool isVariableLength() const override;
@@ -824,27 +812,20 @@ private:
 // ----------------------------------------------------------------------
 
 // No inheritance from Constructed, as this is not a Type
-class Exception : public virtual Container, public virtual Contained
+class Exception : public virtual DataMemberContainer, public virtual Contained
 {
 public:
 
     void destroy() override;
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
-                                   const std::string& = "", const std::string& = "");
-    DataMemberList dataMembers() const;
-    DataMemberList sortedTaggedDataMembers() const;
+                                   const std::string& = "", const std::string& = "") override;
     DataMemberList allDataMembers() const;
-    DataMemberList classDataMembers() const;
-    DataMemberList allClassDataMembers() const;
     ExceptionPtr base() const;
     ExceptionList allBases() const;
     bool isBaseOf(const ExceptionPtr&) const;
-    ContainedList contents() const override;
-    bool uses(const ContainedPtr&) const override;
     bool usesClasses(bool) const;
-    bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
-    bool hasBaseDataMembers() const;
+    bool hasBaseDataMembers() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
 
@@ -856,29 +837,21 @@ protected:
     friend class Module;
 
     ExceptionPtr _base;
-    std::list<DataMemberPtr> _dataMembers;
 };
 
 // ----------------------------------------------------------------------
 // Struct
 // ----------------------------------------------------------------------
 
-class Struct : public virtual Container, public virtual Constructed
+class Struct : public virtual DataMemberContainer, public virtual Constructed
 {
 public:
-
-    void destroy() override;
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, const SyntaxTreeBasePtr& = nullptr,
-                                   const std::string& = "", const std::string& = "");
-    DataMemberList dataMembers() const;
-    DataMemberList classDataMembers() const;
-    ContainedList contents() const override;
-    bool uses(const ContainedPtr&) const override;
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+                                   const std::string& = "", const std::string& = "") override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
     std::string getTagFormat() const override;
     bool isVariableLength() const override;
-    bool hasDefaultValues() const;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
     void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
@@ -889,8 +862,6 @@ protected:
 
     friend class Container;
     friend class Module;
-
-    std::list<DataMemberPtr> _dataMembers;
 };
 
 // ----------------------------------------------------------------------
@@ -1075,34 +1046,6 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// ParamDecl
-// ----------------------------------------------------------------------
-
-class ParamDecl : public virtual Contained
-{
-public:
-
-    TypePtr type() const;
-    bool isOutParam() const;
-    bool tagged() const;
-    int tag() const;
-    bool uses(const ContainedPtr&) const override;
-    std::string kindOf() const override;
-    void visit(ParserVisitor*, bool) override;
-
-protected:
-
-    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
-
-    friend class Operation;
-
-    TypePtr _type;
-    bool _isOutParam;
-    bool _tagged;
-    int _tag;
-};
-
-// ----------------------------------------------------------------------
 // DataMember
 // ----------------------------------------------------------------------
 
@@ -1122,12 +1065,11 @@ public:
 
 protected:
 
-    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-               const std::string&, const std::string&);
+    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+               const std::string& = "", const std::string& = "");
 
-    friend class ClassDef;
-    friend class Struct;
-    friend class Exception;
+    friend class DataMemberContainer;
+    friend class Operation;
 
     TypePtr _type;
     bool _tagged;
