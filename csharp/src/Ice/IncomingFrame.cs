@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     /// <summary>Base class for incoming frames.</summary>
     public abstract class IncomingFrame
     {
-        /// <summary>The encoding of the frame payload</summary>
+        /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
         /// <summary>The payload of this request frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
@@ -38,7 +38,7 @@ namespace ZeroC.Ice
 
         private readonly int _sizeMax;
 
-        /// <summary>Decompress the encapsulation payload if it is compressed. Compressed encapsulation are
+        /// <summary>Decompress the encapsulation payload if it is compressed. Compressed encapsulations are
         /// only supported with 2.0 encoding.</summary>
         public void DecompressPayload()
         {

@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     /// <summary>Base class for outgoing frames.</summary>
     public abstract class OutgoingFrame
     {
-        /// <summary>The encoding of the frame payload</summary>
+        /// <summary>The encoding of the frame payload.</summary>
         public Encoding Encoding { get; }
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
         public bool IsSealed { get; protected set; }
@@ -128,7 +128,7 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                // Slice the payload start segment and remove all segments after that, the compressed payload will be
+                // Slice the payload start segment and remove all segments after it, the compressed payload will be
                 // added as a new segment.
                 int remove = PayloadStart.Segment;
                 if (PayloadStart.Offset > 0)

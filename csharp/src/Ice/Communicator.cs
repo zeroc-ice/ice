@@ -481,6 +481,7 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException(@$"invalid value for Ice.Compression.Level: `{
                         compressionLevel}', it must be an integer between 1 and 9");
                 }
+                CompressionLevel = compressionLevel;
 
                 // TODO: switch to 0 default
                 AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;

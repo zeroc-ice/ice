@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         /// <summary>The response context. Always null with Ice1.</summary>
         public Dictionary<string, string>? Context { get; }
 
-        /// <summary>The encoding of the frame payload</summary>
+        /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
 
         public override ArraySegment<byte> Payload { get; internal set; }
@@ -66,6 +66,11 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
+            if (Encoding == Encoding.V2_0 && CompressionStatus == 1)
+            {
+                DecompressPayload();
+            }
+
             if (ReplyStatus == ReplyStatus.OK)
             {
                 Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
