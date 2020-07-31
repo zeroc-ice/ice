@@ -792,7 +792,28 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                 }
             }
+            output.WriteLine("ok");
 
+            output.Write("catching custom dispatch exception with AMI... ");
+            output.Flush();
+            try
+            {
+                thrower.ThrowCustomDispatchExceptionAsync().Wait();
+                TestHelper.Assert(false);
+            }
+            catch (AggregateException exc)
+            {
+                var ex = (CustomDispatchException)exc.InnerException!;
+
+                // It's just a regular remote exception.
+                TestHelper.Assert(ex.Identity == thrower.Identity &&
+                    ex.Operation == "throwCustomDispatchException" &&
+                    ex.Custom == "custom");
+            }
+            catch
+            {
+                TestHelper.Assert(false);
+            }
             output.WriteLine("ok");
 
             output.Write("catching unhandled local exception with AMI... ");
