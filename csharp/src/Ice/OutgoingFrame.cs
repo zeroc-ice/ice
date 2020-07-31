@@ -146,7 +146,9 @@ namespace ZeroC.Ice
                 Size = Data.GetByteCount();
 
                 // Rewrite the payload size
-                OutputStream.WriteSize20(payloadData.Count - sizeLength, compressedData.AsSpan(0, sizeLength));
+                OutputStream.WriteEncapsSize(payloadData.Count - sizeLength,
+                                             compressedData.AsSpan(0, sizeLength),
+                                             Protocol.GetEncoding());
                 _payload = null;
             }
         }

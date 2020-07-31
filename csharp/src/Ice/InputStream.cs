@@ -1123,14 +1123,13 @@ namespace ZeroC.Ice
             if (protocol == Protocol.Ice1 || OldEncoding)
             {
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
-
                 if (!encoding.IsSupported)
                 {
                     // If we can't read the encaps, it's like we didn't find a factory.
                     factory = null;
                 }
 
-                if (protocol == Protocol.Ice1 && encoding == Encoding.V2_0)
+                if (encoding == Encoding.V2_0)
                 {
                     byte compressionStatus = ReadByte();
                     if (compressionStatus != 0)
@@ -1140,12 +1139,14 @@ namespace ZeroC.Ice
                     }
                 }
 
+                size -= encoding == Encoding.V2_0 ? 3 : 2;
+
                 // We need to read the encaps except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {
                     endpoint = new OpaqueEndpoint(
-                        communicator, transport, encoding, _buffer.Slice(Pos, size - 2).ToArray());
-                    Pos += size - 2;
+                        communicator, transport, encoding, _buffer.Slice(Pos, size).ToArray());
+                    Pos += size;
                 }
                 else if (encoding.IsSupported)
                 {
@@ -1155,7 +1156,7 @@ namespace ZeroC.Ice
                     // create a new InputStream). A less common situation is an ice1 proxy in 2.0 encaps with
                     // 1.1-encoded endpoints (we need a new InputStream in this case).
                     InputStream istr = encoding == Encoding ?
-                        this : new InputStream(_buffer.Slice(Pos, size - 2), encoding);
+                        this : new InputStream(_buffer.Slice(Pos, size), encoding);
 
                     endpoint = factory?.Read(istr, transport, protocol) ??
                         new UniversalEndpoint(istr, communicator, transport, protocol); // protocol is ice2 or greater
@@ -1163,16 +1164,15 @@ namespace ZeroC.Ice
                     if (ReferenceEquals(istr, this))
                     {
                         // Make sure we read the full encaps
-                        if (Pos != oldPos + size - 2)
+                        if (Pos != oldPos + size)
                         {
-                            throw new InvalidDataException(
-                                $"{oldPos + size - 2 - Pos} bytes left in endpoint encapsulation");
+                            throw new InvalidDataException($"{oldPos + size - Pos} bytes left in endpoint encapsulation");
                         }
                     }
                     else
                     {
                         istr.CheckEndOfBuffer(skipTaggedParams: false);
-                        Pos += size - 2;
+                        Pos += size;
                     }
                 }
                 else

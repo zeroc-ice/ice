@@ -31,7 +31,7 @@ namespace ZeroC.Ice
             get
             {
                 Debug.Assert(Encoding == Encoding.V2_0);
-                int sizeLength = 1 << (Payload[0] & 0x03);
+                (_, int sizeLength) = Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding());
                 return Payload[sizeLength + 2];
             }
         }
@@ -46,7 +46,7 @@ namespace ZeroC.Ice
             {
                 // TODO should this throw if encoding is not V2_0 or the frame is not compressed?
                 ReadOnlySpan<byte> buffer = Payload.AsReadOnlySpan();
-                (int size, int sizeLength) = buffer.ReadSize20();
+                (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
                 (int decompressedSize, int decompressedSizeLength) = buffer.Slice(sizeLength + 3).ReadSize20();
                 if (decompressedSize > _sizeMax)
                 {
@@ -81,7 +81,7 @@ namespace ZeroC.Ice
                 Payload = decompressedData;
                 // Rewrite the encapsulation size and adjust the frame size
                 int newSize = Payload.Count - sizeLength;
-                OutputStream.WriteSize20(newSize, decompressedData.AsSpan(0, sizeLength));
+                OutputStream.WriteEncapsSize(newSize, decompressedData.AsSpan(0, sizeLength), Protocol.GetEncoding());
                 Size += newSize - size;
             }
         }

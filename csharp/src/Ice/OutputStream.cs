@@ -1562,6 +1562,18 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static void WriteEncapsSize(int size, Span<byte> data, Encoding encoding)
+        {
+            if (encoding == Encoding.V2_0)
+            {
+                WriteSize20(size, data);
+            }
+            else
+            {
+                WriteInt(size + 4, data);
+            }
+        }
+
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
@@ -1656,7 +1668,6 @@ namespace ZeroC.Ice
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
                         Ice1Definitions.Encoding : Encoding.V2_0;
-
                     // 0 is a placeholder for the size.
                     WriteEncapsulationHeader(0, payloadEncoding, sizeLength);
                     Encoding previousEncoding = Encoding;
@@ -2027,8 +2038,6 @@ namespace ZeroC.Ice
             if (OldEncoding)
             {
                 WriteInt(size + 4); // the size length is included in the encoded size with the 1.1 encoding.
-                WriteByte(encoding.Major);
-                WriteByte(encoding.Minor);
             }
             else
             {
@@ -2036,8 +2045,13 @@ namespace ZeroC.Ice
                 Span<byte> data = stackalloc byte[sizeLength];
                 WriteFixedLengthSize20(size, data);
                 WriteByteSpan(data);
-                WriteByte(encoding.Major);
-                WriteByte(encoding.Minor);
+            }
+
+            WriteByte(encoding.Major);
+            WriteByte(encoding.Minor);
+
+            if (encoding == Encoding.V2_0)
+            {
                 WriteByte(0); // Placeholder for the compression status
             }
         }
