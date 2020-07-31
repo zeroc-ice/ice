@@ -207,7 +207,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Encoding == Encoding.V2_0);
-                ostr.WriteByte((byte)ResponseType.Failure);
+                ostr.WriteByte((byte)ResultType.Failure);
                 ostr.WriteException(exception);
             }
 
@@ -251,7 +251,7 @@ namespace ZeroC.Ice
 
             if (response.Encoding == Encoding.V2_0)
             {
-                ostr.WriteByte((byte)ResponseType.Success);
+                ostr.WriteByte((byte)ResultType.Success);
             }
 
             return (response, ostr);

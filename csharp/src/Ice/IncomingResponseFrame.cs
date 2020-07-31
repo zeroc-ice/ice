@@ -66,7 +66,7 @@ namespace ZeroC.Ice
 
                 if (key.Encoding == Encoding.V2_0)
                 {
-                    ostr.WriteByte((byte)ResponseType.Success);
+                    ostr.WriteByte((byte)ResultType.Success);
                 }
                 ostr.Save();
                 Debug.Assert(data.Count == 1);
@@ -84,9 +84,9 @@ namespace ZeroC.Ice
             // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
             // context.
 
-            (InputStream istr, ResponseType responseType) = PrepareReadReturnValue(communicator);
+            (InputStream istr, ResultType responseType) = PrepareReadReturnValue(communicator);
 
-            if (responseType == ResponseType.Success)
+            if (responseType == ResultType.Success)
             {
                 T result = reader(istr);
                 // If the reader throws an exception such as InvalidDataException, we don't check we reached the
@@ -111,9 +111,9 @@ namespace ZeroC.Ice
             // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
             // context.
 
-            (InputStream istr, ResponseType responseType) = PrepareReadReturnValue(communicator);
+            (InputStream istr, ResultType responseType) = PrepareReadReturnValue(communicator);
 
-            if (responseType == ResponseType.Success)
+            if (responseType == ResultType.Success)
             {
                 istr.CheckEndOfBuffer(skipTaggedParams: true);
             }
@@ -179,7 +179,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private (InputStream Istr, ResponseType ResponseType) PrepareReadReturnValue(Communicator communicator)
+        private (InputStream Istr, ResultType ResponseType) PrepareReadReturnValue(Communicator communicator)
         {
             InputStream istr;
 
@@ -212,7 +212,7 @@ namespace ZeroC.Ice
                 istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
             }
 
-            ResponseType responseType;
+            ResultType responseType;
 
             if (istr.Encoding == Encoding.V2_0)
             {
@@ -221,11 +221,11 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidDataException($"`{responseTypeByte}' is not a valid response type");
                 }
-                responseType = (ResponseType)responseTypeByte;
+                responseType = (ResultType)responseTypeByte;
             }
             else
             {
-                responseType = ReplyStatus == ReplyStatus.OK ? ResponseType.Success : ResponseType.Failure;
+                responseType = ReplyStatus == ReplyStatus.OK ? ResultType.Success : ResultType.Failure;
             }
 
             return (istr, responseType);
