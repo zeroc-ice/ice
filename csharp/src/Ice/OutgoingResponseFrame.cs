@@ -3,36 +3,17 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame sent by the application.</summary>
-    public sealed class OutgoingResponseFrame
+    public sealed class OutgoingResponseFrame : OutgoingFrame
     {
-        /// <summary>The encoding of the frame payload</summary>
-        public Encoding Encoding { get; }
-
-        /// <summary>True for a sealed frame, false otherwise. Once sealed, a frame is read-only.</summary>
-        public bool IsSealed { get; private set; }
-
-        /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
-        public IList<ArraySegment<byte>> Payload => Data;
-
-        /// <summary>The Ice protocol of this frame.</summary>
-        public Protocol Protocol { get; }
-
         /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus => (ReplyStatus) Data[0][0];
-
-        /// <summary>The frame byte count.</summary>
-        public int Size { get; private set; }
-
-        // The compression status from the incoming request.
-        internal byte CompressionStatus { get; }
-        // Contents of the Frame
-        internal List<ArraySegment<byte>> Data { get; private set; }
 
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>
             _cachedVoidReturnValueFrames =
@@ -48,30 +29,37 @@ namespace ZeroC.Ice
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
                 ostr.WriteByte((byte)ReplyStatus.OK);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                return new OutgoingResponseFrame(current.IncomingRequestFrame, data);
+                return new OutgoingResponseFrame(current.IncomingRequestFrame, compress: false, data);
             });
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
         /// <param name="value">The return value to marshal.</param>
         /// <param name="writer">A delegate that must write the value to the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithReturnValue<T>(Current current,
-                                                               FormatType? format,
-                                                               T value,
-                                                               OutputStreamWriter<T> writer)
+        public static OutgoingResponseFrame WithReturnValue<T>(
+            Current current,
+            FormatType? format,
+            bool compress,
+            T value,
+            OutputStreamWriter<T> writer)
         {
-            var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame, compress);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
             var ostr = new OutputStream(current.Protocol.GetEncoding(), response.Data, new OutputStream.Position(0, 1),
                 response.Encoding, format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
-            ostr.Save();
-            response.Finish();
+            response.PayloadStart = new OutputStream.Position(0, 1);
+            response.Finish(ostr.Save());
+            if (compress && current.Encoding == Encoding.V2_0)
+            {
+                response.CompressPayload();
+            }
             return response;
         }
 
@@ -79,17 +67,20 @@ namespace ZeroC.Ice
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
         /// <param name="value">The return value to marshal, when the response frame contains multiple return
         /// values they must be passed in a tuple.</param>
         /// <param name="writer">A delegate that must write the value to the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithReturnValue<T>(Current current,
-                                                               FormatType? format,
-                                                               in T value,
-                                                               OutputStreamValueWriter<T> writer)
+        public static OutgoingResponseFrame WithReturnValue<T>(
+            Current current,
+            FormatType? format,
+            bool compress,
+            in T value,
+            OutputStreamValueWriter<T> writer)
             where T : struct
         {
-            var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame, compress);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
@@ -99,37 +90,47 @@ namespace ZeroC.Ice
                                         response.Encoding,
                                         format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
-            ostr.Save();
-            response.Finish();
+            response.PayloadStart = new OutputStream.Position(0, 1);
+            response.Finish(ostr.Save());
+            if (compress && current.Encoding == Encoding.V2_0)
+            {
+                response.CompressPayload();
+            }
             return response;
         }
 
         /// <summary>Creates a new outgoing response frame with the given payload.</summary>
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
+        /// <param name="replyStatus">The reply status for this response frame.</param>
         /// <param name="payload">The payload for this response frame.</param>
         // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
         // TODO: should we pass the payload as a list of segments, or maybe add a separate
         // ctor that accepts a list of segments instead of a single segment
-        public OutgoingResponseFrame(IncomingRequestFrame request, ArraySegment<byte> payload)
-            : this(request)
+        internal OutgoingResponseFrame(
+            IncomingRequestFrame request,
+            bool compress,
+            ReplyStatus replyStatus,
+            ArraySegment<byte> payload)
+            : this(request, compress)
         {
-            if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
+            if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
                 // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes for an
                 // empty encapsulation.
-                if (payload.Count < 7)
+                if (payload.Count < 6)
                 {
                     throw new ArgumentException(
-                        $"{nameof(payload)} should contain at least 7 bytes, but it contains `{payload.Count}' bytes",
+                        $"{nameof(payload)} should contain at least 6 bytes, but it contains `{payload.Count}' bytes",
                         nameof(payload));
                 }
 
                 (int size, Encoding encapsEncoding) =
-                    payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
+                    payload.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-                if (size + 4 + 1 != payload.Count) // 4 = size length with 1.1 encoding
+                if (size + 4 != payload.Count) // 4 = size length with 1.1 encoding
                 {
-                    throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count - 5}'",
+                    throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count - 4}'",
                         nameof(payload));
                 }
 
@@ -141,13 +142,9 @@ namespace ZeroC.Ice
                 }
             }
 
-            // No need to keep track of the compression status for Ice2, the compression is handled by
-            // the encapsulation. We need it for Ice1, since the compression is handled by protocol.
-            if (Protocol == Protocol.Ice1)
-            {
-                CompressionStatus = request.CompressionStatus;
-            }
-
+            Debug.Assert(payload.Offset > 0);
+            Debug.Assert(payload.Array != null);
+            payload = new ArraySegment<byte>(payload.Array, payload.Offset - 1, payload.Count + 1);
             Data.Add(payload);
             Size = Data.GetByteCount();
             IsSealed = true;
@@ -157,7 +154,7 @@ namespace ZeroC.Ice
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
-            : this(request)
+            : this(request, false)
         {
             OutputStream ostr;
             if (exception is DispatchException dispatchException)
@@ -201,32 +198,17 @@ namespace ZeroC.Ice
             IsSealed = true;
         }
 
-        private OutgoingResponseFrame(IncomingRequestFrame request, List<ArraySegment<byte>>? data = null)
+        private OutgoingResponseFrame(
+            IncomingRequestFrame request,
+            bool compress,
+            List<ArraySegment<byte>>? data = null)
+            : base(request.Protocol, request.Encoding, data ?? new List<ArraySegment<byte>>(), compress)
         {
-            Protocol = request.Protocol;
-            Encoding = request.Encoding;
-            // No need to keep track of the compression status for Ice2, the compression is handled by
-            // the encapsulation. We need it for Ice1, since the compression is handled by protocol.
-            if (Protocol == Protocol.Ice1)
+            if (data != null)
             {
-                CompressionStatus = request.CompressionStatus;
-            }
-            if (data == null)
-            {
-                Data = new List<ArraySegment<byte>>();
-            }
-            else
-            {
-                Data = data;
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
-        }
-
-        private void Finish()
-        {
-            Size = Data.GetByteCount();
-            IsSealed = true;
         }
     }
 }

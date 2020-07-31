@@ -94,7 +94,8 @@ namespace ZeroC.Ice
 
                 var incomingResponseFrame = new IncomingResponseFrame(
                     outgoingRequest.Protocol,
-                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data));
+                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data),
+                    _adapter.Communicator.IncomingFrameSizeMax);
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
@@ -137,7 +138,8 @@ namespace ZeroC.Ice
             IDispatchObserver? dispatchObserver = null;
             try
             {
-                var incomingRequest = new IncomingRequestFrame(outgoingRequest);
+                var incomingRequest = new IncomingRequestFrame(outgoingRequest,
+                                                               _adapter.Communicator.IncomingFrameSizeMax);
                 var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
 
                 // Then notify and set dispatch observer, if any.

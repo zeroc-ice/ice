@@ -110,13 +110,9 @@ namespace ZeroC.IceLocatorDiscovery
                 ILocatorPrx newLocator = await GetLocatorAsync().ConfigureAwait(false);
                 if (locator != newLocator)
                 {
-                    var outgoingRequest = new OutgoingRequestFrame(
-                        newLocator, current.Operation, current.IsIdempotent, current.Context, incomingRequest.Payload);
                     try
                     {
-                        IncomingResponseFrame incomingResponse =
-                            await newLocator.InvokeAsync(outgoingRequest).ConfigureAwait(false);
-                        return new OutgoingResponseFrame(incomingRequest, incomingResponse.Payload);
+                        return await newLocator.ForwardAsync(false, incomingRequest).ConfigureAwait(false);
                     }
                     catch (DispatchException)
                     {

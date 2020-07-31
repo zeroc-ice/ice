@@ -220,7 +220,7 @@ namespace ZeroC.Ice
             }
 
             // Parsing the identity may raise FormatException.
-            var identity = ParseIdentity(identityString);
+            Identity identity = ParseIdentity(identityString);
 
             string facet = "";
             InvocationMode invocationMode = InvocationMode.Twoway;

@@ -39,8 +39,14 @@ namespace ZeroC.Ice.Test.Invoke
                 response = oneway.Invoke(request, oneway: false);
                 TestHelper.Assert(response.ReplyStatus == ReplyStatus.UserException);
 
-                request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
-                    format: null, context: null, TestString, OutputStream.IceWriterFromString);
+                request = OutgoingRequestFrame.WithParamList(cl,
+                                                             "opString",
+                                                             idempotent: false,
+                                                             format: null,
+                                                             context: null,
+                                                             compress: false,
+                                                             TestString,
+                                                             OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
@@ -95,8 +101,14 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(false);
                 }
 
-                request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
-                    format: null, context: null, TestString, OutputStream.IceWriterFromString);
+                request = OutgoingRequestFrame.WithParamList(cl,
+                                                             "opString",
+                                                             idempotent: false,
+                                                             format: null,
+                                                             context: null,
+                                                             compress: false,
+                                                             TestString,
+                                                             OutputStream.IceWriterFromString);
 
                 response = cl.InvokeAsync(request).AsTask().Result;
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>

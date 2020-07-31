@@ -682,7 +682,10 @@ namespace ZeroC.Ice
         public void WriteSequence<T>(ReadOnlySpan<T> v) where T : struct
         {
             WriteSize(v.Length);
-            WriteByteSpan(MemoryMarshal.AsBytes(v));
+            if (!v.IsEmpty)
+            {
+                WriteByteSpan(MemoryMarshal.AsBytes(v));
+            }
         }
 
         /// <summary>Writes a sequence to the stream.</summary>
@@ -1629,7 +1632,7 @@ namespace ZeroC.Ice
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
             encoding.CheckSupported();
-            WriteEncapsulationHeader(size: 2, encoding, sizeLength: 1);
+            WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding, sizeLength: 1);
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
         }
@@ -1836,6 +1839,7 @@ namespace ZeroC.Ice
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
+            Debug.Assert(n > 0);
             int remaining = _capacity - Size;
             if (n > remaining)
             {
@@ -2026,6 +2030,8 @@ namespace ZeroC.Ice
             if (OldEncoding)
             {
                 WriteInt(size + 4); // the size length is included in the encoded size with the 1.1 encoding.
+                WriteByte(encoding.Major);
+                WriteByte(encoding.Minor);
             }
             else
             {
@@ -2033,9 +2039,10 @@ namespace ZeroC.Ice
                 Span<byte> data = stackalloc byte[sizeLength];
                 WriteFixedLengthSize20(size, data);
                 WriteByteSpan(data);
+                WriteByte(encoding.Major);
+                WriteByte(encoding.Minor);
+                WriteByte(0); // Placeholder for the compression status
             }
-            WriteByte(encoding.Major);
-            WriteByte(encoding.Minor);
         }
 
         /// <summary>Writes a fixed-size numeric value to the stream.</summary>

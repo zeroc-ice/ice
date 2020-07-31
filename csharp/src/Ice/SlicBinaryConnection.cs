@@ -226,7 +226,8 @@ namespace ZeroC.Ice
                 case Ice2Definitions.FrameType.Request:
                 {
                     var request = new IncomingRequestFrame(Endpoint.Protocol,
-                                                           readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
+                                                           readBuffer.Slice(Ice2Definitions.HeaderSize + 4),
+                                                           _frameSizeMax);
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, request);
                     return (readBuffer.AsReadOnlySpan(Ice2Definitions.HeaderSize, 4).ReadInt(), request);
                 }
@@ -234,7 +235,8 @@ namespace ZeroC.Ice
                 case Ice2Definitions.FrameType.Reply:
                 {
                     var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
-                                                                  readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
+                                                                  readBuffer.Slice(Ice2Definitions.HeaderSize + 4),
+                                                                  _frameSizeMax);
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, responseFrame);
                     return (readBuffer.AsReadOnlySpan(14, 4).ReadInt(), responseFrame);
                 }

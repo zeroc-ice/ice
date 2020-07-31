@@ -5,7 +5,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {

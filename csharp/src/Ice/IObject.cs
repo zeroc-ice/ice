@@ -83,7 +83,11 @@ namespace ZeroC.Ice
             string id = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
             bool ret = IceIsA(id, current);
             return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current, format: null, ret, OutputStream.IceWriterFromBool));
+                OutgoingResponseFrame.WithReturnValue(current,
+                                                      format: null,
+                                                      compress: false,
+                                                      ret,
+                                                      OutputStream.IceWriterFromBool));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
@@ -91,7 +95,11 @@ namespace ZeroC.Ice
             request.ReadEmptyParamList(current.Communicator);
             string ret = IceId(current);
             return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current, format: null, ret, OutputStream.IceWriterFromString));
+                OutgoingResponseFrame.WithReturnValue(current,
+                                                      format: null,
+                                                      compress: false,
+                                                      ret,
+                                                      OutputStream.IceWriterFromString));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
@@ -99,8 +107,11 @@ namespace ZeroC.Ice
             request.ReadEmptyParamList(current.Communicator);
             IEnumerable<string> ret = IceIds(current);
             return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current, format: null, ret,
-                    (ostr, ret) => ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
+                OutgoingResponseFrame.WithReturnValue(current,
+                                                      format: null,
+                                                      compress: false,
+                                                      ret,
+                                            (ostr, ret) => ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
         }
     }
 }
