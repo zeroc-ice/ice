@@ -118,7 +118,7 @@ namespace ZeroC.IceLocatorDiscovery
                             await newLocator.InvokeAsync(outgoingRequest).ConfigureAwait(false);
                         return new OutgoingResponseFrame(incomingRequest, incomingResponse.Payload);
                     }
-                    catch (DispatchException)
+                    catch (ObjectNotExistException)
                     {
                         throw;
                     }

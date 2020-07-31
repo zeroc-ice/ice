@@ -14,6 +14,7 @@ namespace ZeroC.Ice.Test.Exceptions
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
             TextWriter output = helper.GetWriter();
             {
                 output.Write("testing object adapter registration exceptions... ");
@@ -77,7 +78,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 }
 
                 adapter.Remove("x");
-                adapter.Remove("x"); // as of Ice 4.0, can remove multiple times
+                adapter.Remove("x"); // as of Ice 4.0, Remove succeeds with multiple removals
                 adapter.Dispose();
                 output.WriteLine("ok");
             }
@@ -249,50 +250,6 @@ namespace ZeroC.Ice.Test.Exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching remote exception... ");
-            output.Flush();
-
-            try
-            {
-                thrower.ThrowUndeclaredA(1);
-                TestHelper.Assert(false);
-            }
-            catch (A)
-            {
-            }
-            catch
-            {
-                TestHelper.Assert(false);
-            }
-
-            try
-            {
-                thrower.ThrowUndeclaredB(1, 2);
-                TestHelper.Assert(false);
-            }
-            catch (B)
-            {
-            }
-            catch
-            {
-                TestHelper.Assert(false);
-            }
-
-            try
-            {
-                thrower.ThrowUndeclaredC(1, 2, 3);
-                TestHelper.Assert(false);
-            }
-            catch (C)
-            {
-            }
-            catch
-            {
-                TestHelper.Assert(false);
-            }
-
-            output.WriteLine("ok");
-
             if (thrower.GetConnection() != null)
             {
                 output.Write("testing memory limit marshal exception...");
@@ -368,7 +325,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    TestHelper.Assert(ex.Id.Equals(identity));
+                    TestHelper.Assert(ex.Identity == identity);
                     TestHelper.Assert(ex.Message.Contains("servant")); // verify we don't get system message
                 }
                 catch
@@ -424,6 +381,26 @@ namespace ZeroC.Ice.Test.Exceptions
 
             output.WriteLine("ok");
 
+            output.Write("catching custom dispatch exception... ");
+            output.Flush();
+            try
+            {
+                thrower.ThrowCustomDispatchException();
+                TestHelper.Assert(false);
+            }
+            catch (CustomDispatchException ex)
+            {
+                // It's just a regular remote exception.
+                TestHelper.Assert(ex.Identity == thrower.Identity &&
+                    ex.Operation == "throwCustomDispatchException" &&
+                    ex.Custom == "custom");
+            }
+            catch
+            {
+                TestHelper.Assert(false);
+            }
+            output.WriteLine("ok");
+
             output.Write("catching unhandled local exception... ");
             output.Flush();
 
@@ -435,6 +412,16 @@ namespace ZeroC.Ice.Test.Exceptions
             catch (UnhandledException ex)
             {
                 TestHelper.Assert(ex.Message.Contains("unhandled exception")); // verify we get custom message
+
+                // With ice1, the identity & operation are not set; with ice2, they are.
+                if (ice1)
+                {
+                    TestHelper.Assert(ex.Identity == Identity.Empty && ex.Operation.Length == 0);
+                }
+                else
+                {
+                    TestHelper.Assert(ex.Identity == thrower.Identity && ex.Operation == "throwLocalException");
+                }
             }
             catch
             {
@@ -717,80 +704,6 @@ namespace ZeroC.Ice.Test.Exceptions
 
             output.WriteLine("ok");
 
-            output.Write("catching remote exception with AMI... ");
-            output.Flush();
-
-            {
-                try
-                {
-                    thrower.ThrowUndeclaredAAsync(1).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException exc)
-                {
-                    try
-                    {
-                        TestHelper.Assert(exc.InnerException != null);
-                        throw exc.InnerException;
-                    }
-                    catch (A)
-                    {
-                    }
-                    catch
-                    {
-                        TestHelper.Assert(false);
-                    }
-                }
-            }
-
-            {
-                try
-                {
-                    thrower.ThrowUndeclaredBAsync(1, 2).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException exc)
-                {
-                    try
-                    {
-                        TestHelper.Assert(exc.InnerException != null);
-                        throw exc.InnerException;
-                    }
-                    catch (B)
-                    {
-                    }
-                    catch
-                    {
-                        TestHelper.Assert(false);
-                    }
-                }
-            }
-
-            {
-                try
-                {
-                    thrower.ThrowUndeclaredCAsync(1, 2, 3).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException exc)
-                {
-                    try
-                    {
-                        TestHelper.Assert(exc.InnerException != null);
-                        throw exc.InnerException;
-                    }
-                    catch (C)
-                    {
-                    }
-                    catch
-                    {
-                        TestHelper.Assert(false);
-                    }
-                }
-            }
-
-            output.WriteLine("ok");
-
             output.Write("catching object not exist exception with AMI... ");
             output.Flush();
 
@@ -811,7 +724,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Id.Equals(identity));
+                        TestHelper.Assert(ex.Identity == identity);
                     }
                     catch
                     {
@@ -959,80 +872,6 @@ namespace ZeroC.Ice.Test.Exceptions
             }
             output.WriteLine("ok");
 
-            output.Write("catching remote exception with AMI... ");
-            output.Flush();
-
-            {
-                try
-                {
-                    thrower.ThrowUndeclaredAAsync(1).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException exc)
-                {
-                    try
-                    {
-                        TestHelper.Assert(exc.InnerException != null);
-                        throw exc.InnerException;
-                    }
-                    catch (A)
-                    {
-                    }
-                    catch
-                    {
-                        TestHelper.Assert(false);
-                    }
-                }
-            }
-
-            {
-                try
-                {
-                    thrower.ThrowUndeclaredBAsync(1, 2).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException exc)
-                {
-                    try
-                    {
-                        TestHelper.Assert(exc.InnerException != null);
-                        throw exc.InnerException;
-                    }
-                    catch (B)
-                    {
-                    }
-                    catch
-                    {
-                        TestHelper.Assert(false);
-                    }
-                }
-            }
-
-            {
-                try
-                {
-                    thrower.ThrowUndeclaredCAsync(1, 2, 3).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException exc)
-                {
-                    try
-                    {
-                        TestHelper.Assert(exc.InnerException != null);
-                        throw exc.InnerException;
-                    }
-                    catch (C)
-                    {
-                    }
-                    catch
-                    {
-                        TestHelper.Assert(false);
-                    }
-                }
-            }
-
-            output.WriteLine("ok");
-
             output.Write("catching object not exist exception with AMI... ");
             output.Flush();
 
@@ -1053,7 +892,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Id.Equals(identity));
+                        TestHelper.Assert(ex.Identity == identity);
                     }
                     catch
                     {

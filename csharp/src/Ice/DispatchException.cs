@@ -15,8 +15,8 @@ namespace ZeroC.Ice
         }
 
         protected override string DefaultMessage =>
-            Facet.Length == 0 ? $"failed to dispatch request for operation `{Operation}' on Ice object `{Id}'"
-                : $"failed to dispatch request for operation `{Operation}' on Ice object `{Id}' with facet `{Facet}'";
+            Facet.Length == 0 ? $"failed to dispatch request for operation `{Operation}' on Ice object `{Identity}'" :
+            $"failed to dispatch request for operation `{Operation}' on Ice object `{Identity}' with facet `{Facet}'";
     }
 
     public partial class ObjectNotExistException
@@ -27,7 +27,7 @@ namespace ZeroC.Ice
         }
 
         protected override string DefaultMessage =>
-            $"could not find servant for Ice object `{Id}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
+            $"could not find servant for Ice object `{Identity}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
             $" while attempting to dispatch operation `{Operation}'";
     }
 
@@ -39,20 +39,24 @@ namespace ZeroC.Ice
         }
 
         protected override string DefaultMessage =>
-            $"could not find operation `{Operation}' for Ice object `{Id}'" +
+            $"could not find operation `{Operation}' for Ice object `{Identity}'" +
             (Facet.Length > 0 ? $" with facet `{Facet}'" : "");
     }
 
     public partial class UnhandledException
     {
-        public UnhandledException(Identity id, string facet, string operation, Exception innerException)
-            : base(CustomMessage(id, facet, operation, innerException), id, facet, operation, innerException)
+        public UnhandledException(Identity identity, string facet, string operation, Exception innerException)
+            : base(CustomMessage(identity, facet, operation, innerException),
+                   identity,
+                   facet,
+                   operation,
+                   innerException)
         {
         }
 
-        private static string CustomMessage(Identity id, string facet, string operation, Exception innerException)
+        private static string CustomMessage(Identity identity, string facet, string operation, Exception innerException)
         {
-            string message = $"unhandled exception while dispatching `{operation}' on Ice object `{id}'";
+            string message = $"unhandled exception while dispatching `{operation}' on Ice object `{identity}'";
             if (facet.Length > 0)
             {
                 message += $" with facet `{facet}'";
@@ -60,8 +64,8 @@ namespace ZeroC.Ice
 #if DEBUG
             message += $":\n{innerException}\n---";
 #else
-            // Since this custom message will be sent "over the wire", we don't include the stack trace of the inner
-            // exception since it can include sensitive information. The stack trace is of course available locally.
+            // The stack trace of the inner exception can include sensitive information we don't want to send
+            // "over the wire" in non-debug builds.
             message += $":\n{innerException.Message}";
 #endif
             return message;

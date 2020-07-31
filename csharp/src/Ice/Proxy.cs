@@ -456,7 +456,7 @@ namespace ZeroC.Ice
                             }
 
                             // TODO: revisit retry logic
-                            // We only retry after failing with a DispatchException or a local exception.
+                            // We only retry after failing with an ObjectNotExistException or a local exception.
                             int delay = reference.CheckRetryAfterException(ex,
                                                                            progressWrapper.IsSent,
                                                                            request.IsIdempotent,

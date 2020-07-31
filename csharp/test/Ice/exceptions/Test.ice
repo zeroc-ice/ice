@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/DispatchException.ice>
 
 [[suppress-warning:reserved-identifier]]
 
@@ -37,6 +38,11 @@ exception D
     int dMem;
 }
 
+exception CustomDispatchException : Ice::DispatchException
+{
+    string custom;
+}
+
 interface Thrower
 {
     void shutdown();
@@ -49,9 +55,7 @@ interface Thrower
     void throwBasB(int a, int b);
     void throwCasB(int a, int b, int c);
     void throwCasC(int a, int b, int c);
-    void throwUndeclaredA(int a);
-    void throwUndeclaredB(int a, int b);
-    void throwUndeclaredC(int a, int b, int c);
+    void throwCustomDispatchException();
     void throwLocalException();
     void throwNonIceException();
     void throwAssertException();

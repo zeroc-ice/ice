@@ -144,7 +144,7 @@ namespace ZeroC.Ice
                 {
                     ObjectNotExistException _ => ReplyStatus.ObjectNotExistException,
                     OperationNotExistException _ => ReplyStatus.OperationNotExistException,
-                    DispatchException _ => ReplyStatus.UnknownLocalException,
+                    UnhandledException _ => ReplyStatus.UnknownLocalException,
                     _ => ReplyStatus.UserException
                 };
             }
@@ -190,7 +190,7 @@ namespace ZeroC.Ice
                     case ReplyStatus.ObjectNotExistException:
                     case ReplyStatus.OperationNotExistException:
                         var dispatchException = (DispatchException)exception;
-                        dispatchException.Id.IceWrite(ostr);
+                        dispatchException.Identity.IceWrite(ostr);
                         ostr.WriteFacet(dispatchException.Facet);
                         ostr.WriteString(dispatchException.Operation);
                         break;

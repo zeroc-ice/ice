@@ -192,6 +192,13 @@ namespace ZeroC.Ice
                                            Ice1Definitions.Encoding,
                                            communicator,
                                            startEncapsulation: true);
+
+                    if (ReplyStatus == ReplyStatus.UserException && istr.Encoding != Encoding.V1_1)
+                    {
+                        throw new InvalidDataException(
+                            $"ice1 user exception encoded using encoding `{istr.Encoding}'");
+                    }
+                    // ReplyStatus.OK can have any encoding.
                 }
                 else
                 {
