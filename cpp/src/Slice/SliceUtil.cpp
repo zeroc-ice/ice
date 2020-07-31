@@ -693,35 +693,6 @@ Slice::getSortedMembers(const DataMemberList& members)
 }
 
 DataMemberList
-Slice::getSortedTaggedMembers(const DataMemberList& members)
-{
-    DataMemberList result;
-    for (const auto& member : members)
-    {
-        if (member->tagged())
-        {
-            result.push_back(member);
-        }
-    }
-    sortMembers(result);
-    return result;
-}
-
-DataMemberList
-Slice::getRequiredMembers(const DataMemberList& members)
-{
-    DataMemberList result;
-    for (const auto& member : members)
-    {
-        if (!member->tagged())
-        {
-            result.push_back(member);
-        }
-    }
-    return result;
-}
-
-DataMemberList
 Slice::getClassTypeMembers(const DataMemberList& members)
 {
     DataMemberList result;

@@ -77,12 +77,9 @@ std::string snakeCase(const std::string&);
 // - non-tagged members listed first but kept in the same order
 // - tagged members listed last and sorted in tag order
 void sortMembers(DataMemberList& members);
-// Returns a pair of lists corresponding to the outputs of sortedTaggedMembers and requiredMembers respectively.
+// Returns a pair of lists respectively containing the required members, and tagged members of the provided list.
+// Untagged members are kept in their original ordering, and tagged members are sorted by tag.
 std::pair<DataMemberList, DataMemberList> getSortedMembers(const DataMemberList& members);
-// Returns a new list containing all the tagged members of the provided list, sorted by tag.
-DataMemberList getSortedTaggedMembers(const DataMemberList& members);
-// Returns a new list containing all the untagged members of the provided list, in their original order.
-DataMemberList getRequiredMembers(const DataMemberList& members);
 // Returns a new list containing all the members of the provided list that use classes, in their original order.
 DataMemberList getClassTypeMembers(const DataMemberList& members);
 

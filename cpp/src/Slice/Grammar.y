@@ -1245,6 +1245,8 @@ data_member
 : tagged_type_id
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
         DataMemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag);
@@ -1256,6 +1258,8 @@ data_member
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
         DataMemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
@@ -1268,6 +1272,8 @@ data_member
 {
     TypePtr type = TypePtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
         $$ = cont->createDataMember(name, type, false, 0); // Dummy
@@ -1278,6 +1284,8 @@ data_member
 {
     TypePtr type = TypePtr::dynamicCast($1);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
         $$ = cont->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
