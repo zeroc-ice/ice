@@ -95,7 +95,7 @@ namespace ZeroC.Ice
                 byte compressionStatus = istr.ReadByte();
                 if (compressionStatus != 0)
                 {
-                    throw new InvalidOperationException("payload encapsulation is compressed");
+                    throw new ArgumentException("buffer encapsulation is compressed", nameof(buffer));
                 }
             }
             istr.CheckEndOfBuffer(skipTaggedParams: true);
@@ -133,7 +133,7 @@ namespace ZeroC.Ice
                 byte compressionStatus = istr.ReadByte();
                 if (compressionStatus != 0)
                 {
-                    throw new InvalidOperationException("payload encapsulation is compressed");
+                    throw new ArgumentException("buffer encapsulation is compressed", nameof(buffer));
                 }
             }
             T result = payloadReader(istr);

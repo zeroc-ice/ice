@@ -90,35 +90,6 @@ opFormatTypeToString(const OperationPtr& op)
     return "???";
 }
 
-string opCompress(const OperationPtr& op, bool params)
-{
-    string direction = params ? "params" : "return";
-    string prefix = "compress:";
-    string compress = op->findMetaDataWithPrefix(prefix);
-    if (compress.empty())
-    {
-        compress = ContainedPtr::dynamicCast(op->container())->findMetaDataWithPrefix(prefix);
-    }
-
-    if (compress.empty())
-    {
-        return "false";
-    }
-    vector<string> directions;
-    splitString(compress, ",", directions);
-    return (find(directions.begin(), directions.end(), direction) != directions.end()) ? "true" : "false";
-}
-
-string opCompressParams(const OperationPtr& op)
-{
-    return opCompress(op, true);
-}
-
-string opCompressReturn(const OperationPtr& op)
-{
-    return opCompress(op, false);
-}
-
 string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
@@ -2636,7 +2607,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << ",";
         _out << nl << "format: " << opFormatTypeToString(operation) << ",";
-        _out << nl << "compress: " << opCompressParams(operation) << ",";
+        _out << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ",";
         _out << nl << "writer: ";
         writeOutgoingRequestWriter(operation);
     }
@@ -2865,8 +2836,8 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "Response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(";
         _out.inc();
         _out << nl << "current, "
+             << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
              << opFormatTypeToString(operation) << ", "
-             << "compress: " << opCompressReturn(operation) << ", "
              << toTuple(outParams, "iceP_") << ",";
         if(outParams.size() > 1)
         {
@@ -3035,8 +3006,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "var response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue("
                  << "current, "
+                 << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
                  << opFormatTypeToString(operation) << ", "
-                 << "compress: " << opCompressReturn(operation) << ", "
                  << "result, "
                  << writer << ");";
 

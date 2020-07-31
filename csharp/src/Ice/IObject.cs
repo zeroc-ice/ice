@@ -84,8 +84,8 @@ namespace ZeroC.Ice
             bool ret = IceIsA(id, current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current,
-                                                      format: null,
                                                       compress: false,
+                                                      format: null,
                                                       ret,
                                                       OutputStream.IceWriterFromBool));
         }
@@ -96,8 +96,8 @@ namespace ZeroC.Ice
             string ret = IceId(current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current,
-                                                      format: null,
                                                       compress: false,
+                                                      format: null,
                                                       ret,
                                                       OutputStream.IceWriterFromString));
         }
@@ -108,8 +108,8 @@ namespace ZeroC.Ice
             IEnumerable<string> ret = IceIds(current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current,
-                                                      format: null,
                                                       compress: false,
+                                                      format: null,
                                                       ret,
                                             (ostr, ret) => ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
         }

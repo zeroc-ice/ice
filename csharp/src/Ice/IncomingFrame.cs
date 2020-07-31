@@ -14,6 +14,22 @@ namespace ZeroC.Ice
     {
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
+        /// <summary>If the encapsulation has a compressed payload, false otherwise.</summary>
+        public bool HasCompressedPayload
+        {
+            get
+            {
+                if (Encoding == Encoding.V2_0)
+                {
+                    (_, int sizeLength) = Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding());
+                    return Payload[sizeLength + 2] != 0;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
         /// <summary>The payload of this request frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         // TODO: describe how long this payload remains valid once we add memory pooling.
@@ -25,28 +41,22 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count</summary>
         public int Size { get; private set; }
 
-        // Ice2 compression status, is the first byte of the encaps payload
-        internal byte CompressionStatus
-        {
-            get
-            {
-                Debug.Assert(Encoding == Encoding.V2_0);
-                (_, int sizeLength) = Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding());
-                return Payload[sizeLength + 2];
-            }
-        }
-
         private readonly int _sizeMax;
 
         /// <summary>Decompress the encapsulation payload if it is compressed. Compressed encapsulations are
         /// only supported with 2.0 encoding.</summary>
         public void DecompressPayload()
         {
-            if (Encoding == Encoding.V2_0 && CompressionStatus == 1)
+            if (!HasCompressedPayload)
             {
-                // TODO should this throw if encoding is not V2_0 or the frame is not compressed?
+                throw new InvalidOperationException("the encaps payload is not compressed");
+            }
+            else
+            {
                 ReadOnlySpan<byte> buffer = Payload.AsReadOnlySpan();
                 (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
+                // Read the decompressed size that is written after the compression status byte when the payload is
+                // compressed, +3 corresponds to (Encoding 2 bytes, CompressionStatus 1 byte)
                 (int decompressedSize, int decompressedSizeLength) = buffer.Slice(sizeLength + 3).ReadSize20();
                 if (decompressedSize > _sizeMax)
                 {

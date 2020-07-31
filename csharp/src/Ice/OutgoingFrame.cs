@@ -15,9 +15,9 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload.</summary>
         public Encoding Encoding { get; }
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
-        public bool IsSealed { get; protected set; }
+        public bool IsSealed { get; private protected set; }
         /// <summary>Returns a list of array segments with the contents of the request frame payload. The payload
-        /// correspond to the frame encapsulation, the Payload data is lazy initialize from the frame data the first
+        /// corresponds to the frame encapsulation, the Payload data is lazy initialized from the frame data the first
         /// time it is accessed, if the Payload has not been written it returns an empty list.</summary>
         public IList<ArraySegment<byte>> Payload
         {
@@ -59,7 +59,7 @@ namespace ZeroC.Ice
         public Protocol Protocol { get; }
 
         /// <summary>The frame byte count.</summary>
-        public int Size { get; protected set; }
+        public int Size { get; private protected set; }
 
         // True if Ice1 frames should use protocol compression, false otherwise.
         internal bool Compress { get; }
@@ -76,31 +76,32 @@ namespace ZeroC.Ice
         /// only supported with 2.0 encoding.</summary>
         public void CompressPayload()
         {
-            // TODO compress payload does nothing if Encoding != 2.0, should we throw instead?
-            if (Encoding == Encoding.V2_0)
+            if (PayloadEnd == null)
             {
-                if (PayloadEnd == null)
-                {
-                    throw new InvalidOperationException("payload has not been written");
-                }
+                throw new InvalidOperationException("payload has not been written");
+            }
 
+            if (Encoding != Encoding.V2_0)
+            {
+                throw new InvalidOperationException("encaps compressed payload are only supported with 2.0 encoding");
+            }
+            else
+            {
                 IList<ArraySegment<byte>> payload = Payload;
-                int sizeLength = 1 << (payload[0][0] & 0x03);
+                int sizeLength = Protocol.GetEncoding() == Encoding.V2_0 ? 1 << (payload[0][0] & 0x03) : 4;
 
                 byte compressionStatus = payload[0].Count > sizeLength + 2 ?
                     payload[0][sizeLength + 2] : payload[1][sizeLength + 2 - payload[0].Count];
 
                 if (compressionStatus != 0)
                 {
-                    // payload is already compressed
-                    // TODO should we throw instead?
-                    return;
+                    throw new InvalidOperationException("encaps payload is already compressed");
                 }
 
-                int payloadLength = payload.GetByteCount();
+                int payloadSize = payload.GetByteCount();
                 // Reserve memory for the compressed data, this should never be greater than the uncompressed data
                 // otherwise we will just send the uncompressed data.
-                byte[] compressedData = new byte[payloadLength];
+                byte[] compressedData = new byte[payloadSize];
                 // Write the encapsulation header
                 int offset = sizeLength;
                 compressedData[offset++] = Encoding.Major;
@@ -108,7 +109,7 @@ namespace ZeroC.Ice
                 // Set the compression status to '1' GZip compressed
                 compressedData[offset++] = 1;
                 // Write the size of the uncompressed data
-                OutputStream.WriteSize20(payloadLength - offset, compressedData.AsSpan(offset, sizeLength));
+                OutputStream.WriteSize20(payloadSize - offset, compressedData.AsSpan(offset, sizeLength));
                 offset += sizeLength;
                 using var memoryStream = new MemoryStream(compressedData, offset, compressedData.Length - offset);
                 var gzipStream = new GZipStream(memoryStream, CompressionLevel.Fastest);
@@ -153,7 +154,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal OutgoingFrame(Protocol protocol, Encoding encoding, List<ArraySegment<byte>> data, bool compress)
+        private protected OutgoingFrame(Protocol protocol, Encoding encoding, bool compress, List<ArraySegment<byte>> data)
         {
             Protocol = protocol;
             Protocol.CheckSupported();

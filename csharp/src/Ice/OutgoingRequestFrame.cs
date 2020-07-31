@@ -30,11 +30,11 @@ namespace ZeroC.Ice
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         /// <param name="value">The parameter to marshal in the frame.</param>
         /// <param name="writer">The delegate into marshal the parameter to the frame.</param>
         /// <returns>A new OutgoingRequestFrame</returns>
@@ -42,13 +42,13 @@ namespace ZeroC.Ice
             IObjectPrx proxy,
             string operation,
             bool idempotent,
+            bool compress,
             FormatType? format,
             IReadOnlyDictionary<string, string>? context,
-            bool compress,
             T value,
             OutputStreamWriter<T> writer)
         {
-            var request = new OutgoingRequestFrame(proxy, operation, idempotent, context, compress);
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request.PayloadStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
@@ -65,11 +65,11 @@ namespace ZeroC.Ice
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         /// <param name="value">The parameter to marshal in the frame, when the request frame contain multiple
         /// parameters they must be passed as a tuple.</param>
         /// <param name="writer">The delegate to marshal the parameters into the frame.</param>
@@ -78,13 +78,13 @@ namespace ZeroC.Ice
             IObjectPrx proxy,
             string operation,
             bool idempotent,
+            bool compress,
             FormatType? format,
             IReadOnlyDictionary<string, string>? context,
-            bool compress,
             in T value,
             OutputStreamValueWriter<T> writer) where T : struct
         {
-            var request = new OutgoingRequestFrame(proxy, operation, idempotent, context, compress);
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request.PayloadStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
@@ -111,8 +111,8 @@ namespace ZeroC.Ice
             new OutgoingRequestFrame(proxy,
                                      operation,
                                      idempotent,
-                                     context,
                                      compress: false,
+                                     context,
                                      writeEmptyParamList: true);
 
         /// <summary>Creates a new outgoing request frame with the given payload.</summary>
@@ -120,21 +120,21 @@ namespace ZeroC.Ice
         /// and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
         /// </param>
-        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         // TODO: should we pass the payload as a list of segments, or maybe has a separate
         // ctor that accepts a list of segments instead of a single segment
         internal OutgoingRequestFrame(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
+            bool compress,
             IReadOnlyDictionary<string, string>? context,
-            ArraySegment<byte> payload,
-            bool compress)
-            : this(proxy, operation, idempotent, context, compress)
+            ArraySegment<byte> payload)
+            : this(proxy, operation, idempotent, compress, context)
         {
             if (payload.Count < 6)
             {
@@ -166,10 +166,10 @@ namespace ZeroC.Ice
             IObjectPrx proxy,
             string operation,
             bool idempotent,
-            IReadOnlyDictionary<string, string>? context,
             bool compress,
+            IReadOnlyDictionary<string, string>? context,
             bool writeEmptyParamList = false)
-            : base(proxy.Protocol, proxy.Encoding, new List<ArraySegment<byte>>(), compress)
+            : base(proxy.Protocol, proxy.Encoding, compress, new List<ArraySegment<byte>>())
         {
             Identity = proxy.Identity;
             Facet = proxy.Facet;

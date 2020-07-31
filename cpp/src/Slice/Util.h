@@ -81,6 +81,12 @@ DataMemberList sortForMarshaling(const DataMemberList&);
 // Returns the size of the bit sequence used to encode the optional elements in this data member list.
 size_t getBitSequenceSize(const DataMemberList&);
 
+// Returns true if the compress:params metadata is set for the operation
+bool opCompressParams(const OperationPtr& op);
+
+// Returns true if the compress:return metadata is set for the operation
+bool opCompressReturn(const OperationPtr& op);
+
 }
 
 #endif

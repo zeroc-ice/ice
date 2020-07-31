@@ -34,16 +34,16 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
-        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
         /// <param name="value">The return value to marshal.</param>
         /// <param name="writer">A delegate that must write the value to the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
-            FormatType? format,
             bool compress,
+            FormatType? format,
             T value,
             OutputStreamWriter<T> writer)
         {
@@ -65,17 +65,17 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
-        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
         /// <param name="value">The return value to marshal, when the response frame contains multiple return
         /// values they must be passed in a tuple.</param>
         /// <param name="writer">A delegate that must write the value to the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
-            FormatType? format,
             bool compress,
+            FormatType? format,
             in T value,
             OutputStreamValueWriter<T> writer)
             where T : struct
@@ -202,7 +202,7 @@ namespace ZeroC.Ice
             IncomingRequestFrame request,
             bool compress,
             List<ArraySegment<byte>>? data = null)
-            : base(request.Protocol, request.Encoding, data ?? new List<ArraySegment<byte>>(), compress)
+            : base(request.Protocol, request.Encoding, compress, data ?? new List<ArraySegment<byte>>())
         {
             if (data != null)
             {

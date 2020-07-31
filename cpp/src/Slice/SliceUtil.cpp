@@ -696,3 +696,34 @@ Slice::getBitSequenceSize(const DataMemberList& members)
     }
     return result;
 }
+
+
+namespace
+{
+
+bool opCompress(const OperationPtr& op, bool params)
+{
+    string direction = params ? "params" : "return";
+    string prefix = "compress:";
+    string compress = op->findMetaDataWithPrefix(prefix);
+
+    if (compress.empty())
+    {
+        return false;
+    }
+    vector<string> directions;
+    splitString(compress, ",", directions);
+    return find(directions.begin(), directions.end(), direction) != directions.end();
+}
+
+}
+
+bool Slice::opCompressParams(const OperationPtr& op)
+{
+    return opCompress(op, true);
+}
+
+bool Slice::opCompressReturn(const OperationPtr& op)
+{
+    return opCompress(op, false);
+}

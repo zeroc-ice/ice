@@ -78,7 +78,7 @@ namespace ZeroC.Ice
         /// they must be return as a tuple.</returns>
         public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader)
         {
-            if (Encoding == Encoding.V2_0 && CompressionStatus == 1)
+            if (HasCompressedPayload)
             {
                 DecompressPayload();
             }

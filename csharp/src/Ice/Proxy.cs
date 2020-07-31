@@ -340,9 +340,9 @@ namespace ZeroC.Ice
             var forwardedRequest = new OutgoingRequestFrame(proxy,
                                                             request.Operation,
                                                             request.IsIdempotent,
+                                                            compressRequestFrame,
                                                             request.Context,
-                                                            request.Payload,
-                                                            compressRequestFrame);
+                                                            request.Payload);
 
             IncomingResponseFrame response = await proxy.InvokeAsync(forwardedRequest,
                                                                      oneway: oneway,

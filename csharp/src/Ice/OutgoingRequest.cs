@@ -13,8 +13,13 @@ namespace ZeroC.Ice
     public class OutgoingRequest<TReturnValue>
     {
         private readonly InputStreamReader<TReturnValue> _reader;
+        private protected readonly bool _compress;
 
-        private protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
+        private protected OutgoingRequest(InputStreamReader<TReturnValue> reader, bool compress)
+        {
+            _reader = reader;
+            _compress = compress;
+        }
 
         private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request) =>
             prx.Invoke(request, oneway: false).ReadReturnValue(prx.Communicator, _reader);
@@ -49,7 +54,7 @@ namespace ZeroC.Ice
         public OutgoingRequestWithEmptyParamList(string operationName,
                                                  bool idempotent,
                                                  InputStreamReader<TReturnValue> reader)
-            : base(reader)
+            : base(reader, compress: false)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -72,7 +77,6 @@ namespace ZeroC.Ice
     public sealed class OutgoingRequestWithParam<TParamList, TReturnValue>
         : OutgoingRequest<TReturnValue>
     {
-        private readonly bool _compress;
         private readonly bool _idempotent;
         private readonly string _operationName;
         private readonly FormatType? _format;
@@ -85,12 +89,11 @@ namespace ZeroC.Ice
             bool compress,
             OutputStreamWriter<TParamList> writer,
             InputStreamReader<TReturnValue> reader)
-            : base(reader)
+            : base(reader, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
             _format = format;
-            _compress = compress;
             _writer = writer;
         }
 
@@ -98,9 +101,9 @@ namespace ZeroC.Ice
             Invoke(prx, OutgoingRequestFrame.WithParamList(prx,
                                                            _operationName,
                                                            _idempotent,
+                                                           _compress,
                                                            _format,
                                                            context,
-                                                           _compress,
                                                            paramList,
                                                            _writer));
 
@@ -114,9 +117,9 @@ namespace ZeroC.Ice
                         OutgoingRequestFrame.WithParamList(prx,
                                                            _operationName,
                                                            _idempotent,
+                                                           _compress,
                                                            _format,
                                                            context,
-                                                           _compress,
                                                            paramList,
                                                            _writer),
                         progress,
@@ -130,7 +133,6 @@ namespace ZeroC.Ice
     public sealed class OutgoingRequestWithStructParam<TParamList, TReturnValue>
         : OutgoingRequest<TReturnValue> where TParamList : struct
     {
-        private readonly bool _compress;
         private readonly string _operationName;
         private readonly bool _idempotent;
         private readonly FormatType? _format;
@@ -143,12 +145,11 @@ namespace ZeroC.Ice
             bool compress,
             OutputStreamValueWriter<TParamList> writer,
             InputStreamReader<TReturnValue> reader)
-            : base(reader)
+            : base(reader, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
             _format = format;
-            _compress = compress;
             _writer = writer;
         }
 
@@ -160,9 +161,9 @@ namespace ZeroC.Ice
                    OutgoingRequestFrame.WithParamList(prx,
                                                       _operationName,
                                                       _idempotent,
+                                                      _compress,
                                                       _format,
                                                       context,
-                                                      _compress,
                                                       paramList,
                                                       _writer));
 
@@ -176,9 +177,9 @@ namespace ZeroC.Ice
                         OutgoingRequestFrame.WithParamList(prx,
                                                            _operationName,
                                                            _idempotent,
+                                                           _compress,
                                                            _format,
                                                            context,
-                                                           _compress,
                                                            paramList,
                                                            _writer),
                         progress,
@@ -189,8 +190,13 @@ namespace ZeroC.Ice
     public class OutgoingRequest
     {
         private readonly bool _oneway;
+        private protected readonly bool _compress;
 
-        private protected OutgoingRequest(bool oneway) => _oneway = oneway;
+        private protected OutgoingRequest(bool oneway, bool compress)
+        {
+            _oneway = oneway;
+            _compress = compress;
+        }
 
         private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
@@ -231,7 +237,7 @@ namespace ZeroC.Ice
         private readonly bool _idempotent;
 
         public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway)
-        : base(oneway)
+        : base(oneway, compress: false)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -253,7 +259,6 @@ namespace ZeroC.Ice
     // is not a structure type.
     public sealed class OutgoingRequestWithParam<TParamList> : OutgoingRequest
     {
-        private readonly bool _compress;
         private readonly string _operationName;
         private readonly bool _idempotent;
         private readonly FormatType? _format;
@@ -266,12 +271,11 @@ namespace ZeroC.Ice
             FormatType? format,
             bool compress,
             OutputStreamWriter<TParamList> writer)
-        : base(oneway)
+        : base(oneway, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
             _format = format;
-            _compress = compress;
             _writer = writer;
         }
 
@@ -283,9 +287,9 @@ namespace ZeroC.Ice
                    OutgoingRequestFrame.WithParamList(prx,
                                                       _operationName,
                                                       _idempotent,
+                                                      _compress,
                                                       _format,
                                                       context,
-                                                      _compress,
                                                       paramList,
                                                       _writer));
 
@@ -299,9 +303,9 @@ namespace ZeroC.Ice
                         OutgoingRequestFrame.WithParamList(prx,
                                                            _operationName,
                                                            _idempotent,
+                                                           _compress,
                                                            _format,
                                                            context,
-                                                           _compress,
                                                            paramList,
                                                            _writer),
                         progress,
@@ -314,7 +318,6 @@ namespace ZeroC.Ice
     public sealed class OutgoingRequestWithStructParam<TParamList>
         : OutgoingRequest where TParamList : struct
     {
-        private readonly bool _compress;
         private readonly string _operationName;
         private readonly bool _idempotent;
         private readonly FormatType? _format;
@@ -327,12 +330,11 @@ namespace ZeroC.Ice
             FormatType? format,
             bool compress,
             OutputStreamValueWriter<TParamList> writer)
-        : base(oneway)
+        : base(oneway, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
             _format = format;
-            _compress = compress;
             _writer = writer;
         }
 
@@ -344,9 +346,9 @@ namespace ZeroC.Ice
                    OutgoingRequestFrame.WithParamList(prx,
                                                       _operationName,
                                                       _idempotent,
+                                                      _compress,
                                                       _format,
                                                       context,
-                                                      _compress,
                                                       paramList,
                                                       _writer));
 
@@ -359,9 +361,9 @@ namespace ZeroC.Ice
                         OutgoingRequestFrame.WithParamList(prx,
                                                            _operationName,
                                                            _idempotent,
+                                                           _compress,
                                                            _format,
                                                            context,
-                                                           _compress,
                                                            paramList,
                                                            _writer),
                         progress,

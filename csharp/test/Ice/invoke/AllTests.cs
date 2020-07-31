@@ -42,9 +42,9 @@ namespace ZeroC.Ice.Test.Invoke
                 request = OutgoingRequestFrame.WithParamList(cl,
                                                              "opString",
                                                              idempotent: false,
+                                                             compress: false,
                                                              format: null,
                                                              context: null,
-                                                             compress: false,
                                                              TestString,
                                                              OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
@@ -104,9 +104,9 @@ namespace ZeroC.Ice.Test.Invoke
                 request = OutgoingRequestFrame.WithParamList(cl,
                                                              "opString",
                                                              idempotent: false,
+                                                             compress: false,
                                                              format: null,
                                                              context: null,
-                                                             compress: false,
                                                              TestString,
                                                              OutputStream.IceWriterFromString);
 

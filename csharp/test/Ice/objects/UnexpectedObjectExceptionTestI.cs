@@ -12,8 +12,8 @@ namespace ZeroC.Ice.Test.Objects
         {
             var ae = new AlsoEmpty();
             var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
-                                                                      format: null,
                                                                       compress: false,
+                                                                      format: null,
                                                                       ae,
                                                     (OutputStream ostr, AlsoEmpty ae) => ostr.WriteClass(ae, null));
             return new ValueTask<OutgoingResponseFrame>(responseFrame);

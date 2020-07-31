@@ -46,7 +46,7 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
         {
-            if (Encoding == Encoding.V2_0 && CompressionStatus == 1)
+            if (HasCompressedPayload)
             {
                 DecompressPayload();
             }
@@ -66,7 +66,7 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
-            if (Encoding == Encoding.V2_0 && CompressionStatus == 1)
+            if (HasCompressedPayload)
             {
                 DecompressPayload();
             }
