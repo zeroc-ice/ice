@@ -1130,6 +1130,16 @@ namespace ZeroC.Ice
                     factory = null;
                 }
 
+                if (protocol == Protocol.Ice1 && encoding == Encoding.V2_0)
+                {
+                    byte compressionStatus = ReadByte();
+                    if (compressionStatus != 0)
+                    {
+                        throw new InvalidDataException(@$"compressed encaps not supported for endpoints {
+                                                       compressionStatus}");
+                    }
+                }
+
                 // We need to read the encaps except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {

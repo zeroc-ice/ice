@@ -1643,19 +1643,16 @@ namespace ZeroC.Ice
 
             if (endpoint.Protocol == Protocol.Ice1 || OldEncoding)
             {
+                Position startPos = _tail;
                 int sizeLength = OldEncoding ? 4 : 2;
                 if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
-                    // 2 bytes for the encoding value (e.g. 20 for 2.0)
-                    WriteEncapsulationHeader(2 + opaqueEndpoint.Value.Length,
-                                             opaqueEndpoint.ValueEncoding,
-                                             sizeLength);
+                    // 0 is a placeholder for the size.
+                    WriteEncapsulationHeader(0, opaqueEndpoint.ValueEncoding, sizeLength);
                     WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive
                 }
                 else
                 {
-                    Position startPos = _tail;
-
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
                         Ice1Definitions.Encoding : Encoding.V2_0;
@@ -1675,8 +1672,8 @@ namespace ZeroC.Ice
                         endpoint.WriteOptions(this);
                     }
                     Encoding = previousEncoding;
-                    RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
                 }
+                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
             }
             else
             {
