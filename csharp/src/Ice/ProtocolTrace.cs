@@ -75,7 +75,8 @@ namespace ZeroC.Ice
                 header[9], // Compression Status
                 header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
                 header.Slice(14, 4).ReadInt(), // Request-Id,
-                frame.ReplyStatus);
+                frame.ReplyStatus,
+                frame.Encoding);
 
         internal static void TraceCollocatedFrame(
             Communicator communicator,
@@ -110,7 +111,8 @@ namespace ZeroC.Ice
                 0,
                 frame.Size + Ice1Definitions.HeaderSize + 4,
                 requestId,
-                frame.ReplyStatus);
+                frame.ReplyStatus,
+                frame.Encoding);
 
         private static void TraceRequest(
             string traceFramePrefix,
@@ -183,7 +185,7 @@ namespace ZeroC.Ice
             int size,
             int requestId,
             ReplyStatus replyStatus,
-            Encoding? encoding = null)
+            Encoding encoding)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
@@ -191,16 +193,10 @@ namespace ZeroC.Ice
                 s.Append(traceFramePrefix);
                 PrintHeader(protocol, frameType, compress, size, s);
                 PrintRequestId(requestId, s);
-                if (protocol == Protocol.Ice1)
-                {
-                    s.Append("\nreply status = ");
-                    s.Append(replyStatus);
-                }
-                if (encoding != null)
-                {
-                    s.Append("\nencoding = ");
-                    s.Append(encoding);
-                }
+                s.Append("\nreply status = ");
+                s.Append(replyStatus);
+                s.Append("\nencoding = ");
+                s.Append(encoding.ToString());
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
         }
