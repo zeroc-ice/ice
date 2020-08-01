@@ -106,18 +106,17 @@ namespace ZeroC.Ice
             {
                 ReplyStatus = AsReplyStatus(payload[0]);
 
-                // Check the encaps if there is one.
+                // Check the encapsulation if there is one.
                 if (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException)
                 {
-                    (int size, int sizeLength, Encoding encapsEncoding) =
-                        payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Ice1Definitions.Encoding);
+                    int size;
+                    int sizeLength;
 
-                    if (encapsEncoding != Encoding)
-                    {
-                        throw new ArgumentException(@$"the encoding of the response payload (`{encapsEncoding
-                            }') must match the encoding of the request payload (`{Encoding}')",
-                            nameof(payload));
-                    }
+                    // The encoding of the request payload and response payload should usually be the same, however
+                    // this "forwarding" constructor tolerates mismatches, and sets Encoding to the value in the
+                    // encapsulation (when there is an encapsulation).
+                    (size, sizeLength, Encoding) =
+                        payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Ice1Definitions.Encoding);
 
                     if (1 + sizeLength + size != payload.Count)
                     {
@@ -130,15 +129,11 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
-                (int size, int sizeLength, Encoding encapsEncoding) =
-                        payload.AsReadOnlySpan().ReadEncapsulationHeader(Ice2Definitions.Encoding);
+                int size;
+                int sizeLength;
 
-                if (encapsEncoding != Encoding)
-                {
-                    throw new ArgumentException(@$"the encoding of the response payload (`{encapsEncoding
-                        }') must match the encoding of the request payload (`{Encoding}')",
-                        nameof(payload));
-                }
+                (size, sizeLength, Encoding) =
+                    payload.AsReadOnlySpan().ReadEncapsulationHeader(Ice2Definitions.Encoding);
 
                 if (sizeLength + size != payload.Count)
                 {
