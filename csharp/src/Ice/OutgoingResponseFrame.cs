@@ -24,14 +24,19 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The frame reply status <see cref="ReplyStatus"/>. Applies only to ice1.</summary>
-        public ReplyStatus ReplyStatus => Protocol == Protocol.Ice1 ? (ReplyStatus) Data[0][0] : ReplyStatus.OK;
+        /// <summary>The reply status <see cref="ReplyStatus"/> when the frame's payload encoding is 1.1. Otherwise,
+        /// always ReplyStatus.OK.</summary>
+        public ReplyStatus ReplyStatus { get; }
+
+        /// <summary>The result type, when known.</summary>
+        public ResultType? ResultType { get; }
 
         /// <summary>The frame byte count.</summary>
         public int Size { get; private set; }
 
         // The compression status from the incoming request.
         internal byte CompressionStatus { get; }
+
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
 
@@ -39,7 +44,7 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>();
 
-        /// <summary>Creates a new outgoing response frame with an OK reply status and a void return value.</summary>
+        /// <summary>Creates a new outgoing response with a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current) =>
@@ -51,7 +56,7 @@ namespace ZeroC.Ice
                 return response;
             });
 
-        /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
+        /// <summary>Creates a new outgoing response frame with a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
@@ -70,7 +75,7 @@ namespace ZeroC.Ice
             return response;
         }
 
-        /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
+        /// <summary>Creates a new outgoing response frame with a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
         /// the communicator's default format is used.</param>
@@ -94,19 +99,18 @@ namespace ZeroC.Ice
         /// <summary>Creates a new outgoing response frame with the given payload.</summary>
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
         /// <param name="payload">The payload for this response frame.</param>
-        // TODO: add parameter such as "bool assumeOwnership" once we add memory pooling.
-        // TODO: should we pass the payload as a list of segments, or maybe add a separate
-        // ctor that accepts a list of segments instead of a single segment
         public OutgoingResponseFrame(IncomingRequestFrame request, ArraySegment<byte> payload)
             : this(request)
         {
-            // TODO: do we need all these checks? If yes, add checks for ice2; if no, remove them from ice1.
             if (Protocol == Protocol.Ice1)
             {
-                if (payload[0] == (byte)ReplyStatus.OK || payload[0] == (byte)ReplyStatus.UserException)
+                ReplyStatus = AsReplyStatus(payload[0]);
+
+                // Check the encaps if there is one.
+                if (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException)
                 {
                     (int size, int sizeLength, Encoding encapsEncoding) =
-                        payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
+                        payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Ice1Definitions.Encoding);
 
                     if (encapsEncoding != Encoding)
                     {
@@ -115,32 +119,68 @@ namespace ZeroC.Ice
                             nameof(payload));
                     }
 
-                    if (1 + sizeLength + size != Payload.Count)
+                    if (1 + sizeLength + size != payload.Count)
                     {
                         throw new ArgumentException(
-                            $"{Payload.Count - 1 - sizeLength - size} extra bytes in response payload",
+                            $"{payload.Count - 1 - sizeLength - size} extra bytes in response payload",
                             nameof(payload));
                     }
                 }
             }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice2);
+                (int size, int sizeLength, Encoding encapsEncoding) =
+                        payload.AsReadOnlySpan().ReadEncapsulationHeader(Ice2Definitions.Encoding);
+
+                if (encapsEncoding != Encoding)
+                {
+                    throw new ArgumentException(@$"the encoding of the response payload (`{encapsEncoding
+                        }') must match the encoding of the request payload (`{Encoding}')",
+                        nameof(payload));
+                }
+
+                if (sizeLength + size != payload.Count)
+                {
+                    throw new ArgumentException(
+                        $"{payload.Count - 1 - sizeLength - size} extra bytes in response payload",
+                        nameof(payload));
+                }
+
+                if (Encoding == Encoding.V1_1)
+                {
+                    // The reply status is the first byte after the encaps header.
+                    ReplyStatus = AsReplyStatus(payload[sizeLength + 2]);
+                }
+            }
+
+            if (Encoding == Encoding.V1_1)
+            {
+                ResultType = ReplyStatus == ReplyStatus.OK ?
+                    ZeroC.Ice.ResultType.Success : ZeroC.Ice.ResultType.Failure;
+            }
+            // else Result Type remains null (= unknown)
 
             Data.Add(payload);
             Size = Data.GetByteCount();
             IsSealed = true;
+
+            static ReplyStatus AsReplyStatus(byte b) =>
+                b <= 7 ? (ReplyStatus)b :
+                    throw new ArgumentException($"invalid ice1 reply status `{b}' in payload", nameof(payload));
         }
 
         /// <summary>Creates a response frame that represents "failure" and contains an exception.</summary>
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
-            : this(request)
+            : this(request, ZeroC.Ice.ResultType.Failure)
         {
             OutputStream ostr;
-            ReplyStatus replyStatus = ReplyStatus.OK;
 
             if (Encoding == Encoding.V1_1)
             {
-                replyStatus = exception switch
+                ReplyStatus = exception switch
                 {
                     ObjectNotExistException _ => ReplyStatus.ObjectNotExistException,
                     OperationNotExistException _ => ReplyStatus.OperationNotExistException,
@@ -148,16 +188,18 @@ namespace ZeroC.Ice
                     _ => ReplyStatus.UserException
                 };
             }
+            // else ReplyStatus remains OK, as set by this(request) constructor.
 
             if (Protocol == Protocol.Ice1)
             {
-                // Always byte status followed by data that depends on this byte status.
+                // Always reply status followed by data that depends on this byte status.
                 // replyStatus is always ReplyStatus.OK for encoding 2.0
-                if (replyStatus == ReplyStatus.UserException || replyStatus == ReplyStatus.OK)
+                if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
                 {
                     byte[] buffer = new byte[256];
-                    buffer[0] = (byte)replyStatus;
+                    buffer[0] = (byte)ReplyStatus;
                     Data.Add(buffer);
+                    // Start encapsulation.
                     ostr = new OutputStream(Ice1Definitions.Encoding,
                                             Data,
                                             new OutputStream.Position(0, 1),
@@ -167,7 +209,7 @@ namespace ZeroC.Ice
                 else
                 {
                     ostr = new OutputStream(Ice1Definitions.Encoding, Data); // not an encapsulation
-                    ostr.WriteByte((byte)replyStatus);
+                    ostr.WriteByte((byte)ReplyStatus);
                 }
             }
             else
@@ -180,12 +222,16 @@ namespace ZeroC.Ice
                                         Encoding,
                                         FormatType.Sliced);
 
-                // TODO: when Encoding = 1.1, add binary context with reply status.
+                if (Encoding == Encoding.V1_1)
+                {
+                    // First byte of encapsulation is reply status
+                    ostr.WriteByte((byte)ReplyStatus);
+                }
             }
 
             if (Encoding == Encoding.V1_1)
             {
-                switch (replyStatus)
+                switch (ReplyStatus)
                 {
                     case ReplyStatus.ObjectNotExistException:
                     case ReplyStatus.OperationNotExistException:
@@ -207,7 +253,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Encoding == Encoding.V2_0);
-                ostr.WriteByte((byte)ResultType.Failure);
+                ostr.WriteByte((byte)ResultType!.Value);
                 ostr.WriteException(exception);
             }
 
@@ -220,14 +266,14 @@ namespace ZeroC.Ice
             Current current,
             FormatType? format)
         {
-            var response = new OutgoingResponseFrame(current.IncomingRequestFrame);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame, ZeroC.Ice.ResultType.Success);
 
             OutputStream ostr;
             if (response.Protocol == Protocol.Ice1)
             {
                 // Always byte status OK followed by encapsulation.
                 byte[] buffer = new byte[256];
-                buffer[0] = (byte)ReplyStatus.OK;
+                buffer[0] = (byte)response.ReplyStatus;
                 response.Data.Add(buffer);
                 ostr = new OutputStream(Ice1Definitions.Encoding,
                                         response.Data,
@@ -245,37 +291,35 @@ namespace ZeroC.Ice
                                         response.Encoding,
                                         format ?? current.Communicator.DefaultFormat);
 
-                // TODO: when response.Encoding == 1.1, we could set the reply status binary context, unless we
-                // consider that not set means OK.
+                if (response.Encoding == Encoding.V1_1)
+                {
+                    // First byte is reply status
+                    ostr.WriteByte((byte)response.ReplyStatus);
+                }
             }
 
             if (response.Encoding == Encoding.V2_0)
             {
-                ostr.WriteByte((byte)ResultType.Success);
+                ostr.WriteByte((byte)response.ResultType!.Value);
             }
 
             return (response, ostr);
         }
 
-        private OutgoingResponseFrame(IncomingRequestFrame request, List<ArraySegment<byte>>? data = null)
+        private OutgoingResponseFrame(IncomingRequestFrame request, ResultType? resultType = null)
         {
             Protocol = request.Protocol;
             Encoding = request.Encoding;
+            ReplyStatus = ReplyStatus.OK; // can be overwritten by exception constructor
+            ResultType = resultType;
+
+            Data = new List<ArraySegment<byte>>();
+
             // No need to keep track of the compression status for Ice2, the compression is handled by
             // the encapsulation. We need it for Ice1, since the compression is handled by protocol.
             if (Protocol == Protocol.Ice1)
             {
                 CompressionStatus = request.CompressionStatus;
-            }
-            if (data == null)
-            {
-                Data = new List<ArraySegment<byte>>();
-            }
-            else
-            {
-                Data = data;
-                Size = Data.GetByteCount();
-                IsSealed = true;
             }
         }
 

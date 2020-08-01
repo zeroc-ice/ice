@@ -25,8 +25,9 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The frame reply status <see cref="ReplyStatus"/>. Applies only to ice1 frames.</summary>
-        public ReplyStatus ReplyStatus => Protocol == Protocol.Ice1 ? (ReplyStatus)Payload[0] : ReplyStatus.OK;
+        /// <summary>The reply status <see cref="ReplyStatus"/> when the frame's payload encoding is 1.1. Otherwise,
+        /// always ReplyStatus.OK.</summary>
+        public ReplyStatus ReplyStatus { get; } = ReplyStatus.OK;
 
         /// <summary>The frame byte count.</summary>
         public int Size => Payload.Count;
@@ -62,6 +63,11 @@ namespace ZeroC.Ice
                                             default,
                                             key.Encoding,
                                             FormatType.Compact);
+
+                    if (key.Encoding == Encoding.V1_1)
+                    {
+                        ostr.WriteByte((byte)ReplyStatus.OK);
+                    }
                 }
 
                 if (key.Encoding == Encoding.V2_0)
@@ -81,9 +87,6 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
         {
-            // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
-            // context.
-
             (InputStream istr, ResultType resultType) = PrepareReadReturnValue(communicator);
 
             if (resultType == ResultType.Success)
@@ -108,9 +111,6 @@ namespace ZeroC.Ice
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
-            // TODO: for now, we assume ReplyStatus is set properly with ice2/1.1, which actually requires a binary
-            // context.
-
             (InputStream istr, ResultType resultType) = PrepareReadReturnValue(communicator);
 
             if (resultType == ResultType.Success)
@@ -136,12 +136,7 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                byte replyStatus = Payload[0];
-                if (replyStatus > 7)
-                {
-                    throw new InvalidDataException(
-                        $"received ice1 response frame with unknown reply status `{replyStatus}'");
-                }
+                ReplyStatus = AsReplyStatus(Payload[0]);
 
                 if (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException)
                 {
@@ -176,7 +171,17 @@ namespace ZeroC.Ice
                     throw new InvalidDataException(
                         $"{Payload.Count - sizeLength - size} extra bytes in ice2 response frame");
                 }
+
+                if (Encoding == Encoding.V1_1)
+                {
+                    // The reply status is the first byte after the encaps header.
+                    ReplyStatus = AsReplyStatus(Payload[sizeLength + 2]);
+                }
             }
+
+            static ReplyStatus AsReplyStatus(byte b) =>
+                b <= 7 ? (ReplyStatus)b :
+                    throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
         }
 
         private (InputStream Istr, ResultType ResultType) PrepareReadReturnValue(Communicator communicator)
@@ -210,6 +215,11 @@ namespace ZeroC.Ice
                 Debug.Assert(Protocol == Protocol.Ice2);
                 // Always an encapsulation.
                 istr = new InputStream(Payload, Ice2Definitions.Encoding, communicator, startEncapsulation: true);
+                if (istr.Encoding == Encoding.V1_1)
+                {
+                    byte b = istr.ReadByte();
+                    Debug.Assert(b == (byte)ReplyStatus); // we already read and checked this byte in the constructor
+                }
             }
 
             ResultType resultType;
