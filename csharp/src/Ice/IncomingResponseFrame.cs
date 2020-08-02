@@ -100,7 +100,7 @@ namespace ZeroC.Ice
                 byte b = Payload[0];
                 if (b > 1)
                 {
-                    throw new ArgumentException($"invalid ice2 result type `{b}' in payload", nameof(payload));
+                    throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
                 }
                 ReplyStatus = (ReplyStatus)b; // OK or UserException, but can be fixed again, see below
             }
