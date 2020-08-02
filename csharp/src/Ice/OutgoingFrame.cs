@@ -135,8 +135,8 @@ namespace ZeroC.Ice
                                                                     System.IO.Compression.CompressionLevel.Optimal);
                 try
                 {
-                    // The data to compress starts after the compression status byte,
-                    // +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
+                    // The data to compress starts after the compression status byte, +3 corresponds to (Encoding 2
+                    // bytes, Compression status 1 byte)
                     gzipStream.Write(payload[0].Slice(sizeLength + 3));
                     for (int i = 1; i < payload.Count; ++i)
                     {

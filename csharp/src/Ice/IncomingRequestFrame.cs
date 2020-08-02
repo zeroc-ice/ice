@@ -75,8 +75,14 @@ namespace ZeroC.Ice
         /// correspond to the empty parameter list.</summary>
         /// <param name="communicator">The communicator.</param>
         // TODO: we currently need the communicator only to skip (read) tagged classes.
-        public void ReadEmptyParamList(Communicator communicator) =>
+        public void ReadEmptyParamList(Communicator communicator)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
             Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
+        }
 
         /// <summary>Reads the request frame parameter list.</summary>
         /// <param name="communicator">The communicator.</param>
