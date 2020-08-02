@@ -25,10 +25,10 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The reply status <see cref="ZeroC.Ice.ReplyStatus"/>.</summary>
+        /// <summary>The reply status; see <see cref="ZeroC.Ice.ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
 
-        /// <summary>The result type <see cref="ZeroC.Ice.ResultType"/>.</summary>
+        /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
 
         /// <summary>The frame byte count.</summary>
@@ -57,29 +57,25 @@ namespace ZeroC.Ice
         /// <param name="reader">An input stream reader used to read the frame return value, when the frame
         /// return value contain multiple values the reader must use a tuple to return the values.</param>
         /// <returns>The frame return value.</returns>
-        public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
-        {
-            InputStream istr = PrepareReadReturnValue(communicator);
-            Debug.Assert(ResultType == ResultType.Success && ReplyStatus == ReplyStatus.OK);
-
-            T returnValue = reader(istr);
-            // If the reader throws an exception such as InvalidDataException, we don't check we reached the
-            // end of the buffer.
-            istr.CheckEndOfBuffer(skipTaggedParams: true);
-            return returnValue;
-        }
+        public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader) =>
+            ResultType == ResultType.Success ?
+                Payload.AsReadOnlyMemory(1).ReadEncapsulation(Encoding, communicator, reader) :
+                throw ReadException(communicator);
 
         /// <summary>Reads an empty return value from the response frame. If the response frame carries a failure, reads
         /// and throws this exception.</summary>
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
-            InputStream istr = PrepareReadReturnValue(communicator);
-            Debug.Assert(ResultType == ResultType.Success && ReplyStatus == ReplyStatus.OK);
-
-            // If the reader throws an exception such as InvalidDataException, we don't check we reached the
-            // end of the buffer.
-            istr.CheckEndOfBuffer(skipTaggedParams: true);
+            if (ResultType == ResultType.Success)
+            {
+                Debug.Assert(ReplyStatus == ReplyStatus.OK);
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Encoding, communicator);
+            }
+            else
+            {
+                throw ReadException(communicator);
+            }
         }
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
@@ -142,22 +138,25 @@ namespace ZeroC.Ice
                     throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
         }
 
-        // Returns an InputStream positioned on the first "real" byte of the payload
-        private InputStream PrepareReadReturnValue(Communicator communicator)
+        private Exception ReadException(Communicator communicator)
         {
+            Debug.Assert(ResultType != ResultType.Success);
+            Debug.Assert(ReplyStatus != ReplyStatus.OK);
+
             InputStream istr;
 
-            if (Protocol == Protocol.Ice2 || ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException)
+            if (Protocol == Protocol.Ice2 || ReplyStatus == ReplyStatus.UserException)
             {
                 istr = new InputStream(Payload.Slice(1),
                                        Protocol.GetEncoding(),
                                        communicator,
                                        startEncapsulation: true);
 
-                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1 && ReplyStatus != ReplyStatus.OK)
+                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1)
                 {
                     // Skip ReplyStatus byte read in the constructor.
                     istr.Skip(1);
+                    // Followed by user exception or special exception depending on ReplyStatus
                 }
             }
             else
@@ -166,25 +165,18 @@ namespace ZeroC.Ice
                 istr = new InputStream(Payload.Slice(1), Encoding);
             }
 
-            // These two conditions are actually the same
-            if (ResultType != ResultType.Success || ReplyStatus != ReplyStatus.OK)
+            Exception exception;
+            if (Encoding == Encoding.V1_1 && ReplyStatus != ReplyStatus.UserException)
             {
-                if (Protocol == Protocol.Ice2 || ReplyStatus == ReplyStatus.UserException)
-                {
-                    Exception exception = istr.ReadException();
-                    istr.CheckEndOfBuffer(skipTaggedParams: true);
-                    throw exception;
-                }
-                else
-                {
-                    Debug.Assert(Protocol == Protocol.Ice1 && (byte)ReplyStatus > (byte)ReplyStatus.UserException);
-                    Exception exception = istr.ReadSpecialException11(ReplyStatus);
-                    istr.CheckEndOfBuffer(skipTaggedParams: false);
-                    throw exception;
-                }
+                exception = istr.ReadSpecialException11(ReplyStatus);
+                istr.CheckEndOfBuffer(skipTaggedParams: false);
             }
-
-            return istr;
+            else
+            {
+                exception = istr.ReadException();
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+            }
+            return exception;
         }
     }
 }

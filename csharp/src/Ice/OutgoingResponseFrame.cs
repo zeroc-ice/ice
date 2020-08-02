@@ -24,10 +24,10 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The reply status <see cref="ZeroC.Ice.ReplyStatus"/>.</summary>
+        /// <summary>The reply status; see <see cref="ZeroC.Ice.ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
 
-        /// <summary>The result type <see cref="ZeroC.Ice.ResultType"/>.</summary>
+        /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
 
         /// <summary>The frame byte count.</summary>
