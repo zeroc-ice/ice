@@ -45,8 +45,7 @@ namespace ZeroC.Ice
                 var data = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
                 ostr.WriteByte(0); // Success or OK
-                ostr.WriteEmptyEncapsulation(key.Encoding);
-                ostr.Save();
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
                 return new IncomingResponseFrame(key.Protocol, data[0]);
             });
@@ -59,7 +58,7 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader) =>
             ResultType == ResultType.Success ?
-                Payload.AsReadOnlyMemory(1).ReadEncapsulation(Encoding, communicator, reader) :
+                Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader) :
                 throw ReadException(communicator);
 
         /// <summary>Reads an empty return value from the response frame. If the response frame carries a failure, reads
@@ -70,7 +69,7 @@ namespace ZeroC.Ice
             if (ResultType == ResultType.Success)
             {
                 Debug.Assert(ReplyStatus == ReplyStatus.OK);
-                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Encoding, communicator);
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
             }
             else
             {
@@ -162,7 +161,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice1 && Encoding == Encoding.V1_1);
-                istr = new InputStream(Payload.Slice(1), Encoding);
+                istr = new InputStream(Payload.Slice(1), Encoding.V1_1);
             }
 
             Exception exception;

@@ -1060,10 +1060,10 @@ namespace ZeroC.Ice
 
                 // When startEncapsulation is true, the buffer must extend until the end of the encapsulation - it
                 // cannot include extra bytes.
-                if (Pos + size - 2 != buffer.Length)
+                if (Pos + size - 2 != _buffer.Length)
                 {
                     throw new InvalidDataException(
-                        $"{buffer.Length - Pos - size - 2} bytes left in buffer after the encapsulation");
+                        $"{_buffer.Length - Pos - size - 2} bytes left in buffer after the encapsulation");
                 }
 
                 // We slice the provided buffer to the encapsulation (minus its header).

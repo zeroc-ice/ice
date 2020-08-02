@@ -416,7 +416,7 @@ namespace ZeroC.Ice
                                                                cancel).ConfigureAwait(false);
 
                             // TODO: the observer RemoteException notification is not quite correct, since with the 1.1
-                            // encoding it suppresses (on purpose) the "special" exceptions.
+                            // encoding it suppresses (on purpose) the system exceptions.
                             if ((response.Encoding == Encoding.V1_1 &&
                                     response.ReplyStatus == ReplyStatus.UserException) ||
                                 (response.Encoding != Encoding.V1_1 && response.ResultType == ResultType.Failure))
@@ -425,7 +425,7 @@ namespace ZeroC.Ice
                             }
 
                             // TODO: revisit
-                            // We throw here the special 1.1 exceptions, as they are used for retries
+                            // We throw here the 1.1 system exceptions, as they are used for retries
                             if (response.Encoding == Encoding.V1_1 &&
                                 (byte)response.ReplyStatus > (byte)ReplyStatus.UserException)
                             {

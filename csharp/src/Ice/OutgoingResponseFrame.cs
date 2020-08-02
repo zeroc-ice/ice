@@ -43,7 +43,7 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>();
 
-        /// <summary>Creates a new outgoing response with a void return value.</summary>
+        /// <summary>Creates a new outgoing response frame with a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current) =>
@@ -142,6 +142,11 @@ namespace ZeroC.Ice
                     // the first byte of the encapsulation is the actual ReplyStatus
                     // "+ 2" corresponds to the 2 bytes for the encoding in the encapsulation header
                     ReplyStatus = AsReplyStatus(payload[1 + sizeLength + 2]);
+
+                    if (ReplyStatus == ReplyStatus.OK)
+                    {
+                        throw new ArgumentException("invalid reply status in ice2 response payload", nameof(payload));
+                    }
                 }
             }
 
