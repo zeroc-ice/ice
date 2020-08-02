@@ -1174,26 +1174,17 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
-        /// <summary>Reads a facet from the stream.</summary>
-        /// <returns>The facet read from the stream.</returns>
-        internal string ReadFacet()
-        {
-            string[] facets = ReadArray(1, IceReaderIntoString);
-            if (facets.Length > 1)
-            {
-                throw new InvalidDataException($"read ice1 facet path with {facets.Length} elements");
-            }
-            return facets.Length == 1 ? facets[0] : "";
-        }
-
-        internal Exception ReadIce1Exception(ReplyStatus replyStatus)
+        /// <summary>Reads a "special" exception encoded using the 1.1 encoding, based on the provided reply status.
+        /// </summary>
+        /// <param name="replyStatus">The reply status.</param>
+        /// <returns>The exception read from the stream.</returns>
+        internal Exception ReadSpecialException11(ReplyStatus replyStatus)
         {
             Debug.Assert(OldEncoding);
+            Debug.Assert((byte)replyStatus > (byte)ReplyStatus.UserException);
+
             switch (replyStatus)
             {
-                case ReplyStatus.UserException:
-                    return ReadException();
-
                 case ReplyStatus.FacetNotExistException:
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.OperationNotExistException:
@@ -1213,6 +1204,18 @@ namespace ZeroC.Ice
                 default:
                     return new UnhandledException(ReadString(), Identity.Empty, "", "");
             }
+        }
+
+        /// <summary>Reads a facet from the stream.</summary>
+        /// <returns>The facet read from the stream.</returns>
+        internal string ReadFacet()
+        {
+            string[] facets = ReadArray(1, IceReaderIntoString);
+            if (facets.Length > 1)
+            {
+                throw new InvalidDataException($"read ice1 facet path with {facets.Length} elements");
+            }
+            return facets.Length == 1 ? facets[0] : "";
         }
 
         internal void Skip(int size)

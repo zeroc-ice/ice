@@ -4,10 +4,9 @@
 
 namespace ZeroC.Ice
 {
-    /// <summary>When Ice receives a response frame with an encapsulation encoded using the 2.0 encoding, the byte
-    /// immediately after the compression byte in the decompressed encapsulation payload contains the result type.
-    /// </summary>
-    // The values are consistent with the ReplyStatus enumerators.
+    /// <summary>The result type used in ice2 response frames.</summary>
+    // Note: the values Success and Failure match (and must match) the values of ReplyStatus.OK and
+    // ReplyStatus.UserException.
     public enum ResultType : byte
     {
         Success = 0,

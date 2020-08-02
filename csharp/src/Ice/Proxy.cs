@@ -415,23 +415,36 @@ namespace ZeroC.Ice
                                                                progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            // TODO: rework this code, in particular the observer notification. Also it does not
-                            // work correctly for ice2 responses that contain a 1.1 payload, when it should.
-                            if (proxy.Protocol == Protocol.Ice1)
+                            // TODO: the observer RemoteException notification is not quite correct, since with the 1.1
+                            // encoding it suppresses (on purpose) the "special" exceptions.
+                            if ((response.Encoding == Encoding.V1_1 &&
+                                    response.ReplyStatus == ReplyStatus.UserException) ||
+                                (response.Encoding != Encoding.V1_1 && response.ResultType == ResultType.Failure))
                             {
-                                switch (response.ReplyStatus)
+                                observer?.RemoteException();
+                            }
+
+                            // TODO: revisit
+                            // We throw here the special 1.1 exceptions, as they are used for retries
+                            if (response.Encoding == Encoding.V1_1 &&
+                                (byte)response.ReplyStatus > (byte)ReplyStatus.UserException)
+                            {
+                                InputStream istr;
+                                if (response.Protocol == Protocol.Ice2)
                                 {
-                                    case ReplyStatus.OK:
-                                        break;
-                                    case ReplyStatus.UserException:
-                                        observer?.RemoteException();
-                                        break;
-                                    default:
-                                        var istr = new InputStream(response.Payload.Slice(1), Ice1Definitions.Encoding);
-                                        Exception exception = istr.ReadIce1Exception(response.ReplyStatus);
-                                        istr.CheckEndOfBuffer(skipTaggedParams: false);
-                                        throw exception;
+                                    istr = new InputStream(response.Payload.Slice(1),
+                                                           Ice2Definitions.Encoding,
+                                                           proxy.Communicator,
+                                                           startEncapsulation: true);
+                                    istr.Skip(1); // skip ReplyStatus byte
                                 }
+                                else
+                                {
+                                    istr = new InputStream(response.Payload.Slice(1), Encoding.V1_1);
+                                }
+                                Exception exception = istr.ReadSpecialException11(response.ReplyStatus);
+                                istr.CheckEndOfBuffer(skipTaggedParams: false);
+                                throw exception;
                             }
                             return response;
                         }
