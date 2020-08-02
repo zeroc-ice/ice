@@ -168,7 +168,7 @@ namespace ZeroC.Ice
             Exception exception;
             if (Encoding == Encoding.V1_1 && ReplyStatus != ReplyStatus.UserException)
             {
-                exception = istr.ReadSpecialException11(ReplyStatus);
+                exception = istr.ReadSystemException11(ReplyStatus);
                 istr.CheckEndOfBuffer(skipTaggedParams: false);
             }
             else

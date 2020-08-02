@@ -442,7 +442,7 @@ namespace ZeroC.Ice
                                 {
                                     istr = new InputStream(response.Payload.Slice(1), Encoding.V1_1);
                                 }
-                                Exception exception = istr.ReadSpecialException11(response.ReplyStatus);
+                                Exception exception = istr.ReadSystemException11(response.ReplyStatus);
                                 istr.CheckEndOfBuffer(skipTaggedParams: false);
                                 throw exception;
                             }
