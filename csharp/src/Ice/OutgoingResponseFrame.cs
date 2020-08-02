@@ -29,7 +29,11 @@ namespace ZeroC.Ice
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
                 ostr.WriteByte((byte)ReplyStatus.OK);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                return new OutgoingResponseFrame(current.IncomingRequestFrame, compress: false, data);
+                return new OutgoingResponseFrame(current.IncomingRequestFrame,
+                                                 compress: false,
+                                                 compressionLevel: CompressionLevel.Fastest,
+                                                 compressionMinSize: 100,
+                                                 data);
             });
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
@@ -47,7 +51,10 @@ namespace ZeroC.Ice
             T value,
             OutputStreamWriter<T> writer)
         {
-            var response = new OutgoingResponseFrame(current.IncomingRequestFrame, compress);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame,
+                                                     compress,
+                                                     current.Communicator.CompressionLevel,
+                                                     current.Communicator.CompressionMinSize);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
@@ -80,7 +87,10 @@ namespace ZeroC.Ice
             OutputStreamValueWriter<T> writer)
             where T : struct
         {
-            var response = new OutgoingResponseFrame(current.IncomingRequestFrame, compress);
+            var response = new OutgoingResponseFrame(current.IncomingRequestFrame,
+                                                     compress,
+                                                     current.Communicator.CompressionLevel,
+                                                     current.Communicator.CompressionMinSize);
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
@@ -112,7 +122,7 @@ namespace ZeroC.Ice
             bool compress,
             ReplyStatus replyStatus,
             ArraySegment<byte> payload)
-            : this(request, compress)
+            : this(request, compress, compressionLevel: CompressionLevel.Fastest, compressionMinSize: 100)
         {
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
@@ -145,6 +155,7 @@ namespace ZeroC.Ice
             Debug.Assert(payload.Offset > 0);
             Debug.Assert(payload.Array != null);
             payload = new ArraySegment<byte>(payload.Array, payload.Offset - 1, payload.Count + 1);
+            Debug.Assert(payload[0] == (byte)replyStatus);
             Data.Add(payload);
             Size = Data.GetByteCount();
             IsSealed = true;
@@ -154,7 +165,7 @@ namespace ZeroC.Ice
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
-            : this(request, false)
+            : this(request, compress: false, compressionLevel: CompressionLevel.Fastest, compressionMinSize: 100)
         {
             OutputStream ostr;
             if (exception is DispatchException dispatchException)
@@ -201,8 +212,15 @@ namespace ZeroC.Ice
         private OutgoingResponseFrame(
             IncomingRequestFrame request,
             bool compress,
+            CompressionLevel compressionLevel,
+            int compressionMinSize,
             List<ArraySegment<byte>>? data = null)
-            : base(request.Protocol, request.Encoding, compress, data ?? new List<ArraySegment<byte>>())
+            : base(request.Protocol,
+                   request.Encoding,
+                   compress,
+                   compressionLevel,
+                   compressionMinSize,
+                   data ?? new List<ArraySegment<byte>>())
         {
             if (data != null)
             {

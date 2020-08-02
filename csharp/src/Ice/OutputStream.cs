@@ -1620,6 +1620,10 @@ namespace ZeroC.Ice
             _format = format;
             _startPos = _tail;
             WriteEncapsulationHeader(0, payloadEncoding); // 0 is a placeholder for the actual encapsulation size
+            if (payloadEncoding == Encoding.V2_0)
+            {
+                WriteByte(0); // Placeholder for the compression status
+            }
             Encoding = payloadEncoding;
         }
 
@@ -1645,6 +1649,10 @@ namespace ZeroC.Ice
         {
             encoding.CheckSupported();
             WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding, sizeLength: 1);
+            if (encoding == Encoding.V2_0)
+            {
+                WriteByte(0); // Placeholder for the compression status
+            }
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
         }
@@ -2049,11 +2057,6 @@ namespace ZeroC.Ice
 
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
-
-            if (encoding == Encoding.V2_0)
-            {
-                WriteByte(0); // Placeholder for the compression status
-            }
         }
 
         /// <summary>Writes a fixed-size numeric value to the stream.</summary>

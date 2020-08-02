@@ -16,6 +16,7 @@ namespace ZeroC.Ice
         public override Encoding Encoding { get; }
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
+
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
         /// <summary>When true, the operation is idempotent.</summary>
@@ -29,7 +30,8 @@ namespace ZeroC.Ice
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
-        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax) : base(protocol, data, sizeMax)
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
+            : base(protocol, data, sizeMax)
         {
             var istr = new InputStream(data, Protocol.GetEncoding());
             Identity = new Identity(istr);
@@ -54,6 +56,12 @@ namespace ZeroC.Ice
                 // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
             }
             Encoding = encoding;
+
+            if (Encoding == Encoding.V2_0)
+            {
+                HasCompressedPayload =
+                    Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
+            }
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when

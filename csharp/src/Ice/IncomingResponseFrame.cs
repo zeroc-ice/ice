@@ -104,11 +104,19 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
                 }
-                // TODO: ice2
             }
             else
             {
                 Encoding = Protocol.GetEncoding();
+            }
+
+            if (Encoding == Encoding.V2_0)
+            {
+                HasCompressedPayload =
+                    (Protocol == Protocol.Ice2 ||
+                    (Protocol == Protocol.Ice1 && (ReplyStatus == ReplyStatus.OK ||
+                                                   ReplyStatus == ReplyStatus.UserException))) &&
+                    Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
             }
         }
 

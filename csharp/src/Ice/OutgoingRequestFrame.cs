@@ -169,7 +169,12 @@ namespace ZeroC.Ice
             bool compress,
             IReadOnlyDictionary<string, string>? context,
             bool writeEmptyParamList = false)
-            : base(proxy.Protocol, proxy.Encoding, compress, new List<ArraySegment<byte>>())
+            : base(proxy.Protocol,
+                   proxy.Encoding,
+                   compress,
+                   proxy.Communicator.CompressionLevel,
+                   proxy.Communicator.CompressionMinSize,
+                   new List<ArraySegment<byte>>())
         {
             Identity = proxy.Identity;
             Facet = proxy.Facet;

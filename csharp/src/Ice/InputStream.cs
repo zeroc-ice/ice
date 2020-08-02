@@ -1071,6 +1071,15 @@ namespace ZeroC.Ice
                 Pos = 0;
                 Encoding = encapsEncoding;
                 Encoding.CheckSupported();
+
+                if (encapsEncoding == Encoding.V2_0)
+                {
+                    byte compressionStatus = ReadByte();
+                    if (compressionStatus != 0)
+                    {
+                        throw new InvalidDataException("the buffer encapsulation is compressed");
+                    }
+                }
             }
             _inEncapsulation = startEncapsulation;
         }
@@ -1129,17 +1138,8 @@ namespace ZeroC.Ice
                     factory = null;
                 }
 
-                if (encoding == Encoding.V2_0)
-                {
-                    byte compressionStatus = ReadByte();
-                    if (compressionStatus != 0)
-                    {
-                        throw new InvalidDataException(@$"compressed encaps not supported for endpoints {
-                                                       compressionStatus}");
-                    }
-                }
-
-                size -= encoding == Encoding.V2_0 ? 3 : 2;
+                // -2 Corresponds to 2 bytes of the Encoding, nested encaps never use compressed payload.
+                size -= 2;
 
                 // We need to read the encaps except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)

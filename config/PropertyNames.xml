@@ -325,7 +325,8 @@ generated from the section label.
         <property name="ClassGraphDepthMax" />
         <property name="ClientAccessPolicyProtocol" />
         <property name="CloseTimeout" />
-        <property name="Compression.Level" />
+        <property name="CompressionLevel" />
+        <property name="CompressionMinSize" />
         <property name="ConnectTimeout" />
         <property name="CollectObjects"/>
         <property name="Config" />

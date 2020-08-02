@@ -84,22 +84,11 @@ namespace ZeroC.Ice
         public static void ReadEmptyEncapsulation(
             this ReadOnlyMemory<byte> buffer,
             Encoding encoding,
-            Communicator communicator)
-        {
-            var istr = new InputStream(buffer,
+            Communicator communicator) =>
+            new InputStream(buffer,
                             encoding,
                             communicator,
-                            startEncapsulation: true);
-            if (istr.Encoding == Encoding.V2_0)
-            {
-                byte compressionStatus = istr.ReadByte();
-                if (compressionStatus != 0)
-                {
-                    throw new ArgumentException("buffer encapsulation is compressed", nameof(buffer));
-                }
-            }
-            istr.CheckEndOfBuffer(skipTaggedParams: true);
-        }
+                            startEncapsulation: true).CheckEndOfBuffer(skipTaggedParams: true);
 
         /// <summary>Reads an empty encapsulation from the buffer, with the encapsulation header encoded using the 2.0
         /// encoding.</summary>
@@ -128,14 +117,6 @@ namespace ZeroC.Ice
             InputStreamReader<T> payloadReader)
         {
             var istr = new InputStream(buffer, encoding, communicator, startEncapsulation: true);
-            if (istr.Encoding == Encoding.V2_0)
-            {
-                byte compressionStatus = istr.ReadByte();
-                if (compressionStatus != 0)
-                {
-                    throw new ArgumentException("buffer encapsulation is compressed", nameof(buffer));
-                }
-            }
             T result = payloadReader(istr);
             istr.CheckEndOfBuffer(skipTaggedParams: true);
             return result;

@@ -430,7 +430,7 @@ namespace ZeroC.Ice
             if (BZip2.IsLoaded && compress)
             {
                 List<ArraySegment<byte>>? compressed = null;
-                if (size >= 100)
+                if (size >= Endpoint.Communicator.CompressionMinSize)
                 {
                     compressed = BZip2.Compress(writeBuffer,
                                                 size,

@@ -2,7 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Test;
 
@@ -12,9 +13,31 @@ namespace ZeroC.Ice.Test.Compress
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            ITestIntfPrx? server = AllTests.Run(this);
-            await server.ShutdownAsync();
+            TextWriter output = GetWriter();
+            output.Write("testing operations using compression... ");
+            output.Flush();
+            {
+                await using Communicator communicator = Initialize(ref args,
+                    new Dictionary<string, string>()
+                    {
+                        ["Ice.CompressionMinSize"] = "1K"
+                    });
+                    _ = AllTests.Run(this, communicator);
+            }
+
+            {
+                // Repeat with Optimal compression level
+                await using Communicator communicator = Initialize(ref args,
+                    new Dictionary<string, string>()
+                    {
+                        ["Ice.CompressionLevel"] = "Optimal",
+                        ["Ice.CompressionMinSize"] = "1K"
+                    });
+                ITestIntfPrx? server = AllTests.Run(this, communicator);
+                await server.ShutdownAsync();
+            }
+
+            output.WriteLine("ok");
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

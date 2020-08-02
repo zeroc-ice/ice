@@ -9,6 +9,16 @@ using System.IO.Compression;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Indicate the result of the compress payload operation.</summary>
+    public enum CompressionResult
+    {
+        /// <summary>The encaps payload was successfully compressed.</summary>
+        Success,
+        /// <summary>The encaps payload size is bellow the configured compression threshold.</summary>
+        PayloadTooSmall,
+        /// <summary>The encaps payload was not compressed, compressing it would increase its size.</summary>
+        PayloadNotCompressible
+    }
     /// <summary>Base class for outgoing frames.</summary>
     public abstract class OutgoingFrame
     {
@@ -70,11 +80,15 @@ namespace ZeroC.Ice
         // Position of the start of the payload.
         internal OutputStream.Position PayloadStart;
 
+        private readonly CompressionLevel _compressionLevel;
+        private readonly int _compressionMinSize;
+
         private IList<ArraySegment<byte>>? _payload;
 
         /// <summary>Compress the encapsulation payload using GZip compression, compressed encapsulation payload is
         /// only supported with 2.0 encoding.</summary>
-        public void CompressPayload()
+        /// <returns>A <see cref="CompressionResult"/> value indicating the result of the compression operation.</returns>
+        public CompressionResult CompressPayload()
         {
             if (PayloadEnd == null)
             {
@@ -99,6 +113,10 @@ namespace ZeroC.Ice
                 }
 
                 int payloadSize = payload.GetByteCount();
+                if (payloadSize < _compressionMinSize)
+                {
+                    return CompressionResult.PayloadTooSmall;
+                }
                 // Reserve memory for the compressed data, this should never be greater than the uncompressed data
                 // otherwise we will just send the uncompressed data.
                 byte[] compressedData = new byte[payloadSize];
@@ -109,12 +127,16 @@ namespace ZeroC.Ice
                 // Set the compression status to '1' GZip compressed
                 compressedData[offset++] = 1;
                 // Write the size of the uncompressed data
-                OutputStream.WriteSize20(payloadSize - offset, compressedData.AsSpan(offset, sizeLength));
+                OutputStream.WriteSize20(payloadSize - sizeLength, compressedData.AsSpan(offset, sizeLength));
                 offset += sizeLength;
                 using var memoryStream = new MemoryStream(compressedData, offset, compressedData.Length - offset);
-                var gzipStream = new GZipStream(memoryStream, CompressionLevel.Fastest);
+                var gzipStream = new GZipStream(memoryStream,
+                    _compressionLevel == CompressionLevel.Fastest ? System.IO.Compression.CompressionLevel.Fastest :
+                                                                    System.IO.Compression.CompressionLevel.Optimal);
                 try
                 {
+                    // The data to compress starts after the compression status byte,
+                    // +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
                     gzipStream.Write(payload[0].Slice(sizeLength + 3));
                     for (int i = 1; i < payload.Count; ++i)
                     {
@@ -126,7 +148,7 @@ namespace ZeroC.Ice
                 {
                     // If the data doesn't fit in the memory stream NotSupportedException is thrown when GZipStream
                     // try to expand the fixed size MemoryStream.
-                    return;
+                    return CompressionResult.PayloadNotCompressible;
                 }
 
                 // Slice the payload start segment and remove all segments after it, the compressed payload will be
@@ -151,16 +173,25 @@ namespace ZeroC.Ice
                                              compressedData.AsSpan(0, sizeLength),
                                              Protocol.GetEncoding());
                 _payload = null;
+                return CompressionResult.Success;
             }
         }
 
-        private protected OutgoingFrame(Protocol protocol, Encoding encoding, bool compress, List<ArraySegment<byte>> data)
+        private protected OutgoingFrame(
+            Protocol protocol,
+            Encoding encoding,
+            bool compress,
+            CompressionLevel compressionLevel,
+            int compressionMinSize,
+            List<ArraySegment<byte>> data)
         {
             Protocol = protocol;
             Protocol.CheckSupported();
             Encoding = encoding;
             Data = data;
             Compress = compress;
+            _compressionLevel = compressionLevel;
+            _compressionMinSize = compressionMinSize;
         }
 
         internal void Finish(OutputStream.Position payloadEnd)
