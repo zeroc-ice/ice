@@ -126,8 +126,7 @@ namespace ZeroC.Ice
         {
             if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
             {
-                // The minimum size for the payload is 7 bytes, the reply status byte plus 6 bytes for an
-                // empty encapsulation.
+                // The minimum size for the payload is 6 bytes for an empty encapsulation.
                 if (payload.Count < 6)
                 {
                     throw new ArgumentException(

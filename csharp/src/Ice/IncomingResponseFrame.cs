@@ -112,9 +112,7 @@ namespace ZeroC.Ice
 
             HasCompressedPayload =
                 Encoding == Encoding.V2_0 &&
-                (Protocol == Protocol.Ice2 ||
-                (Protocol == Protocol.Ice1 && (ReplyStatus == ReplyStatus.OK ||
-                                               ReplyStatus == ReplyStatus.UserException))) &&
+                (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException) &&
                 Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
         }
 

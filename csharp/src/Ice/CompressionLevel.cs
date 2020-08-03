@@ -10,8 +10,8 @@ namespace ZeroC.Ice
     {
         /// <summary>The compression operation should complete as quickly as possible.</summary>
         Fastest = 0,
-        /// <summary>The compression operation should be optimally compressed, even if the operation takes a longer
-        /// time to complete.</summary>
+        /// <summary>The compression operation should be optimal, even if the operation takes a longer time to
+        /// complete.</summary>
         Optimal = 1
     }
 }
