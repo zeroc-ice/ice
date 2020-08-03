@@ -13,29 +13,20 @@ namespace ZeroC.Ice.Test.Tagged
 
         public AnyClass? PingPong(AnyClass? obj, Current current) => obj;
 
-        public void OpTaggedException(int? a, string? b, OneTagged? o, Current current) =>
-            throw new TaggedException(false, a, b, o);
+        public void OpTaggedException(int? a, string? b, Current current) =>
+            throw new TaggedException(false, a, b);
 
-        public void OpDerivedException(int? a, string? b, OneTagged? o, Current current) =>
-            throw new DerivedException(false, a, b, o, b, o);
+        public void OpDerivedException(int? a, string? b, Current current) =>
+            throw new DerivedException(false, a, b, b);
 
-        public void OpRequiredException(int? a,
-                                        string? b,
-                                        OneTagged? o,
-                                        Current current)
+        public void OpRequiredException(int? a, string? b, Current current)
         {
             var e = new RequiredException();
             e.A = a;
             e.B = b;
-            e.O = o;
             if (b != null)
             {
                 e.Ss = b;
-            }
-
-            if (o != null)
-            {
-                e.O2 = o;
             }
             throw e;
         }
@@ -63,8 +54,6 @@ namespace ZeroC.Ice.Test.Tagged
         public (FixedStruct?, FixedStruct?) OpFixedStruct(FixedStruct? p1, Current current) => (p1, p1);
 
         public (VarStruct?, VarStruct?) OpVarStruct(VarStruct? p1, Current current) => (p1, p1);
-
-        public (OneTagged?, OneTagged?) OpOneTagged(OneTagged? p1, Current current) => (p1, p1);
 
         public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) OpByteSeq(byte[]? p1, Current current) => (p1, p1);
         public (IEnumerable<byte>?, IEnumerable<byte>?) OpByteList(List<byte>? p1, Current current) => (p1, p1);
@@ -120,14 +109,6 @@ namespace ZeroC.Ice.Test.Tagged
         {
         }
 
-        public void SendTaggedClass(bool req, OneTagged? o, Current current)
-        {
-        }
-
-        public OneTagged? ReturnTaggedClass(bool req, Current current) => new OneTagged(53);
-
-        public G? OpG(G? g, Current current) => g;
-
         public void OpVoid(Current current)
         {
         }
@@ -152,12 +133,6 @@ namespace ZeroC.Ice.Test.Tagged
         public IInitial.OpMDict2MarshaledReturnValue
         OpMDict2(Dictionary<string, int>? p1, Current current) =>
             new IInitial.OpMDict2MarshaledReturnValue(p1, p1, current);
-
-        public IInitial.OpMG1MarshaledReturnValue
-        OpMG1(Current current) => new IInitial.OpMG1MarshaledReturnValue(new G(), current);
-
-        public IInitial.OpMG2MarshaledReturnValue
-        OpMG2(G? p1, Current current) => new IInitial.OpMG2MarshaledReturnValue(p1, p1, current);
 
         public bool SupportsRequiredParams(Current current) => false;
 

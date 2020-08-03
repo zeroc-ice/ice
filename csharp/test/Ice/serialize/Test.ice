@@ -72,6 +72,7 @@ class Base
     int i;
     long l;
     MyEnum e;
+    MyInterface* prx;
 }
 
 class MyClass : Base
@@ -109,8 +110,7 @@ exception MyException
     tag(3) ValStruct? optValStruct;
     tag(4) RefStruct? optRefStruct;
     tag(5) MyEnum? optEnum;
-    tag(6) MyClass? optClass;
-    tag(7) MyInterface* optProxy;
+    tag(6) MyInterface* optProxy;
 }
 
 }

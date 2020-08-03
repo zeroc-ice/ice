@@ -16,36 +16,23 @@ namespace ZeroC.Ice.Test.Tagged
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<AnyClass?>
-        PingPongAsync(AnyClass? obj, Current current) => MakeValueTask(obj);
+        public ValueTask<AnyClass?> PingPongAsync(AnyClass? obj, Current current) => MakeValueTask(obj);
 
-        public ValueTask
-        OpTaggedExceptionAsync(int? a, string? b, OneTagged? o, Current c) =>
-            throw new TaggedException(false, a, b, o);
+        public ValueTask OpTaggedExceptionAsync(int? a, string? b, Current c) =>
+            throw new TaggedException(false, a, b);
 
-        public ValueTask
-        OpDerivedExceptionAsync(int? a, string? b, OneTagged? o, Current c) =>
-            throw new DerivedException(false, a, b, o, b, o);
+        public ValueTask OpDerivedExceptionAsync(int? a, string? b, Current c) =>
+            throw new DerivedException(false, a, b, b);
 
-        public ValueTask
-        OpRequiredExceptionAsync(int? a,
-                                    string? b,
-                                    OneTagged? o,
-                                    Current c)
+        public ValueTask OpRequiredExceptionAsync(int? a, string? b, Current c)
         {
             var e = new RequiredException();
             e.A = a;
             e.B = b;
-            e.O = o;
             if (b != null)
             {
                 e.Ss = b;
             }
-            if (o != null)
-            {
-                e.O2 = o;
-            }
-
             throw e;
         }
 
@@ -76,9 +63,6 @@ namespace ZeroC.Ice.Test.Tagged
 
         public ValueTask<(VarStruct?, VarStruct?)>
         OpVarStructAsync(VarStruct? p1, Current current) => MakeValueTask((p1, p1));
-
-        public ValueTask<(OneTagged?, OneTagged?)> OpOneTaggedAsync(OneTagged? p1, Current current) =>
-            MakeValueTask((p1, p1));
 
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> OpByteSeqAsync(byte[]? p1, Current current) =>
             ToReturnValue(p1);
@@ -151,14 +135,6 @@ namespace ZeroC.Ice.Test.Tagged
 
         public ValueTask OpClassAndUnknownTaggedAsync(A? p, Current current) => new ValueTask(Task.CompletedTask);
 
-        public ValueTask SendTaggedClassAsync(bool req, OneTagged? o, Current current) =>
-            new ValueTask(Task.CompletedTask);
-
-        public ValueTask<OneTagged?> ReturnTaggedClassAsync(bool req, Current current) =>
-            new ValueTask<OneTagged?>(new OneTagged(53));
-
-        public ValueTask<G?> OpGAsync(G? g, Current current) => MakeValueTask(g);
-
         public ValueTask OpVoidAsync(Current current) => new ValueTask(Task.CompletedTask);
 
         public async ValueTask<IInitial.OpMStruct1MarshaledReturnValue>
@@ -201,20 +177,6 @@ namespace ZeroC.Ice.Test.Tagged
         {
             await Task.Delay(0);
             return new IInitial.OpMDict2MarshaledReturnValue(p1, p1, current);
-        }
-
-        public async ValueTask<IInitial.OpMG1MarshaledReturnValue>
-        OpMG1Async(Current current)
-        {
-            await Task.Delay(0);
-            return new IInitial.OpMG1MarshaledReturnValue(new G(), current);
-        }
-
-        public async ValueTask<IInitial.OpMG2MarshaledReturnValue>
-        OpMG2Async(G? p1, Current current)
-        {
-            await Task.Delay(0);
-            return new IInitial.OpMG2MarshaledReturnValue(p1, p1, current);
         }
 
         public ValueTask<bool>
