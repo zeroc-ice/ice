@@ -8,8 +8,7 @@ namespace ZeroC.Ice
     /// </summary>
     public enum CompressionLevel : byte
     {
-        /// <summary>The compression operation should complete as quickly as possible.
-        /// </summary>
+        /// <summary>The compression operation should complete as quickly as possible.</summary>
         Fastest = 0,
         /// <summary>The compression operation should be optimally compressed, even if the operation takes a longer
         /// time to complete.</summary>

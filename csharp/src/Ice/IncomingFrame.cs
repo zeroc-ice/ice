@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
-        public bool HasCompressedPayload { get; internal set; }
+        public bool HasCompressedPayload { get; protected set; }
 
         /// <summary>The payload of this request frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>

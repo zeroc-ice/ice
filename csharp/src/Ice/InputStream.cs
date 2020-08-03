@@ -1144,8 +1144,10 @@ namespace ZeroC.Ice
                 // We need to read the encaps except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {
-                    endpoint = new OpaqueEndpoint(
-                        communicator, transport, encoding, _buffer.Slice(Pos, size).ToArray());
+                    endpoint = new OpaqueEndpoint(communicator,
+                                                  transport,
+                                                  encoding,
+                                                  _buffer.Slice(Pos, size).ToArray());
                     Pos += size;
                 }
                 else if (encoding.IsSupported)

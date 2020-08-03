@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     {
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public IReadOnlyDictionary<string, string> Context { get; }
-        /// <summary>The encoding of the frame payload</summary>
+        /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
@@ -57,11 +57,9 @@ namespace ZeroC.Ice
             }
             Encoding = encoding;
 
-            if (Encoding == Encoding.V2_0)
-            {
-                HasCompressedPayload =
-                    Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
-            }
+            HasCompressedPayload =
+                Encoding == Encoding.V2_0 &&
+                Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when

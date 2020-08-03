@@ -4,12 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Indicate the result of the compress payload operation.</summary>
+    /// <summary>Indicates the result of the <see cref="OutgoingFrame.CompressPayload"/> operation.</summary>
     public enum CompressionResult
     {
         /// <summary>The encaps payload was successfully compressed.</summary>

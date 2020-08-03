@@ -110,14 +110,12 @@ namespace ZeroC.Ice
                 Encoding = Protocol.GetEncoding();
             }
 
-            if (Encoding == Encoding.V2_0)
-            {
-                HasCompressedPayload =
-                    (Protocol == Protocol.Ice2 ||
-                    (Protocol == Protocol.Ice1 && (ReplyStatus == ReplyStatus.OK ||
-                                                   ReplyStatus == ReplyStatus.UserException))) &&
-                    Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
-            }
+            HasCompressedPayload =
+                Encoding == Encoding.V2_0 &&
+                (Protocol == Protocol.Ice2 ||
+                (Protocol == Protocol.Ice1 && (ReplyStatus == ReplyStatus.OK ||
+                                               ReplyStatus == ReplyStatus.UserException))) &&
+                Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
         }
 
         private Exception ReadException(Communicator communicator)
