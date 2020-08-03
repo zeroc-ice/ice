@@ -53,11 +53,8 @@ namespace ZeroC.Ice.Test.Exceptions
 
         public ValueTask ThrowCasCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
-        public ValueTask ThrowUndeclaredAAsync(int a, Current current) => throw new A(a);
-
-        public ValueTask ThrowUndeclaredBAsync(int a, int b, Current current) => throw new B(a, b);
-
-        public ValueTask ThrowUndeclaredCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
+        public ValueTask ThrowCustomDispatchExceptionAsync(Current current) =>
+            throw new CustomDispatchException(current.Identity, current.Facet, current.Operation, "custom");
 
         public ValueTask ThrowLocalExceptionAsync(Current current) => throw new ConnectionTimeoutException();
 

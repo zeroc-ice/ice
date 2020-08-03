@@ -37,6 +37,9 @@ namespace ZeroC.Ice.Test.Exceptions
 
         public void ThrowCasC(int a, int b, int c, Current current) => throw new C(a, b, c);
 
+        public void ThrowCustomDispatchException(Current current) =>
+            throw new CustomDispatchException(current.Identity, current.Facet, current.Operation, "custom");
+
         public void ThrowLocalException(Current current) => throw new ConnectionTimeoutException();
 
         public void ThrowNonIceException(Current current) => throw new System.Exception();
@@ -47,12 +50,6 @@ namespace ZeroC.Ice.Test.Exceptions
         public ReadOnlyMemory<byte> ThrowMemoryLimitException(byte[] seq, Current current) => new byte[1024 * 20];
 
         public void ThrowLocalExceptionIdempotent(Current current) => throw new ConnectionTimeoutException();
-
-        public void ThrowUndeclaredA(int a, Current current) => throw new A(a);
-
-        public void ThrowUndeclaredB(int a, int b, Current current) => throw new B(a, b);
-
-        public void ThrowUndeclaredC(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public void ThrowAfterResponse(Current current)
         {

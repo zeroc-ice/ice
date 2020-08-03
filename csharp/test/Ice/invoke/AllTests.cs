@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.Invoke
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             IMyClassPrx oneway = cl.Clone(oneway: true);
 
@@ -28,16 +29,28 @@ namespace ZeroC.Ice.Test.Invoke
                 // Whether the proxy is oneway or not does not matter for Invoke's oneway parameter.
 
                 IncomingResponseFrame response = cl.Invoke(request, oneway: true);
-                TestHelper.Assert(response.ReplyStatus == ReplyStatus.OK);
+                if (ice1)
+                {
+                    TestHelper.Assert(response.ResultType == ResultType.Success);
+                }
 
                 response = cl.Invoke(request, oneway: false);
-                TestHelper.Assert(response.ReplyStatus == ReplyStatus.UserException);
+                if (ice1)
+                {
+                    TestHelper.Assert(response.ResultType == ResultType.Failure);
+                }
 
                 response = oneway.Invoke(request, oneway: true);
-                TestHelper.Assert(response.ReplyStatus == ReplyStatus.OK);
+                if (ice1)
+                {
+                    TestHelper.Assert(response.ResultType == ResultType.Success);
+                }
 
                 response = oneway.Invoke(request, oneway: false);
-                TestHelper.Assert(response.ReplyStatus == ReplyStatus.UserException);
+                if (ice1)
+                {
+                    TestHelper.Assert(response.ResultType == ResultType.Failure);
+                }
 
                 request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
                     format: null, context: null, TestString, OutputStream.IceWriterFromString);

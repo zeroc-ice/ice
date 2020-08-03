@@ -415,22 +415,15 @@ namespace ZeroC.Ice
                                                                progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            switch (response.ReplyStatus)
+                            if (response.ResultType == ResultType.Failure)
                             {
-                                case ReplyStatus.OK:
-                                    break;
-                                case ReplyStatus.UserException:
-                                    observer?.RemoteException();
-                                    break;
-                                case ReplyStatus.ObjectNotExistException:
-                                case ReplyStatus.FacetNotExistException:
-                                case ReplyStatus.OperationNotExistException:
-                                    throw response.ReadDispatchException();
-                                case ReplyStatus.UnknownException:
-                                case ReplyStatus.UnknownLocalException:
-                                case ReplyStatus.UnknownUserException:
-                                    throw response.ReadUnhandledException();
+                                observer?.RemoteException();
+
+                                // TODO: revisit
+                                // We throw here the 1.1 system exceptions, as they are used for retries
+                                response.ThrowIfSystemException(proxy.Communicator);
                             }
+
                             return response;
                         }
                         catch (RetryException)
@@ -454,7 +447,7 @@ namespace ZeroC.Ice
                             }
 
                             // TODO: revisit retry logic
-                            // We only retry after failing with a DispatchException or a local exception.
+                            // We only retry after failing with an ObjectNotExistException or a local exception.
                             int delay = reference.CheckRetryAfterException(ex,
                                                                            progressWrapper.IsSent,
                                                                            request.IsIdempotent,

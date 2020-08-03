@@ -1063,7 +1063,7 @@ namespace ZeroC.Ice
                 if (Pos + size - 2 != _buffer.Length)
                 {
                     throw new InvalidDataException(
-                        $"the buffer has {_buffer.Length - (Pos + size - 2)} bytes after the encapsulation");
+                        $"{_buffer.Length - Pos - size - 2} bytes left in buffer after the encapsulation");
                 }
 
                 // We slice the provided buffer to the encapsulation (minus its header).
@@ -1096,16 +1096,9 @@ namespace ZeroC.Ice
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
         {
-            (int Size, Encoding Encoding) result = _buffer.Span.Slice(Pos).ReadEncapsulationHeader(Encoding);
-            if (OldEncoding)
-            {
-                Pos += 6; // 4 bytes for the encaps size + 2 bytes for the encoding
-            }
-            else
-            {
-                Pos += (1 << (_buffer.Span[Pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
-            }
-            return result;
+            (int size, int sizeLength, Encoding encoding) = _buffer.Span.Slice(Pos).ReadEncapsulationHeader(Encoding);
+            Pos += 2 + sizeLength; // 2 for encoding
+            return (size, encoding);
         }
 
         /// <summary>Reads an endpoint from the stream.</summary>
@@ -1191,6 +1184,38 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"read ice1 facet path with {facets.Length} elements");
             }
             return facets.Length == 1 ? facets[0] : "";
+        }
+
+        /// <summary>Reads a system exception encoded using the 1.1 encoding, based on the provided reply status.
+        /// </summary>
+        /// <param name="replyStatus">The reply status.</param>
+        /// <returns>The exception read from the stream.</returns>
+        internal Exception ReadSystemException11(ReplyStatus replyStatus)
+        {
+            Debug.Assert(OldEncoding);
+            Debug.Assert((byte)replyStatus > (byte)ReplyStatus.UserException);
+
+            switch (replyStatus)
+            {
+                case ReplyStatus.FacetNotExistException:
+                case ReplyStatus.ObjectNotExistException:
+                case ReplyStatus.OperationNotExistException:
+                    var identity = new Identity(this);
+                    string facet = ReadFacet();
+                    string operation = ReadString();
+
+                    if (replyStatus == ReplyStatus.OperationNotExistException)
+                    {
+                        return new OperationNotExistException(identity, facet, operation);
+                    }
+                    else
+                    {
+                        return new ObjectNotExistException(identity, facet, operation);
+                    }
+
+                default:
+                    return new UnhandledException(ReadString(), Identity.Empty, "", "");
+            }
         }
 
         internal void Skip(int size)

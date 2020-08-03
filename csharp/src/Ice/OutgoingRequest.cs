@@ -170,7 +170,7 @@ namespace ZeroC.Ice
 
             static async Task ReadVoidReturnValueAsync(
                 ValueTask<IncomingResponseFrame> task,
-                 Communicator communicator,
+                Communicator communicator,
                 bool oneway)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);

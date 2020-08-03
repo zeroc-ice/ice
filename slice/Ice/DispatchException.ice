@@ -26,24 +26,18 @@ module Ice
     /// It is usually thrown by Ice but can also be thrown by application code.
     exception DispatchException
     {
-        Identity id;
+        Identity identity;
         string facet;
         string operation;
     }
 
-    /// A pre-execution exception reports an error that occurred before the implementation of an operation. A client can
-    /// safely retry a request that failed with a pre-execution exception; however, such retry may not be useful.
-    exception PreExecutionException : DispatchException
-    {
-    }
-
     /// With ice1, an ObjectNotExistException is transmitted without the message string.
-    exception ObjectNotExistException : PreExecutionException
+    exception ObjectNotExistException : DispatchException
     {
     }
 
     /// With ice1, an OperationNotExistException is transmitted without the message string.
-    exception OperationNotExistException : PreExecutionException
+    exception OperationNotExistException : DispatchException
     {
     }
 

@@ -48,6 +48,8 @@ namespace ZeroC.Ice.Test.Retry
             Communicator communicator2,
             string rf)
         {
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1; // TODO should come from helper
+
             Instrumentation.TestInvocationReset();
 
             TextWriter output = helper.GetWriter();
@@ -130,36 +132,42 @@ namespace ZeroC.Ice.Test.Retry
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
-            output.Write("testing idempotent operation... ");
-            TestHelper.Assert(retry1.OpIdempotent(4) == 4);
-            Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(0);
-            Instrumentation.TestRetryCount(4);
-            TestHelper.Assert(retry1.OpIdempotentAsync(4).Result == 4);
-            Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(0);
-            Instrumentation.TestRetryCount(4);
-            output.WriteLine("ok");
-
-            if (retry1.GetCachedConnection() != null)
+            // TODO: with ice1, we retry on UnhandledExceptions (!) thrown by the server when the operation is
+            // idempotent. With ice2, no remote exception currently triggers any retry.
+            if (ice1)
             {
-                output.Write("testing non-idempotent operation with bi-dir proxy... ");
-                try
-                {
-                    retry1.Clone(fixedConnection: retry1.GetCachedConnection()).OpIdempotent(4);
-                }
-                catch (UnhandledException)
-                {
-                }
-                Instrumentation.TestInvocationCount(1);
-                Instrumentation.TestFailureCount(1);
-                Instrumentation.TestRetryCount(0);
+                output.Write("testing idempotent operation... ");
                 TestHelper.Assert(retry1.OpIdempotent(4) == 4);
                 Instrumentation.TestInvocationCount(1);
                 Instrumentation.TestFailureCount(0);
-                // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
-                Instrumentation.TestRetryCount(3);
+                Instrumentation.TestRetryCount(4);
+                TestHelper.Assert(retry1.OpIdempotentAsync(4).Result == 4);
+                Instrumentation.TestInvocationCount(1);
+                Instrumentation.TestFailureCount(0);
+                Instrumentation.TestRetryCount(4);
                 output.WriteLine("ok");
+
+                if (retry1.GetCachedConnection() != null)
+                {
+                    output.Write("testing idempotent operation with bi-dir proxy... ");
+                    try
+                    {
+                        retry1.Clone(fixedConnection: retry1.GetCachedConnection()).OpIdempotent(4);
+                    }
+                    catch (UnhandledException)
+                    {
+                    }
+                    Instrumentation.TestInvocationCount(1);
+                    Instrumentation.TestFailureCount(1);
+
+                    Instrumentation.TestRetryCount(0);
+                    TestHelper.Assert(retry1.OpIdempotent(4) == 4);
+                    Instrumentation.TestInvocationCount(1);
+                    Instrumentation.TestFailureCount(0);
+                    // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
+                    Instrumentation.TestRetryCount(3);
+                    output.WriteLine("ok");
+                }
             }
 
             output.Write("testing non-idempotent operation... ");
@@ -172,7 +180,10 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(1);
+            if (ice1)
+            {
+                Instrumentation.TestFailureCount(1); // TODO: ice2
+            }
             Instrumentation.TestRetryCount(0);
             try
             {
@@ -184,7 +195,10 @@ namespace ZeroC.Ice.Test.Retry
                 TestHelper.Assert(ex.InnerException is UnhandledException);
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(1);
+            if (ice1)
+            {
+                Instrumentation.TestFailureCount(1); // TODO: ice2
+            }
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
@@ -198,7 +212,10 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(0);
+            if (ice1)
+            {
+                Instrumentation.TestFailureCount(0); // TODO: ice2
+            }
             Instrumentation.TestRetryCount(0);
             try
             {
@@ -210,10 +227,14 @@ namespace ZeroC.Ice.Test.Retry
                 TestHelper.Assert(ex.InnerException is SystemFailure);
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(0);
+            if (ice1)
+            {
+                Instrumentation.TestFailureCount(0); // TODO: ice2
+            }
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
+            if (ice1)
             {
                 output.Write("testing invocation timeout and retries... ");
                 output.Flush();
