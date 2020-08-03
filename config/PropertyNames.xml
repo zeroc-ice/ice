@@ -335,6 +335,7 @@ generated from the section label.
         <!-- TODO deprecate Default.EncodingVersion, replaced by Default.Encoding -->
         <property name="Default.EncodingVersion" />
         <property name="Default.EndpointSelection" />
+        <!-- TODO remove Default.Host -->
         <property name="Default.Host" />
         <property name="Default.Locator" class="proxy" />
         <property name="Default.LocatorCacheTimeout" />

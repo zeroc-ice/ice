@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
         public void Transient(Current current)
         {
             using ObjectAdapter adapter = current.Adapter.Communicator.CreateObjectAdapterWithEndpoints(
-                "TransientTestAdapter", "default");
+                "TransientTestAdapter", "default -h localhost");
             adapter.Activate();
         }
 

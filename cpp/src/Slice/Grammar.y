@@ -596,7 +596,7 @@ tag
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
 
     int tag;
-    if(i->v < 0 || i->v > Int32Max)
+    if(i->v < 0 || i->v > INT32_MAX)
     {
         unit->error("tag is out of range");
         tag = -1;
@@ -709,7 +709,7 @@ optional
     }
 
     int tag;
-    if(i->v < 0 || i->v > Int32Max)
+    if(i->v < 0 || i->v > INT32_MAX)
     {
         unit->error("tag is out of range");
         tag = -1;
@@ -936,7 +936,7 @@ struct_def
     //
     StructPtr st = StructPtr::dynamicCast($$);
     assert(st);
-    if(st->dataMembers().empty())
+    if (!st->hasDataMembers())
     {
         unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
@@ -998,7 +998,7 @@ class_id
     {
         unit->error("invalid compact id for class: id must be a positive integer");
     }
-    else if(id > Int32Max)
+    else if(id > INT32_MAX)
     {
         unit->error("invalid compact id for class: value is out of range");
     }
@@ -1075,7 +1075,7 @@ class_id
         if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-            if(l < 0 || l > Int32Max)
+            if(l < 0 || l > INT32_MAX)
             {
                 unit->error("compact id for class is out of range");
             }
@@ -1245,93 +1245,51 @@ data_member
 : tagged_type_id
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    DataMemberPtr dm;
-    if(cl)
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        MemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        unit->currentContainer()->checkIntroduced(def->name, dm);
+        $$ = dm;
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        dm = st->createDataMember(def->name, def->type, def->isTagged);
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag);
-    }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
-    $$ = dm;
 }
 | tagged_type_id '=' const_initializer
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
 
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    DataMemberPtr dm;
-    if(cl)
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
+        MemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+                                                value->valueAsString, value->valueAsLiteral);
+        unit->currentContainer()->checkIntroduced(def->name, dm);
+        $$ = dm;
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
-    }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
-    $$ = dm;
 }
 | type keyword
 {
     TypePtr type = TypePtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        $$ = cl->createDataMember(name, type, false, 0); // Dummy
+        $$ = cont->createDataMember(name, type, false, 0); // Dummy
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        $$ = st->createDataMember(name, type, false); // Dummy
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        $$ = ex->createDataMember(name, type, false, 0); // Dummy
-    }
-    assert($$);
     unit->error("keyword `" + name + "' cannot be used as data member name");
 }
 | type
 {
     TypePtr type = TypePtr::dynamicCast($1);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+
+    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
+    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        $$ = cl->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
+        $$ = cont->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if(st)
-    {
-        $$ = st->createDataMember(IceUtil::generateUUID(), type, false); // Dummy
-    }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if(ex)
-    {
-        $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
-    }
-    assert($$);
     unit->error("missing data member name");
 }
 ;
@@ -2053,12 +2011,12 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        MemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, param);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
         if(!metaData->v.empty())
         {
-            pd->setMetaData(metaData->v);
+            param->setMetaData(metaData->v);
         }
     }
 }
@@ -2069,12 +2027,12 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        MemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, param);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
         if(!metaData->v.empty())
         {
-            pd->setMetaData(metaData->v);
+            param->setMetaData(metaData->v);
         }
     }
 }
@@ -2086,7 +2044,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -2098,7 +2056,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -2109,7 +2067,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         unit->error("missing parameter name");
     }
 }
@@ -2120,7 +2078,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         unit->error("missing parameter name");
     }
 }

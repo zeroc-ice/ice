@@ -10,31 +10,44 @@ namespace ZeroC.Ice.Test.Location
 {
     public class ServerLocatorRegistry : ITestLocatorRegistry
     {
+        private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
+        private readonly object _mutex = new object();
+        private readonly Dictionary<Identity, IObjectPrx> _objects = new Dictionary<Identity, IObjectPrx>();
+
         public ValueTask SetAdapterDirectProxyAsync(string adapter, IObjectPrx? obj, Current current)
         {
-            if (obj != null)
+            lock (_mutex)
             {
-                _adapters[adapter] = obj;
-            }
-            else
-            {
-                _adapters.Remove(adapter);
+                if (obj != null)
+                {
+                    _adapters[adapter] = obj;
+                }
+                else
+                {
+                    _adapters.Remove(adapter);
+                }
             }
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx? obj,
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(
+            string adapter,
+            string replica,
+            IObjectPrx? obj,
             Current current)
         {
-            if (obj != null)
+            lock (_mutex)
             {
-                _adapters[adapter] = obj;
-                _adapters[replica] = obj;
-            }
-            else
-            {
-                _adapters.Remove(adapter);
-                _adapters.Remove(replica);
+                if (obj != null)
+                {
+                    _adapters[adapter] = obj;
+                    _adapters[replica] = obj;
+                }
+                else
+                {
+                    _adapters.Remove(adapter);
+                    _adapters.Remove(replica);
+                }
             }
             return new ValueTask(Task.CompletedTask);
         }
@@ -48,27 +61,36 @@ namespace ZeroC.Ice.Test.Location
             AddObject(obj);
         }
 
-        public void AddObject(IObjectPrx obj) => _objects[obj.Identity] = obj;
+        public void AddObject(IObjectPrx obj)
+        {
+            lock (_mutex)
+            {
+                _objects[obj.Identity] = obj;
+            }
+        }
 
         public IObjectPrx GetAdapter(string adapter)
         {
-            if (!_adapters.TryGetValue(adapter, out IObjectPrx? obj))
+            lock (_mutex)
             {
-                throw new AdapterNotFoundException();
+                if (!_adapters.TryGetValue(adapter, out IObjectPrx? obj))
+                {
+                    throw new AdapterNotFoundException();
+                }
+                return obj;
             }
-            return obj;
         }
 
         public IObjectPrx GetObject(Identity id)
         {
-            if (!_objects.TryGetValue(id, out IObjectPrx? obj))
+            lock (_mutex)
             {
-                throw new ObjectNotFoundException();
+                if (!_objects.TryGetValue(id, out IObjectPrx? obj))
+                {
+                    throw new ObjectNotFoundException();
+                }
+                return obj;
             }
-            return obj;
         }
-
-        private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
-        private readonly Dictionary<Identity, IObjectPrx> _objects = new Dictionary<Identity, IObjectPrx>();
     }
 }

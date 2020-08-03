@@ -4,7 +4,7 @@
 #
 
 serverProps = {
-    "TestAdapter.Endpoints" : "default",
+    "TestAdapter.Endpoints" : "default -h 127.0.0.1",
     "TestAdapter.AdapterId" : "TestAdapter"
 }
 

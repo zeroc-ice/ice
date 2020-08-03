@@ -15,7 +15,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             Communicator communicator = current.Adapter.Communicator;
             communicator.SetProperty($"{name}.AdapterId", adapterId);
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
-            communicator.SetProperty($"{name}.Endpoints", "default");
+            communicator.SetProperty($"{name}.Endpoints", "default -h 127.0.0.1");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();

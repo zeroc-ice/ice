@@ -658,11 +658,10 @@ Slice::snakeCase(const std::string& name)
     return os.str();
 }
 
-DataMemberList
-Slice::sortForMarshaling(const DataMemberList& members)
+void
+Slice::sortMembers(MemberList& members)
 {
-    DataMemberList result = members;
-    result.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs) -> bool
+    members.sort([](const MemberPtr& lhs, const MemberPtr& rhs) -> bool
     {
         if (lhs->tagged() && rhs->tagged())
         {
@@ -679,11 +678,36 @@ Slice::sortForMarshaling(const DataMemberList& members)
             return !lhs->tagged();
         }
     });
+}
+
+pair<MemberList, MemberList>
+Slice::getSortedMembers(const MemberList& members)
+{
+    MemberList required, tagged;
+    for (const auto& member : members)
+    {
+        (member->tagged() ? tagged : required).push_back(member);
+    }
+    sortMembers(tagged);
+    return make_pair(move(required), move(tagged));
+}
+
+MemberList
+Slice::getClassTypeMembers(const MemberList& members)
+{
+    MemberList result;
+    for (const auto& member : members)
+    {
+        if (member->type()->isClassType())
+        {
+            result.push_back(member);
+        }
+    }
     return result;
 }
 
 size_t
-Slice::getBitSequenceSize(const DataMemberList& members)
+Slice::getBitSequenceSize(const MemberList& members)
 {
     size_t result = 0;
     for (const auto& member : members)

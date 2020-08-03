@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Location
         {
             foreach (Communicator? c in _communicators)
             {
-                c.WaitForShutdownAsync();
+                c.WaitForShutdownAsync().Wait();
                 c.Dispose();
             }
             _communicators.Clear();
@@ -79,14 +79,8 @@ namespace ZeroC.Ice.Test.Location
 
                     // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web
                     // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-                    if (adapter != null)
-                    {
-                        adapter.Dispose();
-                    }
-                    if (adapter2 != null)
-                    {
-                        adapter2.Dispose();
-                    }
+                    adapter?.Dispose();
+                    adapter2?.Dispose();
                 }
             }
         }
