@@ -86,16 +86,18 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 byte b = Payload[0];
-                ReplyStatus replyStatus = b <= 7 ? (ReplyStatus)b :
-                    throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
-
-                if ((byte)replyStatus > (byte)ReplyStatus.UserException)
+                if (b > 7)
                 {
-                    Encoding = Encoding.V1_1;
+                    throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
+                }
+
+                if (b <= (byte)ReplyStatus.UserException)
+                {
+                    hasEncapsulation = true;
                 }
                 else
                 {
-                    hasEncapsulation = true;
+                    Encoding = Encoding.V1_1;
                 }
             }
             else
