@@ -415,11 +415,7 @@ namespace ZeroC.Ice
                                                                progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            // TODO: the observer RemoteException notification is not quite correct, since with the 1.1
-                            // encoding it suppresses (on purpose) the system exceptions.
-                            if ((response.Encoding == Encoding.V1_1 &&
-                                    response.ReplyStatus == ReplyStatus.UserException) ||
-                                (response.Encoding != Encoding.V1_1 && response.ResultType == ResultType.Failure))
+                            if (response.ResultType == ResultType.Failure)
                             {
                                 observer?.RemoteException();
                             }
