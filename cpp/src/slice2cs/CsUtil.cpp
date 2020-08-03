@@ -64,7 +64,7 @@ Slice::dataMemberName(const ParamInfo& info)
 }
 
 std::string
-Slice::dataMemberName(const DataMemberPtr& p)
+Slice::dataMemberName(const MemberPtr& p)
 {
     return normalizeCase(p) ? pascalCase(p->name()) : p->name();
 }
@@ -430,7 +430,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::returnValueName(const DataMemberList& outParams)
+Slice::returnValueName(const MemberList& outParams)
 {
     for (const auto& param : outParams)
     {
@@ -566,7 +566,7 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
     this->param = 0;
 }
 
-Slice::ParamInfo::ParamInfo(const DataMemberPtr& pParam, bool readOnly, const string& pPrefix)
+Slice::ParamInfo::ParamInfo(const MemberPtr& pParam, bool readOnly, const string& pPrefix)
 {
     this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = fixId(pPrefix + pParam->name());
@@ -1165,7 +1165,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output& out,
                                              const string& scope,
                                              const string& param,
                                              int tag,
-                                             const DataMemberPtr& dataMember,
+                                             const MemberPtr& dataMember,
                                              const string& customStream)
 {
     assert(optionalType);
@@ -1598,13 +1598,13 @@ Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitParameter(const DataMemberPtr& p)
+Slice::CsGenerator::MetaDataVisitor::visitParameter(const MemberPtr& p)
 {
     validate(p);
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::CsGenerator::MetaDataVisitor::visitDataMember(const MemberPtr& p)
 {
     validate(p);
 }

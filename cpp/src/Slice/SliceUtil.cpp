@@ -659,9 +659,9 @@ Slice::snakeCase(const std::string& name)
 }
 
 void
-Slice::sortMembers(DataMemberList& members)
+Slice::sortMembers(MemberList& members)
 {
-    members.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs) -> bool
+    members.sort([](const MemberPtr& lhs, const MemberPtr& rhs) -> bool
     {
         if (lhs->tagged() && rhs->tagged())
         {
@@ -680,10 +680,10 @@ Slice::sortMembers(DataMemberList& members)
     });
 }
 
-pair<DataMemberList, DataMemberList>
-Slice::getSortedMembers(const DataMemberList& members)
+pair<MemberList, MemberList>
+Slice::getSortedMembers(const MemberList& members)
 {
-    DataMemberList required, tagged;
+    MemberList required, tagged;
     for (const auto& member : members)
     {
         (member->tagged() ? tagged : required).push_back(member);
@@ -692,10 +692,10 @@ Slice::getSortedMembers(const DataMemberList& members)
     return make_pair(move(required), move(tagged));
 }
 
-DataMemberList
-Slice::getClassTypeMembers(const DataMemberList& members)
+MemberList
+Slice::getClassTypeMembers(const MemberList& members)
 {
-    DataMemberList result;
+    MemberList result;
     for (const auto& member : members)
     {
         if (member->type()->isClassType())
@@ -707,7 +707,7 @@ Slice::getClassTypeMembers(const DataMemberList& members)
 }
 
 size_t
-Slice::getBitSequenceSize(const DataMemberList& members)
+Slice::getBitSequenceSize(const MemberList& members)
 {
     size_t result = 0;
     for (const auto& member : members)

@@ -36,7 +36,7 @@ isIdempotent(const OperationPtr& operation)
 }
 
 bool
-isDefaultInitialized(const DataMemberPtr& member, bool considerDefaultValue)
+isDefaultInitialized(const MemberPtr& member, bool considerDefaultValue)
 {
     if (considerDefaultValue && member->defaultValueType())
     {
@@ -133,11 +133,9 @@ getEscapedParamName(const OperationPtr& p, const string& name)
 string
 getEscapedParamName(const ExceptionPtr& p, const string& name)
 {
-    DataMemberList params = p->allDataMembers();
-
-    for(DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for (const auto& member : p->allDataMembers())
     {
-        if((*i)->name() == name)
+        if (member->name() == name)
         {
             return name + "_";
         }
@@ -146,7 +144,7 @@ getEscapedParamName(const ExceptionPtr& p, const string& name)
 }
 
 bool
-hasDataMemberWithName(const DataMemberList& dataMembers, const string& name)
+hasDataMemberWithName(const MemberList& dataMembers, const string& name)
 {
     return find_if(dataMembers.begin(), dataMembers.end(), [name](const auto& m)
                                                            {
@@ -262,7 +260,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
 }
 
 void
-Slice::CsVisitor::writeMarshalDataMembers(const DataMemberList& p, const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeMarshalDataMembers(const MemberList& p, const string& ns, unsigned int baseTypes)
 {
 #ifndef NDEBUG
     int currentTag = -1; // just to verify sortMembers sorts correctly
@@ -303,7 +301,7 @@ Slice::CsVisitor::writeMarshalDataMembers(const DataMemberList& p, const string&
 }
 
 void
-Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeUnmarshalDataMembers(const MemberList& p, const string& ns, unsigned int baseTypes)
 {
     auto [requiredMembers, taggedMembers] = getSortedMembers(p);
     int bitSequenceIndex = -1;
@@ -335,7 +333,7 @@ Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const strin
 }
 
 string
-getParamAttributes(const DataMemberPtr& p)
+getParamAttributes(const MemberPtr& p)
 {
     string result;
     for(const auto& s : p->getMetaData())
@@ -525,7 +523,7 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 }
 
 void
-Slice::CsVisitor::writeDataMemberDefaultValues(const DataMemberList& members, const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeDataMemberDefaultValues(const MemberList& members, const string& ns, unsigned int baseTypes)
 {
     // This helper function is called only for class/exception data members.
 
@@ -542,7 +540,7 @@ Slice::CsVisitor::writeDataMemberDefaultValues(const DataMemberList& members, co
 }
 
 void
-Slice::CsVisitor::writeSuppressNonNullableWarnings(const DataMemberList& members, unsigned int baseTypes)
+Slice::CsVisitor::writeSuppressNonNullableWarnings(const MemberList& members, unsigned int baseTypes)
 {
     // This helper function is called only for class/exception data members.
 
@@ -936,7 +934,7 @@ void
 Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo& comment, ParamDir paramType)
 {
     // Collect the names of the in- or -out parameters to be documented.
-    DataMemberList parameters = (paramType == InParam) ? op->inParameters() : op->outParameters();
+    MemberList parameters = (paramType == InParam) ? op->inParameters() : op->outParameters();
     for (const auto param : parameters)
     {
         auto i = comment.params.find(param->name());
@@ -1230,8 +1228,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
     string ns = getNamespace(p);
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
+    MemberList dataMembers = p->dataMembers();
+    MemberList allDataMembers = p->allDataMembers();
     bool hasBaseClass = p->base();
 
     _out << sp;
@@ -1289,11 +1287,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sp;
         _out << nl << "public " << name
              << spar
-             << mapfn<DataMemberPtr>(allDataMembers,
-                                     [&ns](const auto& i)
-                                     {
-                                         return typeToString(i->type(), ns) + " " + fixId(i->name());
-                                     })
+             << mapfn<MemberPtr>(allDataMembers,
+                                 [&ns](const auto& i)
+                                 {
+                                     return typeToString(i->type(), ns) + " " + fixId(i->name());
+                                 })
              << epar;
         if (hasBaseClass && allDataMembers.size() != dataMembers.size())
         {
@@ -1321,7 +1319,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << eb;
 
         // Second public constructor for all data members minus those with a default initializer. Can be parameterless.
-        DataMemberList allMandatoryDataMembers;
+        MemberList allMandatoryDataMembers;
         for (const auto& member: allDataMembers)
         {
             if (!isDefaultInitialized(member, true))
@@ -1335,10 +1333,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << sp;
             _out << nl << "public " << name
                 << spar
-                << mapfn<DataMemberPtr>(allMandatoryDataMembers,
-                                       [&ns](const auto &i) {
-                                            return typeToString(i->type(), ns) + " " + fixId(i->name());
-                                       })
+                << mapfn<MemberPtr>(allMandatoryDataMembers,
+                                    [&ns](const auto &i) {
+                                         return typeToString(i->type(), ns) + " " + fixId(i->name());
+                                    })
                 << epar;
             if (hasBaseClass)
             {
@@ -1409,10 +1407,8 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     string ns = getNamespace(p);
     ClassList allBases = p->allBases();
 
-    //
     // Marshaling support
-    //
-    DataMemberList members = p->dataMembers();
+    MemberList members = p->dataMembers();
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1527,17 +1523,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixId(p->name());
     string ns = getNamespace(p);
-    DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList dataMembers = p->dataMembers();
+    MemberList allDataMembers = p->allDataMembers();
+    MemberList dataMembers = p->dataMembers();
 
     string messageParamName = getEscapedParamName(p, "message");
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
 
     bool hasPublicParameterlessCtor = true;
     vector<string> allParameters;
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        DataMemberPtr member = *q;
         string memberName = fixId(member->name());
         string memberType = typeToString(member->type(), ns);
         allParameters.push_back(memberType + " " + memberName);
@@ -1549,12 +1544,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     vector<string> baseParamNames;
-    if(p->base())
+    if (p->base())
     {
-        DataMemberList baseDataMembers = p->base()->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (const auto& member : p->base()->allDataMembers())
         {
-            baseParamNames.push_back(fixId((*q)->name()));
+            baseParamNames.push_back(fixId(member->name()));
         }
     }
 
@@ -1576,13 +1570,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             // else we use the base's parameterless ctor.
             _out.dec();
             _out << sb;
-            if (!dataMembers.empty())
+            for (const auto& member : dataMembers)
             {
-                for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-                {
-                    string memberName = fixId(dataMemberName(*q), Slice::ExceptionType);
-                    _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
-                }
+                    string memberName = fixId(dataMemberName(member), Slice::ExceptionType);
+                    _out << nl << "this." << memberName << " = " << fixId(member->name()) << ';';
             }
             _out << eb;
         }
@@ -1617,32 +1608,31 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "public override void GetObjectData(global::System.Runtime.Serialization.SerializationInfo info, "
              << "global::System.Runtime.Serialization.StreamingContext context)";
         _out << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (const auto& member : dataMembers)
         {
-            DataMemberPtr m = *q;
-            TypePtr memberType = unwrapIfOptional(m->type());
+            TypePtr memberType = unwrapIfOptional(member->type());
 
-            string mName = fixId(dataMemberName(m), Slice::ExceptionType);
-            if(m->tagged() && isValueType(memberType))
+            string mName = fixId(dataMemberName(member), Slice::ExceptionType);
+            if (member->tagged() && isValueType(memberType))
             {
                 _out << nl << "if (" << mName << " != null)";
                 _out << sb;
             }
             _out << nl << "info.AddValue(\"" << mName << "\", " << mName;
 
-            if(m->tagged() && isValueType(memberType))
+            if (member->tagged() && isValueType(memberType))
             {
                 _out << ".Value";
             }
 
-            if(ContainedPtr::dynamicCast(memberType))
+            if (ContainedPtr::dynamicCast(memberType))
             {
                 _out << ", typeof(" << typeToString(memberType, ns) << ")";
             }
 
             _out << ");";
 
-            if(m->tagged() && isValueType(memberType))
+            if (member->tagged() && isValueType(memberType))
             {
                 _out << eb;
             }
@@ -1708,35 +1698,34 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             "",
         };
 
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (const auto& member : dataMembers)
         {
-            DataMemberPtr m = *q;
-            TypePtr memberType = unwrapIfOptional(m->type());
+            TypePtr memberType = unwrapIfOptional(member->type());
 
-            if(m->tagged() && isValueType(memberType))
+            if (member->tagged() && isValueType(memberType))
             {
                 hasTaggedMembers = true;
                 continue;
             }
             string getter;
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if(builtin)
+            if (builtin)
             {
                 getter = builtinGetter[builtin->kind()];
             }
-            if(getter.empty())
+            if (getter.empty())
             {
                 getter = "GetValue";
             }
-            string mName = fixId(dataMemberName(m), Slice::ExceptionType);
+            string mName = fixId(dataMemberName(member), Slice::ExceptionType);
             _out << nl << "this." << mName << " = ";
 
-            if(getter == "GetValue")
+            if (getter == "GetValue")
             {
                 _out << "(" << typeToString(memberType, ns) << ")";
             }
             _out << "info." << getter << "(\"" << mName << "\"";
-            if(getter == "GetValue")
+            if (getter == "GetValue")
             {
                 _out << ", typeof(" << typeToString(memberType, ns) << ")";
             }
@@ -1749,19 +1738,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             _out << nl << "switch (entry.Name)";
             _out << sb;
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            for (const auto& member : dataMembers)
             {
-                DataMemberPtr m = *q;
-                TypePtr memberType = unwrapIfOptional(m->type());
-                if(!m->tagged() || !isValueType(memberType))
+                TypePtr memberType = unwrapIfOptional(member->type());
+                if (!member->tagged() || !isValueType(memberType))
                 {
                     continue;
                 }
-                string mName = fixId(dataMemberName(m), Slice::ExceptionType);
+                string mName = fixId(dataMemberName(member), Slice::ExceptionType);
                 _out << nl << "case \"" << mName << "\":";
                 _out << sb;
-                _out << nl << "this." << mName << " = ("
-                    << typeToString(memberType, ns) << ") entry.Value!;";
+                _out << nl << "this." << mName << " = (" << typeToString(memberType, ns) << ") entry.Value!;";
                 _out << nl << "break;";
                 _out << eb;
             }
@@ -1864,7 +1851,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string name = fixId(p->name());
     string scope = fixId(p->scope());
     string ns = getNamespace(p);
-    DataMemberList dataMembers = p->dataMembers();
+    MemberList dataMembers = p->dataMembers();
 
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
@@ -1877,11 +1864,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public ";
     _out << name
          << spar
-         << mapfn<DataMemberPtr>(dataMembers,
-                                 [&ns](const auto& i)
-                                 {
-                                     return typeToString(i->type(), ns) + " " + fixId(i->name());
-                                 })
+         << mapfn<MemberPtr>(dataMembers,
+                             [&ns](const auto& i)
+                             {
+                                 return typeToString(i->type(), ns) + " " + fixId(i->name());
+                             })
          << epar;
     _out << sb;
     for(const auto& i : dataMembers)
@@ -1929,7 +1916,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << " =>";
     _out.inc();
     _out << nl;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end();)
+    for (auto q = dataMembers.begin(); q != dataMembers.end();)
     {
         string mName = fixId(dataMemberName(*q));
         TypePtr mType = (*q)->type();
@@ -2106,7 +2093,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
 {
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);

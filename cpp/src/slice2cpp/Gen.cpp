@@ -215,7 +215,7 @@ toDllMemberExport(const string& dllExport)
 }
 
 void
-writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const DataMemberList& inParams,
+writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const MemberList& inParams,
                     const string& scope)
 {
     if(inParams.empty())
@@ -299,7 +299,7 @@ condMove(bool moveIt, const string& str)
 }
 
 string
-escapeParam(const DataMemberList& params, const string& name)
+escapeParam(const MemberList& params, const string& name)
 {
     for (const auto& param : params)
     {
@@ -464,7 +464,7 @@ void
 writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type,
                  const StringList& preParams = StringList(), const StringList& postParams = StringList())
 {
-    DataMemberList params;
+    MemberList params;
     switch(type)
     {
         case OpDocInParams:
@@ -582,7 +582,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret, p->returnIsTagged(), clScope, p->getMetaData(), useWstring);
 
-    DataMemberList outParams = p->outParameters();
+    MemberList outParams = p->outParameters();
 
     if((outParams.size() > 1) || (ret && outParams.size() > 0))
     {
@@ -1279,7 +1279,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Gen::MetaDataVisitor::visitDataMember(const MemberPtr& p)
 {
     StringList metaData = validate(p->type(), p->getMetaData(), p->file(), p->line());
     p->setMetaData(metaData);
@@ -1623,9 +1623,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
     const ExceptionPtr base = p->base();
-    const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList allDataMembers = p->allDataMembers();
-    const DataMemberList baseDataMembers = base ? base->allDataMembers() : DataMemberList();
+    const MemberList dataMembers = p->dataMembers();
+    const MemberList allDataMembers = p->allDataMembers();
+    const MemberList baseDataMembers = base ? base->allDataMembers() : MemberList();
 
     vector<string> allParameters;
     map<string, CommentPtr> allComments;
@@ -1673,9 +1673,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sp;
         H << nl << "/**";
         H << nl << " * One-shot constructor to initialize all data members.";
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& member : allDataMembers)
         {
-            map<string, CommentPtr>::iterator r = allComments.find((*q)->name());
+            map<string, CommentPtr>::iterator r = allComments.find(member->name());
             if(r != allComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -1697,7 +1697,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(base && !baseDataMembers.empty())
         {
             H << nl << helperClass << "<" << templateParameters << ">" << "(";
-            for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+            for (auto q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
             {
                 if(q != baseDataMembers.begin())
                 {
@@ -1720,7 +1720,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
         }
 
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             string memberName = fixKwd((*q)->name());
             if(q != dataMembers.begin())
@@ -1907,7 +1907,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
@@ -2148,9 +2148,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> futureOutParams;
     vector<string> lambdaOutParams;
 
-    DataMemberList paramList = p->parameters();
-    DataMemberList inParams = p->inParameters();
-    DataMemberList outParams = p->outParameters();
+    MemberList paramList = p->parameters();
+    MemberList inParams = p->inParameters();
+    MemberList outParams = p->outParameters();
 
     string returnValueS = "returnValue";
     bool hasTaggedOutParams = false;
@@ -2651,7 +2651,7 @@ Slice::Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& h,
 }
 
 void
-Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
+Slice::Gen::ObjectVisitor::emitDataMember(const MemberPtr& p)
 {
     string name = fixKwd(p->name());
     int typeContext = _useWstring;
@@ -2964,9 +2964,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(interface->scope() + interface->name() + "::");
     string scoped = fixKwd(interface->scope() + interface->name() + "::" + p->name());
 
-    DataMemberList inParams = p->inParameters();
-    DataMemberList outParams = p->outParameters();
-    DataMemberList paramList = p->parameters();
+    MemberList inParams = p->inParameters();
+    MemberList outParams = p->outParameters();
+    MemberList paramList = p->parameters();
 
     const bool amd = (interface->hasMetaData("amd") || p->hasMetaData("amd"));
 
@@ -3394,13 +3394,13 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     bool inProtected = false;
     bool generateFriend = false;
-    DataMemberList dataMembers = p->dataMembers();
+    MemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     bool needSp = true;
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        if(prot || (*q)->hasMetaData("protected"))
+        if(prot || member->hasMetaData("protected"))
         {
             if(!inProtected)
             {
@@ -3430,7 +3430,7 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             needSp = false;
         }
 
-        emitDataMember(*q);
+        emitDataMember(member);
     }
 
     if(preserved && !basePreserved)
@@ -3488,14 +3488,14 @@ bool
 Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& derived, const ClassDefPtr& base)
 {
     const string scope = fixKwd(derived->scope());
-    DataMemberList allBaseDataMembers = base->allDataMembers();
+    MemberList allBaseDataMembers = base->allDataMembers();
     if(allBaseDataMembers.empty())
     {
         return false;
     }
 
     string upcall = "(";
-    for(DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
+    for (auto q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
         if(q != allBaseDataMembers.begin())
         {
@@ -3520,28 +3520,26 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& derive
 void
 Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
-    DataMemberList allDataMembers = p->allDataMembers();
-    //
+    MemberList allDataMembers = p->allDataMembers();
     // Use empty scope to get full qualified names in types used with future declarations.
-    //
     string scope = "";
     if(!allDataMembers.empty())
     {
         vector<string> allParamDecls;
         map<string, CommentPtr> allComments;
-        DataMemberList dataMembers = p->dataMembers();
+        MemberList dataMembers = p->dataMembers();
 
         int typeContext = _useWstring;
 
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& member : allDataMembers)
         {
-            string typeName =
-                inputTypeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetaData(), typeContext);
-            allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
-            CommentPtr comment = (*q)->parseComment(false);
+            string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getMetaData(),
+                                                typeContext);
+            allParamDecls.push_back(typeName + " " + fixKwd(member->name()));
+            CommentPtr comment = member->parseComment(false);
             if(comment)
             {
-                allComments[(*q)->name()] = comment;
+                allComments[member->name()] = comment;
             }
         }
 
@@ -3550,9 +3548,9 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H << sp;
         H << nl << "/**";
         H << nl << " * One-shot constructor to initialize all data members.";
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& member : allDataMembers)
         {
-            map<string, CommentPtr>::iterator r = allComments.find((*q)->name());
+            map<string, CommentPtr>::iterator r = allComments.find(member->name());
             if(r != allComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -3583,7 +3581,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             H << nl;
         }
 
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
             {
@@ -3899,8 +3897,8 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             scoped + "::" + resultStructName(opName, "", true) :
             returnTypeToString(ret, op->returnIsTagged(), "", op->getMetaData(), _useWstring);
 
-        DataMemberList inParams = op->inParameters();
-        DataMemberList outParams = op->outParameters();
+        MemberList inParams = op->inParameters();
+        MemberList outParams = op->outParameters();
 
         if(p->hasMetaData("amd") || op->hasMetaData("amd"))
         {

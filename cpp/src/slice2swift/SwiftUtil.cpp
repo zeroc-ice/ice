@@ -856,7 +856,7 @@ SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out, const Inter
 }
 
 void
-SwiftGenerator::writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+SwiftGenerator::writeMemberDoc(IceUtilInternal::Output& out, const MemberPtr& p)
 {
     DocElements doc = parseComment(p);
 
@@ -1239,17 +1239,17 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
 
 void
 SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
-                                           const DataMemberList& members,
+                                           const MemberList& members,
                                            const ContainedPtr& p)
 {
-    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
+    writeMemberwiseInitializer(out, members, MemberList(), members, p, true);
 }
 
 void
 SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
-                                           const DataMemberList& members,
-                                           const DataMemberList& baseMembers,
-                                           const DataMemberList& allMembers,
+                                           const MemberList& members,
+                                           const MemberList& baseMembers,
+                                           const MemberList& allMembers,
                                            const ContainedPtr& p,
                                            bool rootClass)
 {
@@ -1258,28 +1258,25 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
         out << sp;
         out << nl;
         out << "public init" << spar;
-        for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
+        for (const auto& member : allMembers)
         {
-            DataMemberPtr m = *i;
-            out << (fixIdent(m->name()) + ": " +
-                    typeToString(m->type(), p, m->getMetaData()));
+            out << (fixIdent(member->name()) + ": " + typeToString(member->type(), p, member->getMetaData()));
         }
 
         out << epar;
         out << sb;
-        for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+        for (const auto& member : members)
         {
-            DataMemberPtr m = *i;
-            out << nl << "self." << fixIdent(m->name()) << " = " << fixIdent(m->name());
+            out << nl << "self." << fixIdent(member->name()) << " = " << fixIdent(member->name());
         }
 
         if(!rootClass)
         {
             out << nl << "super.init";
             out << spar;
-            for(DataMemberList::const_iterator i = baseMembers.begin(); i != baseMembers.end(); ++i)
+            for (const auto& member : baseMembers)
             {
-                const string name = fixIdent((*i)->name());
+                const string name = fixIdent(member->name());
                 out << (name + ": " + name);
             }
             out << epar;
@@ -1290,13 +1287,12 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
 
 void
 SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
-                             const DataMemberList& members,
+                             const MemberList& members,
                              const ContainedPtr& p)
 {
     string swiftModule = getSwiftModule(getTopLevelModule(p));
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *q;
         TypePtr type = member->type();
         const string defaultValue = member->defaultValue();
 
@@ -1652,7 +1648,7 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 string
-SwiftGenerator::paramLabel(const string& name, const DataMemberList& params)
+SwiftGenerator::paramLabel(const string& name, const MemberList& params)
 {
     for (const auto& param : params)
     {
@@ -1667,7 +1663,7 @@ SwiftGenerator::paramLabel(const string& name, const DataMemberList& params)
 bool
 SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 {
-    DataMemberList outParams = op->outParameters();
+    MemberList outParams = op->outParameters();
     return (op->returnType() && outParams.size() > 0) || outParams.size() > 1;
 }
 
@@ -1681,7 +1677,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << "(";
     }
 
-    DataMemberList outParams = op->outParameters();
+    MemberList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     if(returnType)
     {
@@ -1692,7 +1688,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << typeToString(returnType, op, op->getMetaData());
     }
 
-    for(DataMemberList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for (auto q = outParams.begin(); q != outParams.end(); ++q)
     {
         if(returnType || q != outParams.begin())
         {
@@ -1719,7 +1715,7 @@ std::string
 SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 {
     ostringstream os;
-    DataMemberList outParams = op->outParameters();
+    MemberList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     bool returnIsTuple = operationReturnIsTuple(op);
 
@@ -1733,7 +1729,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
         os << ("iceP_" + paramLabel("returnValue", outParams));
     }
 
-    for(DataMemberList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for (auto q = outParams.begin(); q != outParams.end(); ++q)
     {
         if(returnType || q != outParams.begin())
         {
@@ -1756,7 +1752,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 {
     ostringstream os;
 
-    DataMemberList inParams = op->inParameters();
+    MemberList inParams = op->inParameters();
     const bool isTuple = inParams.size() > 1;
 
     if(!inParams.empty())
@@ -1861,7 +1857,7 @@ SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& requiredParam
 ParamInfoList
 SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
-    DataMemberList params = op->outParameters();
+    MemberList params = op->outParameters();
     ParamInfoList l;
 
     for (const auto& param : params)
@@ -2498,10 +2494,9 @@ bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
-    DataMemberList members = p->dataMembers();
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto& member : p->dataMembers())
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
+        member->setMetaData(validate(member->type(), member->getMetaData(), p->file(), member->line()));
     }
     return true;
 }
@@ -2534,10 +2529,9 @@ bool
 SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
-    DataMemberList members = p->dataMembers();
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto& member : p->dataMembers())
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
+        member->setMetaData(validate(member->type(), member->getMetaData(), p->file(), member->line()));
     }
     return true;
 }
@@ -2546,10 +2540,9 @@ bool
 SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
-    DataMemberList members = p->dataMembers();
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto& member : p->dataMembers())
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
+        member->setMetaData(validate(member->type(), member->getMetaData(), p->file(), member->line()));
     }
     return true;
 }

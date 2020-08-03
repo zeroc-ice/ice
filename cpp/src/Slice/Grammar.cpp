@@ -3214,7 +3214,7 @@ yyreduce:
     // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        DataMemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        MemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag);
         unit->currentContainer()->checkIntroduced(def->name, dm);
         yyval = dm;
     }
@@ -3231,7 +3231,7 @@ yyreduce:
     // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        DataMemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+        MemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                                 value->valueAsString, value->valueAsLiteral);
         unit->currentContainer()->checkIntroduced(def->name, dm);
         yyval = dm;
@@ -4097,7 +4097,7 @@ yyreduce:
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        DataMemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        MemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
         unit->currentContainer()->checkIntroduced(tsp->name, param);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
         if(!metaData->v.empty())
@@ -4117,7 +4117,7 @@ yyreduce:
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        DataMemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        MemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
         unit->currentContainer()->checkIntroduced(tsp->name, param);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
         if(!metaData->v.empty())

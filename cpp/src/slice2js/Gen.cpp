@@ -99,7 +99,7 @@ printHeader(IceUtilInternal::Output& out)
 }
 
 string
-escapeParam(const DataMemberList& params, const string& name)
+escapeParam(const MemberList& params, const string& name)
 {
     for (const auto& param : params)
     {
@@ -248,7 +248,7 @@ void
 writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type,
                  const StringList& preParams = StringList(), const StringList& postParams = StringList())
 {
-    DataMemberList params;
+    MemberList params;
     switch (type)
     {
     case OpDocInParams:
@@ -373,7 +373,7 @@ Slice::JsVisitor::imports() const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers)
+Slice::JsVisitor::writeMarshalDataMembers(const MemberList& dataMembers)
 {
     const auto [required, tagged] = getSortedMembers(dataMembers);
     for (const auto& member : required)
@@ -387,7 +387,7 @@ Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers)
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers)
+Slice::JsVisitor::writeUnmarshalDataMembers(const MemberList& dataMembers)
 {
     const auto [required, tagged] = getSortedMembers(dataMembers);
     for (const auto& member : required)
@@ -401,11 +401,11 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers)
 }
 
 void
-Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers)
+Slice::JsVisitor::writeInitDataMembers(const MemberList& dataMembers)
 {
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        const string m = fixId((*q)->name());
+        const string m = fixId(member->name());
         _out << nl << "this." << m << " = " << m << ';';
     }
 }
@@ -1285,24 +1285,23 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     string baseRef = base ? fixId(base->scoped()) : "Ice.Value";
 
-    const DataMemberList allDataMembers = p->allDataMembers();
-    const DataMemberList dataMembers = p->dataMembers();
+    const MemberList allDataMembers = p->allDataMembers();
+    const MemberList dataMembers = p->dataMembers();
 
     vector<string> allParamNames;
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        allParamNames.push_back(fixId((*q)->name()));
+        allParamNames.push_back(fixId(member->name()));
     }
 
     vector<string> baseParamNames;
-    DataMemberList baseDataMembers;
-
+    MemberList baseDataMembers;
     if(base)
     {
         baseDataMembers = base->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (const auto& member : baseDataMembers)
         {
-            baseParamNames.push_back(fixId((*q)->name()));
+            baseParamNames.push_back(fixId(member->name()));
         }
     }
 
@@ -1337,37 +1336,27 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!allParamNames.empty())
     {
         _out << nl << "constructor" << spar;
-        for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (const auto& member : baseDataMembers)
         {
-            _out << fixId((*q)->name());
+            _out << fixId(member->name());
         }
 
-        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (const auto& member : dataMembers)
         {
             string value;
-            if ((*q)->tagged())
+            if (member->defaultValueType())
             {
-                if ((*q)->defaultValueType())
-                {
-                    value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                }
-                else
-                {
-                    value = "undefined";
-                }
+                value = writeConstantValue(scope, member->type(), member->defaultValueType(), member->defaultValue());
+            }
+            else if (member->tagged())
+            {
+                value = "undefined";
             }
             else
             {
-                if ((*q)->defaultValueType())
-                {
-                    value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-                }
-                else
-                {
-                    value = getValue(scope, (*q)->type());
-                }
+                value = getValue(scope, member->type());
             }
-            _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
+            _out << (fixId(member->name()) + (value.empty() ? value : (" = " + value)));
         }
 
         _out << epar << sb;
@@ -1531,8 +1520,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             OperationPtr op = *q;
             const string name = fixId(op->name());
             const TypePtr ret = op->returnType();
-            const DataMemberList inParams = op->inParameters();
-            const DataMemberList outParams = op->outParameters();
+            const MemberList inParams = op->inParameters();
+            const MemberList outParams = op->outParameters();
 
             //
             // Each operation descriptor is a property. The key is the "on-the-wire"
@@ -1755,24 +1744,24 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         baseRef = "Ice.UserException";
     }
 
-    const DataMemberList allDataMembers = p->allDataMembers();
-    const DataMemberList dataMembers = p->dataMembers();
+    const MemberList allDataMembers = p->allDataMembers();
+    const MemberList dataMembers = p->dataMembers();
 
     vector<string> allParamNames;
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        allParamNames.push_back(fixId((*q)->name()));
+        allParamNames.push_back(fixId(member->name()));
     }
 
     vector<string> baseParamNames;
-    DataMemberList baseDataMembers;
+    MemberList baseDataMembers;
 
     if (base)
     {
         baseDataMembers = base->allDataMembers();
-        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for (const auto& member : baseDataMembers)
         {
-            baseParamNames.push_back(fixId((*q)->name()));
+            baseParamNames.push_back(fixId(member->name()));
         }
     }
 
@@ -1783,37 +1772,27 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+    for (const auto& member : baseDataMembers)
     {
-        _out << fixId((*q)->name());
+        _out << fixId(member->name());
     }
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
         string value;
-        if((*q)->tagged())
+        if(member->defaultValueType())
         {
-            if((*q)->defaultValueType())
-            {
-                value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-            }
-            else
-            {
-                value = "undefined";
-            }
+            value = writeConstantValue(scope, member->type(), member->defaultValueType(), member->defaultValue());
+        }
+        else if(member->tagged())
+        {
+            value = "undefined";
         }
         else
         {
-            if((*q)->defaultValueType())
-            {
-                value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-            }
-            else
-            {
-                value = getValue(scope, (*q)->type());
-            }
+            value = getValue(scope, member->type());
         }
-        _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
+        _out << (fixId(member->name()) + (value.empty() ? value : (" = " + value)));
     }
 
     _out << "_cause = \"\"" << epar;
@@ -1885,12 +1864,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
 
-    const DataMemberList dataMembers = p->dataMembers();
+    const MemberList dataMembers = p->dataMembers();
 
     vector<string> paramNames;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        paramNames.push_back(fixId((*q)->name()));
+        paramNames.push_back(fixId(member->name()));
     }
 
     _out << sp;
@@ -1900,32 +1879,22 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
         string value;
-        if((*q)->tagged())
+        if (member->defaultValueType())
         {
-            if((*q)->defaultValueType())
-            {
-                value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-            }
-            else
-            {
-                value = "undefined";
-            }
+            value = writeConstantValue(scope, member->type(), member->defaultValueType(), member->defaultValue());
+        }
+        else if (member->tagged())
+        {
+            value = "undefined";
         }
         else
         {
-            if((*q)->defaultValueType())
-            {
-                value = writeConstantValue(scope, (*q)->type(), (*q)->defaultValueType(), (*q)->defaultValue());
-            }
-            else
-            {
-                value = getValue(scope, (*q)->type());
-            }
+            value = getValue(scope, member->type());
         }
-        _out << (fixId((*q)->name()) + (value.empty() ? value : (" = " + value)));
+        _out << (fixId(member->name()) + (value.empty() ? value : (" = " + value)));
     }
 
     _out << epar;
@@ -2632,8 +2601,8 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string icePrefix = importPrefix("Ice.", p);
 
-    const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList allDataMembers = p->allDataMembers();
+    const MemberList dataMembers = p->dataMembers();
+    const MemberList allDataMembers = p->allDataMembers();
     _out << sp;
     writeDocSummary(_out, p);
     _out << nl << "class " << fixId(p->name()) << " extends ";
@@ -2652,25 +2621,24 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "/**";
     _out << nl << " * One-shot constructor to initialize all data members.";
-    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        CommentPtr comment = (*q)->parseComment(false);
-        if (comment)
+        if (CommentPtr comment = member->parseComment(false))
         {
-            _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+            _out << nl << " * @param " << fixId(member->name()) << " " << getDocSentence(comment->overview());
         }
     }
     _out << nl << " */";
     _out << nl << "constructor" << spar;
-    for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for (const auto& member : allDataMembers)
     {
-        _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+        _out << (fixId(member->name()) + "?:" + typeToString(member->type(), p, imports(), true, false, true));
     }
     _out << epar << ";";
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        writeDocSummary(_out, *q);
-        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true)
+        writeDocSummary(_out, member);
+        _out << nl << fixId(member->name()) << ":" << typeToString(member->type(), p, imports(), true, false, true)
              << ";";
     }
     _out << eb;
@@ -2695,10 +2663,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
-        const DataMemberList paramList = op->parameters();
+        const MemberList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        const DataMemberList inParams = op->inParameters();
-        const DataMemberList outParams = op->outParameters();
+        const MemberList inParams = op->inParameters();
+        const MemberList outParams = op->outParameters();
 
         const string contextParam = escapeParam(paramList, "context");
         CommentPtr comment = op->parseComment(false);
@@ -2785,10 +2753,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
-        const DataMemberList paramList = op->parameters();
+        const MemberList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        const DataMemberList inParams = op->inParameters();
-        const DataMemberList outParams = op->outParameters();
+        const MemberList inParams = op->inParameters();
+        const MemberList outParams = op->outParameters();
 
         const string currentParam = escapeParam(inParams, "current");
         CommentPtr comment = p->parseComment(false);
@@ -2854,8 +2822,8 @@ bool
 Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string name = fixId(p->name());
-    const DataMemberList dataMembers = p->dataMembers();
-    const DataMemberList allDataMembers = p->allDataMembers();
+    const MemberList dataMembers = p->dataMembers();
+    const MemberList allDataMembers = p->allDataMembers();
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string icePrefix = importPrefix("Ice.", p);
 
@@ -2878,27 +2846,27 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         _out << nl << "/**";
         _out << nl << " * One-shot constructor to initialize all data members.";
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& member : allDataMembers)
         {
-            CommentPtr comment = (*q)->parseComment(false);
-            if(comment)
+            if (CommentPtr comment = member->parseComment(false))
             {
-                _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+                _out << nl << " * @param " << fixId(member->name()) << " " << getDocSentence(comment->overview());
             }
         }
         _out << nl << " * @param ice_cause The error that cause this exception.";
         _out << nl << " */";
         _out << nl << "constructor" << spar;
-        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for (const auto& member : allDataMembers)
         {
-            _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+            _out << (fixId(member->name()) + "?:" + typeToString(member->type(), p, imports(), true, false, true));
         }
         _out << "ice_cause?:string|Error";
         _out << epar << ";";
     }
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+        _out << nl << fixId(member->name()) << ":" << typeToString(member->type(), p, imports(), true, false, true)
+             << ";";
     }
     _out << eb;
     return false;
@@ -2909,15 +2877,15 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 {
     const string icePrefix = importPrefix("Ice.", p);
     const string name = fixId(p->name());
-    const DataMemberList dataMembers = p->dataMembers();
+    const MemberList dataMembers = p->dataMembers();
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     _out << sp;
     writeDocSummary(_out, p);
     _out << nl << "class " << name << sb;
     _out << nl << "constructor" << spar;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+        _out << (fixId(member->name()) + "?:" + typeToString(member->type(), p, imports(), true, false, true));
     }
     _out << epar << ";";
 
@@ -2934,9 +2902,10 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
         _out << nl << "hashCode():number;";
     }
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+        _out << nl << fixId(member->name()) << ":" << typeToString(member->type(), p, imports(), true, false, true)
+             << ";";
     }
 
     //

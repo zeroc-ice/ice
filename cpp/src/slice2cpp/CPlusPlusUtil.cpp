@@ -153,7 +153,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const st
 }
 
 void
-writeMarshalUnmarshalParams(Output& out, const DataMemberList& params, const OperationPtr& op, bool marshal,
+writeMarshalUnmarshalParams(Output& out, const MemberList& params, const OperationPtr& op, bool marshal,
                             bool prepend, const string& customStream = "", const string& retP = "",
                             const string& obj = "")
 {
@@ -756,21 +756,21 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
+Slice::writeMarshalCode(Output& out, const MemberList& params, const OperationPtr& op, bool prepend,
                         const string& customStream, const string& retP)
 {
     writeMarshalUnmarshalParams(out, params, op, true, prepend, customStream, retP);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
+Slice::writeUnmarshalCode(Output& out, const MemberList& params, const OperationPtr& op, bool prepend,
                           const string& customStream, const string& retP, const string& obj)
 {
     writeMarshalUnmarshalParams(out, params, op, false, prepend, customStream, retP, obj);
 }
 
 void
-Slice::writeAllocateCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
+Slice::writeAllocateCode(Output& out, const MemberList& params, const OperationPtr& op, bool prepend,
                          const string& clScope, int typeCtx, const string& customRet)
 {
     string prefix = prepend ? paramPrefix : "";
@@ -795,10 +795,10 @@ Slice::writeAllocateCode(Output& out, const DataMemberList& params, const Operat
 
 void
 Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
-                                          const string& holder,
-                                          const DataMemberList& dataMembers,
-                                          bool isTagged,
-                                          bool marshal)
+                                        const string& holder,
+                                        const MemberList& dataMembers,
+                                        bool isTagged,
+                                        bool marshal)
 {
     if(dataMembers.empty())
     {
@@ -815,9 +815,9 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
     {
         ostringstream os;
         os << "{";
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            if(q != dataMembers.begin())
+            if (q != dataMembers.begin())
             {
                 os << ", ";
             }
@@ -827,9 +827,9 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
         out << os.str();
     }
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (const auto& member : dataMembers)
     {
-        out << holder + fixKwd((*q)->name());
+        out << holder + fixKwd(member->name());
     }
 
     out << epar << ";";
@@ -908,16 +908,16 @@ Slice::writeStreamHelpers(Output& out, const DataMemberContainerPtr& cont)
 }
 
 void
-Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int typeCtx)
+Slice::writeIceTuple(::IceUtilInternal::Output& out, MemberList dataMembers, int typeCtx)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
     //
     const string scope = "";
     out << nl << "std::tuple<";
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(q != dataMembers.begin())
+        if (q != dataMembers.begin())
         {
             out << ", ";
         }
@@ -929,9 +929,9 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
 
     out << sb;
     out << nl << "return std::tie(";
-    for(DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    for (auto pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
     {
-        if(pi != dataMembers.begin())
+        if (pi != dataMembers.begin())
         {
             out << ", ";
         }
@@ -1058,7 +1058,7 @@ Slice::inWstringModule(const SequencePtr& seq)
 }
 
 string
-Slice::getDataMemberRef(const DataMemberPtr& p)
+Slice::getDataMemberRef(const MemberPtr& p)
 {
     string name = fixKwd(p->name());
     if(!p->tagged())

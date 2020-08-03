@@ -27,7 +27,7 @@ struct ParamInfo
     std::string typeStr;
     bool isTagged;
     int tag;
-    DataMemberPtr param; // 0 == return value
+    MemberPtr param; // 0 == return value
 };
 
 typedef std::list<ParamInfo> ParamInfoList;
@@ -67,9 +67,9 @@ protected:
 
     void writeProxyDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
     void writeServantDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
-    void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
+    void writeMemberDoc(IceUtilInternal::Output&, const MemberPtr&);
 
-    std::string paramLabel(const std::string&, const DataMemberList&);
+    std::string paramLabel(const std::string&, const MemberList&);
     std::string operationReturnType(const OperationPtr&);
     bool operationReturnIsTuple(const OperationPtr&);
     std::string operationReturnDeclaration(const OperationPtr&);
@@ -105,11 +105,11 @@ protected:
     void writeConstantValue(IceUtilInternal::Output& out, const TypePtr&, const SyntaxTreeBasePtr&,
                             const std::string&, const StringList&, const std::string&, bool optional = false);
     void writeDefaultInitializer(IceUtilInternal::Output&,  bool, bool);
-    void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
-    void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList&,
-                                    const DataMemberList&, const ContainedPtr&,
+    void writeMemberwiseInitializer(IceUtilInternal::Output&, const MemberList&, const ContainedPtr&);
+    void writeMemberwiseInitializer(IceUtilInternal::Output&, const MemberList&, const MemberList&,
+                                    const MemberList&, const ContainedPtr&,
                                     bool rootClass = false);
-    void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
+    void writeMembers(IceUtilInternal::Output&, const MemberList&, const ContainedPtr&);
 
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
                                    const TypePtr&,

@@ -76,15 +76,15 @@ std::string snakeCase(const std::string&);
 // Sorts a list of members in place as follows:
 // - non-tagged members listed first but kept in the same order
 // - tagged members listed last and sorted in tag order
-void sortMembers(DataMemberList& members);
+void sortMembers(MemberList& members);
 // Returns a pair of lists respectively containing the required members, and tagged members of the provided list.
 // Untagged members are kept in their original ordering, and tagged members are sorted by tag.
-std::pair<DataMemberList, DataMemberList> getSortedMembers(const DataMemberList& members);
+std::pair<MemberList, MemberList> getSortedMembers(const MemberList& members);
 // Returns a new list containing all the members of the provided list that use classes, in their original order.
-DataMemberList getClassTypeMembers(const DataMemberList& members);
+MemberList getClassTypeMembers(const MemberList& members);
 
-// Returns the size of the bit sequence used to encode the optional elements in this data member list.
-size_t getBitSequenceSize(const DataMemberList&);
+// Returns the size of the bit sequence used to encode the optional elements in this member list.
+size_t getBitSequenceSize(const MemberList&);
 
 }
 

@@ -78,11 +78,11 @@ getEscapedParamName(const OperationPtr& p, const string& name)
 }
 
 string
-getEscapedParamName(const DataMemberList& params, const string& name)
+getEscapedParamName(const MemberList& params, const string& name)
 {
-    for(DataMemberList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for (const auto& member : params)
     {
-        if((*i)->name() == name)
+        if (member->name() == name)
         {
             return name + "_";
         }
@@ -144,8 +144,8 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         bool returnIsTagged = op->returnIsTagged();
         if(!type)
         {
-            const DataMemberList outParams = op->outParameters();
-            if(!outParams.empty())
+            const MemberList outParams = op->outParameters();
+            if (!outParams.empty())
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
@@ -180,8 +180,8 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     // Make sure none of the out parameters are named "returnValue".
     //
     string retval = "returnValue";
-    const DataMemberList outParams = op->outParameters();
-    for(const auto& p : outParams)
+    const MemberList outParams = op->outParameters();
+    for (const auto& p : outParams)
     {
         if(p->name() == "returnValue")
         {
@@ -405,7 +405,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     out << nl << "public static class " << opName << "MarshaledResult implements "
         << getUnqualified("com.zeroc.Ice.MarshaledResult", package) << sb;
 
-    const DataMemberList outParams = op->outParameters();
+    const MemberList outParams = op->outParameters();
     const string retval = getEscapedParamName(op, "returnValue");
     const string currentParamName = getEscapedParamName(op, "current");
     const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " + currentParamName;
@@ -681,7 +681,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, 
 void
 Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& package, const OperationPtr& op)
 {
-    const DataMemberList outParams = op->outParameters();
+    const MemberList outParams = op->outParameters();
     const TypePtr ret = unwrapIfOptional(op->returnType());
     const string name = "ret";
 
@@ -770,7 +770,7 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
     }
     else
     {
-        const DataMemberList params = op->outParameters();
+        const MemberList params = op->outParameters();
         TagMode mode;
         TypePtr type;
         int tag;
@@ -833,7 +833,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
 }
 
 void
-Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter,
+Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const MemberPtr& member, int& iter,
                                            bool forStruct)
 {
     if(member->tagged())
@@ -860,7 +860,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
 }
 
 void
-Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter,
+Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const MemberPtr& member, int& iter,
                                              bool forStruct)
 {
     const string patchParams = getPatcher(member->type(), package, fixKwd(member->name()));
@@ -1021,8 +1021,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
         const TypePtr ret = unwrapIfOptional(op->returnType());
 
-        const DataMemberList inParams = op->inParameters();
-        const DataMemberList outParams = op->outParameters();
+        const MemberList inParams = op->inParameters();
+        const MemberList outParams = op->outParameters();
 
         out << nl << getUnqualified("com.zeroc.Ice.Object", package)
             << "._iceCheckMode(" << sliceModeToIceMode(op->mode())
@@ -1030,7 +1030,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
         if(!inParams.empty())
         {
-            DataMemberList values;
+            MemberList values;
 
             //
             // Declare 'in' parameters.
@@ -1438,7 +1438,7 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& constType, co
 }
 
 void
-Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberList& members, const string& package)
+Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const MemberList& members, const string& package)
 {
     for(const auto& p : members)
     {
@@ -1707,7 +1707,7 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
     else if(!p->outParameters().empty())
     {
         assert(p->outParameters().size() == 1);
-        const DataMemberPtr param = p->outParameters().front();
+        const MemberPtr param = p->outParameters().front();
         map<string, StringList>::const_iterator j = paramDocs.find(param->name());
         if(j != paramDocs.end() && !j->second.empty())
         {
@@ -1864,7 +1864,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     else if(!p->outParameters().empty())
     {
         assert(p->outParameters().size() == 1);
-        const DataMemberPtr param = p->outParameters().front();
+        const MemberPtr param = p->outParameters().front();
         map<string, StringList>::const_iterator j = paramDocs.find(param->name());
         if(j != paramDocs.end() && !j->second.empty())
         {
@@ -2050,9 +2050,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string package = getPackage(p);
     string absolute = getUnqualified(p);
-    const DataMemberList members = p->dataMembers();
+    const MemberList members = p->dataMembers();
     const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
-    const DataMemberList allDataMembers = p->allDataMembers();
+    const MemberList allDataMembers = p->allDataMembers();
 
     open(absolute, p->file());
 
@@ -2157,7 +2157,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         if(allDataMembers.size() < 255)
         {
-            DataMemberList baseDataMembers;
+            MemberList baseDataMembers;
             if(baseClass)
             {
                 baseDataMembers = baseClass->allDataMembers();
@@ -2434,10 +2434,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     string package = getPackage(p);
     string absolute = getUnqualified(p);
-    const DataMemberList members = p->dataMembers();
+    const MemberList members = p->dataMembers();
     const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
-    const DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList baseDataMembers = base ? base->allDataMembers() : DataMemberList();
+    const MemberList allDataMembers = p->allDataMembers();
+    MemberList baseDataMembers = base ? base->allDataMembers() : MemberList();
 
     open(absolute, p->file());
 
@@ -2688,7 +2688,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
-    DataMemberList sortedMembers = p->dataMembers();
+    MemberList sortedMembers = p->dataMembers();
     sortMembers(sortedMembers);
     int iter;
 
@@ -2882,7 +2882,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     Output& out = output();
 
-    DataMemberList members = p->dataMembers();
+    MemberList members = p->dataMembers();
     int iter;
 
     string name = fixKwd(p->name());
@@ -3144,7 +3144,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
 {
     const ContainerPtr container = p->container();
     const ClassDefPtr cls = ClassDefPtr::dynamicCast(container);
@@ -4679,8 +4679,8 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
         TypePtr type = op->returnType();
         if(!type)
         {
-            const DataMemberList outParams = op->outParameters();
-            if(!outParams.empty())
+            const MemberList outParams = op->outParameters();
+            if (!outParams.empty())
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();

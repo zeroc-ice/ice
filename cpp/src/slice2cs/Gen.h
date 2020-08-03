@@ -32,8 +32,8 @@ protected:
     void writeUnmarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
                               bool, const std::string& stream = "istr");
 
-    void writeMarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
-    void writeUnmarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
+    void writeMarshalDataMembers(const MemberList&, const std::string&, unsigned int);
+    void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
@@ -43,10 +43,10 @@ protected:
     std::string writeValue(const TypePtr&, const std::string&);
 
     // Generate assignment statements for those data members that have default values.
-    void writeDataMemberDefaultValues(const DataMemberList&, const std::string&, unsigned int);
+    void writeDataMemberDefaultValues(const MemberList&, const std::string&, unsigned int);
 
     // Generate this.X = null! for non-nullable fields.
-    void writeSuppressNonNullableWarnings(const DataMemberList&, unsigned int);
+    void writeSuppressNonNullableWarnings(const MemberList&, unsigned int);
 
     void writeProxyDocComment(const InterfaceDefPtr&, const std::string&);
     void writeServantDocComment(const InterfaceDefPtr&, const std::string&);
@@ -116,7 +116,7 @@ private:
         bool visitStructStart(const StructPtr&) override;
         void visitStructEnd(const StructPtr&) override;
         void visitEnum(const EnumPtr&) override;
-        void visitDataMember(const DataMemberPtr&) override;
+        void visitDataMember(const MemberPtr&) override;
         void visitSequence(const SequencePtr&) override;
         void visitDictionary(const DictionaryPtr&) override;
 
