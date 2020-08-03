@@ -1637,7 +1637,7 @@ Slice::DataMemberContainer::createDataMember(const string& name, const TypePtr& 
     {
         return nullptr;
     }
-  
+
     // Check whether the data member has the same name as it's enclosing container.
     const string typeName = this->kindOf();
     if (name == this->name())
