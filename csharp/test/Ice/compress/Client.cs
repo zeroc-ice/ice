@@ -14,25 +14,19 @@ namespace ZeroC.Ice.Test.Compress
         public override async Task RunAsync(string[] args)
         {
             TextWriter output = GetWriter();
+            var properties = CreateTestProperties(ref args);
             output.Write("testing operations using compression... ");
             output.Flush();
             {
-                await using Communicator communicator = Initialize(ref args,
-                    new Dictionary<string, string>()
-                    {
-                        ["Ice.CompressionMinSize"] = "1K"
-                    });
-                    _ = AllTests.Run(this, communicator);
+                properties["Ice.CompressionMinSize"] = "1K";
+                await using Communicator communicator = Initialize(properties);
+                _ = AllTests.Run(this, communicator);
             }
 
             {
                 // Repeat with Optimal compression level
-                await using Communicator communicator = Initialize(ref args,
-                    new Dictionary<string, string>()
-                    {
-                        ["Ice.CompressionLevel"] = "Optimal",
-                        ["Ice.CompressionMinSize"] = "1K"
-                    });
+                properties["Ice.CompressionLevel"] = "Optimal";
+                await using Communicator communicator = Initialize(properties);
                 ITestIntfPrx? server = AllTests.Run(this, communicator);
                 await server.ShutdownAsync();
             }
