@@ -31,25 +31,25 @@ namespace ZeroC.Ice.Test.Invoke
                 IncomingResponseFrame response = cl.Invoke(request, oneway: true);
                 if (ice1)
                 {
-                    TestHelper.Assert(response.ReplyStatus == ReplyStatus.OK);
+                    TestHelper.Assert(response.ResultType == ResultType.Success);
                 }
 
                 response = cl.Invoke(request, oneway: false);
                 if (ice1)
                 {
-                    TestHelper.Assert(response.ReplyStatus == ReplyStatus.UserException);
+                    TestHelper.Assert(response.ResultType == ResultType.Failure);
                 }
 
                 response = oneway.Invoke(request, oneway: true);
                 if (ice1)
                 {
-                    TestHelper.Assert(response.ReplyStatus == ReplyStatus.OK);
+                    TestHelper.Assert(response.ResultType == ResultType.Success);
                 }
 
                 response = oneway.Invoke(request, oneway: false);
                 if (ice1)
                 {
-                    TestHelper.Assert(response.ReplyStatus == ReplyStatus.UserException);
+                    TestHelper.Assert(response.ResultType == ResultType.Failure);
                 }
 
                 request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,

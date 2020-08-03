@@ -437,7 +437,7 @@ namespace ZeroC.Ice.Test.Tagged
                     ostr.WriteTaggedString(1, value.s); // duplicate tag ignored by the server
                 });
 
-            TestHelper.Assert(initial.Invoke(requestFrame).ReplyStatus == 0);
+            TestHelper.Assert(initial.Invoke(requestFrame).ResultType == ResultType.Success);
 
             output.WriteLine("ok");
 

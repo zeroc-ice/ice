@@ -418,30 +418,12 @@ namespace ZeroC.Ice
                             if (response.ResultType == ResultType.Failure)
                             {
                                 observer?.RemoteException();
+
+                                // TODO: revisit
+                                // We throw here the 1.1 system exceptions, as they are used for retries
+                                response.ThrowIfSystemException(proxy.Communicator);
                             }
 
-                            // TODO: revisit
-                            // We throw here the 1.1 system exceptions, as they are used for retries
-                            if (response.Encoding == Encoding.V1_1 &&
-                                (byte)response.ReplyStatus > (byte)ReplyStatus.UserException)
-                            {
-                                InputStream istr;
-                                if (response.Protocol == Protocol.Ice2)
-                                {
-                                    istr = new InputStream(response.Payload.Slice(1),
-                                                           Ice2Definitions.Encoding,
-                                                           proxy.Communicator,
-                                                           startEncapsulation: true);
-                                    istr.Skip(1); // skip ReplyStatus byte
-                                }
-                                else
-                                {
-                                    istr = new InputStream(response.Payload.Slice(1), Encoding.V1_1);
-                                }
-                                Exception exception = istr.ReadSystemException11(response.ReplyStatus);
-                                istr.CheckEndOfBuffer(skipTaggedParams: false);
-                                throw exception;
-                            }
                             return response;
                         }
                         catch (RetryException)
