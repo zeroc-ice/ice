@@ -66,8 +66,8 @@ protected:
     //
     // Marshal/unmarshal a data member.
     //
-    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
-    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const MemberPtr&, int&, bool = false);
+    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const MemberPtr&, int&, bool = false);
 
     //
     // Generate dispatch methods for an interface.
@@ -88,7 +88,7 @@ protected:
     //
     // Generate assignment statements for those data members that have default values.
     //
-    void writeDataMemberInitializers(::IceUtilInternal::Output&, const DataMemberList&, const std::string&);
+    void writeDataMemberInitializers(::IceUtilInternal::Output&, const MemberList&, const std::string&);
 
     //
     // Handle doc comments.
@@ -150,7 +150,7 @@ private:
         void visitExceptionEnd(const ExceptionPtr&) override;
         bool visitStructStart(const StructPtr&) override;
         void visitStructEnd(const StructPtr&) override;
-        void visitDataMember(const DataMemberPtr&) override;
+        void visitDataMember(const MemberPtr&) override;
         void visitEnum(const EnumPtr&) override;
         void visitConst(const ConstPtr&) override;
     };

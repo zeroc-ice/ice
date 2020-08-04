@@ -24,8 +24,6 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        public override ArraySegment<byte> Payload { get; internal set; }
-
         /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
@@ -40,7 +38,8 @@ namespace ZeroC.Ice
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             Context = istr.ReadContext();
             Payload = data.Slice(istr.Pos);
-            (int size, Encoding encoding) = istr.ReadEncapsulationHeader();
+            (int size, int sizeLength, Encoding encoding) =
+                Payload.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
             if (protocol == Protocol.Ice1)
             {
@@ -55,11 +54,9 @@ namespace ZeroC.Ice
             {
                 // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
             }
-            Encoding = encoding;
 
-            HasCompressedPayload =
-                Encoding == Encoding.V2_0 &&
-                Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
+            Encoding = encoding;
+            HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when

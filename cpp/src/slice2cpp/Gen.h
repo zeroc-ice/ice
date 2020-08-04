@@ -109,7 +109,7 @@ private:
         void visitDictionary(const DictionaryPtr&) override;
         void visitEnum(const EnumPtr&) override;
         void visitConst(const ConstPtr&) override;
-        void visitDataMember(const DataMemberPtr&) override;
+        void visitDataMember(const MemberPtr&) override;
 
     private:
 
@@ -162,7 +162,7 @@ private:
 
         bool emitVirtualBaseInitializers(const ClassDefPtr&, const ClassDefPtr&);
         void emitOneShotConstructor(const ClassDefPtr&);
-        void emitDataMember(const DataMemberPtr&);
+        void emitDataMember(const MemberPtr&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -282,7 +282,7 @@ private:
         bool visitStructStart(const StructPtr&) override;
         void visitStructEnd(const StructPtr&) override;
         void visitOperation(const OperationPtr&) override;
-        void visitDataMember(const DataMemberPtr&) override;
+        void visitDataMember(const MemberPtr&) override;
         void visitSequence(const SequencePtr&) override;
         void visitDictionary(const DictionaryPtr&) override;
         void visitEnum(const EnumPtr&) override;

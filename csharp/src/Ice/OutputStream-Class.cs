@@ -201,10 +201,6 @@ namespace ZeroC.Ice
         {
             Debug.Assert(InEncapsulation && _current.InstanceType == InstanceType.None);
             Debug.Assert(_format == FormatType.Sliced);
-            Debug.Assert(!(v is ObjectNotExistException)); // temporary
-            Debug.Assert(!(v is OperationNotExistException)); // temporary
-            Debug.Assert(!(v is UnhandledException)); // temporary
-
             _current.InstanceType = InstanceType.Exception;
             v.Write(this);
             _current = default;

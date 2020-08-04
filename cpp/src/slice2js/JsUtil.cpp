@@ -192,14 +192,6 @@ Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
     return value.empty() ? value : value.substr(prefix.size());
 }
 
-bool
-Slice::JsGenerator::isClassType(const TypePtr& constType)
-{
-    TypePtr type = unwrapIfOptional(constType);
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type);
-}
-
 //
 // If the passed name is a scoped name, return the identical scoped name,
 // but with all components that are JS keywords replaced by
@@ -671,7 +663,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    if(isClassType(type))
+    if(type->isClassType())
     {
         if(marshal)
         {
@@ -710,7 +702,7 @@ Slice::JsGenerator::writeTaggedMarshalUnmarshalCode(Output& out,
     TypePtr type = unwrapIfOptional(constType);
     string stream = marshal ? "ostr" : "istr";
 
-    if(isClassType(type))
+    if(type->isClassType())
     {
         if(marshal)
         {

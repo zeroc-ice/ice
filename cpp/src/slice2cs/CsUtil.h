@@ -38,12 +38,12 @@ struct ParamInfo
     std::string typeStr;
     bool tagged;
     int tag;
-    ParamDeclPtr param; // 0 == return value
+    MemberPtr param; // 0 == return value
     OperationPtr operation;
 
     ParamInfo(const OperationPtr& operation, const std::string& name, const TypePtr& type, bool readOnly,
-        bool tagged, int tag, const std::string& prefix = "");
-    ParamInfo(const ParamDeclPtr& param, bool readOnly, const std::string& prefix = "");
+              bool tagged, int tag, const std::string& prefix = "");
+    ParamInfo(const MemberPtr& param, bool readOnly, const std::string& prefix = "");
 };
 
 bool normalizeCase(const ContainedPtr&);
@@ -52,13 +52,13 @@ std::string paramName(const ParamInfo&);
 std::string interfaceName(const InterfaceDeclPtr&);
 std::string interfaceName(const InterfaceDefPtr&);
 std::string dataMemberName(const ParamInfo&);
-std::string dataMemberName(const DataMemberPtr&);
+std::string dataMemberName(const MemberPtr&);
 
 std::string helperName(const TypePtr&, const std::string&);
 
 std::string builtinSuffix(const BuiltinPtr&);
 
-std::string returnValueName(const ParamDeclList&);
+std::string returnValueName(const MemberList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);
 
@@ -122,7 +122,7 @@ protected:
     void writeTaggedMarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, bool, const std::string&,
                                 const std::string&, int, const std::string& = "ostr");
     void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, const std::string&,
-                                  const std::string&, int, const DataMemberPtr&, const std::string& = "istr");
+                                  const std::string&, int, const MemberPtr&, const std::string& = "istr");
 
     std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
@@ -147,8 +147,8 @@ private:
         bool visitStructStart(const StructPtr&) override;
         void visitStructEnd(const StructPtr&) override;
         void visitOperation(const OperationPtr&) override;
-        void visitParamDecl(const ParamDeclPtr&) override;
-        void visitDataMember(const DataMemberPtr&) override;
+        void visitParameter(const MemberPtr&) override;
+        void visitDataMember(const MemberPtr&) override;
         void visitSequence(const SequencePtr&) override;
         void visitDictionary(const DictionaryPtr&) override;
         void visitEnum(const EnumPtr&) override;

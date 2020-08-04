@@ -276,7 +276,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Host = Communicator.DefaultHost ?? "";
+                throw new FormatException($"no -h option in endpoint `{endpointString}'");
             }
 
             if (options.TryGetValue("-p", out argument))

@@ -217,8 +217,7 @@ public:
         }
         p->setMetaData(metaData);
 
-        ParamDeclList params = p->parameters();
-        for(auto& q : params)
+        for(auto& q : p->parameters())
         {
             metaData = getMetaData(q);
             metaData = validateType(q->type(), metaData, p->file(), q->line());
@@ -227,7 +226,7 @@ public:
         }
     }
 
-    void visitDataMember(const DataMemberPtr& p) override
+    void visitDataMember(const MemberPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p->type(), metaData, p->file(), p->line());
@@ -502,7 +501,7 @@ private:
             //
             if((*i) == "java:getset" &&
                (!ClassDefPtr::dynamicCast(p) && !StructPtr::dynamicCast(p) && !ExceptionPtr::dynamicCast(p) &&
-                !DataMemberPtr::dynamicCast(p)))
+                !MemberPtr::dynamicCast(p)))
             {
                 string str;
                 ContainedPtr cont = ContainedPtr::dynamicCast(p);
@@ -541,8 +540,8 @@ Slice::computeSerialVersionUUID(const ClassDefPtr& p)
     os << "]";
 
     os << " Members: [";
-    DataMemberList members = p->dataMembers();
-    for(DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    MemberList members = p->dataMembers();
+    for (auto i = members.begin(); i != members.end();)
     {
         os << (*i)->name() << ":" << (*i)->type();
         i++;
@@ -566,8 +565,8 @@ Slice::computeSerialVersionUUID(const StructPtr& p)
 
     os << "Name: " << p->scoped();
     os << " Members: [";
-    DataMemberList members = p->dataMembers();
-    for(DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    MemberList members = p->dataMembers();
+    for (auto i = members.begin(); i != members.end();)
     {
         os << (*i)->name() << ":" << (*i)->type();
         i++;
@@ -591,8 +590,8 @@ Slice::computeSerialVersionUUID(const ExceptionPtr& p)
 
     os << "Name: " << p->scoped();
     os << " Members: [";
-    DataMemberList members = p->dataMembers();
-    for(DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    MemberList members = p->dataMembers();
+    for (auto i = members.begin(); i != members.end();)
     {
         os << (*i)->name() << ":" << (*i)->type();
         i++;

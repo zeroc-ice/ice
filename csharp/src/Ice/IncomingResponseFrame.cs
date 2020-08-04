@@ -18,21 +18,20 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
 
-        public override ArraySegment<byte> Payload { get; internal set; }
-
-        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
-        public ReplyStatus ReplyStatus { get; }
+        /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
+        public ResultType ResultType => Data[0] == 0 ? ResultType.Success : ResultType.Failure;
 
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
-        public static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
+        // Oneway pseudo-response
+        internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
             _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
-                ostr.WriteByte((byte)ReplyStatus.OK);
+                ostr.WriteByte((byte)ResultType.Success);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
                 return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
@@ -51,7 +50,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (ReplyStatus == ReplyStatus.OK)
+            if (ResultType == ResultType.Success)
             {
                 return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
             }
@@ -61,8 +60,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads an empty return value from the response frame. If the response frame carries
-        /// a failure, reads and throws this exception.</summary>
+        /// <summary>Reads an empty return value from the response frame. If the response frame carries a failure, reads
+        /// and throws this exception.</summary>
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
@@ -71,7 +70,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (ReplyStatus == ReplyStatus.OK)
+            if (ResultType == ResultType.Success)
             {
                 Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
             }
@@ -88,84 +87,134 @@ namespace ZeroC.Ice
         public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
             : base(protocol, data, sizeMax)
         {
-            byte replyStatus = data[0];
-            if (replyStatus > 7)
+            bool hasEncapsulation = false;
+
+            if (Protocol == Protocol.Ice1)
             {
-                throw new InvalidDataException(
-                    $"received {Protocol.GetName()} response frame with unknown reply status `{replyStatus}'");
-            }
-            ReplyStatus = (ReplyStatus)replyStatus;
-            Payload = data.Slice(1);
-            if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
-            {
-                int size;
-                (size, Encoding) = Payload.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-                if (Protocol == Protocol.Ice1 && size + 4 != Payload.Count) // 4 = size length with 1.1 encoding
+                byte b = Data[0];
+                if (b > 7)
                 {
-                    throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
+                    throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
+                }
+
+                if (b <= (byte)ReplyStatus.UserException)
+                {
+                    hasEncapsulation = true;
+                }
+                else
+                {
+                    Encoding = Encoding.V1_1;
                 }
             }
             else
             {
-                Encoding = Protocol.GetEncoding();
+                byte b = Data[0];
+                if (b > 1)
+                {
+                    throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
+                }
+                hasEncapsulation = true;
             }
 
-            HasCompressedPayload =
-                Encoding == Encoding.V2_0 &&
-                (ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException) &&
-                Payload[Payload.AsReadOnlySpan().ReadSize(Protocol.GetEncoding()).SizeLength + 2] != 0;
+            // Read encapsulation header, in particular the payload encoding.
+            if (hasEncapsulation)
+            {
+                int size;
+                int sizeLength;
+
+                (size, sizeLength, Encoding) =
+                    data.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
+
+                if (1 + sizeLength + size != data.Count)
+                {
+                    throw new InvalidDataException(
+                        $"{Data.Count - 1 - sizeLength - size} extra bytes in payload of response frame");
+                }
+                Payload = Data.Slice(1);
+
+                HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
+            }
+        }
+
+        /// <summary>If this response holds a 1.1-encoded system exception, reads and throws this exception.</summary>
+        internal void ThrowIfSystemException(Communicator communicator)
+        {
+            if (ResultType == ResultType.Failure && Encoding == Encoding.V1_1)
+            {
+                var replyStatus = (ReplyStatus)Data[0]; // can be reassigned below
+
+                InputStream? istr = null;
+                if (Protocol == Protocol.Ice1)
+                {
+                    if (replyStatus != ReplyStatus.UserException)
+                    {
+                        istr = new InputStream(Data.Slice(1), Encoding.V1_1);
+                    }
+                }
+                else
+                {
+                    istr = new InputStream(Data.Slice(1),
+                                           Ice2Definitions.Encoding,
+                                           communicator,
+                                           startEncapsulation: true);
+
+                    byte b = istr.ReadByte();
+                    replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
+                        throw new InvalidDataException($"received ice2 response frame with invalid reply status `{b}'");
+
+                    if (replyStatus == ReplyStatus.UserException)
+                    {
+                        istr = null; // we are not throwing this user exception here
+                    }
+                }
+
+                if (istr != null)
+                {
+                    throw istr.ReadSystemException11(replyStatus);
+                }
+            }
         }
 
         private Exception ReadException(Communicator communicator)
         {
-            switch (ReplyStatus)
+            Debug.Assert(ResultType != ResultType.Success);
+
+            var replyStatus = (ReplyStatus)Data[0]; // can be reassigned below
+
+            InputStream istr;
+
+            if (Protocol == Protocol.Ice2 || replyStatus == ReplyStatus.UserException)
             {
-                case ReplyStatus.UserException:
-                    return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(),
-                                                                        communicator,
-                                                                        istr => istr.ReadException());
-                case ReplyStatus.ObjectNotExistException:
-                case ReplyStatus.FacetNotExistException:
-                case ReplyStatus.OperationNotExistException:
-                    return ReadDispatchException();
+                istr = new InputStream(Data.Slice(1),
+                                       Protocol.GetEncoding(),
+                                       communicator,
+                                       startEncapsulation: true);
 
-                default:
-                    Debug.Assert(ReplyStatus == ReplyStatus.UnknownException ||
-                                 ReplyStatus == ReplyStatus.UnknownLocalException ||
-                                 ReplyStatus == ReplyStatus.UnknownUserException);
-                    return ReadUnhandledException();
-            }
-        }
-
-        internal UnhandledException ReadUnhandledException()
-        {
-            ReadOnlySpan<byte> buffer = Payload.AsReadOnlySpan();
-            (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
-
-            if (size + sizeLength != buffer.Length)
-            {
-                throw new InvalidDataException(@$"buffer size {
-                    buffer.Length} for message does not match size length plus message size of {size + sizeLength}");
-            }
-
-            return new UnhandledException(buffer.Slice(sizeLength).ReadString(), Identity.Empty, "", "");
-        }
-
-        internal DispatchException ReadDispatchException()
-        {
-            var istr = new InputStream(Payload, Protocol.GetEncoding());
-            var identity = new Identity(istr);
-            string facet = istr.ReadFacet();
-            string operation = istr.ReadString();
-
-            if (ReplyStatus == ReplyStatus.OperationNotExistException)
-            {
-                return new OperationNotExistException(identity, facet, operation);
+                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1)
+                {
+                    byte b = istr.ReadByte();
+                    replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
+                        throw new InvalidDataException($"received ice2 response frame with invalid reply status `{b}'");
+                }
             }
             else
             {
-                return new ObjectNotExistException(identity, facet, operation);
+                Debug.Assert(Protocol == Protocol.Ice1 && Encoding == Encoding.V1_1);
+                istr = new InputStream(Data.Slice(1), Encoding.V1_1);
             }
+
+            Exception exception;
+            if (Encoding == Encoding.V1_1 && replyStatus != ReplyStatus.UserException)
+            {
+                exception = istr.ReadSystemException11(replyStatus);
+                istr.CheckEndOfBuffer(skipTaggedParams: false);
+            }
+            else
+            {
+                exception = istr.ReadException();
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+            }
+            return exception;
         }
     }
 }

@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 
@@ -24,7 +23,7 @@ namespace ZeroC.Ice
     public abstract class OutgoingFrame
     {
         /// <summary>The encoding of the frame payload.</summary>
-        public Encoding Encoding { get; }
+        public Encoding Encoding { get; protected set; }
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
         public bool IsSealed { get; private protected set; }
         /// <summary>Returns a list of array segments with the contents of the request frame payload. The payload
@@ -76,9 +75,9 @@ namespace ZeroC.Ice
         internal bool Compress { get; }
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; }
-        // Position of the end of the payload, for ice1 this is always the frame end.
+        // Position of the end of the encaps, for ice1 this is always the frame end.
         internal OutputStream.Position? PayloadEnd;
-        // Position of the start of the payload.
+        // Position of the start of the encaps.
         internal OutputStream.Position PayloadStart;
 
         private readonly CompressionLevel _compressionLevel;
@@ -104,7 +103,6 @@ namespace ZeroC.Ice
             {
                 IList<ArraySegment<byte>> payload = Payload;
                 int sizeLength = Protocol.GetEncoding() == Encoding.V2_0 ? 1 << (payload[0][0] & 0x03) : 4;
-
                 byte compressionStatus = payload[0].Count > sizeLength + 2 ?
                     payload[0][sizeLength + 2] : payload[1][sizeLength + 2 - payload[0].Count];
 
@@ -171,7 +169,7 @@ namespace ZeroC.Ice
 
                 // Rewrite the payload size
                 OutputStream.WriteEncapsSize(payloadData.Count - sizeLength,
-                                             compressedData.AsSpan(0, sizeLength),
+                                             payloadData.AsSpan(0, sizeLength),
                                              Protocol.GetEncoding());
                 _payload = null;
                 return CompressionResult.Success;
@@ -184,21 +182,21 @@ namespace ZeroC.Ice
             bool compress,
             CompressionLevel compressionLevel,
             int compressionMinSize,
-            List<ArraySegment<byte>> data)
+            List<ArraySegment<byte>> payload)
         {
             Protocol = protocol;
             Protocol.CheckSupported();
             Encoding = encoding;
-            Data = data;
+            Data = payload;
             Compress = compress;
             _compressionLevel = compressionLevel;
             _compressionMinSize = compressionMinSize;
         }
 
-        internal void Finish(OutputStream.Position payloadEnd)
+        internal void Finish(OutputStream.Position encapsEnd)
         {
             Size = Data.GetByteCount();
-            PayloadEnd = payloadEnd;
+            PayloadEnd = encapsEnd;
         }
     }
 }

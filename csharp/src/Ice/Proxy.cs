@@ -321,10 +321,6 @@ namespace ZeroC.Ice
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
         /// <param name="request">The incoming request frame.</param>
-        /// <param name="compressRequestFrame">True if the Ice1 request must use protocol compression, false otherwise.
-        /// </param>
-        /// <param name="compressResponseFrame">True if the Ice1 response must use protocol compression, false
-        /// otherwise.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
@@ -332,24 +328,22 @@ namespace ZeroC.Ice
             this IObjectPrx proxy,
             bool oneway,
             IncomingRequestFrame request,
-            bool compressRequestFrame = false,
-            bool compressResponseFrame = false,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy,
                                                             request.Operation,
                                                             request.IsIdempotent,
-                                                            compressRequestFrame,
+                                                            compress: false,
                                                             request.Context,
-                                                            request.Payload);
+                                                            request.Data);
 
             IncomingResponseFrame response = await proxy.InvokeAsync(forwardedRequest,
                                                                      oneway: oneway,
                                                                      progress,
                                                                      cancel).ConfigureAwait(false);
             // TODO: need protocol bridging when the protocols are not the same.
-            return new OutgoingResponseFrame(request, compressResponseFrame, response.ReplyStatus, response.Payload);
+            return new OutgoingResponseFrame(request, response.Data);
         }
 
         private static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
@@ -419,22 +413,15 @@ namespace ZeroC.Ice
                                                                progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            switch (response.ReplyStatus)
+                            if (response.ResultType == ResultType.Failure)
                             {
-                                case ReplyStatus.OK:
-                                    break;
-                                case ReplyStatus.UserException:
-                                    observer?.RemoteException();
-                                    break;
-                                case ReplyStatus.ObjectNotExistException:
-                                case ReplyStatus.FacetNotExistException:
-                                case ReplyStatus.OperationNotExistException:
-                                    throw response.ReadDispatchException();
-                                case ReplyStatus.UnknownException:
-                                case ReplyStatus.UnknownLocalException:
-                                case ReplyStatus.UnknownUserException:
-                                    throw response.ReadUnhandledException();
+                                observer?.RemoteException();
+
+                                // TODO: revisit
+                                // We throw here the 1.1 system exceptions, as they are used for retries
+                                response.ThrowIfSystemException(proxy.Communicator);
                             }
+
                             return response;
                         }
                         catch (RetryException)
@@ -458,7 +445,7 @@ namespace ZeroC.Ice
                             }
 
                             // TODO: revisit retry logic
-                            // We only retry after failing with a DispatchException or a local exception.
+                            // We only retry after failing with an ObjectNotExistException or a local exception.
                             int delay = reference.CheckRetryAfterException(ex,
                                                                            progressWrapper.IsSent,
                                                                            request.IsIdempotent,

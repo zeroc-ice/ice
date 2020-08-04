@@ -23,9 +23,9 @@ public:
 
 protected:
 
-    void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
-    void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
-    void writeInitDataMembers(const DataMemberList&);
+    void writeMarshalDataMembers(const MemberList& dataMembers);
+    void writeUnmarshalDataMembers(const MemberList& dataMembers);
+    void writeInitDataMembers(const MemberList&);
 
     std::string getValue(const std::string&, const TypePtr&);
 

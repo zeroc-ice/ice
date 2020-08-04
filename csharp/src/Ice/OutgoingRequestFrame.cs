@@ -204,9 +204,7 @@ namespace ZeroC.Ice
 
             if (writeEmptyParamList)
             {
-                PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
-                Size = Data.GetByteCount();
-                IsSealed = true;
+                Finish(ostr.WriteEmptyEncapsulation(Encoding));
             }
         }
     }

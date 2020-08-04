@@ -17,16 +17,20 @@ namespace ZeroC.Ice
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
         public bool HasCompressedPayload { get; protected set; }
 
-        /// <summary>The payload of this request frame. The bytes inside the payload should not be written to;
+        /// <summary>The data of this frame. The bytes inside the data should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         // TODO: describe how long this payload remains valid once we add memory pooling.
-        public abstract ArraySegment<byte> Payload { get; internal set; }
+        public ArraySegment<byte> Data { get; protected set; }
+
+        // If the frame payload contains an encaps, this segment corresponds to the frame encaps otherwise is an
+        // empty segment. This is always an Slice of the Payload, both must use the same array.
+        private protected ArraySegment<byte> Payload { get; set; }
 
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
         /// <summary>The frame byte count</summary>
-        public int Size { get; private set; }
+        public int Size => Data.Count;
 
         private readonly int _sizeMax;
 
@@ -41,7 +45,7 @@ namespace ZeroC.Ice
             else
             {
                 ReadOnlySpan<byte> buffer = Payload.AsReadOnlySpan();
-                (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
+                (int _, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
                 // Offset of the start of the GZip decompressed data +3 corresponds to (Encoding 2 bytes, Compression
                 // status 1 byte)
                 int offset = sizeLength + 3;
@@ -55,19 +59,22 @@ namespace ZeroC.Ice
                                                    } bytes is greater than Ice.IncomingFrameSizeMax value");
                 }
 
-                byte[] decompressedData = new byte[decompressedSize + sizeLength];
-                buffer.Slice(0, offset).CopyTo(decompressedData);
+                Debug.Assert(Data.Array == Payload.Array);
+
+                byte[] decompressedData = new byte[Payload.Offset + sizeLength + decompressedSize];
+                Payload.Array.AsSpan(0, Payload.Offset + offset).CopyTo(decompressedData);
                 // Set the compression status to '0' not-compressed
-                decompressedData[sizeLength + 2] = 0;
+                decompressedData[Payload.Offset + sizeLength + 2] = 0;
 
                 using var decompressedStream = new MemoryStream(decompressedData,
-                                                                offset,
-                                                                decompressedData.Length - offset);
+                                                                Payload.Offset + offset,
+                                                                decompressedData.Length - Payload.Offset - offset);
                 Debug.Assert(Payload.Array != null);
-                var compressed = new GZipStream(new MemoryStream(Payload.Array,
-                                                                 Payload.Offset + offset + decompressedSizeLength,
-                                                                 Payload.Count - offset - decompressedSizeLength),
-                                                CompressionMode.Decompress);
+                var compressed = new GZipStream(
+                    new MemoryStream(Payload.Array,
+                                     Payload.Offset + offset + decompressedSizeLength,
+                                     Payload.Count - offset - decompressedSizeLength),
+                    CompressionMode.Decompress);
                 compressed.CopyTo(decompressedStream);
                 // +3 corresponds to (Encoding 2 bytes and Compression status 1 byte), that are part of the
                 // decompressed size, but are not GZip compressed.
@@ -75,13 +82,12 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidDataException(
                         @$"received gzip compressed encapsulation with a decompressed size of only {
-                        decompressedStream.Position} bytes");
+                        decompressedStream.Position} bytes {decompressedSize}");
                 }
-                Payload = decompressedData;
-                // Rewrite the encapsulation size and adjust the frame size
-                int newSize = Payload.Count - sizeLength;
-                OutputStream.WriteEncapsSize(newSize, decompressedData.AsSpan(0, sizeLength), Protocol.GetEncoding());
-                Size += newSize - size;
+                Data = new ArraySegment<byte>(decompressedData, Data.Offset, Data.Count);
+                Payload = new ArraySegment<byte>(decompressedData, Payload.Offset, decompressedSize + sizeLength);
+                // Rewrite the encapsulation size
+                OutputStream.WriteEncapsSize(decompressedSize, Payload.AsSpan(0, sizeLength), Protocol.GetEncoding());
                 HasCompressedPayload = false;
             }
         }
@@ -89,7 +95,7 @@ namespace ZeroC.Ice
         protected IncomingFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
         {
             Protocol = protocol;
-            Size = data.Count;
+            Data = data;
             _sizeMax = sizeMax;
         }
     }

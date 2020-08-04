@@ -59,7 +59,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
+            communicator.SetProperty("ReplyAdapter.Endpoints", "udp -h localhost");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)

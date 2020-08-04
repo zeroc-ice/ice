@@ -533,7 +533,7 @@ constantValue(const TypePtr& constType, const SyntaxTreeBasePtr& valueType, cons
 }
 
 string
-defaultValue(const DataMemberPtr& m)
+defaultValue(const MemberPtr& m)
 {
     if(m->defaultValueType())
     {
@@ -634,19 +634,16 @@ bool
 needsConversion(const TypePtr& constType)
 {
     TypePtr type = unwrapIfOptional(constType);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
+    if (SequencePtr seq = SequencePtr::dynamicCast(type))
     {
         return isClass(seq->type()) || needsConversion(seq->type());
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
+    if (StructPtr st = StructPtr::dynamicCast(type))
     {
-        const DataMemberList members = st->dataMembers();
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        for (const auto& member : st->dataMembers())
         {
-            if(needsConversion((*q)->type()) || isClass((*q)->type()))
+            if (needsConversion(member->type()) || isClass(member->type()))
             {
                 return true;
             }
@@ -654,8 +651,7 @@ needsConversion(const TypePtr& constType)
         return false;
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    if(d)
+    if (DictionaryPtr d = DictionaryPtr::dynamicCast(type))
     {
         return needsConversion(d->valueType()) || isClass(d->valueType());
     }
@@ -1192,11 +1188,10 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     {
         out << nl << "%";
         out << nl << "% " << n << " Properties:";
-        const DataMemberList dml = st->dataMembers();
-        for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& member : st->dataMembers())
         {
-            StringList sl = splitComment((*q)->comment());
-            out << nl << "%   " << fixIdent((*q)->name());
+            StringList sl = splitComment(member->comment());
+            out << nl << "%   " << fixIdent(member->name());
             if(!sl.empty())
             {
                 out << " - ";
@@ -1206,15 +1201,15 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     }
     else if(ExceptionPtr ex = ExceptionPtr::dynamicCast(p))
     {
-        const DataMemberList dml = ex->dataMembers();
-        if(!dml.empty())
+        const MemberList dml = ex->dataMembers();
+        if (!dml.empty())
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            for (const auto& member : dml)
             {
-                StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixExceptionMember((*q)->name());
+                StringList sl = splitComment(member->comment());
+                out << nl << "%   " << fixExceptionMember(member->name());
                 if(!sl.empty())
                 {
                     out << " - ";
@@ -1225,15 +1220,15 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     }
     else if(ClassDefPtr cl = ClassDefPtr::dynamicCast(p))
     {
-        const DataMemberList dml = cl->dataMembers();
-        if(!dml.empty())
+        const MemberList dml = cl->dataMembers();
+        if (!dml.empty())
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            for (const auto& member : dml)
             {
-                StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixIdent((*q)->name());
+                StringList sl = splitComment(member->comment());
+                out << nl << "%   " << fixIdent(member->name());
                 if(!sl.empty())
                 {
                     out << " - ";
@@ -1285,22 +1280,21 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
 
     out << nl << "%";
     out << nl << "% Parameters:";
-    const ParamDeclList inParams = p->inParameters();
     string ctxName = "context";
     string resultName = "result";
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    for (const auto& param : p->inParameters())
     {
-        if((*q)->name() == "context")
+        if (param->name() == "context")
         {
             ctxName = "context_";
         }
-        if((*q)->name() == "result")
+        if (param->name() == "result")
         {
             resultName = "result_";
         }
 
-        out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-        map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+        out << nl << "%   " << fixIdent(param->name()) << " (" << typeToString(param->type()) << ")";
+        map<string, StringList>::const_iterator r = doc.params.find(param->name());
         if(r != doc.params.end() && !r->second.empty())
         {
             out << " - ";
@@ -1316,12 +1310,12 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
     }
     else
     {
-        const ParamDeclList outParams = p->outParameters();
+        const MemberList outParams = p->outParameters();
         if(p->returnType() || !outParams.empty())
         {
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            for (const auto& param : outParams)
             {
-                if((*q)->name() == "result")
+                if (param->name() == "result")
                 {
                     resultName = "result_";
                 }
@@ -1359,10 +1353,10 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
                         writeDocLines(out, doc.returns, false, "     ");
                     }
                 }
-                for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                for (const auto& param : outParams)
                 {
-                    out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-                    map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+                    out << nl << "%   " << fixIdent(param->name()) << " (" << typeToString(param->type()) << ")";
+                    map<string, StringList>::const_iterator r = doc.params.find(param->name());
                     if(r != doc.params.end() && !r->second.empty())
                     {
                         out << " - ";
@@ -1499,7 +1493,7 @@ writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p)
 }
 
 void
-writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+writeMemberDoc(IceUtilInternal::Output& out, const MemberPtr& p)
 {
     DocElements doc = parseComment(p);
 
@@ -1582,7 +1576,7 @@ private:
     {
         string fixedName;
         bool inherited;
-        DataMemberPtr dataMember;
+        MemberPtr dataMember;
     };
     typedef list<MemberInfo> MemberInfoList;
 
@@ -1601,7 +1595,7 @@ private:
         bool isTagged;
         int tag;
         int pos; // Only used for out params
-        ParamDeclPtr param; // 0 == return value
+        MemberPtr param; // 0 == return value
     };
     typedef list<ParamInfo> ParamInfoList;
 
@@ -1659,7 +1653,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out.inc();
 
-    const DataMemberList members = p->dataMembers();
+    const MemberList members = p->dataMembers();
     if(!members.empty())
     {
         if(p->hasMetaData("protected"))
@@ -1669,13 +1663,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << nl << "properties(Access=protected)";
             out.inc();
-            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            for (const auto& member : members)
             {
-                writeMemberDoc(out, *q);
-                out << nl << fixIdent((*q)->name());
-                if(declarePropertyType((*q)->type(), (*q)->tagged()))
+                writeMemberDoc(out, member);
+                out << nl << fixIdent(member->name());
+                if(declarePropertyType(member->type(), member->tagged()))
                 {
-                    out << " " << typeToString((*q)->type());
+                    out << " " << typeToString(member->type());
                 }
             }
             out.dec();
@@ -1683,29 +1677,29 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            DataMemberList prot, pub;
-            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            MemberList prot, pub;
+            for (const auto& member : members)
             {
-                if((*q)->hasMetaData("protected"))
+                if (member->hasMetaData("protected"))
                 {
-                    prot.push_back(*q);
+                    prot.push_back(member);
                 }
                 else
                 {
-                    pub.push_back(*q);
+                    pub.push_back(member);
                 }
             }
             if(!pub.empty())
             {
                 out << nl << "properties";
                 out.inc();
-                for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
+                for (const auto& member : pub)
                 {
-                    writeMemberDoc(out, *q);
-                    out << nl << fixIdent((*q)->name());
-                    if(declarePropertyType((*q)->type(), (*q)->tagged()))
+                    writeMemberDoc(out, member);
+                    out << nl << fixIdent(member->name());
+                    if(declarePropertyType(member->type(), member->tagged()))
                     {
-                        out << " " << typeToString((*q)->type());
+                        out << " " << typeToString(member->type());
                     }
                 }
                 out.dec();
@@ -1715,13 +1709,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "properties(Access=protected)";
                 out.inc();
-                for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
+                for (const auto& member : prot)
                 {
-                    writeMemberDoc(out, *q);
-                    out << nl << fixIdent((*q)->name());
-                    if(declarePropertyType((*q)->type(), (*q)->tagged()))
+                    writeMemberDoc(out, member);
+                    out << nl << fixIdent(member->name());
+                    if(declarePropertyType(member->type(), member->tagged()))
                     {
-                        out << " " << typeToString((*q)->type());
+                        out << " " << typeToString(member->type());
                     }
                 }
                 out.dec();
@@ -1800,12 +1794,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    DataMemberList convertMembers;
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    MemberList convertMembers;
+    for (const auto& member : members)
     {
-        if(needsConversion((*d)->type()))
+        if (needsConversion(member->type()))
         {
-            convertMembers.push_back(*d);
+            convertMembers.push_back(member);
         }
     }
 
@@ -1841,10 +1835,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "end";
             out << nl << "function icePostUnmarshal(obj)";
             out.inc();
-            for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
+            for (const auto& member : convertMembers)
             {
-                string m = "obj." + fixIdent((*d)->name());
-                convertValueType(out, m, m, (*d)->type(), (*d)->tagged());
+                string m = "obj." + fixIdent(member->name());
+                convertValueType(out, m, m, member->type(), member->tagged());
             }
             if(base)
             {
@@ -1861,22 +1855,19 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "methods(Access=protected)";
     out.inc();
 
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
 
     out << nl << "function iceWriteImpl(obj, os)";
     out.inc();
     out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false")
         << ");";
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& member : requiredMembers)
     {
-        if(!(*d)->tagged())
-        {
-            marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
-        }
+        marshal(out, "os", "obj." + fixIdent(member->name()), member->type(), false, 0);
     }
-    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    for (const auto& member : taggedMembers)
     {
-        marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+        marshal(out, "os", "obj." + fixIdent(member->name()), member->type(), true, member->tag());
     }
     out << nl << "os.endSlice();";
     if(base)
@@ -1888,30 +1879,26 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "function iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (const auto& member : requiredMembers)
     {
-        if(!(*d)->tagged())
+        if (isClass(member->type()))
         {
-            if(isClass((*d)->type()))
-            {
-                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
-            }
-            else
-            {
-                unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
-            }
-        }
-    }
-    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
-    {
-        if(isClass((*d)->type()))
-        {
-            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true,
-                      (*d)->tag());
+            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(member->name()), member->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+            unmarshal(out, "is", "obj." + fixIdent(member->name()), member->type(), false, 0);
+        }
+    }
+    for (const auto& member : taggedMembers)
+    {
+        if (isClass(member->type()))
+        {
+            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent(member->name()), member->type(), true, member->tag());
+        }
+        else
+        {
+            unmarshal(out, "is", "obj." + fixIdent(member->name()), member->type(), true, member->tag());
         }
     }
     out << nl << "is.endSlice();";
@@ -1922,22 +1909,16 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    DataMemberList classMembers = p->classDataMembers();
-    if(!classMembers.empty())
+    // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
+    // instance is eventually unmarshaled.
+    for (const auto& member : getClassTypeMembers(members))
     {
-        //
-        // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
-        // instance is eventually unmarshaled.
-        //
-        for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
-        {
-            string m = fixIdent((*d)->name());
-            out << nl << "function iceSetMember_" << m << "(obj, v)";
-            out.inc();
-            out << nl << "obj." << m << " = v;";
-            out.dec();
-            out << nl << "end";
-        }
+        string m = fixIdent(member->name());
+        out << nl << "function iceSetMember_" << m << "(obj, v)";
+        out.inc();
+        out << nl << "obj." << m << " = v;";
+        out.dec();
+        out << nl << "end";
     }
 
     out.dec();
@@ -2575,18 +2556,18 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out.inc();
 
-    const DataMemberList members = p->dataMembers();
-    if(!members.empty())
+    const MemberList members = p->dataMembers();
+    if (!members.empty())
     {
         out << nl << "properties";
         out.inc();
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        for (const auto& member : members)
         {
-            writeMemberDoc(out, *q);
-            out << nl << fixExceptionMember((*q)->name());
-            if(declarePropertyType((*q)->type(), (*q)->tagged()))
+            writeMemberDoc(out, member);
+            out << nl << fixExceptionMember(member->name());
+            if(declarePropertyType(member->type(), member->tagged()))
             {
-                out << " " << typeToString((*q)->type());
+                out << " " << typeToString(member->type());
             }
         }
         out.dec();
@@ -2698,7 +2679,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
-    const DataMemberList classMembers = p->classDataMembers();
+    const MemberList classMembers = getClassTypeMembers(members);
     if(!classMembers.empty() || !convertMembers.empty() || (preserved && !basePreserved))
     {
         out << nl << "methods(Hidden=true)";
@@ -2722,9 +2703,9 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             out << nl << "function obj = icePostUnmarshal(obj)";
             out.inc();
-            for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
+            for (const auto& member : classMembers)
             {
-                string m = fixExceptionMember((*q)->name());
+                string m = fixExceptionMember(member->name());
                 out << nl << "obj." << m << " = obj." << m << ".value;";
             }
             for(MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
@@ -2750,34 +2731,31 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "function obj = iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    const auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
+    for (const auto& member : requiredMembers)
     {
-        string m = fixExceptionMember((*q)->name());
-        if(!(*q)->tagged())
-        {
-            if(isClass((*q)->type()))
-            {
-                out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-                unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), false, 0);
-            }
-            else
-            {
-                unmarshal(out, "is", "obj." + m, (*q)->type(), false, 0);
-            }
-        }
-    }
-    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
-    for(DataMemberList::const_iterator q = taggedMembers.begin(); q != taggedMembers.end(); ++q)
-    {
-        string m = fixExceptionMember((*q)->name());
-        if(isClass((*q)->type()))
+        string m = fixExceptionMember(member->name());
+        if(isClass(member->type()))
         {
             out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), true, (*q)->tag());
+            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", member->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", "obj." + m, (*q)->type(), true, (*q)->tag());
+            unmarshal(out, "is", "obj." + m, member->type(), false, 0);
+        }
+    }
+    for (const auto& member : taggedMembers)
+    {
+        string m = fixExceptionMember(member->name());
+        if(isClass(member->type()))
+        {
+            out << nl << "obj." << m << " = IceInternal.ValueHolder();";
+            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", member->type(), true, member->tag());
+        }
+        else
+        {
+            unmarshal(out, "is", "obj." + m, member->type(), true, member->tag());
         }
     }
     out << nl << "is.endSlice();";
@@ -2822,8 +2800,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
 
-    const DataMemberList members = p->dataMembers();
-    const DataMemberList classMembers = p->classDataMembers();
+    const MemberList members = p->dataMembers();
+    const MemberList classMembers = getClassTypeMembers(members);
 
     out << nl << "classdef " << name;
 
@@ -2831,21 +2809,21 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "properties";
     out.inc();
     vector<string> memberNames;
-    DataMemberList convertMembers;
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    MemberList convertMembers;
+    for (const auto& member : members)
     {
-        const string m = fixStructMember((*q)->name());
+        const string m = fixStructMember(member->name());
         memberNames.push_back(m);
-        writeMemberDoc(out, *q);
+        writeMemberDoc(out, member);
         out << nl << m;
-        if(declarePropertyType((*q)->type(), false))
+        if(declarePropertyType(member->type(), false))
         {
-            out << " " << typeToString((*q)->type());
+            out << " " << typeToString(member->type());
         }
 
-        if(needsConversion((*q)->type()))
+        if(needsConversion(member->type()))
         {
-            convertMembers.push_back(*q);
+            convertMembers.push_back(member);
         }
     }
     out.dec();
@@ -2865,9 +2843,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.dec();
     out << nl << "else";
     out.inc();
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        out << nl << self << "." << fixStructMember((*q)->name()) << " = " << defaultValue(*q) << ';';
+        out << nl << self << "." << fixStructMember(member->name()) << " = " << defaultValue(member) << ';';
     }
     out.dec();
     out << nl << "end";
@@ -2934,9 +2912,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "v = " << abs << "();";
     out.dec();
     out << nl << "end";
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        marshal(out, "os", "v." + fixStructMember((*q)->name()), (*q)->type(), false, 0);
+        marshal(out, "os", "v." + fixStructMember(member->name()), member->type(), false, 0);
     }
     out.dec();
     out << nl << "end";
@@ -3652,14 +3630,12 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
         collectClassMembers(p->base(), allMembers, true);
     }
 
-    DataMemberList members = p->dataMembers();
-
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : p->dataMembers())
     {
         MemberInfo m;
-        m.fixedName = fixIdent((*q)->name());
+        m.fixedName = fixIdent(member->name());
         m.inherited = inherited;
-        m.dataMember = *q;
+        m.dataMember = member;
         allMembers.push_back(m);
     }
 }
@@ -3673,14 +3649,12 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
         collectExceptionMembers(base, allMembers, true);
     }
 
-    DataMemberList members = p->dataMembers();
-
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : p->dataMembers())
     {
         MemberInfo m;
-        m.fixedName = fixExceptionMember((*q)->name());
+        m.fixedName = fixExceptionMember(member->name());
         m.inherited = inherited;
-        m.dataMember = *q;
+        m.dataMember = member;
         allMembers.push_back(m);
     }
 }
@@ -3688,16 +3662,15 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 CodeVisitor::ParamInfoList
 CodeVisitor::getAllInParams(const OperationPtr& op)
 {
-    const ParamDeclList l = op->inParameters();
     ParamInfoList r;
-    for(ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (const auto& param : op->inParameters())
     {
         ParamInfo info;
-        info.fixedName = fixIdent((*p)->name());
-        info.type = (*p)->type();
-        info.isTagged = (*p)->tagged();
-        info.tag = (*p)->tag();
-        info.param = *p;
+        info.fixedName = fixIdent(param->name());
+        info.type = param->type();
+        info.isTagged = param->tagged();
+        info.tag = param->tag();
+        info.param = param;
         r.push_back(info);
     }
     return r;
@@ -3736,7 +3709,7 @@ CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& requiredParams, 
 CodeVisitor::ParamInfoList
 CodeVisitor::getAllOutParams(const OperationPtr& op)
 {
-    ParamDeclList params = op->outParameters();
+    MemberList params = op->outParameters();
     ParamInfoList l;
     int pos = 1;
 
@@ -3746,9 +3719,9 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         info.fixedName = "result";
         info.pos = pos++;
 
-        for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            if((*p)->name() == "result")
+            if (param->name() == "result")
             {
                 info.fixedName = "result_";
                 break;
@@ -3760,15 +3733,15 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         l.push_back(info);
     }
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
         ParamInfo info;
-        info.fixedName = fixIdent((*p)->name());
-        info.type = (*p)->type();
-        info.isTagged = (*p)->tagged();
-        info.tag = (*p)->tag();
+        info.fixedName = fixIdent(param->name());
+        info.type = param->type();
+        info.isTagged = param->tagged();
+        info.tag = param->tag();
         info.pos = pos++;
-        info.param = *p;
+        info.param = param;
         l.push_back(info);
     }
 
@@ -4107,19 +4080,17 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
 void
 CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
 {
-    const DataMemberList members = p->dataMembers();
-
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : p->dataMembers())
     {
-        string m = fixStructMember((*q)->name());
-        if(isClass((*q)->type()))
+        string m = fixStructMember(member->name());
+        if (isClass(member->type()))
         {
             out << nl << v << "." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", (*q)->type(), false, 0);
+            unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", member->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", v + "." + m, (*q)->type(), false, 0);
+            unmarshal(out, "is", v + "." + m, member->type(), false, 0);
         }
     }
 }
@@ -4127,16 +4098,14 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
 void
 CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
 {
-    const DataMemberList members = p->dataMembers();
-
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : p->dataMembers())
     {
-        string m = fixStructMember((*q)->name());
-        if(needsConversion((*q)->type()))
+        string m = fixStructMember(member->name());
+        if (needsConversion(member->type()))
         {
-            convertValueType(out, v + "." + m, v + "." + m, (*q)->type(), false);
+            convertValueType(out, v + "." + m, v + "." + m, member->type(), false);
         }
-        else if(isClass((*q)->type()))
+        else if (isClass(member->type()))
         {
             out << nl << v << "." << m << " = " << v << "." << m << ".value;";
         }
