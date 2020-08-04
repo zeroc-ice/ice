@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Objects
             var responseFrame =
                 OutgoingResponseFrame.WithReturnValue(current,
                                                       compress: false,
-                                                      FormatType.Compact,
+                                                      format: default,
                                                       ae,
                                                       (OutputStream ostr, AlsoEmpty ae) => ostr.WriteClass(ae, null));
             return new ValueTask<OutgoingResponseFrame>(responseFrame);

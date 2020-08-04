@@ -224,7 +224,7 @@ namespace ZeroC.Ice
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,
             bool compress,
-            FormatType format = default)
+            FormatType format)
         {
             var response = new OutgoingResponseFrame(current.Protocol,
                                                      current.Encoding,
