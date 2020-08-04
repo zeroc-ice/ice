@@ -23,45 +23,6 @@ namespace ZeroC.Ice
     /// <summary>Base class for outgoing frames.</summary>
     public abstract class OutgoingFrame
     {
-        /// <summary>Returns a list of array segments with the contents of the frame encapsulation, if the frame
-        /// doesn't contain an encapsulation it returns an empty list.</summary>
-        public IList<ArraySegment<byte>> Encapsulation
-        {
-            get
-            {
-                if (_encapsulation == null && EncapsulationEnd is OutputStream.Position encapsulationEnd)
-                {
-                    var encapsulation = new List<ArraySegment<byte>>();
-                    if (EncapsulationStart.Segment == encapsulationEnd.Segment)
-                    {
-                        encapsulation.Add(Payload[EncapsulationStart.Segment].Slice(
-                            EncapsulationStart.Offset,
-                            encapsulationEnd.Offset - EncapsulationStart.Offset));
-                    }
-                    else
-                    {
-                        ArraySegment<byte> segment = Payload[EncapsulationStart.Segment].Slice(
-                            EncapsulationStart.Offset);
-                        if (segment.Count > 0)
-                        {
-                            encapsulation.Add(segment);
-                        }
-                        for (int i = EncapsulationStart.Segment + 1; i < encapsulationEnd.Segment; i++)
-                        {
-                            encapsulation.Add(Payload[i]);
-                        }
-
-                        segment = Payload[encapsulationEnd.Segment].Slice(0, encapsulationEnd.Offset);
-                        if (segment.Count > 0)
-                        {
-                            encapsulation.Add(segment);
-                        }
-                    }
-                    _encapsulation = encapsulation;
-                }
-                return _encapsulation ?? Array.Empty<ArraySegment<byte>>();
-            }
-        }
         /// <summary>The encoding of the frame payload.</summary>
         public Encoding Encoding { get; protected set; }
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
@@ -78,9 +39,49 @@ namespace ZeroC.Ice
         internal bool Compress { get; }
 
         // Position of the end of the encapsulation, for ice1 this is always the frame end.
-        internal OutputStream.Position? EncapsulationEnd;
+        private protected OutputStream.Position? _encapsulationEnd;
         // Position of the start of the encapsulation.
-        internal OutputStream.Position EncapsulationStart;
+        private protected OutputStream.Position _encapsulationStart;
+
+        /// <summary>Returns a list of array segments with the contents of the frame encapsulation, if the frame
+        /// doesn't contain an encapsulation it returns an empty list.</summary>
+        private protected IList<ArraySegment<byte>> Encapsulation
+        {
+            get
+            {
+                if (_encapsulation == null && _encapsulationEnd is OutputStream.Position encapsulationEnd)
+                {
+                    var encapsulation = new List<ArraySegment<byte>>();
+                    if (_encapsulationStart.Segment == encapsulationEnd.Segment)
+                    {
+                        encapsulation.Add(Payload[_encapsulationStart.Segment].Slice(
+                            _encapsulationStart.Offset,
+                            encapsulationEnd.Offset - _encapsulationStart.Offset));
+                    }
+                    else
+                    {
+                        ArraySegment<byte> segment = Payload[_encapsulationStart.Segment].Slice(
+                            _encapsulationStart.Offset);
+                        if (segment.Count > 0)
+                        {
+                            encapsulation.Add(segment);
+                        }
+                        for (int i = _encapsulationStart.Segment + 1; i < encapsulationEnd.Segment; i++)
+                        {
+                            encapsulation.Add(Payload[i]);
+                        }
+
+                        segment = Payload[encapsulationEnd.Segment].Slice(0, encapsulationEnd.Offset);
+                        if (segment.Count > 0)
+                        {
+                            encapsulation.Add(segment);
+                        }
+                    }
+                    _encapsulation = encapsulation;
+                }
+                return _encapsulation ?? Array.Empty<ArraySegment<byte>>();
+            }
+        }
 
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
@@ -93,7 +94,7 @@ namespace ZeroC.Ice
         /// </returns>
         public CompressionResult CompressPayload()
         {
-            if (EncapsulationEnd == null)
+            if (_encapsulationEnd == null)
             {
                 throw new InvalidOperationException("payload has not been written");
             }
@@ -155,10 +156,10 @@ namespace ZeroC.Ice
 
                 // Slice the payload start segment and remove all segments after it, the compressed payload will be
                 // added as a new segment.
-                int remove = EncapsulationStart.Segment;
-                if (EncapsulationStart.Offset > 0)
+                int remove = _encapsulationStart.Segment;
+                if (_encapsulationStart.Offset > 0)
                 {
-                    Payload[EncapsulationStart.Segment] = Payload[EncapsulationStart.Segment].Slice(0, EncapsulationStart.Offset);
+                    Payload[_encapsulationStart.Segment] = Payload[_encapsulationStart.Segment].Slice(0, _encapsulationStart.Offset);
                     remove++;
                 }
                 // TODO return the segments to the pool when we implement memory pool
@@ -166,8 +167,8 @@ namespace ZeroC.Ice
 
                 var payloadData = new ArraySegment<byte>(compressedData, 0, offset + (int)memoryStream.Position);
                 Payload.Add(payloadData);
-                EncapsulationStart = new OutputStream.Position(Payload.Count - 1, 0);
-                EncapsulationEnd = new OutputStream.Position(Payload.Count - 1, payloadData.Count);
+                _encapsulationStart = new OutputStream.Position(Payload.Count - 1, 0);
+                _encapsulationEnd = new OutputStream.Position(Payload.Count - 1, payloadData.Count);
                 Size = Payload.GetByteCount();
 
                 // Rewrite the payload size
@@ -199,7 +200,7 @@ namespace ZeroC.Ice
         internal void Finish(OutputStream.Position encapsulationEnd)
         {
             Size = Payload.GetByteCount();
-            EncapsulationEnd = encapsulationEnd;
+            _encapsulationEnd = encapsulationEnd;
         }
     }
 }

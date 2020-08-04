@@ -49,7 +49,7 @@ namespace ZeroC.Ice
             OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request.EncapsulationStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
@@ -85,7 +85,7 @@ namespace ZeroC.Ice
             OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request.EncapsulationStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
@@ -146,9 +146,9 @@ namespace ZeroC.Ice
                                             $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
                     nameof(payload));
             }
-            Payload[^1] = Payload[^1].Slice(0, EncapsulationStart.Offset);
+            Payload[^1] = Payload[^1].Slice(0, _encapsulationStart.Offset);
             Payload.Add(payload);
-            EncapsulationEnd = new OutputStream.Position(Payload.Count - 1, payload.Count);
+            _encapsulationEnd = new OutputStream.Position(Payload.Count - 1, payload.Count);
             Size = Payload.GetByteCount();
             IsSealed = true;
         }
@@ -191,7 +191,7 @@ namespace ZeroC.Ice
             }
 
             ContextHelper.Write(ostr, Context);
-            EncapsulationStart = ostr.Tail;
+            _encapsulationStart = ostr.Tail;
 
             if (writeEmptyParamList)
             {

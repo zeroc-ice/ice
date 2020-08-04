@@ -142,7 +142,7 @@ namespace ZeroC.Ice
             Payload.Add(data);
             if (hasEncapsulation)
             {
-                EncapsulationStart = new OutputStream.Position(Payload.Count - 1, 1);
+                _encapsulationStart = new OutputStream.Position(Payload.Count - 1, 1);
                 Finish(new OutputStream.Position(Payload.Count - 1, data.Count));
             }
         }
@@ -236,10 +236,10 @@ namespace ZeroC.Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ResultType.Success;
             response.Payload.Add(buffer);
-            response.EncapsulationStart = new OutputStream.Position(0, 1);
+            response._encapsulationStart = new OutputStream.Position(0, 1);
             var ostr = new OutputStream(response.Protocol.GetEncoding(),
                                         response.Payload,
-                                        response.EncapsulationStart,
+                                        response._encapsulationStart,
                                         response.Encoding,
                                         format ?? current.Communicator.DefaultFormat);
             return (response, ostr);

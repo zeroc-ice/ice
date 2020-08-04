@@ -12,9 +12,6 @@ namespace ZeroC.Ice
     /// <summary>Base class for incoming frames.</summary>
     public abstract class IncomingFrame
     {
-        // If the frame payload contains an encapsulation, this segment corresponds to the frame encapsulation
-        // otherwise is an empty segment. This is always an Slice of the Payload, both must use the same array.
-        private protected ArraySegment<byte> Encapsulation { get; set; }
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
@@ -30,6 +27,10 @@ namespace ZeroC.Ice
 
         /// <summary>The frame byte count</summary>
         public int Size => Payload.Count;
+
+        // If the frame payload contains an encapsulation, this segment corresponds to the frame encapsulation
+        // otherwise is an empty segment. This is always an Slice of the Payload, both must use the same array.
+        private protected ArraySegment<byte> Encapsulation { get; set; }
 
         private readonly int _sizeMax;
 
