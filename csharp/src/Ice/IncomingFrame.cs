@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         public ArraySegment<byte> Data { get; protected set; }
 
         // If the frame payload contains an encaps, this segment corresponds to the frame encaps otherwise is an
-        // empty segment. This is always an Slice of the Payload, both must use the same array.
+        // empty segment. This is always an Slice of the Data, both must use the same array.
         private protected ArraySegment<byte> Payload { get; set; }
 
         /// <summary>The Ice protocol of this frame.</summary>
@@ -45,7 +45,7 @@ namespace ZeroC.Ice
             else
             {
                 ReadOnlySpan<byte> buffer = Payload.AsReadOnlySpan();
-                (int _, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
+                (int size, int sizeLength) = buffer.ReadSize(Protocol.GetEncoding());
                 // Offset of the start of the GZip decompressed data +3 corresponds to (Encoding 2 bytes, Compression
                 // status 1 byte)
                 int offset = sizeLength + 3;
@@ -84,7 +84,7 @@ namespace ZeroC.Ice
                         @$"received gzip compressed encapsulation with a decompressed size of only {
                         decompressedStream.Position} bytes {decompressedSize}");
                 }
-                Data = new ArraySegment<byte>(decompressedData, Data.Offset, Data.Count);
+                Data = new ArraySegment<byte>(decompressedData, Data.Offset, Data.Count - size + decompressedSize);
                 Payload = new ArraySegment<byte>(decompressedData, Payload.Offset, decompressedSize + sizeLength);
                 // Rewrite the encapsulation size
                 OutputStream.WriteEncapsSize(decompressedSize, Payload.AsSpan(0, sizeLength), Protocol.GetEncoding());

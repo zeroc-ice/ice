@@ -68,8 +68,6 @@ namespace ZeroC.Ice
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
         /// correspond to the empty parameter list.</summary>
-        /// <param name="communicator">The communicator.</param>
-        // TODO: we currently need the communicator only to skip (read) tagged classes.
         public void ReadEmptyParamList()
         {
             if (HasCompressedPayload)

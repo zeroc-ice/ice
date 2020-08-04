@@ -122,15 +122,15 @@ namespace ZeroC.Ice
                 int size;
                 int sizeLength;
 
+                Payload = Data.Slice(1);
                 (size, sizeLength, Encoding) =
-                    data.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
+                    Payload.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-                if (1 + sizeLength + size != data.Count)
+                if (sizeLength + size != Payload.Count)
                 {
                     throw new InvalidDataException(
-                        $"{Data.Count - 1 - sizeLength - size} extra bytes in payload of response frame");
+                        $"{Payload.Count - sizeLength - size} extra bytes in payload of response frame");
                 }
-                Payload = Data.Slice(1);
 
                 HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
             }
