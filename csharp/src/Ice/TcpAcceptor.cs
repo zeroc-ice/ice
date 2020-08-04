@@ -27,8 +27,7 @@ namespace ZeroC.Ice
 
             // TODO: read data from the socket to figure out if were are accepting a tcp/ssl/ws connection.
 
-            return ((TcpEndpoint)Endpoint).CreateTransceiver(new StreamSocket(Endpoint.Communicator, fd),
-                                                             _adapter.Name);
+            return ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name);
         }
 
         public void Dispose() => Network.CloseSocketNoThrow(_fd);

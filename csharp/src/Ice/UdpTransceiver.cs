@@ -551,8 +551,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public void SetBufferSize(int rcvSize, int sndSize) => SetBufSize(rcvSize, sndSize);
-
         public override string ToString()
         {
             try

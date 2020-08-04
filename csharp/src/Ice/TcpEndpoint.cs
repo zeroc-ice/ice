@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace ZeroC.Ice
@@ -226,19 +227,24 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
+        internal virtual ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy)
         {
+            ITransceiver transceiver = new TcpTransceiver(Communicator, addr, proxy, SourceAddress);
             if (IsSecure)
             {
-                return new SslTransceiver(Communicator,
-                                          new TcpTransceiver(socket),
-                                          adapterName ?? Host,
-                                          adapterName != null);
+                transceiver = new SslTransceiver(Communicator, transceiver, Host, false);
             }
-            else
+            return transceiver;
+        }
+
+        internal virtual ITransceiver CreateTransceiver(Socket socket, string adapterName)
+        {
+            ITransceiver transceiver = new TcpTransceiver(Communicator, socket);
+            if (IsSecure)
             {
-                return new TcpTransceiver(socket);
+                transceiver = new SslTransceiver(Communicator, transceiver, adapterName, true);
             }
+            return transceiver;
         }
     }
 }
