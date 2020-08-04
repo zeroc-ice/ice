@@ -296,7 +296,7 @@ namespace ZeroC.Ice
         {
             if (!(context.Context is Communicator communicator))
             {
-                throw new ArgumentException("cannot deserialize proxy: Ice.Communicator not found in StreamingContext",
+                throw new ArgumentException("cannot deserialize proxy: communicator not found in StreamingContext",
                     nameof(context));
             }
             string? str = info.GetString("proxy");

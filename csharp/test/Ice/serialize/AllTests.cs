@@ -47,10 +47,9 @@ namespace ZeroC.Ice.Test.Serialize
                                       optValStruct: null,
                                       optRefStruct: null,
                                       optEnum: null,
-                                      optClass: null,
                                       optProxy: null);
 
-            ex2 = inOut(ex, communicator);
+            ex2 = InOut(ex, communicator);
 
             TestHelper.Assert(ex2.Name.Length == 0);
             TestHelper.Assert(ex2.Vss!.Length == 0);
@@ -66,7 +65,7 @@ namespace ZeroC.Ice.Test.Serialize
             TestHelper.Assert(ex2.OptValStruct == null);
             TestHelper.Assert(ex2.OptRefStruct == null);
             TestHelper.Assert(ex2.OptEnum == null);
-            TestHelper.Assert(ex2.OptClass == null);
+
             TestHelper.Assert(ex2.OptProxy == null);
 
             ex.Name = "MyException";
@@ -98,9 +97,8 @@ namespace ZeroC.Ice.Test.Serialize
             ex.OptValStruct = ex.Vs;
             ex.OptRefStruct = ex.Rs;
             ex.OptEnum = MyEnum.enum3;
-            ex.OptClass = null;
             ex.OptProxy = proxy;
-            ex2 = inOut(ex, communicator);
+            ex2 = InOut(ex, communicator);
 
             TestHelper.Assert(ex2.Name.Equals(ex.Name));
             TestHelper.Assert(ex2.B == ex.B);
@@ -122,7 +120,6 @@ namespace ZeroC.Ice.Test.Serialize
             TestHelper.Assert(ex2.OptValStruct.HasValue && ex2.OptValStruct.Value.Equals(ex.Vs));
             TestHelper.Assert(ex2.OptRefStruct != null && ex2.OptRefStruct.Value.P!.Equals(ex.Rs.P));
             TestHelper.Assert(ex2.OptEnum.HasValue && ex2.OptEnum.Value == MyEnum.enum3);
-            TestHelper.Assert(ex2.OptClass == null);
             TestHelper.Assert(ex2.OptProxy!.Equals(proxy));
 
             RefStruct rs, rs2;
@@ -132,7 +129,7 @@ namespace ZeroC.Ice.Test.Serialize
             rs.C = null;
             rs.P = IMyInterfacePrx.Parse("test", communicator);
             rs.Seq = new IMyInterfacePrx[] { rs.P };
-            rs2 = inOut(rs, communicator);
+            rs2 = InOut(rs, communicator);
             TestHelper.Assert(rs2.S == "RefStruct");
             TestHelper.Assert(rs2.Sp == "prop");
             TestHelper.Assert(rs2.C == null);
@@ -141,26 +138,29 @@ namespace ZeroC.Ice.Test.Serialize
             TestHelper.Assert(rs2.Seq[0]!.Equals(rs.Seq[0]));
 
             Base b, b2;
-            b = new Base(true, 1, 2, 3, 4, MyEnum.enum2);
-            b2 = inOut(b, communicator);
+            IMyInterfacePrx prx = IMyInterfacePrx.Parse("ice+tcp://localhost:1000/foo", communicator);
+            b = new Base(true, 1, 2, 3, 4, MyEnum.enum2, prx);
+            b2 = InOut(b, communicator);
             TestHelper.Assert(b2.Bo == b.Bo);
             TestHelper.Assert(b2.By == b.By);
             TestHelper.Assert(b2.Sh == b.Sh);
             TestHelper.Assert(b2.I == b.I);
             TestHelper.Assert(b2.L == b.L);
             TestHelper.Assert(b2.E == b.E);
+            TestHelper.Assert(b2.Prx!.Equals(b.Prx));
 
             MyClass c, c2;
-            c = new MyClass(true, 1, 2, 3, 4, MyEnum.enum1, null, null, new ValStruct(true, 1, 2, 3, 4, MyEnum.enum2));
+            c = new MyClass(true, 1, 2, 3, 4, MyEnum.enum1, prx, null, null, new ValStruct(true, 1, 2, 3, 4, MyEnum.enum2));
             c.C = c;
             c.O = c;
-            c2 = inOut(c, communicator);
+            c2 = InOut(c, communicator);
             TestHelper.Assert(c2.Bo == c.Bo);
             TestHelper.Assert(c2.By == c.By);
             TestHelper.Assert(c2.Sh == c.Sh);
             TestHelper.Assert(c2.I == c.I);
             TestHelper.Assert(c2.L == c.L);
             TestHelper.Assert(c2.E == c.E);
+            TestHelper.Assert(c2.Prx!.Equals(c.Prx));
             TestHelper.Assert(c2.C == c2);
             TestHelper.Assert(c2.O == c2);
             TestHelper.Assert(c2.S.Equals(c.S));
@@ -169,7 +169,7 @@ namespace ZeroC.Ice.Test.Serialize
             return 0;
         }
 
-        private static T inOut<T>(T o, Communicator communicator)
+        private static T InOut<T>(T o, Communicator communicator)
         {
             var bin = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, communicator));
             using MemoryStream mem = new MemoryStream();

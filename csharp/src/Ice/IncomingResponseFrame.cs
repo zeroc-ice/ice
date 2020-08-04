@@ -72,7 +72,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
+                Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
             }
             else
             {

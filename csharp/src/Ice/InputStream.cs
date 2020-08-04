@@ -472,7 +472,7 @@ namespace ZeroC.Ice
             if (_communicator == null)
             {
                 throw new InvalidOperationException(
-                    "cannot read a proxy from an input stream with a null communicator");
+                    "cannot read a proxy from an InputStream with a null communicator");
             }
             return Reference.Read(this, _communicator) is Reference reference ? factory(reference) : null;
         }
@@ -524,7 +524,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidDataException("read an empty byte sequence for a serializable object");
             }
-            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator!));
+            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator));
             var streamWrapper = new StreamWrapper(_buffer.Slice(Pos, sz));
             object result = f.Deserialize(streamWrapper);
             if (streamWrapper.Position != sz)
@@ -1053,9 +1053,6 @@ namespace ZeroC.Ice
 
             if (startEncapsulation)
             {
-                // TODO: a null communicator should be ok for an empty encaps.
-                Debug.Assert(_communicator != null);
-
                 (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
 
                 // When startEncapsulation is true, the buffer must extend until the end of the encapsulation - it
@@ -1487,9 +1484,9 @@ namespace ZeroC.Ice
                         Skip(ReadSize20());
                     }
                     break;
-                case EncodingDefinitions.TagFormat.Class:
-                    ReadAnyClass(formalTypeId: null);
-                    break;
+                default:
+                    throw new InvalidDataException(
+                        $"cannot skip tagged parameter or data member with tag format `{format}'");
             }
         }
 
