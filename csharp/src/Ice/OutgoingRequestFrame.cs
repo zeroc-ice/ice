@@ -31,8 +31,7 @@ namespace ZeroC.Ice
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
-        /// the communicator's default format is used.</param>
+        /// <param name="format">The format used to marshal classes.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="value">The parameter to marshal in the frame.</param>
@@ -43,14 +42,17 @@ namespace ZeroC.Ice
             string operation,
             bool idempotent,
             bool compress,
-            FormatType? format,
+            FormatType format,
             IReadOnlyDictionary<string, string>? context,
             T value,
             OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
-                request.Encoding, format ?? proxy.Communicator.DefaultFormat);
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
+                                        request.Payload,
+                                        request._encapsulationStart,
+                                        request.Encoding,
+                                        format);
             writer(ostr, value);
             request.Finish(ostr.Save());
             if (compress && proxy.Encoding == Encoding.V2_0)
@@ -66,8 +68,7 @@ namespace ZeroC.Ice
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
-        /// the communicator's default format is used.</param>
+        /// <param name="format">The format used to marshal classes.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="value">The parameter to marshal in the frame, when the request frame contain multiple
@@ -79,14 +80,17 @@ namespace ZeroC.Ice
             string operation,
             bool idempotent,
             bool compress,
-            FormatType? format,
+            FormatType format,
             IReadOnlyDictionary<string, string>? context,
             in T value,
             OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
-                request.Encoding, format ?? proxy.Communicator.DefaultFormat);
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
+                                        request.Payload,
+                                        request._encapsulationStart,
+                                        request.Encoding,
+                                        format);
             writer(ostr, value);
             request.Finish(ostr.Save());
             if (compress && proxy.Encoding == Encoding.V2_0)

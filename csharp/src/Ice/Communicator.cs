@@ -105,7 +105,6 @@ namespace ZeroC.Ice
 
         public Encoding DefaultEncoding { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
-        public FormatType DefaultFormat { get; }
 
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
         /// All newly created proxies and object adapters will use this default locator. Note that setting this property
@@ -412,9 +411,6 @@ namespace ZeroC.Ice
                     _ => throw new InvalidConfigurationException(
                              $"illegal value `{endpointSelection}'; expected `Random' or `Ordered'")
                 };
-
-                DefaultFormat = (GetPropertyAsBool("Ice.Default.SlicedFormat") ?? false) ?
-                    FormatType.Sliced : FormatType.Compact;
 
                 // TODO: switch to 0/false default
                 DefaultPreferNonSecure = GetPropertyAsBool("Ice.Default.PreferNonSecure") ?? true;

@@ -35,6 +35,14 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return sbskd;
         }
 
+        public void CUnknownAsSBase(SBase? cUnknown, Current current)
+        {
+            if (cUnknown!.Sb != "CUnknown.sb")
+            {
+                throw new Exception();
+            }
+        }
+
         public SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(Current current)
         {
             var sbskd = new SBSKnownDerived();
@@ -357,20 +365,6 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             f.H = new Hidden();
             f.H.F = f;
             return f;
-        }
-    }
-
-    public sealed class TestIntf2 : ITestIntf2
-    {
-        public SBase SBSUnknownDerivedAsSBase(Current current) =>
-            new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
-
-        public void CUnknownAsSBase(SBase? cUnknown, Current current)
-        {
-            if (cUnknown!.Sb != "CUnknown.sb")
-            {
-                throw new Exception();
-            }
         }
     }
 }

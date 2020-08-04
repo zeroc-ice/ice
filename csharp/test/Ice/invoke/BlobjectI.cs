@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Invoke
                 string s = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
                 var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
                                                                           compress: false,
-                                                                          format: null,
+                                                                          format: default,
                                                                           (s, s),
                     (OutputStream ostr, (string ReturnValue, string s2) value) =>
                     {
@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.Invoke
                 string s = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
                 var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
                                                                           compress: false,
-                                                                          format: null,
+                                                                          format: default,
                                                                           s == "::ZeroC::Ice::Test::Invoke::MyClass",
                                                                           OutputStream.IceWriterFromBool);
                 return new ValueTask<OutgoingResponseFrame >(responseFrame);

@@ -238,8 +238,8 @@ namespace ZeroC.Ice
         private static OutgoingRequestWithParam<string, bool> IceI_IsARequest =>
             _iceI_IsARequest ??= new OutgoingRequestWithParam<string, bool>("ice_isA",
                                                                             idempotent: true,
-                                                                            format: null,
                                                                             compress: false,
+                                                                            format: default,
                                                                             writer: OutputStream.IceWriterFromString,
                                                                             reader: InputStream.IceReaderIntoBool);
 

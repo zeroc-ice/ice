@@ -32,6 +32,15 @@ namespace ZeroC.Ice.Test.Slicing.Objects
         public ValueTask<SBase?> SBSUnknownDerivedAsSBaseAsync(Current current) =>
             new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
+        public ValueTask CUnknownAsSBaseAsync(SBase? cUnknown, Current current)
+        {
+            if (cUnknown!.Sb != "CUnknown.sb")
+            {
+                throw new Exception();
+            }
+            return new ValueTask();
+        }
+
         public ValueTask<SBase?> SBSUnknownDerivedAsSBaseCompactAsync(Current current) =>
             new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
@@ -371,20 +380,5 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
         // Type-inference helper method
         private static ValueTask<T> MakeValueTask<T>(T result) => new ValueTask<T>(result);
-    }
-
-    public sealed class TestIntf2Async : ITestIntf2Async
-    {
-        public ValueTask<SBase?> SBSUnknownDerivedAsSBaseAsync(Current current) =>
-            new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
-
-        public ValueTask CUnknownAsSBaseAsync(SBase? cUnknown, Current current)
-        {
-            if (cUnknown!.Sb != "CUnknown.sb")
-            {
-                throw new Exception();
-            }
-            return new ValueTask();
-        }
     }
 }

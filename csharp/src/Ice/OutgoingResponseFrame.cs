@@ -43,7 +43,7 @@ namespace ZeroC.Ice
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
             bool compress,
-            FormatType? format,
+            FormatType format,
             T value,
             OutputStreamWriter<T> writer)
         {
@@ -69,7 +69,7 @@ namespace ZeroC.Ice
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
             bool compress,
-            FormatType? format,
+            FormatType format,
             in T value,
             OutputStreamValueWriter<T> writer)
             where T : struct
@@ -224,7 +224,7 @@ namespace ZeroC.Ice
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,
             bool compress,
-            FormatType? format)
+            FormatType format = default)
         {
             var response = new OutgoingResponseFrame(current.Protocol,
                                                      current.Encoding,
@@ -241,7 +241,7 @@ namespace ZeroC.Ice
                                         response.Payload,
                                         response._encapsulationStart,
                                         response.Encoding,
-                                        format ?? current.Communicator.DefaultFormat);
+                                        format);
             return (response, ostr);
         }
 

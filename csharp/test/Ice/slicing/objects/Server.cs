@@ -18,7 +18,6 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("Test", new TestIntf());
-            adapter.Add("Test2", new TestIntf2());
             await adapter.ActivateAsync();
             await communicator.WaitForShutdownAsync();
         }
