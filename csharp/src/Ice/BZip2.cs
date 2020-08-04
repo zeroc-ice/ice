@@ -112,7 +112,7 @@ namespace ZeroC.Ice
             });
 
         internal static List<ArraySegment<byte>>? Compress(
-            List<ArraySegment<byte>> data, int size, int headerSize, int compressionLevel)
+            List<ArraySegment<byte>> data, int size, int headerSize, CompressionLevel compressionLevel)
         {
             Debug.Assert(IsLoaded);
 
@@ -129,7 +129,10 @@ namespace ZeroC.Ice
             BzStatus rc;
             try
             {
-                rc = (BzStatus)BZ2_bzCompressInit(ref bzStream, compressionLevel, 0, 0);
+                rc = (BzStatus)BZ2_bzCompressInit(ref bzStream,
+                                                  compressionLevel == CompressionLevel.Fastest ? 1 : 6,
+                                                  0,
+                                                  0);
                 if (rc != BzStatus.Ok)
                 {
                     throw new TransportException($"bzip2 compression failed: {rc}");

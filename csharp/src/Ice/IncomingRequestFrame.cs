@@ -3,20 +3,20 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace ZeroC.Ice
 {
     /// <summary>Represents a request protocol frame received by the application.</summary>
-    public sealed class IncomingRequestFrame
+    public sealed class IncomingRequestFrame : IncomingFrame
     {
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public IReadOnlyDictionary<string, string> Context { get; }
         /// <summary>The encoding of the frame payload.</summary>
-        public Encoding Encoding { get; }
+        public override Encoding Encoding { get; }
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
+
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
         /// <summary>When true, the operation is idempotent.</summary>
@@ -24,67 +24,58 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        /// <summary>The payload of this request frame. The bytes inside the payload should not be written to;
-        /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
-        // TODO: describe how long this payload remains valid once we add memory pooling.
-        public ArraySegment<byte> Payload { get; }
-
-        /// <summary>The Ice protocol of this frame.</summary>
-        public Protocol Protocol { get; }
-
-        /// <summary>The frame byte count</summary>
-        public int Size => Data.Count;
-
-        internal byte CompressionStatus { get; }
-        internal ArraySegment<byte> Data { get; }
-
         /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
-        /// <param name="data">The frame data as an array segment.</param>
-        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data)
+        /// <param name="payload">The frame data as an array segment.</param>
+        /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> payload, int sizeMax)
+            : base(protocol, payload, sizeMax)
         {
-            Data = data;
-            Protocol = protocol;
-
-            var istr = new InputStream(data, Protocol.GetEncoding());
+            var istr = new InputStream(payload, Protocol.GetEncoding());
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             Context = istr.ReadContext();
-            Payload = Data.Slice(istr.Pos);
-            (int size, Encoding encoding) = istr.ReadEncapsulationHeader();
+            Encapsulation = payload.Slice(istr.Pos);
+            (int size, int sizeLength, Encoding encoding) =
+                Encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-            if (protocol == Protocol.Ice1 && (4 + size != Payload.Count))
+            if (protocol == Protocol.Ice1)
             {
-                throw new InvalidDataException(
-                    $"{Payload.Count - 4 - size} bytes left in incoming ice1 frame after encapsulation");
+                if (size + 4 != Encapsulation.Count)
+                {
+                    // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
+                    // "4" corresponds to fixed-length size with the 1.1 encoding.
+                    throw new InvalidDataException($"invalid request encapsulation size: {size}");
+                }
+            }
+            else
+            {
+                // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
             }
 
-            // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
-            // TODO: read the compression status from the encapsulation data
             Encoding = encoding;
+            HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
-        internal IncomingRequestFrame(OutgoingRequestFrame frame)
-            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data))
+        internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
+            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Payload), sizeMax)
         {
-        }
-
-        internal IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, byte compressionStatus)
-            : this(protocol, data)
-        {
-            // IncomingRequestFrame with compression status is only supported with Ice1, compression is handled
-            // by the 2.0 encoding with Ice2.
-            Debug.Assert(protocol == Protocol.Ice1);
-            CompressionStatus = compressionStatus;
         }
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
         /// correspond to the empty parameter list.</summary>
-        public void ReadEmptyParamList() => Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+        public void ReadEmptyParamList()
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+            Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+        }
 
         /// <summary>Reads the request frame parameter list.</summary>
         /// <param name="communicator">The communicator.</param>
@@ -92,7 +83,13 @@ namespace ZeroC.Ice
         /// parameters.</param>
         /// <returns>The request parameters, when the frame parameter list contains multiple parameters
         /// they must be return as a tuple.</returns>
-        public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader) =>
-            Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+        public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+            return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+        }
     }
 }

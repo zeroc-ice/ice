@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,8 +13,13 @@ namespace ZeroC.Ice
     public class OutgoingRequest<TReturnValue>
     {
         private readonly InputStreamReader<TReturnValue> _reader;
+        private protected readonly bool _compress;
 
-        private protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
+        private protected OutgoingRequest(InputStreamReader<TReturnValue> reader, bool compress)
+        {
+            _reader = reader;
+            _compress = compress;
+        }
 
         private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request) =>
             prx.Invoke(request, oneway: false).ReadReturnValue(prx.Communicator, _reader);
@@ -50,7 +54,7 @@ namespace ZeroC.Ice
         public OutgoingRequestWithEmptyParamList(string operationName,
                                                  bool idempotent,
                                                  InputStreamReader<TReturnValue> reader)
-            : base(reader)
+            : base(reader, compress: false)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -73,17 +77,19 @@ namespace ZeroC.Ice
     public sealed class OutgoingRequestWithParam<TParamList, TReturnValue>
         : OutgoingRequest<TReturnValue>
     {
-        private readonly string _operationName;
         private readonly bool _idempotent;
+        private readonly string _operationName;
         private readonly FormatType? _format;
         private readonly OutputStreamWriter<TParamList> _writer;
 
-        public OutgoingRequestWithParam(string operationName,
-                                        bool idempotent,
-                                        FormatType? format,
-                                        OutputStreamWriter<TParamList> writer,
-                                        InputStreamReader<TReturnValue> reader)
-            : base(reader)
+        public OutgoingRequestWithParam(
+            string operationName,
+            bool idempotent,
+            FormatType? format,
+            bool compress,
+            OutputStreamWriter<TParamList> writer,
+            InputStreamReader<TReturnValue> reader)
+            : base(reader, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -92,16 +98,32 @@ namespace ZeroC.Ice
         }
 
         public TReturnValue Invoke(IObjectPrx prx, TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithParamList(prx, _operationName, _idempotent, _format, context,
-                                                           paramList, _writer));
+            Invoke(prx, OutgoingRequestFrame.WithParamList(prx,
+                                                           _operationName,
+                                                           _idempotent,
+                                                           _compress,
+                                                           _format,
+                                                           context,
+                                                           paramList,
+                                                           _writer));
 
-        public Task<TReturnValue> InvokeAsync(IObjectPrx prx,
-                                            TParamList paramList,
-                                            IReadOnlyDictionary<string, string>? context,
-                                            IProgress<bool>? progress,
-                                            CancellationToken cancel) =>
-            InvokeAsync(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel);
+        public Task<TReturnValue> InvokeAsync(
+            IObjectPrx prx,
+            TParamList paramList,
+            IReadOnlyDictionary<string, string>? context,
+            IProgress<bool>? progress,
+            CancellationToken cancel) =>
+            InvokeAsync(prx,
+                        OutgoingRequestFrame.WithParamList(prx,
+                                                           _operationName,
+                                                           _idempotent,
+                                                           _compress,
+                                                           _format,
+                                                           context,
+                                                           paramList,
+                                                           _writer),
+                        progress,
+                        cancel);
     }
 
     // publicly visible Ice-internal class used to make request with input and output parameters,
@@ -116,12 +138,14 @@ namespace ZeroC.Ice
         private readonly FormatType? _format;
         private readonly OutputStreamValueWriter<TParamList> _writer;
 
-        public OutgoingRequestWithStructParam(string operationName,
-                                              bool idempotent,
-                                              FormatType? format,
-                                              OutputStreamValueWriter<TParamList> writer,
-                                              InputStreamReader<TReturnValue> reader)
-            : base(reader)
+        public OutgoingRequestWithStructParam(
+            string operationName,
+            bool idempotent,
+            FormatType? format,
+            bool compress,
+            OutputStreamValueWriter<TParamList> writer,
+            InputStreamReader<TReturnValue> reader)
+            : base(reader, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -129,26 +153,50 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        public TReturnValue Invoke(IObjectPrx prx, in TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer));
+        public TReturnValue Invoke(
+            IObjectPrx prx,
+            in TParamList paramList,
+            IReadOnlyDictionary<string, string>? context) =>
+            Invoke(prx,
+                   OutgoingRequestFrame.WithParamList(prx,
+                                                      _operationName,
+                                                      _idempotent,
+                                                      _compress,
+                                                      _format,
+                                                      context,
+                                                      paramList,
+                                                      _writer));
 
-        public Task<TReturnValue> InvokeAsync(IObjectPrx prx,
-                                            in TParamList paramList,
-                                            IReadOnlyDictionary<string, string>? context,
-                                            IProgress<bool>? progress,
-                                            CancellationToken cancel) =>
-            InvokeAsync(prx, OutgoingRequestFrame.WithParamList(prx, _operationName, _idempotent, _format,
-                                                                context, paramList, _writer),
-                progress, cancel);
+        public Task<TReturnValue> InvokeAsync(
+            IObjectPrx prx,
+            in TParamList paramList,
+            IReadOnlyDictionary<string, string>? context,
+            IProgress<bool>? progress,
+            CancellationToken cancel) =>
+            InvokeAsync(prx,
+                        OutgoingRequestFrame.WithParamList(prx,
+                                                           _operationName,
+                                                           _idempotent,
+                                                           _compress,
+                                                           _format,
+                                                           context,
+                                                           paramList,
+                                                           _writer),
+                        progress,
+                        cancel);
     }
 
     // publicly visible Ice-internal class used as base class for void requests
     public class OutgoingRequest
     {
         private readonly bool _oneway;
+        private protected readonly bool _compress;
 
-        private protected OutgoingRequest(bool oneway) => _oneway = oneway;
+        private protected OutgoingRequest(bool oneway, bool compress)
+        {
+            _oneway = oneway;
+            _compress = compress;
+        }
 
         private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
@@ -189,7 +237,7 @@ namespace ZeroC.Ice
         private readonly bool _idempotent;
 
         public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway)
-        : base(oneway)
+        : base(oneway, compress: false)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -221,8 +269,9 @@ namespace ZeroC.Ice
             bool idempotent,
             bool oneway,
             FormatType? format,
+            bool compress,
             OutputStreamWriter<TParamList> writer)
-        : base(oneway)
+        : base(oneway, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -230,16 +279,37 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        public void Invoke(IObjectPrx prx, TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithParamList(prx, _operationName, _idempotent, _format, context,
-                paramList, _writer));
+        public void Invoke(
+            IObjectPrx prx,
+            TParamList paramList,
+            IReadOnlyDictionary<string, string>? context) =>
+            Invoke(prx,
+                   OutgoingRequestFrame.WithParamList(prx,
+                                                      _operationName,
+                                                      _idempotent,
+                                                      _compress,
+                                                      _format,
+                                                      context,
+                                                      paramList,
+                                                      _writer));
 
-        public Task InvokeAsync(IObjectPrx prx, TParamList paramList,
-                                IReadOnlyDictionary<string, string>? context,
-                                IProgress<bool>? progress,
-                                CancellationToken cancel) =>
-            InvokeAsync(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel);
+        public Task InvokeAsync(
+            IObjectPrx prx,
+            TParamList paramList,
+            IReadOnlyDictionary<string, string>? context,
+            IProgress<bool>? progress,
+            CancellationToken cancel) =>
+            InvokeAsync(prx,
+                        OutgoingRequestFrame.WithParamList(prx,
+                                                           _operationName,
+                                                           _idempotent,
+                                                           _compress,
+                                                           _format,
+                                                           context,
+                                                           paramList,
+                                                           _writer),
+                        progress,
+                        cancel);
     }
 
     // publicly visible Ice-internal type used to make void request with input parameters,
@@ -258,8 +328,9 @@ namespace ZeroC.Ice
             bool idempotent,
             bool oneway,
             FormatType? format,
+            bool compress,
             OutputStreamValueWriter<TParamList> writer)
-        : base(oneway)
+        : base(oneway, compress)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -267,15 +338,35 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        public void Invoke(IObjectPrx prx, in TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer));
+        public void Invoke(
+            IObjectPrx prx,
+            in TParamList paramList,
+            IReadOnlyDictionary<string, string>? context) =>
+            Invoke(prx,
+                   OutgoingRequestFrame.WithParamList(prx,
+                                                      _operationName,
+                                                      _idempotent,
+                                                      _compress,
+                                                      _format,
+                                                      context,
+                                                      paramList,
+                                                      _writer));
 
-        public Task InvokeAsync(IObjectPrx prx, in TParamList paramList,
-                                IReadOnlyDictionary<string, string>? context,
-                                IProgress<bool>? progress,
-                                CancellationToken cancel) =>
-            InvokeAsync(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel);
+        public Task InvokeAsync(
+            IObjectPrx prx, in TParamList paramList,
+            IReadOnlyDictionary<string, string>? context,
+            IProgress<bool>? progress,
+            CancellationToken cancel) =>
+            InvokeAsync(prx,
+                        OutgoingRequestFrame.WithParamList(prx,
+                                                           _operationName,
+                                                           _idempotent,
+                                                           _compress,
+                                                           _format,
+                                                           context,
+                                                           paramList,
+                                                           _writer),
+                        progress,
+                        cancel);
     }
 }

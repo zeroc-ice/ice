@@ -324,28 +324,21 @@ namespace ZeroC.Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static ValueTask<OutgoingResponseFrame> ForwardAsync(this IObjectPrx proxy,
-                                                                    bool oneway,
-                                                                    IncomingRequestFrame request,
-                                                                    IProgress<bool>? progress = null,
-                                                                    CancellationToken cancel = default)
+        public static async ValueTask<OutgoingResponseFrame> ForwardAsync(
+            this IObjectPrx proxy,
+            bool oneway,
+            IncomingRequestFrame request,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
         {
-            var forwardedRequest = new OutgoingRequestFrame(proxy,
-                                                            request.Operation,
-                                                            request.IsIdempotent,
-                                                            request.Context,
-                                                            request.Payload);
+            var forwardedRequest = new OutgoingRequestFrame(proxy, request, compress: false);
 
-            return WaitResponseAsync(request, proxy.InvokeAsync(forwardedRequest, oneway: oneway, progress, cancel));
-
-            static async ValueTask<OutgoingResponseFrame> WaitResponseAsync(
-                IncomingRequestFrame request,
-                ValueTask<IncomingResponseFrame> task)
-            {
-                // TODO: need protocol bridging when the protocols are not the same.
-                IncomingResponseFrame response = await task.ConfigureAwait(false);
-                return new OutgoingResponseFrame(request, response.Payload);
-            }
+            IncomingResponseFrame response = await proxy.InvokeAsync(forwardedRequest,
+                                                                     oneway: oneway,
+                                                                     progress,
+                                                                     cancel).ConfigureAwait(false);
+            // TODO: need protocol bridging when the protocols are not the same.
+            return new OutgoingResponseFrame(request, response.Payload);
         }
 
         private static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,

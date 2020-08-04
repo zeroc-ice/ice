@@ -150,7 +150,8 @@ namespace ZeroC.Ice
         internal int ClassGraphDepthMax { get; }
         internal Acm ClientAcm { get; }
         internal int IncomingFrameSizeMax { get; }
-        internal int CompressionLevel { get; }
+        internal CompressionLevel CompressionLevel { get; }
+        internal int CompressionMinSize { get; }
         internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
@@ -472,12 +473,9 @@ namespace ZeroC.Ice
                 WarnDispatch = GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
                 WarnUnknownProperties = GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
 
-                int compressionLevel = GetPropertyAsInt("Ice.Compression.Level") ?? 1;
-                if (compressionLevel < 1 || compressionLevel > 9)
-                {
-                    throw new InvalidConfigurationException(@$"invalid value for Ice.Compression.Level: `{
-                        compressionLevel}', it must be an integer between 1 and 9");
-                }
+                CompressionLevel =
+                    GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
+                CompressionMinSize = GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
 
                 // TODO: switch to 0 default
                 AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;

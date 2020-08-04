@@ -220,7 +220,7 @@ namespace ZeroC.Ice
             return (size, 5);
         }
 
-        private static (int Size, int SizeLength) ReadSize20(this ReadOnlySpan<byte> buffer)
+        internal static (int Size, int SizeLength) ReadSize20(this ReadOnlySpan<byte> buffer)
         {
             ulong size = (buffer[0] & 0x03) switch
             {

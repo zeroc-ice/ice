@@ -682,7 +682,10 @@ namespace ZeroC.Ice
         public void WriteSequence<T>(ReadOnlySpan<T> v) where T : struct
         {
             WriteSize(v.Length);
-            WriteByteSpan(MemoryMarshal.AsBytes(v));
+            if (!v.IsEmpty)
+            {
+                WriteByteSpan(MemoryMarshal.AsBytes(v));
+            }
         }
 
         /// <summary>Writes a sequence to the stream.</summary>
@@ -1559,6 +1562,18 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static void WriteEncapsulationSize(int size, Span<byte> data, Encoding encoding)
+        {
+            if (encoding == Encoding.V2_0)
+            {
+                WriteFixedLengthSize20(size, data);
+            }
+            else
+            {
+                WriteInt(size + 4, data);
+            }
+        }
+
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
@@ -1605,6 +1620,10 @@ namespace ZeroC.Ice
             _format = format;
             _startPos = _tail;
             WriteEncapsulationHeader(0, payloadEncoding); // 0 is a placeholder for the actual encapsulation size
+            if (payloadEncoding == Encoding.V2_0)
+            {
+                WriteByte(0); // Placeholder for the compression status
+            }
             Encoding = payloadEncoding;
         }
 
@@ -1629,7 +1648,11 @@ namespace ZeroC.Ice
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
             encoding.CheckSupported();
-            WriteEncapsulationHeader(size: 2, encoding, sizeLength: 1);
+            WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding, sizeLength: 1);
+            if (encoding == Encoding.V2_0)
+            {
+                WriteByte(0); // The compression status, 0 not-compressed
+            }
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
         }
@@ -1640,23 +1663,19 @@ namespace ZeroC.Ice
 
             if (endpoint.Protocol == Protocol.Ice1 || OldEncoding)
             {
+                Position startPos = _tail;
                 int sizeLength = OldEncoding ? 4 : 2;
                 if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
-                    // 2 bytes for the encoding value (e.g. 20 for 2.0)
-                    WriteEncapsulationHeader(2 + opaqueEndpoint.Value.Length,
-                                             opaqueEndpoint.ValueEncoding,
-                                             sizeLength);
+                    // 0 is a placeholder for the size.
+                    WriteEncapsulationHeader(0, opaqueEndpoint.ValueEncoding, sizeLength);
                     WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive
                 }
                 else
                 {
-                    Position startPos = _tail;
-
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
                         Ice1Definitions.Encoding : Encoding.V2_0;
-
                     // 0 is a placeholder for the size.
                     WriteEncapsulationHeader(0, payloadEncoding, sizeLength);
                     Encoding previousEncoding = Encoding;
@@ -1672,8 +1691,8 @@ namespace ZeroC.Ice
                         endpoint.WriteOptions(this);
                     }
                     Encoding = previousEncoding;
-                    RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
                 }
+                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
             }
             else
             {
@@ -1836,6 +1855,7 @@ namespace ZeroC.Ice
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
+            Debug.Assert(n > 0);
             int remaining = _capacity - Size;
             if (n > remaining)
             {
@@ -2034,6 +2054,7 @@ namespace ZeroC.Ice
                 WriteFixedLengthSize20(size, data);
                 WriteByteSpan(data);
             }
+
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
         }

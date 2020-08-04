@@ -523,11 +523,11 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 else
                 {
-                    // Currently we're saving 3 bytes with the 2.0 encoding
-                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 42); // ice_ping request
-                    TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 22); // ice_ping response
-                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 42);
-                    TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 22);
+                    // Currently we're saving 2 bytes with the 2.0 encoding
+                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 43); // ice_ping request
+                    TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 23); // ice_ping response
+                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 43);
+                    TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 23);
                 }
 
                 cm1 = cm2;
@@ -866,8 +866,8 @@ namespace ZeroC.Ice.Test.Metrics
             map = ToMap(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"]!);
             TestHelper.Assert(collocated ? map.Count == 5 : map.Count == 6);
 
-            // TODO: temporary, currently we often save 3 bytes with the ice2 protocol
-            int protocolSizeAdjustment = ice1 ? 0 : -3;
+            // TODO: temporary, currently we often save 2 bytes with the ice2 protocol
+            int protocolSizeAdjustment = communicator.DefaultProtocol == Protocol.Ice1 ? 0 : -2;
 
             DispatchMetrics dm1;
             dm1 = (DispatchMetrics)map["op"];
@@ -879,7 +879,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
             TestHelper.Assert(dm1.Size == (38 + protocolSizeAdjustment) &&
-                dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 50 + userExErrorMessageSize));
+                dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 51 + userExErrorMessageSize));
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
@@ -896,7 +896,7 @@ namespace ZeroC.Ice.Test.Metrics
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == (47 + protocolSizeAdjustment) && dm1.ReplySize == 232);
+                TestHelper.Assert(dm1.Size == (47 + protocolSizeAdjustment) && dm1.ReplySize == 233);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
@@ -1078,7 +1078,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else
             {
-                TestHelper.Assert(rim1.Size == 36 && rim1.ReplySize == 8);
+                TestHelper.Assert(rim1.Size == 38 && rim1.ReplySize == 10);
             }
 
             if (ice1) // TODO: enable ice2
@@ -1209,7 +1209,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else
             {
-                TestHelper.Assert(rim1.Size == 36 && rim1.ReplySize == 0);
+                TestHelper.Assert(rim1.Size == 38 && rim1.ReplySize == 0);
             }
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",

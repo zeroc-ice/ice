@@ -1,0 +1,45 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
+
+using System;
+using System.Linq;
+using Test;
+
+namespace ZeroC.Ice.Test.Compress
+{
+    public class AllTests
+    {
+        public static ITestIntfPrx Run(TestHelper helper, Communicator communicator)
+        {
+            var prx1 = ITestIntfPrx.Parse(helper.GetTestProxy("test-1", 0), communicator);
+            var prx2 = ITestIntfPrx.Parse(helper.GetTestProxy("test-2", 0), communicator);
+
+            for (int size = 1024; size <= 4096; size *= 2)
+            {
+                byte[] p1 = Enumerable.Range(0, size).Select(i => (byte)i).ToArray();
+                prx1.OpCompressParams(size, p1);
+
+                byte[] p2 = prx1.OpCompressParamsAndReturn(p1);
+                TestHelper.Assert(p1.SequenceEqual(p2));
+
+                p2 = prx1.OpCompressReturn(size);
+                TestHelper.Assert(p1.SequenceEqual(p2));
+            }
+
+            for (int size = 2; size < 1024; size *= 2)
+            {
+                byte[] p1 = Enumerable.Range(0, size).Select(i => (byte)i).ToArray();
+                prx2.OpCompressParams(size, p1);
+
+                byte[] p2 = prx2.OpCompressParamsAndReturn(p1);
+                TestHelper.Assert(p1.SequenceEqual(p2));
+
+                p2 = prx2.OpCompressReturn(size);
+                TestHelper.Assert(p1.SequenceEqual(p2));
+            }
+
+            return prx1;
+        }
+    }
+}

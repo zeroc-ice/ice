@@ -11,8 +11,11 @@ namespace ZeroC.Ice.Test.Objects
         public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
             var ae = new AlsoEmpty();
-            var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,
-                ae, (OutputStream ostr, AlsoEmpty ae) => ostr.WriteClass(ae, null));
+            var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
+                                                                      compress: false,
+                                                                      format: null,
+                                                                      ae,
+                                                    (OutputStream ostr, AlsoEmpty ae) => ostr.WriteClass(ae, null));
             return new ValueTask<OutgoingResponseFrame>(responseFrame);
         }
     }
