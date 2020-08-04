@@ -19,7 +19,7 @@ namespace ZeroC.Ice
         public override Encoding Encoding { get; }
 
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
-        public ResultType ResultType => Data[0] == 0 ? ResultType.Success : ResultType.Failure;
+        public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
 
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
@@ -52,7 +52,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+                return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
             }
             else
             {
@@ -72,7 +72,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+                Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
             }
             else
             {
@@ -82,16 +82,16 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
-        /// <param name="data">The frame data as an array segment.</param>
+        /// <param name="payload">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
-        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
-            : base(protocol, data, sizeMax)
+        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> payload, int sizeMax)
+            : base(protocol, payload, sizeMax)
         {
             bool hasEncapsulation = false;
 
             if (Protocol == Protocol.Ice1)
             {
-                byte b = Data[0];
+                byte b = Payload[0];
                 if (b > 7)
                 {
                     throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
@@ -108,7 +108,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = Data[0];
+                byte b = Payload[0];
                 if (b > 1)
                 {
                     throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
@@ -122,17 +122,17 @@ namespace ZeroC.Ice
                 int size;
                 int sizeLength;
 
-                Payload = Data.Slice(1);
+                Encapsulation = Payload.Slice(1);
                 (size, sizeLength, Encoding) =
-                    Payload.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                    Encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-                if (sizeLength + size != Payload.Count)
+                if (sizeLength + size != Encapsulation.Count)
                 {
                     throw new InvalidDataException(
-                        $"{Payload.Count - sizeLength - size} extra bytes in payload of response frame");
+                        $"{Encapsulation.Count - sizeLength - size} extra bytes in payload of response frame");
                 }
 
-                HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
+                HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
             }
         }
 
@@ -141,19 +141,19 @@ namespace ZeroC.Ice
         {
             if (ResultType == ResultType.Failure && Encoding == Encoding.V1_1)
             {
-                var replyStatus = (ReplyStatus)Data[0]; // can be reassigned below
+                var replyStatus = (ReplyStatus)Payload[0]; // can be reassigned below
 
                 InputStream? istr = null;
                 if (Protocol == Protocol.Ice1)
                 {
                     if (replyStatus != ReplyStatus.UserException)
                     {
-                        istr = new InputStream(Data.Slice(1), Encoding.V1_1);
+                        istr = new InputStream(Payload.Slice(1), Encoding.V1_1);
                     }
                 }
                 else
                 {
-                    istr = new InputStream(Data.Slice(1),
+                    istr = new InputStream(Payload.Slice(1),
                                            Ice2Definitions.Encoding,
                                            communicator,
                                            startEncapsulation: true);
@@ -179,13 +179,13 @@ namespace ZeroC.Ice
         {
             Debug.Assert(ResultType != ResultType.Success);
 
-            var replyStatus = (ReplyStatus)Data[0]; // can be reassigned below
+            var replyStatus = (ReplyStatus)Payload[0]; // can be reassigned below
 
             InputStream istr;
 
             if (Protocol == Protocol.Ice2 || replyStatus == ReplyStatus.UserException)
             {
-                istr = new InputStream(Data.Slice(1),
+                istr = new InputStream(Payload.Slice(1),
                                        Protocol.GetEncoding(),
                                        communicator,
                                        startEncapsulation: true);
@@ -200,7 +200,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice1 && Encoding == Encoding.V1_1);
-                istr = new InputStream(Data.Slice(1), Encoding.V1_1);
+                istr = new InputStream(Payload.Slice(1), Encoding.V1_1);
             }
 
             Exception exception;

@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             try
             {
                 rc = (BzStatus)BZ2_bzCompressInit(ref bzStream,
-                                                  compressionLevel == CompressionLevel.Fastest ? 1 : 9,
+                                                  compressionLevel == CompressionLevel.Fastest ? 1 : 6,
                                                   0,
                                                   0);
                 if (rc != BzStatus.Ok)

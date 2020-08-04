@@ -49,7 +49,7 @@ namespace ZeroC.Ice
             OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request.PayloadStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request.EncapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
@@ -85,7 +85,7 @@ namespace ZeroC.Ice
             OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request.PayloadStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request.EncapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
@@ -115,27 +115,18 @@ namespace ZeroC.Ice
                                      context,
                                      writeEmptyParamList: true);
 
-        /// <summary>Creates a new outgoing request frame with the given payload.</summary>
+        /// <summary>Creates a new outgoing request frame from the given incoming request frame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
         /// and context of this proxy to create the request frame.</param>
-        /// <param name="operation">The operation to invoke on the target Ice object.</param>
-        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="incomingRequest">The incoming request from which to create an outgoing request.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
-        /// proxy and the communicator's current context (if any).</param>
-        /// <param name="payload">The payload of this request frame, which represents the marshaled in-parameters.
-        /// </param>
-        // TODO: should we pass the payload as a list of segments, or maybe has a separate
-        // ctor that accepts a list of segments instead of a single segment
         internal OutgoingRequestFrame(
             IObjectPrx proxy,
-            string operation,
-            bool idempotent,
-            bool compress,
-            IReadOnlyDictionary<string, string>? context,
-            ArraySegment<byte> payload)
-            : this(proxy, operation, idempotent, compress, context)
+            IncomingRequestFrame incomingRequest,
+            bool compress)
+            : this(proxy, incomingRequest.Operation, incomingRequest.IsIdempotent, compress, incomingRequest.Context)
         {
+            ArraySegment<byte> payload = incomingRequest.Payload;
             if (payload.Count < 6)
             {
                 throw new ArgumentException(
@@ -155,10 +146,10 @@ namespace ZeroC.Ice
                                             $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
                     nameof(payload));
             }
-            Data[^1] = Data[^1].Slice(0, PayloadStart.Offset);
-            Data.Add(payload);
-            PayloadEnd = new OutputStream.Position(Data.Count - 1, payload.Count);
-            Size = Data.GetByteCount();
+            Payload[^1] = Payload[^1].Slice(0, EncapsulationStart.Offset);
+            Payload.Add(payload);
+            EncapsulationEnd = new OutputStream.Position(Payload.Count - 1, payload.Count);
+            Size = Payload.GetByteCount();
             IsSealed = true;
         }
 
@@ -180,7 +171,7 @@ namespace ZeroC.Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Payload);
             Identity.IceWrite(ostr);
             ostr.WriteFacet(Facet);
             ostr.WriteString(operation);
@@ -200,7 +191,7 @@ namespace ZeroC.Ice
             }
 
             ContextHelper.Write(ostr, Context);
-            PayloadStart = ostr.Tail;
+            EncapsulationStart = ostr.Tail;
 
             if (writeEmptyParamList)
             {

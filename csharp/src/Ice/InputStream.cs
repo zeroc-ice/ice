@@ -1128,7 +1128,8 @@ namespace ZeroC.Ice
                     factory = null;
                 }
 
-                // -2 Corresponds to 2 bytes of the Encoding, nested encaps never use compressed payload.
+                // Remove the two bytes of the encoding included in size. Endpoint encapsulations don't include a
+                // compression byte.
                 size -= 2;
 
                 // We need to read the encaps except for ice1 + null factory.

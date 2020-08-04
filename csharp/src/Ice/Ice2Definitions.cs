@@ -112,7 +112,7 @@ namespace ZeroC.Ice
             OutputStream.WriteInt((int)streamId, headerData.AsSpan(HeaderSize, 4));
 
             var data = new List<ArraySegment<byte>>() { headerData };
-            data.AddRange(frame.Data);
+            data.AddRange(frame.Payload);
             return data;
         }
 
@@ -126,7 +126,7 @@ namespace ZeroC.Ice
             OutputStream.WriteInt((int)streamId, headerData.AsSpan(HeaderSize, 4));
 
             var data = new List<ArraySegment<byte>>() { headerData };
-            data.AddRange(frame.Data);
+            data.AddRange(frame.Payload);
             return data;
         }
 

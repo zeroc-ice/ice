@@ -26,24 +26,24 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
-        /// <param name="data">The frame data as an array segment.</param>
+        /// <param name="payload">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
-        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
-            : base(protocol, data, sizeMax)
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> payload, int sizeMax)
+            : base(protocol, payload, sizeMax)
         {
-            var istr = new InputStream(data, Protocol.GetEncoding());
+            var istr = new InputStream(payload, Protocol.GetEncoding());
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             Context = istr.ReadContext();
-            Payload = data.Slice(istr.Pos);
+            Encapsulation = payload.Slice(istr.Pos);
             (int size, int sizeLength, Encoding encoding) =
-                Payload.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                Encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
             if (protocol == Protocol.Ice1)
             {
-                if (size + 4 != Payload.Count)
+                if (size + 4 != Encapsulation.Count)
                 {
                     // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
                     // "4" corresponds to fixed-length size with the 1.1 encoding.
@@ -56,13 +56,13 @@ namespace ZeroC.Ice
             }
 
             Encoding = encoding;
-            HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
+            HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
         internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
-            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data), sizeMax)
+            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Payload), sizeMax)
         {
         }
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
-            Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+            Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
         }
 
         /// <summary>Reads the request frame parameter list.</summary>
@@ -89,7 +89,7 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
-            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+            return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
         }
     }
 }

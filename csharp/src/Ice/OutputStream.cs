@@ -1562,11 +1562,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static void WriteEncapsSize(int size, Span<byte> data, Encoding encoding)
+        internal static void WriteEncapsulationSize(int size, Span<byte> data, Encoding encoding)
         {
             if (encoding == Encoding.V2_0)
             {
-                WriteSize20(size, data);
+                WriteFixedLengthSize20(size, data);
             }
             else
             {
@@ -1651,7 +1651,7 @@ namespace ZeroC.Ice
             WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding, sizeLength: 1);
             if (encoding == Encoding.V2_0)
             {
-                WriteByte(0); // Placeholder for the compression status
+                WriteByte(0); // The compression status, 0 not-compressed
             }
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;

@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     public sealed class OutgoingResponseFrame : OutgoingFrame
     {
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
-        public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
+        public ResultType ResultType => Payload[0][0] == 0 ? ResultType.Success : ResultType.Failure;
 
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>
             _cachedVoidReturnValueFrames =
@@ -139,11 +139,11 @@ namespace ZeroC.Ice
                 }
             }
 
-            Data.Add(data);
+            Payload.Add(data);
             if (hasEncapsulation)
             {
-                PayloadStart = new OutputStream.Position(Data.Count - 1, 1);
-                Finish(new OutputStream.Position(Data.Count - 1, data.Count));
+                EncapsulationStart = new OutputStream.Position(Payload.Count - 1, 1);
+                Finish(new OutputStream.Position(Payload.Count - 1, data.Count));
             }
         }
 
@@ -172,10 +172,10 @@ namespace ZeroC.Ice
                 // encapsulation.
                 byte[] buffer = new byte[256];
                 buffer[0] = (byte)ResultType.Failure;
-                Data.Add(buffer);
+                Payload.Add(buffer);
 
                 ostr = new OutputStream(Protocol.GetEncoding(),
-                                        Data,
+                                        Payload,
                                         new OutputStream.Position(0, 1),
                                         Encoding,
                                         FormatType.Sliced);
@@ -189,7 +189,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice1 && (byte)replyStatus > (byte)ReplyStatus.UserException);
-                ostr = new OutputStream(Ice1Definitions.Encoding, Data); // not an encapsulation
+                ostr = new OutputStream(Ice1Definitions.Encoding, Payload); // not an encapsulation
                 ostr.WriteByte((byte)replyStatus);
             }
 
@@ -235,11 +235,11 @@ namespace ZeroC.Ice
             // Write result type Success or reply status OK (both have the same value, 0) followed by an encapsulation.
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ResultType.Success;
-            response.Data.Add(buffer);
-            response.PayloadStart = new OutputStream.Position(0, 1);
+            response.Payload.Add(buffer);
+            response.EncapsulationStart = new OutputStream.Position(0, 1);
             var ostr = new OutputStream(response.Protocol.GetEncoding(),
-                                        response.Data,
-                                        response.PayloadStart,
+                                        response.Payload,
+                                        response.EncapsulationStart,
                                         response.Encoding,
                                         format ?? current.Communicator.DefaultFormat);
             return (response, ostr);
@@ -258,6 +258,6 @@ namespace ZeroC.Ice
                    compressionLevel,
                    compressionMinSize,
                    data ?? new List<ArraySegment<byte>>()) =>
-                Size = Data?.GetByteCount() ?? 0;
+                Size = Payload?.GetByteCount() ?? 0;
     }
 }
