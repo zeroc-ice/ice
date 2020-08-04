@@ -721,7 +721,6 @@ Slice::getBitSequenceSize(const MemberList& members)
     return result;
 }
 
-
 namespace
 {
 
