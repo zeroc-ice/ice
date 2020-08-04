@@ -1124,7 +1124,7 @@ namespace ZeroC.Ice
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
                 if (!encoding.IsSupported)
                 {
-                    // If we can't read the encaps, it's like we didn't find a factory.
+                    // If we can't read the encapsulation, it's like we didn't find a factory.
                     factory = null;
                 }
 
@@ -1132,7 +1132,7 @@ namespace ZeroC.Ice
                 // compression byte.
                 size -= 2;
 
-                // We need to read the encaps except for ice1 + null factory.
+                // We need to read the encapsulation except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {
                     endpoint = new OpaqueEndpoint(communicator,
@@ -1145,9 +1145,9 @@ namespace ZeroC.Ice
                 {
                     int oldPos = Pos;
 
-                    // The common situation is an ice1 proxy in 1.1 encaps, with endpoints encoded with 1.1 (no need to
-                    // create a new InputStream). A less common situation is an ice1 proxy in 2.0 encaps with
-                    // 1.1-encoded endpoints (we need a new InputStream in this case).
+                    // The common situation is an ice1 proxy in 1.1 encapsulation, with endpoints encoded with 1.1 (no
+                    // need to create a new InputStream). A less common situation is an ice1 proxy in 2.0 encapsulation
+                    // with 1.1-encoded endpoints (we need a new InputStream in this case).
                     InputStream istr = encoding == Encoding ?
                         this : new InputStream(_buffer.Slice(Pos, size), encoding);
 
@@ -1156,7 +1156,7 @@ namespace ZeroC.Ice
 
                     if (ReferenceEquals(istr, this))
                     {
-                        // Make sure we read the full encaps
+                        // Make sure we read the full encapsulation
                         if (Pos != oldPos + size)
                         {
                             throw new InvalidDataException($"{oldPos + size - Pos} bytes left in endpoint encapsulation");
