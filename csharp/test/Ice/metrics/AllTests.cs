@@ -896,7 +896,7 @@ namespace ZeroC.Ice.Test.Metrics
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == (47 + protocolSizeAdjustment) && dm1.ReplySize == 232);
+                TestHelper.Assert(dm1.Size == (47 + protocolSizeAdjustment) && dm1.ReplySize == 233);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
