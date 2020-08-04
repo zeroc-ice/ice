@@ -40,7 +40,6 @@ namespace ZeroC.Ice.Test.Tagged
             mo1.G = 1.0;
             mo1.H = "test";
             mo1.I = MyEnum.MyEnumMember;
-            mo1.K = mo1;
             mo1.Bs = new byte[] { 5 };
             mo1.Ss = new string[] { "test", "test2" };
             mo1.Iid = new Dictionary<int, int>
@@ -105,7 +104,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo1.G == 1.0);
             TestHelper.Assert(mo1.H.Equals("test"));
             TestHelper.Assert(mo1.I == MyEnum.MyEnumMember);
-            TestHelper.Assert(mo1.K == mo1);
             TestHelper.Assert(Enumerable.SequenceEqual(mo1.Bs, new byte[] { 5 }));
             TestHelper.Assert(Enumerable.SequenceEqual(mo1.Ss, new string[] { "test", "test2" }));
             TestHelper.Assert(mo1.Iid[4] == 3);
@@ -149,7 +147,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo4.G == null);
             TestHelper.Assert(mo4.H == null);
             TestHelper.Assert(mo4.I == null);
-            TestHelper.Assert(mo4.K == null);
             TestHelper.Assert(mo4.Bs == null);
             TestHelper.Assert(mo4.Ss == null);
             TestHelper.Assert(mo4.Iid == null);
@@ -201,7 +198,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo5.G == mo1.G);
             TestHelper.Assert(mo5.H!.Equals(mo1.H));
             TestHelper.Assert(mo5.I == mo1.I);
-            TestHelper.Assert(mo5.K == mo5);
             TestHelper.Assert(Enumerable.SequenceEqual(mo5.Bs, mo1.Bs));
             TestHelper.Assert(Enumerable.SequenceEqual(mo5.Ss, mo1.Ss));
             TestHelper.Assert(mo5.Iid != null && mo5.Iid[4] == 3);
@@ -264,7 +260,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo7.G == null);
             TestHelper.Assert(mo7.H != null && mo7.H.Equals(mo1.H));
             TestHelper.Assert(mo7.I == null);
-            TestHelper.Assert(mo7.K == null);
             TestHelper.Assert(Enumerable.SequenceEqual(mo7.Bs, mo1.Bs));
             TestHelper.Assert(mo7.Ss == null);
             TestHelper.Assert(mo7.Iid != null && mo7.Iid[4] == 3);
@@ -293,7 +288,6 @@ namespace ZeroC.Ice.Test.Tagged
             mo8.E = mo5.E;
             mo8.G = mo5.G;
             mo8.I = mo5.I;
-            mo8.K = mo8;
             mo8.Ss = mo5.Ss;
             mo8.Sid = mo5.Sid;
             mo8.Vs = mo5.Vs;
@@ -319,7 +313,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo9.G.Equals(mo1.G));
             TestHelper.Assert(mo9.H == null);
             TestHelper.Assert(mo9.I.Equals(mo1.I));
-            TestHelper.Assert(mo9.K == mo9);
             TestHelper.Assert(mo9.Bs == null);
             TestHelper.Assert(Enumerable.SequenceEqual(mo9.Ss, mo1.Ss));
             TestHelper.Assert(mo9.Iid == null);
@@ -396,16 +389,6 @@ namespace ZeroC.Ice.Test.Tagged
             factory.setEnabled(false);
             */
 
-            //
-            // TODO: simplify  It was using the 1.0 encoding with operations whose
-            // only class parameters were tagged.
-            //
-            var oo = new OneTagged(53);
-            initial.SendTaggedClass(true, oo);
-
-            oo = initial.ReturnTaggedClass(true);
-            TestHelper.Assert(oo != null);
-
             var recursive1 = new Recursive[1];
             recursive1[0] = new Recursive();
             var recursive2 = new Recursive[1];
@@ -414,18 +397,6 @@ namespace ZeroC.Ice.Test.Tagged
             var outer = new Recursive();
             outer.Value = recursive1;
             initial.PingPong(outer);
-
-            var g = new G();
-            g.Gg1Opt = new G1("gg1Opt");
-            g.Gg2 = new G2(10);
-            g.Gg2Opt = new G2(20);
-            g.Gg1 = new G1("gg1");
-            g = initial.OpG(g);
-            TestHelper.Assert(g != null);
-            TestHelper.Assert("gg1Opt".Equals(g.Gg1Opt!.A));
-            TestHelper.Assert(10 == g.Gg2!.A);
-            TestHelper.Assert(20 == g.Gg2Opt!.A);
-            TestHelper.Assert("gg1".Equals(g.Gg1!.A));
 
             initial.OpVoid();
 
@@ -523,37 +494,6 @@ namespace ZeroC.Ice.Test.Tagged
                 factory.setEnabled(false);
                 */
 
-            }
-            output.WriteLine("ok");
-
-            output.Write("testing marshalling of objects with tagged objects...");
-            output.Flush();
-            {
-                var f = new F();
-
-                f.Af = new A();
-                f.Ae = f.Af;
-
-                var rf = (F?)initial.PingPong(f);
-                TestHelper.Assert(rf != null);
-                TestHelper.Assert(rf.Ae == rf.Af);
-
-                /*
-                factory.setEnabled(true);
-                os = new OutputStream(communicator);
-                os.StartEncapsulation();
-                os.WriteNullableClass(f);
-                os.EndEncapsulation();
-                inEncaps = os.Finished();
-                responseFrame.InputStream = new InputStream(communicator, inEncaps);
-                responseFrame.InputStream.StartEncapsulation();
-                ReadNullableClassCallbackI rocb = new ReadNullableClassCallbackI();
-                responseFrame.InputStream.ReadNullableClass(rocb.invoke);
-                responseFrame.InputStream.EndEncapsulation();
-                factory.setEnabled(false);
-                rf = ((FClassReader)rocb.obj).getF();
-                test(rf.ae != null && !rf.af.HasValue);
-                */
             }
             output.WriteLine("ok");
 
@@ -1017,37 +957,6 @@ namespace ZeroC.Ice.Test.Tagged
                 var a = istr.ReadNullableClass<A>();
                 istr.EndEncapsulation();
                 test(a != null && a.requiredA == 56);*/
-            }
-
-            {
-                OneTagged? p1 = null;
-                (OneTagged? p2, OneTagged? p3) = initial.OpOneTagged(p1);
-                TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.OpOneTagged(null);
-                TestHelper.Assert(p2 == null && p3 == null);
-
-                p1 = new OneTagged(58);
-                (p2, p3) = initial.OpOneTagged(p1);
-                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
-                (p2, p3) = initial.OpOneTaggedAsync(p1).Result;
-                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
-                (p2, p3) = initial.OpOneTagged(p1);
-                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
-                (p2, p3) = initial.OpOneTaggedAsync(p1).Result;
-                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
-
-                (p2, p3) = initial.OpOneTagged(null);
-                TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
-
-                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneTagged", idempotent: false,
-                    format: null, context: null, p1,
-                    (OutputStream ostr, OneTagged? p1) => ostr.WriteTaggedClass(2, p1));
-
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (p2, p3) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedClass<OneTagged>(1),
-                    istr.ReadTaggedClass<OneTagged>(3)));
-                TestHelper.Assert(p2!.A == 58 && p3!.A == 58);
             }
 
             {
@@ -1666,94 +1575,78 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     int? a = null;
                     string? b = null;
-                    OneTagged? o = null;
-                    initial.OpTaggedException(a, b, o);
+                    initial.OpTaggedException(a, b);
                 }
                 catch (TaggedException ex)
                 {
                     TestHelper.Assert(ex.A == null); // don't use default value for 'a' data member since set explicitly
                                                      // to null by server
                     TestHelper.Assert(ex.B == null);
-                    TestHelper.Assert(ex.O == null);
                 }
 
                 try
                 {
                     int? a = 30;
                     string? b = "test";
-                    var o = new OneTagged(53);
-                    initial.OpTaggedException(a, b, o);
+                    initial.OpTaggedException(a, b);
                 }
                 catch (TaggedException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test");
-                    TestHelper.Assert(ex.O!.A == 53);
                 }
 
                 try
                 {
                     int? a = null;
                     string? b = null;
-                    OneTagged? o = null;
-                    initial.OpDerivedException(a, b, o);
+                    initial.OpDerivedException(a, b);
                 }
                 catch (DerivedException ex)
                 {
                     TestHelper.Assert(ex.A == null); // don't use default value for 'a' data member since set explicitly
                                                      // to null by server
                     TestHelper.Assert(ex.B == null);
-                    TestHelper.Assert(ex.O == null);
                     TestHelper.Assert(ex.Ss == null);
-                    TestHelper.Assert(ex.O2 == null);
                 }
 
                 try
                 {
                     int? a = 30;
                     string? b = "test2";
-                    var o = new OneTagged(53);
-                    initial.OpDerivedException(a, b, o);
+                    initial.OpDerivedException(a, b);
                 }
                 catch (DerivedException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test2");
-                    TestHelper.Assert(ex.O!.A == 53);
                     TestHelper.Assert(ex.Ss == "test2");
-                    TestHelper.Assert(ex.O2!.A == 53);
                 }
 
                 try
                 {
                     int? a = null;
                     string? b = null;
-                    OneTagged? o = null;
-                    initial.OpRequiredException(a, b, o);
+                    initial.OpRequiredException(a, b);
                 }
                 catch (RequiredException ex)
                 {
                     TestHelper.Assert(ex.A == null);
                     TestHelper.Assert(ex.B == null);
-                    TestHelper.Assert(ex.O == null);
                     TestHelper.Assert(ex.Ss == "test");
-                    TestHelper.Assert(ex.O2 == null);
                 }
 
                 try
                 {
                     int? a = 30;
                     string? b = "test2";
-                    var o = new OneTagged(53);
-                    initial.OpRequiredException(a, b, o);
+                    initial.OpRequiredException(a, b);
                 }
                 catch (RequiredException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test2");
-                    TestHelper.Assert(ex.O!.A == 53);
                     TestHelper.Assert(ex.Ss == "test2");
-                    TestHelper.Assert(ex.O2!.A == 53);
                 }
             }
             output.WriteLine("ok");
@@ -1764,7 +1657,6 @@ namespace ZeroC.Ice.Test.Tagged
                 TestHelper.Assert(initial.OpMStruct1() != null);
                 TestHelper.Assert(initial.OpMDict1() != null);
                 TestHelper.Assert(initial.OpMSeq1() != null);
-                TestHelper.Assert(initial.OpMG1() != null);
 
                 {
                     SmallStruct? p1, p2, p3;
@@ -1795,15 +1687,6 @@ namespace ZeroC.Ice.Test.Tagged
                     };
                     (p3, p2) = initial.OpMDict2(p1);
                     TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
-                }
-                {
-                    G? p1, p2, p3;
-                    (p3, p2) = initial.OpMG2(null);
-                    TestHelper.Assert(p2 == null && p3 == null);
-
-                    p1 = new G();
-                    (p3, p2) = initial.OpMG2(p1);
-                    TestHelper.Assert(p2 != null && p3 != null && p3 == p2);
                 }
             }
             output.WriteLine("ok");

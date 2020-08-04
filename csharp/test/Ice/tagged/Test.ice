@@ -52,25 +52,25 @@ sequence<string> StringSeq;
 sequence<ushort> UShortSeq;
 sequence<varulong> VarULongSeq;
 
-[clr:generic:List] sequence<byte> ByteList;
-[clr:generic:List] sequence<bool> BoolList;
-[clr:generic:List] sequence<short> ShortList;
-[clr:generic:List] sequence<int> IntList;
-[clr:generic:List] sequence<long> LongList;
-[clr:generic:List] sequence<float> FloatList;
-[clr:generic:List] sequence<double> DoubleList;
-[clr:generic:List] sequence<string> StringList;
-[clr:generic:List] sequence<varint> VarIntList;
+[cs:generic:List] sequence<byte> ByteList;
+[cs:generic:List] sequence<bool> BoolList;
+[cs:generic:List] sequence<short> ShortList;
+[cs:generic:List] sequence<int> IntList;
+[cs:generic:List] sequence<long> LongList;
+[cs:generic:List] sequence<float> FloatList;
+[cs:generic:List] sequence<double> DoubleList;
+[cs:generic:List] sequence<string> StringList;
+[cs:generic:List] sequence<varint> VarIntList;
 
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-[clr:generic:List] sequence<SmallStruct> SmallStructList;
+[cs:generic:List] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-[clr:generic:LinkedList] sequence<FixedStruct> FixedStructList;
+[cs:generic:LinkedList] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneTagged> OneTaggedSeq;
 
-[clr:serializable:ZeroC.Ice.Test.Tagged.SerializableClass]
+[cs:serializable:ZeroC.Ice.Test.Tagged.SerializableClass]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
@@ -91,7 +91,6 @@ class MultiTagged
     tag(7) double? g;
     tag(8) string? h;
     tag(9) MyEnum? i;
-    tag(11) MultiTagged? k;
     tag(12) ByteSeq? bs;
     tag(13) StringSeq? ss;
     tag(14) IntIntDict? iid;
@@ -159,55 +158,24 @@ exception TaggedException
     bool req = false;
     tag(1) int? a = 5;
     tag(2) string? b;
-    tag(50) OneTagged? o;
 }
 
 exception DerivedException : TaggedException
 {
     tag(600) string? ss = "test";
-    tag(601) OneTagged? o2;
 }
 
 exception RequiredException : TaggedException
 {
     string ss = "test";
-    OneTagged? o2;
 }
 
-[clr:property]
+[cs:property]
 class TaggedWithCustom
 {
     tag(1) SmallStructList? l;
     tag(2) SmallStructList? lp;
     tag(3) ClassVarStruct? s;
-}
-
-class E
-{
-    A ae;
-}
-
-class F : E
-{
-    tag(1) A? af;
-}
-
-class G1
-{
-    string a;
-}
-
-class G2
-{
-    long a;
-}
-
-class G
-{
-    tag(1) G1? gg1Opt;
-    G2 gg2;
-    tag(0) G2? gg2Opt;
-    G1 gg1;
 }
 
 class Recursive;
@@ -224,14 +192,11 @@ interface Initial
 
     Object pingPong(Object o);
 
-    void opTaggedException(tag(1) int? a, tag(2) string? b, tag(3) OneTagged? o)
-        throws TaggedException;
+    void opTaggedException(tag(1) int? a, tag(2) string? b);
 
-    void opDerivedException(tag(1) int? a, tag(2) string? b, tag(3) OneTagged? o)
-        throws TaggedException;
+    void opDerivedException(tag(1) int? a, tag(2) string? b);
 
-    void opRequiredException(tag(1) int? a, tag(2) string? b, tag(3) OneTagged? o)
-        throws TaggedException;
+    void opRequiredException(tag(1) int? a, tag(2) string? b);
 
     tag(1) byte? opByte(tag(2) byte? p1, out tag(3) byte? p3);
 
@@ -256,8 +221,6 @@ interface Initial
     tag(1) FixedStruct? opFixedStruct(tag(2) FixedStruct? p1, out tag(3) FixedStruct? p3);
 
     tag(1) VarStruct? opVarStruct(tag(2) VarStruct? p1, out tag(3) VarStruct? p3);
-
-    tag(1) OneTagged? opOneTagged(tag(2) OneTagged? p1, out tag(3) OneTagged? p3);
 
     tag(1) ByteSeq? opByteSeq(tag(2) ByteSeq? p1, out tag(3) ByteSeq? p3);
     tag(1) ByteList? opByteList(tag(2) ByteList? p1, out tag(3) ByteList? p3);
@@ -304,12 +267,6 @@ interface Initial
 
     void opClassAndUnknownTagged(A p);
 
-    void sendTaggedClass(bool req, tag(1) OneTagged? o);
-
-    void returnTaggedClass(bool req, out tag(1) OneTagged? o);
-
-    G opG(G g);
-
     void opVoid();
 
     [marshaled-result] tag(1) SmallStruct? opMStruct1();
@@ -320,9 +277,6 @@ interface Initial
 
     [marshaled-result] tag(1) StringIntDict? opMDict1();
     [marshaled-result] tag(1) StringIntDict? opMDict2(tag(2) StringIntDict? p1, out tag(3) StringIntDict? p2);
-
-    [marshaled-result] tag(1) G? opMG1();
-    [marshaled-result] tag(1) G? opMG2(tag(2) G? p1, out tag(3) G? p2);
 
     bool supportsRequiredParams();
 

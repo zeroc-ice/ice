@@ -6,5 +6,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Serializable.cs" />
+    <Compile Include="../../Custom.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
 </Project>

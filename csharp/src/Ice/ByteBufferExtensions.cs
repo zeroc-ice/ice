@@ -77,28 +77,21 @@ namespace ZeroC.Ice
         /// <summary>Reads an empty encapsulation from the buffer.</summary>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of encapsulation header.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <exception name="InvalidDataException">Thrown when the buffer is not an empty encapsulation, for example
         /// when buffer contains an encapsulation that does not have only tagged parameters.</exception>
-        // TODO: eliminate communicator parameter once tagged classes are gone
-        public static void ReadEmptyEncapsulation(
-            this ReadOnlyMemory<byte> buffer,
-            Encoding encoding,
-            Communicator communicator) =>
+        public static void ReadEmptyEncapsulation(this ReadOnlyMemory<byte> buffer, Encoding encoding) =>
             new InputStream(buffer,
                             encoding,
-                            communicator,
+                            communicator: null,
                             startEncapsulation: true).CheckEndOfBuffer(skipTaggedParams: true);
 
         /// <summary>Reads an empty encapsulation from the buffer, with the encapsulation header encoded using the 2.0
         /// encoding.</summary>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <exception name="InvalidDataException">Thrown when the buffer is not an empty encapsulation, for example
         /// when buffer contains an encapsulation that does not have only tagged parameters.</exception>
-        // TODO: eliminate communicator parameter once tagged classes are gone
-        public static void ReadEmptyEncapsulation(this ReadOnlyMemory<byte> buffer, Communicator communicator) =>
-            buffer.ReadEmptyEncapsulation(Encoding.V2_0, communicator);
+        public static void ReadEmptyEncapsulation(this ReadOnlyMemory<byte> buffer) =>
+            buffer.ReadEmptyEncapsulation(Encoding.V2_0);
 
         /// <summary>Reads the contents of an encapsulation from the buffer.</summary>
         /// <typeparam name="T">The type of the contents.</typeparam>

@@ -2902,11 +2902,11 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
          _out << nl << "IceCheckNonIdempotent(current);";
     }
 
-    // Even when the parameters are empty, we verify we could read the data. Note that EndEncapsulation
-    // skips tagged members, and needs to understand them.
-    if(inParams.empty())
+    // Even when the parameters are empty, we verify the encapsulation is indeed empty (can contain tagged params
+    // that we skip).
+    if (inParams.empty())
     {
-        _out << nl << "request.ReadEmptyParamList(current.Communicator);";
+        _out << nl << "request.ReadEmptyParamList();";
     }
     else if(inParams.size() == 1)
     {

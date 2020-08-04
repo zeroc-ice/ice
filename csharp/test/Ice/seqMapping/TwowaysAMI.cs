@@ -652,6 +652,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 i.d9 = 9.0;
                 i.d10 = 10.0;
                 i.d11 = 11.0;
+                i.proxy = p;
                 i.s1 = Serialize.Large.LargeString;
 
                 (Serialize.Large ReturnValue, Serialize.Large o) = p.OpSerialLargeCSharpAsync(i).Result;
@@ -666,6 +667,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 TestHelper.Assert(o.d9 == 9.0);
                 TestHelper.Assert(o.d10 == 10.0);
                 TestHelper.Assert(o.d11 == 11.0);
+                TestHelper.Assert(o.proxy!.Equals(p));
                 TestHelper.Assert(o.s1 == Serialize.Large.LargeString);
 
                 TestHelper.Assert(ReturnValue.d1 == 1.0);
@@ -679,6 +681,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 TestHelper.Assert(ReturnValue.d9 == 9.0);
                 TestHelper.Assert(ReturnValue.d10 == 10.0);
                 TestHelper.Assert(ReturnValue.d11 == 11.0);
+                TestHelper.Assert(ReturnValue.proxy!.Equals(p));
                 TestHelper.Assert(ReturnValue.s1 == Serialize.Large.LargeString);
             }
 
