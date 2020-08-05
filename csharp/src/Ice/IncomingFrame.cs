@@ -3,6 +3,8 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -12,6 +14,35 @@ namespace ZeroC.Ice
     /// <summary>Base class for incoming frames.</summary>
     public abstract class IncomingFrame
     {
+        public IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext
+        {
+            get
+            {
+                if (Protocol == Protocol.Ice1)
+                {
+                    throw new NotSupportedException("binary context is not supported with Ice1 protocol");
+                }
+
+                if (_binaryContext == null)
+                {
+                    int binaryContextSize = Payload.Count - Encapsulation.Count - (Encapsulation.Offset - Payload.Offset);
+                    if (binaryContextSize > 0)
+                    {
+                        var istr = new InputStream(Payload.Slice(Payload.Count - binaryContextSize), Encoding.V2_0);
+                        int entriesSize = istr.ReadSize();
+                        var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>();
+                        for (int i = 0; i < entriesSize; ++i)
+                        {
+                            int key = istr.ReadInt();
+                            int entrySize = istr.ReadSize();
+                            binaryContext[key] = new ReadOnlyMemory<byte>(Payload.Array, istr.Pos, entrySize);
+                        }
+                        _binaryContext = binaryContext.ToImmutableDictionary();
+                    }
+                }
+                return _binaryContext ?? ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+            }
+        }
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
@@ -31,6 +62,8 @@ namespace ZeroC.Ice
         // If the frame payload contains an encapsulation, this segment corresponds to the frame encapsulation
         // otherwise is an empty segment. This is always an Slice of the Payload, both must use the same array.
         private protected ArraySegment<byte> Encapsulation { get; set; }
+
+        private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
 
         private readonly int _sizeMax;
 
@@ -61,14 +94,15 @@ namespace ZeroC.Ice
 
                 Debug.Assert(Payload.Array == Encapsulation.Array);
 
-                byte[] decompressedData = new byte[Encapsulation.Offset + sizeLength + decompressedSize];
-                Encapsulation.Array.AsSpan(0, Encapsulation.Offset + offset).CopyTo(decompressedData);
+                byte[] decompressedData = new byte[Payload.Count - size + decompressedSize];
+                int encapsulationOffset = Encapsulation.Offset - Payload.Offset;
+                Payload.AsSpan(0, encapsulationOffset + offset).CopyTo(decompressedData);
                 // Set the compression status to '0' not-compressed
-                decompressedData[Encapsulation.Offset + sizeLength + 2] = 0;
+                decompressedData[encapsulationOffset + sizeLength + 2] = 0;
 
                 using var decompressedStream = new MemoryStream(decompressedData,
-                                                                Encapsulation.Offset + offset,
-                                                                decompressedData.Length - Encapsulation.Offset - offset);
+                                                                encapsulationOffset + offset,
+                                                                decompressedData.Length - encapsulationOffset - offset);
                 Debug.Assert(Encapsulation.Array != null);
                 var compressed = new GZipStream(
                     new MemoryStream(Encapsulation.Array,
@@ -81,14 +115,21 @@ namespace ZeroC.Ice
                 if (decompressedStream.Position + 3 != decompressedSize)
                 {
                     throw new InvalidDataException(
-                        @$"received gzip compressed encapsulation with a decompressed size of only {
+                        @$"received GZip compressed payload with a decompressed size of only {
                         decompressedStream.Position} bytes {decompressedSize}");
                 }
+
+                // Copy the data after the encapsulation and invalidate the cached binary context dictionary
+                Payload.AsSpan(encapsulationOffset + Encapsulation.Count).CopyTo(
+                    decompressedData.AsSpan(encapsulationOffset + decompressedSize + sizeLength));
+                _binaryContext = null;
+
                 Payload = new ArraySegment<byte>(decompressedData,
-                                                 Payload.Offset,
+                                                 0,
                                                  Payload.Count - size + decompressedSize);
+
                 Encapsulation = new ArraySegment<byte>(decompressedData,
-                                                       Encapsulation.Offset,
+                                                       encapsulationOffset,
                                                        decompressedSize + sizeLength);
                 // Rewrite the encapsulation size
                 OutputStream.WriteEncapsulationSize(decompressedSize,

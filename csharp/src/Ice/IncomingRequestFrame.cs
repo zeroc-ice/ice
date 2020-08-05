@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace ZeroC.Ice
 {
@@ -16,7 +17,6 @@ namespace ZeroC.Ice
         public override Encoding Encoding { get; }
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
-
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
         /// <summary>When true, the operation is idempotent.</summary>
@@ -36,23 +36,23 @@ namespace ZeroC.Ice
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
-            Context = istr.ReadContext();
-            Encapsulation = payload.Slice(istr.Pos);
-            (int size, int sizeLength, Encoding encoding) =
-                Encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+            Context = Protocol == Protocol.Ice1 ? istr.ReadContext().ToImmutableDictionary() :
+                                                  ImmutableDictionary<string, string>.Empty;
 
-            if (protocol == Protocol.Ice1)
+            (int size, int sizeLength, Encoding encoding) =
+                payload.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+            Encapsulation = payload.Slice(istr.Pos, size + sizeLength);
+
+            if (Protocol == Protocol.Ice2)
             {
-                if (size + 4 != Encapsulation.Count)
-                {
-                    // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
-                    // "4" corresponds to fixed-length size with the 1.1 encoding.
-                    throw new InvalidDataException($"invalid request encapsulation size: {size}");
-                }
+                Context = BinaryContext[0].Read(ContextHelper.IceReader);
             }
-            else
+
+            if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != payload.Count)
             {
-                // TODO: with ice2, the payload is followed by a context, and the size is not fixed-length.
+                // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
+                // "4" corresponds to fixed-length size with the 1.1 encoding.
+                throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }
 
             Encoding = encoding;

@@ -49,7 +49,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, value);
-            response.Finish(ostr.Save());
+            response.FinishEncapsulation(ostr.Save());
             if (compress && current.Encoding == Encoding.V2_0)
             {
                 response.CompressPayload();
@@ -76,7 +76,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, value);
-            response.Finish(ostr.Save());
+            response.FinishEncapsulation(ostr.Save());
             if (compress && current.Encoding == Encoding.V2_0)
             {
                 response.CompressPayload();
@@ -143,7 +143,7 @@ namespace ZeroC.Ice
             if (hasEncapsulation)
             {
                 _encapsulationStart = new OutputStream.Position(Payload.Count - 1, 1);
-                Finish(new OutputStream.Position(Payload.Count - 1, data.Count));
+                _encapsulationEnd = new OutputStream.Position(Payload.Count - 1, data.Count);
             }
         }
 
@@ -218,7 +218,7 @@ namespace ZeroC.Ice
             {
                 ostr.WriteException(exception);
             }
-            Finish(ostr.Save());
+            FinishEncapsulation(ostr.Save());
         }
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(

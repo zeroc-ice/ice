@@ -122,9 +122,9 @@ namespace ZeroC.Ice
                 int size;
                 int sizeLength;
 
-                Encapsulation = Payload.Slice(1);
                 (size, sizeLength, Encoding) =
-                    Encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                    Payload.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                Encapsulation = Payload.Slice(1, size + sizeLength);
 
                 if (sizeLength + size != Encapsulation.Count)
                 {

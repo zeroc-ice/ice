@@ -1836,7 +1836,8 @@ namespace ZeroC.Ice
         /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
         /// length.</summary>
         /// <param name="start">The start position.</param>
-        private void EndFixedLengthSize(Position start)
+        /// <param name="sizeLength">The number of bytes used to marshal the size 1, 2 or 4.</param>
+        internal void EndFixedLengthSize(Position start, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(start.Offset >= 0);
             if (OldEncoding)
@@ -1845,7 +1846,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                RewriteFixedLengthSize20(Distance(start) - DefaultSizeLength, start);
+                RewriteFixedLengthSize20(Distance(start) - sizeLength, start, sizeLength);
             }
         }
 
@@ -1956,7 +1957,7 @@ namespace ZeroC.Ice
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
         /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
-        private void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
+        internal void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1985,21 +1986,21 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Returns the current position and writes a 4-bytes placeholder for a fixed-length size value. The
+        /// <summary>Returns the current position and writes placeholder for a fixed-length size value. The
         /// position must be used to rewrite the size later.</summary>
+        /// <param name="sizeLenght">The number of bytes reserved to write the fixed-length size.</param>
         /// <returns>The position before writing the size.</returns>
-        private Position StartFixedLengthSize()
+        internal Position StartFixedLengthSize(int sizeLenght = DefaultSizeLength)
         {
             Position pos = _tail;
-            int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
-            WriteByteSpan(stackalloc byte[sizeLength]); // placeholder for future size
+            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLenght]); // placeholder for future size
             return pos;
         }
 
         /// <summary>Writes a span of bytes. The stream capacity is expanded if required, the size and tail position are
         /// increased according to the span length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
-        private void WriteByteSpan(ReadOnlySpan<byte> span)
+        internal void WriteByteSpan(ReadOnlySpan<byte> span)
         {
             int length = span.Length;
             Expand(length);
@@ -2007,7 +2008,6 @@ namespace ZeroC.Ice
             int offset = _tail.Offset;
             int remaining = _currentSegment.Count - offset;
             Debug.Assert(remaining > 0); // guaranteed by Expand
-
             int sz = Math.Min(length, remaining);
             if (length > remaining)
             {

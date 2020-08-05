@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -52,7 +53,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
-            request.Finish(ostr.Save());
+            request.FinishEncapsulation(ostr.Save());
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
                 request.CompressPayload();
@@ -88,7 +89,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
-            request.Finish(ostr.Save());
+            request.FinishEncapsulation(ostr.Save());
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
                 request.CompressPayload();
@@ -148,7 +149,7 @@ namespace ZeroC.Ice
             }
             Payload[^1] = Payload[^1].Slice(0, _encapsulationStart.Offset);
             Payload.Add(payload);
-            _encapsulationEnd = new OutputStream.Position(Payload.Count - 1, payload.Count);
+            FinishEncapsulation(new OutputStream.Position(Payload.Count - 1, payload.Count));
             Size = Payload.GetByteCount();
             IsSealed = true;
         }
@@ -190,12 +191,15 @@ namespace ZeroC.Ice
                 }
             }
 
-            ContextHelper.Write(ostr, Context);
+            if (Protocol == Protocol.Ice1)
+            {
+                ContextHelper.Write(ostr, Context);
+            }
             _encapsulationStart = ostr.Tail;
 
             if (writeEmptyParamList)
             {
-                Finish(ostr.WriteEmptyEncapsulation(Encoding));
+                FinishEncapsulation(ostr.WriteEmptyEncapsulation(Encoding));
             }
         }
     }

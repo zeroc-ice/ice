@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 
@@ -38,6 +39,8 @@ namespace ZeroC.Ice
         // True if Ice1 frames should use protocol compression, false otherwise.
         internal bool Compress { get; }
 
+        // Position of the end of the binary context
+        private protected OutputStream.Position? _binaryContextEnd;
         // Position of the end of the encapsulation, for ice1 this is always the frame end.
         private protected OutputStream.Position? _encapsulationEnd;
         // Position of the start of the encapsulation.
@@ -83,10 +86,62 @@ namespace ZeroC.Ice
             }
         }
 
+        private readonly HashSet<int> _binaryContextKeys = new HashSet<int>();
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
 
         private IList<ArraySegment<byte>>? _encapsulation;
+
+        /// <summary>Write a binary context entry to the frame with the given key and value, the value memory is copied
+        /// to the frame internal buffer.</summary>
+        /// <param name="key">The binary context entry key.</param>
+        /// <param name="value">The binary context entry value.</param>
+        /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
+        /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
+        /// <exception cref="ArgumentException">If the key is already in use.</exception>
+        public void AddBinaryContextEntry(int key, Memory<byte> value)
+        {
+            OutputStream ostr = WriteBinaryContextEntryKey(key);
+            OutputStream.Position pos = ostr.StartFixedLengthSize(2); // 2-bytes size place holder
+            ostr.WriteByteSpan(value.Span);
+            ostr.EndFixedLengthSize(pos, 2);
+            _binaryContextEnd = ostr.Tail;
+        }
+
+        /// <summary>Write a binary context entry to the frame with the given key and value, the value memory is copied
+        /// to the frame internal buffer.</summary>
+        /// <param name="key">The binary context entry key.</param>
+        /// <param name="value">The value to marshal as the binary context entry value.</param>
+        /// <param name="writer">The writer used to marshal the value.</param>
+        /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
+        /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
+        /// <exception cref="ArgumentException">If the key is already in use.</exception>
+        public void AddBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
+        {
+            OutputStream ostr = WriteBinaryContextEntryKey(key);
+            OutputStream.Position pos = ostr.StartFixedLengthSize(2); // 2-bytes size place holder
+            writer(ostr, value);
+            ostr.EndFixedLengthSize(pos, 2);
+            _binaryContextEnd = ostr.Tail;
+        }
+
+        /// <summary>Write a binary context entry to the frame with the given key and value, the value memory is copied
+        /// to the frame internal buffer.</summary>
+        /// <param name="key">The binary context entry key.</param>
+        /// <param name="value">The value to marshal as the binary context entry value.</param>
+        /// <param name="writer">The writer used to marshal the value.</param>
+        /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
+        /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
+        /// <exception cref="ArgumentException">If the key is already in use.</exception>
+        public void AddBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
+        {
+            OutputStream ostr = WriteBinaryContextEntryKey(key);
+            OutputStream.Position pos = ostr.Tail;
+            ostr.WriteVarInt(sbyte.MaxValue + 1); // 2-bytes size place holder
+            writer(ostr, value);
+            ostr.EndFixedLengthSize(pos, 2);
+            _binaryContextEnd = ostr.Tail;
+        }
 
         /// <summary>Compress the encapsulation payload using GZip compression, compressed encapsulation payload is
         /// only supported with 2.0 encoding.</summary>
@@ -94,14 +149,12 @@ namespace ZeroC.Ice
         /// </returns>
         public CompressionResult CompressPayload()
         {
-            if (_encapsulationEnd == null)
-            {
+            OutputStream.Position encapsulationEnd = _encapsulationEnd ??
                 throw new InvalidOperationException("payload has not been written");
-            }
 
             if (Encoding != Encoding.V2_0)
             {
-                throw new InvalidOperationException("compressed payload are only supported with 2.0 encoding");
+                throw new NotSupportedException("compressed payload are only supported with 2.0 encoding");
             }
             else
             {
@@ -156,25 +209,37 @@ namespace ZeroC.Ice
 
                 // Slice the payload start segment and remove all segments after it, the compressed payload will be
                 // added as a new segment.
-                int remove = _encapsulationStart.Segment;
+                int encapsulationStartSegment = _encapsulationStart.Segment;
                 if (_encapsulationStart.Offset > 0)
                 {
-                    Payload[_encapsulationStart.Segment] = Payload[_encapsulationStart.Segment].Slice(0, _encapsulationStart.Offset);
-                    remove++;
+                    Payload[_encapsulationStart.Segment] =
+                        Payload[_encapsulationStart.Segment].Slice(0, _encapsulationStart.Offset);
+                    encapsulationStartSegment++;
                 }
+
+                int encapsulationEndSegment = encapsulationEnd.Segment;
+                if (encapsulationEnd.Segment < Payload.Count - 1)
+                {
+                    Payload[encapsulationEnd.Segment] = Payload[encapsulationEnd.Segment].Slice(encapsulationEnd.Offset);
+                    encapsulationEndSegment--;
+                }
+
+                // Discard all segments that were fully used by the encapsulation, but keep segments sliced above that
+                // are shared with the header or the binary context.
                 // TODO return the segments to the pool when we implement memory pool
-                Payload.RemoveRange(remove, Payload.Count - remove);
+                Payload.RemoveRange(encapsulationStartSegment,
+                                    encapsulationEndSegment - encapsulationStartSegment + 1);
 
                 var payloadData = new ArraySegment<byte>(compressedData, 0, offset + (int)memoryStream.Position);
-                Payload.Add(payloadData);
+                Payload.Insert(encapsulationStartSegment, payloadData);
                 _encapsulationStart = new OutputStream.Position(Payload.Count - 1, 0);
                 _encapsulationEnd = new OutputStream.Position(Payload.Count - 1, payloadData.Count);
                 Size = Payload.GetByteCount();
 
                 // Rewrite the payload size
                 OutputStream.WriteEncapsulationSize(payloadData.Count - sizeLength,
-                                             payloadData.AsSpan(0, sizeLength),
-                                             Protocol.GetEncoding());
+                                                    payloadData.AsSpan(0, sizeLength),
+                                                    Protocol.GetEncoding());
                 _encapsulation = null;
                 return CompressionResult.Success;
             }
@@ -197,10 +262,57 @@ namespace ZeroC.Ice
             _compressionMinSize = compressionMinSize;
         }
 
-        internal void Finish(OutputStream.Position encapsulationEnd)
+        private OutputStream WriteBinaryContextEntryKey(int key)
         {
-            Size = Payload.GetByteCount();
+            if (Protocol == Protocol.Ice1)
+            {
+                throw new NotSupportedException("binary context is not supported with Ice1 protocol");
+            }
+
+            OutputStream.Position encapsulationEnd = _encapsulationEnd ??
+                throw new InvalidOperationException(
+                    "binary context cannot be written before finishing the encapsulation");
+
+            if (_binaryContextKeys.Contains(key))
+            {
+                throw new ArgumentException($"key `{key}' is already in use");
+            }
+
+            var ostr = new OutputStream(Encoding, Payload, _binaryContextEnd ?? encapsulationEnd);
+            if (_binaryContextKeys.Count == 0)
+            {
+                ostr.StartFixedLengthSize(2); // 2-bytes size place holder
+            }
+            ostr.WriteInt(key);
+            _binaryContextKeys.Add(key);
+            return ostr;
+        }
+
+        internal void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
             _encapsulationEnd = encapsulationEnd;
+
+        internal void FinishPayload(Dictionary<string, string>? context)
+        {
+            if (_encapsulationEnd is OutputStream.Position encapsulationEnd)
+            {
+                if (Protocol == Protocol.Ice2)
+                {
+                    if (context != null)
+                    {
+                        AddBinaryContextEntry(0, context, ContextHelper.IceWriter);
+                    }
+
+                    if (_binaryContextEnd is OutputStream.Position binaryContextEnd)
+                    {
+                        new OutputStream(Encoding.V2_0, Payload, binaryContextEnd).RewriteFixedLengthSize20(
+                            _binaryContextKeys.Count,
+                            encapsulationEnd,
+                            2);
+                    }
+                }
+                Payload[^1] = Payload[^1].Slice(0, _binaryContextEnd?.Offset ?? encapsulationEnd.Offset);
+                Size = Payload.GetByteCount();
+            }
         }
     }
 }
