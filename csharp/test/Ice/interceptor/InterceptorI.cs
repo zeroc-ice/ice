@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Test;
 
@@ -30,7 +31,14 @@ namespace ZeroC.Ice.Test.Interceptor
 
             _lastOperation = current.Operation;
 
-            if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
+            if (_lastOperation == "OpWithBinaryContext")
+            {
+                Debug.Assert(request.BinaryContext.ContainsKey(1));
+                Token t1 = request.BinaryContext[1].Read(Token.IceReader);
+                Token t2 = request.ReadParamList(current.Communicator, Token.IceReader);
+                TestHelper.Assert(t1 == t2);
+            }
+            else if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
             {
                 for (int i = 0; i < 10; ++i)
                 {

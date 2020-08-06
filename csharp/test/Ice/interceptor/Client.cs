@@ -75,6 +75,19 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Flush();
             TestInterceptorExceptions(prx);
             output.WriteLine("ok");
+
+            bool ice2 = Communicator()!.DefaultProtocol != Protocol.Ice1;
+            if (ice2)
+            {
+                output.Write("testing binary context... ");
+                output.Flush();
+                var request = OutgoingRequestFrame.WithEmptyParamList(prx,
+                                                                      "opWithBinaryContext",
+                                                                      idempotent: false);
+                request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                prx.Invoke(request);
+                output.WriteLine("ok");
+            }
         }
 
         private void RunAmd(IMyObjectPrx prx, Interceptor interceptor)
@@ -154,7 +167,7 @@ namespace ZeroC.Ice.Test.Interceptor
             //
             communicator.SetProperty("MyOA.AdapterId", "myOA");
 
-            ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
+            ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA2", GetTestEndpoint(0));
 
             var myObject = new MyObject();
             var interceptor = new Interceptor(myObject);
