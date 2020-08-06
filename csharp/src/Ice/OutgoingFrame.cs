@@ -148,6 +148,11 @@ namespace ZeroC.Ice
         /// </returns>
         public CompressionResult CompressPayload()
         {
+            if (IsSealed)
+            {
+                throw new InvalidOperationException("cannot modify a sealed frame");
+            }
+
             OutputStream.Position encapsulationEnd = _encapsulationEnd ??
                 throw new InvalidOperationException("payload has not been written");
 
@@ -268,6 +273,11 @@ namespace ZeroC.Ice
                 throw new NotSupportedException("binary context is not supported with Ice1 protocol");
             }
 
+            if (IsSealed)
+            {
+                throw new InvalidOperationException("cannot modify a sealed frame");
+            }
+
             OutputStream.Position encapsulationEnd = _encapsulationEnd ??
                 throw new InvalidOperationException(
                     "binary context cannot be written before finishing the encapsulation");
@@ -296,7 +306,7 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice2)
                 {
-                    if (context != null)
+                    if (context != null && context.Count > 0)
                     {
                         AddBinaryContextEntry(0, context, ContextHelper.IceWriter);
                     }

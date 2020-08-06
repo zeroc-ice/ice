@@ -43,9 +43,9 @@ namespace ZeroC.Ice
                 payload.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
             Encapsulation = payload.Slice(istr.Pos, size + sizeLength);
 
-            if (Protocol == Protocol.Ice2)
+            if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
             {
-                Context = BinaryContext[0].Read(ContextHelper.IceReader);
+                Context = value.Read(ContextHelper.IceReader);
             }
 
             if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != payload.Count)

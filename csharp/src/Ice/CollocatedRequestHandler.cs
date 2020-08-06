@@ -188,13 +188,15 @@ namespace ZeroC.Ice
                     if (requestId != 0)
                     {
                         outgoingResponseFrame = new OutgoingResponseFrame(incomingRequest, actualEx);
-                        outgoingResponseFrame.FinishPayload(context: null);
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
 
                 outgoingResponseFrame ??= OutgoingResponseFrame.WithVoidReturnValue(current);
-                outgoingResponseFrame.FinishPayload(context: null);
+                if (!outgoingResponseFrame.IsSealed)
+                {
+                    outgoingResponseFrame.FinishPayload(context: null);
+                }
                 return outgoingResponseFrame;
             }
             finally
