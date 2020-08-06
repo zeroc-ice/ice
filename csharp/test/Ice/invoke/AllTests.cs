@@ -56,7 +56,7 @@ namespace ZeroC.Ice.Test.Invoke
                                                              "opString",
                                                              idempotent: false,
                                                              compress: false,
-                                                             format: null,
+                                                             format: default,
                                                              context: null,
                                                              TestString,
                                                              OutputStream.IceWriterFromString);
@@ -118,7 +118,7 @@ namespace ZeroC.Ice.Test.Invoke
                                                              "opString",
                                                              idempotent: false,
                                                              compress: false,
-                                                             format: null,
+                                                             format: default,
                                                              context: null,
                                                              TestString,
                                                              OutputStream.IceWriterFromString);

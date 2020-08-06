@@ -67,24 +67,17 @@ isDefaultInitialized(const MemberPtr& member, bool considerDefaultValue)
 string
 opFormatTypeToString(const OperationPtr& op)
 {
+    // TODO: eliminate DefaultFormat in the parser (DefaultFormat means the communicator default that was removed in
+    // Ice 4.0)
     switch (op->format())
     {
         case DefaultFormat:
-        {
-            return "null";
-        }
         case CompactFormat:
-        {
-            return "ZeroC.Ice.FormatType.Compact";
-        }
+            return "default"; // same as Compact
         case SlicedFormat:
-        {
             return "ZeroC.Ice.FormatType.Sliced";
-        }
         default:
-        {
             assert(false);
-        }
     }
 
     return "???";
@@ -2577,8 +2570,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     if(inParams.size() > 0)
     {
         _out << ",";
-        _out << nl << "format: " << opFormatTypeToString(operation) << ",";
         _out << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ",";
+        _out << nl << "format: " << opFormatTypeToString(operation) << ",";
         _out << nl << "writer: ";
         writeOutgoingRequestWriter(operation);
     }
@@ -2808,7 +2801,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out.inc();
         _out << nl << "current, "
              << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
-             << opFormatTypeToString(operation) << ", "
+             << "format: " << opFormatTypeToString(operation) << ", "
              << toTuple(outParams, "iceP_") << ",";
         if(outParams.size() > 1)
         {
@@ -2978,7 +2971,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "var response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue("
                  << "current, "
                  << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
-                 << opFormatTypeToString(operation) << ", "
+                 << "format: " << opFormatTypeToString(operation) << ", "
                  << "result, "
                  << writer << ");";
 
