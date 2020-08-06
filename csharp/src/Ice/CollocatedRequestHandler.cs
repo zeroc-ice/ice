@@ -193,7 +193,9 @@ namespace ZeroC.Ice
                     }
                 }
 
-                return outgoingResponseFrame ?? OutgoingResponseFrame.WithVoidReturnValue(current);
+                outgoingResponseFrame ??= OutgoingResponseFrame.WithVoidReturnValue(current);
+                outgoingResponseFrame.FinishPayload(context: null);
+                return outgoingResponseFrame;
             }
             finally
             {

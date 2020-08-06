@@ -28,14 +28,15 @@ namespace ZeroC.Ice
                     int binaryContextSize = Payload.Count - Encapsulation.Count - (Encapsulation.Offset - Payload.Offset);
                     if (binaryContextSize > 0)
                     {
-                        var istr = new InputStream(Payload.Slice(Payload.Count - binaryContextSize), Encoding.V2_0);
+                        int offset = Payload.Count - binaryContextSize;
+                        var istr = new InputStream(Payload.Slice(offset), Encoding.V2_0);
                         int entriesSize = istr.ReadSize();
                         var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>();
                         for (int i = 0; i < entriesSize; ++i)
                         {
                             int key = istr.ReadInt();
                             int entrySize = istr.ReadSize();
-                            binaryContext[key] = new ReadOnlyMemory<byte>(Payload.Array, istr.Pos, entrySize);
+                            binaryContext[key] = Payload.AsReadOnlyMemory(offset + istr.Pos, entrySize);
                         }
                         _binaryContext = binaryContext.ToImmutableDictionary();
                     }

@@ -702,7 +702,6 @@ namespace ZeroC.Ice
                     if (!current.IsOneway)
                     {
                         response = await vt.ConfigureAwait(false);
-                        response.FinishPayload(context: null);
                     }
                 }
                 catch (Exception ex)
@@ -720,12 +719,12 @@ namespace ZeroC.Ice
                         }
                         Incoming.ReportException(actualEx, dispatchObserver, current);
                         response = new OutgoingResponseFrame(request, actualEx);
-                        response.FinishPayload(context: null);
                     }
                 }
 
                 if (response != null)
                 {
+                    response.FinishPayload(context: null);
                     dispatchObserver?.Reply(response.Size);
                 }
             }

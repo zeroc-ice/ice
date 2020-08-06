@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 
@@ -312,6 +311,7 @@ namespace ZeroC.Ice
                 }
                 Payload[^1] = Payload[^1].Slice(0, _binaryContextEnd?.Offset ?? encapsulationEnd.Offset);
                 Size = Payload.GetByteCount();
+                IsSealed = true;
             }
         }
     }
