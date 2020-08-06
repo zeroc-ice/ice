@@ -79,19 +79,20 @@ namespace ZeroC.Ice.Test.Interceptor
             output.WriteLine("ok");
 
             output.Write("testing binary context... ");
+            output.Flush();
             bool ice2 = Communicator()!.DefaultProtocol != Protocol.Ice1;
+            var token = new Token(1, "mytoken", Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray());
             if (ice2)
             {
-                output.Flush();
                 var request = OutgoingRequestFrame.WithParamList(prx,
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
                                                                  format: null,
                                                                  context: null,
-                                                                 new Token(1, "mytoken"),
+                                                                 token,
                                                                  Token.IceWriter);
-                request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                request.AddBinaryContextEntry(1, token, Token.IceWriter);
                 request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
                 request.AddBinaryContextEntry(2,
                                               Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
@@ -100,7 +101,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 // Adding the same key twice throws ArgumentException
                 try
                 {
-                    request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                    request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     Assert(false);
                 }
                 catch (ArgumentException)
@@ -112,12 +113,47 @@ namespace ZeroC.Ice.Test.Interceptor
                 // Adding to a sealed frame throws InvalidOperationException
                 try
                 {
-                    request.AddBinaryContextEntry(10, new Token(1, "mytoken"), Token.IceWriter);
+                    request.AddBinaryContextEntry(10, token, Token.IceWriter);
                     Assert(false);
                 }
                 catch (InvalidOperationException)
                 {
                 }
+
+                // repeat with compressed frame
+                request = OutgoingRequestFrame.WithParamList(prx,
+                                                             "opWithBinaryContext",
+                                                             idempotent: false,
+                                                             compress: false,
+                                                             format: null,
+                                                             context: null,
+                                                             token,
+                                                             Token.IceWriter);
+                request.AddBinaryContextEntry(1, token, Token.IceWriter);
+                request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
+                request.AddBinaryContextEntry(2,
+                                              Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                              Ice.StringSeqHelper.IceWriter);
+                Assert(request.CompressPayload() == CompressionResult.Success);
+                prx.Invoke(request);
+
+                // repeat compressed the frame before writting the context
+                request = OutgoingRequestFrame.WithParamList(prx,
+                                                             "opWithBinaryContext",
+                                                             idempotent: false,
+                                                             compress: false,
+                                                             format: null,
+                                                             context: null,
+                                                             token,
+                                                             Token.IceWriter);
+
+                Assert(request.CompressPayload() == CompressionResult.Success);
+                request.AddBinaryContextEntry(1, token, Token.IceWriter);
+                request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
+                request.AddBinaryContextEntry(2,
+                                              Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                              Ice.StringSeqHelper.IceWriter);
+                prx.Invoke(request);
             }
             else
             {
@@ -127,11 +163,11 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  compress: false,
                                                                  format: null,
                                                                  context: null,
-                                                                 new Token(1, "mytoken"),
+                                                                 token,
                                                                  Token.IceWriter);
                 try
                 {
-                    request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                    request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     Assert(false);
                 }
                 catch (NotSupportedException)

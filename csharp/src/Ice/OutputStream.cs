@@ -1788,7 +1788,7 @@ namespace ZeroC.Ice
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
-        private static void WriteFixedLengthSize20(int size, Span<byte> data)
+        internal static void WriteFixedLengthSize20(int size, Span<byte> data)
         {
             int sizeLength = data.Length;
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);

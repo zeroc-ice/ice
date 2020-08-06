@@ -85,6 +85,46 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Returns a list of array segments with the contents of the binary context, if the frame
+        /// doesn't contain an binary context it returns an empty list.</summary>
+        private protected IList<ArraySegment<byte>> BinaryContext
+        {
+            get
+            {
+                var binaryContext = new List<ArraySegment<byte>>();
+                if (_encapsulationEnd is OutputStream.Position encapsulationEnd &&
+                    _binaryContextEnd is OutputStream.Position binaryContextEnd)
+                {
+                    if (encapsulationEnd.Segment == binaryContextEnd.Segment)
+                    {
+                        binaryContext.Add(Payload[encapsulationEnd.Segment].Slice(
+                            encapsulationEnd.Offset,
+                            binaryContextEnd.Offset - encapsulationEnd.Offset));
+                    }
+                    else
+                    {
+                        ArraySegment<byte> segment = Payload[encapsulationEnd.Segment].Slice(
+                            encapsulationEnd.Offset);
+                        if (segment.Count > 0)
+                        {
+                            binaryContext.Add(segment);
+                        }
+                        for (int i = encapsulationEnd.Segment + 1; i < binaryContextEnd.Segment; i++)
+                        {
+                            binaryContext.Add(Payload[i]);
+                        }
+
+                        segment = Payload[binaryContextEnd.Segment].Slice(0, binaryContextEnd.Offset);
+                        if (segment.Count > 0)
+                        {
+                            binaryContext.Add(segment);
+                        }
+                    }
+                }
+                return binaryContext;
+            }
+        }
+
         private readonly HashSet<int> _binaryContextKeys = new HashSet<int>();
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
@@ -98,12 +138,13 @@ namespace ZeroC.Ice
         /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
         /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
         /// <exception cref="ArgumentException">If the key is already in use.</exception>
-        public void AddBinaryContextEntry(int key, Memory<byte> value)
+        public void AddBinaryContextEntry(int key, ReadOnlySpan<byte> value)
         {
             OutputStream ostr = WriteBinaryContextEntryKey(key);
-            OutputStream.Position pos = ostr.StartFixedLengthSize(2); // 2-bytes size place holder
-            ostr.WriteByteSpan(value.Span);
-            ostr.EndFixedLengthSize(pos, 2);
+            Span<byte> size = stackalloc byte[2];
+            OutputStream.WriteFixedLengthSize20(value.Length, size);
+            ostr.WriteByteSpan(size);
+            ostr.WriteByteSpan(value);
             _binaryContextEnd = ostr.Tail;
         }
 
@@ -211,8 +252,10 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                // Slice the payload start segment and remove all segments after it, the compressed payload will be
-                // added as a new segment.
+                // Copy the binary context segments before we Slice any segments
+                IList<ArraySegment<byte>> binaryContext = BinaryContext;
+
+                // Slice the payload start segment.
                 int encapsulationStartSegment = _encapsulationStart.Segment;
                 if (_encapsulationStart.Offset > 0)
                 {
@@ -221,28 +264,35 @@ namespace ZeroC.Ice
                     encapsulationStartSegment++;
                 }
 
-                int encapsulationEndSegment = encapsulationEnd.Segment;
-                if (encapsulationEnd.Segment < Payload.Count - 1)
-                {
-                    Payload[encapsulationEnd.Segment] = Payload[encapsulationEnd.Segment].Slice(encapsulationEnd.Offset);
-                    encapsulationEndSegment--;
-                }
-
                 // Discard all segments that were fully used by the encapsulation, but keep segments sliced above that
                 // are shared with the header or the binary context.
                 // TODO return the segments to the pool when we implement memory pool
-                Payload.RemoveRange(encapsulationStartSegment,
-                                    encapsulationEndSegment - encapsulationStartSegment + 1);
+                Payload.RemoveRange(encapsulationStartSegment, Payload.Count - encapsulationStartSegment);
 
-                var payloadData = new ArraySegment<byte>(compressedData, 0, offset + (int)memoryStream.Position);
-                Payload.Insert(encapsulationStartSegment, payloadData);
-                _encapsulationStart = new OutputStream.Position(Payload.Count - 1, 0);
-                _encapsulationEnd = new OutputStream.Position(Payload.Count - 1, payloadData.Count);
+                var encapsulationData = new ArraySegment<byte>(compressedData, 0, offset + (int)memoryStream.Position);
+                Payload.Add(encapsulationData);
+                _encapsulationStart = new OutputStream.Position(encapsulationStartSegment, 0);
+                _encapsulationEnd = new OutputStream.Position(encapsulationStartSegment, encapsulationData.Count);
+
+                // Rewrite the binary context
+                // TODO we can optimize this to not copy the binary context and keep and Slice
+                if (binaryContext.Count > 0)
+                {
+                    var data = new ArraySegment<byte>(new byte[binaryContext.GetByteCount()]);
+                    int binaryContextOffset = 0;
+                    foreach (ArraySegment<byte> segment in binaryContext)
+                    {
+                        segment.CopyTo(data.Slice(binaryContextOffset));
+                        binaryContextOffset += segment.Count;
+                    }
+                    Payload.Add(data);
+                    _binaryContextEnd = new OutputStream.Position(Payload.Count - 1, data.Count);
+                }
                 Size = Payload.GetByteCount();
 
                 // Rewrite the payload size
-                OutputStream.WriteEncapsulationSize(payloadData.Count - sizeLength,
-                                                    payloadData.AsSpan(0, sizeLength),
+                OutputStream.WriteEncapsulationSize(encapsulationData.Count - sizeLength,
+                                                    encapsulationData.AsSpan(0, sizeLength),
                                                     Protocol.GetEncoding());
                 _encapsulation = null;
                 return CompressionResult.Success;

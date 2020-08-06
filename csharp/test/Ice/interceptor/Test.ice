@@ -9,10 +9,13 @@
 module ZeroC::Ice::Test::Interceptor
 {
 
+sequence<byte> ByteSeq;
+
 struct Token
 {
     long expiration;
     string hash;
+    ByteSeq payload;
 }
 
 exception InvalidInputException
