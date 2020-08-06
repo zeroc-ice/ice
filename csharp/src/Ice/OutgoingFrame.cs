@@ -284,7 +284,7 @@ namespace ZeroC.Ice
 
             if (_binaryContextKeys.Contains(key))
             {
-                throw new ArgumentException($"key `{key}' is already in use");
+                throw new ArgumentException($"key `{key}' is already in use", nameof(key));
             }
 
             var ostr = new OutputStream(Encoding, Payload, _binaryContextEnd ?? encapsulationEnd);

@@ -78,22 +78,69 @@ namespace ZeroC.Ice.Test.Interceptor
             TestInterceptorExceptions(prx);
             output.WriteLine("ok");
 
+            output.Write("testing binary context... ");
             bool ice2 = Communicator()!.DefaultProtocol != Protocol.Ice1;
             if (ice2)
             {
-                output.Write("testing binary context... ");
                 output.Flush();
-                var request = OutgoingRequestFrame.WithEmptyParamList(prx,
-                                                                      "opWithBinaryContext",
-                                                                      idempotent: false);
+                var request = OutgoingRequestFrame.WithParamList(prx,
+                                                                 "opWithBinaryContext",
+                                                                 idempotent: false,
+                                                                 compress: false,
+                                                                 format: null,
+                                                                 context: null,
+                                                                 new Token(1, "mytoken"),
+                                                                 Token.IceWriter);
                 request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
                 request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
                 request.AddBinaryContextEntry(2,
                                               Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
                                               Ice.StringSeqHelper.IceWriter);
+
+                // Adding the same key twice throws ArgumentException
+                try
+                {
+                    request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                    Assert(false);
+                }
+                catch (ArgumentException)
+                {
+                }
                 prx.Invoke(request);
-                output.WriteLine("ok");
+
+                Assert(request.IsSealed);
+                // Adding to a sealed frame throws InvalidOperationException
+                try
+                {
+                    request.AddBinaryContextEntry(10, new Token(1, "mytoken"), Token.IceWriter);
+                    Assert(false);
+                }
+                catch (InvalidOperationException)
+                {
+                }
             }
+            else
+            {
+                var request = OutgoingRequestFrame.WithParamList(prx,
+                                                                 "opWithBinaryContext",
+                                                                 idempotent: false,
+                                                                 compress: false,
+                                                                 format: null,
+                                                                 context: null,
+                                                                 new Token(1, "mytoken"),
+                                                                 Token.IceWriter);
+                try
+                {
+                    request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                    Assert(false);
+                }
+                catch (NotSupportedException)
+                {
+                }
+                prx.Invoke(request);
+                Assert(request.IsSealed);
+            }
+            output.WriteLine("ok");
         }
 
         private void RunAmd(IMyObjectPrx prx, Interceptor interceptor)

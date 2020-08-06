@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,15 +35,29 @@ namespace ZeroC.Ice.Test.Interceptor
 
             if (_lastOperation == "OpWithBinaryContext")
             {
-                Debug.Assert(request.BinaryContext.ContainsKey(1));
-                Token t1 = request.BinaryContext[1].Read(Token.IceReader);
-                Token t2 = request.ReadParamList(current.Communicator, Token.IceReader);
-                TestHelper.Assert(t1 == t2);
-                Debug.Assert(request.BinaryContext.ContainsKey(2));
-                string[] s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
-                Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
-                Debug.Assert(request.BinaryContext.ContainsKey(3));
-                TestHelper.Assert(1024 == request.BinaryContext[3].Read(istr => istr.ReadShort()));
+                if (request.Protocol == Protocol.Ice2)
+                {
+                    Debug.Assert(request.BinaryContext.ContainsKey(1));
+                    Token t1 = request.BinaryContext[1].Read(Token.IceReader);
+                    Token t2 = request.ReadParamList(current.Communicator, Token.IceReader);
+                    TestHelper.Assert(t1 == t2);
+                    Debug.Assert(request.BinaryContext.ContainsKey(2));
+                    string[] s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
+                    Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
+                    Debug.Assert(request.BinaryContext.ContainsKey(3));
+                    TestHelper.Assert(1024 == request.BinaryContext[3].Read(istr => istr.ReadShort()));
+                }
+                else
+                {
+                    try
+                    {
+                        _ = request.BinaryContext;
+                        TestHelper.Assert(false);
+                    }
+                    catch (NotSupportedException)
+                    {
+                    }
+                }
             }
             else if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
             {
