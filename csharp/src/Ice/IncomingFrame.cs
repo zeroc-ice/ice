@@ -37,6 +37,7 @@ namespace ZeroC.Ice
                             int key = istr.ReadInt();
                             int entrySize = istr.ReadSize();
                             binaryContext[key] = Payload.AsReadOnlyMemory(offset + istr.Pos, entrySize);
+                            istr.Skip(entrySize);
                         }
                         _binaryContext = binaryContext.ToImmutableDictionary();
                     }

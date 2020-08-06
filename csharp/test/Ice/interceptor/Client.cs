@@ -4,8 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Test;
+using ZeroC.IceGrid;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
@@ -85,6 +87,10 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                       "opWithBinaryContext",
                                                                       idempotent: false);
                 request.AddBinaryContextEntry(1, new Token(1, "mytoken"), Token.IceWriter);
+                request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
+                request.AddBinaryContextEntry(2,
+                                              Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                              Ice.StringSeqHelper.IceWriter);
                 prx.Invoke(request);
                 output.WriteLine("ok");
             }

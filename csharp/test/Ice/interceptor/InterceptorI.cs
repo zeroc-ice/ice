@@ -3,6 +3,7 @@
 //
 
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Test;
 
@@ -37,6 +38,11 @@ namespace ZeroC.Ice.Test.Interceptor
                 Token t1 = request.BinaryContext[1].Read(Token.IceReader);
                 Token t2 = request.ReadParamList(current.Communicator, Token.IceReader);
                 TestHelper.Assert(t1 == t2);
+                Debug.Assert(request.BinaryContext.ContainsKey(2));
+                string[] s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
+                Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
+                Debug.Assert(request.BinaryContext.ContainsKey(3));
+                TestHelper.Assert(1024 == request.BinaryContext[3].Read(istr => istr.ReadShort()));
             }
             else if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
             {
