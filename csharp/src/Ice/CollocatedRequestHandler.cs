@@ -168,6 +168,7 @@ namespace ZeroC.Ice
                         // not completed yet and we want to make sure the observer is detached only when the dispatch
                         // completes, not when the caller cancels the request.
                         outgoingResponseFrame = await vt.ConfigureAwait(false);
+                        outgoingResponseFrame.FinishPayload(context: null);
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
@@ -188,13 +189,14 @@ namespace ZeroC.Ice
                     if (requestId != 0)
                     {
                         outgoingResponseFrame = new OutgoingResponseFrame(incomingRequest, actualEx);
+                        outgoingResponseFrame.FinishPayload(context: null);
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
 
-                outgoingResponseFrame ??= OutgoingResponseFrame.WithVoidReturnValue(current);
-                if (!outgoingResponseFrame.IsSealed)
+                if (outgoingResponseFrame == null)
                 {
+                    outgoingResponseFrame = OutgoingResponseFrame.WithVoidReturnValue(current);
                     outgoingResponseFrame.FinishPayload(context: null);
                 }
                 return outgoingResponseFrame;
