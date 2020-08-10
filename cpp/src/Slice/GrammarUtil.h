@@ -98,7 +98,9 @@ class BoolTok : public GrammarBase
 {
 public:
 
-    BoolTok() { }
+    BoolTok(bool value) :
+        v(value)
+    { }
     bool v;
 };
 

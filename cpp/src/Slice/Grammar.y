@@ -1626,15 +1626,11 @@ enum_start
 // ----------------------------------------------------------------------
 : ICE_UNCHECKED ICE_ENUM
 {
-    BoolTokPtr unchecked = new BoolTok;
-    unchecked->v = true;
-    $$ = unchecked;
+    $$ = new BoolTok(true);
 }
 | ICE_ENUM
 {
-    BoolTokPtr unchecked = new BoolTok;
-    unchecked->v = false;
-    $$ = unchecked;
+    $$ = new BoolTok(false);
 }
 ;
 
@@ -1824,15 +1820,11 @@ out_qualifier
 // ----------------------------------------------------------------------
 : ICE_OUT
 {
-    BoolTokPtr out = new BoolTok;
-    out->v = true;
-    $$ = out;
+    $$ = new BoolTok(true);
 }
 | %empty
 {
-    BoolTokPtr out = new BoolTok;
-    out->v = false;
-    $$ = out;
+    $$ = new BoolTok(false);
 }
 ;
 
