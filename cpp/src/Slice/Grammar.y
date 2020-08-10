@@ -523,7 +523,7 @@ exception_def
     }
     $$ = ex;
 }
-'{' exception_exports '}'
+'{' data_member_list '}'
 {
     if($3)
     {
@@ -547,30 +547,6 @@ exception_extends
 | %empty
 {
     $$ = 0;
-}
-;
-
-// ----------------------------------------------------------------------
-exception_exports
-// ----------------------------------------------------------------------
-: local_metadata exception_export ';' exception_exports
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if(contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| error ';' exception_exports
-{
-}
-| local_metadata exception_export
-{
-    unit->error("`;' missing after definition");
-}
-| %empty
-{
 }
 ;
 
@@ -872,12 +848,6 @@ tagged_type_id
 ;
 
 // ----------------------------------------------------------------------
-exception_export
-// ----------------------------------------------------------------------
-: data_member
-;
-
-// ----------------------------------------------------------------------
 struct_id
 // ----------------------------------------------------------------------
 : ICE_STRUCT ICE_IDENTIFIER
@@ -923,7 +893,7 @@ struct_def
     }
     $$ = st;
 }
-'{' struct_exports '}'
+'{' data_member_list '}'
 {
     if($2)
     {
@@ -941,36 +911,6 @@ struct_def
         unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
-;
-
-// ----------------------------------------------------------------------
-struct_exports
-// ----------------------------------------------------------------------
-: local_metadata struct_export ';' struct_exports
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if(contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| error ';' struct_exports
-{
-}
-| local_metadata struct_export
-{
-    unit->error("`;' missing after definition");
-}
-| %empty
-{
-}
-;
-
-// ----------------------------------------------------------------------
-struct_export
-// ----------------------------------------------------------------------
-: data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -1147,7 +1087,7 @@ class_def
         $$ = 0;
     }
 }
-'{' class_exports '}'
+'{' data_member_list '}'
 {
     if($3)
     {
@@ -1216,30 +1156,6 @@ extends
 ;
 
 // ----------------------------------------------------------------------
-class_exports
-// ----------------------------------------------------------------------
-: local_metadata class_export ';' class_exports
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if(contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| error ';' class_exports
-{
-}
-| local_metadata class_export
-{
-    unit->error("`;' missing after definition");
-}
-| %empty
-{
-}
-;
-
-// ----------------------------------------------------------------------
 data_member
 // ----------------------------------------------------------------------
 : tagged_type_id
@@ -1291,6 +1207,30 @@ data_member
         $$ = cont->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
     unit->error("missing data member name");
+}
+;
+
+// ----------------------------------------------------------------------
+data_member_list
+// ----------------------------------------------------------------------
+: local_metadata data_member ';' data_member_list
+{
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if(contained && !metaData->v.empty())
+    {
+        contained->setMetaData(metaData->v);
+    }
+}
+| local_metadata data_member
+{
+    unit->error("`;' missing after definition");
+}
+| error ';' data_member_list
+{
+}
+| %empty
+{
 }
 ;
 
@@ -1489,9 +1429,27 @@ throws
 ;
 
 // ----------------------------------------------------------------------
-class_export
+operation_list
 // ----------------------------------------------------------------------
-: data_member
+: local_metadata operation ';' operation_list
+{
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if(contained && !metaData->v.empty())
+    {
+        contained->setMetaData(metaData->v);
+    }
+}
+| local_metadata operation
+{
+    unit->error("`;' missing after definition");
+}
+| error ';' operation_list
+{
+}
+| %empty
+{
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -1542,7 +1500,7 @@ interface_def
         $$ = 0;
     }
 }
-'{' interface_exports '}'
+'{' operation_list '}'
 {
     if($3)
     {
@@ -1661,36 +1619,6 @@ interface_extends
 {
     $$ = new InterfaceListTok;
 }
-;
-
-// ----------------------------------------------------------------------
-interface_exports
-// ----------------------------------------------------------------------
-: local_metadata interface_export ';' interface_exports
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if(contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| error ';' interface_exports
-{
-}
-| local_metadata interface_export
-{
-    unit->error("`;' missing after definition");
-}
-| %empty
-{
-}
-;
-
-// ----------------------------------------------------------------------
-interface_export
-// ----------------------------------------------------------------------
-: operation
 ;
 
 // ----------------------------------------------------------------------
