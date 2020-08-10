@@ -1179,41 +1179,9 @@ data_member_list
 // ----------------------------------------------------------------------
 return_type
 // ----------------------------------------------------------------------
-: tag type
+: tagged_type
 {
-    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
-
-    OptionalPtr optional = OptionalPtr::dynamicCast($2);
-    if (!optional)
-    {
-        unit->error("Only optional types can be tagged.");
-    }
-
-    m->type = optional;
-    $$ = m;
-}
-| optional type
-{
-    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
-
-    OptionalPtr optional = OptionalPtr::dynamicCast($2);
-
-    if (optional)
-    {
-        m->type = optional;
-    }
-    else
-    {
-        // Infer the type to be optional for backwards compatibility.
-        m->type = new Optional(TypePtr::dynamicCast($2));
-    }
-    $$ = m;
-}
-| type
-{
-    TaggedDefTokPtr m = new TaggedDefTok;
-    m->type = TypePtr::dynamicCast($1);
-    $$ = m;
+    $$ = $1;
 }
 | ICE_VOID
 {
