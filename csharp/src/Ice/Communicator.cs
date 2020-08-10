@@ -123,7 +123,7 @@ namespace ZeroC.Ice
 
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
-        public int DefaultInvocationTimeout { get; }
+        public TimeSpan DefaultInvocationTimeout { get; }
         public TimeSpan DefaultLocatorCacheTimeout { get; }
 
         /// <summary>The default router for this communicator. To disable the default router, null can be used.
@@ -430,8 +430,10 @@ namespace ZeroC.Ice
 
                 DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
 
-                DefaultInvocationTimeout = GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
-                if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
+                DefaultInvocationTimeout =
+                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;;
+
+                if (DefaultInvocationTimeout != Timeout.InfiniteTimeSpan && DefaultInvocationTimeout <= TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException(
                         $"invalid value for Ice.Default.InvocationTimeout: `{DefaultInvocationTimeout}'");

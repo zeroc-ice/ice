@@ -60,7 +60,10 @@ namespace ZeroC.Ice
             }
 
             Task<OutgoingResponseFrame> task;
-            if (_adapter.TaskScheduler != null || !synchronous || oneway || _reference.InvocationTimeout > 0)
+            if (_adapter.TaskScheduler != null ||
+                !synchronous ||
+                oneway ||
+                _reference.InvocationTimeout != Timeout.InfiniteTimeSpan)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
                 // oneway from the user thread to match the non-collocated behavior where the oneway synchronous

@@ -59,7 +59,7 @@ namespace ZeroC.Ice
                                  string? facet = null,
                                  Connection? fixedConnection = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
@@ -129,7 +129,7 @@ namespace ZeroC.Ice
                                  IEnumerable<Endpoint>? endpoints = null,
                                  Connection? fixedConnection = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
@@ -196,7 +196,7 @@ namespace ZeroC.Ice
                                  IEnumerable<Endpoint>? endpoints = null,
                                  Connection? fixedConnection = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
@@ -369,7 +369,7 @@ namespace ZeroC.Ice
                                                                                      request.Context);
                 int retryCount = 0;
                 CancellationTokenSource? invocationTimeout = null;
-                if (reference.InvocationTimeout > 0)
+                if (reference.InvocationTimeout != Timeout.InfiniteTimeSpan)
                 {
                     invocationTimeout = new CancellationTokenSource();
                     invocationTimeout.CancelAfter(reference.InvocationTimeout);

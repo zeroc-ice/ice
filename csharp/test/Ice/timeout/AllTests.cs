@@ -114,7 +114,7 @@ namespace ZeroC.Ice.Test.Timeout
             {
                 timeout.IcePing(); // Makes sure a working connection is associated with the proxy
                 Connection? connection = timeout.GetConnection();
-                ITimeoutPrx? to = timeout.Clone(invocationTimeout: 100);
+                ITimeoutPrx? to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100));
                 TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
@@ -125,7 +125,7 @@ namespace ZeroC.Ice.Test.Timeout
                 {
                 }
                 timeout.IcePing();
-                to = timeout.Clone(invocationTimeout: 1000);
+                to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(1000));
                 TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
@@ -141,7 +141,7 @@ namespace ZeroC.Ice.Test.Timeout
                 //
                 // Expect TimeoutException.
                 //
-                ITimeoutPrx to = timeout.Clone(invocationTimeout: 100);
+                ITimeoutPrx to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100));
                 try
                 {
                     to.SleepAsync(1000).Wait();
@@ -153,7 +153,7 @@ namespace ZeroC.Ice.Test.Timeout
             }
             {
                 // Expect success.
-                ITimeoutPrx to = timeout.Clone(invocationTimeout: 1000);
+                ITimeoutPrx to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(1000));
                 to.SleepAsync(100).Wait();
             }
 
@@ -201,8 +201,8 @@ namespace ZeroC.Ice.Test.Timeout
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
                 adapter.Activate();
 
-                ITimeoutPrx proxy =
-                    adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
+                ITimeoutPrx proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(
+                    invocationTimeout: TimeSpan.FromMilliseconds(100));
                 try
                 {
                     proxy.Sleep(500);

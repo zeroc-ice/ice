@@ -145,11 +145,8 @@ namespace ZeroC.Ice
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
 
-        /// <summary>The locator cache timeout of this proxy.</summary>
-        public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
-
-        /// <summary>The invocation timeout of this proxy, in seconds.</summary>
-        public int InvocationTimeout => IceReference.InvocationTimeout;
+        /// <summary>The invocation timeout of this proxy.</summary>
+        public TimeSpan InvocationTimeout => IceReference.InvocationTimeout;
 
         /// <summary>Indicates whether or not this proxy caches its connection.</summary>
         /// <value>True when the proxy caches its connection; otherwise, false.</value>
@@ -160,6 +157,9 @@ namespace ZeroC.Ice
 
         /// <summary>The encoding used to marshal request parameters.</summary>
         public Encoding Encoding => IceReference.Encoding;
+
+        /// <summary>The locator cache timeout of this proxy.</summary>
+        public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
         /// <summary>Indicates whether or not this proxy prefers non-secure connections.</summary>
         /// <value>When true, the proxy attempts to establish a non-secure connection if such a connection is available;

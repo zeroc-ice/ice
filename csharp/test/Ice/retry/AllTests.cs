@@ -243,7 +243,7 @@ namespace ZeroC.Ice.Test.Retry
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
-                    retry2.Clone(invocationTimeout: 500).OpIdempotent(4);
+                    retry2.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpIdempotent(4);
                     TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
@@ -255,7 +255,7 @@ namespace ZeroC.Ice.Test.Retry
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
-                    IRetryPrx prx = retry2.Clone(invocationTimeout: 500);
+                    IRetryPrx prx = retry2.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500));
                     prx.OpIdempotentAsync(4).Wait();
                     TestHelper.Assert(false);
                 }

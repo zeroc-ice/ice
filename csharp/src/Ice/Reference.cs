@@ -30,7 +30,7 @@ namespace ZeroC.Ice
         internal string Facet { get; }
         internal Identity Identity { get; }
         internal InvocationMode InvocationMode { get; }
-        internal int InvocationTimeout { get; }
+        internal TimeSpan InvocationTimeout { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             bool? cacheConnection = null;
             IReadOnlyDictionary<string, string>? context = null;
             EndpointSelectionType? endpointSelection = null;
-            int? invocationTimeout = null;
+            TimeSpan? invocationTimeout = null;
             TimeSpan? locatorCacheTimeout = null;
             LocatorInfo? locatorInfo = null;
             bool? preferNonSecure = null;
@@ -168,8 +168,10 @@ namespace ZeroC.Ice
                 }
 
                 property = $"{propertyPrefix}.InvocationTimeout";
-                invocationTimeout = communicator.GetPropertyAsInt(property);
-                if (invocationTimeout != null && invocationTimeout < 1 && invocationTimeout != -1)
+                invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
+                if (invocationTimeout != null &&
+                    invocationTimeout <= TimeSpan.Zero &&
+                    invocationTimeout != Timeout.InfiniteTimeSpan)
                 {
                     throw new InvalidConfigurationException(
                         $"invalid value for property `{property}': `{invocationTimeout}'");
@@ -667,8 +669,8 @@ namespace ZeroC.Ice
                    fixedConnection: fixedConnection,
                    identity: identity,
                    invocationMode: fixedConnection.Endpoint.IsDatagram ?
-                      InvocationMode.Datagram : InvocationMode.Twoway,
-                   invocationTimeout: -1)
+                       InvocationMode.Datagram : InvocationMode.Twoway,
+                   invocationTimeout: Timeout.InfiniteTimeSpan)
         {
         }
 
@@ -806,7 +808,7 @@ namespace ZeroC.Ice
                                  Connection? fixedConnection = null,
                                  Identity? identity = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
@@ -835,10 +837,12 @@ namespace ZeroC.Ice
                 throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
-            if (invocationTimeout != null && invocationTimeout.Value < 1 && invocationTimeout.Value != -1)
+            if (invocationTimeout != null &&
+                invocationTimeout <= TimeSpan.Zero &&
+                invocationTimeout != Timeout.InfiniteTimeSpan)
             {
-                throw new ArgumentException($"invalid invocation timeout: {invocationTimeout.Value}",
-                    nameof(invocationTimeout));
+                throw new ArgumentException(
+                    $"invalid {nameof(invocationTimeout)}: {invocationTimeout}", nameof(invocationTimeout));
             }
 
             if (IsFixed || fixedConnection != null)
@@ -1223,7 +1227,7 @@ namespace ZeroC.Ice
                 [prefix] = ToString(),
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
-                [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
+                [prefix + ".InvocationTimeout"] = InvocationTimeout.ToPropertyString(),
                 [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
                 [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
@@ -1294,7 +1298,7 @@ namespace ZeroC.Ice
                           string facet,
                           Identity identity,
                           InvocationMode invocationMode,
-                          int invocationTimeout,
+                          TimeSpan invocationTimeout,
                           TimeSpan locatorCacheTimeout,
                           LocatorInfo? locatorInfo,
                           bool preferNonSecure,
@@ -1328,7 +1332,7 @@ namespace ZeroC.Ice
                           Connection fixedConnection,
                           Identity identity,
                           InvocationMode invocationMode,
-                          int invocationTimeout)
+                          TimeSpan invocationTimeout)
         {
             AdapterId = "";
             Communicator = communicator;
