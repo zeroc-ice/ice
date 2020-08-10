@@ -811,7 +811,6 @@ namespace ZeroC.Ice
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
                                  bool? preferNonSecure = null,
-                                 Protocol? protocol = null,
                                  IRouterPrx? router = null)
         {
             // Check for incompatible arguments
@@ -890,10 +889,6 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException("cannot change the prefer non-secure configuration of a fixed proxy",
                         nameof(preferNonSecure));
-                }
-                if (protocol != null)
-                {
-                    throw new ArgumentException("cannot change the protocol of a fixed proxy", nameof(protocol));
                 }
                 if (router != null)
                 {
@@ -985,7 +980,7 @@ namespace ZeroC.Ice
                                       locatorCacheTimeout ?? LocatorCacheTimeout,
                                       locatorInfo, // no fallback otherwise breaks clearLocator
                                       preferNonSecure ?? PreferNonSecure,
-                                      protocol ?? Protocol,
+                                      Protocol,
                                       routerInfo); // no fallback otherwise breaks clearRouter
 
                 return clone == this ? this : clone;
