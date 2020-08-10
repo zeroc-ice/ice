@@ -20,29 +20,33 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice1)
                 {
-                    throw new NotSupportedException("binary context is not supported with Ice1 protocol");
+                    return ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
                 }
 
                 if (_binaryContext == null)
                 {
-                    int binaryContextSize = Payload.Count - Encapsulation.Count - (Encapsulation.Offset - Payload.Offset);
-                    if (binaryContextSize > 0)
+                    ArraySegment<byte> buffer = Data.Slice(Payload.Count);
+                    if (buffer.Count > 0)
                     {
-                        int offset = Payload.Count - binaryContextSize;
-                        var istr = new InputStream(Payload.Slice(offset), Encoding.V2_0);
-                        int entriesSize = istr.ReadSize();
-                        var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>();
-                        for (int i = 0; i < entriesSize; ++i)
+                        var istr = new InputStream(buffer, Encoding.V2_0);
+                        int dictionarySize = istr.ReadSize();
+                        var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
+                        for (int i = 0; i < dictionarySize; ++i)
                         {
-                            int key = istr.ReadInt();
+                            int key = istr.ReadVarInt();
                             int entrySize = istr.ReadSize();
-                            binaryContext[key] = Payload.AsReadOnlyMemory(offset + istr.Pos, entrySize);
+                            binaryContext[key] = buffer.AsReadOnlyMemory(istr.Pos, entrySize);
                             istr.Skip(entrySize);
                         }
-                        _binaryContext = binaryContext.ToImmutableDictionary();
+
+                        _binaryContext = binaryContext;
+                    }
+                    else
+                    {
+                        _binaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
                     }
                 }
-                return _binaryContext ?? ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+                return _binaryContext;
             }
         }
         /// <summary>The encoding of the frame payload.</summary>
@@ -50,16 +54,19 @@ namespace ZeroC.Ice
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
         public bool HasCompressedPayload { get; protected set; }
 
-        /// <summary>The data of this frame. The bytes inside the data should not be written to;
+        /// <summary>The payload of this frame. The bytes inside the data should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         // TODO: describe how long this payload remains valid once we add memory pooling.
-        public ArraySegment<byte> Payload { get; protected set; }
+        public ArraySegment<byte> Payload { get; private protected set; }
 
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
         /// <summary>The frame byte count</summary>
         public int Size => Payload.Count;
+
+        /// <summary>The frame data</summary>
+        internal ArraySegment<byte> Data { get; set; }
 
         // If the frame payload contains an encapsulation, this segment corresponds to the frame encapsulation
         // otherwise is an empty segment. This is always an Slice of the Payload, both must use the same array.
@@ -83,11 +90,10 @@ namespace ZeroC.Ice
                 (int size, int sizeLength, Encoding _) = buffer.ReadEncapsulationHeader(Protocol.GetEncoding());
                 // Offset of the start of the GZip decompressed data +3 corresponds to (Encoding 2 bytes, Compression
                 // status 1 byte)
-                int offset = sizeLength + 3;
 
                 // Read the decompressed size that is written after the compression status byte when the payload is
                 // compressed.
-                (int decompressedSize, int decompressedSizeLength) = buffer.Slice(offset).ReadSize20();
+                (int decompressedSize, int decompressedSizeLength) = buffer.Slice(sizeLength + 3).ReadSize20();
                 if (decompressedSize > _sizeMax)
                 {
                     throw new InvalidDataException(@$"decompressed size of {decompressedSize
@@ -95,21 +101,26 @@ namespace ZeroC.Ice
                 }
 
                 Debug.Assert(Payload.Array == Encapsulation.Array);
+                byte[] decompressedData = new byte[Data.Count - size + decompressedSize];
 
-                byte[] decompressedData = new byte[Payload.Count - size + decompressedSize];
-                int encapsulationOffset = Encapsulation.Offset - Payload.Offset;
-                Payload.AsSpan(0, encapsulationOffset + offset).CopyTo(decompressedData);
+                // Offset of the start of the GZip data
+                int gzipOffset = sizeLength + 3 + (Encapsulation.Offset - Data.Offset);
+                // Copy the uncompressed data before the encapsulation to the new buffer
+                Data.AsSpan(0, gzipOffset).CopyTo(decompressedData);
+                // Copy the binary context if any after the encapsulation
+                Data.AsSpan(Payload.Count).CopyTo(decompressedData.AsSpan(gzipOffset + decompressedSize - 3));
+
                 // Set the compression status to '0' not-compressed
-                decompressedData[encapsulationOffset + sizeLength + 2] = 0;
+                decompressedData[gzipOffset - 1] = 0;
 
                 using var decompressedStream = new MemoryStream(decompressedData,
-                                                                encapsulationOffset + offset,
-                                                                decompressedData.Length - encapsulationOffset - offset);
+                                                                gzipOffset,
+                                                                decompressedData.Length - gzipOffset);
                 Debug.Assert(Encapsulation.Array != null);
                 var compressed = new GZipStream(
                     new MemoryStream(Encapsulation.Array,
-                                     Encapsulation.Offset + offset + decompressedSizeLength,
-                                     Encapsulation.Count - offset - decompressedSizeLength),
+                                     Encapsulation.Offset + sizeLength + 3 + decompressedSizeLength,
+                                     Encapsulation.Count - sizeLength - 3 - decompressedSizeLength),
                     CompressionMode.Decompress);
                 compressed.CopyTo(decompressedStream);
                 // +3 corresponds to (Encoding 2 bytes and Compression status 1 byte), that are part of the
@@ -121,18 +132,12 @@ namespace ZeroC.Ice
                         decompressedStream.Position} bytes {decompressedSize}");
                 }
 
-                // Copy the data after the encapsulation and invalidate the cached binary context dictionary
-                Payload.AsSpan(encapsulationOffset + Encapsulation.Count).CopyTo(
-                    decompressedData.AsSpan(encapsulationOffset + decompressedSize + sizeLength));
-                _binaryContext = null;
-
-                Payload = new ArraySegment<byte>(decompressedData,
-                                                 0,
-                                                 Payload.Count - size + decompressedSize);
+                Payload = new ArraySegment<byte>(decompressedData, 0, gzipOffset + decompressedSize - 3);
 
                 Encapsulation = new ArraySegment<byte>(decompressedData,
-                                                       encapsulationOffset,
+                                                       gzipOffset - sizeLength - 3,
                                                        decompressedSize + sizeLength);
+                Data = decompressedData;
                 // Rewrite the encapsulation size
                 OutputStream.WriteEncapsulationSize(decompressedSize,
                                                     Encapsulation.AsSpan(0, sizeLength),
@@ -141,10 +146,10 @@ namespace ZeroC.Ice
             }
         }
 
-        protected IncomingFrame(Protocol protocol, ArraySegment<byte> payload, int sizeMax)
+        protected IncomingFrame(ArraySegment<byte> data, Protocol protocol, int sizeMax)
         {
+            Data = data;
             Protocol = protocol;
-            Payload = payload;
             _sizeMax = sizeMax;
         }
     }

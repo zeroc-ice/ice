@@ -247,7 +247,7 @@ namespace ZeroC.Ice
         private readonly Encoding _mainEncoding;
 
         // All segments before the tail segment are fully used.
-        private readonly List<ArraySegment<byte>> _segmentList;
+        private readonly IList<ArraySegment<byte>> _segmentList;
 
         // The start of an encapsulation. When set, we are writing to a top-level encapsulation.
         private readonly Position? _startPos;
@@ -1581,7 +1581,7 @@ namespace ZeroC.Ice
             WriteFixedLengthSize20(size, data);
 
         // Constructor for protocol frame header and other non-encapsulated data.
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt = default)
+        internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
         {
             _mainEncoding = encoding;
             Encoding = encoding;
@@ -1653,8 +1653,7 @@ namespace ZeroC.Ice
             {
                 WriteByte(0); // The compression status, 0 not-compressed
             }
-            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
-            return _tail;
+            return Save();
         }
 
         internal void WriteEndpoint(Endpoint endpoint)
@@ -1716,6 +1715,29 @@ namespace ZeroC.Ice
                 WriteSize(1);
                 WriteString(facet);
             }
+        }
+
+        internal void WriteBinaryContextEntry(int key, ReadOnlySpan<byte> value)
+        {
+            WriteVarInt(key);
+            WriteSize(value.Length);
+            WriteByteSpan(value);
+        }
+
+        internal void WriteBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
+        {
+            WriteVarInt(key);
+            Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
+            writer(this, value);
+            EndFixedLengthSize(pos, 2);
+        }
+
+        internal void WriteBinaryContextEntry<T>(int key, T value, OutputStreamValueWriter<T> writer) where T : struct
+        {
+            WriteVarInt(key);
+            Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
+            writer(this, value);
+            EndFixedLengthSize(pos, 2);
         }
 
         private static int Distance(IList<ArraySegment<byte>> data, Position start, Position end)

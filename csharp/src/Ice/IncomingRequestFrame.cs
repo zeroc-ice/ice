@@ -26,29 +26,35 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
-        /// <param name="payload">The frame data as an array segment.</param>
+        /// <param name="data">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
-        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> payload, int sizeMax)
-            : base(protocol, payload, sizeMax)
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
+            : base(data, protocol, sizeMax)
         {
-            var istr = new InputStream(payload, Protocol.GetEncoding());
+            var istr = new InputStream(Data, Protocol.GetEncoding());
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
-            Context = Protocol == Protocol.Ice1 ? istr.ReadContext().ToImmutableDictionary() :
-                                                  ImmutableDictionary<string, string>.Empty;
+            if (Protocol == Protocol.Ice1)
+            {
+                Context = istr.ReadContext();
+            }
 
             (int size, int sizeLength, Encoding encoding) =
-                payload.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-            Encapsulation = payload.Slice(istr.Pos, size + sizeLength);
-
+                Data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+            Encapsulation = Data.Slice(istr.Pos, size + sizeLength);
+            Payload = Data.Slice(0, istr.Pos + size + sizeLength);
             if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
             {
                 Context = value.Read(ContextHelper.IceReader);
             }
+            else
+            {
+                Context = ImmutableDictionary<string, string>.Empty;
+            }
 
-            if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != payload.Count)
+            if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)
             {
                 // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
                 // "4" corresponds to fixed-length size with the 1.1 encoding.
@@ -62,7 +68,7 @@ namespace ZeroC.Ice
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
         internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
-            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Payload), sizeMax)
+            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data), sizeMax)
         {
         }
 

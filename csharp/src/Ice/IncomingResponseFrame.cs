@@ -82,16 +82,16 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
-        /// <param name="payload">The frame data as an array segment.</param>
+        /// <param name="data">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
-        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> payload, int sizeMax)
-            : base(protocol, payload, sizeMax)
+        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
+            : base(data, protocol, sizeMax)
         {
             bool hasEncapsulation = false;
 
             if (Protocol == Protocol.Ice1)
             {
-                byte b = Payload[0];
+                byte b = data[0];
                 if (b > 7)
                 {
                     throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
@@ -108,7 +108,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = Payload[0];
+                byte b = data[0];
                 if (b > 1)
                 {
                     throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
@@ -123,9 +123,9 @@ namespace ZeroC.Ice
                 int sizeLength;
 
                 (size, sizeLength, Encoding) =
-                    Payload.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-                Encapsulation = Payload.Slice(1, size + sizeLength);
-
+                    data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                Encapsulation = data.Slice(1, size + sizeLength);
+                Payload = data.Slice(0, 1 + size + sizeLength);
                 if (sizeLength + size != Encapsulation.Count)
                 {
                     throw new InvalidDataException(
@@ -133,6 +133,10 @@ namespace ZeroC.Ice
                 }
 
                 HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
+            }
+            else
+            {
+                Payload = data;
             }
         }
 

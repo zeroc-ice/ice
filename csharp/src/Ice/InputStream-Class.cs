@@ -551,7 +551,7 @@ namespace ZeroC.Ice
         {
             _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
 
-            string? typeId = null;
+            string? typeId;
             int? compactId = null;
 
             // Read the type ID. For class slices, the type ID is encoded as a string or as an index or as a compact ID,

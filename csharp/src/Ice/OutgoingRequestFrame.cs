@@ -13,6 +13,8 @@ namespace ZeroC.Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
 
+        public override Encoding Encoding { get; }
+
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
 
@@ -49,7 +51,7 @@ namespace ZeroC.Ice
             OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.FinishEncapsulation(ostr.Save());
@@ -85,7 +87,7 @@ namespace ZeroC.Ice
             OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Payload, request._encapsulationStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.FinishEncapsulation(ostr.Save());
@@ -118,39 +120,52 @@ namespace ZeroC.Ice
         /// <summary>Creates a new outgoing request frame from the given incoming request frame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
         /// and context of this proxy to create the request frame.</param>
-        /// <param name="incomingRequest">The incoming request from which to create an outgoing request.</param>
+        /// <param name="request">The incoming request from which to create an outgoing request.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         internal OutgoingRequestFrame(
             IObjectPrx proxy,
-            IncomingRequestFrame incomingRequest,
+            IncomingRequestFrame request,
             bool compress)
-            : this(proxy, incomingRequest.Operation, incomingRequest.IsIdempotent, compress, incomingRequest.Context)
+            : this(proxy, request.Operation, request.IsIdempotent, compress, request.Context)
         {
-            ArraySegment<byte> payload = incomingRequest.Payload;
-            if (payload.Count < 6)
+            ArraySegment<byte> data = request.Data;
+            if (data.Count < 6)
             {
                 throw new ArgumentException(
-                    $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
-                    nameof(payload));
+                    $"payload should contain at least 6 bytes, but it contains {data.Count} bytes",
+                    nameof(data));
             }
-            int size = payload.AsReadOnlySpan(0, 4).ReadFixedLengthSize(proxy.Protocol.GetEncoding());
-            if (size != payload.Count)
+            int size = data.AsReadOnlySpan(0, 4).ReadFixedLengthSize(proxy.Protocol.GetEncoding());
+            if (size != data.Count)
             {
-                throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
-                    nameof(payload));
+                throw new ArgumentException($"invalid payload size `{size}' expected `{data.Count}'",
+                    nameof(data));
             }
 
-            if (payload[4] != Encoding.Major || payload[5] != Encoding.Minor)
+            if (data[4] != Encoding.Major || data[5] != Encoding.Minor)
             {
-                throw new ArgumentException($"the payload encoding `{payload[4]}.{payload[5]}' must be the same " +
+                throw new ArgumentException($"the payload encoding `{data[4]}.{data[5]}' must be the same " +
                                             $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
-                    nameof(payload));
+                    nameof(data));
             }
-            Payload[^1] = Payload[^1].Slice(0, _encapsulationStart.Offset);
-            Payload.Add(payload);
-            FinishEncapsulation(new OutputStream.Position(Payload.Count - 1, payload.Count));
-            Size = Payload.GetByteCount();
+            Data[^1] = Data[^1].Slice(0, _encapsulationStart.Offset);
+            Data.Add(data);
+            FinishEncapsulation(new OutputStream.Position(Data.Count - 1, data.Count));
+
+            Size = Data.GetByteCount();
             IsSealed = true;
+        }
+
+        internal override void FinishBinaryContext()
+        {
+            if (Protocol == Protocol.Ice2 && !IsSealed)
+            {
+                if (Context.Count > 0)
+                {
+                    AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
+                }
+                base.FinishBinaryContext();
+            }
         }
 
         private OutgoingRequestFrame(
@@ -161,22 +176,21 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context,
             bool writeEmptyParamList = false)
             : base(proxy.Protocol,
-                   proxy.Encoding,
                    compress,
                    proxy.Communicator.CompressionLevel,
                    proxy.Communicator.CompressionMinSize,
                    new List<ArraySegment<byte>>())
         {
+            Encoding = proxy.Encoding;
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Payload);
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
             Identity.IceWrite(ostr);
             ostr.WriteFacet(Facet);
             ostr.WriteString(operation);
             ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
-
             if (context != null)
             {
                 Context = new Dictionary<string, string>(context);

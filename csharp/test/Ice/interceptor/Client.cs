@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Test;
-using ZeroC.IceGrid;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
@@ -137,7 +136,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 Assert(request.CompressPayload() == CompressionResult.Success);
                 prx.Invoke(request);
 
-                // repeat compressed the frame before writting the context
+                // repeat compressed the frame before writing the context
                 request = OutgoingRequestFrame.WithParamList(prx,
                                                              "opWithBinaryContext",
                                                              idempotent: false,
