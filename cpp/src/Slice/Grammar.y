@@ -119,6 +119,9 @@ slice_error(const char* s)
 %define api.pure
 // Specifies what type to back the tokens with (their semantic values).
 %define api.value.type {Slice::GrammarBasePtr}
+// Bison generates a '.hpp' file by default, but we rename it to '.h' for consistency.
+// This changes the include statement to include "Grammar.h" instead of "Grammar.hpp".
+%define api.header.include {"Grammar.h"}
 // Enables Bison's token location tracking functionality.
 %locations
 
