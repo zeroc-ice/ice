@@ -31,7 +31,10 @@ namespace ZeroC.Ice
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
                 ostr.WriteByte((byte)ResultType.Success);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                return new OutgoingResponseFrame(key.Protocol, key.Encoding, data: data);
+                var response = new OutgoingResponseFrame(key.Protocol, key.Encoding, data: data);
+                response._encapsulationStart = new OutputStream.Position(0, 1);
+                response.FinishEncapsulation(ostr.Tail);
+                return response;
             });
 
         /// <summary>Creates a new outgoing response frame with a return value.</summary>
@@ -51,7 +54,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, value);
-            response.FinishEncapsulation(ostr.Save());
+            response.FinishEncapsulation(ostr.Finish());
             if (compress && current.Encoding == Encoding.V2_0)
             {
                 response.CompressPayload();
@@ -78,7 +81,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, value);
-            response.FinishEncapsulation(ostr.Save());
+            response.FinishEncapsulation(ostr.Finish());
             if (compress && current.Encoding == Encoding.V2_0)
             {
                 response.CompressPayload();
@@ -180,6 +183,7 @@ namespace ZeroC.Ice
                 };
             }
 
+            bool hasEncapsulation;
             OutputStream ostr;
             if (Protocol == Protocol.Ice2 || replyStatus == ReplyStatus.UserException)
             {
@@ -194,18 +198,20 @@ namespace ZeroC.Ice
                                         new OutputStream.Position(0, 1),
                                         Encoding,
                                         FormatType.Sliced);
-
+                _encapsulationStart = ostr.Tail;
                 if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1)
                 {
                     // The first byte of the encapsulation data is the actual ReplyStatus
                     ostr.WriteByte((byte)replyStatus);
                 }
+                hasEncapsulation = true;
             }
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice1 && (byte)replyStatus > (byte)ReplyStatus.UserException);
                 ostr = new OutputStream(Ice1Definitions.Encoding, Data); // not an encapsulation
                 ostr.WriteByte((byte)replyStatus);
+                hasEncapsulation = false;
             }
 
             if (Encoding == Encoding.V1_1)
@@ -233,7 +239,17 @@ namespace ZeroC.Ice
             {
                 ostr.WriteException(exception);
             }
-            FinishEncapsulation(ostr.Save());
+            OutputStream.Position end = ostr.Finish();
+            if (hasEncapsulation)
+            {
+                FinishEncapsulation(end);
+            }
+            else
+            {
+                Data[^1] = Data[^1].Slice(0, end.Offset);
+                Size = Data.GetByteCount();
+                IsSealed = true;
+            }
         }
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(

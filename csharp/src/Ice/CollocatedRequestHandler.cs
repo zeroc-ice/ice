@@ -134,6 +134,7 @@ namespace ZeroC.Ice
             // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is in
             // progress. This will also throw if the object adapter has been deactivated.
             _adapter.IncDirectCount();
+            outgoingRequest.Finish();
 
             IDispatchObserver? dispatchObserver = null;
             try
@@ -168,7 +169,7 @@ namespace ZeroC.Ice
                         // not completed yet and we want to make sure the observer is detached only when the dispatch
                         // completes, not when the caller cancels the request.
                         outgoingResponseFrame = await vt.ConfigureAwait(false);
-                        outgoingResponseFrame.FinishBinaryContext();
+                        outgoingResponseFrame.Finish();
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
@@ -189,7 +190,7 @@ namespace ZeroC.Ice
                     if (requestId != 0)
                     {
                         outgoingResponseFrame = new OutgoingResponseFrame(incomingRequest, actualEx);
-                        outgoingResponseFrame.FinishBinaryContext();
+                        outgoingResponseFrame.Finish();
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
@@ -197,7 +198,7 @@ namespace ZeroC.Ice
                 if (outgoingResponseFrame == null)
                 {
                     outgoingResponseFrame = OutgoingResponseFrame.WithVoidReturnValue(current);
-                    outgoingResponseFrame.FinishBinaryContext();
+                    outgoingResponseFrame.Finish();
                 }
                 return outgoingResponseFrame;
             }

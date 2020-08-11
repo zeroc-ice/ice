@@ -241,6 +241,26 @@ namespace ZeroC.Ice
 
                 int start = _encapsulationStart.Segment;
 
+                if (_binaryContextOstr is OutputStream ostr)
+                {
+                    ArraySegment<byte> segment = Data[encapsulationEnd.Segment];
+                    OutputStream.Position binaryContextEnd = ostr.Tail;
+                    if (binaryContextEnd.Segment == encapsulationEnd.Segment)
+                    {
+                        segment = segment.Slice(encapsulationEnd.Offset,
+                                                binaryContextEnd.Offset - encapsulationEnd.Offset);
+                    }
+                    else
+                    {
+                        segment = segment.Slice(encapsulationEnd.Offset);
+                    }
+
+                    if (segment.Count > 0)
+                    {
+                        Data.Insert(encapsulationEnd.Segment + 1, segment);
+                    }
+                }
+
                 if (_encapsulationStart.Offset > 0)
                 {
                     ArraySegment<byte> segment = Data[_encapsulationStart.Segment];
@@ -258,10 +278,13 @@ namespace ZeroC.Ice
 
                 if (_binaryContextOstr != null)
                 {
-                    _binaryContextOstr = new OutputStream(
-                        _binaryContextOstr.Encoding,
-                        Data,
-                        new OutputStream.Position(Data.Count - 1, _binaryContextOstr.Tail.Offset));
+                    OutputStream.Position binaryContextEnd = _binaryContextOstr.Tail;
+                    if (binaryContextEnd.Segment == encapsulationEnd.Segment)
+                    {
+                        binaryContextEnd.Offset -= encapsulationEnd.Offset;
+                    }
+                    binaryContextEnd.Segment = Data.Count - 1;
+                    _binaryContextOstr = new OutputStream(_binaryContextOstr.Encoding, Data, binaryContextEnd);
                 }
 
                 // Rewrite the payload size
@@ -315,19 +338,15 @@ namespace ZeroC.Ice
             return _binaryContextOstr;
         }
 
-        // Once we finish writing the encapsulation we adjust the last segment of the Payload to match the end of the
-        // encapsulation and compute the frame size.
-        internal void FinishEncapsulation(OutputStream.Position encapsulationEnd)
-        {
+        // Once we finish writing the encapsulation we adjust the _encapsulationEnd position.
+        internal void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
             _encapsulationEnd = encapsulationEnd;
-            Size = Data.GetByteCount();
-        }
 
         // Once we finish writing the binary context we write the BinaryContext size adjust the last segment of the
         // BinaryContext to match the written bytes and compute the frame size.
-        internal virtual void FinishBinaryContext()
+        internal virtual void Finish()
         {
-            if (Protocol == Protocol.Ice2 && !IsSealed)
+            if (!IsSealed)
             {
                 if (_binaryContextOstr is OutputStream ostr)
                 {
@@ -336,8 +355,14 @@ namespace ZeroC.Ice
                                                   _encapsulationEnd.Value,
                                                   2);
                     Data[^1] = Data[^1].Slice(0, ostr.Tail.Offset);
-                    Size = Data.GetByteCount();
                 }
+                else
+                {
+                    OutputStream.Position end = _encapsulationEnd ?? _encapsulationStart;
+                    Data[^1] = Data[^1].Slice(0, end.Offset);
+                }
+
+                Size = Data.GetByteCount();
                 IsSealed = true;
             }
         }

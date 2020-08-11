@@ -54,7 +54,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
-            request.FinishEncapsulation(ostr.Save());
+            request.FinishEncapsulation(ostr.Finish());
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
                 request.CompressPayload();
@@ -90,7 +90,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request._encapsulationStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
-            request.FinishEncapsulation(ostr.Save());
+            request.FinishEncapsulation(ostr.Finish());
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
                 request.CompressPayload();
@@ -156,15 +156,15 @@ namespace ZeroC.Ice
             IsSealed = true;
         }
 
-        internal override void FinishBinaryContext()
+        internal override void Finish()
         {
-            if (Protocol == Protocol.Ice2 && !IsSealed)
+            if (!IsSealed)
             {
-                if (Context.Count > 0)
+                if (Protocol == Protocol.Ice2 && Context.Count > 0)
                 {
                     AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
                 }
-                base.FinishBinaryContext();
+                base.Finish();
             }
         }
 

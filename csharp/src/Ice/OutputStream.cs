@@ -1631,10 +1631,8 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The tail position that marks the end of the stream.</returns>
         /// TODO: The stream should not longer be used, how can we enforce it.
-        internal Position Save()
+        internal Position Finish()
         {
-            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
-
             if (_startPos is Position startPos)
             {
                 Encoding = _mainEncoding;
@@ -1653,7 +1651,7 @@ namespace ZeroC.Ice
             {
                 WriteByte(0); // The compression status, 0 not-compressed
             }
-            return Save();
+            return _tail;
         }
 
         internal void WriteEndpoint(Endpoint endpoint)

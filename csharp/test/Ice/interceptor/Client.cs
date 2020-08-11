@@ -80,10 +80,50 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing binary context... ");
             output.Flush();
             bool ice2 = Communicator()!.DefaultProtocol != Protocol.Ice1;
-            var token = new Token(1, "mytoken", Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray());
+
             if (ice2)
             {
-                var request = OutgoingRequestFrame.WithParamList(prx,
+                for (int size = 128; size < 4096; size *= 2)
+                {
+                    var token = new Token(1, "mytoken", Enumerable.Range(0, size).Select(i => (byte)2).ToArray());
+                    var request = OutgoingRequestFrame.WithParamList(prx,
+                                                                     "opWithBinaryContext",
+                                                                     idempotent: false,
+                                                                     compress: false,
+                                                                     format: null,
+                                                                     context: null,
+                                                                     token,
+                                                                     Token.IceWriter);
+                    request.AddBinaryContextEntry(1, token, Token.IceWriter);
+                    request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
+                    request.AddBinaryContextEntry(2,
+                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                                  Ice.StringSeqHelper.IceWriter);
+
+                    // Adding the same key twice throws ArgumentException
+                    try
+                    {
+                        request.AddBinaryContextEntry(1, token, Token.IceWriter);
+                        Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                    prx.Invoke(request);
+
+                    Assert(request.IsSealed);
+                    // Adding to a sealed frame throws InvalidOperationException
+                    try
+                    {
+                        request.AddBinaryContextEntry(10, token, Token.IceWriter);
+                        Assert(false);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                    }
+
+                    // repeat with compressed frame
+                    request = OutgoingRequestFrame.WithParamList(prx,
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
@@ -91,71 +131,36 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  context: null,
                                                                  token,
                                                                  Token.IceWriter);
-                request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
-                request.AddBinaryContextEntry(2,
-                                              Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                              Ice.StringSeqHelper.IceWriter);
-
-                // Adding the same key twice throws ArgumentException
-                try
-                {
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                    Assert(false);
-                }
-                catch (ArgumentException)
-                {
-                }
-                prx.Invoke(request);
+                    request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
+                    request.AddBinaryContextEntry(2,
+                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                                  Ice.StringSeqHelper.IceWriter);
+                    Assert(request.CompressPayload() == CompressionResult.Success);
+                    prx.Invoke(request);
 
-                Assert(request.IsSealed);
-                // Adding to a sealed frame throws InvalidOperationException
-                try
-                {
-                    request.AddBinaryContextEntry(10, token, Token.IceWriter);
-                    Assert(false);
+                    // repeat compressed the frame before writing the context
+                    request = OutgoingRequestFrame.WithParamList(prx,
+                                                                 "opWithBinaryContext",
+                                                                 idempotent: false,
+                                                                 compress: false,
+                                                                 format: null,
+                                                                 context: null,
+                                                                 token,
+                                                                 Token.IceWriter);
+
+                    Assert(request.CompressPayload() == CompressionResult.Success);
+                    request.AddBinaryContextEntry(1, token, Token.IceWriter);
+                    request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
+                    request.AddBinaryContextEntry(2,
+                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                                  Ice.StringSeqHelper.IceWriter);
+                    prx.Invoke(request);
                 }
-                catch (InvalidOperationException)
-                {
-                }
-
-                // repeat with compressed frame
-                request = OutgoingRequestFrame.WithParamList(prx,
-                                                             "opWithBinaryContext",
-                                                             idempotent: false,
-                                                             compress: false,
-                                                             format: null,
-                                                             context: null,
-                                                             token,
-                                                             Token.IceWriter);
-                request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
-                request.AddBinaryContextEntry(2,
-                                              Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                              Ice.StringSeqHelper.IceWriter);
-                Assert(request.CompressPayload() == CompressionResult.Success);
-                prx.Invoke(request);
-
-                // repeat compressed the frame before writing the context
-                request = OutgoingRequestFrame.WithParamList(prx,
-                                                             "opWithBinaryContext",
-                                                             idempotent: false,
-                                                             compress: false,
-                                                             format: null,
-                                                             context: null,
-                                                             token,
-                                                             Token.IceWriter);
-
-                Assert(request.CompressPayload() == CompressionResult.Success);
-                request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                request.AddBinaryContextEntry(3, (short)1024, (ostr, value) => ostr.WriteShort(value));
-                request.AddBinaryContextEntry(2,
-                                              Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                              Ice.StringSeqHelper.IceWriter);
-                prx.Invoke(request);
             }
             else
             {
+                var token = new Token(1, "mytoken", Enumerable.Range(0, 256).Select(i => (byte)2).ToArray());
                 var request = OutgoingRequestFrame.WithParamList(prx,
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,

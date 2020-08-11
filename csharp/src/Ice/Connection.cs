@@ -724,10 +724,7 @@ namespace ZeroC.Ice
 
                 if (response != null)
                 {
-                    if (!response.IsSealed)
-                    {
-                        response.FinishBinaryContext();
-                    }
+                    response.Finish();
                     dispatchObserver?.Reply(response.Size);
                 }
             }

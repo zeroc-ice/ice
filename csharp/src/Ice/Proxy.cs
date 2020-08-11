@@ -348,10 +348,7 @@ namespace ZeroC.Ice
                                                                     IProgress<bool>? progress = null,
                                                                     CancellationToken cancel = default)
         {
-            if (!request.IsSealed)
-            {
-                request.FinishBinaryContext();
-            }
+            request.Finish();
             InvocationMode mode = proxy.IceReference.InvocationMode;
             if (mode == InvocationMode.BatchOneway || mode == InvocationMode.BatchDatagram)
             {

@@ -40,6 +40,10 @@ namespace ZeroC.Ice
             {
                 Context = istr.ReadContext();
             }
+            else
+            {
+                Context = ImmutableDictionary<string, string>.Empty;
+            }
 
             (int size, int sizeLength, Encoding encoding) =
                 Data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
@@ -48,10 +52,6 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
             {
                 Context = value.Read(ContextHelper.IceReader);
-            }
-            else
-            {
-                Context = ImmutableDictionary<string, string>.Empty;
             }
 
             if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)

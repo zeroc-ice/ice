@@ -88,11 +88,9 @@ namespace ZeroC.Ice
             {
                 ReadOnlySpan<byte> buffer = Encapsulation.AsReadOnlySpan();
                 (int size, int sizeLength, Encoding _) = buffer.ReadEncapsulationHeader(Protocol.GetEncoding());
-                // Offset of the start of the GZip decompressed data +3 corresponds to (Encoding 2 bytes, Compression
-                // status 1 byte)
 
                 // Read the decompressed size that is written after the compression status byte when the payload is
-                // compressed.
+                // compressed +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
                 (int decompressedSize, int decompressedSizeLength) = buffer.Slice(sizeLength + 3).ReadSize20();
                 if (decompressedSize > _sizeMax)
                 {
