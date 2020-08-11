@@ -90,7 +90,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                      "opWithBinaryContext",
                                                                      idempotent: false,
                                                                      compress: false,
-                                                                     format: null,
+                                                                     format: default,
                                                                      context: null,
                                                                      token,
                                                                      Token.IceWriter);
@@ -127,7 +127,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
-                                                                 format: null,
+                                                                 format: default,
                                                                  context: null,
                                                                  token,
                                                                  Token.IceWriter);
@@ -144,7 +144,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
-                                                                 format: null,
+                                                                 format: default,
                                                                  context: null,
                                                                  token,
                                                                  Token.IceWriter);
@@ -165,7 +165,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
-                                                                 format: null,
+                                                                 format: default,
                                                                  context: null,
                                                                  token,
                                                                  Token.IceWriter);

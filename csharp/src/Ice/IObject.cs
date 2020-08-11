@@ -85,7 +85,7 @@ namespace ZeroC.Ice
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current,
                                                       compress: false,
-                                                      format: null,
+                                                      format: default,
                                                       ret,
                                                       OutputStream.IceWriterFromBool));
         }
@@ -97,7 +97,7 @@ namespace ZeroC.Ice
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current,
                                                       compress: false,
-                                                      format: null,
+                                                      format: default,
                                                       ret,
                                                       OutputStream.IceWriterFromString));
         }
@@ -109,9 +109,10 @@ namespace ZeroC.Ice
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current,
                                                       compress: false,
-                                                      format: null,
+                                                      format: default,
                                                       ret,
-                                            (ostr, ret) => ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
+                                                      (ostr, ret) =>
+                                                          ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
         }
     }
 }

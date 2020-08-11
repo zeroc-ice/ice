@@ -79,14 +79,14 @@ namespace ZeroC.Ice
     {
         private readonly bool _idempotent;
         private readonly string _operationName;
-        private readonly FormatType? _format;
+        private readonly FormatType _format;
         private readonly OutputStreamWriter<TParamList> _writer;
 
         public OutgoingRequestWithParam(
             string operationName,
             bool idempotent,
-            FormatType? format,
             bool compress,
+            FormatType format,
             OutputStreamWriter<TParamList> writer,
             InputStreamReader<TReturnValue> reader)
             : base(reader, compress)
@@ -135,14 +135,14 @@ namespace ZeroC.Ice
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly FormatType? _format;
+        private readonly FormatType _format;
         private readonly OutputStreamValueWriter<TParamList> _writer;
 
         public OutgoingRequestWithStructParam(
             string operationName,
             bool idempotent,
-            FormatType? format,
             bool compress,
+            FormatType format,
             OutputStreamValueWriter<TParamList> writer,
             InputStreamReader<TReturnValue> reader)
             : base(reader, compress)
@@ -261,15 +261,15 @@ namespace ZeroC.Ice
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly FormatType? _format;
+        private readonly FormatType _format;
         private readonly OutputStreamWriter<TParamList> _writer;
 
         public OutgoingRequestWithParam(
             string operationName,
             bool idempotent,
             bool oneway,
-            FormatType? format,
             bool compress,
+            FormatType format,
             OutputStreamWriter<TParamList> writer)
         : base(oneway, compress)
         {
@@ -320,15 +320,15 @@ namespace ZeroC.Ice
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly FormatType? _format;
+        private readonly FormatType _format;
         private readonly OutputStreamValueWriter<TParamList> _writer;
 
         public OutgoingRequestWithStructParam(
             string operationName,
             bool idempotent,
             bool oneway,
-            FormatType? format,
             bool compress,
+            FormatType format,
             OutputStreamValueWriter<TParamList> writer)
         : base(oneway, compress)
         {

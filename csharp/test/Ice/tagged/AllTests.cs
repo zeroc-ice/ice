@@ -401,7 +401,7 @@ namespace ZeroC.Ice.Test.Tagged
             initial.OpVoid();
 
             var requestFrame = OutgoingRequestFrame.WithParamList(
-                initial, "opVoid", idempotent: false, compress: false, format: null, context: null, (15, "test"),
+                initial, "opVoid", idempotent: false, compress: false, format: default, context: null, (15, "test"),
                 (OutputStream ostr, (int n, string s) value) =>
                 {
                     ostr.WriteTaggedInt(1, value.n);
@@ -542,7 +542,7 @@ namespace ZeroC.Ice.Test.Tagged
                     initial, "opByte",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null, p1,
                     (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(2, p1));
 
@@ -582,7 +582,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opBool",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null, p1,
                     (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(2, p1));
 
@@ -622,7 +622,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opShort",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null, p1,
                     (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(2, p1));
 
@@ -662,7 +662,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opInt",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(2, p1));
@@ -702,7 +702,7 @@ namespace ZeroC.Ice.Test.Tagged
                     initial, "opLong",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, long? p1) => ostr.WriteTaggedLong(1, p1));
@@ -742,7 +742,7 @@ namespace ZeroC.Ice.Test.Tagged
                     initial, "opFloat",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(2, p1));
@@ -783,7 +783,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opDouble",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(2, p1));
@@ -826,7 +826,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opString",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, string? p1) => ostr.WriteTaggedString(2, p1));
@@ -867,7 +867,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opMyEnum",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(2, (int?) p1));
@@ -904,7 +904,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opSmallStruct",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(2, p1, 1));
@@ -943,7 +943,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opFixedStruct",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(2, p1, 4));
@@ -986,7 +986,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opVarStruct",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, VarStruct? p1) =>
@@ -1050,7 +1050,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opByteSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedArray(2, p1));
@@ -1088,7 +1088,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opBoolSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedArray(2, p1));
@@ -1126,7 +1126,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opShortSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, short[]? p1) => ostr.WriteTaggedArray(2, p1));
@@ -1163,7 +1163,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opIntSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null, p1,
                     (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(2, p1));
 
@@ -1199,7 +1199,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opLongSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, long[]? p1) => ostr.WriteTaggedArray(2, p1));
@@ -1236,7 +1236,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opFloatSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, float[]? p1) => ostr.WriteTaggedArray(2, p1));
@@ -1273,7 +1273,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opDoubleSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, double[]? p1) => ostr.WriteTaggedArray(2, p1));
@@ -1311,7 +1311,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opStringSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, string[]? p1) =>
@@ -1350,7 +1350,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opSmallStructSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, SmallStruct[]? p1) => ostr.WriteTaggedSequence(2, p1, 1,
@@ -1394,7 +1394,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opSmallStructList",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, List<SmallStruct>? p1) => ostr.WriteTaggedSequence(2, p1, 1,
@@ -1443,7 +1443,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opFixedStructSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, FixedStruct[]? p1) => ostr.WriteTaggedSequence(2, p1, 4,
@@ -1487,7 +1487,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opFixedStructList",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, LinkedList<FixedStruct>? p1) => ostr.WriteTaggedSequence(2, p1, 4,
@@ -1535,7 +1535,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opVarStructSeq",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, VarStruct[]? p1) =>
@@ -1575,7 +1575,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opSerializable",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, SerializableClass? p1) => ostr.WriteTaggedSerializable(2, p1));
@@ -1617,7 +1617,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opIntIntDict",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null, p1,
                     (OutputStream ostr, Dictionary<int, int>? p1) => ostr.WriteTaggedDictionary(2, p1, 8,
                         (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteInt(v)));
@@ -1662,7 +1662,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opStringIntDict",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, Dictionary<string, int>? p1) =>
@@ -1711,7 +1711,7 @@ namespace ZeroC.Ice.Test.Tagged
                     "opIntOneTaggedDict",
                     idempotent: false,
                     compress: false,
-                    format: null,
+                    format: default,
                     context: null,
                     p1,
                     (OutputStream ostr, Dictionary<int, OneTagged?>? p1) =>
