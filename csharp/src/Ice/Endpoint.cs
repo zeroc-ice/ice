@@ -184,7 +184,7 @@ namespace ZeroC.Ice
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 
         // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
-        // acceptor.
+        // acceptor. If a non-null server side transceiver is returned, the bound endpoint is also returned.
         public abstract (ITransceiver, Endpoint) GetTransceiver();
 
         protected Endpoint(Communicator communicator, Protocol protocol)

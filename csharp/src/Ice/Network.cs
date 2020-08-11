@@ -600,9 +600,9 @@ namespace ZeroC.Ice
                 {
                     if (remote == null)
                     {
-                        remote = proxy.GetAddress();
+                        remote = proxy.Address;
                     }
-                    s.Append("\n" + proxy.GetName() + " proxy address = " + RemoteAddrToString(remote));
+                    s.Append("\n" + proxy.Name + " proxy address = " + RemoteAddrToString(remote));
                     s.Append("\nremote address = " + RemoteAddrToString(target));
                 }
                 else

@@ -94,14 +94,10 @@ namespace ZeroC.Ice
             try
             {
                 INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                int ipVersion = Communicator.IPVersion;
+                int ipVersion = networkProxy?.IPVersion ?? Communicator.IPVersion;
                 if (networkProxy != null)
                 {
                     networkProxy = await networkProxy.ResolveHostAsync(ipVersion, cancel).ConfigureAwait(false);
-                    if (networkProxy != null)
-                    {
-                        ipVersion = networkProxy.GetIPVersion();
-                    }
                 }
 
                 IEnumerable<IPEndPoint> addrs =

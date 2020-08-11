@@ -17,46 +17,33 @@ namespace ZeroC.Ice
 {
     public interface INetworkProxy
     {
-        //
+        // Returns the IP address of the network proxy. This method should not block. It's only called on a network
+        // proxy object returned by ResolveHostAsync.
+        EndPoint Address { get; }
+
+        // Returns the name of the proxy, used for tracing purposes.
+        string Name { get; }
+
+        // Returns the IP version(s) supported by the proxy.
+        int IPVersion { get; }
+
         // Connect to the server through the network proxy.
-        //
         ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel);
 
-        //
-        // If the proxy host needs to be resolved, this should return
-        // a new NetworkProxy containing the IP address of the proxy.
-        // This is called from the endpoint host resolver thread, so
-        // it's safe if this method blocks.
-        //
+        // If the proxy host needs to be resolved, this should return a new NetworkProxy containing the IP address
+        // of the proxy.
         ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel);
-
-        //
-        // Returns the IP address of the network proxy. This method
-        // must not block. It's only called on a network proxy object
-        // returned by resolveHost().
-        //
-        EndPoint GetAddress();
-
-        //
-        // Returns the name of the proxy, used for tracing purposes.
-        //
-        string GetName();
-
-        //
-        // Returns the IP version(s) supported by the proxy.
-        //
-        int GetIPVersion();
     }
 
     internal sealed class SOCKSNetworkProxy : INetworkProxy
     {
-        public SOCKSNetworkProxy(string host, int port)
-        {
-            _host = host;
-            _port = port;
-        }
+        public EndPoint Address => _address!;
+        public string Name => "SOCKS";
+        public int IPVersion => Network.EnableIPv4;
 
-        private SOCKSNetworkProxy(EndPoint address) => _address = address;
+        private readonly string? _host;
+        private readonly int _port;
+        private readonly EndPoint? _address;
 
         public async ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel)
         {
@@ -109,35 +96,24 @@ namespace ZeroC.Ice
             return new SOCKSNetworkProxy(addresses.First());
         }
 
-        public EndPoint GetAddress()
+        internal SOCKSNetworkProxy(string host, int port)
         {
-            Debug.Assert(_address != null); // Host must be resolved.
-            return _address;
+            _host = host;
+            _port = port;
         }
 
-        public string GetName() => "SOCKS";
-
-        public int GetIPVersion() => Network.EnableIPv4;
-
-        private readonly string? _host;
-        private readonly int _port;
-        private readonly EndPoint? _address;
+        private SOCKSNetworkProxy(EndPoint address) => _address = address;
     }
 
     internal sealed class HTTPNetworkProxy : INetworkProxy
     {
-        public HTTPNetworkProxy(string host, int port)
-        {
-            _host = host;
-            _port = port;
-            _ipVersion = Network.EnableBoth;
-        }
+        public EndPoint Address => _address!;
+        public string Name => "HTTP";
+        public int IPVersion { get; }
 
-        private HTTPNetworkProxy(EndPoint address, int ipVersion)
-        {
-            _address = address;
-            _ipVersion = ipVersion;
-        }
+        private readonly string? _host;
+        private readonly int _port;
+        private readonly EndPoint? _address;
 
         public async ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel)
         {
@@ -201,19 +177,17 @@ namespace ZeroC.Ice
             return new HTTPNetworkProxy(addresses.First(), ipVersion);
         }
 
-        public EndPoint GetAddress()
+        internal HTTPNetworkProxy(string host, int port)
         {
-            Debug.Assert(_address != null); // Host must be resolved.
-            return _address;
+            _host = host;
+            _port = port;
+            IPVersion = Network.EnableBoth;
         }
 
-        public string GetName() => "HTTP";
-
-        public int GetIPVersion() => _ipVersion;
-
-        private readonly string? _host;
-        private readonly int _port;
-        private readonly EndPoint? _address;
-        private readonly int _ipVersion;
+        private HTTPNetworkProxy(EndPoint address, int ipVersion)
+        {
+            _address = address;
+            IPVersion = ipVersion;
+        }
     }
 }

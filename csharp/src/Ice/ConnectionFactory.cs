@@ -496,8 +496,8 @@ namespace ZeroC.Ice
                     $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
             }
 
-            _acceptor.Dispose();
             _disposed = true;
+            _acceptor.Dispose();
 
             // Wait for AcceptAsync to return
             if (_acceptTask != null)
