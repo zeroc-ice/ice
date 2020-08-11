@@ -247,7 +247,7 @@ namespace ZeroC.Ice
         private readonly Encoding _mainEncoding;
 
         // All segments before the tail segment are fully used.
-        private readonly List<ArraySegment<byte>> _segmentList;
+        private readonly IList<ArraySegment<byte>> _segmentList;
 
         // The start of an encapsulation. When set, we are writing to a top-level encapsulation.
         private readonly Position? _startPos;
@@ -1581,7 +1581,7 @@ namespace ZeroC.Ice
             WriteFixedLengthSize20(size, data);
 
         // Constructor for protocol frame header and other non-encapsulated data.
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt = default)
+        internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
         {
             _mainEncoding = encoding;
             Encoding = encoding;
@@ -1631,10 +1631,8 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The tail position that marks the end of the stream.</returns>
         /// TODO: The stream should not longer be used, how can we enforce it.
-        internal Position Save()
+        internal Position Finish()
         {
-            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
-
             if (_startPos is Position startPos)
             {
                 Encoding = _mainEncoding;
@@ -1653,7 +1651,6 @@ namespace ZeroC.Ice
             {
                 WriteByte(0); // The compression status, 0 not-compressed
             }
-            _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
         }
 
@@ -1716,6 +1713,29 @@ namespace ZeroC.Ice
                 WriteSize(1);
                 WriteString(facet);
             }
+        }
+
+        internal void WriteBinaryContextEntry(int key, ReadOnlySpan<byte> value)
+        {
+            WriteVarInt(key);
+            WriteSize(value.Length);
+            WriteByteSpan(value);
+        }
+
+        internal void WriteBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
+        {
+            WriteVarInt(key);
+            Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
+            writer(this, value);
+            EndFixedLengthSize(pos, 2);
+        }
+
+        internal void WriteBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
+        {
+            WriteVarInt(key);
+            Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
+            writer(this, value);
+            EndFixedLengthSize(pos, 2);
         }
 
         private static int Distance(IList<ArraySegment<byte>> data, Position start, Position end)
@@ -1788,7 +1808,7 @@ namespace ZeroC.Ice
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
-        private static void WriteFixedLengthSize20(int size, Span<byte> data)
+        internal static void WriteFixedLengthSize20(int size, Span<byte> data)
         {
             int sizeLength = data.Length;
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
@@ -1836,7 +1856,8 @@ namespace ZeroC.Ice
         /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
         /// length.</summary>
         /// <param name="start">The start position.</param>
-        private void EndFixedLengthSize(Position start)
+        /// <param name="sizeLength">The number of bytes used to marshal the size 1, 2 or 4.</param>
+        internal void EndFixedLengthSize(Position start, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(start.Offset >= 0);
             if (OldEncoding)
@@ -1845,7 +1866,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                RewriteFixedLengthSize20(Distance(start) - DefaultSizeLength, start);
+                RewriteFixedLengthSize20(Distance(start) - sizeLength, start, sizeLength);
             }
         }
 
@@ -1956,7 +1977,7 @@ namespace ZeroC.Ice
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
         /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
-        private void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
+        internal void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1985,21 +2006,21 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Returns the current position and writes a 4-bytes placeholder for a fixed-length size value. The
+        /// <summary>Returns the current position and writes placeholder for a fixed-length size value. The
         /// position must be used to rewrite the size later.</summary>
+        /// <param name="sizeLenght">The number of bytes reserved to write the fixed-length size.</param>
         /// <returns>The position before writing the size.</returns>
-        private Position StartFixedLengthSize()
+        internal Position StartFixedLengthSize(int sizeLenght = DefaultSizeLength)
         {
             Position pos = _tail;
-            int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
-            WriteByteSpan(stackalloc byte[sizeLength]); // placeholder for future size
+            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLenght]); // placeholder for future size
             return pos;
         }
 
         /// <summary>Writes a span of bytes. The stream capacity is expanded if required, the size and tail position are
         /// increased according to the span length.</summary>
         /// <param name="span">The data to write as a span of bytes.</param>
-        private void WriteByteSpan(ReadOnlySpan<byte> span)
+        internal void WriteByteSpan(ReadOnlySpan<byte> span)
         {
             int length = span.Length;
             Expand(length);
@@ -2007,7 +2028,6 @@ namespace ZeroC.Ice
             int offset = _tail.Offset;
             int remaining = _currentSegment.Count - offset;
             Debug.Assert(remaining > 0); // guaranteed by Expand
-
             int sz = Math.Min(length, remaining);
             if (length > remaining)
             {
