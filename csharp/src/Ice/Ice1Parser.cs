@@ -606,12 +606,12 @@ namespace ZeroC.Ice
 
                     var ostr = new OutputStream(Ice1Definitions.Encoding, bufferList);
                     ostr.WriteEndpoint(opaqueEndpoint);
-                    OutputStream.Position tail = ostr.Save();
+                    OutputStream.Position tail = ostr.Finish();
                     Debug.Assert(bufferList.Count == 1);
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Value.Length);
 
-                    return new InputStream(bufferList[0], Ice1Definitions.Encoding).ReadEndpoint(Protocol.Ice1,
-                                                                                                 communicator);
+                    return new InputStream(bufferList[0].Slice(0, tail.Offset),
+                                           Ice1Definitions.Encoding).ReadEndpoint(Protocol.Ice1, communicator);
                 }
                 else
                 {

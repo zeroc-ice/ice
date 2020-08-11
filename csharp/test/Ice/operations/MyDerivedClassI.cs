@@ -704,10 +704,7 @@ namespace ZeroC.Ice.Test.Operations
             }
         }
 
-        public IReadOnlyDictionary<string, string> OpContext(Current current) =>
-            current.Context == null ?
-                new Dictionary<string, string>() :
-                new Dictionary<string, string>(current.Context);
+        public IReadOnlyDictionary<string, string> OpContext(Current current) => current.Context;
 
         public void OpDoubleMarshaling(double p1, double[] p2, Current current)
         {

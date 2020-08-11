@@ -2,6 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Test;
 
@@ -30,7 +33,53 @@ namespace ZeroC.Ice.Test.Interceptor
 
             _lastOperation = current.Operation;
 
-            if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
+            if (_lastOperation == "opWithBinaryContext")
+            {
+                if (request.Protocol == Protocol.Ice2)
+                {
+                    Debug.Assert(request.BinaryContext.ContainsKey(3));
+                    short size = request.BinaryContext[3].Read(istr => istr.ReadShort());
+                    var t2 = new Token(1, "mytoken", Enumerable.Range(0, size).Select(i => (byte)2).ToArray());
+                    Debug.Assert(request.BinaryContext.ContainsKey(1));
+                    Token t1 = request.BinaryContext[1].Read(Token.IceReader);
+                    TestHelper.Assert(t1.Hash == t2.Hash);
+                    TestHelper.Assert(t1.Expiration == t2.Expiration);
+                    TestHelper.Assert(t1.Payload.SequenceEqual(t2.Payload));
+                    Debug.Assert(request.BinaryContext.ContainsKey(2));
+                    string[] s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
+                    Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
+
+                    if (request.HasCompressedPayload)
+                    {
+                        request.DecompressPayload();
+
+                        Debug.Assert(request.BinaryContext.ContainsKey(3));
+                        size = request.BinaryContext[3].Read(istr => istr.ReadShort());
+
+                        Debug.Assert(request.BinaryContext.ContainsKey(1));
+                        t1 = request.BinaryContext[1].Read(Token.IceReader);
+                        t2 = request.ReadParamList(current.Communicator, Token.IceReader);
+                        TestHelper.Assert(t1.Hash == t2.Hash);
+                        TestHelper.Assert(t1.Expiration == t2.Expiration);
+                        TestHelper.Assert(t1.Payload.SequenceEqual(t2.Payload));
+                        Debug.Assert(request.BinaryContext.ContainsKey(2));
+                        s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        _ = request.BinaryContext;
+                        TestHelper.Assert(false);
+                    }
+                    catch (NotSupportedException)
+                    {
+                    }
+                }
+            }
+            else if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))
             {
                 for (int i = 0; i < 10; ++i)
                 {

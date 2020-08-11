@@ -146,5 +146,36 @@ namespace ZeroC.Ice
             }
             return data;
         }
+
+        internal static List<ArraySegment<byte>> Slice(
+            this List<ArraySegment<byte>> src,
+            OutputStream.Position from,
+            OutputStream.Position to)
+        {
+            var dst = new List<ArraySegment<byte>>();
+            if (from.Segment == to.Segment)
+            {
+                dst.Add(src[from.Segment].Slice(from.Offset, to.Offset - from.Offset));
+            }
+            else
+            {
+                ArraySegment<byte> segment = src[from.Segment].Slice(from.Offset);
+                if (segment.Count > 0)
+                {
+                    dst.Add(segment);
+                }
+                for (int i = from.Segment + 1; i < to.Segment; i++)
+                {
+                    dst.Add(src[i]);
+                }
+
+                segment = src[to.Segment].Slice(0, to.Offset);
+                if (segment.Count > 0)
+                {
+                    dst.Add(segment);
+                }
+            }
+            return dst;
+        }
     }
 }

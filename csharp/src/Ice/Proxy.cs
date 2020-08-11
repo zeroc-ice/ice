@@ -333,7 +333,7 @@ namespace ZeroC.Ice
                                                                      progress,
                                                                      cancel).ConfigureAwait(false);
             // TODO: need protocol bridging when the protocols are not the same.
-            return new OutgoingResponseFrame(request, response.Payload);
+            return new OutgoingResponseFrame(request, response);
         }
 
         private static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
@@ -343,6 +343,7 @@ namespace ZeroC.Ice
                                                                     IProgress<bool>? progress = null,
                                                                     CancellationToken cancel = default)
         {
+            request.Finish();
             InvocationMode mode = proxy.IceReference.InvocationMode;
             if (mode == InvocationMode.BatchOneway || mode == InvocationMode.BatchDatagram)
             {

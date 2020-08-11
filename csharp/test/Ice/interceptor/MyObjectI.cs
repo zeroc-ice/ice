@@ -23,6 +23,10 @@ namespace ZeroC.Ice.Test.Interceptor
 
         public int NotExistAdd(int x, int y, Current current) => throw new ObjectNotExistException(current);
 
+        public void OpWithBinaryContext(Token token, Current current)
+        {
+        }
+
         //
         // AMD
         //
