@@ -165,6 +165,7 @@ namespace ZeroC.Ice
             IsSealed = true;
         }
 
+        // Finish prepare the frame for sending, write the frame Context into the slot 0 of the binary context.
         internal override void Finish()
         {
             if (!IsSealed)

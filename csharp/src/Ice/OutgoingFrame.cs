@@ -34,20 +34,13 @@ namespace ZeroC.Ice
         {
             get
             {
-                if (_payload == null && _encapsulationEnd is OutputStream.Position encapsulationEnd)
+                if (Protocol == Protocol.Ice1)
                 {
-                    var payload = new List<ArraySegment<byte>>();
-                    for (int i = 0; i < encapsulationEnd.Segment; i++)
-                    {
-                        payload.Add(Data[i]);
-                    }
-
-                    ArraySegment<byte> segment = Data[encapsulationEnd.Segment].Slice(0, encapsulationEnd.Offset);
-                    if (segment.Count > 0)
-                    {
-                        payload.Add(segment);
-                    }
-                    _payload = payload;
+                    return Data;
+                }
+                else if (_payload == null && _encapsulationEnd is OutputStream.Position encapsulationEnd)
+                {
+                    _payload = Data.Slice(default, encapsulationEnd);
                 }
                 return _payload ?? Array.Empty<ArraySegment<byte>>();
             }
@@ -76,33 +69,7 @@ namespace ZeroC.Ice
             {
                 if (_encapsulation == null && _encapsulationEnd is OutputStream.Position encapsulationEnd)
                 {
-                    var encapsulation = new List<ArraySegment<byte>>();
-                    if (_encapsulationStart.Segment == encapsulationEnd.Segment)
-                    {
-                        encapsulation.Add(Data[_encapsulationStart.Segment].Slice(
-                            _encapsulationStart.Offset,
-                            encapsulationEnd.Offset - _encapsulationStart.Offset));
-                    }
-                    else
-                    {
-                        ArraySegment<byte> segment = Data[_encapsulationStart.Segment].Slice(
-                            _encapsulationStart.Offset);
-                        if (segment.Count > 0)
-                        {
-                            encapsulation.Add(segment);
-                        }
-                        for (int i = _encapsulationStart.Segment + 1; i < encapsulationEnd.Segment; i++)
-                        {
-                            encapsulation.Add(Data[i]);
-                        }
-
-                        segment = Data[encapsulationEnd.Segment].Slice(0, encapsulationEnd.Offset);
-                        if (segment.Count > 0)
-                        {
-                            encapsulation.Add(segment);
-                        }
-                    }
-                    _encapsulation = encapsulation;
+                    _encapsulation = Data.Slice(_encapsulationStart, encapsulationEnd);
                 }
                 return _encapsulation ?? Array.Empty<ArraySegment<byte>>();
             }
@@ -117,55 +84,57 @@ namespace ZeroC.Ice
         private IList<ArraySegment<byte>>? _encapsulation;
         private IList<ArraySegment<byte>>? _payload;
 
-        /// <summary>Write a binary context entry to the frame with the given key and value. The value memory is copied
-        /// to the frame's internal buffer.</summary>
+        /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
         /// <param name="key">The binary context entry key.</param>
         /// <param name="value">The binary context entry value.</param>
         /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
-        /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
         /// <exception cref="ArgumentException">If the key is already in use.</exception>
         public void AddBinaryContextEntry(int key, ReadOnlySpan<byte> value)
         {
-            if (_binaryContextKeys.Contains(key))
+            if (_binaryContextKeys.Add(key))
+            {
+                StartBinaryContext().WriteBinaryContextEntry(key, value);
+            }
+            else
             {
                 throw new ArgumentException($"key `{key}' is already in use", nameof(key));
             }
-            StartBinaryContext().WriteBinaryContextEntry(key, value);
-            _binaryContextKeys.Add(key);
         }
 
-        /// <summary>Write a binary context entry to the frame with the given key and value.</summary>
+        /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
         /// <param name="key">The binary context entry key.</param>
         /// <param name="value">The value to marshal as the binary context entry value.</param>
         /// <param name="writer">The writer used to marshal the value.</param>
         /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
-        /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
         /// <exception cref="ArgumentException">If the key is already in use.</exception>
         public void AddBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
         {
-            if (_binaryContextKeys.Contains(key))
+            if (_binaryContextKeys.Add(key))
+            {
+                StartBinaryContext().WriteBinaryContextEntry(key, value, writer);
+            }
+            else
             {
                 throw new ArgumentException($"key `{key}' is already in use", nameof(key));
             }
-            StartBinaryContext().WriteBinaryContextEntry(key, value, writer);
-            _binaryContextKeys.Add(key);
-        }
+    }
 
-        /// <summary>Write a binary context entry to the frame with the given key and value.</summary>
+        /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
         /// <param name="key">The binary context entry key.</param>
         /// <param name="value">The value to marshal as the binary context entry value.</param>
         /// <param name="writer">The writer used to marshal the value.</param>
         /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
-        /// <exception cref="InvalidOperationException">If the frame encapsulation has not been written.</exception>
         /// <exception cref="ArgumentException">If the key is already in use.</exception>
         public void AddBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
-            if (_binaryContextKeys.Contains(key))
+            if (_binaryContextKeys.Add(key))
+            {
+                StartBinaryContext().WriteBinaryContextEntry(key, value, writer);
+            }
+            else
             {
                 throw new ArgumentException($"key `{key}' is already in use", nameof(key));
             }
-            StartBinaryContext().WriteBinaryContextEntry(key, value, writer);
-            _binaryContextKeys.Add(key);
         }
 
         /// <summary>Compress the encapsulation payload using GZip compression, compressed encapsulation payload is
@@ -333,7 +302,6 @@ namespace ZeroC.Ice
                 _binaryContextOstr = new OutputStream(Encoding.V2_0, Data, encapsulationEnd);
                 _binaryContextOstr.WriteByteSpan(stackalloc byte[2]); // 2-bytes size place holder
             }
-            Debug.Assert(_binaryContextOstr != null);
             return _binaryContextOstr;
         }
 
@@ -341,8 +309,8 @@ namespace ZeroC.Ice
         internal void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
             _encapsulationEnd = encapsulationEnd;
 
-        // Once we finish writing the binary context we write the BinaryContext size adjust the last segment of the
-        // BinaryContext to match the written bytes and compute the frame size.
+        // Finish prepare the frame for sending, adjust the last written segment to match the offset of the written
+        // data, if the frame contains a binary context we rewrite the size.
         internal virtual void Finish()
         {
             if (!IsSealed)
@@ -357,8 +325,8 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    OutputStream.Position end = _encapsulationEnd ?? _encapsulationStart;
-                    Data[^1] = Data[^1].Slice(0, end.Offset);
+                    Debug.Assert(_encapsulationEnd != null);
+                    Data[^1] = Data[^1].Slice(0, _encapsulationEnd.Value.Offset);
                 }
 
                 Size = Data.GetByteCount();

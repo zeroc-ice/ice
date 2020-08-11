@@ -31,10 +31,11 @@ namespace ZeroC.Ice
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
                 ostr.WriteByte((byte)ResultType.Success);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                var response = new OutgoingResponseFrame(key.Protocol, key.Encoding, data: data);
-                response._encapsulationStart = new OutputStream.Position(0, 1);
-                response.FinishEncapsulation(ostr.Tail);
-                return response;
+                return new OutgoingResponseFrame(key.Protocol,
+                                                 key.Encoding,
+                                                 data,
+                                                 new OutputStream.Position(0, 1),
+                                                 ostr.Tail);
             });
 
         /// <summary>Creates a new outgoing response frame with a return value.</summary>
@@ -163,6 +164,12 @@ namespace ZeroC.Ice
                 _encapsulationStart = new OutputStream.Position(Data.Count - 1, 1);
                 FinishEncapsulation(new OutputStream.Position(Data.Count - 1, 1 + sizeLength + size));
             }
+            else
+            {
+                FinishEncapsulation(new OutputStream.Position(Data.Count - 1, data.Count));
+                Size = Data.GetByteCount();
+                IsSealed = true;
+            }
         }
 
         /// <summary>Creates a response frame that represents a failure and contains an exception.</summary>
@@ -241,16 +248,25 @@ namespace ZeroC.Ice
             }
 
             OutputStream.Position end = ostr.Finish();
-            if (hasEncapsulation)
-            {
-                FinishEncapsulation(end);
-            }
-            else
+            FinishEncapsulation(end);
+            if (!hasEncapsulation)
             {
                 Data[^1] = Data[^1].Slice(0, end.Offset);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
+        }
+
+        internal OutgoingResponseFrame(
+            Protocol protocol,
+            Encoding encoding,
+            List<ArraySegment<byte>> data,
+            OutputStream.Position encapsulationStart,
+            OutputStream.Position encapsulationEnd)
+            : this(protocol, encoding, data: data)
+        {
+            _encapsulationStart = encapsulationStart;
+            FinishEncapsulation(encapsulationEnd);
         }
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(

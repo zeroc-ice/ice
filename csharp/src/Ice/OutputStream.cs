@@ -1730,7 +1730,7 @@ namespace ZeroC.Ice
             EndFixedLengthSize(pos, 2);
         }
 
-        internal void WriteBinaryContextEntry<T>(int key, T value, OutputStreamValueWriter<T> writer) where T : struct
+        internal void WriteBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
             WriteVarInt(key);
             Position pos = StartFixedLengthSize(2); // 2-bytes size place holder

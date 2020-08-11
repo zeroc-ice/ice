@@ -523,7 +523,7 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 else
                 {
-                    // Currently we're saving 2 bytes with the 2.0 encoding
+                    // Currently we're saving 3 bytes with the 2.0 encoding
                     TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 42); // ice_ping request
                     TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 23); // ice_ping response
                     TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 42);
