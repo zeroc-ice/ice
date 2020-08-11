@@ -134,7 +134,6 @@ namespace ZeroC.Ice
             // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is in
             // progress. This will also throw if the object adapter has been deactivated.
             _adapter.IncDirectCount();
-            outgoingRequest.Finish();
 
             IDispatchObserver? dispatchObserver = null;
             try

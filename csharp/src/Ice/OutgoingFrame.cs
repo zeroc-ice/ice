@@ -181,7 +181,7 @@ namespace ZeroC.Ice
 
             if (Encoding != Encoding.V2_0)
             {
-                throw new NotSupportedException("compressed payload are only supported with 2.0 encoding");
+                throw new NotSupportedException("payload compression is only supported with 2.0 encoding");
             }
             else
             {
@@ -325,9 +325,8 @@ namespace ZeroC.Ice
                 throw new InvalidOperationException("cannot modify a sealed frame");
             }
 
-            OutputStream.Position encapsulationEnd = _encapsulationEnd ??
-                throw new InvalidOperationException(
-                    "binary context cannot be written before finishing the encapsulation");
+            Debug.Assert(_encapsulationEnd != null);
+            OutputStream.Position encapsulationEnd = _encapsulationEnd.Value;
 
             if (_binaryContextOstr == null)
             {

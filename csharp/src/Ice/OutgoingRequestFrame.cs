@@ -128,29 +128,38 @@ namespace ZeroC.Ice
             bool compress)
             : this(proxy, request.Operation, request.IsIdempotent, compress, request.Context)
         {
-            ArraySegment<byte> data = request.Data;
-            if (data.Count < 6)
+            ArraySegment<byte> encapsulation = request.Encapsulation;
+            if (encapsulation.Count < 6)
             {
                 throw new ArgumentException(
-                    $"payload should contain at least 6 bytes, but it contains {data.Count} bytes",
-                    nameof(data));
+                    $"payload should contain at least 6 bytes, but it contains {encapsulation.Count} bytes",
+                    nameof(request));
             }
-            int size = data.AsReadOnlySpan(0, 4).ReadFixedLengthSize(proxy.Protocol.GetEncoding());
-            if (size != data.Count)
-            {
-                throw new ArgumentException($"invalid payload size `{size}' expected `{data.Count}'",
-                    nameof(data));
-            }
+            (int _, int _, Encoding encoding) =
+                encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(proxy.Protocol.GetEncoding());
 
-            if (data[4] != Encoding.Major || data[5] != Encoding.Minor)
+            if (encoding != Encoding)
             {
-                throw new ArgumentException($"the payload encoding `{data[4]}.{data[5]}' must be the same " +
+                throw new ArgumentException($"the payload encoding `{encoding.Major}.{encoding.Minor}' must be the same " +
                                             $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
-                    nameof(data));
+                    nameof(request));
             }
             Data[^1] = Data[^1].Slice(0, _encapsulationStart.Offset);
+
+            ArraySegment<byte> data = request.Data.Slice(request.Data.Offset - encapsulation.Offset);
             Data.Add(data);
-            FinishEncapsulation(new OutputStream.Position(Data.Count - 1, data.Count));
+            FinishEncapsulation(new OutputStream.Position(Data.Count - 1, encapsulation.Count));
+
+            if (request.BinaryContext.Count > 0)
+            {
+                _binaryContextOstr = new OutputStream(Encoding.V2_0,
+                                                      Data,
+                                                      new OutputStream.Position(Data.Count - 1, data.Count));
+                foreach (int key in request.BinaryContext.Keys)
+                {
+                    _binaryContextKeys.Add(key);
+                }
+            }
 
             Size = Data.GetByteCount();
             IsSealed = true;

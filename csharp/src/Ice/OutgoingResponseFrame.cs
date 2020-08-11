@@ -239,6 +239,7 @@ namespace ZeroC.Ice
             {
                 ostr.WriteException(exception);
             }
+
             OutputStream.Position end = ostr.Finish();
             if (hasEncapsulation)
             {

@@ -70,7 +70,7 @@ namespace ZeroC.Ice
 
         // If the frame payload contains an encapsulation, this segment corresponds to the frame encapsulation
         // otherwise is an empty segment. This is always an Slice of the Payload, both must use the same array.
-        private protected ArraySegment<byte> Encapsulation { get; set; }
+        internal ArraySegment<byte> Encapsulation { get; private protected set; }
 
         private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
 

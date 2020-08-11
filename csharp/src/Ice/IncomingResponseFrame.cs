@@ -91,7 +91,7 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                byte b = data[0];
+                byte b = Data[0];
                 if (b > 7)
                 {
                     throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
@@ -108,7 +108,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = data[0];
+                byte b = Data[0];
                 if (b > 1)
                 {
                     throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
@@ -123,9 +123,9 @@ namespace ZeroC.Ice
                 int sizeLength;
 
                 (size, sizeLength, Encoding) =
-                    data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-                Encapsulation = data.Slice(1, size + sizeLength);
-                Payload = data.Slice(0, 1 + size + sizeLength);
+                    Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                Encapsulation = Data.Slice(1, size + sizeLength);
+                Payload = Data.Slice(0, 1 + size + sizeLength);
                 if (sizeLength + size != Encapsulation.Count)
                 {
                     throw new InvalidDataException(
@@ -136,7 +136,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Payload = data;
+                Payload = Data;
             }
         }
 
