@@ -1322,6 +1322,12 @@ namespace ZeroC.Ice
             PreferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
+
+            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            {
+                throw new ArgumentException(
+                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
+            }
         }
 
         // Constructor for fixed references.
@@ -1353,6 +1359,14 @@ namespace ZeroC.Ice
             RouterInfo = null;
 
             _fixedConnection = fixedConnection;
+            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
+
+            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            {
+                throw new ArgumentException(
+                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
+            }
 
             if (InvocationMode == InvocationMode.Datagram)
             {
@@ -1366,9 +1380,6 @@ namespace ZeroC.Ice
             {
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }
-
-            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
         }
     }
 }

@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.Proxy
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing proxy parsing... ");
             output.Flush();
@@ -670,13 +671,16 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
             TestHelper.Assert(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchOneway).InvocationMode ==
-                InvocationMode.BatchOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).InvocationMode ==
-                InvocationMode.Datagram);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
-                InvocationMode.BatchDatagram);
+            if (ice1)
+            {
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchOneway).InvocationMode ==
+                    InvocationMode.BatchOneway);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).InvocationMode ==
+                    InvocationMode.Datagram);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
+                    InvocationMode.BatchDatagram);
+            }
             TestHelper.Assert(baseProxy.Clone(preferNonSecure: true).PreferNonSecure);
             TestHelper.Assert(!baseProxy.Clone(preferNonSecure: false).PreferNonSecure);
 
@@ -868,7 +872,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(c.DictionaryEquals(c2));
             output.WriteLine("ok");
 
-            if (communicator.DefaultProtocol == Protocol.Ice1)
+            if (ice1)
             {
                 output.Write("testing ice2 proxy in 1.1 encapsulation... ");
                 output.Flush();
