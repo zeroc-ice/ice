@@ -9,19 +9,13 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    public interface IBinaryConnection : IDisposable, IAsyncDisposable
+    public interface IBinaryConnection : IAsyncDisposable
     {
         Endpoint Endpoint { get; }
         ITransceiver Transceiver { get; }
 
         /// <summary>Gracefully closes the transport.</summary>
-        ValueTask CloseAsync(Exception exception, CancellationToken cancel);
-
-        void IDisposable.Dispose()
-        {
-            GC.SuppressFinalize(this);
-            DisposeAsync().AsTask().Wait();
-        }
+        ValueTask CloseAsync(Exception ex, CancellationToken cancel);
 
         /// <summary>Sends a heartbeat.</summary>
         ValueTask HeartbeatAsync(CancellationToken cancel);

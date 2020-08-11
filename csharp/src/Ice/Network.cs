@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -21,38 +22,30 @@ namespace ZeroC.Ice
         public const int EnableIPv6 = 1;
         public const int EnableBoth = 2;
 
-        public static SocketError SocketErrorCode(SocketException ex) => ex.SocketErrorCode;
-
-        public static bool Interrupted(SocketException ex) => SocketErrorCode(ex) == SocketError.Interrupted;
-
-        public static bool WouldBlock(SocketException ex) => SocketErrorCode(ex) == SocketError.WouldBlock;
-
-        public static bool ConnectionLost(SocketException ex)
+        public static bool ConnectionLost(Exception ex)
         {
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.ConnectionReset ||
-                   error == SocketError.Shutdown ||
-                   error == SocketError.ConnectionAborted ||
-                   error == SocketError.NetworkDown ||
-                   error == SocketError.NetworkReset;
-        }
+            Debug.Assert(!(ex is TransportException));
 
-        public static bool ConnectionLost(System.IO.IOException ex)
-        {
-            //
-            // In some cases the IOException has an inner exception that we can pass directly
-            // to the other overloading of connectionLost().
-            //
-            if (ex.InnerException is SocketException socketException)
+            // Check the inner exceptions if the given exception isn't a socket exception. Streams wrapping a socket
+            // typically throw an IOException with the SocketException as the InnerException.
+            while (!(ex is SocketException) && ex.InnerException != null)
             {
-                return ConnectionLost(socketException);
+                ex = ex.InnerException;
             }
 
-            //
+            if (ex is SocketException socketException)
+            {
+                SocketError error = socketException.SocketErrorCode;
+                return error == SocketError.ConnectionReset ||
+                       error == SocketError.Shutdown ||
+                       error == SocketError.ConnectionAborted ||
+                       error == SocketError.NetworkDown ||
+                       error == SocketError.NetworkReset;
+            }
+
             // In other cases the IOException has no inner exception. We could examine the
             // exception's message, but that is fragile due to localization issues. We
             // resort to extracting the value of the protected HResult member via reflection.
-            //
             System.Reflection.PropertyInfo? hresult = ex.GetType().GetProperty("HResult",
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic |
@@ -65,17 +58,9 @@ namespace ZeroC.Ice
                 // "Authentication failed because the remote party has closed the transport stream"
                 return true;
             }
+
             return false;
         }
-
-        public static bool ConnectionRefused(SocketException ex) => SocketErrorCode(ex) == SocketError.ConnectionRefused;
-
-        public static bool RecvTruncated(SocketException ex) => SocketErrorCode(ex) == SocketError.MessageSize;
-
-        public static bool Timeout(System.IO.IOException ex) =>
-            // TODO: Instead of testing for an English substring, we need to examine the inner
-            // exception (if there is one).
-            ex.Message.Contains("period of time");
 
         public static bool IsMulticast(IPEndPoint addr)
         {
@@ -145,7 +130,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    SetTcpNoDelay(socket);
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                     //
                     // FIX: the fast path loopback appears to cause issues with
@@ -199,308 +184,76 @@ namespace ZeroC.Ice
             }
         }
 
-        public static void CloseSocket(Socket socket)
+        public static void SetMulticastInterface(Socket socket, string iface, AddressFamily family)
         {
-            if (socket == null)
+            if (family == AddressFamily.InterNetwork)
             {
-                return;
+                socket.SetSocketOption(SocketOptionLevel.IP,
+                                        SocketOptionName.MulticastInterface,
+                                        GetInterfaceAddress(iface, family)!.GetAddressBytes());
             }
-            try
+            else
             {
-                socket.Close();
-            }
-            catch (SocketException ex)
-            {
-                throw new TransportException(ex);
+                socket.SetSocketOption(SocketOptionLevel.IPv6,
+                                        SocketOptionName.MulticastInterface,
+                                        GetInterfaceIndex(iface, family));
             }
         }
 
-        public static void SetTcpNoDelay(Socket socket)
+        public static void SetMulticastGroup(Socket s, IPAddress group, string iface)
         {
-            try
+            var indexes = new HashSet<int>();
+            foreach (string intf in GetInterfacesForMulticast(iface, GetIPVersion(group)))
             {
-                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
-            }
-            catch (Exception ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetBlock(Socket socket, bool block)
-        {
-            try
-            {
-                socket.Blocking = block;
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetSendBufferSize(Socket socket, int sz)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sz);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static int GetSendBufferSize(Socket socket)
-        {
-            int sz;
-            try
-            {
-                sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-            return sz;
-        }
-
-        public static void SetRecvBufferSize(Socket socket, int sz)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, sz);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static int GetRecvBufferSize(Socket socket)
-        {
-            int sz;
-            try
-            {
-                sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-            return sz;
-        }
-
-        public static void SetReuseAddress(Socket socket, bool reuse)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, reuse ? 1 : 0);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetMcastInterface(Socket socket, string iface, AddressFamily family)
-        {
-            try
-            {
-                if (family == AddressFamily.InterNetwork)
+                if (group.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    socket.SetSocketOption(SocketOptionLevel.IP,
-                                           SocketOptionName.MulticastInterface,
-                                           GetInterfaceAddress(iface, family)!.GetAddressBytes());
-                }
-                else
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface,
-                                           GetInterfaceIndex(iface, family));
-                }
-            }
-            catch (Exception ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetMcastGroup(Socket s, IPAddress group, string iface)
-        {
-            try
-            {
-                var indexes = new HashSet<int>();
-                foreach (string intf in GetInterfacesForMulticast(iface, GetIPVersion(group)))
-                {
-                    if (group.AddressFamily == AddressFamily.InterNetwork)
+                    MulticastOption option;
+                    IPAddress? addr = GetInterfaceAddress(intf, group.AddressFamily);
+                    if (addr == null)
                     {
-                        MulticastOption option;
-                        IPAddress? addr = GetInterfaceAddress(intf, group.AddressFamily);
-                        if (addr == null)
-                        {
-                            option = new MulticastOption(group);
-                        }
-                        else
-                        {
-                            option = new MulticastOption(group, addr);
-                        }
-                        s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
+                        option = new MulticastOption(group);
                     }
                     else
                     {
-                        int index = GetInterfaceIndex(intf, group.AddressFamily);
-                        if (!indexes.Contains(index))
+                        option = new MulticastOption(group, addr);
+                    }
+                    s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
+                }
+                else
+                {
+                    int index = GetInterfaceIndex(intf, group.AddressFamily);
+                    if (!indexes.Contains(index))
+                    {
+                        indexes.Add(index);
+                        IPv6MulticastOption option;
+                        if (index == -1)
                         {
-                            indexes.Add(index);
-                            IPv6MulticastOption option;
-                            if (index == -1)
-                            {
-                                option = new IPv6MulticastOption(group);
-                            }
-                            else
-                            {
-                                option = new IPv6MulticastOption(group, index);
-                            }
-                            s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
+                            option = new IPv6MulticastOption(group);
                         }
+                        else
+                        {
+                            option = new IPv6MulticastOption(group, index);
+                        }
+                        s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                CloseSocketNoThrow(s);
-                throw new TransportException(ex);
-            }
         }
 
-        public static void SetMcastTtl(Socket socket, int ttl, AddressFamily family)
+        public static void SetMulticastTtl(Socket socket, int ttl, AddressFamily family)
         {
-            try
+            if (family == AddressFamily.InterNetwork)
             {
-                if (family == AddressFamily.InterNetwork)
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
-                }
-                else
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, ttl);
-                }
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
             }
-            catch (SocketException ex)
+            else
             {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
+                socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, ttl);
             }
         }
 
-        public static IPEndPoint DoBind(Socket socket, EndPoint addr)
-        {
-            try
-            {
-                socket.Bind(addr);
-                return (IPEndPoint)socket.LocalEndPoint;
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void DoListen(Socket socket, int backlog)
-        {
-        repeatListen:
-
-            try
-            {
-                socket.Listen(backlog);
-            }
-            catch (SocketException ex)
-            {
-                if (Interrupted(ex))
-                {
-                    goto repeatListen;
-                }
-
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static bool DoConnect(Socket fd, EndPoint addr, EndPoint? sourceAddr)
-        {
-            EndPoint? bindAddr = sourceAddr;
-            if (bindAddr == null)
-            {
-                //
-                // Even though we are on the client side, the call to Bind()
-                // is necessary to work around a .NET bug: if a socket is
-                // connected non-blocking, the LocalEndPoint and RemoteEndPoint
-                // properties are null. The call to Bind() fixes this.
-                //
-                IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-                bindAddr = new IPEndPoint(any, 0);
-            }
-            DoBind(fd, bindAddr);
-
-        repeatConnect:
-            try
-            {
-                IAsyncResult result = fd.BeginConnect(addr, null, null);
-                if (!result.CompletedSynchronously)
-                {
-                    return false;
-                }
-                fd.EndConnect(result);
-            }
-            catch (SocketException ex)
-            {
-                if (Interrupted(ex))
-                {
-                    goto repeatConnect;
-                }
-
-                CloseSocketNoThrow(fd);
-
-                if (ConnectionRefused(ex))
-                {
-                    throw new ConnectionRefusedException(ex);
-                }
-                else
-                {
-                    throw new ConnectFailedException(ex);
-                }
-            }
-
-            //
-            // On Windows, we need to set the socket's blocking status again
-            // after the asynchronous connect. Seems like a bug in .NET.
-            //
-            SetBlock(fd, fd.Blocking);
-            if (!AssemblyUtil.IsWindows)
-            {
-                //
-                // Prevent self connect (self connect happens on Linux when a client tries to connect to
-                // a server which was just deactivated if the client socket re-uses the same ephemeral
-                // port as the server).
-                //
-                if (addr.Equals(GetLocalAddress(fd)))
-                {
-                    throw new ConnectionRefusedException();
-                }
-            }
-            return true;
-        }
-
-        public static int GetIPVersion(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
+        public static int GetIPVersion(IPAddress addr) =>
+            addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
         public static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion, bool preferIPv6)
         {
@@ -522,8 +275,11 @@ namespace ZeroC.Ice
             try
             {
                 // Get the addresses for the given host and return the first one
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(
-                    host, port, ipVersion, EndpointSelectionType.Ordered, preferIPv6);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
+                                                                            port,
+                                                                            ipVersion,
+                                                                            EndpointSelectionType.Ordered,
+                                                                            preferIPv6);
                 return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
             }
             catch (AggregateException ex)
@@ -533,8 +289,13 @@ namespace ZeroC.Ice
             }
         }
 
-        public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(string host, int port,
-            int ipVersion, EndpointSelectionType selType, bool preferIPv6)
+        public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(
+            string host,
+            int port,
+            int ipVersion,
+            EndpointSelectionType selType,
+            bool preferIPv6,
+            CancellationToken cancel)
         {
             // For client endpoints, an empty host is the same as the loopback address
             if (host.Length == 0)
@@ -559,17 +320,23 @@ namespace ZeroC.Ice
                 return addresses;
             }
 
-            return await GetAddressesAsync(host, port, ipVersion, selType, preferIPv6).ConfigureAwait(false);
+            return await GetAddressesAsync(host, port, ipVersion, selType, preferIPv6, cancel).ConfigureAwait(false);
         }
 
-        public static IEnumerable<IPEndPoint> GetAddresses(string host, int port, int ipVersion,
-            EndpointSelectionType selType, bool preferIPv6)
+        public static IEnumerable<IPEndPoint> GetAddresses(
+            string host,
+            int port,
+            int ipVersion,
+            EndpointSelectionType selType,
+            bool preferIPv6)
         {
-            // TODO: Fix this method to be asynchronous.
             try
             {
-                ValueTask<IEnumerable<IPEndPoint>> task =
-                    GetAddressesAsync(host, port, ipVersion, selType, preferIPv6);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
+                                                                            port,
+                                                                            ipVersion,
+                                                                            selType,
+                                                                            preferIPv6);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -579,8 +346,13 @@ namespace ZeroC.Ice
             }
         }
 
-        public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(string host, int port, int ipVersion,
-            EndpointSelectionType selType, bool preferIPv6)
+        public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(
+            string host,
+            int port,
+            int ipVersion,
+            EndpointSelectionType selType,
+            bool preferIPv6,
+            CancellationToken cancel = default)
         {
             Debug.Assert(host.Length > 0);
 
@@ -610,7 +382,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))
+                    foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).WaitAsync(cancel).ConfigureAwait(false))
                     {
                         if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
                             (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
@@ -652,7 +424,7 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex)
                 {
-                    if (SocketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
+                    if (ex.SocketErrorCode == SocketError.TryAgain && --retry >= 0)
                     {
                         continue;
                     }
@@ -699,7 +471,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                if (SocketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
+                if (ex.SocketErrorCode == SocketError.TryAgain && --retry >= 0)
                 {
                     goto repeatGetHostByName;
                 }
@@ -713,8 +485,7 @@ namespace ZeroC.Ice
             return addresses.ToArray();
         }
 
-        public static bool
-        IsLinklocal(IPAddress addr)
+        public static bool IsLinklocal(IPAddress addr)
         {
             if (addr.IsIPv6LinkLocal)
             {
@@ -728,59 +499,43 @@ namespace ZeroC.Ice
             return false;
         }
 
-        public static void SetTcpBufSize(Socket socket, Communicator communicator)
+        public static void SetBufSize(Socket socket, Communicator communicator, Transport transport)
         {
-            // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
-            int dfltBufSize = AssemblyUtil.IsWindows ? 128 * 1024 : 0;
-            int rcvSize = communicator.GetPropertyAsByteSize("Ice.TCP.RcvSize") ?? dfltBufSize;
-            int sndSize = communicator.GetPropertyAsByteSize("Ice.TCP.SndSize") ?? dfltBufSize;
-            SetTcpBufSize(socket, rcvSize, sndSize, communicator);
-        }
-
-        public static void
-        SetTcpBufSize(Socket socket, int rcvSize, int sndSize, Communicator communicator)
-        {
+            int rcvSize = communicator.GetPropertyAsByteSize($"Ice.{transport}.RcvSize") ?? 0;
             if (rcvSize > 0)
             {
-                //
-                // Try to set the buffer size. The kernel will silently adjust
-                // the size to an acceptable value. Then read the size back to
-                // get the size that was actually set.
-                //
-                SetRecvBufferSize(socket, rcvSize);
-                int size = GetRecvBufferSize(socket);
+                // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then
+                // read the size back to get the size that was actually set.
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, rcvSize);
+                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
                 if (size < rcvSize)
                 {
-                    // Warn if the size that was set is less than the requested size and
-                    // we have not already warned.
-                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(Transport.TCP);
-                    if (!winfo.RcvWarn || rcvSize != winfo.RcvSize)
+                    // Warn if the size that was set is less than the requested size and we have not already warned.
+                    BufSizeWarnInfo warningInfo = communicator.GetBufSizeWarn(Transport.TCP);
+                    if (!warningInfo.RcvWarn || rcvSize != warningInfo.RcvSize)
                     {
                         communicator.Logger.Warning(
-                            $"TCP receive buffer size: requested size of {rcvSize} adjusted to {size}");
+                            $"{transport} receive buffer size: requested size of {rcvSize} adjusted to {size}");
                         communicator.SetRcvBufSizeWarn(Transport.TCP, rcvSize);
                     }
                 }
             }
 
+            int sndSize = communicator.GetPropertyAsByteSize($"Ice.{transport}.SndSize") ?? 0;
             if (sndSize > 0)
             {
-                //
-                // Try to set the buffer size. The kernel will silently adjust
-                // the size to an acceptable value. Then read the size back to
-                // get the size that was actually set.
-                //
-                SetSendBufferSize(socket, sndSize);
-                int size = GetSendBufferSize(socket);
+                // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then
+                // read the size back to get the size that was actually set.
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sndSize);
+                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
                 if (size < sndSize) // Warn if the size that was set is less than the requested size.
                 {
-                    // Warn if the size that was set is less than the requested size and
-                    // we have not already warned.
-                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(Transport.TCP);
-                    if (!winfo.SndWarn || sndSize != winfo.SndSize)
+                    // Warn if the size that was set is less than the requested size and we have not already warned.
+                    BufSizeWarnInfo warningInfo = communicator.GetBufSizeWarn(Transport.TCP);
+                    if (!warningInfo.SndWarn || sndSize != warningInfo.SndSize)
                     {
                         communicator.Logger.Warning(
-                            $"TCP send buffer size: requested size of {sndSize} adjusted to {size}");
+                            $"{transport} send buffer size: requested size of {sndSize} adjusted to {size}");
                         communicator.SetSndBufSizeWarn(Transport.TCP, sndSize);
                     }
                 }
@@ -885,11 +640,9 @@ namespace ZeroC.Ice
             }
         }
 
-        public static string
-        AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);
+        public static string AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);
 
-        public static string
-        LocalAddrToString(EndPoint endpoint)
+        public static string LocalAddrToString(EndPoint endpoint)
         {
             if (endpoint == null)
             {
@@ -898,8 +651,7 @@ namespace ZeroC.Ice
             return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
         }
 
-        public static string
-        RemoteAddrToString(EndPoint? endpoint)
+        public static string RemoteAddrToString(EndPoint? endpoint)
         {
             if (endpoint == null)
             {
@@ -908,8 +660,7 @@ namespace ZeroC.Ice
             return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
         }
 
-        public static EndPoint
-        GetLocalAddress(Socket socket)
+        public static EndPoint GetLocalAddress(Socket socket)
         {
             try
             {
@@ -921,8 +672,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public static EndPoint?
-        GetRemoteAddress(Socket socket)
+        public static EndPoint? GetRemoteAddress(Socket socket)
         {
             try
             {
@@ -934,8 +684,7 @@ namespace ZeroC.Ice
             return null;
         }
 
-        private static IPAddress?
-        GetInterfaceAddress(string iface, AddressFamily family)
+        private static IPAddress? GetInterfaceAddress(string iface, AddressFamily family)
         {
             if (iface.Length == 0)
             {
@@ -1016,8 +765,7 @@ namespace ZeroC.Ice
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        private static int
-        GetInterfaceIndex(string iface, AddressFamily family)
+        private static int GetInterfaceIndex(string iface, AddressFamily family)
         {
             if (iface.Length == 0)
             {
@@ -1101,8 +849,7 @@ namespace ZeroC.Ice
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        private static bool
-        IsWildcard(string address, out bool ipv4Wildcard)
+        private static bool IsWildcard(string address, out bool ipv4Wildcard)
         {
             ipv4Wildcard = false;
             if (address.Length == 0)
@@ -1141,8 +888,7 @@ namespace ZeroC.Ice
             return addresses;
         }
 
-        public static string
-        EndpointAddressToString(EndPoint? endpoint)
+        public static string EndpointAddressToString(EndPoint? endpoint)
         {
             if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
             {

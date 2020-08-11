@@ -127,7 +127,7 @@ namespace ZeroC.Ice
                                connector,
                                connectionId,
                                adapter);
-        public override ITransceiver? GetTransceiver() => null;
+        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         // Constructor for unmarshaling
         internal TcpEndpoint(

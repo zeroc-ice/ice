@@ -14,5 +14,4 @@ testcases = [ ClientServerTestCase(traceProps=traceProps) ]
 if Mapping.getByPath(__name__).hasSource("Ice/ami", "collocated"):
     testcases += [ CollocatedTestCase() ]
 
-TestSuite(__name__, testcases,
-          options = { "compress" : [False], "serialize" : [False] })
+TestSuite(__name__, testcases, options = { "compress" : [False], "serialize" : [False] })

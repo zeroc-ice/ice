@@ -80,7 +80,9 @@ namespace ZeroC.Ice
             throw new NotImplementedException("cannot write the options of an opaque endpoint");
         }
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
+            EndpointSelectionType selType,
+            CancellationToken cancel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
@@ -96,7 +98,7 @@ namespace ZeroC.Ice
                                                     IConnector? connector,
                                                     string connectionId,
                                                     ObjectAdapter? adapter) => null!;
-        public override ITransceiver? GetTransceiver() => null;
+        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {

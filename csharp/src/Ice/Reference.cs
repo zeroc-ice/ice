@@ -1120,7 +1120,8 @@ namespace ZeroC.Ice
                     connection = await factory.CreateAsync(endpoints,
                                                            false,
                                                            EndpointSelection,
-                                                           ConnectionId).ConfigureAwait(false);
+                                                           ConnectionId,
+                                                           cancel).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1135,7 +1136,8 @@ namespace ZeroC.Ice
                             connection = await factory.CreateAsync(new Endpoint[] { endpoint },
                                                                    endpoint != lastEndpoint,
                                                                    EndpointSelection,
-                                                                   ConnectionId).ConfigureAwait(false);
+                                                                   ConnectionId,
+                                                                   cancel).ConfigureAwait(false);
                             break;
                         }
                         catch (Exception)
@@ -1195,7 +1197,7 @@ namespace ZeroC.Ice
 
                 if (InvocationMode != InvocationMode.Datagram)
                 {
-                    // If the invocation mode is not datagram, we first check if the target is colocated.
+                    // If the invocation mode is not datagram, we first check if the target is collocated.
                     ObjectAdapter? adapter = Communicator.FindObjectAdapter(this);
                     if (adapter != null)
                     {

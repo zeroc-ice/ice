@@ -270,10 +270,10 @@ namespace ZeroC.Ice
                     ((obj as ConnectionHelper)?._connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastEndpoint?.Address);
+                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastEndpoint?.Port);
+                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as ConnectionHelper)?._connection.Endpoint);
                 Add("endpointTransport", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Transport);
@@ -362,10 +362,10 @@ namespace ZeroC.Ice
                     ((obj as DispatchHelper)?.Connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastEndpoint?.Address);
+                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.MulticastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastEndpoint?.Port);
+                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.MulticastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as DispatchHelper)?.Connection.Endpoint);
                 Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint.Transport);
@@ -667,10 +667,10 @@ namespace ZeroC.Ice
                     ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastEndpoint?.Address);
+                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastEndpoint?.Port);
+                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint);
                 Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Transport);

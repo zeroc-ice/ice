@@ -319,7 +319,7 @@ namespace ZeroC.Ice
                             {
                                 _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
-                            closingTask = PerformGracefulCloseAsync();
+                            closingTask = PerformGracefulCloseAsync(!(_exception is ConnectionClosedByPeerException));
                             if (_closeTask == null)
                             {
                                 // _closeTask might already be assigned if CloseAsync() got called if the send of the
@@ -345,15 +345,13 @@ namespace ZeroC.Ice
 
             await CloseAsync(exception).ConfigureAwait(false);
 
-            async Task PerformGracefulCloseAsync()
+            async Task PerformGracefulCloseAsync(bool initiator)
             {
-                if (!(_exception is ConnectionClosedByPeerException))
+                // If the graceful close is initiated by this side of the connection, Wait for the all the dispatch
+                // to complete to make sure the responses are sent before we start the graceful closing.
+                if (initiator && _dispatchTaskCompletionSource != null)
                 {
-                    // Wait for the all the dispatch to be completed to ensure the responses are sent.
-                    if (_dispatchTaskCompletionSource != null)
-                    {
-                        await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
-                    }
+                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
                 }
 
                 CancellationTokenSource? source = null;
@@ -538,17 +536,17 @@ namespace ZeroC.Ice
             CancellationTokenSource? source = null;
             try
             {
-                CancellationToken token;
+                CancellationToken cancel;
                 TimeSpan timeout = _communicator.ConnectTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
                     source = new CancellationTokenSource();
                     source.CancelAfter(timeout);
-                    token = source.Token;
+                    cancel = source.Token;
                 }
 
                 // Initialize the transport
-                await BinaryConnection.InitializeAsync(OnHeartbeat, OnSent, OnReceived, token).ConfigureAwait(false);
+                await BinaryConnection.InitializeAsync(OnHeartbeat, OnSent, OnReceived, cancel).ConfigureAwait(false);
 
                 lock (_mutex)
                 {
@@ -1148,7 +1146,8 @@ namespace ZeroC.Ice
     public class UdpConnection : IPConnection
     {
         /// <summary>The multicast IP-endpoint for a multicast connection otherwise null.</summary>
-        public System.Net.IPEndPoint? McastEndpoint => (BinaryConnection.Transceiver as UdpTransceiver)?.McastAddress;
+        public System.Net.IPEndPoint? MulticastEndpoint =>
+            (BinaryConnection.Transceiver as UdpTransceiver)?.MulticastAddress;
 
         protected internal UdpConnection(
             IConnectionManager manager,

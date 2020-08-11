@@ -57,7 +57,7 @@ namespace ZeroC.Ice
            }
         }
 
-        public override ITransceiver? GetTransceiver() => null;
+        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {

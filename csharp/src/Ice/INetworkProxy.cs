@@ -11,32 +11,16 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
     public interface INetworkProxy
     {
         //
-        // Write the connection request on the connection established
-        // with the network proxy server. This is called right after
-        // the connection establishment succeeds.
+        // Connect to the server through the network proxy.
         //
-        void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer);
-        int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred);
-
-        //
-        // Once the connection request has been sent, this is called
-        // to prepare and read the response from the proxy server.
-        //
-        ArraySegment<byte> BeginRead();
-        int EndRead(ref ArraySegment<byte> buffer, int offset);
-
-        //
-        // This is called when the response from the proxy has been
-        // read. The proxy should copy the extra read data (if any) in the
-        // given byte vector.
-        //
-        void Finish(ArraySegment<byte> readBuffer);
+        ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel);
 
         //
         // If the proxy host needs to be resolved, this should return
@@ -44,7 +28,7 @@ namespace ZeroC.Ice
         // This is called from the endpoint host resolver thread, so
         // it's safe if this method blocks.
         //
-        ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion);
+        ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel);
 
         //
         // Returns the IP address of the network proxy. This method
@@ -74,7 +58,7 @@ namespace ZeroC.Ice
 
         private SOCKSNetworkProxy(EndPoint address) => _address = address;
 
-        public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
+        public async ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel)
         {
             if (!(endpoint is IPEndPoint))
             {
@@ -98,35 +82,30 @@ namespace ZeroC.Ice
             MemoryMarshal.Write(data.AsSpan(2, 2), ref port); // Port
             Buffer.BlockCopy(addr.Address.GetAddressBytes(), 0, data, 4, 4); // IPv4 address
             data[8] = 0x00; // User ID.
-            buffer.Add(data);
-        }
 
-        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred) =>
-            // Once the request is sent, read the response
-            bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
+            // Send the request.
+            await socket.SendAsync(data, SocketFlags.None, cancel);
 
-        // Read the SOCKS4 response whose size is 8 bytes.
-        public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[8]);
-
-        public int EndRead(ref ArraySegment<byte> buffer, int offset) =>
-            // We're done once we read the response
-            offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
-
-        public void Finish(ArraySegment<byte> buffer)
-        {
-            if (buffer[0] != 0x00 || buffer[1] != 0x5a)
+            // Now wait for the response.
+            await socket.ReceiveAsync(new ArraySegment<byte>(data, 0, 8), SocketFlags.None, cancel);
+            if (data[0] != 0x00 || data[1] != 0x5a)
             {
                 throw new ConnectFailedException();
             }
         }
 
-        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel)
         {
             Debug.Assert(_host != null);
 
             // Get addresses in random order and use the first one
-            IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
-                ipVersion, EndpointSelectionType.Random, false).ConfigureAwait(false);
+            IEnumerable<IPEndPoint> addresses =
+                await Network.GetAddressesForClientEndpointAsync(_host,
+                                                                 _port,
+                                                                 ipVersion,
+                                                                 EndpointSelectionType.Random,
+                                                                 false,
+                                                                 cancel).ConfigureAwait(false);
             return new SOCKSNetworkProxy(addresses.First());
         }
 
@@ -160,8 +139,9 @@ namespace ZeroC.Ice
             _ipVersion = ipVersion;
         }
 
-        public void BeginWrite(EndPoint endpoint, IList<ArraySegment<byte>> buffer)
+        public async ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel)
         {
+            // HTTP connect request
             string addr = Network.AddrToString(endpoint);
             var str = new System.Text.StringBuilder();
             str.Append("CONNECT ");
@@ -170,65 +150,54 @@ namespace ZeroC.Ice
             str.Append(addr);
             str.Append("\r\n\r\n");
 
-            // HTTP connect request
-            buffer.Add(System.Text.Encoding.ASCII.GetBytes(str.ToString()));
-        }
+            // Send the connect request.
+            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(str.ToString()), SocketFlags.None, cancel);
 
-        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred) =>
-            // Once the request is sent, read the response
-            bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
-
-        // Read the HTTP response, reserve enough space for reading at least HTTP1.1
-        public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[256], 0, 7);
-
-        public int EndRead(ref ArraySegment<byte> buffer, int offset)
-        {
-            Debug.Assert(buffer.Offset == 0);
-            //
-            // Check if we received the full HTTP response, if not, continue
-            // reading otherwise we're done.
-            //
-            int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, offset));
-            if (end < 0 && offset == buffer.Count)
+            // Read the HTTP response, reserve enough space for reading at least HTTP1.1
+            byte[] buffer = new byte[256];
+            int received = 0;
+            while (true)
             {
+                var array = new ArraySegment<byte>(buffer, received, buffer.Length - received);
+                received += await socket.ReceiveAsync(array, SocketFlags.None, cancel);
+
                 //
-                // Read one more byte, we can't easily read bytes in advance
-                // since the transport implementation might be able to read
-                // the data from the memory instead of the socket.
+                // Check if we received the full HTTP response, if not, continue reading otherwise we're done.
                 //
-                if (offset == buffer.Array!.Length)
+                int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, received));
+                if (end < 0 && received == buffer.Length)
                 {
                     // We need to allocate a new buffer
-                    var newBuffer = new ArraySegment<byte>(new byte[buffer.Array.Length * 2], 0, offset + 1);
-                    Buffer.BlockCopy(buffer.Array, 0, newBuffer.Array!, 0, offset);
+                    byte[] newBuffer = new byte[buffer.Length * 2];
+                    Buffer.BlockCopy(buffer, 0, newBuffer, 0, received);
                     buffer = newBuffer;
                 }
                 else
                 {
-                    buffer = new ArraySegment<byte>(buffer.Array, 0, offset + 1);
+                    break;
                 }
-                return SocketOperation.Read;
             }
-            return SocketOperation.None;
-        }
 
-        public void Finish(ArraySegment<byte> readBuffer)
-        {
             var parser = new HttpParser();
-            parser.Parse(readBuffer);
+            parser.Parse(buffer);
             if (parser.Status() != 200)
             {
                 throw new ConnectFailedException();
             }
         }
 
-        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel)
         {
             Debug.Assert(_host != null);
 
             // Get addresses in random order and use the first one
-            IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
-                ipVersion, EndpointSelectionType.Random, false).ConfigureAwait(false);
+            IEnumerable<IPEndPoint> addresses =
+                await Network.GetAddressesForClientEndpointAsync(_host,
+                                                                 _port,
+                                                                 ipVersion,
+                                                                 EndpointSelectionType.Random,
+                                                                 false,
+                                                                 cancel).ConfigureAwait(false);
             return new HTTPNetworkProxy(addresses.First(), ipVersion);
         }
 

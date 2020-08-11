@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -151,7 +152,9 @@ namespace ZeroC.Ice
         protected internal abstract void WriteOptions(OutputStream ostr);
 
         // Returns a connector for this endpoint, or empty list if no connector is available.
-        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endpointSelection);
+        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
+            EndpointSelectionType endpointSelection,
+            CancellationToken cancel);
 
         /// <summary>Creates a new connection to the given endpoint.</summary>
         /// <param name="manager">The connection manager which owns the connection.</param>
@@ -182,7 +185,7 @@ namespace ZeroC.Ice
 
         // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
         // acceptor.
-        public abstract ITransceiver? GetTransceiver();
+        public abstract (ITransceiver, Endpoint) GetTransceiver();
 
         protected Endpoint(Communicator communicator, Protocol protocol)
         {

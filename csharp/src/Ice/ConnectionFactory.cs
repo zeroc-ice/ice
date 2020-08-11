@@ -80,7 +80,8 @@ namespace ZeroC.Ice
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
             EndpointSelectionType selType,
-            string connectionId)
+            string connectionId,
+            CancellationToken cancel)
         {
             Debug.Assert(endpoints.Count > 0);
 
@@ -113,7 +114,8 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    foreach (IConnector connector in await endpoint.ConnectorsAsync(selType).ConfigureAwait(false))
+                    foreach (IConnector connector in await endpoint.ConnectorsAsync(selType,
+                                                                                    cancel).ConfigureAwait(false))
                     {
                         connectors.Add((connector, endpoint));
                     }
@@ -207,7 +209,7 @@ namespace ZeroC.Ice
                 Task<Connection> completedTask;
                 do
                 {
-                    completedTask = await Task.WhenAny(connectTasks).ConfigureAwait(false);
+                    completedTask = await Task.WhenAny(connectTasks).WaitAsync(cancel).ConfigureAwait(false);
                     if (completedTask.IsCompletedSuccessfully)
                     {
                         lock (_mutex)
@@ -287,7 +289,7 @@ namespace ZeroC.Ice
                 try
                 {
                     foreach (IConnector connector in
-                        endpoint.ConnectorsAsync(EndpointSelectionType.Ordered).AsTask().Result)
+                        endpoint.ConnectorsAsync(EndpointSelectionType.Ordered, cancel: default).AsTask().Result)
                     {
                         lock (_mutex)
                         {
@@ -478,28 +480,32 @@ namespace ZeroC.Ice
         public IAcmMonitor AcmMonitor { get; }
 
         private readonly IAcceptor _acceptor;
+        private Task? _acceptTask;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private bool _disposed;
+        private volatile bool _disposed;
         private readonly object _mutex = new object();
 
         public override async ValueTask DisposeAsync()
         {
-            lock (_mutex)
+            // Close the acceptor
+            if (_communicator.TraceLevels.Network >= 1)
             {
-                // Close the acceptor
-                if (_communicator.TraceLevels.Network >= 1)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
-                }
-
-                _disposed = true;
-                _acceptor.Dispose();
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
             }
 
-            // Wait for all the connections to be closed, the connection set is immutable once _disposed = true
+            _acceptor.Dispose();
+            _disposed = true;
+
+            // Wait for AcceptAsync to return
+            if (_acceptTask != null)
+            {
+                await _acceptTask.ConfigureAwait(false);
+            }
+
+            // Wait for all the connections to be closed, the connection set is immutable once AcceptAsync returned
             var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
             IEnumerable<Task> tasks = _connections.Select(connection => connection.GracefulCloseAsync(exception));
             await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -540,21 +546,18 @@ namespace ZeroC.Ice
 
         internal override void Activate()
         {
-            lock (_mutex)
+            if (_communicator.TraceLevels.Network >= 1)
             {
-                if (_communicator.TraceLevels.Network >= 1)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"accepting {Endpoint.TransportName} connections at {_acceptor}");
-                }
-
-                // Start the asynchronous operation from the thread pool to prevent eventually accepting
-                // synchronously new connections from this thread.
-                Task.Factory.StartNew(AcceptAsync,
-                                      default,
-                                      TaskCreationOptions.None,
-                                      _adapter.TaskScheduler ?? TaskScheduler.Default);
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    $"accepting {Endpoint.TransportName} connections at {_acceptor}");
             }
+
+            // Start the asynchronous operation from the thread pool to prevent eventually accepting
+            // synchronously new connections from this thread.
+            _acceptTask = Task.Factory.StartNew(AcceptAsync,
+                                                default,
+                                                TaskCreationOptions.None,
+                                                _adapter.TaskScheduler ?? TaskScheduler.Default);
         }
 
         internal override void UpdateConnectionObservers()
@@ -581,12 +584,9 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    lock (_mutex)
+                    if (_disposed)
                     {
-                        if (_disposed)
-                        {
-                            return;
-                        }
+                        return;
                     }
 
                     // We print an error and wait for one second to avoid running in a tight loop in case the
@@ -597,54 +597,20 @@ namespace ZeroC.Ice
                     continue;
                 }
 
-                Connection connection;
-                lock (_mutex)
+                if (_communicator.TraceLevels.Network >= 2)
                 {
-                    if (_disposed)
-                    {
-                        try
-                        {
-                            transceiver.Destroy();
-                        }
-                        catch
-                        {
-                        }
-                        return;
-                    }
-
-                    if (_communicator.TraceLevels.Network >= 2)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                            $"trying to accept {Endpoint.TransportName} connection\n{transceiver}");
-                    }
-
-                    try
-                    {
-                        connection = Endpoint.CreateConnection(this, transceiver, null, "", _adapter);
-                    }
-                    catch (Exception ex)
-                    {
-                        try
-                        {
-                            transceiver.Destroy();
-                        }
-                        catch
-                        {
-                            // Ignore
-                        }
-
-                        if (_communicator.WarnConnections)
-                        {
-                            _communicator.Logger.Warning($"connection exception:\n{ex}\n{_acceptor}");
-                        }
-                        continue;
-                    }
-
-                    _connections.Add(connection);
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                        $"trying to accept {Endpoint.TransportName} connection\n{transceiver}");
                 }
 
+                Connection connection = Endpoint.CreateConnection(this, transceiver, null, "", _adapter);
                 try
                 {
+                    lock (_mutex)
+                    {
+                        _connections.Add(connection);
+                    }
+
                     // We don't wait for the connection to be activated. This could take a while for some transports
                     // such as TLS based transports where the handshake requires few round trips between the client
                     // and server.
@@ -692,24 +658,10 @@ namespace ZeroC.Ice
             Communicator communicator = adapter.Communicator;
             AcmMonitor = new ConnectionAcmMonitor(Acm.Disabled, communicator.Logger);
 
-            ITransceiver transceiver = Endpoint.GetTransceiver()!;
-            if (communicator.TraceLevels.Network >= 2)
-            {
-                communicator.Logger.Trace(communicator.TraceLevels.NetworkCategory,
-                    $"attempting to bind to {Endpoint.TransportName} socket\n{transceiver}");
-            }
-
-            try
-            {
-                Endpoint = transceiver.Bind();
-                _connection = Endpoint.CreateConnection(this, transceiver, null, "", adapter);
-                _ = _connection.StartAsync();
-            }
-            catch
-            {
-                transceiver.Close();
-                throw;
-            }
+            ITransceiver transceiver;
+            (transceiver, Endpoint) = Endpoint.GetTransceiver();
+            _connection = Endpoint.CreateConnection(this, transceiver, null, "", adapter);
+            _ = _connection.StartAsync();
         }
 
         internal override void Activate()

@@ -11,6 +11,8 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -19,84 +21,64 @@ namespace ZeroC.Ice
         internal SslStream? SslStream { get; private set; }
 
         private readonly string? _adapterName;
-        private bool _authenticated;
         private readonly Communicator _communicator;
-        private readonly ITransceiver _delegate;
         private readonly SslEngine _engine;
         private readonly string? _host;
         private readonly bool _incoming;
-        private bool _isConnected;
-        private int _maxRecvPacketSize;
-        private int _maxSendPacketSize;
-        private AsyncCallback? _readCallback;
-        private IAsyncResult? _readResult;
-        private AsyncCallback? _writeCallback;
-        private IAsyncResult? _writeResult;
+        private BufferedStream? _writeStream;
+        private readonly ITransceiver _underlying;
 
-        public Socket? Fd() => _delegate.Fd();
+        public Socket? Fd() => _underlying.Fd();
 
-        public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
+        public async ValueTask InitializeAsync(CancellationToken cancel)
         {
-            if (!_isConnected)
+            await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
+
+            var stream = new NetworkStream(_underlying.Fd(), false);
+            SslStream = new SslStream(stream, false);
+
+            try
             {
-                int status = _delegate.Initialize(ref readBuffer, writeBuffer);
-                if (status != SocketOperation.None)
+                if (_incoming)
                 {
-                    return status;
+                    var options = new SslServerAuthenticationOptions();
+                    options.ServerCertificate = _engine.TlsServerOptions.ServerCertificate;
+                    options.ClientCertificateRequired = _engine.TlsServerOptions.RequireClientCertificate;
+                    options.EnabledSslProtocols = _engine.TlsServerOptions.EnabledSslProtocols!.Value;
+                    options.RemoteCertificateValidationCallback =
+                        _engine.TlsServerOptions.ClientCertificateValidationCallback ??
+                        RemoteCertificateValidationCallback;
+                    options.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
+                    await SslStream.AuthenticateAsServerAsync(options, cancel).ConfigureAwait(false);
                 }
-                _isConnected = true;
+                else
+                {
+                    var options = new SslClientAuthenticationOptions();
+                    options.TargetHost = _host;
+                    options.ClientCertificates = _engine.TlsClientOptions.ClientCertificates;
+                    options.EnabledSslProtocols = _engine.TlsClientOptions.EnabledSslProtocols!.Value;
+                    options.RemoteCertificateValidationCallback =
+                        _engine.TlsClientOptions.ServerCertificateValidationCallback ??
+                        RemoteCertificateValidationCallback;
+                    options.LocalCertificateSelectionCallback =
+                        _engine.TlsClientOptions.ClientCertificateSelectionCallback ??
+                        CertificateSelectionCallback;
+                    options.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
+                    await SslStream.AuthenticateAsClientAsync(options, cancel).ConfigureAwait(false);
+                }
             }
-
-            if (SslStream == null)
+            catch (IOException ex) when (Network.ConnectionLost(ex))
             {
-                try
-                {
-                    Socket? fd = _delegate.Fd();
-                    Debug.Assert(fd != null);
-
-                    Network.SetBlock(fd, true); // SSL requires a blocking socket
-
-                    // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise,
-                    // we would only be notified when all the data is received/written. The connection timeout could
-                    // easily be triggered when receiving/sending large frames.
-                    _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(fd));
-                    _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(fd));
-
-                    if (_incoming)
-                    {
-                        SslStream = new SslStream(
-                            new NetworkStream(fd, false),
-                            false,
-                            _engine.TlsServerOptions.ClientCertificateValidationCallback ??
-                                RemoteCertificateValidationCallback);
-                    }
-                    else
-                    {
-                        SslStream = new SslStream(
-                            new NetworkStream(fd, false),
-                            false,
-                            _engine.TlsClientOptions.ServerCertificateValidationCallback ??
-                                RemoteCertificateValidationCallback,
-                            _engine.TlsClientOptions.ClientCertificateSelectionCallback ??
-                                CertificateSelectionCallback);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (ex is IOException ioException && Network.ConnectionLost(ioException))
-                    {
-                        throw new ConnectionLostException(ex);
-                    }
-                    else
-                    {
-                        throw new TransportException(ex);
-                    }
-                }
-                return SocketOperation.Connect;
+                throw new ConnectionLostException(ex);
             }
-
-            Debug.Assert(SslStream.IsAuthenticated);
-            _authenticated = true;
+            catch (IOException ex)
+            {
+                throw new TransportException(ex);
+            }
+            catch (AuthenticationException ex)
+            {
+                throw new TransportException(ex);
+            }
 
             string description = ToString();
             if (!_engine.SslTrustManager.Verify(_incoming,
@@ -120,230 +102,99 @@ namespace ZeroC.Ice
             {
                 _engine.TraceStream(SslStream, description);
             }
-            return SocketOperation.None;
+
+            // Use a buffered stream for writes. This ensures that small requests which are composed of multiple
+            // small buffers will be sent within a single SSL frame.
+            _writeStream = new BufferedStream(SslStream);
         }
 
-        public Endpoint Bind()
-        {
-            Debug.Assert(false);
-            return null;
-        }
+        public ValueTask ClosingAsync(Exception exception, CancellationToken cancel) =>
+            // TODO: implement TLS close_notify and call ShutdownAsync? This might be required for implementation
+            // session resumption if we want to allow connection migration.
+            _underlying.ClosingAsync(exception, cancel);
 
-        public void Close()
+        public void CheckSendSize(int size) => _underlying.CheckSendSize(size);
+
+        public async ValueTask DisposeAsync()
         {
+            await _underlying.DisposeAsync();
+
             if (SslStream != null)
             {
-                SslStream.Close();
-                SslStream = null;
+                await SslStream.DisposeAsync();
+                try
+                {
+                    await _writeStream!.DisposeAsync();
+                }
+                catch (Exception)
+                {
+                    // Ignore: the buffer flush which will fail since the underlying transport is closed.
+                }
             }
-
-            _delegate.Close();
         }
 
-        public int Closing(bool initiator, Exception? ex) => _delegate.Closing(initiator, ex);
+        public ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel) => throw new InvalidOperationException();
 
-        public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
-
-        public void Destroy() => _delegate.Destroy();
-
-        public void FinishRead(ref ArraySegment<byte> buffer, ref int offset)
+        public async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
-            if (!_isConnected)
-            {
-                _delegate.FinishRead(ref buffer, ref offset);
-                return;
-            }
-            else if (SslStream == null) // Transceiver was closed
-            {
-                _readResult = null;
-                return;
-            }
-
-            Debug.Assert(_readResult != null);
+            int received;
             try
             {
-                int ret = SslStream.EndRead(_readResult);
-                _readResult = null;
-
-                if (ret == 0)
-                {
-                    throw new ConnectionLostException();
-                }
-                Debug.Assert(ret > 0);
-                offset += ret;
+                received = await SslStream!.ReadAsync(buffer, cancel).ConfigureAwait(false);
             }
-            catch (IOException ex)
-            {
-                if (Network.ConnectionLost(ex))
-                {
-                    throw new ConnectionLostException(ex);
-                }
-                if (Network.Timeout(ex))
-                {
-                    throw new ConnectionTimeoutException();
-                }
-                throw new TransportException(ex);
-            }
-            catch (ObjectDisposedException ex)
+            catch (IOException ex) when (Network.ConnectionLost(ex))
             {
                 throw new ConnectionLostException(ex);
             }
-        }
-
-        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset)
-        {
-            if (!_isConnected)
-            {
-                _delegate.FinishWrite(buffer, ref offset);
-                return;
-            }
-            else if (SslStream == null) // Transceiver was closed
-            {
-                int remaining = buffer.GetByteCount() - offset;
-                if (GetSendPacketSize(remaining) == remaining) // Sent last packet
-                {
-                    offset = remaining; // Assume all the data was sent for at-most-once semantics.
-                }
-                _writeResult = null;
-                return;
-            }
-            else if (!_authenticated)
-            {
-                FinishAuthenticate();
-                return;
-            }
-
-            Debug.Assert(_writeResult != null);
-            int bytesTransferred = GetSendPacketSize(buffer.GetByteCount() - offset);
-            try
-            {
-                SslStream.EndWrite(_writeResult);
-                offset += bytesTransferred;
-            }
             catch (IOException ex)
             {
-                if (Network.ConnectionLost(ex))
-                {
-                    throw new ConnectionLostException(ex);
-                }
-                if (Network.Timeout(ex))
-                {
-                    throw new ConnectionTimeoutException();
-                }
                 throw new TransportException(ex);
             }
-            catch (ObjectDisposedException ex)
-            {
-                throw new ConnectionLostException(ex);
-            }
-        }
-
-        // Force caller to use asynchronous read.
-        public int Read(ref ArraySegment<byte> buffer, ref int offset) =>
-            offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
-
-        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, AsyncCallback callback, object state)
-        {
-            if (!_isConnected)
-            {
-                return _delegate.StartRead(ref buffer, ref offset, callback, state);
-            }
-            else if (SslStream == null)
+            if (received == 0)
             {
                 throw new ConnectionLostException();
             }
-            Debug.Assert(SslStream.IsAuthenticated);
-
-            int packetSize = GetRecvPacketSize(buffer.Count - offset);
-            try
-            {
-                _readCallback = callback;
-                _readResult = SslStream.BeginRead(buffer.Array, buffer.Offset + offset, packetSize, ReadCompleted, state);
-                return _readResult.CompletedSynchronously;
-            }
-            catch (IOException ex)
-            {
-                if (Network.ConnectionLost(ex))
-                {
-                    throw new ConnectionLostException(ex);
-                }
-                if (Network.Timeout(ex))
-                {
-                    throw new ConnectionTimeoutException();
-                }
-                throw new TransportException(ex);
-            }
-            catch (ObjectDisposedException ex)
-            {
-                throw new ConnectionLostException(ex);
-            }
+            return received;
         }
 
-        public bool StartWrite(
-            IList<ArraySegment<byte>> buffer,
-            int offset,
-            AsyncCallback cb,
-            object state,
-            out bool completed)
+        public string ToDetailedString() => _underlying.ToDetailedString();
+
+        public override string ToString() => _underlying.ToString()!;
+
+        public async ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
-            if (!_isConnected)
-            {
-                return _delegate.StartWrite(buffer, offset, cb, state, out completed);
-            }
-            else if (SslStream == null)
-            {
-                throw new ConnectionLostException();
-            }
-
-            Debug.Assert(SslStream != null);
-            if (!_authenticated)
-            {
-                completed = false;
-                return StartAuthenticate(cb, state);
-            }
-
-            // We limit the write packet size to ensure connection timeouts are based on a fixed packet size.
-            int remaining = buffer.GetByteCount() - offset;
-            int packetSize = GetSendPacketSize(remaining);
             try
             {
-                _writeCallback = cb;
-                ArraySegment<byte> data = buffer.GetSegment(offset, packetSize);
-                _writeResult = SslStream.BeginWrite(data.Array, 0, data.Count, WriteCompleted, state);
-                completed = packetSize == remaining;
-                return _writeResult.CompletedSynchronously;
-            }
-            catch (IOException ex)
-            {
-                if (Network.ConnectionLost(ex))
+                int sent = 0;
+                foreach (ArraySegment<byte> segment in buffer)
                 {
-                    throw new ConnectionLostException(ex);
+                    await _writeStream!.WriteAsync(segment, cancel).ConfigureAwait(false);
+                    sent += segment.Count;
                 }
-                if (Network.Timeout(ex))
-                {
-                    throw new ConnectionTimeoutException();
-                }
-                throw new TransportException(ex);
+                await _writeStream!.FlushAsync(cancel).ConfigureAwait(false);
+                return sent;
+
             }
-            catch (ObjectDisposedException ex)
+            catch (IOException ex) when (Network.ConnectionLost(ex))
             {
                 throw new ConnectionLostException(ex);
             }
+            catch (IOException ex)
+            {
+                throw new TransportException(ex);
+            }
         }
-
-        public string ToDetailedString() => _delegate.ToDetailedString();
-        public override string ToString() => _delegate.ToString()!;
-
-        // Force caller to use asynchronous write.
-        public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
-            offset < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.None;
 
         // Only for use by TcpEndpoint.
-        internal SslTransceiver(Communicator communicator, ITransceiver del, string hostOrAdapterName, bool incoming)
+        internal SslTransceiver(
+            Communicator communicator,
+            ITransceiver underlying,
+            string hostOrAdapterName,
+            bool incoming)
         {
             _communicator = communicator;
             _engine = communicator.SslEngine;
-            _delegate = del;
+            _underlying = underlying;
             _incoming = incoming;
             if (_incoming)
             {
@@ -353,8 +204,6 @@ namespace ZeroC.Ice
             {
                 _host = hostOrAdapterName;
             }
-
-            SslStream = null;
         }
 
         private X509Certificate? CertificateSelectionCallback(
@@ -381,55 +230,6 @@ namespace ZeroC.Ice
                 }
             }
             return certs[0];
-        }
-
-        private void FinishAuthenticate()
-        {
-            Debug.Assert(_writeResult != null);
-            Debug.Assert(SslStream != null);
-
-            try
-            {
-                if (!_incoming)
-                {
-                    SslStream.EndAuthenticateAsClient(_writeResult);
-                }
-                else
-                {
-                    SslStream.EndAuthenticateAsServer(_writeResult);
-                }
-            }
-            catch (IOException ex)
-            {
-                if (Network.ConnectionLost(ex))
-                {
-                    //
-                    // This situation occurs when connectToSelf is called; the "remote" end
-                    // closes the socket immediately.
-                    //
-                    throw new ConnectionLostException();
-                }
-                throw new TransportException(ex);
-            }
-            catch (AuthenticationException ex)
-            {
-                throw new TransportException(ex);
-            }
-        }
-
-        private int GetSendPacketSize(int length) =>
-            _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-
-        public int GetRecvPacketSize(int length) =>
-            _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-
-        private void ReadCompleted(IAsyncResult result)
-        {
-            if (!result.CompletedSynchronously)
-            {
-                Debug.Assert(_readCallback != null && result.AsyncState != null);
-                _readCallback(result.AsyncState);
-            }
         }
 
         private bool RemoteCertificateValidationCallback(
@@ -563,63 +363,6 @@ namespace ZeroC.Ice
                     $"SSL certificate validation status: {message}");
             }
             return true;
-        }
-
-        private bool StartAuthenticate(AsyncCallback callback, object state)
-        {
-            Debug.Assert(SslStream != null);
-            try
-            {
-                _writeCallback = callback;
-                if (_incoming)
-                {
-                    _writeResult = SslStream.BeginAuthenticateAsServer(
-                        _engine.TlsServerOptions.ServerCertificate,
-                        _engine.TlsServerOptions.RequireClientCertificate,
-                        _engine.TlsServerOptions.EnabledSslProtocols!.Value,
-                        false,
-                        WriteCompleted,
-                        state);
-                }
-                else
-                {
-                    _writeResult = SslStream.BeginAuthenticateAsClient(
-                        _host,
-                        _engine.TlsClientOptions.ClientCertificates,
-                        _engine.TlsClientOptions.EnabledSslProtocols!.Value,
-                        false,
-                        WriteCompleted,
-                        state);
-                }
-            }
-            catch (IOException ex)
-            {
-                if (Network.ConnectionLost(ex))
-                {
-                    //
-                    // This situation occurs when connectToSelf is called; the "remote" end
-                    // closes the socket immediately.
-                    //
-                    throw new ConnectionLostException();
-                }
-                throw new TransportException(ex);
-            }
-            catch (AuthenticationException ex)
-            {
-                throw new TransportException(ex);
-            }
-
-            Debug.Assert(_writeResult != null);
-            return _writeResult.CompletedSynchronously;
-        }
-
-        internal void WriteCompleted(IAsyncResult result)
-        {
-            if (!result.CompletedSynchronously)
-            {
-                Debug.Assert(_writeCallback != null && result.AsyncState != null);
-                _writeCallback(result.AsyncState);
-            }
         }
     }
 }

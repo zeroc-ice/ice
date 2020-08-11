@@ -59,11 +59,18 @@ namespace ZeroC.Ice
                                                         endpoint.Communicator.PreferIPv6);
 
             _fd = Network.CreateServerSocket(false, _addr.AddressFamily, endpoint.Communicator.IPVersion);
-            Network.SetBlock(_fd, false);
-            Network.SetTcpBufSize(_fd, endpoint.Communicator);
 
-            _addr = Network.DoBind(_fd, _addr);
-            Network.DoListen(_fd, endpoint.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511);
+            try
+            {
+                _fd.Bind(_addr);
+                _addr = (IPEndPoint)_fd.LocalEndPoint;
+                _fd.Listen(endpoint.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511);
+            }
+            catch (SocketException ex)
+            {
+                Network.CloseSocketNoThrow(_fd);
+                throw new TransportException(ex);
+            }
 
             Endpoint = endpoint.Clone((ushort)_addr.Port);
         }
