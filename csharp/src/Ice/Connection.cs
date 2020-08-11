@@ -319,7 +319,7 @@ namespace ZeroC.Ice
                             {
                                 _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
-                            closingTask = PerformGracefulCloseAsync(!(_exception is ConnectionClosedByPeerException));
+                            closingTask = PerformGracefulCloseAsync();
                             if (_closeTask == null)
                             {
                                 // _closeTask might already be assigned if CloseAsync() got called if the send of the
@@ -345,11 +345,11 @@ namespace ZeroC.Ice
 
             await CloseAsync(exception).ConfigureAwait(false);
 
-            async Task PerformGracefulCloseAsync(bool initiator)
+            async Task PerformGracefulCloseAsync()
             {
                 // If the graceful close is initiated by this side of the connection, Wait for the all the dispatch
                 // to complete to make sure the responses are sent before we start the graceful closing.
-                if (initiator && _dispatchTaskCompletionSource != null)
+                if (!(_exception is ConnectionClosedByPeerException) && _dispatchTaskCompletionSource != null)
                 {
                     await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
                 }
@@ -1059,7 +1059,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return BinaryConnection.Transceiver.Fd()?.LocalEndPoint as System.Net.IPEndPoint;
+                    return BinaryConnection.Transceiver.Socket?.LocalEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -1075,7 +1075,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return BinaryConnection.Transceiver.Fd()?.RemoteEndPoint as System.Net.IPEndPoint;
+                    return BinaryConnection.Transceiver.Socket?.RemoteEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {

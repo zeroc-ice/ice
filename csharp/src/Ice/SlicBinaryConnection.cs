@@ -334,7 +334,7 @@ namespace ZeroC.Ice
             int offset = 0;
             while (offset != buffer.Count)
             {
-                int received = await Transceiver.ReadAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                int received = await Transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
                 _receivedCallback!(received);
             }
@@ -342,7 +342,7 @@ namespace ZeroC.Ice
 
         private async ValueTask WriteAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
         {
-            int sent = await Transceiver.WriteAsync(buffers, cancel).ConfigureAwait(false);
+            int sent = await Transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
             Debug.Assert(sent == buffers.GetByteCount()); // TODO: do we need to support partial writes?
             _sentCallback!(sent);
         }

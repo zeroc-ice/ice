@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public static class Network
+    internal class Network
     {
         // Which versions of the Internet Protocol are enabled?
         public const int EnableIPv4 = 0;
@@ -621,7 +621,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public static string FdToString(Socket? socket)
+        public static string SocketToString(Socket? socket)
         {
             try
             {

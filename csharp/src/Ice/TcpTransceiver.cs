@@ -14,10 +14,11 @@ namespace ZeroC.Ice
 {
     internal sealed class TcpTransceiver : ITransceiver
     {
+        public Socket Socket { get; }
+
         private readonly EndPoint? _addr;
         private readonly Communicator _communicator;
         private string _desc;
-        private readonly Socket _fd;
         private readonly INetworkProxy? _proxy;
         private readonly IPAddress? _sourceAddr;
 
@@ -29,11 +30,9 @@ namespace ZeroC.Ice
 
         public ValueTask DisposeAsync()
         {
-            _fd.Dispose();
+            Socket.Dispose();
             return new ValueTask();
         }
-
-        public Socket? Fd() => _fd;
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -44,18 +43,18 @@ namespace ZeroC.Ice
                     // Bind the socket to the source address if one is set.
                     if (_sourceAddr != null)
                     {
-                        _fd.Bind(new IPEndPoint(_sourceAddr, 0));
+                        Socket.Bind(new IPEndPoint(_sourceAddr, 0));
                     }
 
                     // Connect to the server or proxy server.
                     // TODO: use the cancelable ConnectAsync with 5.0
-                    await _fd.ConnectAsync(_proxy?.GetAddress() ?? _addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_proxy?.GetAddress() ?? _addr).WaitAsync(cancel).ConfigureAwait(false);
 
-                    _desc = Network.FdToString(_fd);
+                    _desc = Network.SocketToString(Socket);
 
                     if (_proxy != null)
                     {
-                        await _proxy.ConnectAsync(_fd, _addr, cancel).ConfigureAwait(false);
+                        await _proxy.ConnectAsync(Socket, _addr, cancel).ConfigureAwait(false);
                     }
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
@@ -69,14 +68,15 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel) => throw new InvalidOperationException();
+        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException();
 
-        public async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             int received;
             try
             {
-                received = await _fd.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
+                received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
@@ -93,16 +93,12 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public override string ToString() => _desc;
-
-        public string ToDetailedString() => _desc;
-
-        public async ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             try
             {
                 // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
-                return await _fd.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
+                return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
@@ -114,6 +110,10 @@ namespace ZeroC.Ice
             }
         }
 
+        public override string ToString() => _desc;
+
+        public string ToDetailedString() => _desc;
+
         internal TcpTransceiver(Communicator communicator, EndPoint addr, INetworkProxy? proxy, IPAddress? sourceAddr)
         {
             _communicator = communicator;
@@ -121,14 +121,14 @@ namespace ZeroC.Ice
             _addr = addr;
             _desc = "";
             _sourceAddr = sourceAddr;
-            _fd = Network.CreateSocket(false, (_proxy != null ? _proxy.GetAddress() : _addr).AddressFamily);
+            Socket = Network.CreateSocket(false, (_proxy != null ? _proxy.GetAddress() : _addr).AddressFamily);
             try
             {
-                Network.SetBufSize(_fd, _communicator, Transport.TCP);
+                Network.SetBufSize(Socket, _communicator, Transport.TCP);
             }
             catch (Exception)
             {
-                Network.CloseSocketNoThrow(_fd);
+                Network.CloseSocketNoThrow(Socket);
                 throw;
             }
         }
@@ -136,15 +136,15 @@ namespace ZeroC.Ice
         internal TcpTransceiver(Communicator communicator, Socket fd)
         {
             _communicator = communicator;
-            _fd = fd;
+            Socket = fd;
             try
             {
-                Network.SetBufSize(_fd, _communicator, Transport.TCP);
-                _desc = Network.FdToString(_fd);
+                Network.SetBufSize(Socket, _communicator, Transport.TCP);
+                _desc = Network.SocketToString(Socket);
             }
             catch (Exception)
             {
-                Network.CloseSocketNoThrow(_fd);
+                Network.CloseSocketNoThrow(Socket);
                 throw;
             }
         }

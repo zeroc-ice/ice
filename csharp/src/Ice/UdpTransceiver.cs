@@ -15,7 +15,7 @@ namespace ZeroC.Ice
 {
     internal sealed class UdpTransceiver : ITransceiver
     {
-        public Socket? Fd() => _fd;
+        public Socket Socket { get; }
         internal IPEndPoint? MulticastAddress { get; private set; }
 
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
@@ -25,7 +25,6 @@ namespace ZeroC.Ice
 
         private IPEndPoint _addr;
         private readonly Communicator _communicator;
-        private readonly Socket _fd;
         private readonly bool _incoming;
         private readonly string? _multicastInterface;
         private EndPoint? _peerAddr;
@@ -40,14 +39,14 @@ namespace ZeroC.Ice
             {
                 if (Network.IsMulticast(_addr))
                 {
-                    _fd.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 
                     MulticastAddress = _addr;
                     if (AssemblyUtil.IsWindows)
                     {
                         // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY (0.0.0.0)
-                        // instead. As a result, bi-directional connection won't work because the source address won't the
-                        // multicast address and the client will therefore reject the datagram.
+                        // instead. As a result, bi-directional connection won't work because the source address won't
+                        //  multicast address and the client will therefore reject the datagram.
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {
                             _addr = new IPEndPoint(IPAddress.Any, _addr.Port);
@@ -58,8 +57,8 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    _fd.Bind(_addr);
-                    _addr = (IPEndPoint)_fd.LocalEndPoint;
+                    Socket.Bind(_addr);
+                    _addr = (IPEndPoint)Socket.LocalEndPoint;
 
                     if (endpoint.Port == 0)
                     {
@@ -67,12 +66,12 @@ namespace ZeroC.Ice
                     }
 
                     Debug.Assert(_multicastInterface != null);
-                    Network.SetMulticastGroup(_fd, MulticastAddress.Address, _multicastInterface);
+                    Network.SetMulticastGroup(Socket, MulticastAddress.Address, _multicastInterface);
                 }
                 else
                 {
-                    _fd.Bind(_addr);
-                    _addr = (IPEndPoint)_fd.LocalEndPoint;
+                    Socket.Bind(_addr);
+                    _addr = (IPEndPoint)Socket.LocalEndPoint;
                 }
             }
             catch (SocketException ex)
@@ -99,7 +98,7 @@ namespace ZeroC.Ice
 
         public ValueTask DisposeAsync()
         {
-            _fd.Dispose();
+            Socket.Dispose();
             return new ValueTask();
         }
 
@@ -111,10 +110,10 @@ namespace ZeroC.Ice
                 {
                     if (_sourceAddr != null)
                     {
-                        _fd.Bind(_sourceAddr);
+                        Socket.Bind(_sourceAddr);
                     }
                     // TODO: fix to use the cancellable ConnectAsync with 5.0
-                    await _fd.ConnectAsync(_addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_addr).WaitAsync(cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -123,7 +122,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel)
+        public async ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel)
         {
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
             ArraySegment<byte> buffer = new byte[packetSize];
@@ -133,9 +132,9 @@ namespace ZeroC.Ice
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (!_incoming ||
-                    (AssemblyUtil.IsMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
+                    (AssemblyUtil.IsMacOS && Socket.AddressFamily == AddressFamily.InterNetworkV6 && Socket.DualMode))
                 {
-                    received = await _fd.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
+                    received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
                 }
                 else
                 {
@@ -155,7 +154,7 @@ namespace ZeroC.Ice
 
                     // TODO: Fix to use the cancellable API with 5.0
                     SocketReceiveFromResult result =
-                        await _fd.ReceiveFromAsync(buffer,
+                        await Socket.ReceiveFromAsync(buffer,
                                                    SocketFlags.None,
                                                    peerAddr).WaitAsync(cancel).ConfigureAwait(false);
                     _peerAddr = result.RemoteEndPoint;
@@ -178,7 +177,7 @@ namespace ZeroC.Ice
             return buffer.Slice(0, received);
         }
 
-        public ValueTask<int> ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
+        public ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
             throw new InvalidOperationException();
 
         public override string ToString()
@@ -188,7 +187,7 @@ namespace ZeroC.Ice
                 string s;
                 if (_incoming)
                 {
-                    s = "local address = " + Network.LocalAddrToString(Network.GetLocalAddress(_fd));
+                    s = "local address = " + Network.LocalAddrToString(Network.GetLocalAddress(Socket));
                     if (_peerAddr != null)
                     {
                         s += "\nremote address = " + Network.AddrToString(_peerAddr);
@@ -196,7 +195,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    s = Network.FdToString(_fd);
+                    s = Network.SocketToString(Socket);
                 }
                 if (MulticastAddress != null)
                 {
@@ -207,6 +206,43 @@ namespace ZeroC.Ice
             catch (ObjectDisposedException)
             {
                 return "<closed>";
+            }
+        }
+
+        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        {
+            int count = buffer.GetByteCount();
+
+            // The caller is supposed to check the send size before by calling checkSendSize
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= count);
+
+            if (_incoming && _peerAddr == null)
+            {
+                throw new TransportException("cannot send datagram to undefined peer");
+            }
+
+            try
+            {
+                if (!_incoming)
+                {
+                    // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
+                    return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    // TODO: Fix to use the cancellable API with 5.0
+                    return await Socket.SendToAsync(buffer.GetSegment(0, count),
+                                                 SocketFlags.None,
+                                                 _peerAddr).WaitAsync(cancel).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Network.ConnectionLost(ex))
+                {
+                    throw new ConnectionLostException(ex);
+                }
+                throw new TransportException(ex);
             }
         }
 
@@ -234,43 +270,6 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        public async ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
-        {
-            int count = buffer.GetByteCount();
-
-            // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= count);
-
-            if (_incoming && _peerAddr == null)
-            {
-                throw new TransportException("cannot send datagram to undefined peer");
-            }
-
-            try
-            {
-                if (!_incoming)
-                {
-                    // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
-                    return await _fd.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
-                }
-                else
-                {
-                    // TODO: Fix to use the cancellable API with 5.0
-                    return await _fd.SendToAsync(buffer.GetSegment(0, count),
-                                                 SocketFlags.None,
-                                                 _peerAddr).WaitAsync(cancel).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (Network.ConnectionLost(ex))
-                {
-                    throw new ConnectionLostException(ex);
-                }
-                throw new TransportException(ex);
-            }
-        }
-
         // Only for use by UdpConnector.
         internal UdpTransceiver(
             Communicator communicator,
@@ -288,28 +287,28 @@ namespace ZeroC.Ice
                 _sourceAddr = new IPEndPoint(sourceAddr, 0);
             }
 
-            _fd = Network.CreateSocket(true, _addr.AddressFamily);
+            Socket = Network.CreateSocket(true, _addr.AddressFamily);
             try
             {
-                Network.SetBufSize(_fd, _communicator, Transport.UDP);
-                _rcvSize = (int)_fd.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-                _sndSize = (int)_fd.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                Network.SetBufSize(Socket, _communicator, Transport.UDP);
+                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
+                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
 
                 if (Network.IsMulticast((IPEndPoint)_addr))
                 {
                     if (_multicastInterface.Length > 0)
                     {
-                        Network.SetMulticastInterface(_fd, _multicastInterface, _addr.AddressFamily);
+                        Network.SetMulticastInterface(Socket, _multicastInterface, _addr.AddressFamily);
                     }
                     if (multicastTtl != -1)
                     {
-                        Network.SetMulticastTtl(_fd, multicastTtl, _addr.AddressFamily);
+                        Network.SetMulticastTtl(Socket, multicastTtl, _addr.AddressFamily);
                     }
                 }
             }
             catch (SocketException ex)
             {
-                Network.CloseSocketNoThrow(_fd);
+                Network.CloseSocketNoThrow(Socket);
                 throw new TransportException(ex);
             }
         }
@@ -326,16 +325,16 @@ namespace ZeroC.Ice
             _multicastInterface = multicastInterface;
             _incoming = true;
 
-            _fd = Network.CreateServerSocket(true, _addr.AddressFamily, communicator.IPVersion);
+            Socket = Network.CreateServerSocket(true, _addr.AddressFamily, communicator.IPVersion);
             try
             {
-                Network.SetBufSize(_fd, _communicator, Transport.UDP);
-                _rcvSize = (int)_fd.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-                _sndSize = (int)_fd.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                Network.SetBufSize(Socket, _communicator, Transport.UDP);
+                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
+                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
             }
             catch (SocketException ex)
             {
-                Network.CloseSocketNoThrow(_fd);
+                Network.CloseSocketNoThrow(Socket);
                 throw new TransportException(ex);
             }
         }

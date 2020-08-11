@@ -13,13 +13,13 @@ namespace ZeroC.Ice
 {
     public interface ITransceiver : IAsyncDisposable
     {
-        Socket? Fd();
-        ValueTask InitializeAsync(CancellationToken cancel);
-        ValueTask ClosingAsync(Exception exception, CancellationToken cancel);
-        ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel);
-        ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel);
-        ValueTask<int> ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel);
-        string ToDetailedString();
+        Socket? Socket { get; }
         void CheckSendSize(int size);
+        ValueTask ClosingAsync(Exception exception, CancellationToken cancel);
+        ValueTask InitializeAsync(CancellationToken cancel);
+        ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
+        ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
+        ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel);
+        string ToDetailedString();
     }
 }

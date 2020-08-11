@@ -17,8 +17,8 @@ namespace ZeroC.Ice
 {
     internal sealed class WSTransceiver : ITransceiver
     {
-        public IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
-
+        public Socket? Socket => _underlying.Socket;
+        internal IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
         internal SslStream? SslStream => (_underlying as SslTransceiver)?.SslStream;
 
         private enum OpCode : byte
@@ -53,16 +53,16 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private readonly ITransceiver _underlying;
         private readonly Random _rand;
-        private ArraySegment<byte> _readBuffer;
-        private bool _readLastFrame;
-        private ArraySegment<byte> _readMask;
-        private int _readPayloadLength;
-        private int _readPayloadOffset;
+        private ArraySegment<byte> _receiveBuffer;
+        private bool _receiveLastFrame;
+        private ArraySegment<byte> _receiveMask;
+        private int _receivePayloadLength;
+        private int _receivePayloadOffset;
         private string _resource;
         private readonly string _transportName;
-        private readonly byte[] _writeMask;
-        private readonly IList<ArraySegment<byte>> _writeBuffer;
-        private Task _writeTask = Task.CompletedTask;
+        private readonly byte[] _sendMask;
+        private readonly IList<ArraySegment<byte>> _sendBuffer;
+        private Task _sendTask = Task.CompletedTask;
 
         public void CheckSendSize(int size) => _underlying.CheckSendSize(size);
 
@@ -75,18 +75,16 @@ namespace ZeroC.Ice
 
             _closing = true;
 
-            // Write the close frame.
-            await WriteImplAsync(OpCode.Close, new List<ArraySegment<byte>> { payload }, cancel).ConfigureAwait(false);
+            // Send the close frame.
+            await SendImplAsync(OpCode.Close, new List<ArraySegment<byte>> { payload }, cancel).ConfigureAwait(false);
 
             if (exception is ConnectionClosedByPeerException)
             {
-                await ReadFrameAsync(new ArraySegment<byte>(), cancel).ConfigureAwait(false);
+                await ReceiveFrameAsync(new ArraySegment<byte>(), cancel).ConfigureAwait(false);
             }
         }
 
         public ValueTask DisposeAsync() => _underlying.DisposeAsync();
-
-        public Socket? Fd() => _underlying.Fd();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -120,31 +118,31 @@ namespace ZeroC.Ice
                     _key = Convert.ToBase64String(key);
                     sb.Append(_key + "\r\n\r\n"); // EOM
                     byte[] data = _utf8.GetBytes(sb.ToString());
-                    _writeBuffer.Add(data);
+                    _sendBuffer.Add(data);
 
-                    await _underlying.WriteAsync(_writeBuffer, cancel).ConfigureAwait(false);
+                    await _underlying.SendAsync(_sendBuffer, cancel).ConfigureAwait(false);
                 }
 
                 //
                 // Try to read the client's upgrade request or the server's response.
                 //
                 int offset = 0;
-                _readBuffer = new byte[1024];
-                _writeBuffer.Clear();
+                _receiveBuffer = new byte[1024];
+                _sendBuffer.Clear();
                 ArraySegment<byte> httpBuffer;
                 while (true)
                 {
-                    offset += await _underlying.ReadAsync(_readBuffer.Slice(offset), cancel).ConfigureAwait(false);
+                    offset += await _underlying.ReceiveAsync(_receiveBuffer.Slice(offset), cancel).ConfigureAwait(false);
 
                     // Check if we have enough data for a complete frame.
-                    int p = HttpParser.IsCompleteMessage(_readBuffer.AsSpan(0, offset));
+                    int p = HttpParser.IsCompleteMessage(_receiveBuffer.AsSpan(0, offset));
                     if (p != -1)
                     {
-                        httpBuffer = _readBuffer.Slice(0, p);
-                        _readBuffer = _readBuffer.Slice(p, offset - p);
+                        httpBuffer = _receiveBuffer.Slice(0, p);
+                        _receiveBuffer = _receiveBuffer.Slice(p, offset - p);
                         break; // Done
                     }
-                    else if (offset == _readBuffer.Array!.Length)
+                    else if (offset == _receiveBuffer.Array!.Length)
                     {
                         // Enlarge the buffer and try to read more.
                         if (offset + 1024 > _communicator.IncomingFrameSizeMax)
@@ -152,8 +150,8 @@ namespace ZeroC.Ice
                             throw new InvalidDataException("WebSocket frame size exceeds Ice.IncomingFrameSizeMax value");
                         }
                         byte[] tmpBuffer = new byte[offset + 1024];
-                        _readBuffer.AsSpan(0, offset).CopyTo(tmpBuffer);
-                        _readBuffer = tmpBuffer;
+                        _receiveBuffer.AsSpan(0, offset).CopyTo(tmpBuffer);
+                        _receiveBuffer = tmpBuffer;
                     }
                 }
 
@@ -189,11 +187,11 @@ namespace ZeroC.Ice
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
                             sb.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
 
-                            Debug.Assert(_writeBuffer.Count == 0);
+                            Debug.Assert(_sendBuffer.Count == 0);
                             byte[] data = _utf8.GetBytes(sb.ToString());
-                            _writeBuffer.Add(data);
-                            await _underlying.WriteAsync(_writeBuffer, cancel).ConfigureAwait(false);
-                            _writeBuffer.Clear();
+                            _sendBuffer.Add(data);
+                            await _underlying.SendAsync(_sendBuffer, cancel).ConfigureAwait(false);
+                            _sendBuffer.Clear();
                         }
                         else
                         {
@@ -235,22 +233,23 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel) => throw new InvalidOperationException();
+        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException();
 
-        public async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             int received;
-            if (_readPayloadOffset == _readPayloadLength)
+            if (_receivePayloadOffset == _receivePayloadLength)
             {
                 // If the payload has been fully read, read a new frame.
-                received = await ReadFrameAsync(buffer, cancel).ConfigureAwait(false);
-                Debug.Assert(_readPayloadLength > 0 && _readPayloadOffset == 0);
+                received = await ReceiveFrameAsync(buffer, cancel).ConfigureAwait(false);
+                Debug.Assert(_receivePayloadLength > 0 && _receivePayloadOffset == 0);
             }
-            else if (_readBuffer.Count > 0)
+            else if (_receiveBuffer.Count > 0)
             {
                 // Otherwise, if there's still data buffered for the payload, consume the buffered data.
-                int length = Math.Min(_readBuffer.Count, buffer.Count);
-                ArraySegment<byte> buffered = await ReadBufferedAsync(length, cancel).ConfigureAwait(false);
+                int length = Math.Min(_receiveBuffer.Count, buffer.Count);
+                ArraySegment<byte> buffered = await ReceiveBufferedAsync(length, cancel).ConfigureAwait(false);
                 buffered.CopyTo(buffer);
                 received = length;
             }
@@ -263,31 +262,31 @@ namespace ZeroC.Ice
             // Read the reminder of the payload from the underlying transport
             if (received < buffer.Count)
             {
-                int length = Math.Min(_readPayloadLength - _readPayloadOffset, buffer.Count);
-                received += await _underlying.ReadAsync(buffer.Slice(received, length - received),
-                                                        cancel).ConfigureAwait(false);
+                int length = Math.Min(_receivePayloadLength - _receivePayloadOffset, buffer.Count);
+                received += await _underlying.ReceiveAsync(buffer.Slice(received, length - received),
+                                                           cancel).ConfigureAwait(false);
             }
 
             if (_incoming)
             {
                 for (int i = 0; i < received; ++i)
                 {
-                    buffer[i] = (byte)(buffer[i] ^ _readMask[_readPayloadOffset++ % 4]);
+                    buffer[i] = (byte)(buffer[i] ^ _receiveMask[_receivePayloadOffset++ % 4]);
                 }
             }
             else
             {
-                _readPayloadOffset += received;
+                _receivePayloadOffset += received;
             }
             return received;
         }
 
+        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel) =>
+             SendImplAsync(OpCode.Data, buffers, cancel);
+
         public override string ToString() => _underlying.ToString()!;
 
         public string ToDetailedString() => _underlying.ToDetailedString();
-
-        public ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel) =>
-             WriteImplAsync(OpCode.Data, buffers, cancel);
 
         internal
         WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource) :
@@ -304,10 +303,10 @@ namespace ZeroC.Ice
             _communicator = communicator;
             _underlying = del;
             _parser = new HttpParser();
-            _readBuffer = ArraySegment<byte>.Empty;
-            _readLastFrame = true;
-            _writeBuffer = new List<ArraySegment<byte>>();
-            _writeMask = new byte[4];
+            _receiveBuffer = ArraySegment<byte>.Empty;
+            _receiveLastFrame = true;
+            _sendBuffer = new List<ArraySegment<byte>>();
+            _sendMask = new byte[4];
             _key = "";
             _rand = new Random();
             _host = "";
@@ -316,7 +315,7 @@ namespace ZeroC.Ice
             _transportName = (del is SslTransceiver) ? "wss" : "ws";
         }
 
-        private ArraySegment<byte> PrepareWriteHeader(OpCode opCode, int payloadLength)
+        private ArraySegment<byte> PrepareHeaderForSend(OpCode opCode, int payloadLength)
         {
             // Prepare the frame header.
             byte[] buffer = new byte[16];
@@ -360,88 +359,88 @@ namespace ZeroC.Ice
                 // and apply the mask.
                 //
                 buffer[1] = (byte)(buffer[1] | FLAG_MASKED);
-                _rand.NextBytes(_writeMask);
-                Buffer.BlockCopy(_writeMask, 0, buffer, i, _writeMask.Length);
-                i += _writeMask.Length;
+                _rand.NextBytes(_sendMask);
+                Buffer.BlockCopy(_sendMask, 0, buffer, i, _sendMask.Length);
+                i += _sendMask.Length;
             }
             return new ArraySegment<byte>(buffer, 0, i);
         }
 
-        private async ValueTask<ArraySegment<byte>> ReadBufferedAsync(int byteCount, CancellationToken cancel)
+        private async ValueTask<ArraySegment<byte>> ReceiveBufferedAsync(int byteCount, CancellationToken cancel)
         {
-            int offset = _readBuffer.Count;
-            if (_readBuffer.Count < byteCount)
+            int offset = _receiveBuffer.Count;
+            if (_receiveBuffer.Count < byteCount)
             {
                 // If there's not enough data buffered for byteCount we read more data in the buffer. We first
                 // need to make sure there's enough space in the buffer to read it however.
-                if (_readBuffer.Count == 0)
+                if (_receiveBuffer.Count == 0)
                 {
                     // Use the full buffer array if there's no more buffered data.
-                    _readBuffer = new ArraySegment<byte>(_readBuffer.Array!);
+                    _receiveBuffer = new ArraySegment<byte>(_receiveBuffer.Array!);
                 }
-                else if (_readBuffer.Offset + _readBuffer.Count + byteCount > _readBuffer.Array!.Length)
+                else if (_receiveBuffer.Offset + _receiveBuffer.Count + byteCount > _receiveBuffer.Array!.Length)
                 {
                     // There's still buffered data but not enough space left in the array to read the given bytes.
                     // In theory, the number of bytes to read should always be lower than the un-used buffer space
                     // at the start of the buffer. We move the data at the end of the buffer to the begining to
                     // make space to read the given number of bytes.
-                    Debug.Assert(_readBuffer.Offset >= byteCount);
-                    _readBuffer.CopyTo(_readBuffer.Array!, 0);
-                    _readBuffer = new ArraySegment<byte>(_readBuffer.Array);
+                    Debug.Assert(_receiveBuffer.Offset >= byteCount);
+                    _receiveBuffer.CopyTo(_receiveBuffer.Array!, 0);
+                    _receiveBuffer = new ArraySegment<byte>(_receiveBuffer.Array);
                 }
                 else
                 {
                     // There's still buffered data and enough space to read the given bytes after the buffered
                     // data.
-                    _readBuffer = new ArraySegment<byte>(
-                        _readBuffer.Array,
-                        _readBuffer.Offset,
-                        _readBuffer.Array.Length - _readBuffer.Offset);
+                    _receiveBuffer = new ArraySegment<byte>(
+                        _receiveBuffer.Array,
+                        _receiveBuffer.Offset,
+                        _receiveBuffer.Array.Length - _receiveBuffer.Offset);
                 }
 
                 while (offset < byteCount)
                 {
-                    offset += await _underlying.ReadAsync(_readBuffer.Slice(offset), cancel);
+                    offset += await _underlying.ReceiveAsync(_receiveBuffer.Slice(offset), cancel);
                 }
             }
 
-            ArraySegment<byte> buffer = _readBuffer.Slice(0, byteCount);
+            ArraySegment<byte> buffer = _receiveBuffer.Slice(0, byteCount);
             if (byteCount < offset)
             {
-                _readBuffer = _readBuffer.Slice(byteCount, offset - byteCount);
+                _receiveBuffer = _receiveBuffer.Slice(byteCount, offset - byteCount);
             }
             else
             {
-                _readBuffer = _readBuffer.Slice(0, 0);
+                _receiveBuffer = _receiveBuffer.Slice(0, 0);
             }
             return buffer;
         }
 
-        private async ValueTask<int> ReadFrameAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        private async ValueTask<int> ReceiveFrameAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             while (true)
             {
                 // Ensure the previous payload has been totally consumed.
-                Debug.Assert(_readPayloadOffset == _readPayloadLength);
+                Debug.Assert(_receivePayloadOffset == _receivePayloadLength);
 
                 // Read the first 2 bytes of the WS frame header
-                ArraySegment<byte> header = await ReadBufferedAsync(2, cancel);
+                ArraySegment<byte> header = await ReceiveBufferedAsync(2, cancel);
 
                 // Most-significant bit indicates if this is the last frame, least-significant four bits hold the opcode.
                 var opCode = (OpCode)(header[0] & 0xf);
 
                 // Check if the OpCode is compatible of the FIN flag of the previous frame.
-                if (opCode == OpCode.Data && !_readLastFrame)
+                if (opCode == OpCode.Data && !_receiveLastFrame)
                 {
                     throw new InvalidDataException("invalid WebSocket data frame, no FIN on previous frame");
                 }
-                else if (opCode == OpCode.Continuation && _readLastFrame)
+                else if (opCode == OpCode.Continuation && _receiveLastFrame)
                 {
                     throw new InvalidDataException("invalid WebSocket continuation frame, previous frame FIN set");
                 }
 
                 // Remember the FIN flag of this frame for the previous check.
-                _readLastFrame = (header[0] & FLAG_FINAL) == FLAG_FINAL;
+                _receiveLastFrame = (header[0] & FLAG_FINAL) == FLAG_FINAL;
 
                 // Messages sent by a client must be masked; frames sent by a server must not be masked.
                 bool masked = (header[1] & FLAG_MASKED) == FLAG_MASKED;
@@ -454,36 +453,36 @@ namespace ZeroC.Ice
                 // 0-125: The payload length
                 // 126:   The subsequent two bytes contain the payload length
                 // 127:   The subsequent eight bytes contain the payload length
-                _readPayloadLength = header[1] & 0x7f;
-                if (_readPayloadLength == 126)
+                _receivePayloadLength = header[1] & 0x7f;
+                if (_receivePayloadLength == 126)
                 {
-                    header = await ReadBufferedAsync(2, cancel).ConfigureAwait(false);
+                    header = await ReceiveBufferedAsync(2, cancel).ConfigureAwait(false);
                     ushort length = header.AsReadOnlySpan().ReadUShort();
-                    _readPayloadLength = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)length);
+                    _receivePayloadLength = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)length);
                 }
-                else if (_readPayloadLength == 127)
+                else if (_receivePayloadLength == 127)
                 {
-                    header = await ReadBufferedAsync(8, cancel).ConfigureAwait(false);
+                    header = await ReceiveBufferedAsync(8, cancel).ConfigureAwait(false);
                     long length = System.Net.IPAddress.NetworkToHostOrder(header.AsReadOnlySpan().ReadLong());
                     if (length > int.MaxValue)
                     {
                         // We never send payloads with such length, we shouldn't get any.
                         throw new InvalidDataException("WebSocket payload length is not supported");
                     }
-                    _readPayloadLength = (int)length;
+                    _receivePayloadLength = (int)length;
                 }
-                _readPayloadOffset = 0;
+                _receivePayloadOffset = 0;
 
                 if (_incoming)
                 {
                     // Read the mask if this is an incoming connection.
-                    _readMask = await ReadBufferedAsync(4, cancel).ConfigureAwait(false);
+                    _receiveMask = await ReceiveBufferedAsync(4, cancel).ConfigureAwait(false);
                 }
 
                 if (_communicator.TraceLevels.Network >= 3)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"received {_transportName} {opCode} frame with {_readPayloadLength} bytes payload\n{this}");
+                        $"received {_transportName} {opCode} frame with {_receivePayloadLength} bytes payload\n{this}");
                 }
 
                 switch (opCode)
@@ -495,16 +494,17 @@ namespace ZeroC.Ice
                     case OpCode.Data:
                     case OpCode.Continuation:
                     {
-                        if (_readPayloadLength <= 0)
+                        if (_receivePayloadLength <= 0)
                         {
                             throw new InvalidDataException("WebSocket payload length is invalid");
                         }
 
                         // If we received more data than the header size, copy the payload data to the caller's buffer
-                        int length = Math.Min(_readBuffer.Count, buffer.Count);
+                        int length = Math.Min(_receiveBuffer.Count, buffer.Count);
                         if (length > 0)
                         {
-                            ArraySegment<byte> payload = await ReadBufferedAsync(length, cancel).ConfigureAwait(false);
+                            ArraySegment<byte> payload = await ReceiveBufferedAsync(length,
+                                                                                    cancel).ConfigureAwait(false);
                             payload.CopyTo(buffer);
                         }
                         return length;
@@ -512,18 +512,18 @@ namespace ZeroC.Ice
                     case OpCode.Close:
                     {
                         // Read the Close frame payload.
-                        ArraySegment<byte> payload = await ReadBufferedAsync(_readPayloadLength,
-                                                                             cancel).ConfigureAwait(false);
+                        ArraySegment<byte> payload = await ReceiveBufferedAsync(_receivePayloadLength,
+                                                                                cancel).ConfigureAwait(false);
                         if (_incoming)
                         {
                             for (int i = 0; i < payload.Count; ++i)
                             {
-                                payload[i] = (byte)(payload[i] ^ _readMask[_readPayloadOffset++ % 4]);
+                                payload[i] = (byte)(payload[i] ^ _receiveMask[_receivePayloadOffset++ % 4]);
                             }
                         }
                         else
                         {
-                            _readPayloadOffset = 2;
+                            _receivePayloadOffset = 2;
                         }
 
                         // If we've received a close frame and we were waiting for it, notify the task. Otherwise,
@@ -534,29 +534,29 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            var writeBuffer = new List<ArraySegment<byte>> { payload };
-                            await WriteImplAsync(OpCode.Close, writeBuffer, cancel).ConfigureAwait(false);
+                            var sendBuffer = new List<ArraySegment<byte>> { payload };
+                            await SendImplAsync(OpCode.Close, sendBuffer, cancel).ConfigureAwait(false);
                         }
                         break;
                     }
                     case OpCode.Ping:
                     {
                         // Read the ping payload.
-                        ArraySegment<byte> payload = await ReadBufferedAsync(_readPayloadLength,
-                                                                             cancel).ConfigureAwait(false);
-                        _readPayloadOffset = payload.Count;
+                        ArraySegment<byte> payload = await ReceiveBufferedAsync(_receivePayloadLength,
+                                                                                cancel).ConfigureAwait(false);
+                        _receivePayloadOffset = payload.Count;
 
                         // Send a Pong frame with the received payload.
-                        var writeBuffer = new List<ArraySegment<byte>> { payload };
-                        await WriteImplAsync(OpCode.Pong, writeBuffer, cancel).ConfigureAwait(false);
+                        var sendBuffer = new List<ArraySegment<byte>> { payload };
+                        await SendImplAsync(OpCode.Pong, sendBuffer, cancel).ConfigureAwait(false);
                         break;
                     }
                     case OpCode.Pong:
                     {
                         // Read the pong payload.
-                        ArraySegment<byte> payload = await ReadBufferedAsync(_readPayloadLength,
-                                                                             cancel).ConfigureAwait(false);
-                        _readPayloadOffset = payload.Count;
+                        ArraySegment<byte> payload = await ReceiveBufferedAsync(_receivePayloadLength,
+                                                                                cancel).ConfigureAwait(false);
+                        _receivePayloadOffset = payload.Count;
 
                         // Nothing to do, this can be received even if we don't send a ping frame if the peer sends
                         // an unidirectional heartbeat.
@@ -731,7 +731,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask<int> WriteImplAsync(
+        private async ValueTask<int> SendImplAsync(
             OpCode opCode,
             IList<ArraySegment<byte>> buffers,
             CancellationToken cancel)
@@ -746,12 +746,12 @@ namespace ZeroC.Ice
                 // Optimization: we check if the write completed already and avoid creating a Task if it did.
                 if (writeTask.IsCompletedSuccessfully)
                 {
-                    _writeTask = Task.CompletedTask;
+                    _sendTask = Task.CompletedTask;
                     return writeTask.Result;
                 }
 
                 task = writeTask.AsTask();
-                _writeTask = task;
+                _sendTask = task;
             }
             return await task.ConfigureAwait(false);
 
@@ -761,12 +761,12 @@ namespace ZeroC.Ice
                 CancellationToken cancel)
             {
                 // Wait for the current write to be done.
-                await _writeTask.ConfigureAwait(false);
+                await _sendTask.ConfigureAwait(false);
 
                 // Write the given buffer.
-                Debug.Assert(_writeBuffer.Count == 0);
+                Debug.Assert(_sendBuffer.Count == 0);
                 int size = buffers.GetByteCount();
-                _writeBuffer.Add(PrepareWriteHeader(opCode, size));
+                _sendBuffer.Add(PrepareHeaderForSend(opCode, size));
                 if (_communicator.TraceLevels.Network >= 3)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
@@ -777,7 +777,7 @@ namespace ZeroC.Ice
                 {
                     foreach (ArraySegment<byte> segment in buffers)
                     {
-                        _writeBuffer.Add(segment); // Borrow data from the buffer
+                        _sendBuffer.Add(segment); // Borrow data from the buffer
                     }
                 }
                 else
@@ -789,13 +789,13 @@ namespace ZeroC.Ice
                         byte[] data = new byte[segment.Count];
                         for (int i = 0; i < segment.Count; ++i, ++n)
                         {
-                            data[i] = (byte)(segment[i] ^ _writeMask[n % 4]);
+                            data[i] = (byte)(segment[i] ^ _sendMask[n % 4]);
                         }
-                        _writeBuffer.Add(data);
+                        _sendBuffer.Add(data);
                     }
                 }
-                await _underlying.WriteAsync(_writeBuffer, cancel).ConfigureAwait(false);
-                _writeBuffer.Clear();
+                await _underlying.SendAsync(_sendBuffer, cancel).ConfigureAwait(false);
+                _sendBuffer.Clear();
                 return size;
             }
         }

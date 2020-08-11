@@ -18,6 +18,7 @@ namespace ZeroC.Ice
 {
     internal sealed class SslTransceiver : ITransceiver
     {
+        public Socket? Socket => _underlying.Socket;
         internal SslStream? SslStream { get; private set; }
 
         private readonly string? _adapterName;
@@ -28,13 +29,11 @@ namespace ZeroC.Ice
         private BufferedStream? _writeStream;
         private readonly ITransceiver _underlying;
 
-        public Socket? Fd() => _underlying.Fd();
-
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
             await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
 
-            var stream = new NetworkStream(_underlying.Fd(), false);
+            var stream = new NetworkStream(_underlying.Socket!, false);
             SslStream = new SslStream(stream, false);
 
             try
@@ -133,9 +132,10 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel) => throw new InvalidOperationException();
+        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException();
 
-        public async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             int received;
             try
@@ -157,11 +157,7 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public string ToDetailedString() => _underlying.ToDetailedString();
-
-        public override string ToString() => _underlying.ToString()!;
-
-        public async ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             try
             {
@@ -184,6 +180,10 @@ namespace ZeroC.Ice
                 throw new TransportException(ex);
             }
         }
+
+        public string ToDetailedString() => _underlying.ToDetailedString();
+
+        public override string ToString() => _underlying.ToString()!;
 
         // Only for use by TcpEndpoint.
         internal SslTransceiver(
