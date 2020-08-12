@@ -57,10 +57,9 @@ namespace ZeroC.Ice
                         await _proxy.ConnectAsync(Socket, _addr, cancel).ConfigureAwait(false);
                     }
                 }
-                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
+                catch (SocketException) when (cancel.IsCancellationRequested)
                 {
-                    // This occurs on Windows, when the I/O operation is canceled
-                    throw new OperationCanceledException("", ex);
+                    cancel.ThrowIfCancellationRequested();
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
@@ -83,10 +82,11 @@ namespace ZeroC.Ice
             {
                 received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
             }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
+            catch (SocketException) when (cancel.IsCancellationRequested)
             {
-                // This occurs on Windows, when the I/O operation is canceled
-                throw new OperationCanceledException("", ex);
+                cancel.ThrowIfCancellationRequested();
+                Debug.Assert(false);
+                return 0;
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
@@ -110,9 +110,11 @@ namespace ZeroC.Ice
                 // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
                 return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
             }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
+            catch (SocketException) when (cancel.IsCancellationRequested)
             {
-                throw new OperationCanceledException("", ex);
+                cancel.ThrowIfCancellationRequested();
+                Debug.Assert(false);
+                return 0;
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
