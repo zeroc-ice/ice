@@ -57,6 +57,10 @@ namespace ZeroC.Ice
                         await _proxy.ConnectAsync(Socket, _addr, cancel).ConfigureAwait(false);
                     }
                 }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionAborted)
+                {
+                    throw new OperationCanceledException();
+                }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
                     throw new ConnectionRefusedException(ex);
@@ -103,6 +107,10 @@ namespace ZeroC.Ice
             {
                 // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
                 return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionAborted)
+            {
+                throw new OperationCanceledException();
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
