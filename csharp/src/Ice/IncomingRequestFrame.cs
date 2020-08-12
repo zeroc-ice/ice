@@ -65,10 +65,8 @@ namespace ZeroC.Ice
             HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
         }
 
-        // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
-        // the frame has a single segment.
         internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
-            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data), sizeMax)
+            : this(frame.Protocol, frame.Data.AsArraySegment(), sizeMax)
         {
         }
 
