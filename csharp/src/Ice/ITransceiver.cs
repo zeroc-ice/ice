@@ -37,20 +37,20 @@ namespace ZeroC.Ice
         /// <summary>Receives data from the connection. This is used for datagram connections only. The
         /// transceiver is responsible for allocating the memory for the returned data.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <return>The received data.<return>
+        /// <return>The received data.</return>
         ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
 
         /// <summary>Receives data from the connection. This is used for stream based connections only. The data
         /// is received and copied in the given buffer.</summary>
         /// <param name="buffer">The buffer to use to copy the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <return>The number of bytes received.<return>
+        /// <return>The number of bytes received.</return>
         ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
 
         /// <summary>Receive data from the connection.</summary>
         /// <param name="buffer">The buffer containing the data to send.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <return>The number of bytes sent.<return>
+        /// <return>The number of bytes sent.</return>
         ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel);
 
         /// <summary>Gets a detailed description of the connection.</summary>

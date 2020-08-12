@@ -31,40 +31,13 @@ namespace ZeroC.Ice
         private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
             new List<ArraySegment<byte>> { Ice2Definitions.ValidateConnectionFrame };
 
-        public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
+        public async ValueTask ClosingAsync(Exception exception, CancellationToken cancel)
         {
-            // Write the close connection frame if we are initiating the graceful close.
-            if (!(exception is ConnectionClosedByPeerException))
-            {
-                try
-                {
-                    await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
+            // Write the close connection frame.
+            await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            try
-            {
-                await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
-
-            // Wait for the connection closure from the peer
-            try
-            {
-                await _receiveTask.WaitAsync(cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
+            await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
         }
 
         public ValueTask DisposeAsync() => Transceiver.DisposeAsync();

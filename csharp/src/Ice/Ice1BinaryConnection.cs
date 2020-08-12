@@ -31,40 +31,13 @@ namespace ZeroC.Ice
         private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.ValidateConnectionFrame };
 
-        public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
+        public async ValueTask ClosingAsync(Exception exception, CancellationToken cancel)
         {
-            // Write the close connection frame if we are initiating the graceful close.
-            if (!(exception is ConnectionClosedByPeerException))
-            {
-                try
-                {
-                    await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
+            // Write the close connection frame.
+            await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            try
-            {
-                await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
-
-            // Wait for the connection closure from the peer
-            try
-            {
-                await _receiveTask.WaitAsync(cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
+            await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
         }
 
         public ValueTask DisposeAsync() => Transceiver.DisposeAsync();
@@ -230,19 +203,12 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.CloseConnection:
                 {
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                    if (Endpoint.IsDatagram)
+                    if (Endpoint.IsDatagram && Endpoint.Communicator.WarnConnections)
                     {
-                        if (Endpoint.Communicator.WarnConnections)
-                        {
-                            Endpoint.Communicator.Logger.Warning(
-                                $"ignoring close connection frame for datagram connection:\n{this}");
-                        }
+                        Endpoint.Communicator.Logger.Warning(
+                            $"ignoring close connection frame for datagram connection:\n{this}");
                     }
-                    else
-                    {
-                        throw new ConnectionClosedByPeerException();
-                    }
-                    return default;
+                    throw new ConnectionClosedByPeerException();
                 }
 
                 case Ice1Definitions.FrameType.Request:
