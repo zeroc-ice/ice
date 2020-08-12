@@ -20,7 +20,6 @@ namespace ZeroC.Ice
         private Action? _heartbeatCallback;
         private readonly bool _incoming;
         private int _nextRequestId;
-        private Task _receiveTask = Task.CompletedTask;
         private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
         private Action<int>? _sentCallback;
@@ -120,25 +119,8 @@ namespace ZeroC.Ice
         {
             while (true)
             {
-                int requestId = 0;
-                object? frame = null;
-                Task<ArraySegment<byte>>? task = null;
-                ValueTask<ArraySegment<byte>> receiveTask = PerformReceiveFrameAsync();
-                if (receiveTask.IsCompletedSuccessfully)
-                {
-                    _receiveTask = Task.CompletedTask;
-                    (requestId, frame) = ParseFrame(receiveTask.Result);
-                }
-                else
-                {
-                    _receiveTask = task = receiveTask.AsTask();
-                }
-
-                if (task != null)
-                {
-                    (requestId, frame) = ParseFrame(await task.ConfigureAwait(false));
-                }
-
+                ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
+                (int requestId, object? frame) = ParseFrame(buffer);
                 if (frame != null)
                 {
                     return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
