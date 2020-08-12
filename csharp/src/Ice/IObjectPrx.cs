@@ -236,10 +236,12 @@ namespace ZeroC.Ice
 
         private static OutgoingRequestWithParam<string, bool>? _iceI_IsARequest;
         private static OutgoingRequestWithParam<string, bool> IceI_IsARequest =>
-            _iceI_IsARequest ??= new OutgoingRequestWithParam<string, bool>("ice_isA", idempotent: true,
-                format: null,
-                writer: OutputStream.IceWriterFromString,
-                reader: InputStream.IceReaderIntoBool);
+            _iceI_IsARequest ??= new OutgoingRequestWithParam<string, bool>("ice_isA",
+                                                                            idempotent: true,
+                                                                            compress: false,
+                                                                            format: default,
+                                                                            writer: OutputStream.IceWriterFromString,
+                                                                            reader: InputStream.IceReaderIntoBool);
 
         private static OutgoingRequestWithEmptyParamList<string[]>? _iceI_IdsRequest;
         private static OutgoingRequestWithEmptyParamList<string[]> IceI_IdsRequest =>
@@ -294,7 +296,7 @@ namespace ZeroC.Ice
         {
             if (!(context.Context is Communicator communicator))
             {
-                throw new ArgumentException("cannot deserialize proxy: Ice.Communicator not found in StreamingContext",
+                throw new ArgumentException("cannot deserialize proxy: communicator not found in StreamingContext",
                     nameof(context));
             }
             string? str = info.GetString("proxy");

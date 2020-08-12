@@ -472,7 +472,7 @@ namespace ZeroC.Ice
             if (_communicator == null)
             {
                 throw new InvalidOperationException(
-                    "cannot read a proxy from an input stream with a null communicator");
+                    "cannot read a proxy from an InputStream with a null communicator");
             }
             return Reference.Read(this, _communicator) is Reference reference ? factory(reference) : null;
         }
@@ -524,7 +524,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidDataException("read an empty byte sequence for a serializable object");
             }
-            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator!));
+            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator));
             var streamWrapper = new StreamWrapper(_buffer.Slice(Pos, sz));
             object result = f.Deserialize(streamWrapper);
             if (streamWrapper.Position != sz)
@@ -1053,9 +1053,6 @@ namespace ZeroC.Ice
 
             if (startEncapsulation)
             {
-                // TODO: a null communicator should be ok for an empty encaps.
-                Debug.Assert(_communicator != null);
-
                 (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
 
                 // When startEncapsulation is true, the buffer must extend until the end of the encapsulation - it
@@ -1071,6 +1068,15 @@ namespace ZeroC.Ice
                 Pos = 0;
                 Encoding = encapsEncoding;
                 Encoding.CheckSupported();
+
+                if (encapsEncoding == Encoding.V2_0)
+                {
+                    byte compressionStatus = ReadByte();
+                    if (compressionStatus != 0)
+                    {
+                        throw new InvalidDataException("the buffer encapsulation is compressed");
+                    }
+                }
             }
             _inEncapsulation = startEncapsulation;
         }
@@ -1116,46 +1122,50 @@ namespace ZeroC.Ice
             if (protocol == Protocol.Ice1 || OldEncoding)
             {
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
-
                 if (!encoding.IsSupported)
                 {
-                    // If we can't read the encaps, it's like we didn't find a factory.
+                    // If we can't read the encapsulation, it's like we didn't find a factory.
                     factory = null;
                 }
 
-                // We need to read the encaps except for ice1 + null factory.
+                // Remove the two bytes of the encoding included in size. Endpoint encapsulations don't include a
+                // compression byte.
+                size -= 2;
+
+                // We need to read the encapsulation except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {
-                    endpoint = new OpaqueEndpoint(
-                        communicator, transport, encoding, _buffer.Slice(Pos, size - 2).ToArray());
-                    Pos += size - 2;
+                    endpoint = new OpaqueEndpoint(communicator,
+                                                  transport,
+                                                  encoding,
+                                                  _buffer.Slice(Pos, size).ToArray());
+                    Pos += size;
                 }
                 else if (encoding.IsSupported)
                 {
                     int oldPos = Pos;
 
-                    // The common situation is an ice1 proxy in 1.1 encaps, with endpoints encoded with 1.1 (no need to
-                    // create a new InputStream). A less common situation is an ice1 proxy in 2.0 encaps with
-                    // 1.1-encoded endpoints (we need a new InputStream in this case).
+                    // The common situation is an ice1 proxy in 1.1 encapsulation, with endpoints encoded with 1.1 (no
+                    // need to create a new InputStream). A less common situation is an ice1 proxy in 2.0 encapsulation
+                    // with 1.1-encoded endpoints (we need a new InputStream in this case).
                     InputStream istr = encoding == Encoding ?
-                        this : new InputStream(_buffer.Slice(Pos, size - 2), encoding);
+                        this : new InputStream(_buffer.Slice(Pos, size), encoding);
 
                     endpoint = factory?.Read(istr, transport, protocol) ??
                         new UniversalEndpoint(istr, communicator, transport, protocol); // protocol is ice2 or greater
 
                     if (ReferenceEquals(istr, this))
                     {
-                        // Make sure we read the full encaps
-                        if (Pos != oldPos + size - 2)
+                        // Make sure we read the full encapsulation
+                        if (Pos != oldPos + size)
                         {
-                            throw new InvalidDataException(
-                                $"{oldPos + size - 2 - Pos} bytes left in endpoint encapsulation");
+                            throw new InvalidDataException($"{oldPos + size - Pos} bytes left in endpoint encapsulation");
                         }
                     }
                     else
                     {
                         istr.CheckEndOfBuffer(skipTaggedParams: false);
-                        Pos += size - 2;
+                        Pos += size;
                     }
                 }
                 else
@@ -1475,9 +1485,9 @@ namespace ZeroC.Ice
                         Skip(ReadSize20());
                     }
                     break;
-                case EncodingDefinitions.TagFormat.Class:
-                    ReadAnyClass(formalTypeId: null);
-                    break;
+                default:
+                    throw new InvalidDataException(
+                        $"cannot skip tagged parameter or data member with tag format `{format}'");
             }
         }
 

@@ -31,21 +31,14 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
-            var test2Prx = ITestIntf2Prx.Parse(helper.GetTestProxy("Test2", 0), communicator);
             output.WriteLine("ok");
 
-            output.Write("testing Ice.Default.SlicedFormat... ");
-            // server to client. Note that client and server has the same Ice.Default.SlicedFormat setting.
+            output.Write("testing basic slicing... ");
+            // server to client
             try
             {
-                SBase? sb = test2Prx.SBSUnknownDerivedAsSBase();
+                SBase? sb = testPrx.SBSUnknownDerivedAsSBase();
                 TestHelper.Assert(sb != null && sb.Sb.Equals("SBSUnknownDerived.sb"));
-                TestHelper.Assert(communicator.DefaultFormat == FormatType.Sliced);
-            }
-            catch (InvalidDataException)
-            {
-                // Expected when format is Compact
-                TestHelper.Assert(communicator.DefaultFormat == FormatType.Compact);
             }
             catch (Exception ex)
             {
@@ -56,13 +49,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             // client to server
             try
             {
-                test2Prx.CUnknownAsSBase(new CUnknown("CUnknown.sb", "CUnknown.cu"));
-                TestHelper.Assert(communicator.DefaultFormat == FormatType.Sliced);
-            }
-            catch (UnhandledException)
-            {
-                // Expected when format is Compact
-                TestHelper.Assert(communicator.DefaultFormat == FormatType.Compact);
+                testPrx.CUnknownAsSBase(new CUnknown("CUnknown.sb", "CUnknown.cu"));
             }
             catch (Exception ex)
             {
@@ -202,10 +189,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             }
             try
             {
-                //
                 // This test fails when using the compact format because the instance cannot
                 // be sliced to a known type.
-                //
                 testPrx.SBSUnknownDerivedAsSBaseCompact();
                 TestHelper.Assert(false);
             }
@@ -227,10 +212,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 TestHelper.Assert(sb != null && sb.Sb.Equals("SBSUnknownDerived.sb"));
             }
 
-            //
             // This test fails when using the compact format because the instance cannot
             // be sliced to a known type.
-            //
             try
             {
                 SBase? sb = testPrx.SBSUnknownDerivedAsSBaseCompactAsync().Result;

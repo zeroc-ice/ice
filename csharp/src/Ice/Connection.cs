@@ -741,6 +741,7 @@ namespace ZeroC.Ice
 
                 if (response != null)
                 {
+                    response.Finish();
                     dispatchObserver?.Reply(response.Size);
                 }
             }

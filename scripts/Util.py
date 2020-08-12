@@ -3410,8 +3410,8 @@ class CSharpMapping(Mapping):
         return props
 
     def getOptions(self, current):
-        # TODO: remove once all the mappings no longer support serialize
-        options = { "serialize" : [False] }
+        # TODO: remove once all the mappings no longer support serialize and compress
+        options = { "serialize" : [False], "compress":  [False]}
         if current.config.xamarin and current.config.uwp:
             # Do not run MX tests with SSL it cause problems with Xamarin UWP implementation
             if current.config.transport in ["ssl", "wss"]:

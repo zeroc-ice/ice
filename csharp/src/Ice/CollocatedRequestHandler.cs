@@ -94,7 +94,8 @@ namespace ZeroC.Ice
 
                 var incomingResponseFrame = new IncomingResponseFrame(
                     outgoingRequest.Protocol,
-                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data));
+                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data),
+                    _adapter.IncomingFrameSizeMax);
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
@@ -137,7 +138,7 @@ namespace ZeroC.Ice
             IDispatchObserver? dispatchObserver = null;
             try
             {
-                var incomingRequest = new IncomingRequestFrame(outgoingRequest);
+                var incomingRequest = new IncomingRequestFrame(outgoingRequest, _adapter.IncomingFrameSizeMax);
                 var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
 
                 // Then notify and set dispatch observer, if any.
@@ -167,6 +168,7 @@ namespace ZeroC.Ice
                         // not completed yet and we want to make sure the observer is detached only when the dispatch
                         // completes, not when the caller cancels the request.
                         outgoingResponseFrame = await vt.ConfigureAwait(false);
+                        outgoingResponseFrame.Finish();
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
@@ -187,11 +189,17 @@ namespace ZeroC.Ice
                     if (requestId != 0)
                     {
                         outgoingResponseFrame = new OutgoingResponseFrame(incomingRequest, actualEx);
+                        outgoingResponseFrame.Finish();
                         dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
 
-                return outgoingResponseFrame ?? OutgoingResponseFrame.WithVoidReturnValue(current);
+                if (outgoingResponseFrame == null)
+                {
+                    outgoingResponseFrame = OutgoingResponseFrame.WithVoidReturnValue(current);
+                    outgoingResponseFrame.Finish();
+                }
+                return outgoingResponseFrame;
             }
             finally
             {

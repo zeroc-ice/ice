@@ -22,7 +22,10 @@ namespace ZeroC.Ice.Test.Invoke
             else if (current.Operation.Equals("opString"))
             {
                 string s = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
-                var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null, (s, s),
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
+                                                                          compress: false,
+                                                                          format: default,
+                                                                          (s, s),
                     (OutputStream ostr, (string ReturnValue, string s2) value) =>
                     {
                         ostr.WriteString(value.ReturnValue);
@@ -47,8 +50,11 @@ namespace ZeroC.Ice.Test.Invoke
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
-                var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,
-                    s.Equals("::ZeroC::Ice::Test::Invoke::MyClass"), OutputStream.IceWriterFromBool);
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
+                                                                          compress: false,
+                                                                          format: default,
+                                                                          s == "::ZeroC::Ice::Test::Invoke::MyClass",
+                                                                          OutputStream.IceWriterFromBool);
                 return new ValueTask<OutgoingResponseFrame >(responseFrame);
             }
             else

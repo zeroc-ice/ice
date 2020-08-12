@@ -703,6 +703,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                 i.d9 = 9.0;
                 i.d10 = 10.0;
                 i.d11 = 11.0;
+                i.proxy = p;
                 i.s1 = Serialize.Large.LargeString;
                 Serialize.Large o;
                 Serialize.Large r;
@@ -721,6 +722,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                     TestHelper.Assert(o.d9 == 9.0);
                     TestHelper.Assert(o.d10 == 10.0);
                     TestHelper.Assert(o.d11 == 11.0);
+                    TestHelper.Assert(o.proxy!.Equals(p));
                     TestHelper.Assert(o.s1 == Serialize.Large.LargeString);
                     TestHelper.Assert(r.d1 == 1.0);
                     TestHelper.Assert(r.d2 == 2.0);
@@ -733,6 +735,7 @@ namespace ZeroC.Ice.Test.SeqMapping
                     TestHelper.Assert(r.d9 == 9.0);
                     TestHelper.Assert(r.d10 == 10.0);
                     TestHelper.Assert(r.d11 == 11.0);
+                    TestHelper.Assert(r.proxy!.Equals(p));
                     TestHelper.Assert(r.s1 == Serialize.Large.LargeString);
                 }
                 catch (OperationNotExistException)

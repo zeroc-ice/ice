@@ -27,6 +27,8 @@ namespace ZeroC.Ice.Test.SeqMapping.Serialize
         public double d10;
         public double d11;
 
+        public IMyClassPrx? proxy;
+
         public string s1 = "";
 
         // Use as data member of Large to ensure that the class serialization will take more than 254 bytes

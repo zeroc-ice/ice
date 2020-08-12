@@ -10,26 +10,16 @@ using System.Diagnostics;
 namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame received by the application.</summary>
-    public sealed class IncomingResponseFrame
+    public sealed class IncomingResponseFrame : IncomingFrame
     {
         /// <summary>The response context. Always null with Ice1.</summary>
         public Dictionary<string, string>? Context { get; }
 
         /// <summary>The encoding of the frame payload.</summary>
-        public Encoding Encoding { get; }
-
-        /// <summary>The payload of this response frame. The bytes inside the payload should not be written to;
-        /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
-        public ArraySegment<byte> Payload { get; }
-
-        /// <summary>The Ice protocol of this frame.</summary>
-        public Protocol Protocol { get; }
+        public override Encoding Encoding { get; }
 
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
-
-        /// <summary>The frame byte count.</summary>
-        public int Size => Payload.Count;
 
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
@@ -44,7 +34,7 @@ namespace ZeroC.Ice
                 ostr.WriteByte((byte)ResultType.Success);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
-                return new IncomingResponseFrame(key.Protocol, data[0]);
+                return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
             });
 
         /// <summary>Reads the return value carried by this response frame. If the response frame carries
@@ -53,19 +43,36 @@ namespace ZeroC.Ice
         /// <param name="reader">An input stream reader used to read the frame return value, when the frame
         /// return value contain multiple values the reader must use a tuple to return the values.</param>
         /// <returns>The frame return value.</returns>
-        public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader) =>
-            ResultType == ResultType.Success ?
-                Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader) :
+        public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (ResultType == ResultType.Success)
+            {
+                return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+            }
+            else
+            {
                 throw ReadException(communicator);
+            }
+        }
 
         /// <summary>Reads an empty return value from the response frame. If the response frame carries a failure, reads
         /// and throws this exception.</summary>
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
             if (ResultType == ResultType.Success)
             {
-                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding(), communicator);
+                Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
             }
             else
             {
@@ -75,17 +82,16 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
-        /// <param name="payload">The frame data as an array segment.</param>
-        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> payload)
+        /// <param name="data">The frame data as an array segment.</param>
+        /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
+        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
+            : base(data, protocol, sizeMax)
         {
-            protocol.CheckSupported();
-            Protocol = protocol;
-            Payload = payload;
             bool hasEncapsulation = false;
 
             if (Protocol == Protocol.Ice1)
             {
-                byte b = Payload[0];
+                byte b = Data[0];
                 if (b > 7)
                 {
                     throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
@@ -102,7 +108,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = Payload[0];
+                byte b = Data[0];
                 if (b > 1)
                 {
                     throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
@@ -117,13 +123,20 @@ namespace ZeroC.Ice
                 int sizeLength;
 
                 (size, sizeLength, Encoding) =
-                    Payload.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
-
-                if (1 + sizeLength + size != Payload.Count)
+                    Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                Encapsulation = Data.Slice(1, size + sizeLength);
+                Payload = Data.Slice(0, 1 + size + sizeLength);
+                if (sizeLength + size != Encapsulation.Count)
                 {
                     throw new InvalidDataException(
-                        $"{Payload.Count - 1 - sizeLength - size} extra bytes in payload of response frame");
+                        $"{Encapsulation.Count - sizeLength - size} extra bytes in payload of response frame");
                 }
+
+                HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
+            }
+            else
+            {
+                Payload = Data;
             }
         }
 

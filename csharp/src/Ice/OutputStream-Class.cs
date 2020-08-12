@@ -223,21 +223,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged class instance to the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The class instance to write.</param>
-        public void WriteTaggedClass(int tag, AnyClass? v)
-        {
-            if (v != null)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class);
-
-                // Since the recipient may not know the tag, we cannot use formal type optimization and set formalTypeId
-                // to null.
-                WriteClass(v, formalTypeId: null);
-            }
-        }
-
         /// <summary>Writes sliced-off slices to the stream.</summary>
         /// <param name="slicedData">The sliced-off slices to write.</param>
         /// <param name="baseTypeIds">The type IDs of less derived slices.</param>

@@ -108,6 +108,7 @@ interface TestIntf
     SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
 
     SBase SBSUnknownDerivedAsSBase();
+    void CUnknownAsSBase(SBase cUnknown);
 
     [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
 
@@ -155,13 +156,6 @@ interface TestIntf
     void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 
     void shutdown();
-}
-
-// Used to test Ice.Default.SlicedFormat property
-interface TestIntf2
-{
-    SBase SBSUnknownDerivedAsSBase();
-    void CUnknownAsSBase(SBase cUnknown);
 }
 
 class Hidden

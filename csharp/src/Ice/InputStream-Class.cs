@@ -65,8 +65,12 @@ namespace ZeroC.Ice
             {
                 throw new InvalidOperationException("cannot read an exception outside an encapsulation");
             }
+            if (_communicator == null)
+            {
+                throw new InvalidOperationException(
+                    "cannot read an exception from an InputStream with a null communicator");
+            }
 
-            Debug.Assert(_communicator != null);
             Debug.Assert(_current.InstanceType == InstanceType.None);
             _current.InstanceType = InstanceType.Exception;
 
@@ -164,13 +168,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads a tagged class instance from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <returns>The class instance, or null.</returns>
-        public T? ReadTaggedClass<T>(int tag) where T : AnyClass =>
-            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class) ?
-                ReadNullableClass<T>(formalTypeId: null) : null;
-
         /// <summary>Reads a class instance from the stream.</summary>
         /// <param name="formalTypeId">The type ID of the formal type of the parameter or data member being read.
         /// </param>
@@ -180,6 +177,11 @@ namespace ZeroC.Ice
             if (!_inEncapsulation)
             {
                 throw new InvalidOperationException("cannot read a class outside an encapsulation");
+            }
+            if (_communicator == null)
+            {
+                throw new InvalidOperationException(
+                    "cannot read a class from an InputStream with a null communicator");
             }
 
             int index = ReadSize();
@@ -549,7 +551,7 @@ namespace ZeroC.Ice
         {
             _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
 
-            string? typeId = null;
+            string? typeId;
             int? compactId = null;
 
             // Read the type ID. For class slices, the type ID is encoded as a string or as an index or as a compact ID,

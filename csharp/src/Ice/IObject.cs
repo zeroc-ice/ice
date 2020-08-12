@@ -73,7 +73,7 @@ namespace ZeroC.Ice
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList(current.Communicator);
+            request.ReadEmptyParamList();
             IcePing(current);
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
@@ -83,24 +83,36 @@ namespace ZeroC.Ice
             string id = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
             bool ret = IceIsA(id, current);
             return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current, format: null, ret, OutputStream.IceWriterFromBool));
+                OutgoingResponseFrame.WithReturnValue(current,
+                                                      compress: false,
+                                                      format: default,
+                                                      ret,
+                                                      OutputStream.IceWriterFromBool));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList(current.Communicator);
+            request.ReadEmptyParamList();
             string ret = IceId(current);
             return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current, format: null, ret, OutputStream.IceWriterFromString));
+                OutgoingResponseFrame.WithReturnValue(current,
+                                                      compress: false,
+                                                      format: default,
+                                                      ret,
+                                                      OutputStream.IceWriterFromString));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList(current.Communicator);
+            request.ReadEmptyParamList();
             IEnumerable<string> ret = IceIds(current);
             return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current, format: null, ret,
-                    (ostr, ret) => ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
+                OutgoingResponseFrame.WithReturnValue(current,
+                                                      compress: false,
+                                                      format: default,
+                                                      ret,
+                                                      (ostr, ret) =>
+                                                          ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
         }
     }
 }

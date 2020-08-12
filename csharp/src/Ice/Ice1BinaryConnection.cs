@@ -197,7 +197,7 @@ namespace ZeroC.Ice
                 {
                     var request = new IncomingRequestFrame(Endpoint.Protocol,
                                                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
-                                                           compressionStatus);
+                                                           _incomingFrameSizeMax);
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, request);
                     return (readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt(), request);
                 }
@@ -218,7 +218,8 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.Reply:
                 {
                     var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
-                                                                  readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
+                                                                  readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
+                                                                  _incomingFrameSizeMax);
                     ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, responseFrame);
                     return (readBuffer.AsReadOnlySpan(14, 4).ReadInt(), responseFrame);
                 }
@@ -319,7 +320,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(streamId > 0);
                 writeBuffer = Ice1Definitions.GetResponseData(responseFrame, (int)streamId);
-                compress = responseFrame.CompressionStatus > 0;
+                compress = responseFrame.Compress;
                 ProtocolTrace.TraceFrame(Endpoint.Communicator, writeBuffer[0], responseFrame);
             }
             else
@@ -334,7 +335,7 @@ namespace ZeroC.Ice
             if (BZip2.IsLoaded && compress)
             {
                 List<ArraySegment<byte>>? compressed = null;
-                if (size >= 100)
+                if (size >= Endpoint.Communicator.CompressionMinSize)
                 {
                     compressed = BZip2.Compress(writeBuffer,
                                                 size,
