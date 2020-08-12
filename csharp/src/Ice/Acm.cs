@@ -95,7 +95,7 @@ namespace ZeroC.Ice
             Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
             if (Timeout == TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException($"0 is not a valid value for invalid `{prefix}.Timeout'");
+                throw new ArgumentOutOfRangeException($"0 is not a valid value for `{prefix}.Timeout'");
             }
 
             Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;
