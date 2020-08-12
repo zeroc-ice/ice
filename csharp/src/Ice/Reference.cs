@@ -169,27 +169,15 @@ namespace ZeroC.Ice
 
                 property = $"{propertyPrefix}.InvocationTimeout";
                 invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
-                if (invocationTimeout != null &&
-                    invocationTimeout <= TimeSpan.Zero &&
-                    invocationTimeout != Timeout.InfiniteTimeSpan)
+                if (invocationTimeout == TimeSpan.Zero)
                 {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for property `{property}': `{invocationTimeout}'");
+                    throw new InvalidConfigurationException($"0 is not a value value for property `{property}'");
                 }
 
                 locatorInfo = communicator.GetLocatorInfo(
                     communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
 
-                property = $"{propertyPrefix}.LocatorCacheTimeout";
-                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
-                if (locatorCacheTimeout != null &&
-                    locatorCacheTimeout < TimeSpan.Zero &&
-                    locatorCacheTimeout != Timeout.InfiniteTimeSpan)
-                {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for property `{property}': `{locatorCacheTimeout}'");
-                }
-
+                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
                 preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
 
                 property = $"{propertyPrefix}.Router";
@@ -837,12 +825,10 @@ namespace ZeroC.Ice
                 throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
-            if (invocationTimeout != null &&
-                invocationTimeout <= TimeSpan.Zero &&
-                invocationTimeout != Timeout.InfiniteTimeSpan)
+            if (invocationTimeout != Timeout.InfiniteTimeSpan && invocationTimeout <= TimeSpan.Zero)
             {
-                throw new ArgumentException(
-                    $"invalid {nameof(invocationTimeout)}: {invocationTimeout}", nameof(invocationTimeout));
+                throw new ArgumentException($"{invocationTimeout} is not a valid value for {nameof(invocationTimeout)}",
+                                            nameof(invocationTimeout));
             }
 
             if (IsFixed || fixedConnection != null)

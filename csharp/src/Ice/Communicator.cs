@@ -433,31 +433,25 @@ namespace ZeroC.Ice
                 DefaultInvocationTimeout =
                     GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;;
 
-                if (DefaultInvocationTimeout != Timeout.InfiniteTimeSpan && DefaultInvocationTimeout <= TimeSpan.Zero)
+                if (DefaultInvocationTimeout == TimeSpan.Zero)
                 {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for Ice.Default.InvocationTimeout: `{DefaultInvocationTimeout}'");
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
+                // For locator cache timeout, 0 means disable locator cache.
                 DefaultLocatorCacheTimeout =
                     GetPropertyAsTimeSpan("Ice.Default.LocatorCacheTimeout") ?? Timeout.InfiniteTimeSpan;
-                if (DefaultLocatorCacheTimeout != Timeout.InfiniteTimeSpan &&
-                    DefaultLocatorCacheTimeout < TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
-                }
 
                 CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
-                if (CloseTimeout < TimeSpan.Zero)
+                if (CloseTimeout == TimeSpan.Zero)
                 {
-                    throw new InvalidConfigurationException($"invalid value for Ice.CloseTimeout: `{CloseTimeout}'");
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.CloseTimeout");
                 }
 
                 ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
-                if (ConnectTimeout < TimeSpan.Zero)
+                if (ConnectTimeout == TimeSpan.Zero)
                 {
-                    throw new InvalidConfigurationException($"invalid value for Ice.ConnectTimeout: `{ConnectTimeout}'");
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.ConnectTimeout");
                 }
 
                 ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));

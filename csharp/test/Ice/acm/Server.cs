@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.ACM
             properties["Ice.ACM.Timeout"] = "1s";
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            communicator.SetProperty("TestAdapter.ACM.Timeout", "0s");
+            communicator.SetProperty("TestAdapter.ACM.Timeout", "infinite");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());
             await adapter.ActivateAsync();
