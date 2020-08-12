@@ -60,7 +60,7 @@ namespace ZeroC.Ice
             ArraySegment<byte> readBuffer;
             if (_incoming) // The server side has the active role for connection validation.
             {
-                await WriteAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
+                await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
 
                 ProtocolTrace.TraceSend(Endpoint.Communicator,
                                         Endpoint.Protocol,
@@ -69,7 +69,7 @@ namespace ZeroC.Ice
             else // The client side has the passive role for connection validation.
             {
                 readBuffer = new ArraySegment<byte>(new byte[Ice2Definitions.HeaderSize]);
-                await ReadAsync(readBuffer, cancel).ConfigureAwait(false);
+                await ReceiveAsync(readBuffer, cancel).ConfigureAwait(false);
 
                 Ice2Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
                 var frameType = (Ice2Definitions.FrameType)readBuffer[8];
@@ -194,7 +194,7 @@ namespace ZeroC.Ice
         {
             // Read header
             var readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
-            await ReadAsync(readBuffer).ConfigureAwait(false);
+            await ReceiveAsync(readBuffer).ConfigureAwait(false);
 
             // Check header
             Ice2Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
@@ -225,7 +225,7 @@ namespace ZeroC.Ice
                 }
                 Debug.Assert(size == readBuffer.Count);
 
-                await ReadAsync(readBuffer.Slice(Ice2Definitions.HeaderSize)).ConfigureAwait(false);
+                await ReceiveAsync(readBuffer.Slice(Ice2Definitions.HeaderSize)).ConfigureAwait(false);
             }
             return readBuffer;
         }
@@ -254,7 +254,7 @@ namespace ZeroC.Ice
             }
 
             // Write the frame
-            await WriteAsync(writeBuffer).ConfigureAwait(false);
+            await SendAsync(writeBuffer).ConfigureAwait(false);
         }
 
         private Task SendFrameAsync(long streamId, object frame, CancellationToken cancel)
@@ -286,7 +286,7 @@ namespace ZeroC.Ice
                 await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
             }
         }
-        private async ValueTask ReadAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
+        private async ValueTask ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
             int offset = 0;
             while (offset != buffer.Count)
@@ -297,7 +297,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask WriteAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
+        private async ValueTask SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
         {
             int sent = await Transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
             Debug.Assert(sent == buffers.GetByteCount()); // TODO: do we need to support partial writes?

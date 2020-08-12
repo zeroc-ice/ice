@@ -60,7 +60,7 @@ namespace ZeroC.Ice
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
                 {
                     // This occurs on Windows, when the I/O operation is canceled
-                    throw new OperationCanceledException();
+                    throw new OperationCanceledException("", ex);
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
@@ -83,10 +83,10 @@ namespace ZeroC.Ice
             {
                 received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
             }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionAborted)
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
             {
                 // This occurs on Windows, when the I/O operation is canceled
-                throw new OperationCanceledException();
+                throw new OperationCanceledException("", ex);
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
@@ -112,7 +112,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
             {
-                throw new OperationCanceledException();
+                throw new OperationCanceledException("", ex);
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {

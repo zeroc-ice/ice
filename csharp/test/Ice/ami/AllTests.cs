@@ -644,6 +644,10 @@ namespace ZeroC.Ice.Test.AMI
                 serialized.OpWithPayloadAsync(new byte[512 * 1024]);
                 serialized.OpWithPayloadAsync(new byte[512 * 1024]);
                 serialized.OpWithPayloadAsync(new byte[512 * 1024]);
+                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
+                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
+                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
+                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
 
                 // The send queue is blocked, we send 4 set requests and cancel 2 of them. We make sure that the
                 // requests are canceled and not sent by checking the response of set which sends the previous set
