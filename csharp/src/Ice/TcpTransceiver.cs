@@ -78,6 +78,10 @@ namespace ZeroC.Ice
             {
                 received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
             }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionAborted)
+            {
+                throw new OperationCanceledException();
+            }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
                 throw new ConnectionLostException(ex);

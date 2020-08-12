@@ -788,7 +788,7 @@ namespace ZeroC.Ice
             {
                 while (true)
                 {
-                    (long streamId, object? frame, bool fin) =
+                    (long streamId, IncomingFrame? frame, bool fin) =
                         await BinaryConnection.ReceiveAsync(default).ConfigureAwait(false);
 
                     Func<ValueTask>? incoming = null;
@@ -916,7 +916,7 @@ namespace ZeroC.Ice
                 throw;
             }
 
-            static async Task TaskRun(Func<ValueTask> func, TaskScheduler? scheduler)
+            static async Task TaskRun(Func<ValueTask> func, TaskScheduler scheduler)
             {
                 // First await for the dispatch to be ran on the task scheduler.
                 ValueTask task = await Task.Factory.StartNew(
@@ -971,7 +971,7 @@ namespace ZeroC.Ice
                     Debug.Assert(_state == ConnectionState.Validating);
                     // Start the asynchronous operation from the thread pool to prevent eventually reading
                     // synchronously new frames from this thread.
-                    _receiveTask = Task.Run(async() => await ReceiveAndDispatchFrameAsync());
+                    _receiveTask = Task.Run(async () => await ReceiveAndDispatchFrameAsync());
                     break;
                 }
 

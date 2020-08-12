@@ -117,7 +117,7 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException($"key `{key}' is already in use", nameof(key));
             }
-    }
+        }
 
         /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
         /// <param name="key">The binary context entry key.</param>

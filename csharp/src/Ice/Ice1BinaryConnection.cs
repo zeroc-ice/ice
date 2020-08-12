@@ -115,12 +115,12 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
+        public async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
         {
             while (true)
             {
                 ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
-                (int requestId, object? frame) = ParseFrame(buffer);
+                (int requestId, IncomingFrame? frame) = ParseFrame(buffer);
                 if (frame != null)
                 {
                     return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
@@ -149,7 +149,7 @@ namespace ZeroC.Ice
         public ValueTask ResetAsync(long streamId) =>
             throw new NotSupportedException("ice1 transports don't support stream reset");
 
-        public async ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel) =>
+        public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel) =>
             await SendFrameAsync(streamId, frame, cancel);
 
         public override string ToString() => Transceiver.ToString()!;
@@ -163,7 +163,7 @@ namespace ZeroC.Ice
             _incomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
         }
 
-        private (int, object?) ParseFrame(ArraySegment<byte> readBuffer)
+        private (int, IncomingFrame?) ParseFrame(ArraySegment<byte> readBuffer)
         {
             // The magic and version fields have already been checked.
             var frameType = (Ice1Definitions.FrameType)readBuffer[8];
