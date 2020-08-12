@@ -602,16 +602,12 @@ namespace ZeroC.Ice
             return l.ToArray();
         }
 
-        public static string JoinString(string[] values, string delimiters)
+        public static string JoinStringProperty(IReadOnlyList<string> values)
         {
-            if (delimiters.Length == 0)
-            {
-                throw new ArgumentException("delimiters cannot be empty", nameof(delimiters));
-            }
-
+            string delimiters = ", \n\r\t";
             char quote = '"';
             var result = new StringBuilder();
-            char delimiter = delimiters[0];
+            char delimiter = ' ';
 
             foreach (string value in values)
             {

@@ -679,7 +679,7 @@ namespace ZeroC.IceBox
 
                     if (facetNames.Count > 0)
                     {
-                        properties["Ice.Admin.Facets"] = StringUtil.JoinString(facetNames.ToArray(), ", \t\n\r");
+                        properties["Ice.Admin.Facets"] = StringUtil.JoinStringProperty(facetNames);
                     }
                     return true;
                 }

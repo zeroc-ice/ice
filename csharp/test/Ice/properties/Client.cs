@@ -302,8 +302,8 @@ namespace ZeroC.Ice.Test.Properties
 
                 var properties = new Dictionary<string, string>
                 {
-                    { "Services", StringUtil.JoinString(services, ", \t\r\n") },
-                    { "LoggerProperties", StringUtil.JoinString(loggerProperties, ", \t\r\n") }
+                    { "Services", StringUtil.JoinStringProperty(services) },
+                    { "LoggerProperties", StringUtil.JoinStringProperty(loggerProperties) }
                 };
 
                 Console.Out.Write("testing properties as list... ");

@@ -295,7 +295,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        combinedProperties[key] = StringUtil.JoinString(values, ", \t\r\n");
+                        combinedProperties[key] = StringUtil.JoinStringProperty(values);
                     }
                 }
             }
