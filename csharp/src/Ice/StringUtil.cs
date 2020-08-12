@@ -602,9 +602,14 @@ namespace ZeroC.Ice
             return l.ToArray();
         }
 
+        /// <summary>Concatenates a list of strings in a format that is compatible with
+        /// <see cref="Communicator.GetPropertyAsList(string)"/>.</summary>
+        /// <param name="values">The list of strings to concatenate.</param>
+        /// <returns>The values concatenated in a string that is compatible with
+        /// <see cref="Communicator.GetPropertyAsList(string)"/>.</returns>
         public static string JoinStringProperty(IReadOnlyList<string> values)
         {
-            string delimiters = ", \n\r\t";
+            char[] delimiters = new char[] { ',', ' ', '\n', '\r', '\t' };
             char quote = '"';
             var result = new StringBuilder();
             char delimiter = ' ';
@@ -616,24 +621,14 @@ namespace ZeroC.Ice
                     result.Append(delimiter);
                 }
 
-                bool addQuote = false;
-                for (int i = 0; i < delimiters.Length; ++i)
-                {
-                    if (value.Contains(delimiters[i]))
-                    {
-                        addQuote = true;
-                        break;
-                    }
-                }
-
+                bool addQuote = value.IndexOfAny(delimiters) != -1;
                 if (addQuote)
                 {
                     result.Append(quote);
                 }
 
-                for (int i = 0; i < value.Length; ++i)
+                foreach (char c in value)
                 {
-                    char c = value[i];
                     if (c == quote)
                     {
                         result.Append('\\');
