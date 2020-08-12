@@ -38,6 +38,7 @@ namespace ZeroC.Ice
                 SocketError error = socketException.SocketErrorCode;
                 return error == SocketError.ConnectionReset ||
                        error == SocketError.Shutdown ||
+                       error == SocketError.ConnectionAborted ||
                        error == SocketError.NetworkDown ||
                        error == SocketError.NetworkReset;
             }

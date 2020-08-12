@@ -802,9 +802,7 @@ namespace ZeroC.Ice
                         }
                         else if (_state == ConnectionState.Closing)
                         {
-                            // Ignore the frame
-                            // TODO: add tracing.
-                            continue;
+                            continue; // Ignore the frame if received while we are gracefully closing.
                         }
 
                         if (frame == null)
