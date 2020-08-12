@@ -295,8 +295,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        // TODO: this join is not sufficient to create a string compatible with GetPropertyAsList
-                        combinedProperties[key] = string.Join(",", values);
+                        combinedProperties[key] = StringUtil.JoinString(values, ", \t\r\n");
                     }
                 }
             }
