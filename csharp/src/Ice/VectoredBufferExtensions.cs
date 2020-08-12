@@ -134,17 +134,24 @@ namespace ZeroC.Ice
             return data;
         }
 
-        public static byte[] ToArray(this IList<ArraySegment<byte>> src)
+        internal static ArraySegment<byte> AsArraySegment(this IList<ArraySegment<byte>> src)
         {
-            byte[] data = new byte[src.GetByteCount()];
-            int offset = 0;
-            foreach (ArraySegment<byte> segment in src)
+            if (src.Count == 1)
             {
-                Debug.Assert(segment.Array != null);
-                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, segment.Count);
-                offset += segment.Count;
+                return src[0];
             }
-            return data;
+            else
+            {
+                byte[] data = new byte[src.GetByteCount()];
+                int offset = 0;
+                foreach (ArraySegment<byte> segment in src)
+                {
+                    Debug.Assert(segment.Array != null);
+                    Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, segment.Count);
+                    offset += segment.Count;
+                }
+                return data;
+            }
         }
 
         internal static List<ArraySegment<byte>> Slice(

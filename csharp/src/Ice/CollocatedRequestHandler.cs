@@ -94,7 +94,7 @@ namespace ZeroC.Ice
 
                 var incomingResponseFrame = new IncomingResponseFrame(
                     outgoingRequest.Protocol,
-                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data),
+                    outgoingResponseFrame.Data.AsArraySegment(),
                     _adapter.IncomingFrameSizeMax);
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
