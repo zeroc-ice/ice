@@ -59,7 +59,7 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException) when (cancel.IsCancellationRequested)
                 {
-                    cancel.ThrowIfCancellationRequested();
+                    throw new OperationCanceledException(cancel);
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
@@ -84,9 +84,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException) when (cancel.IsCancellationRequested)
             {
-                cancel.ThrowIfCancellationRequested();
-                Debug.Assert(false);
-                return 0;
+                throw new OperationCanceledException(cancel);
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
@@ -112,9 +110,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException) when (cancel.IsCancellationRequested)
             {
-                cancel.ThrowIfCancellationRequested();
-                Debug.Assert(false);
-                return 0;
+                throw new OperationCanceledException(cancel);
             }
             catch (SocketException ex) when (Network.ConnectionLost(ex))
             {
