@@ -42,7 +42,6 @@ namespace ZeroC.Ice
         /// version of the invocationMode parameter.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
-        /// <param name="protocol">The Ice protocol of the clone (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(this IObjectPrx prx,
@@ -60,12 +59,11 @@ namespace ZeroC.Ice
                                  string? facet = null,
                                  Connection? fixedConnection = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
                                  bool? preferNonSecure = null,
-                                 Protocol? protocol = null,
                                  IRouterPrx? router = null) where T : class, IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
@@ -86,7 +84,6 @@ namespace ZeroC.Ice
                                                   locatorCacheTimeout,
                                                   oneway,
                                                   preferNonSecure,
-                                                  protocol,
                                                   router));
         }
 
@@ -116,7 +113,6 @@ namespace ZeroC.Ice
         /// version of the invocationMode parameter.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
-        /// <param name="protocol">The Ice protocol of the clone (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(this IObjectPrx prx,
@@ -133,12 +129,11 @@ namespace ZeroC.Ice
                                  IEnumerable<Endpoint>? endpoints = null,
                                  Connection? fixedConnection = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
                                  bool? preferNonSecure = null,
-                                 Protocol? protocol = null,
                                  IRouterPrx? router = null) where T : class, IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
@@ -159,7 +154,6 @@ namespace ZeroC.Ice
                                                   locatorCacheTimeout,
                                                   oneway,
                                                   preferNonSecure,
-                                                  protocol,
                                                   router));
         }
 
@@ -188,7 +182,6 @@ namespace ZeroC.Ice
         /// version of the invocationMode parameter.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
-        /// <param name="protocol">The Ice protocol of the clone (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy with the same type as this proxy.</returns>
         public static T Clone<T>(this T prx,
@@ -203,12 +196,11 @@ namespace ZeroC.Ice
                                  IEnumerable<Endpoint>? endpoints = null,
                                  Connection? fixedConnection = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
                                  bool? preferNonSecure = null,
-                                 Protocol? protocol = null,
                                  IRouterPrx? router = null) where T : IObjectPrx
         {
             Reference clone = prx.IceReference.Clone(adapterId,
@@ -229,7 +221,6 @@ namespace ZeroC.Ice
                                                      locatorCacheTimeout,
                                                      oneway,
                                                      preferNonSecure,
-                                                     protocol,
                                                      router);
 
             // Reference.Clone never returns a new reference == to itself.
@@ -316,11 +307,15 @@ namespace ZeroC.Ice
                                                                    CancellationToken cancel = default) =>
             InvokeAsync(proxy, request, oneway, synchronous: false, progress, cancel);
 
-        /// <summary>Forwards an incoming request to another Ice object.</summary>
+        /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
+        /// parameter.</summary>
+        /// <remarks>When the incoming request frame's protocol and proxy's protocol are different, this method
+        /// automatically bridges between these two protocols. When proxy's protocol is ice1, the resulting outgoing
+        /// request frame is never compressed.</remarks>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
-        /// <param name="request">The incoming request frame.</param>
+        /// <param name="request">The incoming request frame to forward to proxy's target.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
@@ -375,7 +370,7 @@ namespace ZeroC.Ice
                                                                                      request.Context);
                 int retryCount = 0;
                 CancellationTokenSource? invocationTimeout = null;
-                if (reference.InvocationTimeout > 0)
+                if (reference.InvocationTimeout != Timeout.InfiniteTimeSpan)
                 {
                     invocationTimeout = new CancellationTokenSource();
                     invocationTimeout.CancelAfter(reference.InvocationTimeout);

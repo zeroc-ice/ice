@@ -53,7 +53,8 @@ namespace ZeroC.Ice
         public AcmHeartbeat Heartbeat { get; }
         /// <summary>Returns true if ACM is disabled, false otherwise.</summary>
         public bool IsDisabled => (Close == AcmClose.Off && Heartbeat == AcmHeartbeat.Off) ||
-            Timeout == System.Threading.Timeout.InfiniteTimeSpan || Timeout == TimeSpan.Zero;
+            Timeout == System.Threading.Timeout.InfiniteTimeSpan;
+
         /// <summary>Gets the timeout setting for the Acm configuration.</summary>
         public TimeSpan Timeout { get; }
 
@@ -68,7 +69,7 @@ namespace ZeroC.Ice
         /// <param name="heartbeat">The heartbeat setting.</param>
         public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
         {
-            if (timeout != System.Threading.Timeout.InfiniteTimeSpan && timeout < TimeSpan.Zero)
+            if (timeout != System.Threading.Timeout.InfiniteTimeSpan && timeout <= TimeSpan.Zero)
             {
                 throw new ArgumentOutOfRangeException($"invalid {nameof(timeout)} argument");
             }
@@ -92,9 +93,9 @@ namespace ZeroC.Ice
         internal Acm(Communicator communicator, string prefix, Acm defaults)
         {
             Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
-            if (Timeout != System.Threading.Timeout.InfiniteTimeSpan && Timeout < TimeSpan.Zero)
+            if (Timeout == TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException($"invalid `{prefix}.Timeout' property value");
+                throw new ArgumentOutOfRangeException($"0 is not a valid value for `{prefix}.Timeout'");
             }
 
             Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;

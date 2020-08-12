@@ -30,7 +30,7 @@ namespace ZeroC.Ice
         internal string Facet { get; }
         internal Identity Identity { get; }
         internal InvocationMode InvocationMode { get; }
-        internal int InvocationTimeout { get; }
+        internal TimeSpan InvocationTimeout { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             bool? cacheConnection = null;
             IReadOnlyDictionary<string, string>? context = null;
             EndpointSelectionType? endpointSelection = null;
-            int? invocationTimeout = null;
+            TimeSpan? invocationTimeout = null;
             TimeSpan? locatorCacheTimeout = null;
             LocatorInfo? locatorInfo = null;
             bool? preferNonSecure = null;
@@ -168,26 +168,16 @@ namespace ZeroC.Ice
                 }
 
                 property = $"{propertyPrefix}.InvocationTimeout";
-                invocationTimeout = communicator.GetPropertyAsInt(property);
-                if (invocationTimeout != null && invocationTimeout < 1 && invocationTimeout != -1)
+                invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
+                if (invocationTimeout == TimeSpan.Zero)
                 {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for property `{property}': `{invocationTimeout}'");
+                    throw new InvalidConfigurationException($"0 is not a value value for property `{property}'");
                 }
 
                 locatorInfo = communicator.GetLocatorInfo(
                     communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
 
-                property = $"{propertyPrefix}.LocatorCacheTimeout";
-                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
-                if (locatorCacheTimeout != null &&
-                    locatorCacheTimeout < TimeSpan.Zero &&
-                    locatorCacheTimeout != Timeout.InfiniteTimeSpan)
-                {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for property `{property}': `{locatorCacheTimeout}'");
-                }
-
+                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
                 preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
 
                 property = $"{propertyPrefix}.Router";
@@ -667,8 +657,8 @@ namespace ZeroC.Ice
                    fixedConnection: fixedConnection,
                    identity: identity,
                    invocationMode: fixedConnection.Endpoint.IsDatagram ?
-                      InvocationMode.Datagram : InvocationMode.Twoway,
-                   invocationTimeout: -1)
+                       InvocationMode.Datagram : InvocationMode.Twoway,
+                   invocationTimeout: Timeout.InfiniteTimeSpan)
         {
         }
 
@@ -806,12 +796,11 @@ namespace ZeroC.Ice
                                  Connection? fixedConnection = null,
                                  Identity? identity = null,
                                  InvocationMode? invocationMode = null,
-                                 int? invocationTimeout = null,
+                                 TimeSpan? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
                                  TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
                                  bool? preferNonSecure = null,
-                                 Protocol? protocol = null,
                                  IRouterPrx? router = null)
         {
             // Check for incompatible arguments
@@ -836,10 +825,10 @@ namespace ZeroC.Ice
                 throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
             }
 
-            if (invocationTimeout != null && invocationTimeout.Value < 1 && invocationTimeout.Value != -1)
+            if (invocationTimeout != Timeout.InfiniteTimeSpan && invocationTimeout <= TimeSpan.Zero)
             {
-                throw new ArgumentException($"invalid invocation timeout: {invocationTimeout.Value}",
-                    nameof(invocationTimeout));
+                throw new ArgumentException($"{invocationTimeout} is not a valid value for {nameof(invocationTimeout)}",
+                                            nameof(invocationTimeout));
             }
 
             if (IsFixed || fixedConnection != null)
@@ -890,10 +879,6 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException("cannot change the prefer non-secure configuration of a fixed proxy",
                         nameof(preferNonSecure));
-                }
-                if (protocol != null)
-                {
-                    throw new ArgumentException("cannot change the protocol of a fixed proxy", nameof(protocol));
                 }
                 if (router != null)
                 {
@@ -985,7 +970,7 @@ namespace ZeroC.Ice
                                       locatorCacheTimeout ?? LocatorCacheTimeout,
                                       locatorInfo, // no fallback otherwise breaks clearLocator
                                       preferNonSecure ?? PreferNonSecure,
-                                      protocol ?? Protocol,
+                                      Protocol,
                                       routerInfo); // no fallback otherwise breaks clearRouter
 
                 return clone == this ? this : clone;
@@ -1228,7 +1213,7 @@ namespace ZeroC.Ice
                 [prefix] = ToString(),
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
-                [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
+                [prefix + ".InvocationTimeout"] = InvocationTimeout.ToPropertyString(),
                 [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
                 [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
@@ -1299,7 +1284,7 @@ namespace ZeroC.Ice
                           string facet,
                           Identity identity,
                           InvocationMode invocationMode,
-                          int invocationTimeout,
+                          TimeSpan invocationTimeout,
                           TimeSpan locatorCacheTimeout,
                           LocatorInfo? locatorInfo,
                           bool preferNonSecure,
@@ -1323,6 +1308,12 @@ namespace ZeroC.Ice
             PreferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
+
+            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            {
+                throw new ArgumentException(
+                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
+            }
         }
 
         // Constructor for fixed references.
@@ -1333,7 +1324,7 @@ namespace ZeroC.Ice
                           Connection fixedConnection,
                           Identity identity,
                           InvocationMode invocationMode,
-                          int invocationTimeout)
+                          TimeSpan invocationTimeout)
         {
             AdapterId = "";
             Communicator = communicator;
@@ -1354,6 +1345,14 @@ namespace ZeroC.Ice
             RouterInfo = null;
 
             _fixedConnection = fixedConnection;
+            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
+
+            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            {
+                throw new ArgumentException(
+                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
+            }
 
             if (InvocationMode == InvocationMode.Datagram)
             {
@@ -1367,9 +1366,6 @@ namespace ZeroC.Ice
             {
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }
-
-            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
         }
     }
 }

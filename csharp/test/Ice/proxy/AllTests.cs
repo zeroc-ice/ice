@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.Proxy
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
+            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing proxy parsing... ");
             output.Flush();
@@ -574,10 +575,10 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.RemoveProperty(property);
 
             property = propertyPrefix + ".InvocationTimeout";
-            TestHelper.Assert(b1.InvocationTimeout == -1);
-            communicator.SetProperty(property, "1000");
+            TestHelper.Assert(b1.InvocationTimeout == Timeout.InfiniteTimeSpan);
+            communicator.SetProperty(property, "1000ms");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
-            TestHelper.Assert(b1.InvocationTimeout == 1000);
+            TestHelper.Assert(b1.InvocationTimeout == TimeSpan.FromMilliseconds(1000));
             communicator.RemoveProperty(property);
 
             property = propertyPrefix + ".EndpointSelection";
@@ -615,14 +616,14 @@ namespace ZeroC.Ice.Test.Proxy
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: TimeSpan.FromSeconds(200),
-                invocationTimeout: 1500);
+                invocationTimeout: TimeSpan.FromMilliseconds(1500));
 
             ILocatorPrx? locator = ILocatorPrx.Parse("ice:locator", communicator).Clone(
                 cacheConnection: false,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: TimeSpan.FromSeconds(300),
-                invocationTimeout: 1500,
+                invocationTimeout: TimeSpan.FromMilliseconds(1500),
                 router: router);
 
             b1 = IObjectPrx.Parse("ice:test", communicator).Clone(
@@ -630,7 +631,7 @@ namespace ZeroC.Ice.Test.Proxy
                 preferNonSecure: false,
                 endpointSelection: EndpointSelectionType.Ordered,
                 locatorCacheTimeout: TimeSpan.FromSeconds(100),
-                invocationTimeout: 1234,
+                invocationTimeout: TimeSpan.FromMilliseconds(1234),
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
@@ -641,21 +642,21 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "0");
             TestHelper.Assert(proxyProps["Test.EndpointSelection"] == "Ordered");
             TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "100s");
-            TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "1234");
+            TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "1234ms");
 
             TestHelper.Assert(proxyProps["Test.Locator"] == "ice:locator"); // strange test with an indirect locator!
             TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"] == "0");
             TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"] == "Random");
             TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"] == "5m");
-            TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
+            TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"] == "1500ms");
 
             TestHelper.Assert(proxyProps["Test.Locator.Router"] == "ice:router?encoding=1.1"); // also very strange
             TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
             TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200s");
-            TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500ms");
 
             output.WriteLine("ok");
 
@@ -670,19 +671,22 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
             TestHelper.Assert(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchOneway).InvocationMode ==
-                InvocationMode.BatchOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).InvocationMode ==
-                InvocationMode.Datagram);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
-                InvocationMode.BatchDatagram);
+            if (ice1)
+            {
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchOneway).InvocationMode ==
+                    InvocationMode.BatchOneway);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).InvocationMode ==
+                    InvocationMode.Datagram);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
+                    InvocationMode.BatchDatagram);
+            }
             TestHelper.Assert(baseProxy.Clone(preferNonSecure: true).PreferNonSecure);
             TestHelper.Assert(!baseProxy.Clone(preferNonSecure: false).PreferNonSecure);
 
             try
             {
-                baseProxy.Clone(invocationTimeout: 0);
+                baseProxy.Clone(invocationTimeout: TimeSpan.Zero);
                 TestHelper.Assert(false);
             }
             catch (ArgumentException)
@@ -691,16 +695,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             try
             {
-                baseProxy.Clone(invocationTimeout: -1);
-            }
-            catch (ArgumentException)
-            {
-                TestHelper.Assert(false);
-            }
-
-            try
-            {
-                baseProxy.Clone(invocationTimeout: -2);
+                baseProxy.Clone(invocationTimeout: TimeSpan.FromSeconds(-2));
                 TestHelper.Assert(false);
             }
             catch (ArgumentException)
@@ -816,8 +811,10 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(!compObj1.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10))
                 .Equals(compObj1.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(20))));
 
-            TestHelper.Assert(compObj1.Clone(invocationTimeout: 20).Equals(compObj1.Clone(invocationTimeout: 20)));
-            TestHelper.Assert(!compObj1.Clone(invocationTimeout: 10).Equals(compObj1.Clone(invocationTimeout: 20)));
+            TestHelper.Assert(compObj1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(20)).Equals(
+                compObj1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(20))));
+            TestHelper.Assert(!compObj1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(10)).Equals(
+                compObj1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(20))));
 
             compObj1 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator);
             compObj2 = IObjectPrx.Parse("ice:MyAdapter1//foo", communicator);
@@ -875,7 +872,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(c.DictionaryEquals(c2));
             output.WriteLine("ok");
 
-            if (communicator.DefaultProtocol == Protocol.Ice1)
+            if (ice1)
             {
                 output.Write("testing ice2 proxy in 1.1 encapsulation... ");
                 output.Flush();
@@ -914,8 +911,10 @@ namespace ZeroC.Ice.Test.Proxy
                     };
                     TestHelper.Assert(cl.Clone(fixedConnection: connection2).Context.Count == 0);
                     TestHelper.Assert(cl.Clone(context: ctx, fixedConnection: connection2).Context.Count == 2);
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).InvocationTimeout == -1);
-                    TestHelper.Assert(cl.Clone(invocationTimeout: 10, fixedConnection: connection2).InvocationTimeout == 10);
+                    TestHelper.Assert(
+                        cl.Clone(fixedConnection: connection2).InvocationTimeout == Timeout.InfiniteTimeSpan);
+                    TestHelper.Assert(cl.Clone(invocationTimeout: TimeSpan.FromMilliseconds(10),
+                        fixedConnection: connection2).InvocationTimeout == TimeSpan.FromMilliseconds(10));
                     TestHelper.Assert(cl.Clone(fixedConnection: connection2).GetConnection() == connection2);
                     TestHelper.Assert(cl.Clone(fixedConnection: connection2).Clone(fixedConnection: connection2).GetConnection() == connection2);
                     Connection? fixedConnection = cl.Clone(connectionId: "ice_fixed").GetConnection();
