@@ -127,7 +127,7 @@ namespace ZeroC.Ice
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
             ArraySegment<byte> buffer = new byte[packetSize];
 
-            int received;
+            int received = 0;
             try
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
@@ -161,6 +161,10 @@ namespace ZeroC.Ice
                     received = result.ReceivedBytes;
                 }
             }
+            catch (SocketException e) when (e.SocketErrorCode == SocketError.MessageSize)
+            {
+                // Ignore and return an empty buffer if the datagram is too large.
+            }
             catch (SocketException e)
             {
                 if (Network.ConnectionLost(e))
@@ -170,10 +174,6 @@ namespace ZeroC.Ice
                 throw new TransportException(e);
             }
 
-            if (received == 0)
-            {
-                throw new ConnectionLostException();
-            }
             return buffer.Slice(0, received);
         }
 

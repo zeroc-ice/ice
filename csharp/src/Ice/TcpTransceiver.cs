@@ -50,7 +50,7 @@ namespace ZeroC.Ice
                     // TODO: use the cancelable ConnectAsync with 5.0
                     await Socket.ConnectAsync(_proxy?.Address ?? _addr).WaitAsync(cancel).ConfigureAwait(false);
 
-                    _desc = Network.SocketToString(Socket);
+                    _desc = Network.SocketToString(Socket, _proxy, _addr);
 
                     if (_proxy != null)
                     {

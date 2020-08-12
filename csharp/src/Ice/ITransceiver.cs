@@ -20,7 +20,9 @@ namespace ZeroC.Ice
         /// <summary>Checks if the transceiver can send messages of the given size. Throw if the message is too large.
         /// </summary>
         /// <param name="size">The size of the message to check.</param>
-        // TODO: Remove this? this is only used for datagrams.
+        // TODO: Remove this? This is used to ensure the user doesn't try to send a message which is larger
+        // than the datagram size... UDP users would be better of not sending large datagrams instead of us
+        // trying to softly error if the user sends a large datagram.
         void CheckSendSize(int size);
 
         /// <summary>Closes the transceiver. The transceiver might use this method to send a notification to the peer

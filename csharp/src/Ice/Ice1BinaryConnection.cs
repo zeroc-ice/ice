@@ -188,12 +188,19 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.CloseConnection:
                 {
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                    if (Endpoint.IsDatagram && Endpoint.Communicator.WarnConnections)
+                    if (Endpoint.IsDatagram)
                     {
-                        Endpoint.Communicator.Logger.Warning(
-                            $"ignoring close connection frame for datagram connection:\n{this}");
+                        if (Endpoint.Communicator.WarnConnections)
+                        {
+                            Endpoint.Communicator.Logger.Warning(
+                                $"ignoring close connection frame for datagram connection:\n{this}");
+                        }
                     }
-                    throw new ConnectionClosedByPeerException();
+                    else
+                    {
+                        throw new ConnectionClosedByPeerException();
+                    }
+                    return default;
                 }
 
                 case Ice1Definitions.FrameType.Request:
@@ -254,6 +261,11 @@ namespace ZeroC.Ice
             if (Endpoint.IsDatagram)
             {
                 readBuffer = await Transceiver.ReceiveAsync(default).ConfigureAwait(false);
+                if (readBuffer.Count == 0)
+                {
+                    // The transport failed to read a datagram which was too big or it received an empty datagram.
+                    return readBuffer;
+                }
                 _receivedCallback!(readBuffer.Count);
             }
             else
