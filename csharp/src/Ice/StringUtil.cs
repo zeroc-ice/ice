@@ -9,21 +9,21 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
-    internal static class StringUtil
+    public static class StringUtil
     {
         //
         // Return the index of the first character in str to
         // appear in match, starting from 0. Returns -1 if none is
         // found.
         //
-        public static int FindFirstOf(string str, string match) => FindFirstOf(str, match, 0);
+        internal static int FindFirstOf(string str, string match) => FindFirstOf(str, match, 0);
 
         //
         // Return the index of the first character in str to
         // appear in match, starting from start. Returns -1 if none is
         // found.
         //
-        public static int FindFirstOf(string str, string match, int start)
+        internal static int FindFirstOf(string str, string match, int start)
         {
             int len = str.Length;
             for (int i = start; i < len; i++)
@@ -43,7 +43,7 @@ namespace ZeroC.Ice
         // not appear in match, starting from start. Returns -1 if none is
         // found.
         //
-        public static int FindFirstNotOf(string str, string match, int start)
+        internal static int FindFirstNotOf(string str, string match, int start)
         {
             int len = str.Length;
             for (int i = start; i < len; i++)
@@ -602,13 +602,55 @@ namespace ZeroC.Ice
             return l.ToArray();
         }
 
+        /// <summary>Concatenates a collection of strings in a format that is compatible with
+        /// <see cref="Communicator.GetPropertyAsList(string)"/>.</summary>
+        /// <param name="values">The collection of strings to concatenate.</param>
+        /// <returns>The values concatenated in a string that is compatible with
+        /// <see cref="Communicator.GetPropertyAsList(string)"/>.</returns>
+        public static string ToPropertyValue(IEnumerable<string> values)
+        {
+            char[] delimiters = new char[] { ',', ' ', '\n', '\r', '\t' };
+            char quote = '"';
+            char delimiter = ',';
+            var result = new StringBuilder();
+
+            foreach (string value in values)
+            {
+                if (result.Length != 0)
+                {
+                    result.Append(delimiter);
+                }
+
+                bool addQuote = value.IndexOfAny(delimiters) != -1;
+                if (addQuote)
+                {
+                    result.Append(quote);
+                }
+
+                foreach (char c in value)
+                {
+                    if (c == quote)
+                    {
+                        result.Append('\\');
+                    }
+                    result.Append(c);
+                }
+
+                if (addQuote)
+                {
+                    result.Append(quote);
+                }
+            }
+            return result.ToString();
+        }
+
         //
         // If a single or double quotation mark is found at the start position,
         // then the position of the matching closing quote is returned. If no
         // quotation mark is found at the start position, then 0 is returned.
         // If no matching closing quote is found, then -1 is returned.
         //
-        public static int CheckQuote(string s, int start)
+        internal static int CheckQuote(string s, int start)
         {
             char quoteChar = s[start];
             if (quoteChar == '"' || quoteChar == '\'')
@@ -629,7 +671,7 @@ namespace ZeroC.Ice
             return 0; // Not quoted
         }
 
-        public static bool Match(string s, string pat, bool emptyMatch)
+        internal static bool Match(string s, string pat, bool emptyMatch)
         {
             Debug.Assert(s.Length > 0);
             Debug.Assert(pat.Length > 0);

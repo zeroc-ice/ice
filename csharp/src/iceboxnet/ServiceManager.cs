@@ -679,8 +679,7 @@ namespace ZeroC.IceBox
 
                     if (facetNames.Count > 0)
                     {
-                        // TODO: need String.Join with escape!
-                        properties["Ice.Admin.Facets"] = string.Join(" ", facetNames.ToArray());
+                        properties["Ice.Admin.Facets"] = StringUtil.ToPropertyValue(facetNames);
                     }
                     return true;
                 }

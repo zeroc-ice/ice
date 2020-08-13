@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Test;
 
@@ -287,6 +288,28 @@ namespace ZeroC.Ice.Test.Properties
                     }
                 }
 
+                Console.Out.WriteLine("ok");
+            }
+
+            {
+                var services = new string[] {"Logging Service", "Authentication Service", "Printing Service"};
+                var loggerProperties = new string[] { "IceSSL.Protocols=tls12,tls13",
+                                                      "Ice.ProgramName=My Service",
+                                                      "Test=Foo's Bar's Demo\"",
+                                                      "Foo\"",
+                                                      "x,y,z",
+                                                      "b"};
+
+                var properties = new Dictionary<string, string>
+                {
+                    { "Services", StringUtil.ToPropertyValue(services) },
+                    { "LoggerProperties", StringUtil.ToPropertyValue(loggerProperties) }
+                };
+
+                Console.Out.Write("testing properties as list... ");
+                await using var communicator = new Communicator(properties);
+                Assert(communicator.GetPropertyAsList("Services").SequenceEqual(services));
+                Assert(communicator.GetPropertyAsList("LoggerProperties").SequenceEqual(loggerProperties));
                 Console.Out.WriteLine("ok");
             }
         }
