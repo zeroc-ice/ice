@@ -44,27 +44,28 @@ namespace ZeroC.Ice
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
-        public static T Clone<T>(this IObjectPrx prx,
-                                 Identity identity,
-                                 ProxyFactory<T> factory,
-                                 string? adapterId = null,
-                                 bool? cacheConnection = null,
-                                 bool clearLocator = false,
-                                 bool clearRouter = false,
-                                 string? connectionId = null,
-                                 IReadOnlyDictionary<string, string>? context = null,
-                                 Encoding? encoding = null,
-                                 EndpointSelectionType? endpointSelection = null,
-                                 IEnumerable<Endpoint>? endpoints = null,
-                                 string? facet = null,
-                                 Connection? fixedConnection = null,
-                                 InvocationMode? invocationMode = null,
-                                 TimeSpan? invocationTimeout = null,
-                                 ILocatorPrx? locator = null,
-                                 TimeSpan? locatorCacheTimeout = null,
-                                 bool? oneway = null,
-                                 bool? preferNonSecure = null,
-                                 IRouterPrx? router = null) where T : class, IObjectPrx
+        public static T Clone<T>(
+            this IObjectPrx prx,
+            Identity identity,
+            ProxyFactory<T> factory,
+            string? adapterId = null,
+            bool? cacheConnection = null,
+            bool clearLocator = false,
+            bool clearRouter = false,
+            string? connectionId = null,
+            IReadOnlyDictionary<string, string>? context = null,
+            Encoding? encoding = null,
+            EndpointSelectionType? endpointSelection = null,
+            IEnumerable<Endpoint>? endpoints = null,
+            string? facet = null,
+            Connection? fixedConnection = null,
+            InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
+            ILocatorPrx? locator = null,
+            TimeSpan? locatorCacheTimeout = null,
+            bool? oneway = null,
+            bool? preferNonSecure = null,
+            IRouterPrx? router = null) where T : class, IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
                                                   cacheConnection,
@@ -115,26 +116,27 @@ namespace ZeroC.Ice
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
-        public static T Clone<T>(this IObjectPrx prx,
-                                 string facet,
-                                 ProxyFactory<T> factory,
-                                 string? adapterId = null,
-                                 bool? cacheConnection = null,
-                                 bool clearLocator = false,
-                                 bool clearRouter = false,
-                                 string? connectionId = null,
-                                 IReadOnlyDictionary<string, string>? context = null,
-                                 Encoding? encoding = null,
-                                 EndpointSelectionType? endpointSelection = null,
-                                 IEnumerable<Endpoint>? endpoints = null,
-                                 Connection? fixedConnection = null,
-                                 InvocationMode? invocationMode = null,
-                                 TimeSpan? invocationTimeout = null,
-                                 ILocatorPrx? locator = null,
-                                 TimeSpan? locatorCacheTimeout = null,
-                                 bool? oneway = null,
-                                 bool? preferNonSecure = null,
-                                 IRouterPrx? router = null) where T : class, IObjectPrx
+        public static T Clone<T>(
+            this IObjectPrx prx,
+            string facet,
+            ProxyFactory<T> factory,
+            string? adapterId = null,
+            bool? cacheConnection = null,
+            bool clearLocator = false,
+            bool clearRouter = false,
+            string? connectionId = null,
+            IReadOnlyDictionary<string, string>? context = null,
+            Encoding? encoding = null,
+            EndpointSelectionType? endpointSelection = null,
+            IEnumerable<Endpoint>? endpoints = null,
+            Connection? fixedConnection = null,
+            InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
+            ILocatorPrx? locator = null,
+            TimeSpan? locatorCacheTimeout = null,
+            bool? oneway = null,
+            bool? preferNonSecure = null,
+            IRouterPrx? router = null) where T : class, IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
                                                   cacheConnection,
@@ -184,24 +186,25 @@ namespace ZeroC.Ice
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy with the same type as this proxy.</returns>
-        public static T Clone<T>(this T prx,
-                                 string? adapterId = null,
-                                 bool? cacheConnection = null,
-                                 bool clearLocator = false,
-                                 bool clearRouter = false,
-                                 string? connectionId = null,
-                                 IReadOnlyDictionary<string, string>? context = null,
-                                 Encoding? encoding = null,
-                                 EndpointSelectionType? endpointSelection = null,
-                                 IEnumerable<Endpoint>? endpoints = null,
-                                 Connection? fixedConnection = null,
-                                 InvocationMode? invocationMode = null,
-                                 TimeSpan? invocationTimeout = null,
-                                 ILocatorPrx? locator = null,
-                                 TimeSpan? locatorCacheTimeout = null,
-                                 bool? oneway = null,
-                                 bool? preferNonSecure = null,
-                                 IRouterPrx? router = null) where T : IObjectPrx
+        public static T Clone<T>(
+            this T prx,
+            string? adapterId = null,
+            bool? cacheConnection = null,
+            bool clearLocator = false,
+            bool clearRouter = false,
+            string? connectionId = null,
+            IReadOnlyDictionary<string, string>? context = null,
+            Encoding? encoding = null,
+            EndpointSelectionType? endpointSelection = null,
+            IEnumerable<Endpoint>? endpoints = null,
+            Connection? fixedConnection = null,
+            InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
+            ILocatorPrx? locator = null,
+            TimeSpan? locatorCacheTimeout = null,
+            bool? oneway = null,
+            bool? preferNonSecure = null,
+            IRouterPrx? router = null) where T : IObjectPrx
         {
             Reference clone = prx.IceReference.Clone(adapterId,
                                                      cacheConnection,
@@ -254,8 +257,9 @@ namespace ZeroC.Ice
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
-        public static async ValueTask<Connection?> GetConnectionAsync(this IObjectPrx prx,
-                                                                      CancellationToken cancel = default)
+        public static async ValueTask<Connection?> GetConnectionAsync(
+            this IObjectPrx prx,
+            CancellationToken cancel = default)
         {
             IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
             return (handler as ConnectionRequestHandler)?.GetConnection();
@@ -275,8 +279,10 @@ namespace ZeroC.Ice
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
         /// <returns>The response frame.</returns>
-        public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request,
-                                                   bool oneway = false)
+        public static IncomingResponseFrame Invoke(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway = false)
         {
             try
             {
@@ -300,11 +306,12 @@ namespace ZeroC.Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
-                                                                   OutgoingRequestFrame request,
-                                                                   bool oneway = false,
-                                                                   IProgress<bool>? progress = null,
-                                                                   CancellationToken cancel = default) =>
+        public static ValueTask<IncomingResponseFrame> InvokeAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway = false,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default) =>
             InvokeAsync(proxy, request, oneway, synchronous: false, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
@@ -336,12 +343,13 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
-                                                                    OutgoingRequestFrame request,
-                                                                    bool oneway,
-                                                                    bool synchronous,
-                                                                    IProgress<bool>? progress = null,
-                                                                    CancellationToken cancel = default)
+        private static ValueTask<IncomingResponseFrame> InvokeAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            bool synchronous,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
         {
             request.Finish();
             InvocationMode mode = proxy.IceReference.InvocationMode;
@@ -356,12 +364,13 @@ namespace ZeroC.Ice
             }
             return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
 
-            static async ValueTask<IncomingResponseFrame> InvokeAsync(IObjectPrx proxy,
-                                                                      OutgoingRequestFrame request,
-                                                                      bool oneway,
-                                                                      bool synchronous,
-                                                                      IProgress<bool>? progress,
-                                                                      CancellationToken cancel)
+            static async ValueTask<IncomingResponseFrame> InvokeAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                bool synchronous,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
             {
                 Reference reference = proxy.IceReference;
 
