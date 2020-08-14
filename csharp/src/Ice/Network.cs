@@ -785,7 +785,7 @@ namespace ZeroC.Ice
             try
             {
                 var addr = IPAddress.Parse(address);
-                return ipVersion != EnableIPv4 ? addr.Equals(IPAddress.IPv6Any) :  addr.Equals(IPAddress.Any);
+                return ipVersion != EnableIPv4 ? addr.Equals(IPAddress.IPv6Any) : addr.Equals(IPAddress.Any);
             }
             catch (Exception)
             {
