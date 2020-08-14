@@ -14,8 +14,10 @@ namespace ZeroC.Ice.Test.Metrics
         {
             var observer = new CommunicatorObserver();
 
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            bool ice1 = GetTestProtocol(properties) == Protocol.Ice1;
+
+            properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
             properties["Ice.Admin.InstanceName"] = "client";
             properties["Ice.Admin.DelayCreation"] = "1";
             properties["Ice.Warn.Connections"] = "0";

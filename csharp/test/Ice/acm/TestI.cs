@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.ACM
                 communicator.SetProperty($"{name}.ACM.Heartbeat", Enum.Parse<AcmHeartbeat>(heartbeatValue).ToString());
             }
 
-            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             if (!ice1 && host.Contains(':'))
             {
                 host = $"[{host}]";

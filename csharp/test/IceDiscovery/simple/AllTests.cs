@@ -19,15 +19,14 @@ namespace ZeroC.IceDiscovery.Test.Simple
             TestHelper.Assert(communicator != null);
             var proxies = new List<IControllerPrx>();
             var indirectProxies = new List<IControllerPrx>();
-            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
 
             for (int i = 0; i < num; ++i)
             {
-                string id = "controller" + i;
-                proxies.Add(IControllerPrx.Parse(ice1 ? $"{id}" : $"ice:{id}", communicator));
+                proxies.Add(IControllerPrx.Parse(ice1 ? $"controller{i}" : $"ice:controller{i}", communicator));
                 indirectProxies.Add(
-                    IControllerPrx.Parse(ice1 ? $"{id} @ control{i}" : $"ice:control{i}//{id}", communicator));
-
+                    IControllerPrx.Parse(ice1 ? $"controller{i} @ control{i}" : $"ice:control{i}//controller{i}",
+                                         communicator));
             }
 
             output.Write("testing indirect proxies... ");

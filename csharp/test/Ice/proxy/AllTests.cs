@@ -945,7 +945,7 @@ namespace ZeroC.Ice.Test.Proxy
             }
             output.WriteLine("ok");
 
-            if (communicator.DefaultProtocol == Protocol.Ice2)
+            if (helper.GetTestProtocol() == Protocol.Ice2)
             {
                 output.Write("testing protocol versioning... ");
                 output.Flush();

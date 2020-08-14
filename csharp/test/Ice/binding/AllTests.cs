@@ -445,7 +445,7 @@ namespace ZeroC.Ice.Test.Binding
                 adapters.Clear();
 
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (communicator.DefaultProtocol == Protocol.Ice1)
+                if (helper.GetTestProtocol() == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter36", endpoints[2].ToString()));
@@ -630,7 +630,7 @@ namespace ZeroC.Ice.Test.Binding
                 adapters.Clear();
 
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (communicator.DefaultProtocol == Protocol.Ice1)
+                if (helper.GetTestProtocol() == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter66", endpoints[2].ToString()));
@@ -704,7 +704,7 @@ namespace ZeroC.Ice.Test.Binding
                 adapters.Clear();
 
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (communicator.DefaultProtocol == Protocol.Ice1)
+                if (helper.GetTestProtocol() == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("AdapterAMI66", endpoints[2].ToString()));
@@ -729,7 +729,7 @@ namespace ZeroC.Ice.Test.Binding
             }
             output.WriteLine("ok");
 
-            if (communicator.DefaultProtocol == Protocol.Ice1)
+            if (helper.GetTestProtocol() == Protocol.Ice1)
             {
                 output.Write("testing endpoint mode filtering... ");
                 output.Flush();
@@ -791,7 +791,7 @@ namespace ZeroC.Ice.Test.Binding
                     }
 
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                    if (communicator.DefaultProtocol == Protocol.Ice1)
+                    if (helper.GetTestProtocol() == Protocol.Ice1)
                     {
                         com.CreateObjectAdapterWithEndpoints("Adapter83", obj.Endpoints[1].ToString()); // Recreate a tcp OA.
 

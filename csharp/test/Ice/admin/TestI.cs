@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using Test;
 
 namespace ZeroC.Ice.Test.Admin
 {
@@ -56,7 +57,7 @@ namespace ZeroC.Ice.Test.Admin
                 logger = new NullLogger();
             }
 
-            props.Add("Ice.Default.Protocol", current.Communicator.DefaultProtocol.GetName());
+            props.Add("Test.Protocol", TestHelper.GetTestProtocol(current.Communicator.GetProperties()).GetName());
 
             //
             // Initialize a new communicator.
