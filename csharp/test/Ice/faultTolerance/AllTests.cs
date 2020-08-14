@@ -48,7 +48,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
             if (ports.Count > 1)
             {
                 var sb = new StringBuilder(refString);
-                if (communicator.DefaultProtocol == Protocol.Ice1)
+                if (helper.GetTestProtocol() == Protocol.Ice1)
                 {
                     string transport = helper.GetTestTransport();
                     for (int i = 1; i < ports.Count; ++i)

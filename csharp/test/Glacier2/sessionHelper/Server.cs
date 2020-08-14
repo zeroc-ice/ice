@@ -14,7 +14,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
         public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
-            properties["Ice.Default.Protocol"] = "ice1";
+            properties["Test.Protocol"] = "ice1";
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("DeactivatedAdapter.Endpoints", GetTestEndpoint(1));
             communicator.CreateObjectAdapter("DeactivatedAdapter");

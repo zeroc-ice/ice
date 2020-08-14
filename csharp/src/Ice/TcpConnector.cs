@@ -8,9 +8,7 @@ namespace ZeroC.Ice
 {
     internal sealed class TcpConnector : IConnector
     {
-        public ITransceiver Connect() =>
-            _endpoint.CreateTransceiver(new StreamSocket(_endpoint.Communicator, _proxy, _addr, _endpoint.SourceAddress),
-                                        null);
+        public ITransceiver Connect() => _endpoint.CreateTransceiver(_addr, _proxy);
 
         internal TcpConnector(TcpEndpoint endpoint, EndPoint addr, INetworkProxy? proxy)
         {
@@ -61,7 +59,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string ToString() => Network.AddrToString(_proxy == null ? _addr : _proxy.GetAddress());
+        public override string ToString() => Network.AddrToString(_proxy?.Address ?? _addr);
 
         public override int GetHashCode() => _hashCode;
 

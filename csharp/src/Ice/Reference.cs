@@ -652,7 +652,7 @@ namespace ZeroC.Ice
         internal Reference(Communicator communicator, Connection fixedConnection, Identity identity)
             : this(communicator: communicator,
                    context: communicator.DefaultContext,
-                   encoding: communicator.DefaultEncoding,
+                   encoding: fixedConnection.Endpoint.Protocol.GetEncoding(),
                    facet: "",
                    fixedConnection: fixedConnection,
                    identity: identity,
@@ -1105,7 +1105,8 @@ namespace ZeroC.Ice
                     connection = await factory.CreateAsync(endpoints,
                                                            false,
                                                            EndpointSelection,
-                                                           ConnectionId).ConfigureAwait(false);
+                                                           ConnectionId,
+                                                           cancel).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1120,7 +1121,8 @@ namespace ZeroC.Ice
                             connection = await factory.CreateAsync(new Endpoint[] { endpoint },
                                                                    endpoint != lastEndpoint,
                                                                    EndpointSelection,
-                                                                   ConnectionId).ConfigureAwait(false);
+                                                                   ConnectionId,
+                                                                   cancel).ConfigureAwait(false);
                             break;
                         }
                         catch (Exception)

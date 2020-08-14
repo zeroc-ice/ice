@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -80,7 +81,9 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint) => false;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
+            EndpointSelectionType selType,
+            CancellationToken cancel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override Connection CreateConnection(
@@ -98,7 +101,7 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
 
-        public override ITransceiver? GetTransceiver() => null;
+        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {

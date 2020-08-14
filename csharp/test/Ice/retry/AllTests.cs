@@ -48,7 +48,7 @@ namespace ZeroC.Ice.Test.Retry
             Communicator communicator2,
             string rf)
         {
-            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1; // TODO should come from helper
+           bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
 
             Instrumentation.TestInvocationReset();
 

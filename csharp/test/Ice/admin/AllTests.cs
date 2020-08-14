@@ -127,7 +127,7 @@ namespace ZeroC.Ice.Test.Admin
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             TextWriter output = helper.GetWriter();
-            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
 
             output.Write("testing communicator operations... ");
             output.Flush();
@@ -249,7 +249,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(pd["Prop1"] == "1");
                 TestHelper.Assert(pd["Prop2"] == "2");
                 TestHelper.Assert(pd["Prop3"] == "3");
-                TestHelper.Assert(pd["Ice.Default.Protocol"] == communicator.DefaultProtocol.GetName());
+                TestHelper.Assert(pd["Test.Protocol"] == helper.GetTestProtocol().GetName());
 
                 Dictionary<string, string> changes;
 

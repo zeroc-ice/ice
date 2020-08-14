@@ -13,9 +13,10 @@ namespace ZeroC.IceDiscovery.Test.Simple
         public void ActivateObjectAdapter(string name, string adapterId, string replicaGroupId, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
+            bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             communicator.SetProperty($"{name}.AdapterId", adapterId);
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
-            communicator.SetProperty($"{name}.Endpoints", "default -h 127.0.0.1");
+            communicator.SetProperty($"{name}.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();

@@ -380,8 +380,7 @@ namespace ZeroC.Ice
                 CancellationTokenSource? invocationTimeout = null;
                 if (reference.InvocationTimeout != Timeout.InfiniteTimeSpan)
                 {
-                    invocationTimeout = new CancellationTokenSource();
-                    invocationTimeout.CancelAfter(reference.InvocationTimeout);
+                    invocationTimeout = new CancellationTokenSource(reference.InvocationTimeout);
                     if (cancel.CanBeCanceled)
                     {
                         cancel = CancellationTokenSource.CreateLinkedTokenSource(cancel, invocationTimeout.Token).Token;

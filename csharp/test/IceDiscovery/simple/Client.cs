@@ -14,7 +14,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
         {
             var properties = CreateTestProperties(ref args);
             // TODO: see server
-            properties["Ice.Default.Protocol"] = "ice1";
+            properties["Test.Protocol"] = "ice1";
             await using Ice.Communicator communicator = Initialize(properties);
             int num;
             try

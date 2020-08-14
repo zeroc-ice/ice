@@ -15,13 +15,13 @@ namespace ZeroC.Ice
         public ITransceiver Connect() => new UdpTransceiver(_endpoint.Communicator,
                                                             _addr,
                                                             _endpoint.SourceAddress,
-                                                            _endpoint.McastInterface,
-                                                            _endpoint.McastTtl);
+                                                            _endpoint.MulticastInterface,
+                                                            _endpoint.MulticastTtl);
 
         //
         // Only for use by UdpEndpointI
         //
-        internal UdpConnector(UdpEndpoint endpoint,  EndPoint addr)
+        internal UdpConnector(UdpEndpoint endpoint, EndPoint addr)
         {
             _endpoint = endpoint;
             _addr = addr;
@@ -32,8 +32,8 @@ namespace ZeroC.Ice
             {
                 hash.Add(_endpoint.SourceAddress);
             }
-            hash.Add(_endpoint.McastInterface);
-            hash.Add(_endpoint.McastTtl);
+            hash.Add(_endpoint.MulticastInterface);
+            hash.Add(_endpoint.MulticastTtl);
             _hashCode = hash.ToHashCode();
         }
 
@@ -46,12 +46,12 @@ namespace ZeroC.Ice
 
             if (obj is UdpConnector udpConnector)
             {
-                if (!_endpoint.McastInterface.Equals(udpConnector._endpoint.McastInterface))
+                if (!_endpoint.MulticastInterface.Equals(udpConnector._endpoint.MulticastInterface))
                 {
                     return false;
                 }
 
-                if (_endpoint.McastTtl != udpConnector._endpoint.McastTtl)
+                if (_endpoint.MulticastTtl != udpConnector._endpoint.MulticastTtl)
                 {
                     return false;
                 }

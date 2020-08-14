@@ -102,11 +102,13 @@ namespace ZeroC.Ice
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
+        /// <param name="protocol">The protocol used for this object adapter.</param>
         /// <returns>The new object adapter.</returns>
         public ObjectAdapter CreateObjectAdapter(
             bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null) =>
-            AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler);
+            TaskScheduler? taskScheduler = null,
+            Protocol protocol = Protocol.Ice2) =>
+            AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler, protocol: protocol);
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
         /// to setting the name.Endpoints property and then calling
@@ -234,7 +236,8 @@ namespace ZeroC.Ice
             string? name = null,
             bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null,
-            IRouterPrx? router = null)
+            IRouterPrx? router = null,
+            Protocol protocol = Protocol.Ice2)
         {
             if (name != null && name.Length == 0)
             {
@@ -264,7 +267,7 @@ namespace ZeroC.Ice
             ObjectAdapter adapter;
             try
             {
-                adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router);
+                adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router, protocol);
             }
             catch
             {
