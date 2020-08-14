@@ -348,7 +348,7 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static Invoker BuildInterceptorChain(
+        private static Invoker BuildInvokerChain(
             IEnumerator<InvocationInterceptor> interceptors,
             IObjectPrx proxy,
             OutgoingRequestFrame request,
@@ -357,7 +357,7 @@ namespace ZeroC.Ice
             if (interceptors.MoveNext())
             {
                 InvocationInterceptor interceptor = interceptors.Current;
-                Invoker next = BuildInterceptorChain(interceptors, proxy, request, invoker);
+                Invoker next = BuildInvokerChain(interceptors, proxy, request, invoker);
                 return (target, request) => interceptor(target, request, next);
             }
             return invoker;
@@ -373,7 +373,7 @@ namespace ZeroC.Ice
         {
             if (proxy.Communicator.InvocationInterceptors.Count > 0)
             {
-                Invoker invoker = BuildInterceptorChain(
+                Invoker invoker = BuildInvokerChain(
                     proxy.Communicator.InvocationInterceptors.GetEnumerator(),
                     proxy,
                     request,
