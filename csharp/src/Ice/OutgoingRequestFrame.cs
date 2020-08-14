@@ -161,7 +161,7 @@ namespace ZeroC.Ice
                 // The payload encoding must remain the same since we cannot transcode the encoded bytes.
 
                 // TODO: is there a cleaner way to get this value?
-                int sizeLength = Protocol == Protocol.Ice1 ? 4 : (1 << (request.Encapsulation[0] & 0x03));
+                int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : (1 << (request.Encapsulation[0] & 0x03));
 
                 OutputStream.Position tail =
                     OutputStream.WriteEncapsulationHeader(Data,
@@ -173,10 +173,13 @@ namespace ZeroC.Ice
                 // Finish off current segment
                 Data[^1] = Data[^1].Slice(0, tail.Offset);
 
-                // data corresponds to the encoded bytes, not including the header or binary context.
                 // "2" below corresponds to the encoded length of the encoding.
-                ArraySegment<byte> data = request.Encapsulation.Slice(sizeLength + 2);
-                Data.Add(data);
+                if (request.Encapsulation.Count > sizeLength + 2)
+                {
+                    // data corresponds to the encoded bytes, not including the header or binary context.
+                    ArraySegment<byte> data = request.Encapsulation.Slice(sizeLength + 2);
+                    Data.Add(data);
+                }
                 _encapsulationEnd = new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count);
             }
 
