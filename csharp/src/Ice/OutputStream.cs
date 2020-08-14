@@ -1562,6 +1562,20 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static Position WriteEncapsulationHeader(
+            IList<ArraySegment<byte>> data,
+            Position startAt,
+            Encoding encoding,
+            int size,
+            Encoding payloadEncoding)
+        {
+            var ostr = new OutputStream(encoding, data, startAt);
+
+            // TODO: set sizeLength to min number of bytes requires for size.
+            ostr.WriteEncapsulationHeader(size, payloadEncoding);
+            return ostr.Tail;
+        }
+
         internal static void WriteEncapsulationSize(int size, Span<byte> data, Encoding encoding)
         {
             if (encoding == Encoding.V2_0)
@@ -1611,7 +1625,7 @@ namespace ZeroC.Ice
         // Constructor that starts an encapsulation.
         internal OutputStream(
             Encoding encoding,
-            List<ArraySegment<byte>> data,
+            IList<ArraySegment<byte>> data,
             Position startAt,
             Encoding payloadEncoding,
             FormatType format)
