@@ -37,8 +37,8 @@ namespace ZeroC.Ice
             Shutdown = 1001
         };
 
-        private const byte FLAG_FINAL = 0x80;   // Last frame
-        private const byte FLAG_MASKED = 0x80;   // Payload is masked
+        private const byte FlagFinal = 0x80;   // Last frame
+        private const byte FlagMasked = 0x80;   // Payload is masked
         private const string IceProtocol = "ice.zeroc.com";
         private const string WsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
@@ -147,7 +147,8 @@ namespace ZeroC.Ice
                         // Enlarge the buffer and try to read more.
                         if (offset + 1024 > _communicator.IncomingFrameSizeMax)
                         {
-                            throw new InvalidDataException("WebSocket frame size exceeds Ice.IncomingFrameSizeMax value");
+                            throw new InvalidDataException(
+                                "WebSocket frame size is greater than the configured IncomingFrameSizeMax value");
                         }
                         byte[] tmpBuffer = new byte[offset + 1024];
                         _receiveBuffer.AsSpan(0, offset).CopyTo(tmpBuffer);
@@ -322,7 +323,7 @@ namespace ZeroC.Ice
             int i = 0;
 
             // Set the opcode - this is the one and only data frame.
-            buffer[i++] = (byte)((byte)opCode | FLAG_FINAL);
+            buffer[i++] = (byte)((byte)opCode | FlagFinal);
 
             //
             // Set the payload length.
@@ -358,7 +359,7 @@ namespace ZeroC.Ice
                 // Add a random 32-bit mask to every outgoing frame, copy the payload data,
                 // and apply the mask.
                 //
-                buffer[1] = (byte)(buffer[1] | FLAG_MASKED);
+                buffer[1] = (byte)(buffer[1] | FlagMasked);
                 _rand.NextBytes(_sendMask);
                 Buffer.BlockCopy(_sendMask, 0, buffer, i, _sendMask.Length);
                 i += _sendMask.Length;
@@ -440,10 +441,10 @@ namespace ZeroC.Ice
                 }
 
                 // Remember the FIN flag of this frame for the previous check.
-                _receiveLastFrame = (header[0] & FLAG_FINAL) == FLAG_FINAL;
+                _receiveLastFrame = (header[0] & FlagFinal) == FlagFinal;
 
                 // Messages sent by a client must be masked; frames sent by a server must not be masked.
-                bool masked = (header[1] & FLAG_MASKED) == FLAG_MASKED;
+                bool masked = (header[1] & FlagMasked) == FlagMasked;
                 if (masked != _incoming)
                 {
                     throw new InvalidDataException("invalid WebSocket masking");

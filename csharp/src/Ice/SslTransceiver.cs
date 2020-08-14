@@ -33,8 +33,7 @@ namespace ZeroC.Ice
         {
             await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
 
-            var stream = new NetworkStream(_underlying.Socket!, false);
-            SslStream = new SslStream(stream, false);
+            SslStream = new SslStream(new NetworkStream(_underlying.Socket!, false), false);
 
             try
             {
@@ -66,7 +65,7 @@ namespace ZeroC.Ice
                     await SslStream.AuthenticateAsClientAsync(options, cancel).ConfigureAwait(false);
                 }
             }
-            catch (IOException ex) when (Network.ConnectionLost(ex))
+            catch (IOException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex);
             }
@@ -142,7 +141,7 @@ namespace ZeroC.Ice
             {
                 received = await SslStream!.ReadAsync(buffer, cancel).ConfigureAwait(false);
             }
-            catch (IOException ex) when (Network.ConnectionLost(ex))
+            catch (IOException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex);
             }
@@ -171,7 +170,7 @@ namespace ZeroC.Ice
                 return sent;
 
             }
-            catch (IOException ex) when (Network.ConnectionLost(ex))
+            catch (IOException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex);
             }

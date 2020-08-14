@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal class Network
+    internal static class Network
     {
         // Which versions of the Internet Protocol are enabled?
         internal const int EnableIPv4 = 0;
@@ -23,57 +23,6 @@ namespace ZeroC.Ice
         internal const int EnableBoth = 2;
 
         internal static string AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);
-
-        public static bool ConnectionLost(Exception ex)
-        {
-            Debug.Assert(!(ex is TransportException));
-
-            // This method tries to distinguish connection loss error conditions from other error conditions. It's a
-            // bit tedious since it's difficult to have an exhaustive list of errors that match this condition. An
-            // alternative would be to change the transports to always throw ConnectionLostException on failure to
-            // receive or send data.
-
-            // Check the inner exceptions if the given exception isn't a socket exception. Streams wrapping a socket
-            // typically throw an IOException with the SocketException as the InnerException.
-            while (!(ex is SocketException || ex is System.ComponentModel.Win32Exception) &&
-                   ex.InnerException != null)
-            {
-                ex = ex.InnerException;
-            }
-
-            if (ex is SocketException socketException)
-            {
-                SocketError error = socketException.SocketErrorCode;
-                return error == SocketError.ConnectionReset ||
-                       error == SocketError.Shutdown ||
-                       error == SocketError.ConnectionAborted ||
-                       error == SocketError.NetworkDown ||
-                       error == SocketError.NetworkReset;
-            }
-            else if (ex is System.ComponentModel.Win32Exception)
-            {
-                // "Authentication failed because the remote party has closed the transport stream"
-                // "An authentication error has occured"
-                return ex.HResult == -2146232800 || ex.HResult == -2147467259;
-            }
-            return false;
-        }
-
-        internal static void CloseSocketNoThrow(Socket socket)
-        {
-            if (socket == null)
-            {
-                return;
-            }
-            try
-            {
-                socket.Close();
-            }
-            catch (SocketException)
-            {
-                // Ignore
-            }
-        }
 
         internal static Socket CreateServerSocket(bool udp, AddressFamily family, int ipVersion)
         {
@@ -87,7 +36,7 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex)
                 {
-                    CloseSocketNoThrow(socket);
+                    socket.CloseNoThrow();
                     throw new TransportException(ex);
                 }
             }
@@ -99,14 +48,14 @@ namespace ZeroC.Ice
             if (family == AddressFamily.InterNetwork)
             {
                 socket.SetSocketOption(SocketOptionLevel.IP,
-                                        SocketOptionName.MulticastInterface,
-                                        GetInterfaceAddress(iface, family)!.GetAddressBytes());
+                                       SocketOptionName.MulticastInterface,
+                                       GetInterfaceAddress(iface, family)!.GetAddressBytes());
             }
             else
             {
                 socket.SetSocketOption(SocketOptionLevel.IPv6,
-                                        SocketOptionName.MulticastInterface,
-                                        GetInterfaceIndex(iface, family));
+                                       SocketOptionName.MulticastInterface,
+                                       GetInterfaceIndex(iface, family));
             }
         }
 
@@ -146,33 +95,17 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex)
                 {
-                    CloseSocketNoThrow(socket);
+                    socket.CloseNoThrow();
                     throw new TransportException(ex);
                 }
             }
             return socket;
         }
 
-        internal static string EndpointAddressToString(EndPoint? endpoint)
-        {
-            if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
-            {
-                return ipEndpoint.Address.ToString();
-            }
-            return "";
-        }
+        internal static string EndpointAddressToString(EndPoint? endpoint) =>
+            (endpoint as IPEndPoint)?.Address.ToString() ?? "";
 
-        internal static ushort EndpointPort(EndPoint? endpoint)
-        {
-            if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
-            {
-                return (ushort)ipEndpoint.Port;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+        internal static ushort EndpointPort(EndPoint? endpoint) => (ushort)((endpoint as IPEndPoint)?.Port ?? 0);
 
         internal static IEnumerable<IPEndPoint> GetAddresses(
             string host,
@@ -357,9 +290,9 @@ namespace ZeroC.Ice
         internal static List<string> GetHostsForEndpointExpand(string host, int ipVersion, bool includeLoopback)
         {
             var hosts = new List<string>();
-            if (IsWildcard(host, out bool ipv4Wildcard))
+            if (IsWildcard(host, ipVersion))
             {
-                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : ipVersion, includeLoopback, false))
+                foreach (IPAddress a in GetLocalAddresses(ipVersion, includeLoopback, false))
                 {
                     if (!IsLinklocal(a))
                     {
@@ -381,9 +314,9 @@ namespace ZeroC.Ice
         internal static List<string> GetInterfacesForMulticast(string intf, int ipVersion)
         {
             var interfaces = new List<string>();
-            if (IsWildcard(intf, out bool ipv4Wildcard))
+            if (IsWildcard(intf, ipVersion))
             {
-                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : ipVersion, true, true))
+                foreach (IPAddress a in GetLocalAddresses(ipVersion, true, true))
                 {
                     interfaces.Add(a.ToString());
                 }
@@ -489,7 +422,7 @@ namespace ZeroC.Ice
             try
             {
                 var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                CloseSocketNoThrow(socket);
+                socket.CloseNoThrow();
                 return true;
             }
             catch (SocketException)
@@ -512,35 +445,9 @@ namespace ZeroC.Ice
             return false;
         }
 
-        internal static bool IsMulticast(IPEndPoint addr)
-        {
-            string ip = addr.Address.ToString().ToUpperInvariant();
-            if (addr.AddressFamily == AddressFamily.InterNetwork)
-            {
-                char[] splitChars = { '.' };
-                string[] arr = ip.Split(splitChars);
-                try
-                {
-                    int i = int.Parse(arr[0], CultureInfo.InvariantCulture);
-                    if (i >= 223 && i <= 239)
-                    {
-                        return true;
-                    }
-                }
-                catch (FormatException)
-                {
-                    return false;
-                }
-            }
-            else // AddressFamily.InterNetworkV6
-            {
-                if (ip.StartsWith("FF", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        internal static bool IsMulticast(IPEndPoint addr) =>
+            addr.AddressFamily == AddressFamily.InterNetwork ?
+                (addr.Address.GetAddressBytes()[0] & 0xF0) == 0xE0 : addr.Address.IsIPv6Multicast;
 
         internal static string LocalAddrToString(EndPoint endpoint)
         {
@@ -868,9 +775,8 @@ namespace ZeroC.Ice
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        private static bool IsWildcard(string address, out bool ipv4Wildcard)
+        private static bool IsWildcard(string address, int ipVersion)
         {
-            ipv4Wildcard = false;
             if (address.Length == 0)
             {
                 return true;
@@ -879,12 +785,7 @@ namespace ZeroC.Ice
             try
             {
                 var addr = IPAddress.Parse(address);
-                if (addr.Equals(IPAddress.Any))
-                {
-                    ipv4Wildcard = true;
-                    return true;
-                }
-                return addr.Equals(IPAddress.IPv6Any);
+                return ipVersion != EnableIPv4 ? addr.Equals(IPAddress.IPv6Any) :  addr.Equals(IPAddress.Any);
             }
             catch (Exception)
             {

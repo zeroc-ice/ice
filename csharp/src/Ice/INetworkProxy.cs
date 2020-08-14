@@ -73,8 +73,8 @@ namespace ZeroC.Ice
             // Send the request.
             await socket.SendAsync(data, SocketFlags.None, cancel);
 
-            // Now wait for the response.
-            await socket.ReceiveAsync(new ArraySegment<byte>(data, 0, 8), SocketFlags.None, cancel);
+            // Now wait for the response whose size is 8 bytes.
+            await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel);
             if (data[0] != 0x00 || data[1] != 0x5a)
             {
                 throw new ConnectFailedException();
@@ -134,8 +134,7 @@ namespace ZeroC.Ice
             int received = 0;
             while (true)
             {
-                var array = new ArraySegment<byte>(buffer, received, buffer.Length - received);
-                received += await socket.ReceiveAsync(array, SocketFlags.None, cancel);
+                received += await socket.ReceiveAsync(buffer.AsMemory(received), SocketFlags.None, cancel);
 
                 //
                 // Check if we received the full HTTP response, if not, continue reading otherwise we're done.

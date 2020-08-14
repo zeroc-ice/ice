@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>A transceiver represents a connection between too peer.</summary>
+    /// <summary>A transceiver enables transmitting and receiving raw binary data over a transport such as TCP,
+    /// UDP, TLS or WebSocket. More transports can be supported by implementing this interface.</summary>
     public interface ITransceiver : IAsyncDisposable
     {
         /// <summary>Gets the optional socket associated with this transceiver.</summary>
@@ -36,15 +37,13 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         ValueTask InitializeAsync(CancellationToken cancel);
 
-        /// <summary>Receives data from the connection. This is used for datagram connections only. The
-        /// transceiver is responsible for allocating the memory for the returned data.</summary>
+        /// <summary>Receives data from the connection. This is used for datagram connections only.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The received data.</return>
         ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
 
-        /// <summary>Receives data from the connection. This is used for stream based connections only. The data
-        /// is received and copied in the given buffer.</summary>
-        /// <param name="buffer">The buffer to use to copy the received data.</param>
+        /// <summary>Receives data from the connection. This is used for stream based connections only.</summary>
+        /// <param name="buffer">The buffer that holds the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The number of bytes received.</return>
         ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);

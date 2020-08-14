@@ -1197,7 +1197,7 @@ namespace ZeroC.Ice
 
                 if (InvocationMode != InvocationMode.Datagram)
                 {
-                    // If the invocation mode is not datagram, we first check if the target is collocated.
+                    // If the invocation mode is not datagram, we first check if the target is colocated.
                     ObjectAdapter? adapter = Communicator.FindObjectAdapter(this);
                     if (adapter != null)
                     {

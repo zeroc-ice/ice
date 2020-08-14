@@ -44,9 +44,9 @@ namespace ZeroC.Ice
                     MulticastAddress = _addr;
                     if (AssemblyUtil.IsWindows)
                     {
-                        // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY (0.0.0.0)
+                        // Windows does not allow binding to the multicast address itself so we bind to INADDR_ANY
                         // instead. As a result, bi-directional connection won't work because the source address won't
-                        //  multicast address and the client will therefore reject the datagram.
+                        // be the multicast address and the client will therefore reject the datagram.
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {
                             _addr = new IPEndPoint(IPAddress.Any, _addr.Port);
@@ -167,7 +167,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException e)
             {
-                if (Network.ConnectionLost(e))
+                if (e.IsConnectionLost())
                 {
                     throw new ConnectionLostException();
                 }
@@ -238,7 +238,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                if (Network.ConnectionLost(ex))
+                if (ex.IsConnectionLost())
                 {
                     throw new ConnectionLostException(ex);
                 }
@@ -308,7 +308,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                Network.CloseSocketNoThrow(Socket);
+                Socket.CloseNoThrow();
                 throw new TransportException(ex);
             }
         }
@@ -334,7 +334,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                Network.CloseSocketNoThrow(Socket);
+                Socket.CloseNoThrow();
                 throw new TransportException(ex);
             }
         }

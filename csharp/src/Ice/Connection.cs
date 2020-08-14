@@ -310,7 +310,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    Task? closingTask = null;
+                    Task? closeTask = null;
                     lock (_mutex)
                     {
                         if (_state == ConnectionState.Active)
@@ -320,19 +320,19 @@ namespace ZeroC.Ice
                             {
                                 _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
-                            closingTask = PerformGracefulCloseAsync(exception);
+                            closeTask = PerformGracefulCloseAsync(exception);
                             Debug.Assert(_closeTask == null);
-                            _closeTask = closingTask;
+                            _closeTask = closeTask;
                         }
                         else if (_state == ConnectionState.Closing)
                         {
-                            closingTask = _closeTask!;
+                            closeTask = _closeTask!;
                         }
                     }
 
-                    if (closingTask != null)
+                    if (closeTask != null)
                     {
-                        await closingTask.ConfigureAwait(false);
+                        await closeTask.ConfigureAwait(false);
                     }
                 }
                 catch
@@ -356,8 +356,7 @@ namespace ZeroC.Ice
                 TimeSpan timeout = _communicator.CloseTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
-                    source = new CancellationTokenSource();
-                    source.CancelAfter(timeout);
+                    source = new CancellationTokenSource(timeout);
                 }
 
                 try
@@ -365,7 +364,7 @@ namespace ZeroC.Ice
                     CancellationToken cancel = source?.Token ?? default;
 
                     // Gracefully close the connection.
-                    await BinaryConnection.ClosingAsync(exception, cancel);
+                    await BinaryConnection.CloseAsync(exception, cancel);
 
                     // Wait the failure of the receive task which indicates that the peer closed the connection.
                     while (true)
@@ -559,8 +558,7 @@ namespace ZeroC.Ice
                 TimeSpan timeout = _communicator.ConnectTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
-                    source = new CancellationTokenSource();
-                    source.CancelAfter(timeout);
+                    source = new CancellationTokenSource(timeout);
                     cancel = source.Token;
                 }
 
@@ -876,14 +874,8 @@ namespace ZeroC.Ice
                         // execution of the incoming dispatch would potentially require a thread context switch.
                         if (incoming != null && !serialize)
                         {
-                            if (adapter?.TaskScheduler != null)
-                            {
-                                _receiveTask = TaskRun(ReceiveAndDispatchFrameAsync, adapter.TaskScheduler);
-                            }
-                            else
-                            {
-                                _receiveTask = TaskRun(ReceiveAndDispatchFrameAsync, TaskScheduler.Default);
-                            }
+                            _receiveTask = TaskRun(ReceiveAndDispatchFrameAsync,
+                                                   adapter?.TaskScheduler ?? TaskScheduler.Default);
                         }
                     }
 
@@ -917,11 +909,10 @@ namespace ZeroC.Ice
             static async Task TaskRun(Func<ValueTask> func, TaskScheduler scheduler)
             {
                 // First await for the dispatch to be ran on the task scheduler.
-                ValueTask task = await Task.Factory.StartNew(
-                    func,
-                    cancellationToken: default,
-                    TaskCreationOptions.None,
-                    scheduler).ConfigureAwait(false);
+                ValueTask task = await Task.Factory.StartNew(func,
+                                                             cancellationToken: default,
+                                                             TaskCreationOptions.None,
+                                                             scheduler).ConfigureAwait(false);
 
                 // Now wait for the async dispatch to complete.
                 await task.ConfigureAwait(false);

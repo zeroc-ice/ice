@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>An acceptor is used to listen and accept incoming connection requests from clients. It enables
-    /// creating a transceiver that can be used to exchange data with the remote peer once the connection is
-    /// accepted.</summary>
+    /// <summary>An acceptor listens and accepts incoming connection requests from clients. It creates a transceiver
+    /// which is used to exchange data with the remote peer.</summary>
     public interface IAcceptor : IDisposable
     {
         /// <summary>The listening endpoint. The acceptor endpoint might be different from the endpoint used

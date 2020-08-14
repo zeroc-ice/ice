@@ -30,7 +30,7 @@ namespace ZeroC.Ice
         private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.ValidateConnectionFrame };
 
-        public async ValueTask ClosingAsync(Exception exception, CancellationToken cancel)
+        public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             // Write the close connection frame.
             await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
@@ -299,7 +299,7 @@ namespace ZeroC.Ice
                         readBuffer.AsSpan().CopyTo(buffer.AsSpan(0, Ice1Definitions.HeaderSize));
                         readBuffer = buffer;
                     }
-                    else if (size > readBuffer.Count)
+                    else
                     {
                         readBuffer = new ArraySegment<byte>(readBuffer.Array!, 0, size);
                     }

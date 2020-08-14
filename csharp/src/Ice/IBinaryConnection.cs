@@ -14,7 +14,7 @@ namespace ZeroC.Ice
         ITransceiver Transceiver { get; }
 
         /// <summary>Gracefully closes the transport.</summary>
-        ValueTask ClosingAsync(Exception ex, CancellationToken cancel);
+        ValueTask CloseAsync(Exception ex, CancellationToken cancel);
 
         /// <summary>Sends a heartbeat.</summary>
         ValueTask HeartbeatAsync(CancellationToken cancel);

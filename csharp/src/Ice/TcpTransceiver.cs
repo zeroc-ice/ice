@@ -86,7 +86,7 @@ namespace ZeroC.Ice
             {
                 throw new OperationCanceledException(cancel);
             }
-            catch (SocketException ex) when (Network.ConnectionLost(ex))
+            catch (SocketException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex);
             }
@@ -112,7 +112,7 @@ namespace ZeroC.Ice
             {
                 throw new OperationCanceledException(cancel);
             }
-            catch (SocketException ex) when (Network.ConnectionLost(ex))
+            catch (SocketException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex);
             }
@@ -140,7 +140,7 @@ namespace ZeroC.Ice
             }
             catch (Exception)
             {
-                Network.CloseSocketNoThrow(Socket);
+                Socket.CloseNoThrow();
                 throw;
             }
         }
@@ -156,7 +156,7 @@ namespace ZeroC.Ice
             }
             catch (Exception)
             {
-                Network.CloseSocketNoThrow(Socket);
+                Socket.CloseNoThrow();
                 throw;
             }
         }
