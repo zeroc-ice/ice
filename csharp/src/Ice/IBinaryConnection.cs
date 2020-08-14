@@ -8,19 +8,13 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public interface IBinaryConnection : IDisposable, IAsyncDisposable
+    public interface IBinaryConnection : IAsyncDisposable
     {
         Endpoint Endpoint { get; }
         ITransceiver Transceiver { get; }
 
         /// <summary>Gracefully closes the transport.</summary>
-        ValueTask CloseAsync(Exception exception, CancellationToken cancel);
-
-        void IDisposable.Dispose()
-        {
-            GC.SuppressFinalize(this);
-            DisposeAsync().AsTask().Wait();
-        }
+        ValueTask CloseAsync(Exception ex, CancellationToken cancel);
 
         /// <summary>Sends a heartbeat.</summary>
         ValueTask HeartbeatAsync(CancellationToken cancel);
@@ -33,7 +27,7 @@ namespace ZeroC.Ice
             CancellationToken cancel);
 
         /// <summary>Receives a new frame.</summary>
-        ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel);
+        ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel);
 
         /// <summary>Creates a new stream.</summary>
         long NewStream(bool bidirectional);
@@ -42,6 +36,6 @@ namespace ZeroC.Ice
         ValueTask ResetAsync(long streamId);
 
         /// <summary>Sends the given frame on an existing stream.</summary>
-        ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel);
+        ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel);
     }
 }

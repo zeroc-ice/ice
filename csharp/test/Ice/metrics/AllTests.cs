@@ -596,10 +596,11 @@ namespace ZeroC.Ice.Test.Metrics
                                                                AcmClose.OnInvocation,
                                                                AcmHeartbeat.Off);
                 controller.Hold();
-                metricsWithHold.IcePingAsync(); // Ensure the server stops reading
                 try
                 {
-                    metricsWithHold.OpByteS(new byte[10000000]);
+                    // The first try should fail with ConnectionTimeoutException and the retry with
+                    // ConnectTimeoutException.
+                    metricsWithHold.IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
@@ -880,7 +881,6 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
 
             // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
-            Console.WriteLine($"dm1.Size: {dm1.Size} dm1.ReplySize: {dm1.ReplySize}");
             TestHelper.Assert(dm1.Size == (38 + protocolRequestSizeAdjustment) &&
                 dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 51 + userExErrorMessageSize));
 

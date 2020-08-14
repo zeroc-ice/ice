@@ -20,7 +20,6 @@ namespace ZeroC.Ice
         private Action _heartbeatCallback;
         private readonly bool _incoming;
         private long _nextStreamId;
-        private Task _receiveTask = Task.CompletedTask;
         private Action<int> _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
         private Action<int> _sentCallback;
@@ -33,46 +32,14 @@ namespace ZeroC.Ice
 
         public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
-            if (!(exception is ConnectionClosedByPeerException))
-            {
-                // Write and wait for the close connection frame to be written
-                try
-                {
-                    await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
+            // Write the close connection frame.
+            await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            try
-            {
-                await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
-
-            // Wait for the connection closure from the peer
-            try
-            {
-                await _receiveTask.WaitAsync(cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
+            await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync()
-        {
-            Transceiver.ThreadSafeClose();
-            Transceiver.Destroy();
-            return default;
-        }
+        public ValueTask DisposeAsync() => Transceiver.DisposeAsync();
 
         public async ValueTask HeartbeatAsync(CancellationToken cancel) =>
             await SendFrameAsync(0, _validateConnectionFrame, cancel).ConfigureAwait(false);
@@ -90,28 +57,19 @@ namespace ZeroC.Ice
             // Initialize the transport
             await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
-            ArraySegment<byte> readBuffer = default;
+            ArraySegment<byte> readBuffer;
             if (_incoming) // The server side has the active role for connection validation.
             {
-                int offset = 0;
-                while (offset < _validateConnectionFrame.GetByteCount())
-                {
-                    offset += await Transceiver.WriteAsync(_validateConnectionFrame,
-                                                           offset,
-                                                           cancel).ConfigureAwait(false);
-                }
-                Debug.Assert(offset == _validateConnectionFrame.GetByteCount());
+                await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
+
+                ProtocolTrace.TraceSend(Endpoint.Communicator,
+                                        Endpoint.Protocol,
+                                        Ice2Definitions.ValidateConnectionFrame);
             }
             else // The client side has the passive role for connection validation.
             {
                 readBuffer = new ArraySegment<byte>(new byte[Ice2Definitions.HeaderSize]);
-                int offset = 0;
-                while (offset < Ice2Definitions.HeaderSize)
-                {
-                    offset += await Transceiver.ReadAsync(readBuffer,
-                                                          offset,
-                                                          cancel).ConfigureAwait(false);
-                }
+                await ReceiveAsync(readBuffer, cancel).ConfigureAwait(false);
 
                 Ice2Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
                 var frameType = (Ice2Definitions.FrameType)readBuffer[8];
@@ -124,33 +82,21 @@ namespace ZeroC.Ice
                 // TODO: this is temporary code. With the 2.0 encoding, sizes are always variable-length
                 // with the length encoded on the first 2 bits of the size. Assuming the size is encoded
                 // on 4 bytes (like we do below) is not correct.
-                int size =
-                    readBuffer.AsReadOnlySpan(10, 4).ReadFixedLengthSize(Endpoint.Protocol.GetEncoding());
+                int size = readBuffer.AsReadOnlySpan(10, 4).ReadFixedLengthSize(Endpoint.Protocol.GetEncoding());
                 if (size != Ice2Definitions.HeaderSize)
                 {
                     throw new InvalidDataException(
                         @$"received an ice2 frame with validate connection type and a size of `{size
                         }' bytes");
                 }
-            }
 
-            if (_incoming) // The server side has the active role for connection validation.
-            {
-                ProtocolTrace.TraceSend(Endpoint.Communicator,
-                                        Endpoint.Protocol,
-                                        Ice2Definitions.ValidateConnectionFrame);
-                _sentCallback(Ice2Definitions.ValidateConnectionFrame.Length);
-            }
-            else
-            {
                 ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                _receivedCallback(readBuffer.Count);
             }
 
             if (Endpoint.Communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder();
-                s.Append(_incoming ? "established" : "accepted");
+                s.Append(_incoming ? "accepted" : "established");
                 s.Append(' ');
                 s.Append(Endpoint.TransportName);
                 s.Append(" connection\n");
@@ -159,29 +105,12 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
+        public async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
         {
             while (true)
             {
-                int requestId = 0;
-                object? frame = null;
-                Task<ArraySegment<byte>>? task = null;
-                ValueTask<ArraySegment<byte>> receiveTask = PerformReceiveFrameAsync();
-                if (receiveTask.IsCompletedSuccessfully)
-                {
-                    _receiveTask = Task.CompletedTask;
-                    (requestId, frame) = ParseFrame(receiveTask.Result);
-                }
-                else
-                {
-                    _receiveTask = task = receiveTask.AsTask();
-                }
-
-                if (task != null)
-                {
-                    (requestId, frame) = ParseFrame(await task.ConfigureAwait(false));
-                }
-
+                ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
+                (int requestId, IncomingFrame? frame) = ParseFrame(buffer);
                 if (frame != null)
                 {
                     return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
@@ -194,7 +123,7 @@ namespace ZeroC.Ice
         public ValueTask ResetAsync(long streamId) =>
             throw new NotSupportedException("ice2 transports don't support stream reset");
 
-        public async ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel) =>
+        public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel) =>
             await SendFrameAsync(streamId, frame, cancel);
 
         public override string ToString() => Transceiver.ToString()!;
@@ -210,7 +139,7 @@ namespace ZeroC.Ice
             _heartbeatCallback = () => {};
         }
 
-        private (int, object?) ParseFrame(ArraySegment<byte> readBuffer)
+        private (int, IncomingFrame?) ParseFrame(ArraySegment<byte> readBuffer)
         {
             // The magic and version fields have already been checked.
             var frameType = (Ice2Definitions.FrameType)readBuffer[8];
@@ -264,14 +193,8 @@ namespace ZeroC.Ice
         private async ValueTask<ArraySegment<byte>> PerformReceiveFrameAsync()
         {
             // Read header
-            ArraySegment<byte> readBuffer;
-            readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice2Definitions.HeaderSize);
-            int offset = 0;
-            while (offset < Ice2Definitions.HeaderSize)
-            {
-                offset += await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
-                _receivedCallback(readBuffer.Count);
-            }
+            var readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice2Definitions.HeaderSize);
+            await ReceiveAsync(readBuffer).ConfigureAwait(false);
 
             // Check header
             Ice2Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
@@ -287,28 +210,22 @@ namespace ZeroC.Ice
             }
 
             // Read the remainder of the frame if needed
-            if (size > readBuffer.Array!.Length)
+            if (size > readBuffer.Count)
             {
-                // Allocate a new array and copy the header over
-                var buffer = new ArraySegment<byte>(new byte[size], 0, size);
-                readBuffer.AsSpan().CopyTo(buffer.AsSpan(0, Ice2Definitions.HeaderSize));
-                readBuffer = buffer;
-            }
-            else if (size > readBuffer.Count)
-            {
-                readBuffer = new ArraySegment<byte>(readBuffer.Array!, 0, size);
-            }
-            Debug.Assert(size == readBuffer.Count);
+                if (size > readBuffer.Array!.Length)
+                {
+                    // Allocate a new array and copy the header over
+                    var buffer = new ArraySegment<byte>(new byte[size], 0, size);
+                    readBuffer.AsSpan().CopyTo(buffer.AsSpan(0, Ice2Definitions.HeaderSize));
+                    readBuffer = buffer;
+                }
+                else
+                {
+                    readBuffer = new ArraySegment<byte>(readBuffer.Array!, 0, size);
+                }
+                Debug.Assert(size == readBuffer.Count);
 
-            offset = Ice2Definitions.HeaderSize;
-            while (offset < readBuffer.Count)
-            {
-                int bytesReceived = await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
-                offset += bytesReceived;
-
-                // Trace the receive progress within the loop as we might be receiving significant amount
-                // of data here.
-                _receivedCallback(bytesReceived);
+                await ReceiveAsync(readBuffer.Slice(Ice2Definitions.HeaderSize)).ConfigureAwait(false);
             }
             return readBuffer;
         }
@@ -337,14 +254,7 @@ namespace ZeroC.Ice
             }
 
             // Write the frame
-            int size = writeBuffer.GetByteCount();
-            int offset = 0;
-            while (offset < size)
-            {
-                int bytesSent = await Transceiver.WriteAsync(writeBuffer, offset).ConfigureAwait(false);
-                offset += bytesSent;
-                _sentCallback(bytesSent);
-            }
+            await SendAsync(writeBuffer).ConfigureAwait(false);
         }
 
         private Task SendFrameAsync(long streamId, object frame, CancellationToken cancel)
@@ -375,6 +285,23 @@ namespace ZeroC.Ice
                 // Perform the write
                 await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
             }
+        }
+        private async ValueTask ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
+        {
+            int offset = 0;
+            while (offset != buffer.Count)
+            {
+                int received = await Transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                offset += received;
+                _receivedCallback!(received);
+            }
+        }
+
+        private async ValueTask SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
+        {
+            int sent = await Transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
+            Debug.Assert(sent == buffers.GetByteCount()); // TODO: do we need to support partial writes?
+            _sentCallback!(sent);
         }
     }
 }

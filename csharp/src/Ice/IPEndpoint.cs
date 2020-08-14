@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -84,21 +85,19 @@ namespace ZeroC.Ice
             }
         }
 
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
+        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
+            EndpointSelectionType endptSelection,
+            CancellationToken cancel)
         {
             Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
             observer?.Attach();
             try
             {
                 INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                int ipVersion = Communicator.IPVersion;
+                int ipVersion = networkProxy?.IPVersion ?? Communicator.IPVersion;
                 if (networkProxy != null)
                 {
-                    networkProxy = await networkProxy.ResolveHostAsync(ipVersion).ConfigureAwait(false);
-                    if (networkProxy != null)
-                    {
-                        ipVersion = networkProxy.GetIPVersion();
-                    }
+                    networkProxy = await networkProxy.ResolveHostAsync(ipVersion, cancel).ConfigureAwait(false);
                 }
 
                 IEnumerable<IPEndPoint> addrs =
@@ -106,7 +105,8 @@ namespace ZeroC.Ice
                                                                      Port,
                                                                      ipVersion,
                                                                      endptSelection,
-                                                                     Communicator.PreferIPv6).ConfigureAwait(false);
+                                                                     Communicator.PreferIPv6,
+                                                                     cancel).ConfigureAwait(false);
                 return addrs.Select(item => CreateConnector(item, networkProxy));
             }
             catch (Exception ex)
