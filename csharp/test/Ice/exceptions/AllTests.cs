@@ -294,6 +294,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     catch (InvalidDataException)
                     {
                     }
+
                     var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
                     try
                     {

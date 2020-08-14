@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace ZeroC.Ice
@@ -56,7 +57,7 @@ namespace ZeroC.Ice
            }
         }
 
-        public override ITransceiver? GetTransceiver() => null;
+        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
@@ -181,16 +182,10 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
 
-        internal override ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
-        {
-            if (adapterName != null)
-            {
-                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName));
-            }
-            else
-            {
-                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName), Host, _resource);
-            }
-        }
+        internal override ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy) =>
+            new WSTransceiver(Communicator, base.CreateTransceiver(addr, proxy), Host, _resource);
+
+        internal override ITransceiver CreateTransceiver(Socket socket, string adapterName) =>
+            new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName));
     }
 }

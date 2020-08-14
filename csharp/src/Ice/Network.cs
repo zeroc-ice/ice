@@ -10,118 +10,56 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public static class Network
+    internal static class Network
     {
         // Which versions of the Internet Protocol are enabled?
-        public const int EnableIPv4 = 0;
-        public const int EnableIPv6 = 1;
-        public const int EnableBoth = 2;
+        internal const int EnableIPv4 = 0;
+        internal const int EnableIPv6 = 1;
+        internal const int EnableBoth = 2;
 
-        public static SocketError SocketErrorCode(SocketException ex) => ex.SocketErrorCode;
+        internal static string AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);
 
-        public static bool Interrupted(SocketException ex) => SocketErrorCode(ex) == SocketError.Interrupted;
-
-        public static bool WouldBlock(SocketException ex) => SocketErrorCode(ex) == SocketError.WouldBlock;
-
-        public static bool ConnectionLost(SocketException ex)
+        internal static Socket CreateServerSocket(bool udp, AddressFamily family, int ipVersion)
         {
-            SocketError error = SocketErrorCode(ex);
-            return error == SocketError.ConnectionReset ||
-                   error == SocketError.Shutdown ||
-                   error == SocketError.ConnectionAborted ||
-                   error == SocketError.NetworkDown ||
-                   error == SocketError.NetworkReset;
-        }
-
-        public static bool ConnectionLost(System.IO.IOException ex)
-        {
-            //
-            // In some cases the IOException has an inner exception that we can pass directly
-            // to the other overloading of connectionLost().
-            //
-            if (ex.InnerException is SocketException socketException)
+            Socket socket = CreateSocket(udp, family);
+            if (family == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4)
             {
-                return ConnectionLost(socketException);
-            }
-
-            //
-            // In other cases the IOException has no inner exception. We could examine the
-            // exception's message, but that is fragile due to localization issues. We
-            // resort to extracting the value of the protected HResult member via reflection.
-            //
-            System.Reflection.PropertyInfo? hresult = ex.GetType().GetProperty("HResult",
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Public);
-            if (hresult != null && hresult.GetValue(ex, null) is int hresultValue &&
-                hresultValue == -2146232800)
-            {
-                // This value corresponds to the following errors:
-                //
-                // "Authentication failed because the remote party has closed the transport stream"
-                return true;
-            }
-            return false;
-        }
-
-        public static bool ConnectionRefused(SocketException ex) => SocketErrorCode(ex) == SocketError.ConnectionRefused;
-
-        public static bool RecvTruncated(SocketException ex) => SocketErrorCode(ex) == SocketError.MessageSize;
-
-        public static bool Timeout(System.IO.IOException ex) =>
-            // TODO: Instead of testing for an English substring, we need to examine the inner
-            // exception (if there is one).
-            ex.Message.Contains("period of time");
-
-        public static bool IsMulticast(IPEndPoint addr)
-        {
-            string ip = addr.Address.ToString().ToUpperInvariant();
-            if (addr.AddressFamily == AddressFamily.InterNetwork)
-            {
-                char[] splitChars = { '.' };
-                string[] arr = ip.Split(splitChars);
                 try
                 {
-                    int i = int.Parse(arr[0], CultureInfo.InvariantCulture);
-                    if (i >= 223 && i <= 239)
-                    {
-                        return true;
-                    }
+                    int flag = ipVersion == EnableIPv6 ? 1 : 0;
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
                 }
-                catch (FormatException)
+                catch (SocketException ex)
                 {
-                    return false;
+                    socket.CloseNoThrow();
+                    throw new TransportException(ex);
                 }
             }
-            else // AddressFamily.InterNetworkV6
-            {
-                if (ip.StartsWith("FF", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return socket;
         }
 
-        public static bool IsIPv6Supported()
+        internal static void SetMulticastInterface(Socket socket, string iface, AddressFamily family)
         {
-            try
+            if (family == AddressFamily.InterNetwork)
             {
-                var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                CloseSocketNoThrow(socket);
-                return true;
+                socket.SetSocketOption(SocketOptionLevel.IP,
+                                       SocketOptionName.MulticastInterface,
+                                       GetInterfaceAddress(iface, family)!.GetAddressBytes());
             }
-            catch (SocketException)
+            else
             {
-                return false;
+                socket.SetSocketOption(SocketOptionLevel.IPv6,
+                                       SocketOptionName.MulticastInterface,
+                                       GetInterfaceIndex(iface, family));
             }
         }
 
-        public static Socket CreateSocket(bool udp, AddressFamily family)
+        internal static Socket CreateSocket(bool udp, AddressFamily family)
         {
             Socket socket;
 
@@ -145,7 +83,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    SetTcpNoDelay(socket);
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                     //
                     // FIX: the fast path loopback appears to cause issues with
@@ -157,419 +95,32 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex)
                 {
-                    CloseSocketNoThrow(socket);
+                    socket.CloseNoThrow();
                     throw new TransportException(ex);
                 }
             }
             return socket;
         }
 
-        public static Socket CreateServerSocket(bool udp, AddressFamily family, int ipVersion)
-        {
-            Socket socket = CreateSocket(udp, family);
-            if (family == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4)
-            {
-                try
-                {
-                    int flag = ipVersion == EnableIPv6 ? 1 : 0;
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
-                }
-                catch (SocketException ex)
-                {
-                    CloseSocketNoThrow(socket);
-                    throw new TransportException(ex);
-                }
-            }
-            return socket;
-        }
+        internal static string EndpointAddressToString(EndPoint? endpoint) =>
+            (endpoint as IPEndPoint)?.Address.ToString() ?? "";
 
-        public static void CloseSocketNoThrow(Socket socket)
-        {
-            if (socket == null)
-            {
-                return;
-            }
-            try
-            {
-                socket.Close();
-            }
-            catch (SocketException)
-            {
-                // Ignore
-            }
-        }
+        internal static ushort EndpointPort(EndPoint? endpoint) => (ushort)((endpoint as IPEndPoint)?.Port ?? 0);
 
-        public static void CloseSocket(Socket socket)
-        {
-            if (socket == null)
-            {
-                return;
-            }
-            try
-            {
-                socket.Close();
-            }
-            catch (SocketException ex)
-            {
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetTcpNoDelay(Socket socket)
+        internal static IEnumerable<IPEndPoint> GetAddresses(
+            string host,
+            int port,
+            int ipVersion,
+            EndpointSelectionType selType,
+            bool preferIPv6)
         {
             try
             {
-                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
-            }
-            catch (Exception ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetBlock(Socket socket, bool block)
-        {
-            try
-            {
-                socket.Blocking = block;
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetSendBufferSize(Socket socket, int sz)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sz);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static int GetSendBufferSize(Socket socket)
-        {
-            int sz;
-            try
-            {
-                sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-            return sz;
-        }
-
-        public static void SetRecvBufferSize(Socket socket, int sz)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, sz);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static int GetRecvBufferSize(Socket socket)
-        {
-            int sz;
-            try
-            {
-                sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-            return sz;
-        }
-
-        public static void SetReuseAddress(Socket socket, bool reuse)
-        {
-            try
-            {
-                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, reuse ? 1 : 0);
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetMcastInterface(Socket socket, string iface, AddressFamily family)
-        {
-            try
-            {
-                if (family == AddressFamily.InterNetwork)
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IP,
-                                           SocketOptionName.MulticastInterface,
-                                           GetInterfaceAddress(iface, family)!.GetAddressBytes());
-                }
-                else
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface,
-                                           GetInterfaceIndex(iface, family));
-                }
-            }
-            catch (Exception ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetMcastGroup(Socket s, IPAddress group, string iface)
-        {
-            try
-            {
-                var indexes = new HashSet<int>();
-                foreach (string intf in GetInterfacesForMulticast(iface, GetIPVersion(group)))
-                {
-                    if (group.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        MulticastOption option;
-                        IPAddress? addr = GetInterfaceAddress(intf, group.AddressFamily);
-                        if (addr == null)
-                        {
-                            option = new MulticastOption(group);
-                        }
-                        else
-                        {
-                            option = new MulticastOption(group, addr);
-                        }
-                        s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
-                    }
-                    else
-                    {
-                        int index = GetInterfaceIndex(intf, group.AddressFamily);
-                        if (!indexes.Contains(index))
-                        {
-                            indexes.Add(index);
-                            IPv6MulticastOption option;
-                            if (index == -1)
-                            {
-                                option = new IPv6MulticastOption(group);
-                            }
-                            else
-                            {
-                                option = new IPv6MulticastOption(group, index);
-                            }
-                            s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                CloseSocketNoThrow(s);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void SetMcastTtl(Socket socket, int ttl, AddressFamily family)
-        {
-            try
-            {
-                if (family == AddressFamily.InterNetwork)
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
-                }
-                else
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, ttl);
-                }
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static IPEndPoint DoBind(Socket socket, EndPoint addr)
-        {
-            try
-            {
-                socket.Bind(addr);
-                return (IPEndPoint)socket.LocalEndPoint;
-            }
-            catch (SocketException ex)
-            {
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static void DoListen(Socket socket, int backlog)
-        {
-        repeatListen:
-
-            try
-            {
-                socket.Listen(backlog);
-            }
-            catch (SocketException ex)
-            {
-                if (Interrupted(ex))
-                {
-                    goto repeatListen;
-                }
-
-                CloseSocketNoThrow(socket);
-                throw new TransportException(ex);
-            }
-        }
-
-        public static bool DoConnect(Socket fd, EndPoint addr, EndPoint? sourceAddr)
-        {
-            EndPoint? bindAddr = sourceAddr;
-            if (bindAddr == null)
-            {
-                //
-                // Even though we are on the client side, the call to Bind()
-                // is necessary to work around a .NET bug: if a socket is
-                // connected non-blocking, the LocalEndPoint and RemoteEndPoint
-                // properties are null. The call to Bind() fixes this.
-                //
-                IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-                bindAddr = new IPEndPoint(any, 0);
-            }
-            DoBind(fd, bindAddr);
-
-        repeatConnect:
-            try
-            {
-                IAsyncResult result = fd.BeginConnect(addr, null, null);
-                if (!result.CompletedSynchronously)
-                {
-                    return false;
-                }
-                fd.EndConnect(result);
-            }
-            catch (SocketException ex)
-            {
-                if (Interrupted(ex))
-                {
-                    goto repeatConnect;
-                }
-
-                CloseSocketNoThrow(fd);
-
-                if (ConnectionRefused(ex))
-                {
-                    throw new ConnectionRefusedException(ex);
-                }
-                else
-                {
-                    throw new ConnectFailedException(ex);
-                }
-            }
-
-            //
-            // On Windows, we need to set the socket's blocking status again
-            // after the asynchronous connect. Seems like a bug in .NET.
-            //
-            SetBlock(fd, fd.Blocking);
-            if (!AssemblyUtil.IsWindows)
-            {
-                //
-                // Prevent self connect (self connect happens on Linux when a client tries to connect to
-                // a server which was just deactivated if the client socket re-uses the same ephemeral
-                // port as the server).
-                //
-                if (addr.Equals(GetLocalAddress(fd)))
-                {
-                    throw new ConnectionRefusedException();
-                }
-            }
-            return true;
-        }
-
-        public static int GetIPVersion(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
-
-        public static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion, bool preferIPv6)
-        {
-            // TODO: Fix this method to be asynchronous.
-
-            // For server endpoints, an empty host is the same as the "any" address
-            if (host.Length == 0)
-            {
-                if (ipVersion != EnableIPv4)
-                {
-                    return new IPEndPoint(IPAddress.IPv6Any, port);
-                }
-                else
-                {
-                    return new IPEndPoint(IPAddress.Any, port);
-                }
-            }
-
-            try
-            {
-                // Get the addresses for the given host and return the first one
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(
-                    host, port, ipVersion, EndpointSelectionType.Ordered, preferIPv6);
-                return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(string host, int port,
-            int ipVersion, EndpointSelectionType selType, bool preferIPv6)
-        {
-            // For client endpoints, an empty host is the same as the loopback address
-            if (host.Length == 0)
-            {
-                var addresses = new List<IPEndPoint>();
-                foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
-                {
-                    addresses.Add(new IPEndPoint(a, port));
-                }
-
-                if (ipVersion == EnableBoth)
-                {
-                    if (preferIPv6)
-                    {
-                        return addresses.OrderByDescending(addr => addr.AddressFamily);
-                    }
-                    else
-                    {
-                        return addresses.OrderBy(addr => addr.AddressFamily);
-                    }
-                }
-                return addresses;
-            }
-
-            return await GetAddressesAsync(host, port, ipVersion, selType, preferIPv6).ConfigureAwait(false);
-        }
-
-        public static IEnumerable<IPEndPoint> GetAddresses(string host, int port, int ipVersion,
-            EndpointSelectionType selType, bool preferIPv6)
-        {
-            // TODO: Fix this method to be asynchronous.
-            try
-            {
-                ValueTask<IEnumerable<IPEndPoint>> task =
-                    GetAddressesAsync(host, port, ipVersion, selType, preferIPv6);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
+                                                                            port,
+                                                                            ipVersion,
+                                                                            selType,
+                                                                            preferIPv6);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -579,8 +130,13 @@ namespace ZeroC.Ice
             }
         }
 
-        public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(string host, int port, int ipVersion,
-            EndpointSelectionType selType, bool preferIPv6)
+        internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(
+            string host,
+            int port,
+            int ipVersion,
+            EndpointSelectionType selType,
+            bool preferIPv6,
+            CancellationToken cancel = default)
         {
             Debug.Assert(host.Length > 0);
 
@@ -610,7 +166,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))
+                    foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).WaitAsync(cancel).ConfigureAwait(false))
                     {
                         if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
                             (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
@@ -619,9 +175,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    //
                     // No InterNetwork/InterNetworkV6 available.
-                    //
                     if (addresses.Count == 0)
                     {
                         throw new DNSException(host);
@@ -652,7 +206,7 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex)
                 {
-                    if (SocketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
+                    if (ex.SocketErrorCode == SocketError.TryAgain && --retry >= 0)
                     {
                         continue;
                     }
@@ -665,7 +219,131 @@ namespace ZeroC.Ice
             }
         }
 
-        public static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
+        internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(
+            string host,
+            int port,
+            int ipVersion,
+            EndpointSelectionType selType,
+            bool preferIPv6,
+            CancellationToken cancel)
+        {
+            // For client endpoints, an empty host is the same as the loopback address
+            if (host.Length == 0)
+            {
+                var addresses = new List<IPEndPoint>();
+                foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
+                {
+                    addresses.Add(new IPEndPoint(a, port));
+                }
+
+                if (ipVersion == EnableBoth)
+                {
+                    if (preferIPv6)
+                    {
+                        return addresses.OrderByDescending(addr => addr.AddressFamily);
+                    }
+                    else
+                    {
+                        return addresses.OrderBy(addr => addr.AddressFamily);
+                    }
+                }
+                return addresses;
+            }
+
+            return await GetAddressesAsync(host, port, ipVersion, selType, preferIPv6, cancel).ConfigureAwait(false);
+        }
+
+        internal static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion, bool preferIPv6)
+        {
+            // TODO: Fix this method to be asynchronous.
+
+            // For server endpoints, an empty host is the same as the "any" address
+            if (host.Length == 0)
+            {
+                if (ipVersion != EnableIPv4)
+                {
+                    return new IPEndPoint(IPAddress.IPv6Any, port);
+                }
+                else
+                {
+                    return new IPEndPoint(IPAddress.Any, port);
+                }
+            }
+
+            try
+            {
+                // Get the addresses for the given host and return the first one
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
+                                                                            port,
+                                                                            ipVersion,
+                                                                            EndpointSelectionType.Ordered,
+                                                                            preferIPv6);
+                return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        internal static List<string> GetHostsForEndpointExpand(string host, int ipVersion, bool includeLoopback)
+        {
+            var hosts = new List<string>();
+            if (IsWildcard(host, ipVersion))
+            {
+                foreach (IPAddress a in GetLocalAddresses(ipVersion, includeLoopback, false))
+                {
+                    if (!IsLinklocal(a))
+                    {
+                        hosts.Add(a.ToString());
+                    }
+                }
+                if (hosts.Count == 0)
+                {
+                    // Return loopback if only loopback is available no other local addresses are available.
+                    foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
+                    {
+                        hosts.Add(a.ToString());
+                    }
+                }
+            }
+            return hosts;
+        }
+
+        internal static List<string> GetInterfacesForMulticast(string intf, int ipVersion)
+        {
+            var interfaces = new List<string>();
+            if (IsWildcard(intf, ipVersion))
+            {
+                foreach (IPAddress a in GetLocalAddresses(ipVersion, true, true))
+                {
+                    interfaces.Add(a.ToString());
+                }
+            }
+            if (interfaces.Count == 0)
+            {
+                interfaces.Add(intf);
+            }
+            return interfaces;
+        }
+
+        internal static int GetIPVersion(IPAddress addr) =>
+            addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
+
+        internal static EndPoint GetLocalAddress(Socket socket)
+        {
+            try
+            {
+                return socket.LocalEndPoint;
+            }
+            catch (SocketException ex)
+            {
+                throw new TransportException(ex);
+            }
+        }
+
+        internal static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
         {
             List<IPAddress> addresses;
             int retry = 5;
@@ -699,7 +377,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                if (SocketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
+                if (ex.SocketErrorCode == SocketError.TryAgain && --retry >= 0)
                 {
                     goto repeatGetHostByName;
                 }
@@ -713,8 +391,47 @@ namespace ZeroC.Ice
             return addresses.ToArray();
         }
 
-        public static bool
-        IsLinklocal(IPAddress addr)
+        internal static EndPoint? GetRemoteAddress(Socket socket)
+        {
+            try
+            {
+                return socket.RemoteEndPoint;
+            }
+            catch (SocketException)
+            {
+            }
+            return null;
+        }
+
+        internal static List<IPAddress> GetLoopbackAddresses(int ipVersion)
+        {
+            var addresses = new List<IPAddress>();
+            if (ipVersion != EnableIPv4)
+            {
+                addresses.Add(IPAddress.IPv6Loopback);
+            }
+            if (ipVersion != EnableIPv6)
+            {
+                addresses.Add(IPAddress.Loopback);
+            }
+            return addresses;
+        }
+
+        internal static bool IsIPv6Supported()
+        {
+            try
+            {
+                var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                socket.CloseNoThrow();
+                return true;
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
+        }
+
+        internal static bool IsLinklocal(IPAddress addr)
         {
             if (addr.IsIPv6LinkLocal)
             {
@@ -728,107 +445,112 @@ namespace ZeroC.Ice
             return false;
         }
 
-        public static void SetTcpBufSize(Socket socket, Communicator communicator)
+        internal static bool IsMulticast(IPEndPoint addr) =>
+            addr.AddressFamily == AddressFamily.InterNetwork ?
+                (addr.Address.GetAddressBytes()[0] & 0xF0) == 0xE0 : addr.Address.IsIPv6Multicast;
+
+        internal static string LocalAddrToString(EndPoint endpoint)
         {
-            // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
-            int dfltBufSize = AssemblyUtil.IsWindows ? 128 * 1024 : 0;
-            int rcvSize = communicator.GetPropertyAsByteSize("Ice.TCP.RcvSize") ?? dfltBufSize;
-            int sndSize = communicator.GetPropertyAsByteSize("Ice.TCP.SndSize") ?? dfltBufSize;
-            SetTcpBufSize(socket, rcvSize, sndSize, communicator);
+            if (endpoint == null)
+            {
+                return "<not bound>";
+            }
+            return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
         }
 
-        public static void
-        SetTcpBufSize(Socket socket, int rcvSize, int sndSize, Communicator communicator)
+        internal static string RemoteAddrToString(EndPoint? endpoint)
         {
+            if (endpoint == null)
+            {
+                return "<not connected>";
+            }
+            return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
+        }
+
+        internal static void SetBufSize(Socket socket, Communicator communicator, Transport transport)
+        {
+            int rcvSize = communicator.GetPropertyAsByteSize($"Ice.{transport}.RcvSize") ?? 0;
             if (rcvSize > 0)
             {
-                //
-                // Try to set the buffer size. The kernel will silently adjust
-                // the size to an acceptable value. Then read the size back to
-                // get the size that was actually set.
-                //
-                SetRecvBufferSize(socket, rcvSize);
-                int size = GetRecvBufferSize(socket);
+                // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then
+                // read the size back to get the size that was actually set.
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, rcvSize);
+                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
                 if (size < rcvSize)
                 {
-                    // Warn if the size that was set is less than the requested size and
-                    // we have not already warned.
-                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(Transport.TCP);
-                    if (!winfo.RcvWarn || rcvSize != winfo.RcvSize)
+                    // Warn if the size that was set is less than the requested size and we have not already warned.
+                    BufSizeWarnInfo warningInfo = communicator.GetBufSizeWarn(Transport.TCP);
+                    if (!warningInfo.RcvWarn || rcvSize != warningInfo.RcvSize)
                     {
                         communicator.Logger.Warning(
-                            $"TCP receive buffer size: requested size of {rcvSize} adjusted to {size}");
+                            $"{transport} receive buffer size: requested size of {rcvSize} adjusted to {size}");
                         communicator.SetRcvBufSizeWarn(Transport.TCP, rcvSize);
                     }
                 }
             }
 
+            int sndSize = communicator.GetPropertyAsByteSize($"Ice.{transport}.SndSize") ?? 0;
             if (sndSize > 0)
             {
-                //
-                // Try to set the buffer size. The kernel will silently adjust
-                // the size to an acceptable value. Then read the size back to
-                // get the size that was actually set.
-                //
-                SetSendBufferSize(socket, sndSize);
-                int size = GetSendBufferSize(socket);
+                // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then
+                // read the size back to get the size that was actually set.
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sndSize);
+                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
                 if (size < sndSize) // Warn if the size that was set is less than the requested size.
                 {
-                    // Warn if the size that was set is less than the requested size and
-                    // we have not already warned.
-                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(Transport.TCP);
-                    if (!winfo.SndWarn || sndSize != winfo.SndSize)
+                    // Warn if the size that was set is less than the requested size and we have not already warned.
+                    BufSizeWarnInfo warningInfo = communicator.GetBufSizeWarn(Transport.TCP);
+                    if (!warningInfo.SndWarn || sndSize != warningInfo.SndSize)
                     {
                         communicator.Logger.Warning(
-                            $"TCP send buffer size: requested size of {sndSize} adjusted to {size}");
+                            $"{transport} send buffer size: requested size of {sndSize} adjusted to {size}");
                         communicator.SetSndBufSizeWarn(Transport.TCP, sndSize);
                     }
                 }
             }
         }
 
-        public static List<string> GetHostsForEndpointExpand(string host, int ipVersion, bool includeLoopback)
+        internal static void SetMulticastGroup(Socket s, IPAddress group, string iface)
         {
-            var hosts = new List<string>();
-            if (IsWildcard(host, out bool ipv4Wildcard))
+            var indexes = new HashSet<int>();
+            foreach (string intf in GetInterfacesForMulticast(iface, GetIPVersion(group)))
             {
-                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : ipVersion, includeLoopback, false))
+                if (group.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    if (!IsLinklocal(a))
+                    MulticastOption option;
+                    IPAddress? addr = GetInterfaceAddress(intf, group.AddressFamily);
+                    if (addr == null)
                     {
-                        hosts.Add(a.ToString());
+                        option = new MulticastOption(group);
+                    }
+                    else
+                    {
+                        option = new MulticastOption(group, addr);
+                    }
+                    s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
+                }
+                else
+                {
+                    int index = GetInterfaceIndex(intf, group.AddressFamily);
+                    if (!indexes.Contains(index))
+                    {
+                        indexes.Add(index);
+                        IPv6MulticastOption option;
+                        if (index == -1)
+                        {
+                            option = new IPv6MulticastOption(group);
+                        }
+                        else
+                        {
+                            option = new IPv6MulticastOption(group, index);
+                        }
+                        s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                     }
                 }
-                if (hosts.Count == 0)
-                {
-                    // Return loopback if only loopback is available no other local addresses are available.
-                    foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
-                    {
-                        hosts.Add(a.ToString());
-                    }
-                }
             }
-            return hosts;
         }
 
-        public static List<string> GetInterfacesForMulticast(string intf, int ipVersion)
-        {
-            var interfaces = new List<string>();
-            if (IsWildcard(intf, out bool ipv4Wildcard))
-            {
-                foreach (IPAddress a in GetLocalAddresses(ipv4Wildcard ? EnableIPv4 : ipVersion, true, true))
-                {
-                    interfaces.Add(a.ToString());
-                }
-            }
-            if (interfaces.Count == 0)
-            {
-                interfaces.Add(intf);
-            }
-            return interfaces;
-        }
-
-        public static string FdToString(Socket socket, INetworkProxy? proxy, EndPoint? target)
+        internal static string SocketToString(Socket socket, INetworkProxy? proxy, EndPoint? target)
         {
             try
             {
@@ -845,9 +567,9 @@ namespace ZeroC.Ice
                 {
                     if (remote == null)
                     {
-                        remote = proxy.GetAddress();
+                        remote = proxy.Address;
                     }
-                    s.Append("\n" + proxy.GetName() + " proxy address = " + RemoteAddrToString(remote));
+                    s.Append("\n" + proxy.Name + " proxy address = " + RemoteAddrToString(remote));
                     s.Append("\nremote address = " + RemoteAddrToString(target));
                 }
                 else
@@ -866,7 +588,19 @@ namespace ZeroC.Ice
             }
         }
 
-        public static string FdToString(Socket? socket)
+        internal static void SetMulticastTtl(Socket socket, int ttl, AddressFamily family)
+        {
+            if (family == AddressFamily.InterNetwork)
+            {
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
+            }
+            else
+            {
+                socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, ttl);
+            }
+        }
+
+        internal static string SocketToString(Socket? socket)
         {
             try
             {
@@ -885,71 +619,16 @@ namespace ZeroC.Ice
             }
         }
 
-        public static string
-        AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);
-
-        public static string
-        LocalAddrToString(EndPoint endpoint)
-        {
-            if (endpoint == null)
-            {
-                return "<not bound>";
-            }
-            return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
-        }
-
-        public static string
-        RemoteAddrToString(EndPoint? endpoint)
-        {
-            if (endpoint == null)
-            {
-                return "<not connected>";
-            }
-            return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
-        }
-
-        public static EndPoint
-        GetLocalAddress(Socket socket)
-        {
-            try
-            {
-                return socket.LocalEndPoint;
-            }
-            catch (SocketException ex)
-            {
-                throw new TransportException(ex);
-            }
-        }
-
-        public static EndPoint?
-        GetRemoteAddress(Socket socket)
-        {
-            try
-            {
-                return socket.RemoteEndPoint;
-            }
-            catch (SocketException)
-            {
-            }
-            return null;
-        }
-
-        private static IPAddress?
-        GetInterfaceAddress(string iface, AddressFamily family)
+        private static IPAddress? GetInterfaceAddress(string iface, AddressFamily family)
         {
             if (iface.Length == 0)
             {
                 return null;
             }
 
-            //
-            // The iface parameter must either be an IP address, an
-            // index or the name of an interface. If it's an index we
-            // just return it. If it's an IP addess we search for an
-            // interface which has this IP address. If it's a name we
-            // search an interface with this name.
-            //
-
+            // The iface parameter must either be an IP address, an index or the name of an interface. If it's an index
+            // we just return it. If it's an IP addess we search for an interface which has this IP address. If it's a
+            // name we search an interface with this name.
             try
             {
                 return IPAddress.Parse(iface);
@@ -1016,21 +695,16 @@ namespace ZeroC.Ice
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        private static int
-        GetInterfaceIndex(string iface, AddressFamily family)
+        private static int GetInterfaceIndex(string iface, AddressFamily family)
         {
             if (iface.Length == 0)
             {
                 return -1;
             }
 
-            //
-            // The iface parameter must either be an IP address, an
-            // index or the name of an interface. If it's an index we
-            // just return it. If it's an IP addess we search for an
-            // interface which has this IP address. If it's a name we
-            // search an interface with this name.
-            //
+            // The iface parameter must either be an IP address, an index or the name of an interface. If it's an index
+            // we just return it. If it's an IP addess we search for an interface which has this IP address. If it's a
+            // name we search an interface with this name.
             try
             {
                 return int.Parse(iface, CultureInfo.InvariantCulture);
@@ -1101,10 +775,8 @@ namespace ZeroC.Ice
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        private static bool
-        IsWildcard(string address, out bool ipv4Wildcard)
+        private static bool IsWildcard(string address, int ipVersion)
         {
-            ipv4Wildcard = false;
             if (address.Length == 0)
             {
                 return true;
@@ -1113,54 +785,13 @@ namespace ZeroC.Ice
             try
             {
                 var addr = IPAddress.Parse(address);
-                if (addr.Equals(IPAddress.Any))
-                {
-                    ipv4Wildcard = true;
-                    return true;
-                }
-                return addr.Equals(IPAddress.IPv6Any);
+                return ipVersion != EnableIPv4 ? addr.Equals(IPAddress.IPv6Any) : addr.Equals(IPAddress.Any);
             }
             catch (Exception)
             {
             }
 
             return false;
-        }
-
-        public static List<IPAddress> GetLoopbackAddresses(int ipVersion)
-        {
-            var addresses = new List<IPAddress>();
-            if (ipVersion != EnableIPv4)
-            {
-                addresses.Add(IPAddress.IPv6Loopback);
-            }
-            if (ipVersion != EnableIPv6)
-            {
-                addresses.Add(IPAddress.Loopback);
-            }
-            return addresses;
-        }
-
-        public static string
-        EndpointAddressToString(EndPoint? endpoint)
-        {
-            if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
-            {
-                return ipEndpoint.Address.ToString();
-            }
-            return "";
-        }
-
-        internal static ushort EndpointPort(EndPoint? endpoint)
-        {
-            if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
-            {
-                return (ushort)ipEndpoint.Port;
-            }
-            else
-            {
-                return 0;
-            }
         }
     }
 }

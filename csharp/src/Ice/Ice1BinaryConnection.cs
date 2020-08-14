@@ -20,7 +20,6 @@ namespace ZeroC.Ice
         private Action? _heartbeatCallback;
         private readonly bool _incoming;
         private int _nextRequestId;
-        private Task _receiveTask = Task.CompletedTask;
         private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
         private Action<int>? _sentCallback;
@@ -33,46 +32,14 @@ namespace ZeroC.Ice
 
         public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
-            if (!(exception is ConnectionClosedByPeerException))
-            {
-                // Write and wait for the close connection frame to be written
-                try
-                {
-                    await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
+            // Write the close connection frame.
+            await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            try
-            {
-                await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
-
-            // Wait for the connection closure from the peer
-            try
-            {
-                await _receiveTask.WaitAsync(cancel).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Ignore
-            }
+            await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync()
-        {
-            Transceiver.ThreadSafeClose();
-            Transceiver.Destroy();
-            return default;
-        }
+        public ValueTask DisposeAsync() => Transceiver.DisposeAsync();
 
         public async ValueTask HeartbeatAsync(CancellationToken cancel) =>
             await SendFrameAsync(0, _validateConnectionFrame, cancel).ConfigureAwait(false);
@@ -90,31 +57,19 @@ namespace ZeroC.Ice
             // Initialize the transport
             await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
-            ArraySegment<byte> readBuffer = default;
             if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
             {
                 if (_incoming) // The server side has the active role for connection validation.
                 {
-                    int offset = 0;
-                    int length = _validateConnectionFrame.GetByteCount();
-                    while (offset < length)
-                    {
-                        offset += await Transceiver.WriteAsync(_validateConnectionFrame,
-                                                               offset,
-                                                               cancel).ConfigureAwait(false);
-                    }
-                    Debug.Assert(offset == length);
+                    await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
+                    ProtocolTrace.TraceSend(Endpoint.Communicator,
+                                            Endpoint.Protocol,
+                                            Ice1Definitions.ValidateConnectionFrame);
                 }
                 else // The client side has the passive role for connection validation.
                 {
-                    readBuffer = new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]);
-                    int offset = 0;
-                    while (offset < Ice1Definitions.HeaderSize)
-                    {
-                        offset += await Transceiver.ReadAsync(readBuffer,
-                                                              offset,
-                                                              cancel).ConfigureAwait(false);
-                    }
+                    var readBuffer = new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]);
+                    await ReceiveAsync(readBuffer, cancel).ConfigureAwait(false);
 
                     Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
                     var frameType = (Ice1Definitions.FrameType)readBuffer[8];
@@ -131,22 +86,8 @@ namespace ZeroC.Ice
                             @$"received an ice1 frame with validate connection type and a size of `{size
                             }' bytes");
                     }
-                }
-            }
 
-            if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
-            {
-                if (_incoming) // The server side has the active role for connection validation.
-                {
-                    ProtocolTrace.TraceSend(Endpoint.Communicator,
-                                            Endpoint.Protocol,
-                                            Ice1Definitions.ValidateConnectionFrame);
-                    _sentCallback!(Ice1Definitions.ValidateConnectionFrame.Length);
-                }
-                else
-                {
                     ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
-                    _receivedCallback!(readBuffer.Count);
                 }
             }
 
@@ -156,7 +97,7 @@ namespace ZeroC.Ice
                 if (Endpoint.IsDatagram)
                 {
                     s.Append("starting to ");
-                    s.Append(_incoming ? "send" : "receive");
+                    s.Append(_incoming ? "receive" : "send");
                     s.Append(' ');
                     s.Append(Endpoint.TransportName);
                     s.Append(" datagrams\n");
@@ -164,43 +105,28 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    s.Append(_incoming ? "established" : "accepted");
+                    s.Append(_incoming ? "accepted" : "established");
                     s.Append(' ');
                     s.Append(Endpoint.TransportName);
                     s.Append(" connection\n");
                     s.Append(ToString());
                 }
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.NetworkCategory,
-                                                    s.ToString());
+                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.NetworkCategory, s.ToString());
             }
         }
 
-        public async ValueTask<(long StreamId, object? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
+        public async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
         {
             while (true)
             {
-                int requestId = 0;
-                object? frame = null;
-                Task<ArraySegment<byte>>? task = null;
-                ValueTask<ArraySegment<byte>> receiveTask = PerformReceiveFrameAsync();
-                if (receiveTask.IsCompletedSuccessfully)
+                ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
+                if (buffer.Count > 0) // Can be empty if invalid datagram.
                 {
-                    _receiveTask = Task.CompletedTask;
-                    (requestId, frame) = ParseFrame(receiveTask.Result);
-                }
-                else
-                {
-                    _receiveTask = task = receiveTask.AsTask();
-                }
-
-                if (task != null)
-                {
-                    (requestId, frame) = ParseFrame(await task.ConfigureAwait(false));
-                }
-
-                if (frame != null)
-                {
-                    return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
+                    (int requestId, IncomingFrame? frame) = ParseFrame(buffer);
+                    if (frame != null)
+                    {
+                        return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
+                    }
                 }
             }
         }
@@ -226,7 +152,7 @@ namespace ZeroC.Ice
         public ValueTask ResetAsync(long streamId) =>
             throw new NotSupportedException("ice1 transports don't support stream reset");
 
-        public async ValueTask SendAsync(long streamId, object frame, bool fin, CancellationToken cancel) =>
+        public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel) =>
             await SendFrameAsync(streamId, frame, cancel);
 
         public override string ToString() => Transceiver.ToString()!;
@@ -240,7 +166,7 @@ namespace ZeroC.Ice
             _incomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
         }
 
-        private (int, object?) ParseFrame(ArraySegment<byte> readBuffer)
+        private (int, IncomingFrame?) ParseFrame(ArraySegment<byte> readBuffer)
         {
             // The magic and version fields have already been checked.
             var frameType = (Ice1Definitions.FrameType)readBuffer[8];
@@ -334,18 +260,18 @@ namespace ZeroC.Ice
             ArraySegment<byte> readBuffer;
             if (Endpoint.IsDatagram)
             {
-                readBuffer = await Transceiver.ReadAsync().ConfigureAwait(false);
+                readBuffer = await Transceiver.ReceiveAsync(default).ConfigureAwait(false);
+                if (readBuffer.Count == 0)
+                {
+                    // The transport failed to read a datagram which was too big or it received an empty datagram.
+                    return readBuffer;
+                }
                 _receivedCallback!(readBuffer.Count);
             }
             else
             {
                 readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
-                int offset = 0;
-                while (offset < Ice1Definitions.HeaderSize)
-                {
-                    offset += await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
-                    _receivedCallback!(readBuffer.Count);
-                }
+                await ReceiveAsync(readBuffer).ConfigureAwait(false);
             }
 
             // Check header
@@ -362,39 +288,33 @@ namespace ZeroC.Ice
             }
 
             // Read the remainder of the frame if needed
-            if (!Endpoint.IsDatagram)
+            if (size > readBuffer.Count)
             {
-                if (size > readBuffer.Array!.Length)
+                if (!Endpoint.IsDatagram)
                 {
-                    // Allocate a new array and copy the header over
-                    var buffer = new ArraySegment<byte>(new byte[size], 0, size);
-                    readBuffer.AsSpan().CopyTo(buffer.AsSpan(0, Ice1Definitions.HeaderSize));
-                    readBuffer = buffer;
-                }
-                else if (size > readBuffer.Count)
-                {
-                    readBuffer = new ArraySegment<byte>(readBuffer.Array!, 0, size);
-                }
-                Debug.Assert(size == readBuffer.Count);
+                    if (size > readBuffer.Array!.Length)
+                    {
+                        // Allocate a new array and copy the header over
+                        var buffer = new ArraySegment<byte>(new byte[size], 0, size);
+                        readBuffer.AsSpan().CopyTo(buffer.AsSpan(0, Ice1Definitions.HeaderSize));
+                        readBuffer = buffer;
+                    }
+                    else
+                    {
+                        readBuffer = new ArraySegment<byte>(readBuffer.Array!, 0, size);
+                    }
+                    Debug.Assert(size == readBuffer.Count);
 
-                int offset = Ice1Definitions.HeaderSize;
-                while (offset < readBuffer.Count)
-                {
-                    int bytesReceived = await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
-                    offset += bytesReceived;
-
-                    // Trace the receive progress within the loop as we might be receiving significant amount
-                    // of data here.
-                    _receivedCallback!(bytesReceived);
+                    await ReceiveAsync(readBuffer.Slice(Ice1Definitions.HeaderSize)).ConfigureAwait(false);
                 }
-            }
-            else if (size > readBuffer.Count)
-            {
-                if (Endpoint.Communicator.WarnDatagrams)
+                else
                 {
-                    Endpoint.Communicator.Logger.Warning($"maximum datagram size of {readBuffer.Count} exceeded");
+                    if (Endpoint.Communicator.WarnDatagrams)
+                    {
+                        Endpoint.Communicator.Logger.Warning($"maximum datagram size of {readBuffer.Count} exceeded");
+                    }
+                    return default;
                 }
-                return default;
             }
             return readBuffer;
         }
@@ -454,13 +374,7 @@ namespace ZeroC.Ice
             Transceiver.CheckSendSize(size);
 
             // Write the frame
-            int offset = 0;
-            while (offset < size)
-            {
-                int bytesSent = await Transceiver.WriteAsync(writeBuffer, offset).ConfigureAwait(false);
-                offset += bytesSent;
-                _sentCallback!(bytesSent);
-            }
+            await SendAsync(writeBuffer).ConfigureAwait(false);
         }
 
         private Task SendFrameAsync(long streamId, object frame, CancellationToken cancel)
@@ -495,6 +409,24 @@ namespace ZeroC.Ice
                 // Perform the write
                 await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
             }
+        }
+
+        private async ValueTask ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
+        {
+            int offset = 0;
+            while (offset != buffer.Count)
+            {
+                int received = await Transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                offset += received;
+                _receivedCallback!(received);
+            }
+        }
+
+        private async ValueTask SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
+        {
+            int sent = await Transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
+            Debug.Assert(sent == buffers.GetByteCount()); // TODO: do we need to support partial writes?
+            _sentCallback!(sent);
         }
     }
 }

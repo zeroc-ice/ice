@@ -154,6 +154,7 @@ namespace ZeroC.Ice
         private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private IConnectionObserver? _observer;
+        private Task _receiveTask = Task.CompletedTask;
         private readonly Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
             new Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private ConnectionState _state; // The current state.
@@ -309,7 +310,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    Task? closingTask = null;
+                    Task? closeTask = null;
                     lock (_mutex)
                     {
                         if (_state == ConnectionState.Active)
@@ -319,54 +320,69 @@ namespace ZeroC.Ice
                             {
                                 _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
-                            closingTask = PerformGracefulCloseAsync();
-                            if (_closeTask == null)
-                            {
-                                // _closeTask might already be assigned if CloseAsync() got called if the send of the
-                                // closing frame failed.
-                                _closeTask = closingTask;
-                            }
+                            closeTask = PerformGracefulCloseAsync(exception);
+                            Debug.Assert(_closeTask == null);
+                            _closeTask = closeTask;
                         }
                         else if (_state == ConnectionState.Closing)
                         {
-                            closingTask = _closeTask;
+                            closeTask = _closeTask!;
                         }
                     }
-                    if (closingTask != null)
+
+                    if (closeTask != null)
                     {
-                        await closingTask.ConfigureAwait(false);
+                        await closeTask.ConfigureAwait(false);
                     }
                 }
                 catch
                 {
-                    // Ignore
                 }
             }
 
+            // Wait for the connection closure.
             await CloseAsync(exception).ConfigureAwait(false);
 
-            async Task PerformGracefulCloseAsync()
+            async Task PerformGracefulCloseAsync(Exception exception)
             {
-                if (!(_exception is ConnectionClosedByPeerException))
+                // Wait for the all the dispatch to complete to make sure the responses are sent before we start
+                // the graceful close.
+                if (_dispatchTaskCompletionSource != null)
                 {
-                    // Wait for the all the dispatch to be completed to ensure the responses are sent.
-                    if (_dispatchTaskCompletionSource != null)
-                    {
-                        await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
-                    }
+                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
                 }
 
                 CancellationTokenSource? source = null;
                 TimeSpan timeout = _communicator.CloseTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
-                    source = new CancellationTokenSource();
-                    source.CancelAfter(timeout);
+                    source = new CancellationTokenSource(timeout);
                 }
 
-                await BinaryConnection.CloseAsync(_exception!, source?.Token ?? default);
+                try
+                {
+                    CancellationToken cancel = source?.Token ?? default;
 
-                source?.Dispose();
+                    // Gracefully close the connection.
+                    await BinaryConnection.CloseAsync(exception, cancel);
+
+                    // Wait the failure of the receive task which indicates that the peer closed the connection.
+                    while (true)
+                    {
+                        lock (_mutex)
+                        {
+                            if (_state == ConnectionState.Closed)
+                            {
+                                throw _exception!;
+                            }
+                        }
+                        await _receiveTask.WaitAsync(cancel).ConfigureAwait(false);
+                    }
+                }
+                finally
+                {
+                    source?.Dispose();
+                }
             }
         }
 
@@ -538,17 +554,16 @@ namespace ZeroC.Ice
             CancellationTokenSource? source = null;
             try
             {
-                CancellationToken token;
+                CancellationToken cancel;
                 TimeSpan timeout = _communicator.ConnectTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
-                    source = new CancellationTokenSource();
-                    source.CancelAfter(timeout);
-                    token = source.Token;
+                    source = new CancellationTokenSource(timeout);
+                    cancel = source.Token;
                 }
 
                 // Initialize the transport
-                await BinaryConnection.InitializeAsync(OnHeartbeat, OnSent, OnReceived, token).ConfigureAwait(false);
+                await BinaryConnection.InitializeAsync(OnHeartbeat, OnSent, OnReceived, cancel).ConfigureAwait(false);
 
                 lock (_mutex)
                 {
@@ -771,13 +786,23 @@ namespace ZeroC.Ice
             {
                 while (true)
                 {
-                    (long streamId, object? frame, bool fin) =
+                    (long streamId, IncomingFrame? frame, bool fin) =
                         await BinaryConnection.ReceiveAsync(default).ConfigureAwait(false);
 
                     Func<ValueTask>? incoming = null;
                     ObjectAdapter? adapter = null;
+                    bool serialize = false;
                     lock (_mutex)
                     {
+                        if (_state == ConnectionState.Closed)
+                        {
+                            throw _exception!;
+                        }
+                        else if (_state == ConnectionState.Closing)
+                        {
+                            continue; // Ignore the frame if received while we are gracefully closing.
+                        }
+
                         if (frame == null)
                         {
                             // TODO: this indicates that the stream was reset (ice2).
@@ -794,6 +819,8 @@ namespace ZeroC.Ice
                             else
                             {
                                 adapter = _adapter;
+                                serialize = adapter.SerializeDispatch;
+
                                 // TODO: if fin != false, we need to keep track of the stream in a dictionnary. The
                                 // cancellation token provided here will have to be a token created for a stream to
                                 // allow cancelling the request if the stream is closed.
@@ -838,29 +865,22 @@ namespace ZeroC.Ice
                             // TODO: handle data frames for streaming
                             Debug.Assert(false);
                         }
+
+                        // Start a new receive task before running the incoming dispatch. We start the new receive
+                        // task from a separate task because ReceiveAsync could complete synchronously and we don't
+                        // want the dispatch from this read to run before we actually ran the dispatch from this
+                        // block. An alternative could be to start a task to run the incoming dispatch and continue
+                        // reading with this loop. It would have a negative impact on latency however since
+                        // execution of the incoming dispatch would potentially require a thread context switch.
+                        if (incoming != null && !serialize)
+                        {
+                            _receiveTask = TaskRun(ReceiveAndDispatchFrameAsync,
+                                                   adapter?.TaskScheduler ?? TaskScheduler.Default);
+                        }
                     }
 
                     if (incoming != null)
                     {
-                        bool serialize = adapter?.SerializeDispatch ?? false;
-                        if (!serialize)
-                        {
-                            // Start a new receive task before running the incoming dispatch. We start the new receive
-                            // task from a separate task because ReadAsync could complete synchronously and we don't
-                            // want the dispatch from this read to run before we actually ran the dispatch from this
-                            // block. An alternative could be to start a task to run the incoming dispatch and continue
-                            // reading with this loop. It would have a negative impact on latency however since
-                            // execution of the incoming dispatch would potentially require a thread context switch.
-                            if (adapter?.TaskScheduler != null)
-                            {
-                                _ = TaskRun(ReceiveAndDispatchFrameAsync, adapter.TaskScheduler);
-                            }
-                            else
-                            {
-                                _ = Task.Run(ReceiveAndDispatchFrameAsync);
-                            }
-                        }
-
                         // Run the received incoming frame
                         if (adapter?.TaskScheduler != null)
                         {
@@ -880,20 +900,19 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            catch (ConnectionClosedByPeerException ex)
-            {
-                await GracefulCloseAsync(ex);
-            }
             catch (Exception ex)
             {
                 await CloseAsync(ex);
+                throw;
             }
 
             static async Task TaskRun(Func<ValueTask> func, TaskScheduler scheduler)
             {
                 // First await for the dispatch to be ran on the task scheduler.
-                ValueTask task = await Task.Factory.StartNew(func, default, TaskCreationOptions.None,
-                    scheduler).ConfigureAwait(false);
+                ValueTask task = await Task.Factory.StartNew(func,
+                                                             cancellationToken: default,
+                                                             TaskCreationOptions.None,
+                                                             scheduler).ConfigureAwait(false);
 
                 // Now wait for the async dispatch to complete.
                 await task.ConfigureAwait(false);
@@ -941,7 +960,7 @@ namespace ZeroC.Ice
                     Debug.Assert(_state == ConnectionState.Validating);
                     // Start the asynchronous operation from the thread pool to prevent eventually reading
                     // synchronously new frames from this thread.
-                    _ = Task.Run(ReceiveAndDispatchFrameAsync);
+                    _receiveTask = Task.Run(async () => await ReceiveAndDispatchFrameAsync());
                     break;
                 }
 
@@ -1062,7 +1081,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return BinaryConnection.Transceiver.Fd()?.LocalEndPoint as System.Net.IPEndPoint;
+                    return BinaryConnection.Transceiver.Socket?.LocalEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -1078,7 +1097,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return BinaryConnection.Transceiver.Fd()?.RemoteEndPoint as System.Net.IPEndPoint;
+                    return BinaryConnection.Transceiver.Socket?.RemoteEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -1149,7 +1168,8 @@ namespace ZeroC.Ice
     public class UdpConnection : IPConnection
     {
         /// <summary>The multicast IP-endpoint for a multicast connection otherwise null.</summary>
-        public System.Net.IPEndPoint? McastEndpoint => (BinaryConnection.Transceiver as UdpTransceiver)?.McastAddress;
+        public System.Net.IPEndPoint? MulticastEndpoint =>
+            (BinaryConnection.Transceiver as UdpTransceiver)?.MulticastAddress;
 
         protected internal UdpConnection(
             IConnectionManager manager,

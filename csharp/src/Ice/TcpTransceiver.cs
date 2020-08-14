@@ -5,65 +5,160 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
     internal sealed class TcpTransceiver : ITransceiver
     {
-        public Socket? Fd() => _stream.Fd();
+        public Socket Socket { get; }
 
-        public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer) =>
-            _stream.Connect(ref readBuffer, writeBuffer);
-
-        // If we are initiating the connection closure, wait for the peer
-        // to close the TCP/IP connection. Otherwise, close immediately.
-        public int Closing(bool initiator, System.Exception? ex) =>
-            initiator ? SocketOperation.Read : SocketOperation.None;
-
-        public void Close() => _stream.Close();
-
-        public Endpoint Bind()
-        {
-            Debug.Assert(false);
-            throw new InvalidOperationException();
-        }
-
-        public void Destroy() => _stream.Destroy();
-
-        public int Write(IList<ArraySegment<byte>> buffer, ref int offset) => _stream.Write(buffer, ref offset);
-
-        public int Read(ref ArraySegment<byte> buffer, ref int offset) =>
-             _stream.Read(ref buffer, ref offset);
-
-        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, AsyncCallback callback, object state) =>
-            _stream.StartRead(buffer, offset, callback, state);
-
-        public void FinishRead(ref ArraySegment<byte> buffer, ref int offset) =>
-            _stream.FinishRead(ref buffer, ref offset);
-
-        public bool
-        StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed) =>
-            _stream.StartWrite(buffer, offset, callback, state, out completed);
-
-        public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset) =>
-            _stream.FinishWrite(buffer, ref offset);
+        private readonly EndPoint? _addr;
+        private readonly Communicator _communicator;
+        private string _desc;
+        private readonly INetworkProxy? _proxy;
+        private readonly IPAddress? _sourceAddr;
 
         public void CheckSendSize(int size)
         {
         }
 
-        public void SetBufferSize(int rcvSize, int sndSize) => _stream.SetBufferSize(rcvSize, sndSize);
+        public ValueTask ClosingAsync(Exception ex, CancellationToken cancel) => new ValueTask();
 
-        public override string ToString() => _stream.ToString();
+        public ValueTask DisposeAsync()
+        {
+            Socket.Dispose();
+            return new ValueTask();
+        }
 
-        public string ToDetailedString() => ToString();
+        public async ValueTask InitializeAsync(CancellationToken cancel)
+        {
+            if (_addr != null)
+            {
+                try
+                {
+                    // Bind the socket to the source address if one is set.
+                    if (_sourceAddr != null)
+                    {
+                        Socket.Bind(new IPEndPoint(_sourceAddr, 0));
+                    }
 
-        //
-        // Only for use by TcpConnector, TcpAcceptor
-        //
-        internal TcpTransceiver(StreamSocket stream) => _stream = stream;
+                    // Connect to the server or proxy server.
+                    // TODO: use the cancelable ConnectAsync with 5.0
+                    await Socket.ConnectAsync(_proxy?.Address ?? _addr).WaitAsync(cancel).ConfigureAwait(false);
 
-        private readonly StreamSocket _stream;
+                    _desc = Network.SocketToString(Socket, _proxy, _addr);
+
+                    if (_proxy != null)
+                    {
+                        await _proxy.ConnectAsync(Socket, _addr, cancel).ConfigureAwait(false);
+                    }
+                }
+                catch (SocketException) when (cancel.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException(cancel);
+                }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
+                {
+                    throw new ConnectionRefusedException(ex);
+                }
+                catch (SocketException ex)
+                {
+                    throw new ConnectFailedException(ex);
+                }
+            }
+        }
+
+        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException();
+
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        {
+            int received;
+            try
+            {
+                received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
+            }
+            catch (SocketException) when (cancel.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancel);
+            }
+            catch (SocketException ex) when (ex.IsConnectionLost())
+            {
+                throw new ConnectionLostException(ex);
+            }
+            catch (SocketException ex)
+            {
+                throw new TransportException(ex);
+            }
+            if (received == 0)
+            {
+                throw new ConnectionLostException();
+            }
+            return received;
+        }
+
+        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        {
+            try
+            {
+                // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
+                return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
+            }
+            catch (SocketException) when (cancel.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancel);
+            }
+            catch (SocketException ex) when (ex.IsConnectionLost())
+            {
+                throw new ConnectionLostException(ex);
+            }
+            catch (SocketException ex)
+            {
+                throw new TransportException(ex);
+            }
+        }
+
+        public override string ToString() => _desc;
+
+        public string ToDetailedString() => _desc;
+
+        internal TcpTransceiver(Communicator communicator, EndPoint addr, INetworkProxy? proxy, IPAddress? sourceAddr)
+        {
+            _communicator = communicator;
+            _proxy = proxy;
+            _addr = addr;
+            _desc = "";
+            _sourceAddr = sourceAddr;
+            Socket = Network.CreateSocket(false, (_proxy != null ? _proxy.Address : _addr).AddressFamily);
+            try
+            {
+                Network.SetBufSize(Socket, _communicator, Transport.TCP);
+            }
+            catch (Exception)
+            {
+                Socket.CloseNoThrow();
+                throw;
+            }
+        }
+
+        internal TcpTransceiver(Communicator communicator, Socket fd)
+        {
+            _communicator = communicator;
+            Socket = fd;
+            try
+            {
+                Network.SetBufSize(Socket, _communicator, Transport.TCP);
+                _desc = Network.SocketToString(Socket);
+            }
+            catch (Exception)
+            {
+                Socket.CloseNoThrow();
+                throw;
+            }
+        }
     }
 }

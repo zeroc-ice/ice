@@ -11,302 +11,51 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    // TODO: Benoit: Remove with the transport refactoring
-    public delegate void AsyncCallback(object state);
-
-    public interface ITransceiver
+    /// <summary>A transceiver enables transmitting and receiving raw binary data over a transport such as TCP,
+    /// UDP, TLS or WebSocket. More transports can be supported by implementing this interface.</summary>
+    public interface ITransceiver : IAsyncDisposable
     {
-        Socket? Fd();
+        /// <summary>Gets the optional socket associated with this transceiver.</summary>
+        Socket? Socket { get; }
 
-        /// <summary>
-        /// Initialize the transport, this method returns SocketOperation.None once the transport has been initialized,
-        /// if the initialization needs to write data it must write the data to the write buffer and return
-        /// SocketOperation.Write, likewise if the initialization needs to read data it must resize the read buffer to
-        /// the appropriate size and returns SocketOperation.Read.
+        /// <summary>Checks if the transceiver can send messages of the given size. Throw if the message is too large.
         /// </summary>
-        /// <param name="readBuffer">An empty buffer used for read operations</param>
-        /// <param name="writeBuffer">An empty buffer used for write operations</param>
-        /// <returns>Returns SocketOperation.Write, SocketOperation.Read or SocketOperation.None indicating
-        /// whenever the operation needs to write more data, read more data or it is done.</returns>
-        int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer);
-
-        int Closing(bool initiator, Exception? ex);
-        void Close();
-        void Destroy();
-
-        Endpoint Bind();
-
-        /// <summary>Write the buffer data to the socket starting at the given offset,
-        /// the offset is incremented with the number of bytes written, returns
-        /// SocketOperation.None if all the data was wrote otherwise returns
-        /// SocketOperation.Write.</summary>
-        /// <param name="buffer">The data to write to the socket as a list of byte array segments.</param>
-        /// <param name="offset">The zero based byte offset into the buffer. The offset is increase by
-        /// the amount of bytes written.</param>
-        /// <returns>A constant indicating if all data was wrote to the socket, SocketOperation.None
-        /// indicate there is no more data to write, SocketOperation.Write indicates there is still
-        /// data to write in the buffer.</returns>
-        int Write(IList<ArraySegment<byte>> buffer, ref int offset);
-        int Read(ref ArraySegment<byte> buffer, ref int offset);
-
-        //
-        // Read data asynchronously.
-        //
-        // The I/O request may complete synchronously, in which case finishRead
-        // will be invoked in the same thread as startRead. The caller must check
-        // the buffer after finishRead completes to determine whether all of the
-        // requested data has been read.
-        //
-        // The read request is canceled upon the termination of the thread that
-        // calls startRead, or when the socket is closed. In this case finishRead
-        // raises ReadAbortedException.
-        //
-        bool StartRead(ref ArraySegment<byte> buffer, ref int offset, AsyncCallback callback, object state);
-        void FinishRead(ref ArraySegment<byte> buffer, ref int offset);
-
-        //
-        // Write data asynchronously.
-        //
-        // The I/O request may complete synchronously, in which case finishWrite
-        // will be invoked in the same thread as startWrite. The request
-        // will be canceled upon the termination of the thread that calls startWrite.
-        //
-
-        /// <summary>Starts an asynchronous write operation of the buffer data to the transport
-        /// starting at the given offset, completed is set to true if the write operation
-        /// account for the remaining of the buffer data or false otherwise, returns whenever
-        /// the asynchronous operation completed synchronously or not.</summary>
-        /// <param name="buffer">The data to write to the socket as a list of byte array segments.</param>
-        /// <param name="offset">The zero based byte offset into the buffer at what start writing.</param>
-        /// <param name="callback">The asynchronous completion callback.</param>
-        /// <param name="state">A state object that is associated with the asynchronous operation.</param>
-        /// <param name="completed">True if the write operation accounts for the buffer remaining data, from
-        /// offset to the end of the buffer.</param>
-        /// <returns>True if the asynchronous operation completed synchronously otherwise false.</returns>
-        bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed);
-
-        /// <summary>Finish an asynchronous write operation, the offset is increase with the
-        /// number of bytes wrote to the transport.</summary>
-        /// <param name="buffer">The buffer of data to write to the socket.</param>
-        /// <param name="offset">The offset at what the write operation starts, the offset is increase
-        /// with the number of bytes successfully wrote to the socket.</param>
-        void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset);
-
-        // TODO: Benoit: temporary hack, thread safe Close used by the connection
-        void ThreadSafeClose()
-        {
-            lock (this)
-            {
-                Close();
-            }
-        }
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask InitializeAsync(CancellationToken token)
-        {
-            await Initialize(this).WaitAsync(token).ConfigureAwait(false);
-
-            static async Task Initialize(ITransceiver self)
-            {
-                ArraySegment<byte> readBuffer = ArraySegment<byte>.Empty;
-                IList<ArraySegment<byte>> writeBuffer = new List<ArraySegment<byte>>();
-                while (true)
-                {
-                    int status;
-                    lock (self)
-                    {
-                        status = self.Initialize(ref readBuffer, writeBuffer);
-                    }
-
-                    if (status == SocketOperation.Read)
-                    {
-                        ArraySegmentAndOffset result;
-                        result = await self.ReadImplAsync(readBuffer, 0, false).ConfigureAwait(false);
-                        readBuffer = result.Buffer;
-                    }
-                    else if (status == SocketOperation.Write)
-                    {
-                        await self.WriteImplAsync(writeBuffer, 0, false).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        Debug.Assert(status == SocketOperation.None);
-                        return;
-                    }
-                }
-            }
-        }
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask<bool> ClosingAsync(System.Exception ex, CancellationToken cancel)
-        {
-            bool initiator = !(ex is ConnectionClosedByPeerException);
-            int status;
-            lock (this)
-            {
-                status = Closing(initiator, ex);
-            }
-            if (status == SocketOperation.Read)
-            {
-                if (initiator)
-                {
-                    // If initiator, ReadAsync is already pending
-                    return false;
-                }
-                await ReadImplAsync(new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]),
-                                    0,
-                                    false).WaitAsync(cancel).ConfigureAwait(false);
-            }
-            else if (status == SocketOperation.Write)
-            {
-                await WriteImplAsync(new List<ArraySegment<byte>>(), 0, false).WaitAsync(cancel).ConfigureAwait(false);
-            }
-            return true;
-        }
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, int offset, CancellationToken cancel = default) =>
-            WriteImplAsync(buffer, offset, true).WaitAsync(cancel);
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        private async ValueTask<int> WriteImplAsync(IList<ArraySegment<byte>> buffer,
-                                                    int offset,
-                                                    bool partial)
-        {
-            return await Write(this, buffer, offset, partial).ConfigureAwait(false) - offset;
-
-            static async Task<int> Write(ITransceiver self, IList<ArraySegment<byte>> buffer, int offset, bool partial)
-            {
-                var result = new TaskCompletionSource<int>();
-                async void WriteCallback(object state)
-                {
-                    try
-                    {
-                        var transceiver = (ITransceiver)state;
-                        int status;
-                        lock (transceiver)
-                        {
-                            transceiver.FinishWrite(buffer, ref offset);
-                            status = transceiver.Write(buffer, ref offset);
-                        }
-                        if ((status & SocketOperation.Read) != 0)
-                        {
-                            await transceiver.ReadImplAsync(
-                                new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]), 0,
-                                partial).ConfigureAwait(false);
-                        }
-
-                        if ((status & SocketOperation.Write) != 0 && !partial)
-                        {
-                            result.SetResult(await transceiver.WriteImplAsync(buffer, offset,
-                                false).ConfigureAwait(false));
-                        }
-                        else
-                        {
-                            result.SetResult(offset);
-                        }
-                    }
-                    catch (System.Exception ex)
-                    {
-                        result.SetException(ex);
-                    }
-                };
-
-                lock (self)
-                {
-                    if (self.StartWrite(buffer, offset, WriteCallback, self, out bool completed))
-                    {
-                        WriteCallback(self);
-                    }
-                }
-                return await result.Task.ConfigureAwait(false);
-            }
-        }
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        private class ArraySegmentAndOffset
-        {
-            public ArraySegment<byte> Buffer;
-            public int Offset;
-
-            public ArraySegmentAndOffset(ArraySegment<byte> buffer, int offset)
-            {
-                Buffer = buffer;
-                Offset = offset;
-            }
-        };
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel = default)
-        {
-            ArraySegmentAndOffset received =
-                await ReadImplAsync(ArraySegment<byte>.Empty, 0, true).WaitAsync(cancel).ConfigureAwait(false);
-            return received.Buffer;
-        }
-
-        // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, int offset, CancellationToken cancel = default)
-        {
-            ArraySegmentAndOffset received =
-                await ReadImplAsync(buffer, offset, true).WaitAsync(cancel).ConfigureAwait(false);
-            return received.Offset - offset;
-        }
-
-         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        private async ValueTask<ArraySegmentAndOffset> ReadImplAsync(ArraySegment<byte> buffer, int offset,
-            bool partial)
-        {
-            return await Read(this, buffer, offset, partial).ConfigureAwait(false);
-
-            static async Task<ArraySegmentAndOffset> Read(ITransceiver self, ArraySegment<byte> buffer, int offset,
-                bool partial)
-            {
-                var result = new TaskCompletionSource<ArraySegmentAndOffset>();
-                var p = new ArraySegmentAndOffset(buffer, offset);
-                async void ReadCallback(object state)
-                {
-                    try
-                    {
-                        var transceiver = (ITransceiver)state;
-                        int status;
-                        lock (transceiver)
-                        {
-                            transceiver.FinishRead(ref p.Buffer, ref p.Offset);
-                            status = transceiver.Read(ref p.Buffer, ref p.Offset);
-                        }
-                        if ((status & SocketOperation.Write) != 0)
-                        {
-                            await transceiver.WriteImplAsync(
-                                new List<ArraySegment<byte>>(), 0, partial).ConfigureAwait(false);
-                        }
-                        if ((status & SocketOperation.Read) != 0 && !partial)
-                        {
-                            result.SetResult(await transceiver.ReadImplAsync(p.Buffer, p.Offset,
-                                false).ConfigureAwait(false));
-                        }
-                        else
-                        {
-                            result.SetResult(p);
-                        }
-                    }
-                    catch (System.Exception ex)
-                    {
-                        result.SetException(ex);
-                    }
-                }
-
-                lock (self)
-                {
-                    if (self.StartRead(ref p.Buffer, ref p.Offset, ReadCallback, self))
-                    {
-                        ReadCallback(self);
-                    }
-                }
-                return await result.Task.ConfigureAwait(false);
-            }
-        }
-
-        string ToDetailedString();
+        /// <param name="size">The size of the message to check.</param>
+        // TODO: Remove this? This is used to ensure the user doesn't try to send a message which is larger
+        // than the datagram size... UDP users would be better of not sending large datagrams instead of us
+        // trying to softly error if the user sends a large datagram.
         void CheckSendSize(int size);
+
+        /// <summary>Closes the transceiver. The transceiver might use this method to send a notification to the peer
+        /// of the connection closure.</summary>
+        /// <param name="exception">The reason of the connection closure.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        ValueTask ClosingAsync(Exception exception, CancellationToken cancel);
+
+        /// <summary>Initializes the transceiver. The transceiver might use this method to establish or accept the
+        /// connection.</summary>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        ValueTask InitializeAsync(CancellationToken cancel);
+
+        /// <summary>Receives data from the connection. This is used for datagram connections only.</summary>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <return>The received data.</return>
+        ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
+
+        /// <summary>Receives data from the connection. This is used for stream based connections only.</summary>
+        /// <param name="buffer">The buffer that holds the received data.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <return>The number of bytes received.</return>
+        ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
+
+        /// <summary>Receive data from the connection.</summary>
+        /// <param name="buffer">The buffer containing the data to send.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <return>The number of bytes sent.</return>
+        ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel);
+
+        /// <summary>Gets a detailed description of the connection.</summary>
+        /// <return>The detailed description.</return>
+        string ToDetailedString();
     }
 }
