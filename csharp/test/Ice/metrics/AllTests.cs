@@ -868,8 +868,8 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? map.Count == 5 : map.Count == 6);
 
             // TODO: temporary, currently we often save 2 bytes with the ice2 protocol
-            int protocolRequestSizeAdjustment = helper.GetTestProtocol() == Protocol.Ice1 ? 0 : -3;
-            int protocolReplySizeAdjustment = helper.GetTestProtocol() == Protocol.Ice1 ? 0 : -2;
+            int protocolRequestSizeAdjustment = ice1 ? 0 : -3;
+            int protocolReplySizeAdjustment = ice1 ? 0 : -2;
 
             DispatchMetrics dm1;
             dm1 = (DispatchMetrics)map["op"];
