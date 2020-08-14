@@ -77,6 +77,92 @@ namespace ZeroC.Ice.Test.Interceptor
             TestInterceptorExceptions(prx);
             output.WriteLine("ok");
 
+            output.Write("testing invocation interceptors... ");
+            output.Flush();
+            {
+                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    request.Context["interceptor-1"] = "interceptor-1";
+                    request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
+
+                    return next(target, request);
+                });
+
+                communicator.InterceptInvocation(async (target, request, next) =>
+                {
+                    Assert(request.Context["interceptor-1"] == "interceptor-1");
+                    request.Context["interceptor-2"] = "interceptor-2";
+                    request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
+                    IncomingResponseFrame response = await next(target, request);
+                    Assert(response.BinaryContext.ContainsKey(110));
+                    Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
+                    Assert(response.BinaryContext.ContainsKey(120));
+                    Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
+                    return response;
+                });
+                var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
+                prx1.Op1();
+            }
+
+            {
+                // An interceptor can stop the chain and directly return a response without calling next
+                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    request.Context["interceptor-1"] = "interceptor-1";
+                    return next(target, request);
+                });
+
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    Assert(request.Context["interceptor-1"] == "interceptor-1");
+                    return new ValueTask<IncomingResponseFrame>(
+                        IncomingResponseFrame.WithVoidReturnValue(target.Protocol, target.Encoding));
+                });
+
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    Assert(false);
+                    return next(target, request);
+                });
+                var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
+                prx1.Op1();
+            }
+
+            {
+                // throwing from an interceptor stops the interceptor chain
+                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    request.Context["interceptor-1"] = "interceptor-1";
+                    return next(target, request);
+                });
+
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    Assert(request.Context["interceptor-1"] == "interceptor-1");
+                    throw new InvalidOperationException("stop interceptor chain");
+                });
+
+                communicator.InterceptInvocation((target, request, next) =>
+                {
+                    Assert(false);
+                    return next(target, request);
+                });
+                var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
+                try
+                {
+                    prx1.Op1();
+                    Assert(false);
+                }
+                catch (InvalidOperationException)
+                {
+                }
+
+            }
+            output.WriteLine("ok");
+
             output.Write("testing binary context... ");
             output.Flush();
             bool ice2 = Communicator()!.DefaultProtocol != Protocol.Ice1;
@@ -261,7 +347,7 @@ namespace ZeroC.Ice.Test.Interceptor
             communicator.SetProperty("MyOA.AdapterId", "myOA");
 
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA2", GetTestEndpoint(0));
-
+            oa.Activate();
             var myObject = new MyObject();
             var interceptor = new Interceptor(myObject);
 

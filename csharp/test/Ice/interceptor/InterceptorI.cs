@@ -19,6 +19,22 @@ namespace ZeroC.Ice.Test.Interceptor
 
         public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
+            if (current.Operation == "op1")
+            {
+                TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                TestHelper.Assert(request.Context["interceptor-2"] == "interceptor-2");
+
+                TestHelper.Assert(request.BinaryContext.ContainsKey(110));
+                TestHelper.Assert(request.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
+                TestHelper.Assert(request.BinaryContext.ContainsKey(120));
+                TestHelper.Assert(request.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
+
+                var response = OutgoingResponseFrame.WithVoidReturnValue(current);
+                response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
+                response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
+                return response;
+            }
+
             if (current.Context.TryGetValue("raiseBeforeDispatch", out string? context))
             {
                 if (context.Equals("invalidInput"))

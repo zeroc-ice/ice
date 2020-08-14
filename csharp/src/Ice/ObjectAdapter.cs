@@ -85,6 +85,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private TaskCompletionSource<object?>? _directDispatchCompletionSource;
+        private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
         private Task? _disposeTask;
         private readonly string _id; // adapter id
         private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
@@ -359,6 +360,9 @@ namespace ZeroC.Ice
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
         public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx =>
             AddWithUUID("", servant, proxyFactory);
+
+        public void Intercept(params DispatchInterceptor[] interceptors) =>
+            _dispatchInterceptors.AddRange(interceptors);
 
         /// <summary>Removes a servant previously added to the Active Servant Map (ASM) using Add.</summary>
         /// <param name="identity">The identity of the Ice object.</param>

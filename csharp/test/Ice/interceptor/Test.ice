@@ -37,6 +37,8 @@ interface MyObject
     int notExistAdd(int x, int y);
     void opWithBinaryContext(Token token);
 
+    void op1();
+
     // AMD version of the above:
 
     // Simple add
