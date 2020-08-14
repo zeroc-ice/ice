@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -272,9 +271,6 @@ namespace ZeroC.Ice
         /// an established connection).</returns>
         public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
 
-        public static void Intercept(this IObjectPrx prx, params InvocationInterceptor[] interceptors) =>
-            prx.IceInterceptors.AddRange(interceptors);
-
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
@@ -353,14 +349,14 @@ namespace ZeroC.Ice
         }
 
         private static Invoker BuildInterceptorChain(
-            Queue<InvocationInterceptor> interceptors,
+            IEnumerator<InvocationInterceptor> interceptors,
             IObjectPrx proxy,
             OutgoingRequestFrame request,
             Invoker invoker)
         {
-            if (interceptors.Count > 0)
+            if (interceptors.MoveNext())
             {
-                InvocationInterceptor interceptor = interceptors.Dequeue();
+                InvocationInterceptor interceptor = interceptors.Current;
                 Invoker next = BuildInterceptorChain(interceptors, proxy, request, invoker);
                 return (target, request) => interceptor(target, request, next);
             }
@@ -375,12 +371,10 @@ namespace ZeroC.Ice
             IProgress<bool>? progress,
             CancellationToken cancel)
         {
-            var interceptors = new Queue<InvocationInterceptor>(proxy.Communicator.InvocationInterceptors);
-
-            if (interceptors.Count > 0)
+            if (proxy.Communicator.InvocationInterceptors.Count > 0)
             {
                 Invoker invoker = BuildInterceptorChain(
-                    interceptors,
+                    proxy.Communicator.InvocationInterceptors.GetEnumerator(),
                     proxy,
                     request,
                     (target, request) => InvokeAsync(target, request, oneway, synchronous, progress, cancel));

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -113,6 +114,44 @@ namespace ZeroC.Ice
                                                       ret,
                                                       (ostr, ret) =>
                                                           ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
+        }
+    }
+
+    internal static class Servant
+    {
+        internal static ValueTask<OutgoingResponseFrame> DispatchWithInterceptorsAsync(
+            this IObject servant,
+            IncomingRequestFrame request,
+            Current current)
+        {
+            if (current.Adapter.Interceptors.Count > 0 || current.Communicator.DispatchInterceptors.Count > 0)
+            {
+                Dispatcher dispatcher = BuildDispatcherChain(
+                    current.Adapter.Interceptors.Concat(current.Communicator.DispatchInterceptors).GetEnumerator(),
+                    request,
+                    current,
+                    (request, current) => servant.DispatchAsync(request, current));
+                return dispatcher(request, current);
+            }
+            else
+            {
+                return servant.DispatchAsync(request, current);
+            }
+        }
+
+        private static Dispatcher BuildDispatcherChain(
+            IEnumerator<DispatchInterceptor> interceptors,
+            IncomingRequestFrame request,
+            Current current,
+            Dispatcher dispatcher)
+        {
+            if (interceptors.MoveNext())
+            {
+                DispatchInterceptor interceptor = interceptors.Current;
+                Dispatcher next = BuildDispatcherChain(interceptors, request, current, dispatcher);
+                return (target, request) => interceptor(target, request, next);
+            }
+            return dispatcher;
         }
     }
 }

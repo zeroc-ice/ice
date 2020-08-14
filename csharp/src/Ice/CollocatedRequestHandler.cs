@@ -164,7 +164,8 @@ namespace ZeroC.Ice
                         throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
-                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
+                    ValueTask<OutgoingResponseFrame> vt =
+                        servant.DispatchWithInterceptorsAsync(incomingRequest, current);
                     if (requestId != 0)
                     {
                         // We don't use the cancelable WaitAsync for the await here. The asynchronous dispatch is

@@ -5,8 +5,20 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>A dispatcher is a delegate used to dispatch an incoming request to a DispatchInterceptor
+    /// or to a real servant.</summary>
+    /// <param name="request">The incoming request being dispatch.</param>
+    /// <param name="current">The current object for the dispatch.</param>
+    /// <returns>The response frame.</returns>
     public delegate ValueTask<OutgoingResponseFrame> Dispatcher(IncomingRequestFrame request, Current current);
 
+    /// <summary>A dispatcher interceptor can be registered with the Communicator or with an ObjectAdapter to intercept
+    /// operations dispatches.</summary>
+    /// <param name="request">The incoming request being dispatch.</param>
+    /// <param name="current">The current object for the dispatch.</param>
+    /// <param name="next">The next dispatcher in the dispatch chain, an interceptor implementation should invoke
+    /// this delegate to continue with the operation dispatch.</param>
+    /// <returns>The response frame.</returns>
     public delegate ValueTask<OutgoingResponseFrame> DispatchInterceptor(
         IncomingRequestFrame request,
         Current current,

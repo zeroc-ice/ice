@@ -145,9 +145,6 @@ namespace ZeroC.Ice
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public List<InvocationInterceptor> IceInterceptors { get; }
-
         /// <summary>The invocation timeout of this proxy.</summary>
         public TimeSpan InvocationTimeout => IceReference.InvocationTimeout;
 

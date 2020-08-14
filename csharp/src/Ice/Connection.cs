@@ -713,7 +713,7 @@ namespace ZeroC.Ice
                         throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
-                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(request, current);
+                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchWithInterceptorsAsync(request, current);
                     if (!current.IsOneway)
                     {
                         response = await vt.ConfigureAwait(false);
