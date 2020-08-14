@@ -57,19 +57,9 @@ namespace Test
                 }
             }
 
-            bool uriFormat = true;
-            // TODO: switch to a different test-only property to select the protocol
-            if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
-            {
-                if (protocolValue == "ice1")
-                {
-                    uriFormat = false;
-                }
-            }
-
             string host = GetTestHost(properties);
 
-            if (uriFormat)
+            if (GetTestProtocol(properties) == Protocol.Ice2 && transport != "udp")
             {
                 var sb = new StringBuilder("ice+");
                 sb.Append(transport);
@@ -118,17 +108,7 @@ namespace Test
             int num = 0,
             string? transport = null)
         {
-            bool uriFormat = true;
-            // TODO: switch to a different test-only property to select the protocol
-            if (properties.TryGetValue("Ice.Default.Protocol", out string? protocolValue))
-            {
-                if (protocolValue == "ice1")
-                {
-                    uriFormat = false;
-                }
-            }
-
-            if (uriFormat) // i.e. ice2
+            if (GetTestProtocol(properties) == Protocol.Ice2 && transport != "udp")
             {
                 var sb = new StringBuilder("ice+");
                 sb.Append(transport ?? GetTestTransport(properties));
@@ -182,6 +162,30 @@ namespace Test
             }
             return host;
         }
+
+        public Protocol GetTestProtocol() => GetTestProtocol(_communicator!.GetProperties());
+
+        public static Protocol GetTestProtocol(Dictionary<string, string> properties)
+        {
+            if (!properties.TryGetValue("Test.Protocol", out string? value))
+            {
+                return Protocol.Ice2;
+            }
+            try
+            {
+                return ProtocolExtensions.Parse(value);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidConfigurationException(
+                    $"invalid value for for Test.Protocol: `{value}'", ex);
+            }
+        }
+
+        public ZeroC.Ice.Encoding GetTestEncoding() => GetTestEncoding(_communicator!.GetProperties());
+
+        public static ZeroC.Ice.Encoding GetTestEncoding(Dictionary<string, string> properties)
+            => ProtocolExtensions.GetEncoding(GetTestProtocol(properties));
 
         public string GetTestTransport() => GetTestTransport(_communicator!.GetProperties());
 

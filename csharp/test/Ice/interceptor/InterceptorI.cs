@@ -69,14 +69,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 }
                 else
                 {
-                    try
-                    {
-                        _ = request.BinaryContext;
-                        TestHelper.Assert(false);
-                    }
-                    catch (NotSupportedException)
-                    {
-                    }
+                    TestHelper.Assert(request.BinaryContext.Count == 0);
                 }
             }
             else if (_lastOperation.Equals("addWithRetry") || _lastOperation.Equals("amdAddWithRetry"))

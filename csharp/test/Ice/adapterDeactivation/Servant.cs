@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
         public (IObjectPrx?, bool?) GetClientProxy(Current current) => (null, false);
 
         public IObjectPrx GetServerProxy(Current current) =>
-            IObjectPrx.Parse(current.Communicator.DefaultProtocol == Protocol.Ice1 ?
+            IObjectPrx.Parse(TestHelper.GetTestProtocol(current.Communicator.GetProperties()) == Protocol.Ice1 ?
                 $"dummy:tcp -h localhost -p {_nextPort++}" : $"ice+tcp://localhost:{_nextPort++}/dummy",
                 current.Communicator);
 

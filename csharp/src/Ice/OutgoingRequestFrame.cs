@@ -140,7 +140,7 @@ namespace ZeroC.Ice
                     nameof(request));
             }
             (int _, int _, Encoding encoding) =
-                encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(proxy.Protocol.GetEncoding());
+                encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(request.Protocol.GetEncoding());
 
             if (encoding != Encoding)
             {

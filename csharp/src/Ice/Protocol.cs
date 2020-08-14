@@ -54,7 +54,7 @@ namespace ZeroC.Ice
         /// <summary>Parses a protocol string in the stringified proxy format into a Protocol.</summary>
         /// <param name="str">The string to parse.</param>
         /// <returns>The parsed protocol, or throws an exception if the string cannot be parsed.</returns>
-        internal static Protocol Parse(string str)
+        public static Protocol Parse(string str)
         {
             switch (str)
             {

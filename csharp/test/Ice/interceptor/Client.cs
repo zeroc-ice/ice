@@ -79,7 +79,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
             output.Write("testing binary context... ");
             output.Flush();
-            bool ice2 = Communicator()!.DefaultProtocol != Protocol.Ice1;
+            bool ice2 = GetTestProtocol() == Protocol.Ice2;
 
             if (ice2)
             {

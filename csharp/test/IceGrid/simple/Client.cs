@@ -18,8 +18,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 ref args,
                 new Dictionary<string, string>
                 {
-                    ["Ice.Default.Protocol"] = "ice1",
-                    ["Ice.Default.Encoding"] = "1.1"
+                    ["Test.Protocol"] = "ice1",
                 });
             if (args.Any(v => v.Equals("--with-deploy")))
             {

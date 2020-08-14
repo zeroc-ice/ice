@@ -366,7 +366,7 @@ namespace ZeroC.Ice.Test.Metrics
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
             string host = helper.GetTestHost();
             string port = helper.GetTestPort(0).ToString();
             string hostAndPort = host + ":" + port;
@@ -550,7 +550,7 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                int sizeLengthIncrease = communicator.DefaultEncoding == Encoding.V1_1 ? 4 : 1;
+                int sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 1;
 
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
@@ -566,7 +566,7 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                sizeLengthIncrease = communicator.DefaultEncoding == Encoding.V1_1 ? 4 : 3;
+                sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 3;
 
                 TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + sizeLengthIncrease));
                 TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
@@ -868,8 +868,8 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? map.Count == 5 : map.Count == 6);
 
             // TODO: temporary, currently we often save 2 bytes with the ice2 protocol
-            int protocolRequestSizeAdjustment = communicator.DefaultProtocol == Protocol.Ice1 ? 0 : -3;
-            int protocolReplySizeAdjustment = communicator.DefaultProtocol == Protocol.Ice1 ? 0 : -2;
+            int protocolRequestSizeAdjustment = ice1 ? 0 : -3;
+            int protocolReplySizeAdjustment = ice1 ? 0 : -2;
 
             DispatchMetrics dm1;
             dm1 = (DispatchMetrics)map["op"];
@@ -1152,8 +1152,8 @@ namespace ZeroC.Ice.Test.Metrics
                 }
             }
 
-            Encoding defaultEncoding = communicator.DefaultEncoding;
-            string defaultProtocolName = communicator.DefaultProtocol.GetName();
+            Encoding defaultEncoding = helper.GetTestEncoding();
+            string defaultProtocolName = helper.GetTestProtocol().GetName();
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
             if (ice1)

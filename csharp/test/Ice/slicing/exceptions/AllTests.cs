@@ -767,7 +767,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     TestHelper.Assert(slices[0].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved2"));
                 }
 
-                ObjectAdapter adapter = communicator.CreateObjectAdapter();
+                ObjectAdapter adapter = communicator.CreateObjectAdapter(protocol: helper.GetTestProtocol());
                 IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
                 adapter.Activate();
                 testPrx.GetConnection()!.Adapter = adapter;

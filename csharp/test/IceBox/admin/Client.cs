@@ -14,7 +14,7 @@ namespace ZeroC.IceBox.Test.Admin
         public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Default.Protocol"] = "ice1";
+            properties["Test.Protocol"] = "ice1";
             await using Communicator communicator = Initialize(properties);
             AllTests.Run(this);
             // Shutdown the IceBox server.
