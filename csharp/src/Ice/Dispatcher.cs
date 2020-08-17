@@ -12,9 +12,9 @@ namespace ZeroC.Ice
     /// <returns>The outgoing response frame.</returns>
     public delegate ValueTask<OutgoingResponseFrame> Dispatcher(IncomingRequestFrame request, Current current);
 
-    /// <summary>A dispatcher interceptor can be registered with the Communicator or with an ObjectAdapter to intercept
-    /// operations dispatches.</summary>
-    /// <param name="request">The incoming request being dispatch.</param>
+    /// <summary>A dispatch interceptor can be registered with the Communicator or with an ObjectAdapter to intercept
+    /// operation dispatches.</summary>
+    /// <param name="request">The incoming request being dispatched.</param>
     /// <param name="current">The current object for the dispatch.</param>
     /// <param name="next">The next dispatcher in the dispatch chain.</param>
     /// <returns>The outgoing response frame.</returns>
