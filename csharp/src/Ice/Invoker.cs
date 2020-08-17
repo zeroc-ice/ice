@@ -11,10 +11,10 @@ namespace ZeroC.Ice
     /// <returns>The incoming response frame.</returns>
     public delegate ValueTask<IncomingResponseFrame> Invoker(IObjectPrx target, OutgoingRequestFrame request);
 
-    /// <summary>A invocation interceptor can be registered with the Communicator to intercept proxy invocations.
+    /// <summary>An invocation interceptor can be registered with a Communicator to intercept proxy invocations.
     /// </summary>
     /// <param name="target">The proxy for the invocation.</param>
-    /// <param name="request">The outgoing request being send.</param>
+    /// <param name="request">The outgoing request being sent.</param>
     /// <param name="next">The next invoker in the invocation chain.</param>
     /// <returns>The incoming response frame.</returns>
     public delegate ValueTask<IncomingResponseFrame> InvocationInterceptor(
