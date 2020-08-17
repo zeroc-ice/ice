@@ -195,6 +195,7 @@ public:
     std::string name;
     bool isTagged;
     int tag;
+    StringList metadata;
 };
 
 // ----------------------------------------------------------------------

@@ -1,7 +1,7 @@
 IdentAsKeyword.ice:11: keyword `int' cannot be used as exception name
 IdentAsKeyword.ice:14: keyword `double' cannot be used as struct name
-IdentAsKeyword.ice:17: keyword `byte' cannot be used as data member name
-IdentAsKeyword.ice:19: keyword `byte' cannot be used as data member name
+IdentAsKeyword.ice:17: keyword `byte' cannot be used as an identifier
+IdentAsKeyword.ice:19: keyword `byte' cannot be used as an identifier
 IdentAsKeyword.ice:21: class declaration `inTERface' differs only in capitalization from the interface named `INTERFACE'
 IdentAsKeyword.ice:8: note: interface `INTERFACE' is defined here
 IdentAsKeyword.ice:22: keyword `interface' cannot be used as class name
@@ -12,8 +12,8 @@ IdentAsKeyword.ice:25: class definition `module' is capitalized inconsistently w
 IdentAsKeyword.ice:24: note: class `MOdule' was originally defined here
 IdentAsKeyword.ice:28: redefinition of class `C'
 IdentAsKeyword.ice:27: note: class `C' was originally defined here
-IdentAsKeyword.ice:28: keyword `extends' cannot be used as data member name
-IdentAsKeyword.ice:29: keyword `extends' cannot be used as data member name
+IdentAsKeyword.ice:28: keyword `extends' cannot be used as an identifier
+IdentAsKeyword.ice:29: keyword `extends' cannot be used as an identifier
 IdentAsKeyword.ice:31: keyword `Object' cannot be used as interface name
 IdentAsKeyword.ice:32: interface definition `object' is capitalized inconsistently with its previous name: `Object'
 IdentAsKeyword.ice:31: note: interface `Object' was originally defined here
@@ -38,5 +38,5 @@ IdentAsKeyword.ice:55: keyword `byte' cannot be used as enumerator
 IdentAsKeyword.ice:58: keyword `module' cannot be used as operation name
 IdentAsKeyword.ice:61: keyword `exception' cannot be used as operation name
 IdentAsKeyword.ice:64: syntax error
-IdentAsKeyword.ice:67: keyword `byte' cannot be used as parameter name
-IdentAsKeyword.ice:70: keyword `byte' cannot be used as parameter name
+IdentAsKeyword.ice:67: keyword `byte' cannot be used as an identifier
+IdentAsKeyword.ice:70: keyword `byte' cannot be used as an identifier

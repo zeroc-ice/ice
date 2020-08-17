@@ -709,18 +709,17 @@ public:
     TypePtr returnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
     bool returnIsTagged() const; //TODO remove this once the compilers have been updated to use return-tuples.
     int returnTag() const; //TODO remove this once the compilers have been updated to use return-tuples.
-    StringList returnMetadata() const; //TODO remove this once the compilers have been updated to use return-tuples.
     Mode mode() const;
     Mode sendMode() const;
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
-    MemberList parameters() const;//TODOAUSTIN
+    MemberList parameters() const;
     MemberList inParameters() const;
-    MemberList outParameters() const;//TODOAUSTIN
+    MemberList outParameters() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
-    ContainedList contents() const override;//TODOAUSTIN
-    bool uses(const ContainedPtr&) const override;//TODOAUSTIN
+    ContainedList contents() const override;
+    bool uses(const ContainedPtr&) const override;
     bool sendsClasses(bool) const;
     bool returnsClasses(bool) const;
     bool returnsData() const;

@@ -518,7 +518,7 @@ exception_def
     }
     $$ = ex;
 }
-'{' data_member_list '}'
+'{' data_members '}'
 {
     if($3)
     {
@@ -825,7 +825,7 @@ struct_def
     }
     $$ = st;
 }
-'{' data_member_list '}'
+'{' data_members '}'
 {
     if($2)
     {
@@ -1019,7 +1019,7 @@ class_def
         $$ = 0;
     }
 }
-'{' data_member_list '}'
+'{' data_members '}'
 {
     if($3)
     {
@@ -1086,80 +1086,56 @@ extends
 // ----------------------------------------------------------------------
 data_member
 // ----------------------------------------------------------------------
-: tagged_type ICE_IDENTIFIER
+: member
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-
-    checkIdentifier(ident->v);
 
     // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        MemberPtr dm = cont->createDataMember(ident->v, def->type, def->isTagged, def->tag);
-        unit->currentContainer()->checkIntroduced(ident->v, dm);
-        $$ = dm;
+        MemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        unit->currentContainer()->checkIntroduced(def->name, dm);
+        if (dm && !def->metadata.empty())
+        {
+            dm->setMetaData(def->metadata);
+        }
     }
 }
-| tagged_type ICE_IDENTIFIER '=' const_initializer
+| member '=' const_initializer
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($4);
-
-    checkIdentifier(ident->v);
+    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
 
     // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
     if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
     {
-        MemberPtr dm = cont->createDataMember(ident->v, def->type, def->isTagged, def->tag, value->v,
+        MemberPtr dm = cont->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                               value->valueAsString, value->valueAsLiteral);
-        unit->currentContainer()->checkIntroduced(ident->v, dm);
-        $$ = dm;
+        unit->currentContainer()->checkIntroduced(def->name, dm);
+        if (dm && !def->metadata.empty())
+        {
+            dm->setMetaData(def->metadata);
+        }
     }
-}
-| tagged_type keyword
-{
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
-    string name = StringTokPtr::dynamicCast($2)->v;
-
-    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
-    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
-    {
-        $$ = cont->createDataMember(name, def->type, def->isTagged, def->tag); // Dummy
-    }
-    unit->error("keyword `" + name + "' cannot be used as data member name");
-}
-| tagged_type
-{
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
-
-    // Check if the container was created successfully. If it wasn't skip creating the data member and continue parsing.
-    if (DataMemberContainerPtr cont = DataMemberContainerPtr::dynamicCast(unit->currentContainer()))
-    {
-        $$ = cont->createDataMember(IceUtil::generateUUID(), def->type, def->isTagged, def->tag); // Dummy
-    }
-    unit->error("missing data member name");
 }
 ;
 
 // ----------------------------------------------------------------------
 data_member_list
 // ----------------------------------------------------------------------
-: local_metadata data_member ';' data_member_list
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| local_metadata data_member
+: data_member ';'
+| error ';'
+| data_member
 {
     unit->error("`;' missing after definition");
 }
-| error ';' data_member_list
+| data_member_list data_member_list
+;
+
+// ----------------------------------------------------------------------
+data_members
+// ----------------------------------------------------------------------
+: data_member_list
 | %empty
 ;
 
@@ -1816,93 +1792,36 @@ out_qualifier
 ;
 
 // ----------------------------------------------------------------------
+parameter
+// ----------------------------------------------------------------------
+: out_qualifier member
+{
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($2);
+
+    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
+    {
+        MemberPtr param = op->createParameter(def->name, def->type, isOutParam->v, def->isTagged, def->tag);
+        unit->currentContainer()->checkIntroduced(def->name, param);
+        if(param && !def->metadata.empty())
+        {
+            param->setMetaData(def->metadata);
+        }
+    }
+}
+
+// ----------------------------------------------------------------------
+parameter_list
+// ----------------------------------------------------------------------
+: parameter
+| parameter_list ',' parameter
+;
+
+// ----------------------------------------------------------------------
 parameters
 // ----------------------------------------------------------------------
-: %empty
-| out_qualifier local_metadata tagged_type ICE_IDENTIFIER
-{
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($3);
-    StringTokPtr ident = StringTokPtr::dynamicCast($4);
-
-    checkIdentifier(ident->v);
-
-    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
-    {
-        MemberPtr param = op->createParameter(ident->v, def->type, isOutParam->v, def->isTagged, def->tag);
-        unit->currentContainer()->checkIntroduced(ident->v, param);
-        StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
-        if(!metaData->v.empty())
-        {
-            param->setMetaData(metaData->v);
-        }
-    }
-}
-| parameters ',' out_qualifier local_metadata tagged_type ICE_IDENTIFIER
-{
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($5);
-    StringTokPtr ident = StringTokPtr::dynamicCast($6);
-
-    checkIdentifier(ident->v);
-
-    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
-    {
-        MemberPtr param = op->createParameter(ident->v, def->type, isOutParam->v, def->isTagged, def->tag);
-        unit->currentContainer()->checkIntroduced(ident->v, param);
-        StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
-        if(!metaData->v.empty())
-        {
-            param->setMetaData(metaData->v);
-        }
-    }
-}
-| out_qualifier local_metadata tagged_type keyword
-{
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($3);
-    StringTokPtr ident = StringTokPtr::dynamicCast($4);
-
-    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
-    {
-        op->createParameter(ident->v, def->type, isOutParam->v, def->isTagged, def->tag); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
-    }
-}
-| parameters ',' out_qualifier local_metadata tagged_type keyword
-{
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($5);
-    StringTokPtr ident = StringTokPtr::dynamicCast($6);
-
-    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
-    {
-        op->createParameter(ident->v, def->type, isOutParam->v, def->isTagged, def->tag); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
-    }
-}
-| out_qualifier local_metadata tagged_type
-{
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($3);
-
-    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
-    {
-        op->createParameter(IceUtil::generateUUID(), def->type, isOutParam->v, def->isTagged, def->tag); // Dummy
-        unit->error("missing parameter name");
-    }
-}
-| parameters ',' out_qualifier local_metadata tagged_type
-{
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($5);
-
-    if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
-    {
-        op->createParameter(IceUtil::generateUUID(), def->type, isOutParam->v, def->isTagged, def->tag); // Dummy
-        unit->error("missing parameter name");
-    }
-}
+: parameter_list
+| %empty
 ;
 
 // ----------------------------------------------------------------------
@@ -2124,6 +2043,38 @@ tagged_type
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
     taggedDef->type = TypePtr::dynamicCast($1);
     $$ = taggedDef;
+}
+;
+
+// ----------------------------------------------------------------------
+member
+// ----------------------------------------------------------------------
+: tagged_type ICE_IDENTIFIER
+{
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
+    def->name = StringTokPtr::dynamicCast($2)->v;
+    checkIdentifier(def->name);
+    $$ = def;
+}
+| tagged_type keyword
+{
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
+    def->name = StringTokPtr::dynamicCast($2)->v;
+    unit->error("keyword `" + def->name + "' cannot be used as an identifier");
+    $$ = def;
+}
+| tagged_type
+{
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
+    def->name = IceUtil::generateUUID(); // Dummy
+    unit->error("missing identifier");
+    $$ = def;
+}
+| local_metadata member
+{
+    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($2);
+    def->metadata = StringListTokPtr::dynamicCast($1)->v;
+    $$ = def;
 }
 ;
 
