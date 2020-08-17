@@ -181,7 +181,8 @@ class TaggedDefTok : public GrammarBase
 public:
 
     TaggedDefTok() :
-        isTagged(false)
+        isTagged(false),
+        tag(-1)
     { }
     TaggedDefTok(int t) :
         isTagged(true),
