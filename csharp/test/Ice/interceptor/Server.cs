@@ -4,9 +4,8 @@
 
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice.Test.Interceptor;
 
-namespace ZeroC.Ice.Test.Operations
+namespace ZeroC.Ice.Test.Interceptor
 {
     public class Server : TestHelper
     {

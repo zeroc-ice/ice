@@ -1057,14 +1057,14 @@ namespace ZeroC.Ice
         public IEndpointFactory? IceFindEndpointFactory(Transport transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
-        /// <summary>Adds one or more dispatch interceptors to the list of dispatch interceptors, the dispatch
-        /// interceptors register with a communicator will run after the interceptors register with an adapter, and
-        /// in the order that they were added.</summary>
+        /// <summary>Add one or more dispatch interceptors to the list of dispatch interceptors, the dispatch
+        /// interceptors registered with a communicator will run after the interceptors registered with an object
+        /// adapter, and in the order that they are registered.</summary>
         /// <param name="interceptors">The dispatch interceptors to register with the communicator.</param>
         public void InterceptDispatch(params DispatchInterceptor[] interceptors) =>
             _dispatchInterceptors.AddRange(interceptors);
 
-        /// <summary>Adds one or more invocation interceptors to the list of invocation interceptors, the invocation
+        /// <summary>Add one or more invocation interceptors to the list of invocation interceptors, the invocation
         /// interceptors registered with the communicator are executed in the order they are registered for each
         /// invocation done with the communicator.</summary>
         /// <param name="interceptors">The invocation interceptors to register with the communicator.</param>

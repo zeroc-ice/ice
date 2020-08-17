@@ -22,11 +22,11 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 if (current.Context.TryGetValue("raiseBeforeDispatch", out string? context))
                 {
-                    if (context.Equals("invalidInput"))
+                    if (context == "invalidInput")
                     {
                         throw new InvalidInputException("intercept");
                     }
-                    else if (context.Equals("notExist"))
+                    else if (context == "notExist")
                     {
                         throw new ObjectNotExistException(current);
                     }
@@ -36,11 +36,11 @@ namespace ZeroC.Ice.Test.Interceptor
 
                 if (current.Context.TryGetValue("raiseAfterDispatch", out context))
                 {
-                    if (context.Equals("invalidInput"))
+                    if (context == "invalidInput")
                     {
                         throw new InvalidInputException("raiseAfterDispatch");
                     }
-                    else if (context.Equals("notExist"))
+                    else if (context == "notExist")
                     {
                         throw new ObjectNotExistException(current);
                     }
@@ -74,8 +74,8 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     if (current.Context.TryGetValue("retry", out string? context) && context.Equals("yes"))
                     {
-                        // Retry the dispatch to ensure that abandoning the result of the dispatch
-                        // works fine and is thread-safe
+                        // Retry the dispatch to ensure that abandoning the result of the dispatch works fine and is
+                        // thread-safe
                         ValueTask<OutgoingResponseFrame> vt1 = next(request, current);
                         ValueTask<OutgoingResponseFrame> vt2 = next(request, current);
                         await vt1.ConfigureAwait(false);
@@ -86,7 +86,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
             DispatchInterceptor opWithBianryContext = async (request, current, next) =>
                 {
-                    if (current.Operation == "opWithBinaryContext" &&request.Protocol == Protocol.Ice2)
+                    if (current.Operation == "opWithBinaryContext" && request.Protocol == Protocol.Ice2)
                     {
                         Debug.Assert(request.BinaryContext.ContainsKey(3));
                         short size = request.BinaryContext[3].Read(istr => istr.ReadShort());
@@ -123,7 +123,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
             DispatchInterceptor op1 = async (request, current, next) =>
                 {
-                    if (current.Operation == "op1")
+                    if (request.Protocol == Protocol.Ice2 && current.Operation == "op1")
                     {
                         OutgoingResponseFrame response = await next(request, current);
                         response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));

@@ -16,8 +16,7 @@ namespace ZeroC.Ice
     /// operations dispatches.</summary>
     /// <param name="request">The incoming request being dispatch.</param>
     /// <param name="current">The current object for the dispatch.</param>
-    /// <param name="next">The next dispatcher in the dispatch chain, an interceptor implementation should invoke
-    /// this delegate to continue with the operation dispatch.</param>
+    /// <param name="next">The next dispatcher in the dispatch chain.</param>
     /// <returns>The outgoing response frame.</returns>
     public delegate ValueTask<OutgoingResponseFrame> DispatchInterceptor(
         IncomingRequestFrame request,

@@ -362,6 +362,10 @@ namespace ZeroC.Ice
         public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx =>
             AddWithUUID("", servant, proxyFactory);
 
+        /// <summary>Add one or more dispatch interceptors to the list of dispatch interceptors, the dispatch
+        /// interceptors registered with an object adapter will run before the interceptors registered with the
+        /// communicator, and in the order that they are registered.</summary>
+        /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
         public void Intercept(params DispatchInterceptor[] interceptors) =>
             Interceptors.AddRange(interceptors);
 

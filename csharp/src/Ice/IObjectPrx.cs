@@ -266,8 +266,6 @@ namespace ZeroC.Ice
     {
         public Reference IceReference { get; }
 
-        public List<InvocationInterceptor> IceInterceptors { get; } = new List<InvocationInterceptor>();
-
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
             info.AddValue("proxy", ToString());
 

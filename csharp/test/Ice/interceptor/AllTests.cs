@@ -14,6 +14,7 @@ namespace ZeroC.Ice.Test.Interceptor
     {
         public static IMyObjectPrx Run(TestHelper helper)
         {
+            bool ice2 = helper.Communicator()!.DefaultProtocol != Protocol.Ice1;
             var prx = IMyObjectPrx.Parse(helper.GetTestProxy("test"), helper.Communicator()!);
             System.IO.TextWriter output = helper.GetWriter();
 
@@ -57,6 +58,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 ("raiseAfterDispatch", "invalidInput"),
                 ("raiseAfterDispatch", "notExist")
             };
+
             foreach ((string operation, string kind) in exceptions)
             {
                 var ctx = new Dictionary<string, string>
@@ -69,10 +71,10 @@ namespace ZeroC.Ice.Test.Interceptor
                     prx.IcePing(ctx);
                     TestHelper.Assert(false);
                 }
-                catch (InvalidInputException) when (kind.Equals("invalidInput"))
+                catch (InvalidInputException) when (kind == "invalidInput")
                 {
                 }
-                catch (ObjectNotExistException) when (kind.Equals("notExist"))
+                catch (ObjectNotExistException) when (kind == "notExist")
                 {
                 }
             }
@@ -83,24 +85,33 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    request.Context["interceptor-1"] = "interceptor-1";
-                    request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
-                    return next(target, request);
-                });
+                    {
+                        request.Context["interceptor-1"] = "interceptor-1";
+                        if (ice2)
+                        {
+                            request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
+                        }
+                        return next(target, request);
+                    });
 
                 communicator.InterceptInvocation(async (target, request, next) =>
-                {
-                    TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                    request.Context["interceptor-2"] = "interceptor-2";
-                    request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
-                    IncomingResponseFrame response = await next(target, request);
-                    TestHelper.Assert(response.BinaryContext.ContainsKey(110));
-                    TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
-                    TestHelper.Assert(response.BinaryContext.ContainsKey(120));
-                    TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
-                    return response;
-                });
+                    {
+                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                        request.Context["interceptor-2"] = "interceptor-2";
+                        if (ice2)
+                        {
+                            request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
+                        }
+                        IncomingResponseFrame response = await next(target, request);
+                        if (ice2)
+                        {
+                            TestHelper.Assert(response.BinaryContext.ContainsKey(110));
+                            TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
+                            TestHelper.Assert(response.BinaryContext.ContainsKey(120));
+                            TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
+                        }
+                        return response;
+                    });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 prx1.Op1();
             }
@@ -109,23 +120,24 @@ namespace ZeroC.Ice.Test.Interceptor
                 // An interceptor can stop the chain and directly return a response without calling next
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    request.Context["interceptor-1"] = "interceptor-1";
-                    return next(target, request);
-                });
+                    {
+                        request.Context["interceptor-1"] = "interceptor-1";
+                        return next(target, request);
+                    });
 
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                    return new ValueTask<IncomingResponseFrame>(
-                        IncomingResponseFrame.WithVoidReturnValue(target.Protocol, target.Encoding));
-                });
+                    {
+                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                        return new ValueTask<IncomingResponseFrame>(
+                            IncomingResponseFrame.WithVoidReturnValue(target.Protocol,
+                                                                      target.Encoding));
+                    });
 
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    TestHelper.Assert(false);
-                    return next(target, request);
-                });
+                    {
+                        TestHelper.Assert(false);
+                        return next(target, request);
+                    });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 prx1.Op1();
             }
@@ -134,22 +146,22 @@ namespace ZeroC.Ice.Test.Interceptor
                 // throwing from an interceptor stops the interceptor chain
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    request.Context["interceptor-1"] = "interceptor-1";
-                    return next(target, request);
-                });
+                    {
+                        request.Context["interceptor-1"] = "interceptor-1";
+                        return next(target, request);
+                    });
 
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                    throw new InvalidOperationException("stop interceptor chain");
-                });
+                    {
+                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                        throw new InvalidOperationException("stop interceptor chain");
+                    });
 
                 communicator.InterceptInvocation((target, request, next) =>
-                {
-                    TestHelper.Assert(false);
-                    return next(target, request);
-                });
+                    {
+                        TestHelper.Assert(false);
+                        return next(target, request);
+                    });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 try
                 {
@@ -165,7 +177,6 @@ namespace ZeroC.Ice.Test.Interceptor
 
             output.Write("testing binary context... ");
             output.Flush();
-            bool ice2 = helper.Communicator()!.DefaultProtocol != Protocol.Ice1;
 
             if (ice2)
             {

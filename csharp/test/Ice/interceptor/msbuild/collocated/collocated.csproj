@@ -11,7 +11,6 @@
     <Compile Include="../../AllTests.cs" />
     <Compile Include="../../Collocated.cs" />
     <Compile Include="..\..\DispatchInterceptors.cs" Link="DispatchInterceptors.cs" />
-    <Compile Include="..\..\TestAMDI.cs" Link="TestAMDI.cs" />
     <Compile Include="..\..\TestI.cs" Link="TestI.cs" />
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>

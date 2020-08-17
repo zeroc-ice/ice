@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
         public int AddWithRetry(int x, int y, Current current)
         {
-            if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
+            if (current.Context.TryGetValue("retry", out string? value) && value == "no")
             {
                 return x + y;
             }
@@ -29,7 +29,6 @@ namespace ZeroC.Ice.Test.Interceptor
         {
         }
 
-        public void Shutdown(Current current) =>
-            current.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Communicator.ShutdownAsync();
     }
 }

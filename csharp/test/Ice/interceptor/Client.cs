@@ -2,12 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice.Test.Interceptor;
 
-namespace ZeroC.Ice.Test.Operations
+namespace ZeroC.Ice.Test.Interceptor
 {
     public class Client : TestHelper
     {
