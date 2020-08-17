@@ -26,7 +26,7 @@ namespace ZeroC.Ice
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
         // Oneway pseudo-response
-        public static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
+        internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
             _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();

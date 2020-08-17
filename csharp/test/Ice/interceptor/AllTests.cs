@@ -117,7 +117,10 @@ namespace ZeroC.Ice.Test.Interceptor
             }
 
             {
-                // An interceptor can stop the chain and directly return a response without calling next
+                IncomingResponseFrame? response = null;
+                int invocations = 0;
+                // An interceptor can stop the chain and directly return a response without calling next,
+                // the first invocation calls next and subsequent invocations reuse the first response.
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
                 communicator.InterceptInvocation((target, request, next) =>
                     {
@@ -125,21 +128,27 @@ namespace ZeroC.Ice.Test.Interceptor
                         return next(target, request);
                     });
 
-                communicator.InterceptInvocation((target, request, next) =>
+                communicator.InterceptInvocation(async (target, request, next) =>
                     {
                         TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                        return new ValueTask<IncomingResponseFrame>(
-                            IncomingResponseFrame.WithVoidReturnValue(target.Protocol,
-                                                                      target.Encoding));
+                        if (response == null)
+                        {
+                            response = await next(target, request);
+                        }
+                        return response;
                     });
 
                 communicator.InterceptInvocation((target, request, next) =>
                     {
-                        TestHelper.Assert(false);
+                        invocations++;
+                        TestHelper.Assert(response == null);
                         return next(target, request);
                     });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 prx1.Op1();
+                prx1.Op1();
+                prx1.Op1();
+                TestHelper.Assert(invocations == 1);
             }
 
             {
