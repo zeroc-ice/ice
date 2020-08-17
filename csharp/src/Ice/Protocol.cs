@@ -85,7 +85,7 @@ namespace ZeroC.Ice
         internal static byte GetCompressionStatus(this ReadOnlySpan<byte> header) => header[9];
 
         internal static int GetFrameSize(this ReadOnlySpan<byte> header, Protocol protocol) =>
-            header.Slice(10, 4).ReadFixedLengthSize(protocol.GetEncoding()); // Request size
+            header.Slice(10, 4).ReadFixedLengthSize(protocol.GetEncoding());
 
         internal static int GetRequestId(this ReadOnlySpan<byte> header) => header.Slice(14, 4).ReadInt();
     }
