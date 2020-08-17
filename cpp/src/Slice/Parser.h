@@ -706,24 +706,28 @@ public:
     size_t returnBitSequenceSize() const;
 
     void destroy() override;
-    TypePtr returnType() const;
-    bool returnIsTagged() const;
-    int returnTag() const;
+    TypePtr returnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    bool returnIsTagged() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    int returnTag() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    StringList returnMetadata() const; //TODO remove this once the compilers have been updated to use return-tuples.
     Mode mode() const;
     Mode sendMode() const;
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
-    MemberList parameters() const;
+    MemberList parameters() const;//TODOAUSTIN
     MemberList inParameters() const;
-    MemberList outParameters() const;
+    MemberList outParameters() const;//TODOAUSTIN
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
-    ContainedList contents() const override;
-    bool uses(const ContainedPtr&) const override;
+    ContainedList contents() const override;//TODOAUSTIN
+    bool uses(const ContainedPtr&) const override;//TODOAUSTIN
     bool sendsClasses(bool) const;
     bool returnsClasses(bool) const;
     bool returnsData() const;
     bool returnsMultipleValues() const;
+    bool hasOutParameters() const;
+    bool hasTupleReturnType() const;
+    bool hasSingleReturnType() const;
     int attributes() const;
     FormatType format() const;
     std::string kindOf() const override;

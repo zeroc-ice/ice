@@ -3116,10 +3116,10 @@ yyreduce:
 #line 1338 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
-    if (contained && !metaData->v.empty())
+    OperationPtr operation = OperationPtr::dynamicCast(yyvsp[-2]);
+    if (operation && !metaData->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        operation->setMetaData(metaData->v);
     }
 }
 #line 3126 "src/Slice/Grammar.cpp"

@@ -4377,6 +4377,24 @@ Slice::Operation::returnsMultipleValues() const
     return _returnValues.size() > 1;
 }
 
+bool
+Slice::Operation::hasOutParameters() const
+{
+    return _usesOutParameters;
+}
+
+bool
+Slice::Operation::hasTupleReturnType() const
+{
+    return !_usesOutParameters && _returnValues.size() > 1;
+}
+
+bool
+Slice::Operation::hasSingleReturnType() const
+{
+    return _hasReturnType && (_usesOutParameters || _returnValues.size() == 1);
+}
+
 FormatType
 Slice::Operation::format() const
 {
