@@ -719,13 +719,15 @@ namespace ZeroC.Ice
             }
         }
 
-        // Called by Communicator
+        // Called by Communicator. fallbackProtocol is used when the protocol can not be inferred
+        // from the endpoints
         internal ObjectAdapter(
             Communicator communicator,
             string name,
             bool serializeDispatch,
             TaskScheduler? scheduler,
-            IRouterPrx? router)
+            IRouterPrx? router,
+            Protocol fallbackProtocol)
         {
             Communicator = communicator;
             Name = name;
@@ -741,7 +743,7 @@ namespace ZeroC.Ice
                 _id = "";
                 _replicaGroupId = "";
                 _acm = Communicator.ServerAcm;
-                Protocol = Communicator.DefaultProtocol;
+                Protocol = fallbackProtocol;
                 return;
             }
 
@@ -831,9 +833,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        // TODO: better fallback!
-                        Protocol = Communicator.DefaultProtocol;
-                        Debug.Assert(Protocol != default);
+                        Protocol = fallbackProtocol;
                     }
 
                     if (endpoints == null || endpoints.Count == 0)
@@ -981,20 +981,10 @@ namespace ZeroC.Ice
                 {
                     if (UriParser.IsEndpointUri(value))
                     {
-                        if (Protocol == Protocol.Ice1)
-                        {
-                            throw new InvalidConfigurationException(
-                                $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
-                        }
                         endpoints = UriParser.ParseEndpoints(value, Communicator);
                     }
                     else
                     {
-                        if (Protocol == Protocol.Ice2)
-                        {
-                            throw new InvalidConfigurationException(
-                                $"{Name}.Endpoints and {Name}.PublishedEndpoints must use the same format");
-                        }
                         endpoints = Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
                     }
                 }

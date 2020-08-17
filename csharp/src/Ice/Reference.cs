@@ -652,7 +652,7 @@ namespace ZeroC.Ice
         internal Reference(Communicator communicator, Connection fixedConnection, Identity identity)
             : this(communicator: communicator,
                    context: communicator.DefaultContext,
-                   encoding: communicator.DefaultEncoding,
+                   encoding: fixedConnection.Endpoint.Protocol.GetEncoding(),
                    facet: "",
                    fixedConnection: fixedConnection,
                    identity: identity,

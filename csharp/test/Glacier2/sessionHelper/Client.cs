@@ -149,8 +149,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.Default.Protocol"] = "ice1";
-            properties["Ice.Default.Encoding"] = "1.1";
+            properties["Test.Protocol"] = "ice1";
             properties["Ice.Default.Router"] = GetTestProxy("Glacier2/router", properties, 50);
 
             using Communicator communicator = Initialize(properties);

@@ -355,8 +355,6 @@ namespace ZeroC.Ice
         {
             var properties = communicator.GetProperties().Where(p =>
                 p.Key == "Ice.Default.Locator" ||
-                p.Key == "Ice.Default.Encoding" ||
-                p.Key == "Ice.Default.Protocol" ||
                 p.Key.StartsWith("IceSSL.")).ToDictionary(p => p.Key, p => p.Value);
 
             string[] args = communicator.GetPropertyAsList("Ice.Admin.Logger.Properties")?.Select(

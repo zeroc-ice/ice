@@ -34,6 +34,7 @@ namespace ZeroC.IceGrid.Test.Simple
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing discovery... ");
+            Console.Out.Flush();
             {
                 // Add test well-known object
                 var registry = IRegistryPrx.Parse(

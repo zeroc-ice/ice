@@ -332,19 +332,21 @@ generated from the section label.
         <property name="Config" />
         <property name="ConsoleListener" />
         <property name="Default.CollocationOptimized" />
+        <!-- TODO: remove Default.Encoding -->
         <property name="Default.Encoding" />
         <!-- TODO deprecate Default.EncodingVersion, replaced by Default.Encoding -->
         <property name="Default.EncodingVersion" />
         <property name="Default.EndpointSelection" />
-        <!-- TODO remove Default.Host -->
+        <!-- TODO: remove Default.Host -->
         <property name="Default.Host" />
         <property name="Default.Locator" class="proxy" />
         <property name="Default.LocatorCacheTimeout" />
         <property name="Default.InvocationTimeout" />
         <property name="Default.Package" />
         <property name="Default.PreferNonSecure" />
-         <!-- TODO remove PreferSecure -->
+        <!-- TODO remove PreferSecure -->
         <property name="Default.PreferSecure" />
+        <!-- TODO: remove Default.Protocol -->
         <property name="Default.Protocol" />
         <property name="Default.Router" class="proxy" />
         <property name="Default.SlicedFormat" />

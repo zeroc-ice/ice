@@ -16,7 +16,6 @@ namespace ZeroC.Ice.Test.UDP
             Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.SndSize"] = "16K";
-            properties["Ice.Default.Protocol"] = "ice1"; // TODO: see comment in server
             await using Communicator communicator = Initialize(properties);
             AllTests.Run(this);
 

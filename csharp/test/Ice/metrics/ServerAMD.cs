@@ -13,11 +13,7 @@ namespace ZeroC.Ice.Test.Metrics
         public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
-             bool ice1 = false;
-            if (properties.TryGetValue("Ice.Default.Protocol", out string? value))
-            {
-                ice1 = value == "ice1";
-            }
+            bool ice1 = GetTestProtocol(properties) == Protocol.Ice1;
 
             properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
             properties["Ice.Admin.InstanceName"] = "server";

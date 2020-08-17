@@ -103,7 +103,6 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableDictionary();
         }
 
-        public Encoding DefaultEncoding { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
 
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
@@ -116,10 +115,6 @@ namespace ZeroC.Ice
         }
 
         public bool DefaultPreferNonSecure { get; }
-
-        /// <summary>The Ice protocol used when parsing a stringified proxy that does not specify an Ice protocol.
-        /// </summary>
-        public Protocol DefaultProtocol { get; }
 
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
@@ -370,42 +365,6 @@ namespace ZeroC.Ice
                 }
 
                 TraceLevels = new TraceLevels(this);
-
-                if (GetProperty("Ice.Default.Protocol") is string protocol)
-                {
-                    try
-                    {
-                        DefaultProtocol = ProtocolExtensions.Parse(protocol);
-                        DefaultProtocol.CheckSupported();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for for Ice.Default.Protocol: `{protocol}'", ex);
-                    }
-                }
-                else
-                {
-                    DefaultProtocol = Protocol.Ice2;
-                }
-
-                if (GetProperty("Ice.Default.Encoding") is string encoding)
-                {
-                    try
-                    {
-                        DefaultEncoding = Encoding.Parse(encoding);
-                        DefaultEncoding.CheckSupported();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
-                    }
-                }
-                else
-                {
-                    DefaultEncoding = DefaultProtocol.GetEncoding();
-                }
 
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 DefaultEndpointSelection = endpointSelection switch

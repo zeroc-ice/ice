@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Proxy
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            bool ice1 = communicator.DefaultProtocol == Protocol.Ice1;
+            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing proxy parsing... ");
             output.Flush();
@@ -945,7 +945,7 @@ namespace ZeroC.Ice.Test.Proxy
             }
             output.WriteLine("ok");
 
-            if (communicator.DefaultProtocol == Protocol.Ice2)
+            if (helper.GetTestProtocol() == Protocol.Ice2)
             {
                 output.Write("testing protocol versioning... ");
                 output.Flush();
