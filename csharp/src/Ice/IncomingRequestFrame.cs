@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     public sealed class IncomingRequestFrame : IncomingFrame
     {
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
-        public IReadOnlyDictionary<string, string> Context { get; }
+        public Dictionary<string, string> Context { get; }
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
         /// <summary>The facet of the target Ice object.</summary>
@@ -42,7 +42,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Context = ImmutableDictionary<string, string>.Empty;
+                Context = new Dictionary<string, string>();
             }
 
             (int size, int sizeLength, Encoding encoding) =
