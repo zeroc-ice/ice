@@ -1187,8 +1187,10 @@ operation_preamble
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
     if(interface)
     {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
-        if(op)
+        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
+        returnTypes->v.push_back(returnType);
+
+        if (OperationPtr op = interface->createOperation(name, returnTypes))
         {
             interface->checkIntroduced(name, op);
             unit->pushContainer(op);
@@ -1211,9 +1213,10 @@ operation_preamble
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
     if(interface)
     {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
-                                                Operation::Idempotent);
-        if(op)
+        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
+        returnTypes->v.push_back(returnType);
+
+        if (OperationPtr op = interface->createOperation(name, returnTypes, Operation::Idempotent))
         {
             interface->checkIntroduced(name, op);
             unit->pushContainer(op);
@@ -1236,8 +1239,10 @@ operation_preamble
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
     if(interface)
     {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
-        if(op)
+        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
+        returnTypes->v.push_back(returnType);
+
+        if (OperationPtr op = interface->createOperation(name, returnTypes))
         {
             unit->pushContainer(op);
             unit->error("keyword `" + name + "' cannot be used as operation name");
@@ -1260,9 +1265,10 @@ operation_preamble
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
     if(interface)
     {
-        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
-                                                Operation::Idempotent);
-        if(op)
+        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
+        returnTypes->v.push_back(returnType);
+
+        if (OperationPtr op = interface->createOperation(name, returnTypes, Operation::Idempotent))
         {
             unit->pushContainer(op);
             unit->error("keyword `" + name + "' cannot be used as operation name");
@@ -1331,10 +1337,10 @@ operation_list
 : local_metadata operation ';' operation_list
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
+    OperationPtr operation = OperationPtr::dynamicCast($2);
+    if (operation && !metaData->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        operation->setMetaData(metaData->v);
     }
 }
 | local_metadata operation

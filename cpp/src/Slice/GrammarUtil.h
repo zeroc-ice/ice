@@ -24,6 +24,7 @@ class InterfaceListTok;
 class EnumeratorListTok;
 class ConstDefTok;
 class TaggedDefTok;
+class TaggedDefListTok;
 class ClassIdTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
@@ -37,6 +38,7 @@ typedef ::IceUtil::Handle<InterfaceListTok> InterfaceListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 typedef ::IceUtil::Handle<ConstDefTok> ConstDefTokPtr;
 typedef ::IceUtil::Handle<TaggedDefTok> TaggedDefTokPtr;
+typedef ::IceUtil::Handle<TaggedDefListTok> TaggedDefListTokPtr;
 typedef ::IceUtil::Handle<ClassIdTok> ClassIdTokPtr;
 
 // ----------------------------------------------------------------------
@@ -193,6 +195,18 @@ public:
     std::string name;
     bool isTagged;
     int tag;
+};
+
+// ----------------------------------------------------------------------
+// TaggedDefListTok
+// ----------------------------------------------------------------------
+
+class TaggedDefListTok : public GrammarBase
+{
+public:
+
+    TaggedDefListTok() { }
+    std::list<TaggedDefTokPtr> v;
 };
 
 // ----------------------------------------------------------------------

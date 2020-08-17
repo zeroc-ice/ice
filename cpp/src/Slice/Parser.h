@@ -22,6 +22,10 @@
 namespace Slice
 {
 
+// Forward declare token types from GrammarUtil.h that the parser needs.
+class TaggedDefListTok;
+typedef ::IceUtil::Handle<TaggedDefListTok> TaggedDefListTokPtr;
+
 class CompilerException : public ::IceUtil::Exception
 {
 public:
@@ -727,15 +731,15 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
+    Operation(const ContainerPtr& container, const std::string& name, const TaggedDefListTokPtr& returnValues,
+              Mode mode);
 
     friend class InterfaceDef;
 
-    MemberList _inParameters;
-    MemberList _outParameters;
-    TypePtr _returnType;
-    bool _returnIsTagged;
-    int _returnTag;
+    MemberList _parameters;
+    MemberList _returnValues;
+    bool _usesOutParameters;
+    const bool _hasReturnType;
     std::list<ExceptionPtr> _throws;
     Mode _mode;
 };
@@ -754,7 +758,7 @@ class InterfaceDef : public virtual Container, public virtual Contained
 public:
 
     void destroy() override;
-    OperationPtr createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
+    OperationPtr createOperation(const std::string&, const TaggedDefListTokPtr&, Operation::Mode = Operation::Normal);
 
     InterfaceDeclPtr declaration() const;
     InterfaceList bases() const;
