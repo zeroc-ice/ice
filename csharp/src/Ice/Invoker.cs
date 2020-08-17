@@ -7,7 +7,7 @@ namespace ZeroC.Ice
 {
     /// <summary>An invoker is a delegate used to send an outgoing request.</summary>
     /// <param name="target">The proxy for the invocation.</param>
-    /// <param name="request">The outgoing request being send.</param>
+    /// <param name="request">The outgoing request being sent.</param>
     /// <returns>The incoming response frame.</returns>
     public delegate ValueTask<IncomingResponseFrame> Invoker(IObjectPrx target, OutgoingRequestFrame request);
 
