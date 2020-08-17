@@ -182,6 +182,9 @@ namespace ZeroC.Ice
             }
         }
 
+        internal int GetFrameSize() =>
+            Size + (Protocol == Protocol.Ice1 ? Ice1Definitions.HeaderSize : Ice2Definitions.HeaderSize) + 4;
+
         private OutgoingRequestFrame(
             IObjectPrx proxy,
             string operation,

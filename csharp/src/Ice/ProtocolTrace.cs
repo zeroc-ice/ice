@@ -14,105 +14,99 @@ namespace ZeroC.Ice
             Communicator communicator,
             ReadOnlySpan<byte> header,
             OutgoingRequestFrame frame) =>
-            TraceRequest(
-                "sending request",
-                communicator,
-                frame.Protocol,
-                header[8], // Frame type
-                header[9], // Compression Status
-                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
-                header.Slice(14, 4).ReadInt(), // Request-Id
-                frame.Identity,
-                frame.Facet,
-                frame.Operation,
-                frame.IsIdempotent,
-                frame.Context,
-                frame.Encoding);
+            TraceRequest("sending request",
+                         communicator,
+                         frame.Protocol,
+                         header.GetFrameType(), // Frame type
+                         header.GetCompressionStatus(), // Compression Status
+                         header.GetFrameSize(frame.Protocol), // Request size
+                         header.GetRequestId(), // Request-Id
+                         frame.Identity,
+                         frame.Facet,
+                         frame.Operation,
+                         frame.IsIdempotent,
+                         frame.Context,
+                         frame.Encoding);
 
         internal static void TraceFrame(
             Communicator communicator,
             ReadOnlySpan<byte> header,
             OutgoingResponseFrame frame) =>
-            TraceResponse(
-                "sending response",
-                communicator,
-                frame.Protocol,
-                header[8], // Frame type
-                header[9], // Compression Status
-                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
-                header.Slice(14, 4).ReadInt(), // Request-Id,
-                frame.ResultType,
-                frame.Encoding);
+            TraceResponse("sending response",
+                          communicator,
+                          frame.Protocol,
+                          header.GetFrameType(), // Frame type
+                          header.GetCompressionStatus(), // Compression Status
+                          header.GetFrameSize(frame.Protocol), // Response size
+                          header.GetRequestId(), // Request-Id,
+                          frame.ResultType,
+                          frame.Encoding);
 
         internal static void TraceFrame(
             Communicator communicator,
             ReadOnlySpan<byte> header,
             IncomingRequestFrame frame) =>
-            TraceRequest(
-                "received request",
-                communicator,
-                frame.Protocol,
-                header[8], // Frame type
-                header[9], // Compression Status
-                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
-                header.Slice(14, 4).ReadInt(), // Request-Id,
-                frame.Identity,
-                frame.Facet,
-                frame.Operation,
-                frame.IsIdempotent,
-                frame.Context,
-                frame.Encoding);
+            TraceRequest("received request",
+                         communicator,
+                         frame.Protocol,
+                         header.GetFrameType(), // Frame type
+                         header.GetCompressionStatus(), // Compression Status
+                         header.GetFrameSize(frame.Protocol), // Request size
+                         header.GetRequestId(), // Request-Id,
+                         frame.Identity,
+                         frame.Facet,
+                         frame.Operation,
+                         frame.IsIdempotent,
+                         frame.Context,
+                         frame.Encoding);
 
         internal static void TraceFrame(
             Communicator communicator,
             ReadOnlySpan<byte> header,
             IncomingResponseFrame frame) =>
-            TraceResponse(
-                "received response",
-                communicator,
-                frame.Protocol,
-                header[8], // Frame type
-                header[9], // Compression Status
-                header.Slice(10, 4).ReadFixedLengthSize(frame.Protocol.GetEncoding()), // Request size
-                header.Slice(14, 4).ReadInt(), // Request-Id,
-                frame.ResultType,
-                frame.Encoding);
+            TraceResponse("received response",
+                          communicator,
+                          frame.Protocol,
+                          header.GetFrameType(), // Frame type
+                          header.GetCompressionStatus(), // Compression Status
+                          header.GetFrameSize(frame.Protocol), // Request size
+                          header.GetRequestId(), // Request-Id,
+                          frame.ResultType,
+                          frame.Encoding);
 
         internal static void TraceCollocatedFrame(
             Communicator communicator,
             byte frameType,
             int requestId,
             OutgoingRequestFrame frame) =>
-            TraceRequest(
-                "sending request",
-                communicator,
-                frame.Protocol,
-                frameType,
-                0,
-                frame.Size + Ice1Definitions.HeaderSize + 4, // TODO: where is this size coming from?
-                requestId,
-                frame.Identity,
-                frame.Facet,
-                frame.Operation,
-                frame.IsIdempotent,
-                frame.Context,
-                frame.Encoding);
+            TraceRequest("sending request",
+                         communicator,
+                         frame.Protocol,
+                         frameType,
+                         0,
+                         frame.GetFrameSize(),
+                         requestId,
+                         frame.Identity,
+                         frame.Facet,
+                         frame.Operation,
+                         frame.IsIdempotent,
+                         frame.Context,
+                         frame.Encoding);
 
         internal static void TraceCollocatedFrame(
             Communicator communicator,
             byte frameType,
             int requestId,
             IncomingResponseFrame frame) =>
-            TraceResponse(
-                "received response",
-                communicator,
-                frame.Protocol,
-                frameType,
-                0,
-                frame.Size + Ice1Definitions.HeaderSize + 4,
-                requestId,
-                frame.ResultType,
-                frame.Encoding);
+            TraceResponse("received response",
+                          communicator,
+                          frame.Protocol,
+                          frameType,
+                          0,
+                          frame.GetFrameSize(),
+                          requestId,
+                          frame.ResultType,
+                          frame.Encoding);
 
         private static void TraceRequest(
             string traceFramePrefix,
@@ -217,11 +211,11 @@ namespace ZeroC.Ice
             {
                 var s = new StringBuilder();
                 s.Append(traceFramePrefix);
-                s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)header[8])); // TODO: correct definitions
+                s.Append(GetFrameTypeAsString(protocol, header.GetFrameType()));
                 PrintHeader(protocol,
-                            header[8],
-                            header[9],
-                            header.Slice(10, 4).ReadFixedLengthSize(protocol.GetEncoding()),
+                            header.GetFrameType(),
+                            header.GetCompressionStatus(),
+                            header.GetFrameSize(protocol),
                             s);
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
@@ -232,15 +226,14 @@ namespace ZeroC.Ice
             s.Append("\nprotocol = ");
             s.Append(protocol.GetName());
             s.Append("\nframe type = ");
-            s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)frameType));
-
+            s.Append(GetFrameTypeAsString(protocol, frameType));
             s.Append("\ncompression status = ");
             s.Append(compress);
             s.Append(compress switch
             {
-                0 => " (not compressed; do not compress response, if any)",
-                1 => " (not compressed; compress response, if any)",
-                2 => " (compressed; compress response, if any)",
+                0 => " (not compressed)",
+                1 => " (not compressed)",
+                2 => " (compressed)",
                 _ => " (unknown)"
             });
 
@@ -258,17 +251,31 @@ namespace ZeroC.Ice
             }
         }
 
-        private static string GetFrameTypeAsString(Ice1Definitions.FrameType type)
+        private static string GetFrameTypeAsString(Protocol protocol, byte type)
         {
-            return type switch
+            if (protocol == Protocol.Ice2)
             {
-                Ice1Definitions.FrameType.Request => "request",
-                Ice1Definitions.FrameType.RequestBatch => "batch request",
-                Ice1Definitions.FrameType.Reply => "reply",
-                Ice1Definitions.FrameType.ValidateConnection => "validate connection",
-                Ice1Definitions.FrameType.CloseConnection => "close connection",
-                _ => "unknown",
-            };
+                return (Ice2Definitions.FrameType)type switch
+                    {
+                        Ice2Definitions.FrameType.Request => "request",
+                        Ice2Definitions.FrameType.Reply => "reply",
+                        Ice2Definitions.FrameType.ValidateConnection => "validate connection",
+                        Ice2Definitions.FrameType.CloseConnection => "close connection",
+                        _ => "unknown",
+                    };
+            }
+            else
+            {
+                return (Ice1Definitions.FrameType)type switch
+                    {
+                        Ice1Definitions.FrameType.Request => "request",
+                        Ice1Definitions.FrameType.RequestBatch => "batch request",
+                        Ice1Definitions.FrameType.Reply => "reply",
+                        Ice1Definitions.FrameType.ValidateConnection => "validate connection",
+                        Ice1Definitions.FrameType.CloseConnection => "close connection",
+                        _ => "unknown",
+                    };
+            }
         }
     }
 }

@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Globalization;
 
 namespace ZeroC.Ice
 {
@@ -77,5 +76,17 @@ namespace ZeroC.Ice
                     }
             }
         }
+    }
+
+    internal static class ProtocolDefinitions
+    {
+        internal static byte GetFrameType(this ReadOnlySpan<byte> header) => header[8];
+
+        internal static byte GetCompressionStatus(this ReadOnlySpan<byte> header) => header[9];
+
+        internal static int GetFrameSize(this ReadOnlySpan<byte> header, Protocol protocol) =>
+            header.Slice(10, 4).ReadFixedLengthSize(protocol.GetEncoding()); // Request size
+
+        internal static int GetRequestId(this ReadOnlySpan<byte> header) => header.Slice(14, 4).ReadInt();
     }
 }
