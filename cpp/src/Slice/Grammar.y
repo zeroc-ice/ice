@@ -1140,16 +1140,47 @@ data_members
 ;
 
 // ----------------------------------------------------------------------
+return_tuple
+// ----------------------------------------------------------------------
+: member
+{
+    TaggedDefListTokPtr returnMembers = new TaggedDefListTok();
+    returnMembers->v.push_back(TaggedDefTokPtr::dynamicCast($1));
+    $$ = returnMembers;
+}
+| return_tuple ',' member
+{
+    TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($1);
+    returnMembers->v.push_back(TaggedDefTokPtr::dynamicCast($3));
+    $$ = returnMembers;
+}
+
+// ----------------------------------------------------------------------
 return_type
 // ----------------------------------------------------------------------
 : tagged_type
 {
-    $$ = $1;
+    TaggedDefListTokPtr returnMembers = new TaggedDefListTok();
+    returnMembers->v.push_back(TaggedDefTokPtr::dynamicCast($1));
+    $$ = returnMembers;
+}
+| '(' return_tuple ')'
+{
+    TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($2);
+    if (returnMembers->v.size() == 1)
+    {
+        unit->error("TODOAUSTIN");
+    }
+    $$ = $2;
+}
+| '(' ')'
+{
+    unit->error("TODOAUSTIN");
+    $$ = new TaggedDefListTok();
 }
 | ICE_VOID
 {
-    TaggedDefTokPtr m = new TaggedDefTok;
-    $$ = m;
+    $$ = new TaggedDefListTok();
 }
 ;
 
@@ -1158,15 +1189,12 @@ operation_preamble
 // ----------------------------------------------------------------------
 : return_type ICE_IDENT_OPEN
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
+    TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
-    if(interface)
-    {
-        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
-        returnTypes->v.push_back(returnType);
 
-        if (OperationPtr op = interface->createOperation(name, returnTypes))
+    if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
+    {
+        if (OperationPtr op = interface->createOperation(name, returnMembers))
         {
             interface->checkIntroduced(name, op);
             unit->pushContainer(op);
@@ -1184,15 +1212,12 @@ operation_preamble
 }
 | ICE_IDEMPOTENT return_type ICE_IDENT_OPEN
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
+    TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
-    if(interface)
-    {
-        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
-        returnTypes->v.push_back(returnType);
 
-        if (OperationPtr op = interface->createOperation(name, returnTypes, Operation::Idempotent))
+    if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
+    {
+        if (OperationPtr op = interface->createOperation(name, returnMembers, Operation::Idempotent))
         {
             interface->checkIntroduced(name, op);
             unit->pushContainer(op);
@@ -1210,15 +1235,11 @@ operation_preamble
 }
 | return_type ICE_KEYWORD_OPEN
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
+    TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
-    if(interface)
+    if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
     {
-        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
-        returnTypes->v.push_back(returnType);
-
-        if (OperationPtr op = interface->createOperation(name, returnTypes))
+        if (OperationPtr op = interface->createOperation(name, returnMembers))
         {
             unit->pushContainer(op);
             unit->error("keyword `" + name + "' cannot be used as operation name");
@@ -1236,15 +1257,11 @@ operation_preamble
 }
 | ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
+    TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
-    if(interface)
+    if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
     {
-        TaggedDefListTokPtr returnTypes = new TaggedDefListTok();
-        returnTypes->v.push_back(returnType);
-
-        if (OperationPtr op = interface->createOperation(name, returnTypes, Operation::Idempotent))
+        if (OperationPtr op = interface->createOperation(name, returnMembers, Operation::Idempotent))
         {
             unit->pushContainer(op);
             unit->error("keyword `" + name + "' cannot be used as operation name");

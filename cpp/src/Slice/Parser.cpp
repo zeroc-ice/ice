@@ -3005,8 +3005,7 @@ Slice::InterfaceDef::createOperation(const string& name,
         }
     }
 
-    //TODOAUSTIN THE CHECK IS TEMPORARY REMOVE THIS!
-    OperationPtr op = new Operation(this, name, returnTypes->v.front()->type ? returnTypes : new TaggedDefListTok(), mode);
+    OperationPtr op = new Operation(this, name, returnTypes, mode);
     _operations.push_back(op);
     return op;
 }
@@ -4431,25 +4430,26 @@ Slice::Operation::Operation(const ContainerPtr& container,
     _hasReturnType(!returnValues->v.empty()),
     _mode(mode)
 {
-    for (const auto& taggedDef : returnValues->v)
+    for (const auto& returnValue : returnValues->v)
     {
-        _unit->checkType(taggedDef->type);
-        if (taggedDef->isTagged)
+        _unit->checkType(returnValue->type);
+        if (returnValue->isTagged)
         {
             // Check for a duplicate tag.
-            for (const auto& returnValue : _returnValues)
+            for (const auto& other : _returnValues)
             {
-                if (returnValue->tagged() && returnValue->tag() == taggedDef->tag)
+                if (other->tagged() && other->tag() == returnValue->tag)
                 {
-                    _unit->error("tag for return value `" + taggedDef->name + "' is already in use");
+                    _unit->error("tag for return value `" + returnValue->name + "' is already in use");
                 }
             }
         }
 
         if (checkForRedefinition(this, name, "parameter"))
         {
-            MemberPtr returnValue = new Member(this, taggedDef->name, taggedDef->type, taggedDef->isTagged, taggedDef->tag);
-            _returnValues.push_back(returnValue);
+            MemberPtr returnMember = new Member(this, returnValue->name, returnValue->type, returnValue->isTagged,
+                                                returnValue->tag);
+            _returnValues.push_back(returnMember);
         }
     }
 }
