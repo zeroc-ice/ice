@@ -66,7 +66,7 @@ bzip2 and bzip2-devel are included in the [IBM AIX Toolbox for Linux Application
 ZeroC provide RPM packages for expat, LDMB and mcpp. You can install these packages
 as shown below:
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/aix7.2/ice-repo.3.7.aix7.2.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.7/aix7.2/ice-repo-3.7.aix7.2.noarch.rpm
 sudo yum install expat-devel lmdb-devel mcpp-devel
 ```
 
@@ -82,17 +82,17 @@ that do not include them. You can install these packages as shown below:
 
 ##### Amazon Linux 2
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/amzn2/ice-repo.3.7.amzn2.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.7/amzn2/ice-repo-3.7.amzn2.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 8
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/el8/ice-repo.3.7.el8.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.7/el8/ice-repo-3.7.el8.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 7
 ```
-sudo yum install https://zeroc.com/download/ice/3.7/el7/ice-repo.3.7.el7.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.7/el7/ice-repo-3.7.el7.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### SLES 12
