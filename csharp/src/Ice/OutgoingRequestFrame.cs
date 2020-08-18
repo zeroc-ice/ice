@@ -143,6 +143,9 @@ namespace ZeroC.Ice
 
                 if (request.BinaryContext.Count > 0)
                 {
+                    // TODO: with the current logic, we can append a new string-string context only if the
+                    // incoming request did not carry one - this is an unexpected behavior!
+
                     // Position the binary OutputStream immediately at the end of the existing binary context entries.
                     _binaryContextOstr = new OutputStream(Encoding.V2_0,
                                                           Data,
