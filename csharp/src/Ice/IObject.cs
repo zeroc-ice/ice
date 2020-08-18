@@ -122,16 +122,16 @@ namespace ZeroC.Ice
         internal static ValueTask<OutgoingResponseFrame> DispatchWithInterceptorsAsync(
             this IObject servant,
             IncomingRequestFrame request,
-            Current current)
+            Current current,
+            int i = 0)
         {
-            if (current.Adapter.Interceptors.Count > 0 || current.Communicator.DispatchInterceptors.Count > 0)
+            if (i < current.Adapter.Interceptors.Count)
             {
-                Dispatcher dispatcher = BuildDispatcherChain(
-                    current.Adapter.Interceptors.Concat(current.Communicator.DispatchInterceptors).GetEnumerator(),
-                    request,
-                    current,
-                    (request, current) => servant.DispatchAsync(request, current));
-                return dispatcher(request, current);
+                DispatchInterceptor interceptor = current.Adapter.Interceptors[i++];
+
+                return interceptor(request,
+                                   current,
+                                   (request, current) => servant.DispatchWithInterceptorsAsync(request, current, i));
             }
             else
             {

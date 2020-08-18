@@ -137,6 +137,7 @@ namespace ZeroC.Ice
                 }
 
                 Interceptors.AddRange(interceptors);
+                Interceptors.AddRange(Communicator.DispatchInterceptors);
 
                 // Activate the incoming connection factories to start accepting connections
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)

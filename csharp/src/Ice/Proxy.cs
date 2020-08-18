@@ -348,37 +348,23 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static Invoker BuildInvokerChain(
-            IEnumerator<InvocationInterceptor> interceptors,
-            IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            Invoker invoker)
-        {
-            if (interceptors.MoveNext())
-            {
-                InvocationInterceptor interceptor = interceptors.Current;
-                Invoker next = BuildInvokerChain(interceptors, proxy, request, invoker);
-                return (target, request) => interceptor(target, request, next);
-            }
-            return invoker;
-        }
-
         private static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
             IProgress<bool>? progress,
-            CancellationToken cancel)
+            CancellationToken cancel,
+            int i = 0)
         {
-            if (proxy.Communicator.InvocationInterceptors.Count > 0)
+            if (i < proxy.Communicator.InvocationInterceptors.Count)
             {
-                Invoker invoker = BuildInvokerChain(
-                    proxy.Communicator.InvocationInterceptors.GetEnumerator(),
+                InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                return interceptor(
                     proxy,
                     request,
-                    (target, request) => InvokeAsync(target, request, oneway, synchronous, progress, cancel));
-                return invoker(proxy, request);
+                    (target, request) =>
+                        InvokeWithInterceptorsAsync(target, request, oneway, synchronous, progress, cancel, i));
             }
             else
             {
