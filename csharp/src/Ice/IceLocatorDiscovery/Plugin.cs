@@ -108,7 +108,7 @@ namespace ZeroC.IceLocatorDiscovery
             {
                 // Get the locator to send the request to (this will return the void locator if no locator is found)
                 ILocatorPrx newLocator = await GetLocatorAsync().ConfigureAwait(false);
-                if (locator != newLocator)
+                if (!newLocator.Equals(locator))
                 {
                     try
                     {
