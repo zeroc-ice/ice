@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
@@ -83,34 +82,37 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing invocation interceptors... ");
             output.Flush();
             {
-                using var communicator = new Communicator(prx.Communicator.GetProperties());
-                communicator.InterceptInvocation((target, request, next) =>
+                using var communicator = new Communicator(
+                    prx.Communicator.GetProperties(),
+                    invocationInterceptors: new InvocationInterceptor[]
                     {
-                        request.Context["interceptor-1"] = "interceptor-1";
-                        if (ice2)
+                        (target, request, next) =>
                         {
-                            request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
-                        }
-                        return next(target, request);
-                    });
-
-                communicator.InterceptInvocation(async (target, request, next) =>
-                    {
-                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                        request.Context["interceptor-2"] = "interceptor-2";
-                        if (ice2)
+                            request.Context["interceptor-1"] = "interceptor-1";
+                            if (ice2)
+                            {
+                                request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
+                            }
+                            return next(target, request);
+                        },
+                        async (target, request, next) =>
                         {
-                            request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
+                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                            request.Context["interceptor-2"] = "interceptor-2";
+                            if (ice2)
+                            {
+                                request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
+                            }
+                            IncomingResponseFrame response = await next(target, request);
+                            if (ice2)
+                            {
+                                TestHelper.Assert(response.BinaryContext.ContainsKey(110));
+                                TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
+                                TestHelper.Assert(response.BinaryContext.ContainsKey(120));
+                                TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
+                            }
+                            return response;
                         }
-                        IncomingResponseFrame response = await next(target, request);
-                        if (ice2)
-                        {
-                            TestHelper.Assert(response.BinaryContext.ContainsKey(110));
-                            TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
-                            TestHelper.Assert(response.BinaryContext.ContainsKey(120));
-                            TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
-                        }
-                        return response;
                     });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 prx1.Op1();
@@ -121,29 +123,31 @@ namespace ZeroC.Ice.Test.Interceptor
                 int invocations = 0;
                 // An interceptor can stop the chain and directly return a response without calling next,
                 // the first invocation calls next and subsequent invocations reuse the first response.
-                using var communicator = new Communicator(prx.Communicator.GetProperties());
-                communicator.InterceptInvocation((target, request, next) =>
+                using var communicator = new Communicator(
+                    prx.Communicator.GetProperties(),
+                    invocationInterceptors: new InvocationInterceptor[]
                     {
-                        request.Context["interceptor-1"] = "interceptor-1";
-                        return next(target, request);
-                    });
-
-                communicator.InterceptInvocation(async (target, request, next) =>
-                    {
-                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                        if (response == null)
+                        (target, request, next) =>
                         {
-                            response = await next(target, request);
+                            request.Context["interceptor-1"] = "interceptor-1";
+                            return next(target, request);
+                        },
+                        async (target, request, next) =>
+                        {
+                            if (response == null)
+                            {
+                                response = await next(target, request);
+                            }
+                            return response;
+                        },
+                        (target, request, next) =>
+                        {
+                            invocations++;
+                            TestHelper.Assert(response == null);
+                            return next(target, request);
                         }
-                        return response;
                     });
 
-                communicator.InterceptInvocation((target, request, next) =>
-                    {
-                        invocations++;
-                        TestHelper.Assert(response == null);
-                        return next(target, request);
-                    });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 prx1.Op1();
                 prx1.Op1();
@@ -153,24 +157,27 @@ namespace ZeroC.Ice.Test.Interceptor
 
             {
                 // throwing from an interceptor stops the interceptor chain
-                using var communicator = new Communicator(prx.Communicator.GetProperties());
-                communicator.InterceptInvocation((target, request, next) =>
+                using var communicator = new Communicator(
+                    prx.Communicator.GetProperties(),
+                    invocationInterceptors: new InvocationInterceptor[]
                     {
-                        request.Context["interceptor-1"] = "interceptor-1";
-                        return next(target, request);
+                        (target, request, next) =>
+                        {
+                            request.Context["interceptor-1"] = "interceptor-1";
+                            return next(target, request);
+                        },
+                        (target, request, next) =>
+                        {
+                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                            throw new InvalidOperationException("stop interceptor chain");
+                        },
+                        (target, request, next) =>
+                        {
+                            TestHelper.Assert(false);
+                            return next(target, request);
+                        }
                     });
 
-                communicator.InterceptInvocation((target, request, next) =>
-                    {
-                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                        throw new InvalidOperationException("stop interceptor chain");
-                    });
-
-                communicator.InterceptInvocation((target, request, next) =>
-                    {
-                        TestHelper.Assert(false);
-                        return next(target, request);
-                    });
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 try
                 {

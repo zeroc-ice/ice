@@ -223,14 +223,18 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
             : this(ref _emptyArgs,
                    null,
                    properties,
                    logger,
                    observer,
                    tlsClientOptions,
-                   tlsServerOptions)
+                   tlsServerOptions,
+                   invocationInterceptors,
+                   dispatchInterceptors)
         {
         }
 
@@ -240,14 +244,18 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
             : this(ref args,
                    null,
                    properties,
                    logger,
                    observer,
                    tlsClientOptions,
-                   tlsServerOptions)
+                   tlsServerOptions,
+                   invocationInterceptors,
+                   dispatchInterceptors)
         {
         }
 
@@ -257,14 +265,18 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
             : this(ref _emptyArgs,
                    appSettings,
                    properties,
                    logger,
                    observer,
                    tlsClientOptions,
-                   tlsServerOptions)
+                   tlsServerOptions,
+                   invocationInterceptors,
+                   dispatchInterceptors)
         {
         }
 
@@ -275,7 +287,9 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
         {
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
@@ -505,9 +519,17 @@ namespace ZeroC.Ice
                     AssemblyUtil.PreloadAssemblies();
                 }
 
-                //
+                if (dispatchInterceptors != null)
+                {
+                    _dispatchInterceptors.AddRange(dispatchInterceptors);
+                }
+
+                if (invocationInterceptors != null)
+                {
+                    _invocationInterceptors.AddRange(invocationInterceptors);
+                }
+
                 // Load plug-ins.
-                //
                 LoadPlugins(ref args);
 
                 //
@@ -1016,18 +1038,12 @@ namespace ZeroC.Ice
         public IEndpointFactory? IceFindEndpointFactory(Transport transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
-        /// <summary>Add one or more dispatch interceptors to the list of dispatch interceptors, the dispatch
-        /// interceptors registered with a communicator will run after the interceptors registered with an object
-        /// adapter, and in the order that they are registered.</summary>
-        /// <param name="interceptors">The dispatch interceptors to register with the communicator.</param>
-        public void InterceptDispatch(params DispatchInterceptor[] interceptors) =>
+        // Add one or more dispatch interceptors, only to use by PluginInitializationContext
+        internal void AddDispatchInterceptor(params DispatchInterceptor[] interceptors) =>
             _dispatchInterceptors.AddRange(interceptors);
 
-        /// <summary>Add one or more invocation interceptors to the list of invocation interceptors, the invocation
-        /// interceptors registered with the communicator are executed in the order they are registered for each
-        /// invocation done with the communicator.</summary>
-        /// <param name="interceptors">The invocation interceptors to register with the communicator.</param>
-        public void InterceptInvocation(params InvocationInterceptor[] interceptors) =>
+        // Add one or more invocation interceptors, only to use by PluginInitializationContext
+        internal void AddInvocationInterceptor(params InvocationInterceptor[] interceptors) =>
             _invocationInterceptors.AddRange(interceptors);
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.

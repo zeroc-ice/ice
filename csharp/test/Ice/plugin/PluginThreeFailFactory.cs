@@ -18,7 +18,8 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override void Initialize() => throw new PluginInitializeFailException();
+            public override void Initialize(PluginInitializationContext context) =>
+                throw new PluginInitializeFailException();
 
             public override ValueTask DisposeAsync()
             {

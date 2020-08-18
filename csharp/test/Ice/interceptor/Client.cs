@@ -2,7 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
@@ -11,7 +14,18 @@ namespace ZeroC.Ice.Test.Interceptor
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
+            string pluginPath =
+                string.Format("msbuild/plugin/{0}/Plugin.dll",
+                    Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+            await using Communicator communicator = Initialize(
+                ref args,
+                new Dictionary<string, string>()
+                {
+                    {
+                        "Ice.Plugin.InvocationPlugin",
+                        $"{pluginPath }:ZeroC.Ice.Test.Interceptor.InvocationPluginFactory"
+                    }
+                });
             IMyObjectPrx prx = AllTests.Run(this);
             await prx.ShutdownAsync();
         }

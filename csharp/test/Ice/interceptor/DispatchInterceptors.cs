@@ -16,10 +16,16 @@ namespace ZeroC.Ice.Test.Interceptor
 
     public static class DispatchInterceptors
     {
-        public static void Register(ObjectAdapter adapter)
+        public static async ValueTask ActivateAsync(ObjectAdapter adapter)
         {
             DispatchInterceptor raiseInterceptor = async (request, current, next) =>
             {
+                // Ensure the invocation plug-in interceptor added this entry to the context
+                Debug.Assert(current.Context["InvocationPlugin"] == "1");
+
+                // The dispatch plug-in interceptor runs after the interceptors registered with
+                // the adapter.
+                Debug.Assert(!current.Context.ContainsKey("DispatchPlugin"));
                 if (current.Context.TryGetValue("raiseBeforeDispatch", out string? context))
                 {
                     if (context == "invalidInput")
@@ -33,6 +39,8 @@ namespace ZeroC.Ice.Test.Interceptor
                 }
 
                 OutgoingResponseFrame response = await next(request, current);
+
+                Debug.Assert(current.Context["DispatchPlugin"] == "1");
 
                 if (current.Context.TryGetValue("raiseAfterDispatch", out context))
                 {
@@ -132,7 +140,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
                     return await next(request, current);
                 };
-            adapter.Intercept(raiseInterceptor, addWithRetry, retry, opWithBianryContext, op1);
+            await adapter.ActivateAsync(raiseInterceptor, addWithRetry, retry, opWithBianryContext, op1);
         }
     }
 }

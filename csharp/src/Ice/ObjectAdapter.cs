@@ -103,11 +103,12 @@ namespace ZeroC.Ice
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
         /// set).</summary>
-        public void Activate()
+        /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
+        public void Activate(params DispatchInterceptor[] interceptors)
         {
             try
             {
-                ActivateAsync().Wait();
+                ActivateAsync(interceptors).Wait();
             }
             catch (AggregateException ex)
             {
@@ -119,7 +120,8 @@ namespace ZeroC.Ice
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. ActivateAsync also registers this object adapter with the
         /// locator (if set).</summary>
-        public async Task ActivateAsync()
+        /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
+        public async Task ActivateAsync(params DispatchInterceptor[] interceptors)
         {
             lock (_mutex)
             {
@@ -133,6 +135,8 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
+
+                Interceptors.AddRange(interceptors);
 
                 // Activate the incoming connection factories to start accepting connections
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -361,13 +365,6 @@ namespace ZeroC.Ice
         /// <returns>A proxy associated with this object adapter, object identity and the default facet.</returns>
         public T AddWithUUID<T>(IObject servant, ProxyFactory<T> proxyFactory) where T : class, IObjectPrx =>
             AddWithUUID("", servant, proxyFactory);
-
-        /// <summary>Add one or more dispatch interceptors to the list of dispatch interceptors, the dispatch
-        /// interceptors registered with an object adapter will run before the interceptors registered with the
-        /// communicator, and in the order that they are registered.</summary>
-        /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
-        public void Intercept(params DispatchInterceptor[] interceptors) =>
-            Interceptors.AddRange(interceptors);
 
         /// <summary>Removes a servant previously added to the Active Servant Map (ASM) using Add.</summary>
         /// <param name="identity">The identity of the Ice object.</param>

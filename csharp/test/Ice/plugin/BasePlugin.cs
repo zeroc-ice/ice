@@ -33,7 +33,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool IsDestroyed() => Destroyed;
 
-        public abstract void Initialize();
+        public abstract void Initialize(PluginInitializationContext context);
         public virtual async ValueTask DisposeAsync()
         {
             if (Other != null)
