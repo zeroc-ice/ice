@@ -179,8 +179,14 @@ namespace ZeroC.Ice
                     // data corresponds to the encoded bytes, not including the header or binary context.
                     ArraySegment<byte> data = request.Encapsulation.Slice(sizeLength + 2);
                     Data.Add(data);
+
+                    _encapsulationEnd =
+                        new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count - sizeLength - 2);
                 }
-                _encapsulationEnd = new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count);
+                else
+                {
+                    _encapsulationEnd = new OutputStream.Position(Data.Count - 1, tail.Offset);
+                }
             }
 
             Size = Data.GetByteCount();

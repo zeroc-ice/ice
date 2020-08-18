@@ -101,8 +101,10 @@ namespace ZeroC.IceGrid.Test.Simple
                     {
                     }
 
-                    TestHelper.Assert(com.DefaultLocator!.GetRegistry() == null);
-                    TestHelper.Assert(ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
+                    ZeroC.Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V1_1);
+
+                    TestHelper.Assert(defaultLocator.GetRegistry() == null);
+                    TestHelper.Assert(ILocatorPrx.CheckedCast(defaultLocator) == null);
                     try
                     {
                         ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
