@@ -108,7 +108,7 @@ namespace ZeroC.Ice
             bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null,
             Protocol protocol = Protocol.Ice2) =>
-            AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler, protocol: protocol);
+            AddObjectAdapter(serializeDispatch, taskScheduler, protocol);
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
         /// to setting the name.Endpoints property and then calling
@@ -232,14 +232,32 @@ namespace ZeroC.Ice
             }
         }
 
+        // Creates and adds a new nameless ObjectAdapter
         private ObjectAdapter AddObjectAdapter(
-            string? name = null,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            IRouterPrx? router = null,
-            Protocol protocol = Protocol.Ice2)
+            bool serializeDispatch,
+            TaskScheduler? taskScheduler,
+            Protocol protocol)
         {
-            if (name != null && name.Length == 0)
+            lock (_mutex)
+            {
+                if (IsDisposed)
+                {
+                    throw new CommunicatorDisposedException();
+                }
+                ObjectAdapter adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
+                _adapters.Add(adapter);
+                return adapter;
+            }
+        }
+
+        // Creates and adds a new ObjectAdapter
+        private ObjectAdapter AddObjectAdapter(
+            string name,
+            bool serializeDispatch,
+            TaskScheduler? taskScheduler,
+            IRouterPrx? router = null)
+        {
+            if (name.Length == 0)
             {
                 throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
@@ -251,15 +269,12 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                if (name != null)
+                if (_adapterNamesInUse.Contains(name))
                 {
-                    if (_adapterNamesInUse.Contains(name))
-                    {
-                        throw new ArgumentException($"an object adapter with name `{name}' is already registered",
-                            nameof(name));
-                    }
-                    _adapterNamesInUse.Add(name);
+                    throw new ArgumentException($"an object adapter with name `{name}' is already registered",
+                        nameof(name));
                 }
+                _adapterNamesInUse.Add(name);
             }
 
             // Must be called outside the synchronization since the constructor can make client invocations
@@ -267,16 +282,13 @@ namespace ZeroC.Ice
             ObjectAdapter adapter;
             try
             {
-                adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router, protocol);
+                adapter = new ObjectAdapter(this, name, serializeDispatch, taskScheduler, router);
             }
             catch
             {
-                if (name != null)
+                lock (_mutex)
                 {
-                    lock (_mutex)
-                    {
-                        _adapterNamesInUse.Remove(name);
-                    }
+                    _adapterNamesInUse.Remove(name);
                 }
                 throw;
             }
