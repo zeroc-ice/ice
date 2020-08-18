@@ -139,7 +139,6 @@ namespace ZeroC.IceLocatorDiscovery
                             }
                         }
                         exception = ex;
-                        throw;
                     }
                 }
                 else
