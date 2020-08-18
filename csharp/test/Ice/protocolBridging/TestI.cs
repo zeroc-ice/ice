@@ -35,6 +35,11 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             return x;
         }
 
+        public void OpVoid(Current current)
+        {
+            TestHelper.Assert(current.Context["MyCtx"] == "hello");
+        }
+
         public (int, string) OpReturnOut(int x, Current current)
         {
             TestHelper.Assert(current.Context["MyCtx"] == "hello");

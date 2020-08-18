@@ -51,6 +51,8 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             prx = prx.Clone(context: new Dictionary<string, string> { { "MyCtx", "hello"} });
 
             TestHelper.Assert(prx.Op(13) == 13);
+            prx.OpVoid();
+
             (int v, string s) = prx.OpReturnOut(34);
             TestHelper.Assert(v == 34 && s == "value=34");
 
@@ -77,6 +79,5 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
             return prx.OpNewProxy();
         }
-
     }
 }

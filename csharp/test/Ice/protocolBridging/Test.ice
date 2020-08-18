@@ -15,8 +15,9 @@ module ZeroC::Ice::Test::ProtocolBridging
 
     interface TestIntf
     {
-        // Simple operation
+        // Simple operations
         int op(int x);
+        void opVoid();
 
         // Operation with both return and out
         int opReturnOut(int x, out string y);

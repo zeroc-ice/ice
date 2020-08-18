@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
@@ -107,7 +108,7 @@ namespace ZeroC.IceLocatorDiscovery
             {
                 // Get the locator to send the request to (this will return the void locator if no locator is found)
                 ILocatorPrx newLocator = await GetLocatorAsync().ConfigureAwait(false);
-                if (!newLocator.Equals(locator))
+                if (locator != newLocator)
                 {
                     try
                     {
@@ -138,7 +139,6 @@ namespace ZeroC.IceLocatorDiscovery
                             }
                         }
                         exception = ex;
-                        throw;
                     }
                 }
                 else
@@ -182,7 +182,7 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         _warned = true; // Only warn once
 
-                        var s = new System.Text.StringBuilder();
+                        var s = new StringBuilder();
                         s.Append("received Ice locator with different instance name:\n")
                          .Append("using = `").Append(_locator.Identity.Category).Append("'\n")
                          .Append("received = `").Append(locator.Identity.Category).Append("'\n")
@@ -196,7 +196,7 @@ namespace ZeroC.IceLocatorDiscovery
 
                 if (_traceLevel > 0)
                 {
-                    var s = new System.Text.StringBuilder("locator lookup succeeded:\nlocator = ");
+                    var s = new StringBuilder("locator lookup succeeded:\nlocator = ");
                     s.Append(locator);
                     if (_instanceName.Length > 0)
                     {
@@ -266,7 +266,7 @@ namespace ZeroC.IceLocatorDiscovery
 
             if (_traceLevel > 1)
             {
-                var s = new System.Text.StringBuilder("looking up locator:\nlookup = ");
+                var s = new StringBuilder("looking up locator:\nlookup = ");
                 s.Append(_lookup);
                 if (_instanceName.Length > 0)
                 {
@@ -293,7 +293,7 @@ namespace ZeroC.IceLocatorDiscovery
                                 // All the lookup calls failed propagate the error to the requests.
                                 if (_traceLevel > 0)
                                 {
-                                    var s = new System.Text.StringBuilder("locator lookup failed:\nlookup = ");
+                                    var s = new StringBuilder("locator lookup failed:\nlookup = ");
                                     s.Append(_lookup);
                                     if (_instanceName.Length > 0)
                                     {
@@ -329,7 +329,7 @@ namespace ZeroC.IceLocatorDiscovery
                     // Locator lookup timeout and no more retries
                     if (_traceLevel > 0)
                     {
-                        var s = new System.Text.StringBuilder("locator lookup timed out:\nlookup = ");
+                        var s = new StringBuilder("locator lookup timed out:\nlookup = ");
                         s.Append(_lookup);
                         if (_instanceName.Length > 0)
                         {
@@ -438,7 +438,6 @@ namespace ZeroC.IceLocatorDiscovery
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var locatorId = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
             _locator = new Locator(_name, lookupPrx, _communicator, instanceName, voidLocator, locatorReplyPrx);
-
             _locatorPrx = _locatorAdapter.Add(locatorId, _locator, ILocatorPrx.Factory);
             _communicator.DefaultLocator = _locatorPrx;
 
