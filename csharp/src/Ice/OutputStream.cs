@@ -1570,8 +1570,6 @@ namespace ZeroC.Ice
             Encoding payloadEncoding)
         {
             var ostr = new OutputStream(encoding, data, startAt);
-
-            // TODO: set sizeLength to min number of bytes requires for size.
             ostr.WriteEncapsulationHeader(size, payloadEncoding);
             return ostr.Tail;
         }
@@ -1633,7 +1631,7 @@ namespace ZeroC.Ice
         {
             _format = format;
             _startPos = _tail;
-            WriteEncapsulationHeader(0, payloadEncoding); // 0 is a placeholder for the actual encapsulation size
+            WriteEncapsulationHeader(payloadEncoding); // with placeholder for size
             if (payloadEncoding == Encoding.V2_0)
             {
                 WriteByte(0); // Placeholder for the compression status
@@ -1660,7 +1658,7 @@ namespace ZeroC.Ice
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
             encoding.CheckSupported();
-            WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding, sizeLength: 1);
+            WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding);
             if (encoding == Encoding.V2_0)
             {
                 WriteByte(0); // The compression status, 0 not-compressed
@@ -1678,8 +1676,7 @@ namespace ZeroC.Ice
                 int sizeLength = OldEncoding ? 4 : 2;
                 if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
-                    // 0 is a placeholder for the size.
-                    WriteEncapsulationHeader(0, opaqueEndpoint.ValueEncoding, sizeLength);
+                    WriteEncapsulationHeader(opaqueEndpoint.ValueEncoding, sizeLength); // with placeholder for size
                     WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive
                 }
                 else
@@ -1687,8 +1684,8 @@ namespace ZeroC.Ice
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
                         Ice1Definitions.Encoding : Encoding.V2_0;
-                    // 0 is a placeholder for the size.
-                    WriteEncapsulationHeader(0, payloadEncoding, sizeLength);
+
+                    WriteEncapsulationHeader(payloadEncoding, sizeLength); // with placeholder for size
                     Encoding previousEncoding = Encoding;
                     Encoding = payloadEncoding;
                     if (endpoint.Protocol == Protocol.Ice1)
@@ -2022,12 +2019,12 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the current position and writes placeholder for a fixed-length size value. The
         /// position must be used to rewrite the size later.</summary>
-        /// <param name="sizeLenght">The number of bytes reserved to write the fixed-length size.</param>
+        /// <param name="sizeLength">The number of bytes reserved to write the fixed-length size.</param>
         /// <returns>The position before writing the size.</returns>
-        internal Position StartFixedLengthSize(int sizeLenght = DefaultSizeLength)
+        internal Position StartFixedLengthSize(int sizeLength = DefaultSizeLength)
         {
             Position pos = _tail;
-            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLenght]); // placeholder for future size
+            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLength]); // placeholder for future size
             return pos;
         }
 
@@ -2073,9 +2070,7 @@ namespace ZeroC.Ice
         /// <param name="size">The size of the encapsulation, in bytes. This size does not include the length of the
         /// encoded size itself.</param>
         /// <param name="encoding">The encoding of the new encapsulation.</param>
-        /// <param name="sizeLength">The number of bytes used to encode the size, used only with the 2.0 encoding. Can
-        /// be 1, 2 or 4.</param>
-        private void WriteEncapsulationHeader(int size, Encoding encoding, int sizeLength = DefaultSizeLength)
+        private void WriteEncapsulationHeader(int size, Encoding encoding)
         {
             if (OldEncoding)
             {
@@ -2083,12 +2078,21 @@ namespace ZeroC.Ice
             }
             else
             {
-                Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
-                Span<byte> data = stackalloc byte[sizeLength];
-                WriteFixedLengthSize20(size, data);
-                WriteByteSpan(data);
+                WriteSize(size);
             }
 
+            WriteByte(encoding.Major);
+            WriteByte(encoding.Minor);
+        }
+
+        /// <summary>Writes an encapsulation header with a placeholder size.</summary>
+        /// <param name="encoding">The encoding of the new encapsulation.</param>
+        /// <param name="sizeLength">The number of bytes used to encode the size, used only with the 2.0 encoding. Can
+        /// be 1, 2 or 4.</param>
+        private void WriteEncapsulationHeader(Encoding encoding, int sizeLength = DefaultSizeLength)
+        {
+            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
+            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLength]); // placeholder for future size
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
         }
