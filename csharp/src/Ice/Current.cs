@@ -13,8 +13,7 @@ namespace ZeroC.Ice
         public CancellationToken CancellationToken { get; }
         public Communicator Communicator => Adapter.Communicator;
         public Connection? Connection { get; }
-        // TODO: should this be a IReadOnlyDictionary<string, string>?
-        public Dictionary<string, string> Context { get; }
+        public Dictionary<string, string> Context => IncomingRequestFrame.Context;
         public Encoding Encoding => IncomingRequestFrame.Encoding;
         public string Facet => IncomingRequestFrame.Facet;
         public Identity Identity => IncomingRequestFrame.Identity;
@@ -35,7 +34,6 @@ namespace ZeroC.Ice
             Adapter = adapter;
             CancellationToken = cancel;
             Connection = connection;
-            Context = new Dictionary<string, string>(incomingRequestFrame.Context);
             IsOneway = oneway;
             IncomingRequestFrame = incomingRequestFrame;
         }
