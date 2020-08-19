@@ -210,24 +210,19 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice2 && !_binaryContextKeys.Contains(0))
                 {
-                    if (ContextOverride != null)
+                    if (ContextOverride != null && ContextOverride.Count == 0)
                     {
-                        if (ContextOverride.Count == 0)
-                        {
-                            // make sure the slot is used so base does not write it when forwarding the binary context
-                            _binaryContextKeys.Add(0);
-                        }
-                        else
-                        {
-                            AddBinaryContextEntry(0, ContextOverride, ContextHelper.IceWriter);
-                        }
+                       // Make sure the slot is used so base does not write anything in slot 0 when forwarding the
+                       // binary context
+                       _binaryContextKeys.Add(0);
                     }
-                    else if (_defaultBinaryContext.Count == 0 && Context.Count > 0)
+                    else if (Context.Count > 0)
                     {
-                        // _defaultBinaryContext.Count == 0 means we're not forwarding the binary context
+                        // Write the context now. This is necessary even when _defaultBinaryContext is not empty,
+                        // because _initialContext can be different from slot 0 in _defaultBinaryContext.
                         AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
                     }
-                    // else, base writes Context as part of _defaultBinaryContext (if set, i.e. forwarding)
+                    // else we don't write Context since it's empty
                 }
                 base.Finish();
             }

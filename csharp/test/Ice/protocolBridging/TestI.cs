@@ -26,10 +26,12 @@ namespace ZeroC.Ice.Test.ProtocolBridging
                 TestHelper.Assert(current.Context.Count == 0);
             }
 
-            if (current.Operation != "shutdown")
+            if (current.Operation != "opVoid" && current.Operation != "shutdown")
             {
                 request.Context["Intercepted"] = "1";
             }
+
+            // TODO: add interceptors to test binary context forwarding with ice2.
 
             return _target.ForwardAsync(current.IsOneway, request);
         }
@@ -42,22 +44,21 @@ namespace ZeroC.Ice.Test.ProtocolBridging
         public int Op(int x, Current current)
         {
             TestHelper.Assert(current.Context["MyCtx"] == "hello");
-            if (current.Context.Count > 1)
-            {
-                TestHelper.Assert(current.Context.Count == 2);
-                TestHelper.Assert(current.Context.ContainsKey("Intercepted"));
-            }
-
+            TestHelper.Assert(current.Context.Count == 2);
+            TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
             return x;
         }
 
         public void OpVoid(Current current)
         {
             TestHelper.Assert(current.Context["MyCtx"] == "hello");
-            if (current.Context.Count > 1)
+            if (current.Context.Count == 2)
             {
-                TestHelper.Assert(current.Context.Count == 2);
-                TestHelper.Assert(current.Context.ContainsKey("Intercepted"));
+                TestHelper.Assert(current.Context.ContainsKey("Direct"));
+            }
+            else
+            {
+                TestHelper.Assert(current.Context.Count == 1);
             }
         }
 
