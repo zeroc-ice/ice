@@ -46,7 +46,7 @@ namespace ZeroC.Ice
             var initializedPlugins = new List<IPlugin>();
             try
             {
-                using var context = new PluginInitializationContext(this);
+                var context = new PluginInitializationContext(this);
                 foreach ((string name, IPlugin plugin) in _plugins)
                 {
                     plugin.Initialize(context);

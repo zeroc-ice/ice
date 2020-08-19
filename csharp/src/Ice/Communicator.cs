@@ -1039,11 +1039,11 @@ namespace ZeroC.Ice
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
         // Add one or more dispatch interceptors, only to use by PluginInitializationContext
-        internal void AddDispatchInterceptor(params DispatchInterceptor[] interceptors) =>
+        internal void AddDispatchInterceptor(DispatchInterceptor[] interceptors) =>
             _dispatchInterceptors.AddRange(interceptors);
 
         // Add one or more invocation interceptors, only to use by PluginInitializationContext
-        internal void AddInvocationInterceptor(params InvocationInterceptor[] interceptors) =>
+        internal void AddInvocationInterceptor(InvocationInterceptor[] interceptors) =>
             _invocationInterceptors.AddRange(interceptors);
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.

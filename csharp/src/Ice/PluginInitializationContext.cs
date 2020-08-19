@@ -2,52 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-
 namespace ZeroC.Ice
 {
-    public sealed class PluginInitializationContext : IDisposable
+    public ref struct PluginInitializationContext
     {
-        private Communicator _communicator;
-        private bool _disposed;
-
-        public void Dispose() => _disposed = true;
+        private readonly Communicator _communicator;
 
         public ILogger Logger
         {
             get => _communicator.Logger;
-            set
-            {
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException("plug-in initialization context has been disposed");
-                }
-                _communicator.Logger = value;
-            }
+            set =>_communicator.Logger = value;
         }
 
-        public PluginInitializationContext(Communicator communicator)
-        {
-            _communicator = communicator;
-            _disposed = false;
-        }
+        public PluginInitializationContext(Communicator communicator) => _communicator = communicator;
 
-        public void AddDispatchInterceptor(params DispatchInterceptor[] interceptor)
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException("plug-in initialization context has been disposed");
-            }
+        public void AddDispatchInterceptor(params DispatchInterceptor[] interceptor) =>
             _communicator.AddDispatchInterceptor(interceptor);
-        }
 
-        public void AddInvocationInterceptor(params InvocationInterceptor[] interceptor)
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException("plug-in initialization context has been disposed");
-            }
+        public void AddInvocationInterceptor(params InvocationInterceptor[] interceptor) =>
             _communicator.AddInvocationInterceptor(interceptor);
-        }
     }
 }

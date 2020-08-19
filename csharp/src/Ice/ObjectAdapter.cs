@@ -136,8 +136,8 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
 
-                Interceptors.AddRange(interceptors);
                 Interceptors.AddRange(Communicator.DispatchInterceptors);
+                Interceptors.AddRange(interceptors);
 
                 // Activate the incoming connection factories to start accepting connections
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -859,6 +859,38 @@ namespace ZeroC.Ice
             {
                 Dispose();
                 throw;
+            }
+        }
+
+        internal ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        {
+            Debug.Assert(current.Adapter == this);
+            IObject? servant = Find(current.Identity, current.Facet);
+            if (servant == null)
+            {
+                throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+            }
+
+            return DispatchAsync(request, current, servant, 0);
+
+            ValueTask<OutgoingResponseFrame> DispatchAsync(
+                IncomingRequestFrame request,
+                Current current,
+                IObject servant,
+                int i)
+            {
+                if (i < Interceptors.Count)
+                {
+                    DispatchInterceptor interceptor = Interceptors[i++];
+
+                    return interceptor(request,
+                                       current,
+                                       (request, current) => DispatchAsync(request, current, servant, i));
+                }
+                else
+                {
+                    return servant.DispatchAsync(request, current);
+                }
             }
         }
 

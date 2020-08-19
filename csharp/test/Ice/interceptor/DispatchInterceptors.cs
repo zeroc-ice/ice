@@ -25,9 +25,9 @@ namespace ZeroC.Ice.Test.Interceptor
                 Debug.Assert(request.Protocol == Protocol.Ice1 ||
                              current.Context["InvocationPlugin"] == "1");
 
-                // The dispatch plug-in interceptor runs after the interceptors registered with
+                // The dispatch plug-in interceptor runs before the interceptors registered with
                 // the adapter.
-                Debug.Assert(!current.Context.ContainsKey("DispatchPlugin"));
+                Debug.Assert(current.Context.ContainsKey("DispatchPlugin"));
                 if (current.Context.TryGetValue("raiseBeforeDispatch", out string? context))
                 {
                     if (context == "invalidInput")
@@ -41,8 +41,6 @@ namespace ZeroC.Ice.Test.Interceptor
                 }
 
                 OutgoingResponseFrame response = await next(request, current);
-
-                Debug.Assert(current.Context["DispatchPlugin"] == "1");
 
                 if (current.Context.TryGetValue("raiseAfterDispatch", out context))
                 {

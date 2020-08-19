@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -114,29 +113,6 @@ namespace ZeroC.Ice
                                                       ret,
                                                       (ostr, ret) =>
                                                           ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
-        }
-    }
-
-    internal static class Servant
-    {
-        internal static ValueTask<OutgoingResponseFrame> DispatchWithInterceptorsAsync(
-            this IObject servant,
-            IncomingRequestFrame request,
-            Current current,
-            int i = 0)
-        {
-            if (i < current.Adapter.Interceptors.Count)
-            {
-                DispatchInterceptor interceptor = current.Adapter.Interceptors[i++];
-
-                return interceptor(request,
-                                   current,
-                                   (request, current) => servant.DispatchWithInterceptorsAsync(request, current, i));
-            }
-            else
-            {
-                return servant.DispatchAsync(request, current);
-            }
         }
     }
 }
