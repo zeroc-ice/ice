@@ -118,8 +118,6 @@ typedef ::IceUtil::Handle<Unit> UnitPtr;
 typedef std::list<TypePtr> TypeList;
 typedef std::set<std::string> StringSet;
 typedef std::list<std::string> StringList;
-typedef std::pair<TypePtr, std::string> TypeString;
-typedef std::list<TypeString> TypeStringList;
 typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ConstructedPtr> ConstructedList;

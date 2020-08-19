@@ -15,8 +15,6 @@ namespace Slice
 
 class StringTok;
 class StringListTok;
-class TypeStringTok;
-class TypeStringListTok;
 class BoolTok;
 class IntegerTok;
 class FloatingTok;
@@ -30,8 +28,6 @@ class ClassIdTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
-typedef ::IceUtil::Handle<TypeStringTok> TypeStringTokPtr;
-typedef ::IceUtil::Handle<TypeStringListTok> TypeStringListTokPtr;
 typedef ::IceUtil::Handle<BoolTok> BoolTokPtr;
 typedef ::IceUtil::Handle<IntegerTok> IntegerTokPtr;
 typedef ::IceUtil::Handle<FloatingTok> FloatingTokPtr;
@@ -69,30 +65,6 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// TypeStringTok
-// ----------------------------------------------------------------------
-
-class TypeStringTok : public GrammarBase
-{
-public:
-
-    TypeStringTok() { }
-    TypeString v;
-};
-
-// ----------------------------------------------------------------------
-// TypeStringListTok
-// ----------------------------------------------------------------------
-
-class TypeStringListTok : public GrammarBase
-{
-public:
-
-    TypeStringListTok() { }
-    TypeStringList v;
-};
-
-// ----------------------------------------------------------------------
 // IntegerTok
 // ----------------------------------------------------------------------
 
@@ -126,7 +98,9 @@ class BoolTok : public GrammarBase
 {
 public:
 
-    BoolTok() { }
+    BoolTok(bool value) :
+        v(value)
+    { }
     bool v;
 };
 
@@ -206,9 +180,12 @@ class TaggedDefTok : public GrammarBase
 {
 public:
 
-    TaggedDefTok() { }
+    TaggedDefTok() :
+        isTagged(false),
+        tag(-1)
+    { }
     TaggedDefTok(int t) :
-        isTagged(t >= 0),
+        isTagged(true),
         tag(t)
     { }
 
