@@ -1664,7 +1664,7 @@ Slice::DataMemberContainer::createDataMember(const string& name, const TypePtr& 
         }
     }
 
-    if (tagged && tag > -1))
+    if (tagged && tag > -1)
     {
         // Validate the tag.
         for (const auto& member : _dataMembers)
