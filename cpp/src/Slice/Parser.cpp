@@ -1671,7 +1671,7 @@ Slice::DataMemberContainer::createDataMember(const string& name, const TypePtr& 
         }
     }
 
-    if (tagged)
+    if (tagged && tag > -1))
     {
         // Validate the tag.
         for (const auto& member : _dataMembers)
@@ -4229,7 +4229,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
     }
 
     MemberList& params = isOutParam ? _outParameters : _inParameters;
-    if (tagged)
+    if (tagged && tag > -1))
     {
         // Check for a duplicate tag.
         const string msg = "tag for parameter `" + name + "' is already in use";
