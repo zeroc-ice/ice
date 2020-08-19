@@ -351,36 +351,33 @@ namespace ZeroC.Ice
             bool oneway,
             bool synchronous,
             IProgress<bool>? progress = null,
-            CancellationToken cancel = default) => InvokeWithInterceptorsAsync(proxy,
-                                                                               request,
-                                                                               oneway,
-                                                                               synchronous,
-                                                                               0,
-                                                                               progress,
-                                                                               cancel);
-
-        private static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            int i,
-            IProgress<bool>? progress = null,
             CancellationToken cancel = default)
         {
-            if (i < proxy.Communicator.InvocationInterceptors.Count)
-            {
-                InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                return interceptor(
-                    proxy,
-                    request,
-                    (target, request) =>
-                        InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
-            }
-            else
-            {
-                return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
-            }
+            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
+
+            static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                bool synchronous,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+                {
+                    if (i < proxy.Communicator.InvocationInterceptors.Count)
+                    {
+                        InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                        return interceptor(
+                            proxy,
+                            request,
+                            (target, request) =>
+                                InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
+                    }
+                    else
+                    {
+                        return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
+                    }
+                }
         }
 
         private static ValueTask<IncomingResponseFrame> InvokeAsync(
