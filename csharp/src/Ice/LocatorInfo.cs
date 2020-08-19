@@ -25,7 +25,7 @@ namespace ZeroC.Ice
         private readonly bool _background;
         private readonly Dictionary<string, Task<IReadOnlyList<Endpoint>>> _adapterRequests =
             new Dictionary<string, Task<IReadOnlyList<Endpoint>>>();
-        private readonly Lazy<ILocatorRegistryPrx?> _locatorRegistry;
+        private ILocatorRegistryPrx? _locatorRegistry;
         private readonly object _mutex = new object();
         private readonly Dictionary<Identity, Task<Reference?>> _objectRequests =
             new Dictionary<Identity, Task<Reference?>>();
@@ -36,12 +36,6 @@ namespace ZeroC.Ice
             Locator = locator;
             _table = table;
             _background = background;
-
-            // The locator registry can't be located and we use ordered endpoint selection in case the locator
-            // returned a proxy with some endpoints which are preferred to be tried first.
-            _locatorRegistry = new Lazy<ILocatorRegistryPrx?>(
-                () => locator.GetRegistry()?.Clone(clearLocator: true,
-                                                   endpointSelection: EndpointSelectionType.Ordered));
         }
 
         internal void ClearCache(Reference reference)
@@ -315,7 +309,21 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ILocatorRegistryPrx? GetLocatorRegistry() => _locatorRegistry.Value;
+        // TODO: returning a null locator registry is ok?
+        // Encoding represents the encoding used to send the getRegistry request.
+        internal async ValueTask<ILocatorRegistryPrx?> GetLocatorRegistryAsync(Encoding encoding)
+        {
+            if (_locatorRegistry == null)
+            {
+                ILocatorRegistryPrx? prx =
+                    await Locator.Clone(encoding: encoding).GetRegistryAsync().ConfigureAwait(false);
+
+                // The locator registry can't be located and we use ordered endpoint selection in case the locator
+                // returned a proxy with some endpoints which are preferred to be tried first.
+                _locatorRegistry = prx?.Clone(clearLocator: true, endpointSelection: EndpointSelectionType.Ordered);
+            }
+            return _locatorRegistry;
+        }
 
         private async Task<Reference?> GetObjectReferenceAsync(Reference reference, CancellationToken cancel)
         {

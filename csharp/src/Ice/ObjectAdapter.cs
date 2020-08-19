@@ -1040,9 +1040,8 @@ namespace ZeroC.Ice
                 return; // Nothing to update.
             }
 
-            // Call on the locator registry outside the synchronization to blocking other threads that need to lock
-            // this OA.
-            ILocatorRegistryPrx? locatorRegistry = locatorInfo.GetLocatorRegistry();
+            ILocatorRegistryPrx? locatorRegistry = await locatorInfo.GetLocatorRegistryAsync(
+                proxy?.Encoding ?? Protocol.GetEncoding()).ConfigureAwait(false);
             if (locatorRegistry == null)
             {
                 return;

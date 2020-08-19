@@ -62,9 +62,16 @@ namespace ZeroC.IceGrid.Test.Simple
                     IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                     IObjectPrx.Parse("test", com).IcePing();
 
-                    TestHelper.Assert(com.DefaultLocator!.GetRegistry() != null);
-                    TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
-                    TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
+                    // TODO: currently, com.DefaultLocator is a regular ice2/2.0 proxy and we don't want to forward
+                    // 2.0-encoded requests to IceGrid until IceGrid supports such requests.
+
+                    // TODO: all Clone overloads should accept a factory parameter.
+                    ILocatorPrx defaultLocator =
+                        ILocatorPrx.UncheckedCast(com.DefaultLocator!.Clone(encoding: Encoding.V1_1));
+
+                    TestHelper.Assert(defaultLocator.GetRegistry() != null);
+                    TestHelper.Assert(defaultLocator.GetLocalRegistry() != null);
+                    TestHelper.Assert(defaultLocator.GetLocalQuery() != null);
 
                     ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
                     adapter.Activate();
@@ -94,8 +101,10 @@ namespace ZeroC.IceGrid.Test.Simple
                     {
                     }
 
-                    TestHelper.Assert(com.DefaultLocator!.GetRegistry() == null);
-                    TestHelper.Assert(ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
+                    ZeroC.Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V1_1);
+
+                    TestHelper.Assert(defaultLocator.GetRegistry() == null);
+                    TestHelper.Assert(ILocatorPrx.CheckedCast(defaultLocator) == null);
                     try
                     {
                         ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();

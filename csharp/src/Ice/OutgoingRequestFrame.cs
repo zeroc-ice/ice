@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -125,48 +126,73 @@ namespace ZeroC.Ice
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
         /// and context of this proxy to create the request frame.</param>
         /// <param name="request">The incoming request from which to create an outgoing request.</param>
-        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
         internal OutgoingRequestFrame(
             IObjectPrx proxy,
-            IncomingRequestFrame request,
-            bool compress)
-            : this(proxy, request.Operation, request.IsIdempotent, compress, request.Context)
+            IncomingRequestFrame request)
+            : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context)
         {
-            ArraySegment<byte> encapsulation = request.Encapsulation;
-            if (encapsulation.Count < 6)
+            if (request.Protocol == Protocol)
             {
-                throw new ArgumentException(
-                    $"payload should contain at least 6 bytes, but it contains {encapsulation.Count} bytes",
-                    nameof(request));
-            }
-            (int _, int _, Encoding encoding) =
-                encapsulation.AsReadOnlySpan().ReadEncapsulationHeader(request.Protocol.GetEncoding());
+                // Finish off current segment
+                Data[^1] = Data[^1].Slice(0, _encapsulationStart.Offset);
 
-            if (encoding != Encoding)
-            {
-                throw new ArgumentException($"the payload encoding `{encoding.Major}.{encoding.Minor}' must be the same " +
-                                            $"as the proxy encoding `{Encoding.Major}.{Encoding.Minor}'",
-                    nameof(request));
-            }
-            Data[^1] = Data[^1].Slice(0, _encapsulationStart.Offset);
+                // This includes the binary context with ice2.
+                ArraySegment<byte> data = request.Data.Slice(request.Encapsulation.Offset - request.Data.Offset);
+                Data.Add(data);
+                _encapsulationEnd = new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count);
 
-            ArraySegment<byte> data = request.Data.Slice(request.Data.Offset - encapsulation.Offset);
-            Data.Add(data);
-            FinishEncapsulation(new OutputStream.Position(Data.Count - 1, encapsulation.Count));
-
-            if (request.BinaryContext.Count > 0)
-            {
-                _binaryContextOstr = new OutputStream(Encoding.V2_0,
-                                                      Data,
-                                                      new OutputStream.Position(Data.Count - 1, data.Count));
-                foreach (int key in request.BinaryContext.Keys)
+                if (request.BinaryContext.Count > 0)
                 {
-                    _binaryContextKeys.Add(key);
+                    // TODO: with the current logic, we can append a new string-string context only if the
+                    // incoming request did not carry one - this is an unexpected behavior!
+
+                    // Position the binary OutputStream immediately at the end of the existing binary context entries.
+                    _binaryContextOstr = new OutputStream(Encoding.V2_0,
+                                                          Data,
+                                                          new OutputStream.Position(Data.Count - 1, data.Count));
+
+                    foreach (int key in request.BinaryContext.Keys)
+                    {
+                        _binaryContextKeys.Add(key);
+                    }
+                }
+            }
+            else
+            {
+                // We forward the encapsulation and the string-string context. The context was marshaled by the
+                // constructor (when Protocol == Ice1) or will be written by Finish (when Protocol == Ice2).
+                // The payload encoding must remain the same since we cannot transcode the encoded bytes.
+
+                // TODO: is there a cleaner way to get this value?
+                int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : (1 << (request.Encapsulation[0] & 0x03));
+
+                OutputStream.Position tail =
+                    OutputStream.WriteEncapsulationHeader(Data,
+                                                          _encapsulationStart,
+                                                          Protocol.GetEncoding(),
+                                                          request.Encapsulation.Count - sizeLength,
+                                                          request.Encoding);
+
+                // Finish off current segment
+                Data[^1] = Data[^1].Slice(0, tail.Offset);
+
+                // "2" below corresponds to the encoded length of the encoding.
+                if (request.Encapsulation.Count > sizeLength + 2)
+                {
+                    // Add encoded bytes, not including the header or binary context.
+                    Data.Add(request.Encapsulation.Slice(sizeLength + 2));
+
+                    _encapsulationEnd =
+                        new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count - sizeLength - 2);
+                }
+                else
+                {
+                    _encapsulationEnd = tail;
                 }
             }
 
             Size = Data.GetByteCount();
-            IsSealed = true;
+            IsSealed = Protocol == Protocol.Ice1;
         }
 
         // Finish prepare the frame for sending, write the frame Context into the slot 0 of the binary context.
@@ -174,7 +200,7 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                if (Protocol == Protocol.Ice2 && Context.Count > 0)
+                if (Protocol == Protocol.Ice2 && Context.Count > 0 && !_binaryContextKeys.Contains(0))
                 {
                     AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
                 }
