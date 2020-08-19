@@ -179,16 +179,15 @@ namespace ZeroC.Ice
                 // "2" below corresponds to the encoded length of the encoding.
                 if (request.Encapsulation.Count > sizeLength + 2)
                 {
-                    // data corresponds to the encoded bytes, not including the header or binary context.
-                    ArraySegment<byte> data = request.Encapsulation.Slice(sizeLength + 2);
-                    Data.Add(data);
+                    // Add encoded bytes, not including the header or binary context.
+                    Data.Add(request.Encapsulation.Slice(sizeLength + 2));
 
                     _encapsulationEnd =
                         new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count - sizeLength - 2);
                 }
                 else
                 {
-                    _encapsulationEnd = new OutputStream.Position(Data.Count - 1, tail.Offset);
+                    _encapsulationEnd = tail;
                 }
             }
 

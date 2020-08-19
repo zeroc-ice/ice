@@ -102,15 +102,14 @@ namespace ZeroC.Ice
                 Data.Add(response.Data); // payload and binary context
                 if (response.Encapsulation.Count > 0)
                 {
-                    _encapsulationEnd = new OutputStream.Position(Data.Count - 1,
+                    _encapsulationEnd = new OutputStream.Position(0,
                         response.Encapsulation.Offset - response.Data.Offset + response.Encapsulation.Count);
                 }
                 if (response.BinaryContext.Count > 0)
                 {
                     _binaryContextOstr = new OutputStream(Encoding.V2_0,
                                                           Data,
-                                                          new OutputStream.Position(Data.Count - 1,
-                                                                                    response.Data.Count));
+                                                          new OutputStream.Position(0, response.Data.Count));
                     foreach (int key in response.BinaryContext.Keys)
                     {
                         _binaryContextKeys.Add(key);
@@ -129,7 +128,7 @@ namespace ZeroC.Ice
 
                 if (response.ResultType == ResultType.Failure && Encoding == Encoding.V1_1)
                 {
-                    // When the response carries a failure encoded with 1.1, we need to perform to small adjustment
+                    // When the response carries a failure encoded with 1.1, we need to perform a small adjustment
                     // between ice1 and ice2 response frames.
                     // ice1: [failure reply status][encapsulation or special exception]
                     // ice2: [failure][encapsulation with reply status + encapsulation bytes or special exception]
@@ -155,16 +154,18 @@ namespace ZeroC.Ice
                                                                       Ice1Definitions.Encoding,
                                                                       response.Encapsulation.Count - sizeLength - 1,
                                                                       Encoding);
+                            Debug.Assert(tail.Segment == 0);
                             Data[0] = Data[0].Slice(0, tail.Offset);
                         }
                         else
                         {
                             Data[0] = Data[0].Slice(0, 1);
                         }
+                        // sizeLength + 2 to skip the encapsulation header, then + 1 to skip the reply status byte
                         Data.Add(response.Encapsulation.Slice(sizeLength + 2 + 1));
                         if (replyStatus == ReplyStatus.UserException)
                         {
-                            _encapsulationEnd = new OutputStream.Position(Data.Count - 1, Data[^1].Count);
+                            _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
                         }
                     }
                     else
@@ -196,7 +197,7 @@ namespace ZeroC.Ice
                             Data[0] = Data[0].Slice(0, tail.Offset);
                             Data.Add(response.Payload.Slice(1));
                         }
-                        _encapsulationEnd = new OutputStream.Position(Data.Count - 1, Data[^1].Count);
+                        _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
                     }
                 }
                 else
@@ -210,7 +211,7 @@ namespace ZeroC.Ice
                                                                       Encoding);
                     Data[0] = Data[0].Slice(0, tail.Offset);
                     Data.Add(response.Encapsulation.Slice(sizeLength + 2));
-                    _encapsulationEnd = new OutputStream.Position(Data.Count - 1, Data[^1].Count);
+                    _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
                 }
             }
 
