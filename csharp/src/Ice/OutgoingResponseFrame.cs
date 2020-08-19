@@ -85,26 +85,33 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="response">The incoming response for which this constructor creates an outgoing response frame.
         /// </param>
-        internal OutgoingResponseFrame(IncomingRequestFrame request, IncomingResponseFrame response)
+        public OutgoingResponseFrame(
+            IncomingRequestFrame request,
+            IncomingResponseFrame response,
+            bool forwardBinaryContext = true)
             : this(request.Protocol, response.Encoding)
         {
             if (Protocol == response.Protocol)
             {
-                Data.Add(response.Data); // payload and binary context
+                if (Protocol == Protocol.Ice1)
+                {
+                    Data.Add(response.Data);
+                }
+                else
+                {
+                    // i.e. result type and encapsulation but not the binary context
+                    Data.Add(response.Data.Slice(0, 1 + response.Encapsulation.Count));
+                }
+
                 if (response.Encapsulation.Count > 0)
                 {
-                    _encapsulationEnd = new OutputStream.Position(0,
-                        response.Encapsulation.Offset - response.Data.Offset + response.Encapsulation.Count);
+                    // 1 is for the result type / reply status byte before the encapsulation
+                    _encapsulationEnd = new OutputStream.Position(0, 1 + response.Encapsulation.Count);
                 }
-                if (response.BinaryContext.Count > 0)
+
+                if (forwardBinaryContext && response.BinaryContext.Count > 0)
                 {
-                    _binaryContextOstr = new OutputStream(Encoding.V2_0,
-                                                          Data,
-                                                          new OutputStream.Position(0, response.Data.Count));
-                    foreach (int key in response.BinaryContext.Keys)
-                    {
-                        _binaryContextKeys.Add(key);
-                    }
+                    _defaultBinaryContext = response.Data.Slice(1 + response.Encapsulation.Count);
                 }
             }
             else

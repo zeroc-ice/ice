@@ -56,11 +56,6 @@ namespace ZeroC.Ice
 
         internal List<ArraySegment<byte>> Data { get; }
 
-        // Position of the end of the encapsulation, for ice1 this is always the frame end.
-        private protected OutputStream.Position? _encapsulationEnd;
-        // Position of the start of the encapsulation.
-        private protected OutputStream.Position _encapsulationStart;
-
         /// <summary>Returns a list of array segments with the contents of the frame encapsulation, if the frame
         /// doesn't contain an encapsulation it returns an empty list.</summary>
         private protected IList<ArraySegment<byte>> Encapsulation
@@ -75,9 +70,17 @@ namespace ZeroC.Ice
             }
         }
 
+        private protected readonly HashSet<int> _binaryContextKeys = new HashSet<int>();
         // OutputStream used to write the binary context
         private protected OutputStream? _binaryContextOstr;
-        private protected readonly HashSet<int> _binaryContextKeys = new HashSet<int>();
+
+        // Position of the end of the encapsulation, for ice1 this is always the frame end.
+        private protected OutputStream.Position? _encapsulationEnd;
+        // Position of the start of the encapsulation.
+        private protected OutputStream.Position _encapsulationStart;
+
+        private protected ArraySegment<byte> _defaultBinaryContext;
+
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
 
@@ -315,18 +318,61 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                if (_binaryContextOstr is OutputStream ostr)
+                if (_defaultBinaryContext.Count > 0)  // we are forwarding this binary context.
                 {
-                    Debug.Assert(_encapsulationEnd != null);
-                    ostr.RewriteFixedLengthSize20(_binaryContextKeys.Count,
-                                                  _encapsulationEnd.Value,
-                                                  2);
-                    Data[^1] = Data[^1].Slice(0, ostr.Tail.Offset);
+                    if (_binaryContextKeys.Count == 0)
+                    {
+                        Debug.Assert(_binaryContextOstr == null);
+                        Debug.Assert(Data[^1].Array == _defaultBinaryContext.Array);
+                        // Just expand the last segment to include the binary context as-is.
+                        Data[^1] = new ArraySegment<byte>(Data[^1].Array!,
+                                                          Data[^1].Offset,
+                                                          Data[^1].Count + _defaultBinaryContext.Count);
+                    }
+                    else
+                    {
+                        Debug.Assert(_binaryContextOstr != null);
+                        Data[^1] = Data[^1].Slice(0, _binaryContextOstr.Tail.Offset);
+
+                        // Add segment for each slot that was not written yet.
+                        var istr = new InputStream(_defaultBinaryContext, Encoding.V2_0);
+                        int dictionarySize = istr.ReadSize();
+                        for (int i = 0; i < dictionarySize; ++i)
+                        {
+                            int key = istr.ReadVarInt();
+                            int entrySize = istr.ReadSize();
+                            if (_binaryContextKeys.Contains(key))
+                            {
+                                istr.Skip(entrySize);
+                            }
+                            else
+                            {
+                                Data.Add(_defaultBinaryContext.Slice(istr.Pos, entrySize));
+                                _binaryContextKeys.Add(key);
+                            }
+                        }
+
+                        Debug.Assert(_encapsulationEnd != null);
+                        _binaryContextOstr.RewriteFixedLengthSize20(_binaryContextKeys.Count,
+                                                                    _encapsulationEnd.Value,
+                                                                    2);
+                    }
                 }
                 else
                 {
-                    Debug.Assert(_encapsulationEnd != null);
-                    Data[^1] = Data[^1].Slice(0, _encapsulationEnd.Value.Offset);
+                    if (_binaryContextOstr is OutputStream ostr)
+                    {
+                        Debug.Assert(_encapsulationEnd != null);
+                        Data[^1] = Data[^1].Slice(0, ostr.Tail.Offset);
+                        ostr.RewriteFixedLengthSize20(_binaryContextKeys.Count,
+                                                      _encapsulationEnd.Value,
+                                                      2);
+                    }
+                    else
+                    {
+                        Debug.Assert(_encapsulationEnd != null);
+                        Data[^1] = Data[^1].Slice(0, _encapsulationEnd.Value.Offset);
+                    }
                 }
 
                 Size = Data.GetByteCount();

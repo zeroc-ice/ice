@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -19,7 +20,11 @@ namespace ZeroC.Ice.Test.Interceptor
                 context.AddInvocationInterceptor(
                     async (target, request, next) =>
                     {
-                        request.Context["InvocationPlugin"] = "1";
+                        if (request.Protocol == Protocol.Ice2)
+                        {
+                            request.ContextOverride ??= new Dictionary<string, string>(request.Context);
+                            request.ContextOverride["InvocationPlugin"] = "1";
+                        }
                         IncomingResponseFrame response = await next(target, request);
                         if (response.Protocol == Protocol.Ice2 && response.ResultType == ResultType.Success)
                         {
