@@ -143,12 +143,11 @@ namespace ZeroC.Ice
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
         /// and context of this proxy to create the request frame.</param>
         /// <param name="request">The incoming request from which to create an outgoing request.</param>
-        public OutgoingRequestFrame(
-            IObjectPrx proxy,
-            IncomingRequestFrame request,
-            bool compress = false,
-            bool forwardBinaryContext = true)
-            : this(proxy, request.Operation, request.IsIdempotent, compress, request.Context)
+        /// <param name="forwardBinaryContext">When true (the default), the new frame uses the incoming request frame's
+        /// binary context as a fallback - all the entries in this binary context are added before the frame is sent,
+        /// except for entries previously added by invocation interceptors.</param>
+        public OutgoingRequestFrame(IObjectPrx proxy, IncomingRequestFrame request, bool forwardBinaryContext = true)
+            : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context)
         {
             if (request.Protocol == Protocol)
             {
@@ -173,7 +172,6 @@ namespace ZeroC.Ice
                 // constructor (when Protocol == Ice1) or will be written by Finish (when Protocol == Ice2).
                 // The payload encoding must remain the same since we cannot transcode the encoded bytes.
 
-                // TODO: is there a cleaner way to get this value?
                 int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : (1 << (request.Encapsulation[0] & 0x03));
 
                 OutputStream.Position tail =

@@ -85,6 +85,9 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="response">The incoming response for which this constructor creates an outgoing response frame.
         /// </param>
+        /// <param name="forwardBinaryContext">When true (the default), the new frame uses the incoming response frame's
+        /// binary context as a fallback - all the entries in this binary context are added before the frame is sent,
+        /// except for entries previously added by dispatch interceptors.</param>
         public OutgoingResponseFrame(
             IncomingRequestFrame request,
             IncomingResponseFrame response,
@@ -116,7 +119,6 @@ namespace ZeroC.Ice
             }
             else
             {
-                // TODO: is there a more elegant way to get this value?
                 int sizeLength = response.Protocol == Protocol.Ice1 ? 4 : (1 << (response.Encapsulation[0] & 0x03));
 
                 // Create a small buffer to hold the result type or reply status plus the encapsulation header.
