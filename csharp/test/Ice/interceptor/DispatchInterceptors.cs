@@ -20,8 +20,10 @@ namespace ZeroC.Ice.Test.Interceptor
         {
             DispatchInterceptor raiseInterceptor = async (request, current, next) =>
             {
-                // Ensure the invocation plug-in interceptor added this entry to the context
-                Debug.Assert(current.Context["InvocationPlugin"] == "1");
+                // Ensure the invocation plug-in interceptor added this entry to the context, with ice1 the interceptors
+                // cannot modify the conext because it is marshalled before the interceptors run.
+                Debug.Assert(request.Protocol == Protocol.Ice1 ||
+                             current.Context["InvocationPlugin"] == "1");
 
                 // The dispatch plug-in interceptor runs after the interceptors registered with
                 // the adapter.
