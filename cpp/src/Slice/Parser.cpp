@@ -948,13 +948,6 @@ Slice::Contained::setMetaData(const list<string>& metaData)
     _metaData = metaData;
 }
 
-// TODO: remove this method once "cs:" and "vb:" prefix are hard errors.
-void
-Slice::Contained::addMetaData(const string& s)
-{
-    _metaData.push_back(s);
-}
-
 FormatType
 Slice::Contained::parseFormatMetaData() const
 {
@@ -4142,6 +4135,16 @@ Slice::Operation::returnTag() const
     return -1;
 }
 
+StringList
+Slice::Operation::returnTypeMetadata() const
+{
+    if (_hasReturnType)
+    {
+        return _returnValues.front()->getMetadata();
+    }
+    return -1;
+}
+
 Operation::Mode
 Slice::Operation::mode() const
 {
@@ -4251,6 +4254,12 @@ Slice::Operation::outParameters() const
         outParameters.pop_front();
     }
     return outParameters;
+}
+
+MemberList
+Slice::Operation::returnValues() const
+{
+    return _returnValues;
 }
 
 ExceptionList

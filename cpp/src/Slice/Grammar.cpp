@@ -2945,7 +2945,7 @@ yyreduce:
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast(yyvsp[-1]);
     if (returnMembers->v.size() == 1)
     {
-        unit->error("TODOAUSTIN");
+        unit->error("return tuples must contain at least 2 elements");
     }
     yyval = yyvsp[-1];
 }
@@ -2955,7 +2955,7 @@ yyreduce:
   case 95: /* return_type: '(' ')'  */
 #line 1177 "src/Slice/Grammar.y"
 {
-    unit->error("TODOAUSTIN");
+    unit->error("return tuples must contain at least 2 elements");
     yyval = new TaggedDefListTok();
 }
 #line 2962 "src/Slice/Grammar.cpp"

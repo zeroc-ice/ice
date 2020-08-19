@@ -1169,13 +1169,13 @@ return_type
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($2);
     if (returnMembers->v.size() == 1)
     {
-        unit->error("TODOAUSTIN");
+        unit->error("return tuples must contain at least 2 elements");
     }
     $$ = $2;
 }
 | '(' ')'
 {
-    unit->error("TODOAUSTIN");
+    unit->error("return tuples must contain at least 2 elements");
     $$ = new TaggedDefListTok();
 }
 | ICE_VOID
