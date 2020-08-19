@@ -1194,10 +1194,22 @@ operation_preamble
 
     if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
     {
-        if (OperationPtr op = interface->createOperation(name, returnMembers))
+        if (OperationPtr op = interface->createOperation(name))
         {
             interface->checkIntroduced(name, op);
             unit->pushContainer(op);
+
+            // Set the return members for the operation.
+            for (const auto& returnMember : returnMembers->v)
+            {
+                MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
+                                                     returnMember->tag);
+                if (p && !returnMember->metadata.empty())
+                {
+                    p->setMetaData(returnMember->metadata);
+                }
+            }
+
             $$ = op;
         }
         else
@@ -1217,10 +1229,22 @@ operation_preamble
 
     if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
     {
-        if (OperationPtr op = interface->createOperation(name, returnMembers, Operation::Idempotent))
+        if (OperationPtr op = interface->createOperation(name, Operation::Idempotent))
         {
             interface->checkIntroduced(name, op);
             unit->pushContainer(op);
+
+            // Set the return members for the operation.
+            for (const auto& returnMember : returnMembers->v)
+            {
+                MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
+                                                     returnMember->tag);
+                if (p && !returnMember->metadata.empty())
+                {
+                    p->setMetaData(returnMember->metadata);
+                }
+            }
+
             $$ = op;
         }
         else
@@ -1239,9 +1263,21 @@ operation_preamble
     string name = StringTokPtr::dynamicCast($2)->v;
     if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
     {
-        if (OperationPtr op = interface->createOperation(name, returnMembers))
+        if (OperationPtr op = interface->createOperation(name))
         {
             unit->pushContainer(op);
+
+            // Set the return members for the operation.
+            for (const auto& returnMember : returnMembers->v)
+            {
+                MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
+                                                     returnMember->tag);
+                if (p && !returnMember->metadata.empty())
+                {
+                    p->setMetaData(returnMember->metadata);
+                }
+            }
+
             unit->error("keyword `" + name + "' cannot be used as operation name");
             $$ = op; // Dummy
         }
@@ -1261,9 +1297,21 @@ operation_preamble
     string name = StringTokPtr::dynamicCast($3)->v;
     if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer()))
     {
-        if (OperationPtr op = interface->createOperation(name, returnMembers, Operation::Idempotent))
+        if (OperationPtr op = interface->createOperation(name, Operation::Idempotent))
         {
             unit->pushContainer(op);
+
+            // Set the return members for the operation.
+            for (const auto& returnMember : returnMembers->v)
+            {
+                MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
+                                                     returnMember->tag);
+                if (p && !returnMember->metadata.empty())
+                {
+                    p->setMetaData(returnMember->metadata);
+                }
+            }
+
             unit->error("keyword `" + name + "' cannot be used as operation name");
             $$ = op; // Dummy
         }

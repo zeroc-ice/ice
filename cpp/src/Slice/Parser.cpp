@@ -2951,7 +2951,6 @@ Slice::InterfaceDef::destroy()
 
 OperationPtr
 Slice::InterfaceDef::createOperation(const string& name,
-                                     const TaggedDefListTokPtr& returnTypes,
                                      Operation::Mode mode)
 {
     if (!checkForRedefinition(this, name, "operation"))
@@ -2998,7 +2997,7 @@ Slice::InterfaceDef::createOperation(const string& name,
         }
     }
 
-    OperationPtr op = new Operation(this, name, returnTypes, mode);
+    OperationPtr op = new Operation(this, name, mode);
     _operations.push_back(op);
     return op;
 }
@@ -4209,6 +4208,34 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
     return param;
 }
 
+MemberPtr
+Slice::Operation::createReturnMember(const std::string& name, const TypePtr& type, bool tagged, int tag)
+{
+    _hasReturnType = true;
+
+    _unit->checkType(type);
+    if (tagged && tag > -1)
+    {
+        // Check for a duplicate tag.
+        for (const auto& param : _returnValues)
+        {
+            if (param->tagged() && param->tag() == tag)
+            {
+                _unit->error("tag for return value `" + name + "' is already in use");
+            }
+        }
+    }
+
+    if (!checkForRedefinition(this, name, "parameter"))
+    {
+        return nullptr;
+    }
+
+    MemberPtr returnMember = new Member(this, name, type, tagged, tag);
+    _returnValues.push_back(returnMember);
+    return returnMember;
+}
+
 MemberList
 Slice::Operation::parameters() const
 {
@@ -4426,37 +4453,14 @@ Slice::Operation::visit(ParserVisitor* visitor, bool)
 
 Slice::Operation::Operation(const ContainerPtr& container,
                             const string& name,
-                            const TaggedDefListTokPtr& returnValues,
                             Mode mode) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     Container(container->unit()),
     _usesOutParameters(false),
-    _hasReturnType(!returnValues->v.empty()),
+    _hasReturnType(false),
     _mode(mode)
 {
-    for (const auto& returnValue : returnValues->v)
-    {
-        _unit->checkType(returnValue->type);
-        if (returnValue->isTagged)
-        {
-            // Check for a duplicate tag.
-            for (const auto& other : _returnValues)
-            {
-                if (other->tagged() && other->tag() == returnValue->tag)
-                {
-                    _unit->error("tag for return value `" + returnValue->name + "' is already in use");
-                }
-            }
-        }
-
-        if (checkForRedefinition(this, name, "parameter"))
-        {
-            MemberPtr returnMember = new Member(this, returnValue->name, returnValue->type, returnValue->isTagged,
-                                                returnValue->tag);
-            _returnValues.push_back(returnMember);
-        }
-    }
 }
 
 // ----------------------------------------------------------------------

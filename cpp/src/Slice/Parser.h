@@ -22,10 +22,6 @@
 namespace Slice
 {
 
-// Forward declare token types from GrammarUtil.h that the parser needs.
-class TaggedDefListTok;
-typedef ::IceUtil::Handle<TaggedDefListTok> TaggedDefListTokPtr;
-
 class CompilerException : public ::IceUtil::Exception
 {
 public:
@@ -712,6 +708,7 @@ public:
     Mode sendMode() const;
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
+    MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int);
     MemberList parameters() const;
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList returnValues() const;
@@ -735,15 +732,14 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr& container, const std::string& name, const TaggedDefListTokPtr& returnValues,
-              Mode mode);
+    Operation(const ContainerPtr& container, const std::string& name, Mode mode);
 
     friend class InterfaceDef;
 
     MemberList _parameters;
     MemberList _returnValues;
     bool _usesOutParameters;
-    const bool _hasReturnType;
+    bool _hasReturnType;
     std::list<ExceptionPtr> _throws;
     Mode _mode;
 };
@@ -762,7 +758,7 @@ class InterfaceDef : public virtual Container, public virtual Contained
 public:
 
     void destroy() override;
-    OperationPtr createOperation(const std::string&, const TaggedDefListTokPtr&, Operation::Mode = Operation::Normal);
+    OperationPtr createOperation(const std::string&, Operation::Mode = Operation::Normal);
 
     InterfaceDeclPtr declaration() const;
     InterfaceList bases() const;
