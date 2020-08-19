@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>A dispatcher is a delegate that dispatches an incoming request to a dispatch interceptor
-    /// or to a servant.</summary>
+    /// <summary>A dispatcher is a delegate that dispatches an incoming request to a dispatch interceptor or to a
+    /// servant.</summary>
     /// <param name="request">The incoming request being dispatched.</param>
     /// <param name="current">The current object for the dispatch.</param>
     /// <returns>The outgoing response frame.</returns>

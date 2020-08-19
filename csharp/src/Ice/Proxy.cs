@@ -289,9 +289,7 @@ namespace ZeroC.Ice
                 ValueTask<IncomingResponseFrame> task = InvokeWithInterceptorsAsync(proxy,
                                                                                     request,
                                                                                     oneway,
-                                                                                    synchronous: true,
-                                                                                    progress: null,
-                                                                                    cancel: default);
+                                                                                    synchronous: true);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -353,9 +351,23 @@ namespace ZeroC.Ice
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
-            IProgress<bool>? progress,
-            CancellationToken cancel,
-            int i = 0)
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default) => InvokeWithInterceptorsAsync(proxy,
+                                                                               request,
+                                                                               oneway,
+                                                                               synchronous,
+                                                                               0,
+                                                                               progress,
+                                                                               cancel);
+
+        private static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            bool synchronous,
+            int i,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
         {
             if (i < proxy.Communicator.InvocationInterceptors.Count)
             {
@@ -364,7 +376,7 @@ namespace ZeroC.Ice
                     proxy,
                     request,
                     (target, request) =>
-                        InvokeWithInterceptorsAsync(target, request, oneway, synchronous, progress, cancel, i));
+                        InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
             }
             else
             {

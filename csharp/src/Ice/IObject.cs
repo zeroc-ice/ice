@@ -138,20 +138,5 @@ namespace ZeroC.Ice
                 return servant.DispatchAsync(request, current);
             }
         }
-
-        private static Dispatcher BuildDispatcherChain(
-            IEnumerator<DispatchInterceptor> interceptors,
-            IncomingRequestFrame request,
-            Current current,
-            Dispatcher dispatcher)
-        {
-            if (interceptors.MoveNext())
-            {
-                DispatchInterceptor interceptor = interceptors.Current;
-                Dispatcher next = BuildDispatcherChain(interceptors, request, current, dispatcher);
-                return (target, request) => interceptor(target, request, next);
-            }
-            return dispatcher;
-        }
     }
 }
