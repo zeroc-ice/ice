@@ -4135,16 +4135,6 @@ Slice::Operation::returnTag() const
     return -1;
 }
 
-StringList
-Slice::Operation::returnTypeMetadata() const
-{
-    if (_hasReturnType)
-    {
-        return _returnValues.front()->getMetadata();
-    }
-    return -1;
-}
-
 Operation::Mode
 Slice::Operation::mode() const
 {
@@ -4222,20 +4212,6 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
 MemberList
 Slice::Operation::parameters() const
 {
-    MemberList result;
-    result.insert(result.end(), _parameters.begin(), _parameters.end());
-    if (_usesOutParameters)
-    {
-        // Skip the return type if it's present, so only out parameters are added to result.
-        auto start = _hasReturnType ? next(_returnValues.begin()) : _returnValues.begin();
-        result.insert(result.end(), start, _returnValues.end());
-    }
-    return result;
-}
-
-MemberList
-Slice::Operation::inParameters() const
-{
     return _parameters;
 }
 
@@ -4260,6 +4236,20 @@ MemberList
 Slice::Operation::returnValues() const
 {
     return _returnValues;
+}
+
+MemberList
+Slice::Operation::allMembers() const
+{
+    MemberList result;
+    result.insert(result.end(), _parameters.begin(), _parameters.end());
+    if (_usesOutParameters)
+    {
+        // Skip the return type if it's present, so only out parameters are added to result.
+        auto start = _hasReturnType ? next(_returnValues.begin()) : _returnValues.begin();
+        result.insert(result.end(), start, _returnValues.end());
+    }
+    return result;
 }
 
 ExceptionList

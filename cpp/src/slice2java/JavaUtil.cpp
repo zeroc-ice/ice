@@ -217,7 +217,7 @@ public:
         }
         p->setMetaData(metaData);
 
-        for(auto& q : p->parameters())
+        for(auto& q : p->allMembers())
         {
             metaData = getMetaData(q);
             metaData = validateType(q->type(), metaData, p->file(), q->line());

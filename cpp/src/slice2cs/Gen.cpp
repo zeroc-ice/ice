@@ -113,7 +113,7 @@ emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const
 string
 getEscapedParamName(const OperationPtr& p, const string& name)
 {
-    for (const auto& param : p->parameters())
+    for (const auto& param : p->allMembers())
     {
         if (param->name() == name)
         {
@@ -344,7 +344,7 @@ vector<string>
 getInvocationParams(const OperationPtr& op, const string& ns)
 {
     vector<string> params;
-    for (const auto& p : op->inParameters())
+    for (const auto& p : op->parameters())
     {
         ostringstream param;
         param << getParamAttributes(p);
@@ -366,7 +366,7 @@ vector<string>
 getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultValues, const string& prefix = "")
 {
     vector<string> params;
-    for (const auto& p : op->inParameters())
+    for (const auto& p : op->parameters())
     {
         ostringstream param;
         param << getParamAttributes(p);
@@ -927,7 +927,7 @@ void
 Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo& comment, ParamDir paramType)
 {
     // Collect the names of the in- or -out parameters to be documented.
-    MemberList parameters = (paramType == InParam) ? op->inParameters() : op->outParameters();
+    MemberList parameters = (paramType == InParam) ? op->parameters() : op->outParameters();
     for (const auto param : parameters)
     {
         auto i = comment.params.find(param->name());

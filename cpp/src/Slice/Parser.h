@@ -713,9 +713,9 @@ public:
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
     MemberList parameters() const;
-    MemberList inParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList returnValues() const;
+    MemberList allMembers() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     ContainedList contents() const override;

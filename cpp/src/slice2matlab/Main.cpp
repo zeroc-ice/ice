@@ -1282,7 +1282,7 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
     out << nl << "% Parameters:";
     string ctxName = "context";
     string resultName = "result";
-    for (const auto& param : p->inParameters())
+    for (const auto& param : p->parameters())
     {
         if (param->name() == "context")
         {
@@ -3663,7 +3663,7 @@ CodeVisitor::ParamInfoList
 CodeVisitor::getAllInParams(const OperationPtr& op)
 {
     ParamInfoList r;
-    for (const auto& param : op->inParameters())
+    for (const auto& param : op->parameters())
     {
         ParamInfo info;
         info.fixedName = fixIdent(param->name());
