@@ -177,7 +177,7 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
         }
         else
         {
-            bitSequenceSize = op->inBitSequenceSize();
+            bitSequenceSize = op->paramsBitSequenceSize();
         }
 
         if (bitSequenceSize > 0)
@@ -223,7 +223,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
         }
         else
         {
-            bitSequenceSize = op->inBitSequenceSize();
+            bitSequenceSize = op->paramsBitSequenceSize();
         }
 
         if (bitSequenceSize > 0)
@@ -2598,7 +2598,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     list<ParamInfo> taggedParams;
     getInParams(operation, true, requiredParams, taggedParams, "iceP_");
 
-    bool defaultWriter = params.size() == 1 && operation->inBitSequenceSize() == 0 && !params.front().tagged;
+    bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front().tagged;
     if (defaultWriter)
     {
         _out << outputStreamWriter(params.front().type, ns, false);
@@ -2881,7 +2881,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns, false) :
         "_iceD_" + opName + "Writer";
 
-    bool defaultReader = inParams.size() == 1 && operation->inBitSequenceSize() == 0 && !inParams.front().tagged;
+    bool defaultReader = inParams.size() == 1 && operation->paramsBitSequenceSize() == 0 && !inParams.front().tagged;
     string reader = defaultReader ? inputStreamReader(inParams.front().type, ns) : "_iceD_" + opName + "Reader";
 
     _out << sp;

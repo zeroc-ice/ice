@@ -4085,7 +4085,7 @@ Slice::Operation::interface() const
 }
 
 size_t
-Slice::Operation::inBitSequenceSize() const
+Slice::Operation::paramsBitSequenceSize() const
 {
     return getBitSequenceSize(_parameters);
 }
