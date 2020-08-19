@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
-    public class Client : TestHelper
+    public class Server : TestHelper
     {
         public override async Task RunAsync(string[] args)
         {
@@ -22,14 +22,18 @@ namespace ZeroC.Ice.Test.Interceptor
                 new Dictionary<string, string>()
                 {
                     {
-                        "Ice.Plugin.InvocationPlugin",
-                        $"{pluginPath }:ZeroC.Ice.Test.Interceptor.InvocationPluginFactory"
+                        "Ice.Plugin.DispatchPlugin",
+                        $"{pluginPath }:ZeroC.Ice.Test.Interceptor.DispatchPluginFactory"
                     }
                 });
-            IMyObjectPrx prx = AllTests.Run(this);
-            await prx.ShutdownAsync();
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("test", new MyObject());
+            await DispatchInterceptors.ActivateAsync(adapter);
+            ServerReady();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

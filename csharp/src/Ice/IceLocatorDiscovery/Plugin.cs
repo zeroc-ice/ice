@@ -381,7 +381,7 @@ namespace ZeroC.IceLocatorDiscovery
             }
         }
 
-        public void Initialize()
+        public void Initialize(PluginInitializationContext context)
         {
             bool ipv4 = _communicator.GetPropertyAsBool("Ice.IPv4") ?? true;
             bool preferIPv6 = _communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;

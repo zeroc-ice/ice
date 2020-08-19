@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>client</AssemblyName>
+    <AssemblyName>serveramd</AssemblyName>
     <OutputType>Exe</OutputType>
     <UseAppHost>true</UseAppHost>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../AllTests.cs" />
-    <Compile Include="../../Client.cs" />
+    <Compile Include="../../ServerAMD.cs" />
+    <Compile Include="..\..\DispatchInterceptors.cs" Link="DispatchInterceptors.cs" />
+    <Compile Include="..\..\TestAMDI.cs" Link="TestAMDI.cs" />
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>

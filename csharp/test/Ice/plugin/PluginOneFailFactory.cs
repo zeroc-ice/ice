@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override void Initialize()
+            public override void Initialize(PluginInitializationContext context)
             {
                 var two = (BasePluginFail?)_communicator.GetPlugin("PluginTwoFail");
                 TestHelper.Assert(two != null);
