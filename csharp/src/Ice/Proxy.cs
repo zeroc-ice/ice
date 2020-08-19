@@ -333,13 +333,12 @@ namespace ZeroC.Ice
             IProgress<bool>? progress = null,
             CancellationToken cancel = default)
         {
-            var forwardedRequest = new OutgoingRequestFrame(proxy, request, compress: false);
+            var forwardedRequest = new OutgoingRequestFrame(proxy, request);
 
             IncomingResponseFrame response = await proxy.InvokeAsync(forwardedRequest,
                                                                      oneway: oneway,
                                                                      progress,
                                                                      cancel).ConfigureAwait(false);
-            // TODO: need protocol bridging when the protocols are not the same.
             return new OutgoingResponseFrame(request, response);
         }
 

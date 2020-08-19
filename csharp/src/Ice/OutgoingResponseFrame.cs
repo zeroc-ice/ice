@@ -34,7 +34,6 @@ namespace ZeroC.Ice
                 return new OutgoingResponseFrame(key.Protocol,
                                                  key.Encoding,
                                                  data,
-                                                 new OutputStream.Position(0, 1),
                                                  ostr.Tail);
             });
 
@@ -96,80 +95,128 @@ namespace ZeroC.Ice
         /// <param name="response">The incoming response for which this constructor creates an outgoing response frame.
         /// </param>
         internal OutgoingResponseFrame(IncomingRequestFrame request, IncomingResponseFrame response)
-            : this(request.Protocol, request.Encoding)
+            : this(request.Protocol, response.Encoding)
         {
-            bool hasEncapsulation = false;
-
-            ArraySegment<byte> data = response.Data;
-            if (Protocol == Protocol.Ice1)
+            if (Protocol == response.Protocol)
             {
-                byte b = data[0];
-                if (b > 7)
+                Data.Add(response.Data); // payload and binary context
+                if (response.Encapsulation.Count > 0)
                 {
-                    throw new ArgumentException($"invalid ice1 reply status `{b}' in payload", nameof(response));
+                    _encapsulationEnd = new OutputStream.Position(0,
+                        response.Encapsulation.Offset - response.Data.Offset + response.Encapsulation.Count);
                 }
-
-                if (b <= (byte)ReplyStatus.UserException)
+                if (response.BinaryContext.Count > 0)
                 {
-                    hasEncapsulation = true;
-                }
-                else
-                {
-                    Encoding = Encoding.V1_1;
+                    _binaryContextOstr = new OutputStream(Encoding.V2_0,
+                                                          Data,
+                                                          new OutputStream.Position(0, response.Data.Count));
+                    foreach (int key in response.BinaryContext.Keys)
+                    {
+                        _binaryContextKeys.Add(key);
+                    }
                 }
             }
             else
             {
-                byte b = data[0];
-                if (b > 1)
+                // TODO: is there a more elegant way to get this value?
+                int sizeLength = response.Protocol == Protocol.Ice1 ? 4 : (1 << (response.Encapsulation[0] & 0x03));
+
+                // Create a small buffer to hold the result type or reply status plus the encapsulation header.
+                Debug.Assert(Data.Count == 0);
+                byte[] buffer = new byte[8];
+                Data.Add(buffer);
+
+                if (response.ResultType == ResultType.Failure && Encoding == Encoding.V1_1)
                 {
-                    throw new ArgumentException($"invalid ice2 result type `{b}' in payload", nameof(response));
-                }
-                hasEncapsulation = true;
-            }
+                    // When the response carries a failure encoded with 1.1, we need to perform a small adjustment
+                    // between ice1 and ice2 response frames.
+                    // ice1: [failure reply status][encapsulation or special exception]
+                    // ice2: [failure][encapsulation with reply status + encapsulation bytes or special exception]
+                    // There is no such adjustment with other encoding, or when the response does not carry a failure.
 
-            Data.Add(data);
-            // Check the encapsulation if there is one, and read the payload's encoding.
-            if (hasEncapsulation)
-            {
-                int size;
-                int sizeLength;
-
-                // The encoding of the request payload and response payload should usually be the same, however
-                // this "forwarding" constructor tolerates mismatches, and sets Encoding to the value in the
-                // encapsulation.
-                (size, sizeLength, Encoding) =
-                    data.AsReadOnlySpan(1).ReadEncapsulationHeader(Protocol.GetEncoding());
-
-                int remaining = data.Count - 1 - sizeLength - size;
-                if (remaining > 0)
-                {
-                    // For ice1 the end of the encapsulation marks the end of the data, for ice2 the binary context
-                    // is encoded after the encapsulation
                     if (Protocol == Protocol.Ice1)
                     {
-                        throw new ArgumentException($"{remaining} extra bytes in response payload", nameof(data));
+                        Debug.Assert(response.Protocol == Protocol.Ice2);
+
+                        // Read the reply status byte immediately after the encapsulation header; +2 corresponds to the
+                        // encoding in the header
+                        byte b = response.Encapsulation[sizeLength + 2];
+                        ReplyStatus replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
+                            throw new InvalidDataException(
+                                $"received ice2 response frame with invalid reply status `{b}'");
+
+                        buffer[0] = b;
+                        if (replyStatus == ReplyStatus.UserException)
+                        {
+                            OutputStream.Position tail =
+                                OutputStream.WriteEncapsulationHeader(Data,
+                                                                      _encapsulationStart,
+                                                                      Ice1Definitions.Encoding,
+                                                                      response.Encapsulation.Count - sizeLength - 1,
+                                                                      Encoding);
+                            Debug.Assert(tail.Segment == 0);
+                            Data[0] = Data[0].Slice(0, tail.Offset);
+                        }
+                        else
+                        {
+                            Data[0] = Data[0].Slice(0, 1);
+                        }
+                        // sizeLength + 2 to skip the encapsulation header, then + 1 to skip the reply status byte
+                        Data.Add(response.Encapsulation.Slice(sizeLength + 2 + 1));
+                        if (replyStatus == ReplyStatus.UserException)
+                        {
+                            _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
+                        }
                     }
                     else
                     {
-                        _binaryContextOstr = new OutputStream(Encoding.V2_0,
-                                                              Data,
-                                                              new OutputStream.Position(Data.Count - 1, data.Count));
-                        foreach (int key in response.BinaryContext.Keys)
+                        Debug.Assert(response.Protocol == Protocol.Ice1);
+                        buffer[0] = (byte)ResultType.Failure;
+                        var replyStatus = (ReplyStatus)response.Payload[0];
+                        if (replyStatus == ReplyStatus.UserException)
                         {
-                            _binaryContextKeys.Add(key);
+                            OutputStream.Position tail =
+                                OutputStream.WriteEncapsulationHeader(Data,
+                                                                      _encapsulationStart,
+                                                                      Ice2Definitions.Encoding,
+                                                                      response.Encapsulation.Count - sizeLength + 1,
+                                                                      Encoding);
+                            buffer[tail.Offset++] = (byte)replyStatus;
+                            Data[0] = Data[0].Slice(0, tail.Offset);
+                            Data.Add(response.Encapsulation.Slice(sizeLength + 2));
                         }
+                        else
+                        {
+                            OutputStream.Position tail =
+                                OutputStream.WriteEncapsulationHeader(Data,
+                                                                      _encapsulationStart,
+                                                                      Ice2Definitions.Encoding,
+                                                                      response.Payload.Count,
+                                                                      Encoding);
+                            buffer[tail.Offset++] = (byte)replyStatus;
+                            Data[0] = Data[0].Slice(0, tail.Offset);
+                            Data.Add(response.Payload.Slice(1));
+                        }
+                        _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
                     }
                 }
-                _encapsulationStart = new OutputStream.Position(Data.Count - 1, 1);
-                FinishEncapsulation(new OutputStream.Position(Data.Count - 1, 1 + sizeLength + size));
+                else
+                {
+                    buffer[0] = (byte)response.ResultType;
+                    OutputStream.Position tail =
+                                OutputStream.WriteEncapsulationHeader(Data,
+                                                                      _encapsulationStart,
+                                                                      Protocol.GetEncoding(),
+                                                                      response.Encapsulation.Count - sizeLength,
+                                                                      Encoding);
+                    Data[0] = Data[0].Slice(0, tail.Offset);
+                    Data.Add(response.Encapsulation.Slice(sizeLength + 2));
+                    _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
+                }
             }
-            else
-            {
-                FinishEncapsulation(new OutputStream.Position(Data.Count - 1, data.Count));
-                Size = Data.GetByteCount();
-                IsSealed = true;
-            }
+
+            Size = Data.GetByteCount();
+            IsSealed = Protocol == Protocol.Ice1;
         }
 
         /// <summary>Creates a response frame that represents a failure and contains an exception.</summary>
@@ -261,13 +308,8 @@ namespace ZeroC.Ice
             Protocol protocol,
             Encoding encoding,
             List<ArraySegment<byte>> data,
-            OutputStream.Position encapsulationStart,
             OutputStream.Position encapsulationEnd)
-            : this(protocol, encoding, data: data)
-        {
-            _encapsulationStart = encapsulationStart;
-            FinishEncapsulation(encapsulationEnd);
-        }
+            : this(protocol, encoding, data: data) => _encapsulationEnd = encapsulationEnd;
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,
@@ -284,7 +326,6 @@ namespace ZeroC.Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ResultType.Success;
             response.Data.Add(buffer);
-            response._encapsulationStart = new OutputStream.Position(0, 1);
             var ostr = new OutputStream(response.Protocol.GetEncoding(),
                                         response.Data,
                                         response._encapsulationStart,
@@ -308,6 +349,10 @@ namespace ZeroC.Ice
         {
             Encoding = encoding;
             Size = Data?.GetByteCount() ?? 0;
+
+            // A response encapsulation (when there is one) always start at position 1. Note that we consider there is
+            // an encapsulation only when _encapsulationEnd is not null.
+            _encapsulationStart = new OutputStream.Position(0, 1);
         }
     }
 }

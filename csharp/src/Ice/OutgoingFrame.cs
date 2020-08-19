@@ -306,7 +306,7 @@ namespace ZeroC.Ice
         }
 
         // Once we finish writing the encapsulation we adjust the _encapsulationEnd position.
-        internal void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
+        private protected void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
             _encapsulationEnd = encapsulationEnd;
 
         // Finish prepare the frame for sending, adjust the last written segment to match the offset of the written
