@@ -49,7 +49,6 @@ class StringTok : public GrammarBase
 {
 public:
 
-    StringTok() { }
     std::string v;
     std::string literal;
 };
@@ -62,7 +61,6 @@ class StringListTok : public GrammarBase
 {
 public:
 
-    StringListTok() { }
     StringList v;
 };
 
@@ -74,7 +72,6 @@ class IntegerTok : public GrammarBase
 {
 public:
 
-    IntegerTok() { }
     IceUtil::Int64 v;
     std::string literal;
 };
@@ -87,7 +84,6 @@ class FloatingTok : public GrammarBase
 {
 public:
 
-    FloatingTok() { }
     double v;
     std::string literal;
 };
@@ -114,7 +110,6 @@ class ExceptionListTok : public GrammarBase
 {
 public:
 
-    ExceptionListTok() { }
     ExceptionList v;
 };
 
@@ -126,7 +121,6 @@ class ClassListTok : public GrammarBase
 {
 public:
 
-    ClassListTok() { }
     ClassList v;
 };
 
@@ -138,7 +132,6 @@ class InterfaceListTok : public GrammarBase
 {
 public:
 
-    InterfaceListTok() { }
     InterfaceList v;
 };
 
@@ -150,7 +143,6 @@ class EnumeratorListTok : public GrammarBase
 {
 public:
 
-    EnumeratorListTok() { }
     EnumeratorList v;
 };
 
@@ -206,7 +198,6 @@ class TaggedDefListTok : public GrammarBase
 {
 public:
 
-    TaggedDefListTok() { }
     std::list<TaggedDefTokPtr> v;
 };
 
@@ -218,7 +209,6 @@ class ClassIdTok : public GrammarBase
 {
 public:
 
-    ClassIdTok() { }
     std::string v;
     int t;
 };
