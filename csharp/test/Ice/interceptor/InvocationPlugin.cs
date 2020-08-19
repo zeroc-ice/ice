@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
@@ -15,10 +17,17 @@ namespace ZeroC.Ice.Test.Interceptor
             public void Initialize(PluginInitializationContext context)
             {
                 context.AddInvocationInterceptor(
-                    (target, request, next) =>
+                    async (target, request, next) =>
                     {
                         request.Context["InvocationPlugin"] = "1";
-                        return next(target, request);
+                        IncomingResponseFrame response = await next(target, request);
+                        if (response.Protocol == Protocol.Ice2 && response.ResultType == ResultType.Success)
+                        {
+                            TestHelper.Assert(
+                                response.BinaryContext.TryGetValue(100, out ReadOnlyMemory<byte> value) &&
+                                value.Read(istr => istr.ReadInt()) == 100);
+                        }
+                        return response;
                     });
             }
 

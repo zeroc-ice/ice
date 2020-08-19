@@ -8,5 +8,6 @@
   <ItemGroup>
     <Compile Include="../../InvocationPlugin.cs" />
     <Compile Include="../../DispatchPlugin.cs" />
+    <Compile Include="..\..\..\..\TestCommon\TestHelper.cs" Link="TestHelper.cs" />
   </ItemGroup>
 </Project>
