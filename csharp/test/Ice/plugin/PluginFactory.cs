@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Plugin
 
             public Plugin(string[] args) => _args = args;
 
-            public void Initialize()
+            public void Initialize(PluginInitializationContext context)
             {
                 _initialized = true;
                 TestHelper.Assert(_args.Length == 3);

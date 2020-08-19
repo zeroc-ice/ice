@@ -143,9 +143,12 @@ namespace ZeroC.Ice
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
         internal Acm ClientAcm { get; }
-        internal int IncomingFrameSizeMax { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
+
+        internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
+        internal int IncomingFrameSizeMax { get; }
+        internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
@@ -192,7 +195,9 @@ namespace ZeroC.Ice
             ImmutableDictionary<string, string>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
+        private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
         private Task? _disposeTask;
+        private readonly List<InvocationInterceptor> _invocationInterceptors = new List<InvocationInterceptor>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
@@ -218,14 +223,18 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
             : this(ref _emptyArgs,
                    null,
                    properties,
                    logger,
                    observer,
                    tlsClientOptions,
-                   tlsServerOptions)
+                   tlsServerOptions,
+                   invocationInterceptors,
+                   dispatchInterceptors)
         {
         }
 
@@ -235,14 +244,18 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
             : this(ref args,
                    null,
                    properties,
                    logger,
                    observer,
                    tlsClientOptions,
-                   tlsServerOptions)
+                   tlsServerOptions,
+                   invocationInterceptors,
+                   dispatchInterceptors)
         {
         }
 
@@ -252,14 +265,18 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
             : this(ref _emptyArgs,
                    appSettings,
                    properties,
                    logger,
                    observer,
                    tlsClientOptions,
-                   tlsServerOptions)
+                   tlsServerOptions,
+                   invocationInterceptors,
+                   dispatchInterceptors)
         {
         }
 
@@ -270,7 +287,9 @@ namespace ZeroC.Ice
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null)
+            TlsServerOptions? tlsServerOptions = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
         {
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
@@ -500,9 +519,17 @@ namespace ZeroC.Ice
                     AssemblyUtil.PreloadAssemblies();
                 }
 
-                //
+                if (dispatchInterceptors != null)
+                {
+                    _dispatchInterceptors.AddRange(dispatchInterceptors);
+                }
+
+                if (invocationInterceptors != null)
+                {
+                    _invocationInterceptors.AddRange(invocationInterceptors);
+                }
+
                 // Load plug-ins.
-                //
                 LoadPlugins(ref args);
 
                 //
@@ -1010,6 +1037,14 @@ namespace ZeroC.Ice
         // Finds an endpoint factory previously registered using IceAddEndpointFactory.
         public IEndpointFactory? IceFindEndpointFactory(Transport transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
+
+        // Add one or more dispatch interceptors, only to use by PluginInitializationContext
+        internal void AddDispatchInterceptor(DispatchInterceptor[] interceptors) =>
+            _dispatchInterceptors.AddRange(interceptors);
+
+        // Add one or more invocation interceptors, only to use by PluginInitializationContext
+        internal void AddInvocationInterceptor(InvocationInterceptor[] interceptors) =>
+            _invocationInterceptors.AddRange(interceptors);
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.
         internal (IEndpointFactory Factory, Transport Transport)? FindEndpointFactory(string transportName) =>

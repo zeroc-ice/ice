@@ -286,7 +286,10 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IncomingResponseFrame> task = InvokeAsync(proxy, request, oneway, synchronous: true);
+                ValueTask<IncomingResponseFrame> task = InvokeWithInterceptorsAsync(proxy,
+                                                                                    request,
+                                                                                    oneway,
+                                                                                    synchronous: true);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -312,7 +315,7 @@ namespace ZeroC.Ice
             bool oneway = false,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
-            InvokeAsync(proxy, request, oneway, synchronous: false, progress, cancel);
+            InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
@@ -342,13 +345,48 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static ValueTask<IncomingResponseFrame> InvokeAsync(
+        private static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default)
+        {
+            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
+
+            static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                bool synchronous,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+                {
+                    if (i < proxy.Communicator.InvocationInterceptors.Count)
+                    {
+                        InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                        return interceptor(
+                            proxy,
+                            request,
+                            (target, request) =>
+                                InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
+                    }
+                    else
+                    {
+                        return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
+                    }
+                }
+        }
+
+        private static ValueTask<IncomingResponseFrame> InvokeAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            bool synchronous,
+            IProgress<bool>? progress,
+            CancellationToken cancel)
         {
             request.Finish();
             InvocationMode mode = proxy.IceReference.InvocationMode;

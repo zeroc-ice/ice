@@ -127,7 +127,7 @@ namespace ZeroC.Ice.Test.Plugin
 
             public bool IsDestroyed() => _destroyed;
 
-            public void Initialize() => _initialized = true;
+            public void Initialize(PluginInitializationContext context) => _initialized = true;
 
             public ValueTask DisposeAsync()
             {

@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool isDestroyed() => _destroyed;
 
-        public abstract void Initialize();
+        public abstract void Initialize(PluginInitializationContext context);
         public abstract ValueTask DisposeAsync();
 
         protected Communicator _communicator;

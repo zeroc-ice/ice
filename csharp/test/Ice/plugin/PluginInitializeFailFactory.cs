@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginInitializeFail : IPlugin
         {
-            public void Initialize() => throw new PluginInitializeFailException();
+            public void Initialize(PluginInitializationContext context) => throw new PluginInitializeFailException();
 
             public ValueTask DisposeAsync()
             {

@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -17,25 +16,17 @@ namespace ZeroC.Ice
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
 
-        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>
-            _cachedVoidReturnValueFrames =
-                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>();
-
         /// <summary>Creates a new outgoing response frame with a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithVoidReturnValue(Current current) =>
-            _cachedVoidReturnValueFrames.GetOrAdd((current.Protocol, current.Encoding), key =>
-            {
+        public static OutgoingResponseFrame WithVoidReturnValue(Current current)
+        {
                 var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
+                var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
                 ostr.WriteByte((byte)ResultType.Success);
-                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                return new OutgoingResponseFrame(key.Protocol,
-                                                 key.Encoding,
-                                                 data,
-                                                 ostr.Tail);
-            });
+                _ = ostr.WriteEmptyEncapsulation(current.Encoding);
+                return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, ostr.Tail);
+        }
 
         /// <summary>Creates a new outgoing response frame with a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>

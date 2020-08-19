@@ -157,15 +157,8 @@ namespace ZeroC.Ice
                 OutgoingResponseFrame? outgoingResponseFrame = null;
                 try
                 {
-                    IObject? servant = current.Adapter.Find(current.Identity, current.Facet);
-
-                    if (servant == null)
-                    {
-                        throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
-                    }
-
-                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
-                    if (requestId != 0)
+                    ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(incomingRequest, current);
+                    if (!current.IsOneway)
                     {
                         // We don't use the cancelable WaitAsync for the await here. The asynchronous dispatch is
                         // not completed yet and we want to make sure the observer is detached only when the dispatch

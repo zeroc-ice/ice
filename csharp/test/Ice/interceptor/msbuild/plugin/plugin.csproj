@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+    <AssemblyName>Plugin</AssemblyName>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../InvocationPlugin.cs" />
+    <Compile Include="../../DispatchPlugin.cs" />
+    <Compile Include="..\..\..\..\TestCommon\TestHelper.cs" Link="TestHelper.cs" />
+  </ItemGroup>
+</Project>

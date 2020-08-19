@@ -707,13 +707,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    IObject? servant = current.Adapter.Find(current.Identity, current.Facet);
-                    if (servant == null)
-                    {
-                        throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
-                    }
-
-                    ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(request, current);
+                    ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(request, current);
                     if (!current.IsOneway)
                     {
                         response = await vt.ConfigureAwait(false);
