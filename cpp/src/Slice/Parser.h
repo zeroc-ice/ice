@@ -713,8 +713,8 @@ public:
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
     MemberList parameters() const;
-    MemberList inParameters() const;
-    MemberList outParameters() const;
+    MemberList inParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList returnValues() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
@@ -724,6 +724,7 @@ public:
     bool returnsClasses(bool) const;
     bool returnsData() const;
     bool returnsMultipleValues() const;
+    bool hasReturnAndOut() const;
     bool hasOutParameters() const;
     bool hasTupleReturnType() const;
     bool hasSingleReturnType() const;

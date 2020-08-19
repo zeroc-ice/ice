@@ -4386,6 +4386,12 @@ Slice::Operation::returnsMultipleValues() const
 }
 
 bool
+Slice::Operation::hasReturnAndOut() const
+{
+    return _hasReturnType && _usesOutParameters;
+}
+
+bool
 Slice::Operation::hasOutParameters() const
 {
     return _usesOutParameters;
