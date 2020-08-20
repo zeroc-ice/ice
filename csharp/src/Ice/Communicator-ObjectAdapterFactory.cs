@@ -244,7 +244,7 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
-                ObjectAdapter adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
+                var adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
                 _adapters.Add(adapter);
                 return adapter;
             }
