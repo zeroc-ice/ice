@@ -128,8 +128,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Compresses the encapsulation payload using GZip compression, compressed encapsulation payload is
-        /// only supported with 2.0 encoding.</summary>
+        /// <summary>Compresses the encapsulation payload using GZip compression. Compressed encapsulation payload is
+        /// only supported with the 2.0 encoding.</summary>
         /// <returns>A <see cref="CompressionResult"/> value indicating the result of the compression operation.
         /// </returns>
         public CompressionResult CompressPayload()
@@ -298,7 +298,7 @@ namespace ZeroC.Ice
         private protected void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
             _encapsulationEnd = encapsulationEnd;
 
-        // Finish prepares the frame for sending, adjusts the last written segment to match the offset of the written
+        // Finish prepares the frame for sending and adjusts the last written segment to match the offset of the written
         // data. If the frame contains a binary context, Finish appends the entries from _defaultBinaryContext (if any)
         // and rewrites the binary context dictionary size.
         internal virtual void Finish()
@@ -316,15 +316,13 @@ namespace ZeroC.Ice
                         int dictionarySize = istr.ReadSize();
                         for (int i = 0; i < dictionarySize; ++i)
                         {
+                            int startPos = istr.Pos;
                             int key = istr.ReadVarInt();
                             int entrySize = istr.ReadSize();
-                            if (ContainsKey(key))
+                            istr.Skip(entrySize);
+                            if (!ContainsKey(key))
                             {
-                                istr.Skip(entrySize);
-                            }
-                            else
-                            {
-                                Data.Add(_defaultBinaryContext.Slice(istr.Pos, entrySize));
+                                Data.Add(_defaultBinaryContext.Slice(startPos, istr.Pos - startPos));
                                 AddKey(key);
                             }
                         }

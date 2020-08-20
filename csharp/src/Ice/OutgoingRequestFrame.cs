@@ -224,7 +224,7 @@ namespace ZeroC.Ice
             IsSealed = Protocol == Protocol.Ice1;
         }
 
-        // Finish prepares the frame for sending ad writes the frame's context into slot 0 of the binary context.
+        // Finish prepares the frame for sending and writes the frame's context into slot 0 of the binary context.
         internal override void Finish()
         {
             if (!IsSealed)
