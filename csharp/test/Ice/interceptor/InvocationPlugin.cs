@@ -22,7 +22,6 @@ namespace ZeroC.Ice.Test.Interceptor
                     {
                         if (request.Protocol == Protocol.Ice2)
                         {
-                            request.ContextOverride ??= new Dictionary<string, string>(request.Context);
                             request.ContextOverride["InvocationPlugin"] = "1";
                         }
                         IncomingResponseFrame response = await next(target, request);

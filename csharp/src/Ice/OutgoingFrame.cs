@@ -73,13 +73,14 @@ namespace ZeroC.Ice
         private protected readonly HashSet<int> _binaryContextKeys = new HashSet<int>();
         // OutputStream used to write the binary context
         private protected OutputStream? _binaryContextOstr;
+        private protected ArraySegment<byte> _defaultBinaryContext;
 
         // Position of the end of the encapsulation, for ice1 this is always the frame end.
         private protected OutputStream.Position? _encapsulationEnd;
         // Position of the start of the encapsulation.
         private protected OutputStream.Position _encapsulationStart;
 
-        private protected ArraySegment<byte> _defaultBinaryContext;
+        private protected bool _skipDefaultBinaryContextEntry0;
 
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
@@ -313,8 +314,9 @@ namespace ZeroC.Ice
         private protected void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
             _encapsulationEnd = encapsulationEnd;
 
-        // Finish prepare the frame for sending, adjust the last written segment to match the offset of the written
-        // data, if the frame contains a binary context we rewrite the size.
+        // Finish prepares the frame for sending, adjusts the last written segment to match the offset of the written
+        // data. If the frame contains a binary context, Finish appends the entries from _defaultBinaryContext (if any)
+        // and rewrites the binary context dictionary size.
         internal virtual void Finish()
         {
             if (!IsSealed)
@@ -322,9 +324,7 @@ namespace ZeroC.Ice
                 if (_binaryContextOstr is OutputStream ostr)
                 {
                     Debug.Assert(_binaryContextKeys.Count > 0);
-
                     Data[^1] = Data[^1].Slice(0, ostr.Tail.Offset);
-
                     if (_defaultBinaryContext.Count > 0)
                     {
                         // Add segment for each slot that was not written yet.
@@ -352,7 +352,6 @@ namespace ZeroC.Ice
                 else
                 {
                     Debug.Assert(_binaryContextKeys.Count == 0);
-
                     if (_defaultBinaryContext.Count > 0) // only when forwarding an ice2 request or response
                     {
                         Debug.Assert(Data[^1].Array == _defaultBinaryContext.Array);

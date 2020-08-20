@@ -12,19 +12,24 @@ namespace ZeroC.Ice
     public sealed class OutgoingRequestFrame : OutgoingFrame
     {
         /// <summary>The context of this request frame.</summary>
-        public IReadOnlyDictionary<string, string> Context => ContextOverride ?? _initialContext;
+        public IReadOnlyDictionary<string, string> Context => _contextOverride ?? _initialContext;
 
-        /// <summary>When non-null, ContextOverride provides the value for Context.</summary>
-        public Dictionary<string, string>? ContextOverride
+        /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
+        /// the same as Context's entries.</summary>
+        public Dictionary<string, string> ContextOverride
         {
-            get => _contextOverride;
-            set
+            get
             {
-                if (Protocol == Protocol.Ice1)
+                if (_contextOverride == null)
                 {
-                    throw new InvalidOperationException("cannot change the context of an ice1 request frame");
+                    if (Protocol == Protocol.Ice1)
+                    {
+                        throw new InvalidOperationException("cannot change the context of an ice1 request frame");
+                    }
+                    // lazy initialization
+                    _contextOverride = new Dictionary<string, string>(_initialContext);
                 }
-                _contextOverride = value;
+                return _contextOverride;
             }
         }
 
@@ -43,7 +48,12 @@ namespace ZeroC.Ice
         public string Operation { get; }
 
         private Dictionary<string, string>? _contextOverride;
+
         private readonly IReadOnlyDictionary<string, string> _initialContext;
+
+        // When true, we always write Context in slot 0 of the binary context. This field is always false when
+        // _defaultBinaryContext is empty.
+        private readonly bool _writeSlot0;
 
         /// <summary>Create a new OutgoingRequestFrame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
@@ -161,9 +171,20 @@ namespace ZeroC.Ice
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
-                    // Can be empty
-                    _defaultBinaryContext = request.Data.Slice(
-                        request.Encapsulation.Offset - request.Data.Offset + request.Encapsulation.Count);
+                    bool hasSlot0 = request.BinaryContext.ContainsKey(0);
+
+                    // If slot 0 is the only slot, we don't set _defaultBinaryContext: this way, Context always
+                    // prevails in slot 0, even when it's empty and slot 0 is not written at all.
+
+                    if (!hasSlot0 || request.BinaryContext.Count > 1)
+                    {
+                        _defaultBinaryContext = request.Data.Slice(
+                            request.Encapsulation.Offset - request.Data.Offset + request.Encapsulation.Count);
+
+                        // When slot 0 has an empty value, there is no need to always write it since the default
+                        // (empty Context) is correctly represented by the entry in the _defaultBinaryContext.
+                        _writeSlot0 = hasSlot0 && !request.BinaryContext[0].IsEmpty;
+                    }
                 }
             }
             else
@@ -203,26 +224,19 @@ namespace ZeroC.Ice
             IsSealed = Protocol == Protocol.Ice1;
         }
 
-        // Finish prepare the frame for sending, write the frame's context into the slot 0 of the binary context.
+        // Finish prepares the frame for sending ad writes the frame's context into slot 0 of the binary context.
         internal override void Finish()
         {
             if (!IsSealed)
             {
                 if (Protocol == Protocol.Ice2 && !_binaryContextKeys.Contains(0))
                 {
-                    if (ContextOverride != null && ContextOverride.Count == 0)
+                    if (Context.Count > 0 || _writeSlot0)
                     {
-                       // Make sure the slot is used so base does not write anything in slot 0 when forwarding the
-                       // binary context
-                       _binaryContextKeys.Add(0);
-                    }
-                    else if (Context.Count > 0)
-                    {
-                        // Write the context now. This is necessary even when _defaultBinaryContext is not empty,
-                        // because _initialContext can be different from slot 0 in _defaultBinaryContext.
+                        // When _writeSlot0 is true, we may write an empty string-string context, thus preventing base
+                        // from writing a non-empty Context.
                         AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
                     }
-                    // else we don't write Context since it's empty
                 }
                 base.Finish();
             }

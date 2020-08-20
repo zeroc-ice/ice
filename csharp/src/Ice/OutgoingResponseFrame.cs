@@ -114,7 +114,7 @@ namespace ZeroC.Ice
 
                 if (forwardBinaryContext && response.BinaryContext.Count > 0)
                 {
-                    _defaultBinaryContext = response.Data.Slice(1 + response.Encapsulation.Count);
+                    _defaultBinaryContext = response.Data.Slice(1 + response.Encapsulation.Count); // can be empty
                 }
             }
             else
