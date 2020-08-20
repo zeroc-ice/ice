@@ -70,7 +70,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected readonly HashSet<int> _binaryContextKeys = new HashSet<int>();
         // OutputStream used to write the binary context
         private protected OutputStream? _binaryContextOstr;
         private protected ArraySegment<byte> _defaultBinaryContext;
@@ -83,6 +82,8 @@ namespace ZeroC.Ice
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
 
+        private HashSet<int>? _binaryContextKeys;
+
         private IList<ArraySegment<byte>>? _encapsulation;
         private IList<ArraySegment<byte>>? _payload;
 
@@ -94,7 +95,7 @@ namespace ZeroC.Ice
         public void AddBinaryContextEntry(int key, ReadOnlySpan<byte> value)
         {
             OutputStream ostr = StartBinaryContext();
-            if (_binaryContextKeys.Add(key))
+            if (AddKey(key))
             {
                 ostr.WriteBinaryContextEntry(key, value);
             }
@@ -113,7 +114,7 @@ namespace ZeroC.Ice
         public void AddBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
         {
             OutputStream ostr = StartBinaryContext();
-            if (_binaryContextKeys.Add(key))
+            if (AddKey(key))
             {
                 ostr.WriteBinaryContextEntry(key, value, writer);
             }
@@ -132,7 +133,7 @@ namespace ZeroC.Ice
         public void AddBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
             OutputStream ostr = StartBinaryContext();
-            if (_binaryContextKeys.Add(key))
+            if (AddKey(key))
             {
                 ostr.WriteBinaryContextEntry(key, value, writer);
             }
@@ -321,7 +322,7 @@ namespace ZeroC.Ice
             {
                 if (_binaryContextOstr is OutputStream ostr)
                 {
-                    Debug.Assert(_binaryContextKeys.Count > 0);
+                    Debug.Assert(_binaryContextKeys != null);
                     Data[^1] = Data[^1].Slice(0, ostr.Tail.Offset);
                     if (_defaultBinaryContext.Count > 0)
                     {
@@ -332,14 +333,14 @@ namespace ZeroC.Ice
                         {
                             int key = istr.ReadVarInt();
                             int entrySize = istr.ReadSize();
-                            if (_binaryContextKeys.Contains(key))
+                            if (ContainsKey(key))
                             {
                                 istr.Skip(entrySize);
                             }
                             else
                             {
                                 Data.Add(_defaultBinaryContext.Slice(istr.Pos, entrySize));
-                                _binaryContextKeys.Add(key);
+                                AddKey(key);
                             }
                         }
                     }
@@ -349,7 +350,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    Debug.Assert(_binaryContextKeys.Count == 0);
+                    Debug.Assert(_binaryContextKeys == null);
                     if (_defaultBinaryContext.Count > 0) // only when forwarding an ice2 request or response
                     {
                         Debug.Assert(Data[^1].Array == _defaultBinaryContext.Array);
@@ -369,6 +370,14 @@ namespace ZeroC.Ice
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
+        }
+
+        private protected bool ContainsKey(int key) => _binaryContextKeys?.Contains(key) ?? false;
+
+        private bool AddKey(int key)
+        {
+            _binaryContextKeys ??= new HashSet<int>();
+            return _binaryContextKeys.Add(key);
         }
     }
 }

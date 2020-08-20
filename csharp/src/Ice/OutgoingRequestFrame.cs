@@ -229,7 +229,7 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                if (Protocol == Protocol.Ice2 && !_binaryContextKeys.Contains(0))
+                if (Protocol == Protocol.Ice2 && !ContainsKey(0))
                 {
                     if (Context.Count > 0 || _writeSlot0)
                     {
