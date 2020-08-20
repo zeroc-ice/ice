@@ -19,15 +19,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            var baseprx = IObjectPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-            TestHelper.Assert(baseprx != null);
-            output.WriteLine("ok");
-
-            output.Write("testing checked cast... ");
-            output.Flush();
-            var obj = ITestIntfPrx.CheckedCast(baseprx);
-            TestHelper.Assert(obj != null);
-            TestHelper.Assert(obj.Equals(baseprx));
+            var obj = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             output.WriteLine("ok");
 
             {
@@ -135,7 +127,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Flush();
             {
                 var routerId = new Identity("router", "");
-                IRouterPrx router = baseprx.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
+                IRouterPrx router = obj.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
                 ObjectAdapter adapter = communicator.CreateObjectAdapterWithRouter(router);
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 string endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
@@ -173,7 +165,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 try
                 {
                     routerId = new Identity("test", "");
-                    router = baseprx.Clone(routerId, IRouterPrx.Factory);
+                    router = obj.Clone(routerId, IRouterPrx.Factory);
                     communicator.CreateObjectAdapterWithRouter(router);
                     TestHelper.Assert(false);
                 }

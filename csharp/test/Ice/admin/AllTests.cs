@@ -468,7 +468,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 try
                 {
-                    IProcessPrx.CheckedCast(obj.Clone(facet: "Process", IObjectPrx.Factory));
+                    obj.Clone(facet: "Process", IProcessPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -477,7 +477,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 try
                 {
-                    ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet", IObjectPrx.Factory));
+                    obj.Clone(facet: "TestFacet", ITestFacetPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -499,7 +499,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 try
                 {
-                    IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties", IObjectPrx.Factory));
+                    obj.Clone(facet: "Properties", IPropertiesAdminPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -508,7 +508,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 try
                 {
-                    ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet", IObjectPrx.Factory));
+                    obj.Clone(facet: "TestFacet", ITestFacetPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -530,7 +530,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 try
                 {
-                    IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties", IObjectPrx.Factory));
+                    obj.Clone(facet: "Properties", IPropertiesAdminPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -539,7 +539,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 try
                 {
-                    IProcessPrx.CheckedCast(obj.Clone(facet: "Process", IObjectPrx.Factory));
+                    obj.Clone(facet: "Process", IProcessPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -561,11 +561,12 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 IPropertiesAdminPrx pa = obj.Clone("Properties", IPropertiesAdminPrx.Factory);
                 TestHelper.Assert(pa.GetProperty("Ice.Admin.InstanceName").Equals("Test"));
-                var tf = ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet", IObjectPrx.Factory));
+                ITestFacetPrx? tf =
+                    obj.Clone(facet: "TestFacet", IObjectPrx.Factory).CheckedCast(ITestFacetPrx.Factory);
                 tf!.Op();
                 try
                 {
-                    IProcessPrx.CheckedCast(obj.Clone(facet: "Process", IObjectPrx.Factory));
+                    obj.Clone(facet: "Process", IProcessPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -587,16 +588,18 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 try
                 {
-                    IPropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties", IObjectPrx.Factory));
+                    obj.Clone(facet: "Properties", IPropertiesAdminPrx.Factory).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
                 {
                 }
-                var tf = ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet", IObjectPrx.Factory));
+                ITestFacetPrx? tf =
+                    obj.Clone(facet: "TestFacet", IObjectPrx.Factory).CheckedCast(ITestFacetPrx.Factory);
                 TestHelper.Assert(tf != null);
                 tf.Op();
-                var proc = IProcessPrx.CheckedCast(obj.Clone(facet: "Process", IObjectPrx.Factory));
+                IProcessPrx? proc =
+                    obj.Clone(facet: "Process", IObjectPrx.Factory).CheckedCast(IProcessPrx.Factory);
                 TestHelper.Assert(proc != null);
                 proc.Shutdown();
                 com.WaitForShutdown();

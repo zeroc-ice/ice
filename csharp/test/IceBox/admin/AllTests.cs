@@ -26,7 +26,7 @@ namespace ZeroC.IceBox.Test.Admin
                 //
                 // Test: Verify that the custom facet is present.
                 //
-                facet = ITestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet", IObjectPrx.Factory));
+                facet = admin.Clone(facet: "TestFacet", IObjectPrx.Factory).Clone(ITestFacetPrx.Factory);
                 TestHelper.Assert(facet != null);
                 facet.IcePing();
             }
@@ -35,8 +35,8 @@ namespace ZeroC.IceBox.Test.Admin
             Console.Out.Write("testing properties facet... ");
             Console.Out.Flush();
             {
-                var pa = IPropertiesAdminPrx.CheckedCast(
-                    admin.Clone(facet: "IceBox.Service.TestService.Properties", IObjectPrx.Factory));
+                IPropertiesAdminPrx pa = admin.Clone(facet: "IceBox.Service.TestService.Properties",
+                                                     IObjectPrx.Factory).Clone(IPropertiesAdminPrx.Factory);
 
                 // Test: PropertiesAdmin.GetProperty()
                 TestHelper.Assert(pa != null);
@@ -86,10 +86,12 @@ namespace ZeroC.IceBox.Test.Admin
             Console.Out.Write("testing metrics admin facet... ");
             Console.Out.Flush();
             {
-                var ma = IMetricsAdminPrx.CheckedCast(
-                    admin.Clone(facet: "IceBox.Service.TestService.Metrics", IObjectPrx.Factory));
-                var pa = IPropertiesAdminPrx.CheckedCast(
-                    admin.Clone(facet: "IceBox.Service.TestService.Properties", IObjectPrx.Factory));
+                IMetricsAdminPrx? ma =
+                    admin.Clone(facet: "IceBox.Service.TestService.Metrics",
+                                IObjectPrx.Factory).CheckedCast(IMetricsAdminPrx.Factory);
+                IPropertiesAdminPrx? pa =
+                    admin.Clone(facet: "IceBox.Service.TestService.Properties",
+                                IObjectPrx.Factory).CheckedCast(IPropertiesAdminPrx.Factory);
 
                 TestHelper.Assert(ma != null && pa != null);
                 string[] views = ma.GetMetricsViewNames().ReturnValue;

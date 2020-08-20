@@ -1297,7 +1297,7 @@ namespace ZeroC.Ice.Test.Operations
             p.OpOnewayMetadataAsync().Wait();
 
             {
-                var derived = IMyDerivedClassPrx.CheckedCast(p);
+                var derived = p.Clone(IMyDerivedClassPrx.Factory);
                 TestHelper.Assert(derived != null);
                 derived.OpDerivedAsync().Wait();
             }

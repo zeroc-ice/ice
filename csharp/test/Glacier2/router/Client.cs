@@ -37,7 +37,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing checked cast for router... ");
                 Console.Out.Flush();
-                router = IRouterPrx.CheckedCast(routerBase);
+                router = routerBase.CheckedCast(IRouterPrx.Factory);
                 Assert(router != null);
                 Console.Out.WriteLine("ok");
             }

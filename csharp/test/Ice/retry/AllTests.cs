@@ -55,16 +55,10 @@ namespace ZeroC.Ice.Test.Retry
             TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            var base1 = IObjectPrx.Parse(rf, communicator);
-            var base2 = IObjectPrx.Parse(rf, communicator);
-            output.WriteLine("ok");
-
-            output.Write("testing checked cast... ");
-            output.Flush();
-            var retry1 = IRetryPrx.CheckedCast(base1);
-            TestHelper.Assert(retry1 != null && retry1.Equals(base1));
-            var retry2 = IRetryPrx.CheckedCast(base2);
-            TestHelper.Assert(retry2 != null && retry2.Equals(base2));
+            var retry1 = IRetryPrx.Parse(rf, communicator);
+            retry1.IcePing();
+            var retry2 = IRetryPrx.Parse(rf, communicator);
+            retry2.IcePing();
             output.WriteLine("ok");
 
             output.Write("calling regular operation with first proxy... ");

@@ -366,7 +366,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                var thrower2 = IWrongOperationPrx.UncheckedCast(thrower);
+                var thrower2 = thrower.Clone(IWrongOperationPrx.Factory);
                 thrower2.NoSuchOperation();
                 TestHelper.Assert(false);
             }
@@ -772,7 +772,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    var thrower4 = IWrongOperationPrx.UncheckedCast(thrower);
+                    var thrower4 = thrower.Clone(IWrongOperationPrx.Factory);
                     thrower4.NoSuchOperationAsync().Wait();
                     TestHelper.Assert(false);
                 }
@@ -959,7 +959,7 @@ namespace ZeroC.Ice.Test.Exceptions
             output.Flush();
 
             {
-                var thrower4 = IWrongOperationPrx.UncheckedCast(thrower);
+                var thrower4 = thrower.Clone(IWrongOperationPrx.Factory);
                 try
                 {
                     thrower4.NoSuchOperationAsync().Wait();

@@ -28,8 +28,7 @@ namespace ZeroC.IceGrid.Test.Simple
 
             Console.Out.Write("testing locator finder... ");
             var finderId = new Identity("LocatorFinder", "Ice");
-            var finder =
-                ILocatorFinderPrx.CheckedCast(communicator.DefaultLocator!.Clone(finderId, IObjectPrx.Factory));
+            ILocatorFinderPrx finder = communicator.DefaultLocator!.Clone(finderId, ILocatorFinderPrx.Factory);
             TestHelper.Assert(finder != null && finder.GetLocator() != null);
             Console.Out.WriteLine("ok");
 
@@ -65,9 +64,8 @@ namespace ZeroC.IceGrid.Test.Simple
                     // TODO: currently, com.DefaultLocator is a regular ice2/2.0 proxy and we don't want to forward
                     // 2.0-encoded requests to IceGrid until IceGrid supports such requests.
 
-                    // TODO: all Clone overloads should accept a factory parameter.
-                    ILocatorPrx defaultLocator =
-                        ILocatorPrx.UncheckedCast(com.DefaultLocator!.Clone(encoding: Encoding.V1_1));
+                    ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(ILocatorPrx.Factory,
+                                                                           encoding: Encoding.V1_1);
 
                     TestHelper.Assert(defaultLocator.GetRegistry() != null);
                     TestHelper.Assert(defaultLocator.GetLocalRegistry() != null);
@@ -101,13 +99,13 @@ namespace ZeroC.IceGrid.Test.Simple
                     {
                     }
 
-                    ZeroC.Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V1_1);
+                    Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V1_1);
 
                     TestHelper.Assert(defaultLocator.GetRegistry() == null);
-                    TestHelper.Assert(ILocatorPrx.CheckedCast(defaultLocator) == null);
+                    TestHelper.Assert(defaultLocator.CheckedCast(ILocatorPrx.Factory) == null);
                     try
                     {
-                        ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
+                        com.DefaultLocator!.Clone(ILocatorPrx.Factory).GetLocalRegistry();
                     }
                     catch (OperationNotExistException)
                     {

@@ -386,17 +386,17 @@ namespace ZeroC.Ice.Test.Metrics
             IObjectPrx? admin = communicator.GetAdmin();
             TestHelper.Assert(admin != null);
             var clientProps =
-                IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
+                admin.Clone(facet: "Properties", IObjectPrx.Factory).CheckedCast(IPropertiesAdminPrx.Factory);
             var clientMetrics =
-                IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
+                admin.Clone(facet: "Metrics", IObjectPrx.Factory).CheckedCast(IMetricsAdminPrx.Factory);
             TestHelper.Assert(clientProps != null && clientMetrics != null);
 
             admin = metrics.GetAdmin();
             TestHelper.Assert(admin != null);
             var serverProps =
-                IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
+                admin.Clone(facet: "Properties", IObjectPrx.Factory).CheckedCast(IPropertiesAdminPrx.Factory);
             var serverMetrics =
-                IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
+                admin.Clone(facet: "Metrics", IObjectPrx.Factory).CheckedCast(IMetricsAdminPrx.Factory);
             TestHelper.Assert(serverProps != null && serverMetrics != null);
 
             var update = new UpdateCallbackI(serverProps);

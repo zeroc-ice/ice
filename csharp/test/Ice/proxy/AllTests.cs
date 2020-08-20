@@ -839,16 +839,16 @@ namespace ZeroC.Ice.Test.Proxy
 
             output.Write("testing checked cast... ");
             output.Flush();
-            var cl = IMyClassPrx.CheckedCast(baseProxy);
+            var cl = baseProxy.CheckedCast(IMyClassPrx.Factory);
             TestHelper.Assert(cl != null);
-            var derived = IMyDerivedClassPrx.CheckedCast(cl);
+            var derived = cl.CheckedCast(IMyDerivedClassPrx.Factory);
             TestHelper.Assert(derived != null);
             TestHelper.Assert(cl.Equals(baseProxy));
             TestHelper.Assert(derived.Equals(baseProxy));
             TestHelper.Assert(cl.Equals(derived));
             try
             {
-                IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet", IObjectPrx.Factory));
+                cl.Clone(facet: "facet", IMyDerivedClassPrx.Factory).IcePing();
                 TestHelper.Assert(false);
             }
             catch (ObjectNotExistException)
@@ -867,7 +867,7 @@ namespace ZeroC.Ice.Test.Proxy
                 ["one"] = "hello",
                 ["two"] = "world"
             };
-            cl = IMyClassPrx.CheckedCast(baseProxy, c);
+            cl = baseProxy.CheckedCast(IMyClassPrx.Factory, c);
             Dictionary<string, string> c2 = cl!.GetContext();
             TestHelper.Assert(c.DictionaryEquals(c2));
             output.WriteLine("ok");
@@ -878,7 +878,7 @@ namespace ZeroC.Ice.Test.Proxy
                 output.Flush();
                 var ice2Prx = IObjectPrx.Parse(
                     "ice+tcp://localhost:10000/foo?alt-endpoint=ice+ws://localhost:10000", communicator);
-                var prx = IMyDerivedClassPrx.UncheckedCast(baseProxy).Echo(ice2Prx);
+                var prx = baseProxy.Clone(IMyDerivedClassPrx.Factory).Echo(ice2Prx);
                 TestHelper.Assert(ice2Prx.Equals(prx));
                 output.WriteLine("ok");
             }
@@ -888,7 +888,7 @@ namespace ZeroC.Ice.Test.Proxy
                 output.Flush();
                 var ice1Prx = IObjectPrx.Parse(
                     "foo:tcp -h localhost -p 10000:udp -h localhost -p 10000", communicator);
-                var prx = IMyDerivedClassPrx.UncheckedCast(baseProxy).Echo(ice1Prx);
+                var prx = baseProxy.Clone(IMyDerivedClassPrx.Factory).Echo(ice1Prx);
                 TestHelper.Assert(ice1Prx.Equals(prx));
                 output.WriteLine("ok");
             }
