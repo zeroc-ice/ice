@@ -80,8 +80,6 @@ namespace ZeroC.Ice
         // Position of the start of the encapsulation.
         private protected OutputStream.Position _encapsulationStart;
 
-        private protected bool _skipDefaultBinaryContextEntry0;
-
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
 
