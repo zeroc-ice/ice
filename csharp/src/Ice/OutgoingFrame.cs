@@ -56,20 +56,6 @@ namespace ZeroC.Ice
 
         internal List<ArraySegment<byte>> Data { get; }
 
-        /// <summary>Returns a list of array segments with the contents of the frame encapsulation, if the frame
-        /// doesn't contain an encapsulation it returns an empty list.</summary>
-        private protected IList<ArraySegment<byte>> Encapsulation
-        {
-            get
-            {
-                if (_encapsulation == null && _encapsulationEnd is OutputStream.Position encapsulationEnd)
-                {
-                    _encapsulation = Data.Slice(_encapsulationStart, encapsulationEnd);
-                }
-                return _encapsulation ?? Array.Empty<ArraySegment<byte>>();
-            }
-        }
-
         // OutputStream used to write the binary context
         private protected OutputStream? _binaryContextOstr;
         private protected ArraySegment<byte> _defaultBinaryContext;
@@ -84,7 +70,6 @@ namespace ZeroC.Ice
 
         private HashSet<int>? _binaryContextKeys;
 
-        private IList<ArraySegment<byte>>? _encapsulation;
         private IList<ArraySegment<byte>>? _payload;
 
         /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
@@ -160,7 +145,9 @@ namespace ZeroC.Ice
             }
             else
             {
-                IList<ArraySegment<byte>> encapsulation = Encapsulation;
+                Debug.Assert(_encapsulationEnd != null); // i.e. we have an encapsulation
+                IList<ArraySegment<byte>> encapsulation = Data.Slice(_encapsulationStart, _encapsulationEnd.Value);
+
                 int sizeLength = Protocol == Protocol.Ice2 ? 1 << (encapsulation[0][0] & 0x03) : 4;
                 byte compressionStatus = encapsulation[0].Count > sizeLength + 2 ?
                     encapsulation[0][sizeLength + 2] : encapsulation[1][sizeLength + 2 - encapsulation[0].Count];
@@ -211,7 +198,6 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                Debug.Assert(_encapsulationEnd != null);
                 OutputStream.Position encapsulationEnd = _encapsulationEnd.Value;
 
                 int start = _encapsulationStart.Segment;
@@ -266,7 +252,6 @@ namespace ZeroC.Ice
                 OutputStream.WriteEncapsulationSize(offset - sizeLength,
                                                     compressedData.AsSpan(0, sizeLength),
                                                     Protocol.GetEncoding());
-                _encapsulation = null;
                 _payload = null;
 
                 return CompressionResult.Success;
