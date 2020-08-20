@@ -207,7 +207,7 @@ namespace ZeroC.Ice
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
-        /// <returns>A new proxy with the same type as this proxy.</returns>
+        /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(
             this IObjectPrx prx,
             ProxyFactory<T> factory,
