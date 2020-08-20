@@ -15,8 +15,8 @@ namespace ZeroC.Ice
     /// <summary>Proxy provides extension methods for IObjectPrx</summary>
     public static class Proxy
     {
-        /// <summary>Tests whether this proxy points to a remote object derived from T. If so it returns
-        /// a proxy of type T otherwise returns null.</summary>
+        /// <summary>Tests whether this proxy points to a remote object derived from T. If so it returns a proxy of
+        /// type T otherwise returns null.</summary>
         /// <param name="prx">The source proxy.</param>
         /// <param name="factory">The proxy factory used to manufacture the returned proxy.</param>
         /// <param name="context">The request context used for the remote
@@ -230,24 +230,24 @@ namespace ZeroC.Ice
             IRouterPrx? router = null) where T : IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
-                                                     cacheConnection,
-                                                     clearLocator,
-                                                     clearRouter,
-                                                     connectionId,
-                                                     context,
-                                                     encoding,
-                                                     endpointSelection,
-                                                     endpoints,
-                                                     facet: null,
-                                                     fixedConnection,
-                                                     identity: null,
-                                                     invocationMode,
-                                                     invocationTimeout,
-                                                     locator,
-                                                     locatorCacheTimeout,
-                                                     oneway,
-                                                     preferNonSecure,
-                                                     router));
+                                                  cacheConnection,
+                                                  clearLocator,
+                                                  clearRouter,
+                                                  connectionId,
+                                                  context,
+                                                  encoding,
+                                                  endpointSelection,
+                                                  endpoints,
+                                                  facet: null,
+                                                  fixedConnection,
+                                                  identity: null,
+                                                  invocationMode,
+                                                  invocationTimeout,
+                                                  locator,
+                                                  locatorCacheTimeout,
+                                                  oneway,
+                                                  preferNonSecure,
+                                                  router));
         }
 
         /// <summary>Creates a clone of this proxy. The clone is identical to this proxy except for options set
