@@ -48,7 +48,8 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
         private static ITestIntfPrx TestProxy(ITestIntfPrx prx)
         {
-            var ctx = new Dictionary<string, string> { { "MyCtx", "hello"} };
+            var ctx = new Dictionary<string, string>(prx.Context);
+            ctx.Add("MyCtx", "hello");
 
             TestHelper.Assert(prx.Op(13, ctx) == 13);
             prx.OpVoid(ctx);

@@ -88,19 +88,19 @@ namespace ZeroC.Ice.Test.Interceptor
                     {
                         (target, request, next) =>
                         {
-                            request.Context["interceptor-1"] = "interceptor-1";
                             if (ice2)
                             {
+                                request.ContextOverride["interceptor-1"] = "interceptor-1";
                                 request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
                             }
                             return next(target, request);
                         },
                         async (target, request, next) =>
                         {
-                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                            request.Context["interceptor-2"] = "interceptor-2";
                             if (ice2)
                             {
+                                TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                                request.ContextOverride["interceptor-2"] = "interceptor-2";
                                 request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
                             }
                             IncomingResponseFrame response = await next(target, request);
@@ -129,7 +129,10 @@ namespace ZeroC.Ice.Test.Interceptor
                     {
                         (target, request, next) =>
                         {
-                            request.Context["interceptor-1"] = "interceptor-1";
+                            if (ice2)
+                            {
+                                request.ContextOverride["interceptor-1"] = "interceptor-1";
+                            }
                             return next(target, request);
                         },
                         async (target, request, next) =>
@@ -163,7 +166,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     {
                         (target, request, next) =>
                         {
-                            request.Context["interceptor-1"] = "interceptor-1";
+                            request.ContextOverride["interceptor-1"] = "interceptor-1";
                             return next(target, request);
                         },
                         (target, request, next) =>
