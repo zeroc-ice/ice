@@ -978,10 +978,10 @@ Subscriber::Subscriber(
     if(_instance->observer())
     {
         _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
-                                                                      rec.topicName,
-                                                                      rec.obj,
-                                                                      rec.theQoS,
-                                                                      rec.theTopic,
+                                                                      _rec.topicName,
+                                                                      _rec.obj,
+                                                                      _rec.theQoS,
+                                                                      _rec.theTopic,
                                                                       toSubscriberState(_state),
                                                                       0));
     }
