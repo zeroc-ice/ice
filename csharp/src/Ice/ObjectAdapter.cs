@@ -838,7 +838,7 @@ namespace ZeroC.Ice
                     else
                     {
                         // This OA is mostly likely used for colocation, unless a router is set.
-                        Protocol = Protocol.Ice2;
+                        Protocol = router != null ? router.Protocol : Protocol.Ice2;
                     }
 
                     if (endpoints == null || endpoints.Count == 0)
