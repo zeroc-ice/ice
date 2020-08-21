@@ -90,7 +90,6 @@ namespace ZeroC.Ice
                 // compressed +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
                 (int decompressedSize, int decompressedSizeLength) = buffer.Slice(sizeLength + 3).ReadSize20();
 
-                // TODO: should we also verify that decompressedSize is < size?
                 if (decompressedSize > _sizeMax)
                 {
                     throw new InvalidDataException(@$"decompressed size of {decompressedSize

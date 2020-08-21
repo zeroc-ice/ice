@@ -113,22 +113,18 @@ namespace ZeroC.Ice
                 if (Protocol == Protocol.Ice1)
                 {
                     Data.Add(response.Data);
+                    _payloadEnd = new OutputStream.Position(0, response.Data.Count);
                 }
                 else
                 {
                     // i.e. result type and encapsulation but not the binary context
-                    Data.Add(response.Data.Slice(0, response.Payload.Count));
-                }
-
-                if (response.Protocol == Protocol.Ice2 || response.Payload[0] <= (byte)ReplyStatus.UserException)
-                {
-                    // The response has an encapsulation.
+                    Data.Add(response.Payload);
                     _payloadEnd = new OutputStream.Position(0, response.Payload.Count);
-                }
 
-                if (forwardBinaryContext && response.BinaryContext.Count > 0)
-                {
-                    _defaultBinaryContext = response.Data.Slice(response.Payload.Count); // can be empty
+                    if (forwardBinaryContext && response.BinaryContext.Count > 0)
+                    {
+                        _defaultBinaryContext = response.Data.Slice(response.Payload.Count); // can be empty
+                    }
                 }
             }
             else
@@ -175,7 +171,8 @@ namespace ZeroC.Ice
                         {
                             Data[0] = Data[0].Slice(0, 1);
                         }
-                        // sizeLength + 2 to skip the encapsulation header, then + 1 to skip the reply status byte
+                        // 1 for the result type in the response, then sizeLength + 2 to skip the encapsulation header,
+                        // then + 1 to skip the reply status byte
                         Data.Add(response.Payload.Slice(1 + sizeLength + 2 + 1));
                         if (replyStatus == ReplyStatus.UserException)
                         {

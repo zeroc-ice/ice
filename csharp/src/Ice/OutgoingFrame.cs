@@ -151,7 +151,7 @@ namespace ZeroC.Ice
                 }
                 // Reserve memory for the compressed data, this should never be greater than the uncompressed data
                 // otherwise we will just send the uncompressed data.
-                byte[] compressedData = new byte[encapsulation.GetByteCount()];
+                byte[] compressedData = new byte[encapsulationSize];
 
                 // Write the encapsulation header
                 int offset = sizeLength;
