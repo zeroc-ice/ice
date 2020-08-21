@@ -24,6 +24,8 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
+        internal override ArraySegment<byte> Encapsulation => Payload;
+
         /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
@@ -47,8 +49,9 @@ namespace ZeroC.Ice
 
             (int size, int sizeLength, Encoding encoding) =
                 Data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-            Encapsulation = Data.Slice(istr.Pos, size + sizeLength);
-            Payload = Data.Slice(0, istr.Pos + size + sizeLength);
+
+            Payload = Data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
+
             if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
             {
                 Context = value.Read(ContextHelper.IceReader);

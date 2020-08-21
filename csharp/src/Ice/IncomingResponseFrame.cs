@@ -21,6 +21,9 @@ namespace ZeroC.Ice
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
 
+        internal override ArraySegment<byte> Encapsulation =>
+            Protocol == Protocol.Ice1 && Payload[0] > (byte)ReplyStatus.UserException ? default : Payload.Slice(1);
+
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
@@ -124,14 +127,8 @@ namespace ZeroC.Ice
 
                 (size, sizeLength, Encoding) =
                     Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-                Encapsulation = Data.Slice(1, size + sizeLength);
-                Payload = Data.Slice(0, 1 + size + sizeLength);
-                if (sizeLength + size != Encapsulation.Count)
-                {
-                    throw new InvalidDataException(
-                        $"{Encapsulation.Count - sizeLength - size} extra bytes in payload of response frame");
-                }
 
+                Payload = Data.Slice(0, 1 + size + sizeLength);
                 HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
             }
             else
