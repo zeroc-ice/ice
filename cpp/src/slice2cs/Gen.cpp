@@ -2355,37 +2355,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "return true;";
     _out << eb;
 
-    _out << sp;
-    _out << nl << "public static ";
-    if(!bases.empty())
-    {
-        _out << "new ";
-    }
-    _out << name << " UncheckedCast(ZeroC.Ice.IObjectPrx prx) => new _" << p->name()
-        << "Prx(prx.IceReference);";
-
-    _out << sp;
-    _out << nl << "public static ";
-    if(!bases.empty())
-    {
-        _out << "new ";
-    }
-    _out << name << "? CheckedCast(ZeroC.Ice.IObjectPrx prx, "
-         << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context = null)";
-    _out << sb;
-
-    _out << nl << "if (prx.IceIsA(ZeroC.Ice.TypeExtensions.GetIceTypeId(typeof(" << interfaceName(p)
-         << "Prx))!, context))";
-    _out << sb;
-    _out << nl << "return new _" << p->name() << "Prx(prx.IceReference);";
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-
-    _out << eb;
-
     _out << eb;
 
     //

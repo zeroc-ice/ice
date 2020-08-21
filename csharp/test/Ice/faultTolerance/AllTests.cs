@@ -76,14 +76,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 refString = sb.ToString();
             }
 
-            var basePrx = IObjectPrx.Parse(refString, communicator);
-            output.WriteLine("ok");
-
-            output.Write("testing checked cast... ");
-            output.Flush();
-            var obj = ITestIntfPrx.CheckedCast(basePrx);
-            TestHelper.Assert(obj != null);
-            TestHelper.Assert(obj.Equals(basePrx));
+            var obj = ITestIntfPrx.Parse(refString, communicator);
             output.WriteLine("ok");
 
             int oldPid = 0;

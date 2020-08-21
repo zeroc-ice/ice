@@ -67,36 +67,36 @@ namespace ZeroC.Ice.Test.Facets
 
             output.Write("testing unchecked cast... ");
             output.Flush();
-            d = IDPrx.UncheckedCast(prx);
+            d = prx.Clone(IDPrx.Factory);
             TestHelper.Assert(d != null);
             TestHelper.Assert(d.Facet.Length == 0);
-            IDPrx df = prx.Clone("facetABCD", IDPrx.Factory);
+            IDPrx df = prx.Clone(IDPrx.Factory, facet: "facetABCD");
             TestHelper.Assert(df.Facet == "facetABCD");
-            df2 = IDPrx.UncheckedCast(df);
+            df2 = df.Clone(IDPrx.Factory);
             TestHelper.Assert(df2 != null);
             TestHelper.Assert(df2.Facet == "facetABCD");
-            df3 = df.Clone(facet: "", IDPrx.Factory);
+            df3 = df.Clone(IDPrx.Factory, facet: "");
             TestHelper.Assert(df3 != null);
             TestHelper.Assert(df3.Facet.Length == 0);
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");
             output.Flush();
-            d = IDPrx.CheckedCast(prx);
+            d = prx.CheckedCast(IDPrx.Factory);
             TestHelper.Assert(d != null);
             TestHelper.Assert(d.Facet.Length == 0);
-            df = prx.Clone(facet: "facetABCD", IDPrx.Factory);
+            df = prx.Clone(IDPrx.Factory, facet: "facetABCD");
             TestHelper.Assert(df.Facet == "facetABCD");
-            df2 = IDPrx.CheckedCast(df);
+            df2 = df.Clone(IDPrx.Factory);
             TestHelper.Assert(df2 != null);
             TestHelper.Assert(df2.Facet == "facetABCD");
-            df3 = df.Clone(facet: "", IDPrx.Factory);
+            df3 = df.Clone(IDPrx.Factory, facet: "");
             TestHelper.Assert(df3.Facet.Length == 0);
             output.WriteLine("ok");
 
             output.Write("testing non-facets A, B, C, and D... ");
             output.Flush();
-            d = IDPrx.CheckedCast(prx);
+            d = prx.Clone(IDPrx.Factory);
             TestHelper.Assert(d != null);
             TestHelper.Assert(d.Equals(prx));
             TestHelper.Assert(d.CallA().Equals("A"));
@@ -107,7 +107,7 @@ namespace ZeroC.Ice.Test.Facets
 
             output.Write("testing facets A, B, C, and D... ");
             output.Flush();
-            df = d.Clone(facet: "facetABCD", IDPrx.Factory);
+            df = d.Clone(IDPrx.Factory, facet: "facetABCD");
             TestHelper.Assert(df != null);
             TestHelper.Assert(df.CallA().Equals("A"));
             TestHelper.Assert(df.CallB().Equals("B"));
@@ -117,20 +117,20 @@ namespace ZeroC.Ice.Test.Facets
 
             output.Write("testing facets E and F... ");
             output.Flush();
-            IFPrx ff = d.Clone(facet: "facetEF", IFPrx.Factory);
+            IFPrx ff = d.Clone(IFPrx.Factory, facet: "facetEF");
             TestHelper.Assert(ff.CallE().Equals("E"));
             TestHelper.Assert(ff.CallF().Equals("F"));
             output.WriteLine("ok");
 
             output.Write("testing facet G... ");
             output.Flush();
-            IGPrx gf = ff.Clone(facet: "facetGH", IGPrx.Factory);
+            IGPrx gf = ff.Clone(IGPrx.Factory, facet: "facetGH");
             TestHelper.Assert(gf.CallG().Equals("G"));
             output.WriteLine("ok");
 
             output.Write("testing whether casting preserves the facet... ");
             output.Flush();
-            var hf = IHPrx.CheckedCast(gf);
+            var hf = gf.Clone(IHPrx.Factory);
             TestHelper.Assert(hf != null);
             TestHelper.Assert(hf.CallG().Equals("G"));
             TestHelper.Assert(hf.CallH().Equals("H"));

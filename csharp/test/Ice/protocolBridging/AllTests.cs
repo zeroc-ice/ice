@@ -14,7 +14,6 @@ namespace ZeroC.Ice.Test.ProtocolBridging
         public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
 
             var forwardSamePrx = ITestIntfPrx.Parse(helper.GetTestProxy("ForwardSame", 0), communicator);
             var forwardOtherPrx = ITestIntfPrx.Parse(helper.GetTestProxy("ForwardOther", 0), communicator);

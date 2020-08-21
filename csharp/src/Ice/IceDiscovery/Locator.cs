@@ -137,7 +137,7 @@ namespace ZeroC.IceDiscovery
                     return null;
                 }
 
-                IObjectPrx prx = _wellKnownProxy.Clone(identity, IObjectPrx.Factory);
+                IObjectPrx prx = _wellKnownProxy.Clone(IObjectPrx.Factory, identity: identity);
 
                 var adapterIds = new List<string>();
                 foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)

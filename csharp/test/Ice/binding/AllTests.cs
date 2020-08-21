@@ -76,7 +76,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 com.DeactivateObjectAdapter(adapter);
 
-                var test3 = ITestIntfPrx.UncheckedCast(test1);
+                var test3 = test1.Clone(ITestIntfPrx.Factory);
                 TestHelper.Assert(test3.GetConnection() == test1.GetConnection());
                 TestHelper.Assert(test3.GetConnection() == test2.GetConnection());
 
@@ -489,7 +489,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 com.DeactivateObjectAdapter(adapter);
 
-                var test3 = ITestIntfPrx.UncheckedCast(test1);
+                var test3 = test1.Clone(ITestIntfPrx.Factory);
                 try
                 {
                     TestHelper.Assert(test3.GetConnection() == test1.GetConnection());

@@ -230,7 +230,7 @@ namespace ZeroC.IceDiscovery
                     int failureCount = 0;
                     foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
                     {
-                        ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
+                        ILookupReplyPrx? lookupReply = reply.Clone(ILookupReplyPrx.Factory, identity: requestId);
                         try
                         {
                             await find(lookup, lookupReply);
