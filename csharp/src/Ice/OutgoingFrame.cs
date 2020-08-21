@@ -47,12 +47,13 @@ namespace ZeroC.Ice
         private protected OutputStream? _binaryContextOstr;
         private protected ArraySegment<byte> _defaultBinaryContext;
 
+        // Position of the start of the encapsulation.
+        private protected OutputStream.Position _encapsulationStart;
+
         private protected IList<ArraySegment<byte>>? _payload;
 
         // Position of the end of the payload, for ice1 this is always the frame end.
         private protected OutputStream.Position _payloadEnd;
-        // Position of the start of the encapsulation.
-        private protected OutputStream.Position _encapsulationStart;
 
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
@@ -143,7 +144,7 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException("payload is already compressed");
                 }
 
-                int encapsulationSize = encapsulation.GetByteCount();
+                int encapsulationSize = encapsulation.GetByteCount(); // this includes the size length
                 if (encapsulationSize < _compressionMinSize)
                 {
                     return CompressionResult.PayloadTooSmall;
@@ -212,6 +213,8 @@ namespace ZeroC.Ice
                     Data[_encapsulationStart.Segment] = segment.Slice(0, _encapsulationStart.Offset);
                     start += 1;
                 }
+
+                // TODO: for response frames, we should replace the entire payload, not just the encapsulation.
 
                 Data.RemoveRange(start, _payloadEnd.Segment - start + 1);
                 offset += (int)memoryStream.Position;
