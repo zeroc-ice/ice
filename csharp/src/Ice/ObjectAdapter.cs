@@ -717,16 +717,38 @@ namespace ZeroC.Ice
             }
         }
 
-        // Called by Communicator. fallbackProtocol is used when the protocol can not be inferred
-        // from the endpoints
+        // Called by Communicator to create a nameless ObjectAdapter
+        internal ObjectAdapter(
+            Communicator communicator,
+            bool serializeDispatch,
+            TaskScheduler? scheduler,
+            Protocol protocol)
+        {
+            Communicator = communicator;
+            Name = "";
+            SerializeDispatch = serializeDispatch;
+            TaskScheduler = scheduler;
+
+            _publishedEndpoints = Array.Empty<Endpoint>();
+            _routerInfo = null;
+            _directCount = 0;
+
+            _id = "";
+            _replicaGroupId = "";
+            _acm = Communicator.ServerAcm;
+            Protocol = protocol;
+        }
+
+        // Called by Communicator.
         internal ObjectAdapter(
             Communicator communicator,
             string name,
             bool serializeDispatch,
             TaskScheduler? scheduler,
-            IRouterPrx? router,
-            Protocol fallbackProtocol)
+            IRouterPrx? router)
         {
+            Debug.Assert(name.Length != 0);
+
             Communicator = communicator;
             Name = name;
             SerializeDispatch = serializeDispatch;
@@ -735,15 +757,6 @@ namespace ZeroC.Ice
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
             _directCount = 0;
-
-            if (Name.Length == 0)
-            {
-                _id = "";
-                _replicaGroupId = "";
-                _acm = Communicator.ServerAcm;
-                Protocol = fallbackProtocol;
-                return;
-            }
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
@@ -831,7 +844,8 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        Protocol = fallbackProtocol;
+                        // This OA is mostly likely used for colocation, unless a router is set.
+                        Protocol = router != null ? router.Protocol : Protocol.Ice2;
                     }
 
                     if (endpoints == null || endpoints.Count == 0)
