@@ -193,8 +193,7 @@ namespace ZeroC.Ice
                     OutputStream.Position binaryContextEnd = ostr.Tail;
                     if (binaryContextEnd.Segment == _payloadEnd.Segment)
                     {
-                        segment = segment.Slice(_payloadEnd.Offset,
-                                                binaryContextEnd.Offset - _payloadEnd.Offset);
+                        segment = segment.Slice(_payloadEnd.Offset, binaryContextEnd.Offset - _payloadEnd.Offset);
                     }
                     else
                     {
