@@ -52,7 +52,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+                return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
             }
             else
             {
@@ -72,7 +72,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding());
             }
             else
             {
@@ -124,15 +124,9 @@ namespace ZeroC.Ice
 
                 (size, sizeLength, Encoding) =
                     Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-                Encapsulation = Data.Slice(1, size + sizeLength);
-                Payload = Data.Slice(0, 1 + size + sizeLength);
-                if (sizeLength + size != Encapsulation.Count)
-                {
-                    throw new InvalidDataException(
-                        $"{Encapsulation.Count - sizeLength - size} extra bytes in payload of response frame");
-                }
 
-                HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
+                Payload = Data.Slice(0, 1 + size + sizeLength);
+                HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[1 + sizeLength + 2] != 0;
             }
             else
             {
@@ -177,6 +171,13 @@ namespace ZeroC.Ice
                     throw istr.ReadSystemException11(replyStatus);
                 }
             }
+        }
+
+        private protected override ArraySegment<byte> GetEncapsulation()
+        {
+            // Can only be called for a frame with an encapsulation:
+            Debug.Assert(Protocol == Protocol.Ice2 || Payload[0] <= (byte)ReplyStatus.UserException);
+            return Payload.Slice(1);
         }
 
         private Exception ReadException(Communicator communicator)
