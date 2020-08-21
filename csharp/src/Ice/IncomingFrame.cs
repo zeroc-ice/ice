@@ -52,7 +52,7 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
-        public bool HasCompressedPayload { get; protected set; }
+        public bool HasCompressedPayload { get; private protected set; }
 
         /// <summary>The payload of this frame. The bytes inside the data should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
@@ -66,10 +66,6 @@ namespace ZeroC.Ice
 
         /// <summary>The frame data</summary>
         internal ArraySegment<byte> Data { get; set; }
-
-        // If the frame payload contains an encapsulation, this segment corresponds to this encapsulation.
-        // Otherwise it is an empty segment.
-        internal abstract ArraySegment<byte> Encapsulation { get; }
 
         private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
 
@@ -85,7 +81,9 @@ namespace ZeroC.Ice
             }
             else
             {
-                ReadOnlySpan<byte> buffer = Encapsulation.AsReadOnlySpan();
+                ArraySegment<byte> encapsulation = GetEncapsulation();
+
+                ReadOnlySpan<byte> buffer = encapsulation.AsReadOnlySpan();
                 (int size, int sizeLength, Encoding _) = buffer.ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 // Read the decompressed size that is written after the compression status byte when the payload is
@@ -104,7 +102,7 @@ namespace ZeroC.Ice
                 byte[] decompressedData = new byte[Data.Count - size + decompressedSize];
 
                 // Index of the start of the GZip data in Data
-                int gzipIndex = Encapsulation.Offset - Data.Offset + sizeLength + 3;
+                int gzipIndex = encapsulation.Offset - Data.Offset + sizeLength + 3;
 
                 // Copy the data before the encapsulation to the new buffer
                 Data.AsSpan(0, gzipIndex).CopyTo(decompressedData);
@@ -119,11 +117,11 @@ namespace ZeroC.Ice
                 using var decompressedStream = new MemoryStream(decompressedData,
                                                                 gzipIndex,
                                                                 decompressedData.Length - gzipIndex);
-                Debug.Assert(Encapsulation.Array != null);
+                Debug.Assert(encapsulation.Array != null);
                 var compressed = new GZipStream(
-                    new MemoryStream(Encapsulation.Array,
-                                     Encapsulation.Offset + sizeLength + 3 + decompressedSizeLength,
-                                     Encapsulation.Count - sizeLength - 3 - decompressedSizeLength),
+                    new MemoryStream(encapsulation.Array,
+                                     encapsulation.Offset + sizeLength + 3 + decompressedSizeLength,
+                                     encapsulation.Count - sizeLength - 3 - decompressedSizeLength),
                     CompressionMode.Decompress);
                 compressed.CopyTo(decompressedStream);
                 // +3 corresponds to (Encoding 2 bytes and Compression status 1 byte), that are part of the
@@ -142,7 +140,7 @@ namespace ZeroC.Ice
                 Data = decompressedData;
                 // Rewrite the encapsulation size
                 OutputStream.WriteEncapsulationSize(decompressedSize,
-                                                    Encapsulation.AsSpan(0, sizeLength),
+                                                    GetEncapsulation().AsSpan(0, sizeLength),
                                                     Protocol.GetEncoding());
                 HasCompressedPayload = false;
             }
@@ -154,5 +152,8 @@ namespace ZeroC.Ice
             Protocol = protocol;
             _sizeMax = sizeMax;
         }
+
+        // Returns the subset of Payload that represents the encapsulation.
+        private protected abstract ArraySegment<byte> GetEncapsulation();
     }
 }

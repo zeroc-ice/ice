@@ -24,8 +24,6 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        internal override ArraySegment<byte> Encapsulation => Payload;
-
         /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
@@ -98,5 +96,7 @@ namespace ZeroC.Ice
             }
             return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
         }
+
+        private protected override ArraySegment<byte> GetEncapsulation() => Payload;
     }
 }

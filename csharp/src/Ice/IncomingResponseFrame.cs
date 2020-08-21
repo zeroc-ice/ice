@@ -21,9 +21,6 @@ namespace ZeroC.Ice
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
 
-        internal override ArraySegment<byte> Encapsulation =>
-            Protocol == Protocol.Ice1 && Payload[0] > (byte)ReplyStatus.UserException ? default : Payload.Slice(1);
-
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
@@ -174,6 +171,13 @@ namespace ZeroC.Ice
                     throw istr.ReadSystemException11(replyStatus);
                 }
             }
+        }
+
+        private protected override ArraySegment<byte> GetEncapsulation()
+        {
+            // Can only be called for a frame with an encapsulation:
+            Debug.Assert(Protocol == Protocol.Ice2 || Payload[0] <= (byte)ReplyStatus.UserException);
+            return Payload.Slice(1);
         }
 
         private Exception ReadException(Communicator communicator)

@@ -106,8 +106,9 @@ namespace ZeroC.Ice
                     Data.Add(response.Data.Slice(0, response.Payload.Count));
                 }
 
-                if (response.Encapsulation.Count > 0)
+                if (response.Protocol == Protocol.Ice2 || response.Payload[0] <= (byte)ReplyStatus.UserException)
                 {
+                    // The response has an encapsulation.
                     _encapsulationEnd = new OutputStream.Position(0, response.Payload.Count);
                 }
 
