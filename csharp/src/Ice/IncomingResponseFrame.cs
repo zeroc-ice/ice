@@ -55,7 +55,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+                return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
             }
             else
             {
@@ -75,7 +75,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding());
             }
             else
             {
@@ -129,7 +129,7 @@ namespace ZeroC.Ice
                     Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 Payload = Data.Slice(0, 1 + size + sizeLength);
-                HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
+                HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[1 + sizeLength + 2] != 0;
             }
             else
             {

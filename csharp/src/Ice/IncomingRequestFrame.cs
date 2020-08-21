@@ -65,7 +65,7 @@ namespace ZeroC.Ice
             }
 
             Encoding = encoding;
-            HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
+            HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
         }
 
         internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
@@ -81,7 +81,7 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
-            Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+            Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
         }
 
         /// <summary>Reads the request frame parameter list.</summary>
@@ -96,7 +96,7 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
-            return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
         }
     }
 }
