@@ -109,7 +109,7 @@ namespace ZeroC.Ice
                 if (response.Protocol == Protocol.Ice2 || response.Payload[0] <= (byte)ReplyStatus.UserException)
                 {
                     // The response has an encapsulation.
-                    _encapsulationEnd = new OutputStream.Position(0, response.Payload.Count);
+                    _payloadEnd = new OutputStream.Position(0, response.Payload.Count);
                 }
 
                 if (forwardBinaryContext && response.BinaryContext.Count > 0)
@@ -165,7 +165,7 @@ namespace ZeroC.Ice
                         Data.Add(response.Payload.Slice(1 + sizeLength + 2 + 1));
                         if (replyStatus == ReplyStatus.UserException)
                         {
-                            _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
+                            _payloadEnd = new OutputStream.Position(1, Data[1].Count);
                         }
                     }
                     else
@@ -197,7 +197,7 @@ namespace ZeroC.Ice
                             Data[0] = Data[0].Slice(0, tail.Offset);
                             Data.Add(response.Payload.Slice(1));
                         }
-                        _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
+                        _payloadEnd = new OutputStream.Position(1, Data[1].Count);
                     }
                 }
                 else
@@ -211,7 +211,7 @@ namespace ZeroC.Ice
                                                                       Encoding);
                     Data[0] = Data[0].Slice(0, tail.Offset);
                     Data.Add(response.Payload.Slice(1 + sizeLength + 2));
-                    _encapsulationEnd = new OutputStream.Position(1, Data[1].Count);
+                    _payloadEnd = new OutputStream.Position(1, Data[1].Count);
                 }
             }
 
@@ -309,7 +309,7 @@ namespace ZeroC.Ice
             Encoding encoding,
             List<ArraySegment<byte>> data,
             OutputStream.Position encapsulationEnd)
-            : this(protocol, encoding, data: data) => _encapsulationEnd = encapsulationEnd;
+            : this(protocol, encoding, data: data) => _payloadEnd = encapsulationEnd;
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,

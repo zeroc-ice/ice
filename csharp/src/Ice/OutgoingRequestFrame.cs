@@ -167,7 +167,7 @@ namespace ZeroC.Ice
                 // We only include the encapsulation.
                 Data.Add(request.Data.Slice(
                     request.Payload.Offset - request.Data.Offset, request.Payload.Count));
-                _encapsulationEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
+                _payloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
@@ -211,12 +211,12 @@ namespace ZeroC.Ice
                     // Add encoded bytes, not including the header or binary context.
                     Data.Add(request.Payload.Slice(sizeLength + 2));
 
-                    _encapsulationEnd =
+                    _payloadEnd =
                         new OutputStream.Position(Data.Count - 1, request.Payload.Count - sizeLength - 2);
                 }
                 else
                 {
-                    _encapsulationEnd = tail;
+                    _payloadEnd = tail;
                 }
             }
 

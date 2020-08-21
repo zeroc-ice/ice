@@ -38,13 +38,14 @@ namespace ZeroC.Ice
                 {
                     return Data;
                 }
-                else if (_payload == null && _encapsulationEnd is OutputStream.Position encapsulationEnd)
+                else if (_payload == null)
                 {
-                    _payload = Data.Slice(default, encapsulationEnd);
+                    _payload = Data.Slice(default, _payloadEnd);
                 }
-                return _payload ?? Array.Empty<ArraySegment<byte>>();
+                return _payload;
             }
         }
+
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
@@ -60,8 +61,8 @@ namespace ZeroC.Ice
         private protected OutputStream? _binaryContextOstr;
         private protected ArraySegment<byte> _defaultBinaryContext;
 
-        // Position of the end of the encapsulation, for ice1 this is always the frame end.
-        private protected OutputStream.Position? _encapsulationEnd;
+        // Position of the end of the payload, for ice1 this is always the frame end.
+        private protected OutputStream.Position _payloadEnd;
         // Position of the start of the encapsulation.
         private protected OutputStream.Position _encapsulationStart;
 
@@ -145,8 +146,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Debug.Assert(_encapsulationEnd != null); // i.e. we have an encapsulation
-                IList<ArraySegment<byte>> encapsulation = Data.Slice(_encapsulationStart, _encapsulationEnd.Value);
+                IList<ArraySegment<byte>> encapsulation = Data.Slice(_encapsulationStart, _payloadEnd);
 
                 int sizeLength = Protocol == Protocol.Ice2 ? 1 << (encapsulation[0][0] & 0x03) : 4;
                 byte compressionStatus = encapsulation[0].Count > sizeLength + 2 ?
@@ -198,27 +198,25 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                OutputStream.Position encapsulationEnd = _encapsulationEnd.Value;
-
                 int start = _encapsulationStart.Segment;
 
                 if (_binaryContextOstr is OutputStream ostr)
                 {
-                    ArraySegment<byte> segment = Data[encapsulationEnd.Segment];
+                    ArraySegment<byte> segment = Data[_payloadEnd.Segment];
                     OutputStream.Position binaryContextEnd = ostr.Tail;
-                    if (binaryContextEnd.Segment == encapsulationEnd.Segment)
+                    if (binaryContextEnd.Segment == _payloadEnd.Segment)
                     {
-                        segment = segment.Slice(encapsulationEnd.Offset,
-                                                binaryContextEnd.Offset - encapsulationEnd.Offset);
+                        segment = segment.Slice(_payloadEnd.Offset,
+                                                binaryContextEnd.Offset - _payloadEnd.Offset);
                     }
                     else
                     {
-                        segment = segment.Slice(encapsulationEnd.Offset);
+                        segment = segment.Slice(_payloadEnd.Offset);
                     }
 
                     if (segment.Count > 0)
                     {
-                        Data.Insert(encapsulationEnd.Segment + 1, segment);
+                        Data.Insert(_payloadEnd.Segment + 1, segment);
                     }
                 }
 
@@ -229,20 +227,22 @@ namespace ZeroC.Ice
                     start += 1;
                 }
 
-                Data.RemoveRange(start, encapsulationEnd.Segment - start + 1);
+                Data.RemoveRange(start, _payloadEnd.Segment - start + 1);
                 offset += (int)memoryStream.Position;
                 Data.Insert(start, new ArraySegment<byte>(compressedData, 0, offset));
 
                 _encapsulationStart = new OutputStream.Position(start, 0);
-                _encapsulationEnd = new OutputStream.Position(start, offset);
+
+                OutputStream.Position oldPayloadEnd = _payloadEnd;
+                _payloadEnd = new OutputStream.Position(start, offset);
                 Size = Data.GetByteCount();
 
                 if (_binaryContextOstr != null)
                 {
                     OutputStream.Position binaryContextEnd = _binaryContextOstr.Tail;
-                    if (binaryContextEnd.Segment == encapsulationEnd.Segment)
+                    if (binaryContextEnd.Segment == oldPayloadEnd.Segment)
                     {
-                        binaryContextEnd.Offset -= encapsulationEnd.Offset;
+                        binaryContextEnd.Offset -= oldPayloadEnd.Offset;
                     }
                     binaryContextEnd.Segment = Data.Count - 1;
                     _binaryContextOstr = new OutputStream(_binaryContextOstr.Encoding, Data, binaryContextEnd);
@@ -287,16 +287,15 @@ namespace ZeroC.Ice
 
             if (_binaryContextOstr == null)
             {
-                Debug.Assert(_encapsulationEnd != null);
-                _binaryContextOstr = new OutputStream(Encoding.V2_0, Data, _encapsulationEnd.Value);
+                _binaryContextOstr = new OutputStream(Encoding.V2_0, Data, _payloadEnd);
                 _binaryContextOstr.WriteByteSpan(stackalloc byte[2]); // 2-bytes size place holder
             }
             return _binaryContextOstr;
         }
 
-        // Once we finish writing the encapsulation we adjust the _encapsulationEnd position.
+        // Once we finish writing the encapsulation we adjust the _payloadEnd position.
         private protected void FinishEncapsulation(OutputStream.Position encapsulationEnd) =>
-            _encapsulationEnd = encapsulationEnd;
+            _payloadEnd = encapsulationEnd;
 
         // Finish prepares the frame for sending and adjusts the last written segment to match the offset of the written
         // data. If the frame contains a binary context, Finish appends the entries from _defaultBinaryContext (if any)
@@ -328,8 +327,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    Debug.Assert(_encapsulationEnd != null);
-                    ostr.RewriteFixedLengthSize20(_binaryContextKeys.Count, _encapsulationEnd.Value, 2);
+                    ostr.RewriteFixedLengthSize20(_binaryContextKeys.Count, _payloadEnd, 2);
                 }
                 else
                 {
@@ -345,8 +343,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        Debug.Assert(_encapsulationEnd != null);
-                        Data[^1] = Data[^1].Slice(0, _encapsulationEnd.Value.Offset);
+                        Data[^1] = Data[^1].Slice(0, _payloadEnd.Offset);
                     }
                 }
 
