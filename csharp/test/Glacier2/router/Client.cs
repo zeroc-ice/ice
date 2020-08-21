@@ -290,8 +290,8 @@ namespace ZeroC.Glacier2.Test.Router
                 {
                     ["_fwd"] = "t"
                 };
-                ICallbackPrx otherCategoryTwoway =
-                    twoway.Clone(Identity.Parse("c2/callback"), ICallbackPrx.Factory);
+                ICallbackPrx otherCategoryTwoway = twoway.Clone(ICallbackPrx.Factory,
+                                                                identity: Identity.Parse("c2/callback"));
                 otherCategoryTwoway.InitiateCallback(twowayR, context);
                 callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
@@ -306,8 +306,8 @@ namespace ZeroC.Glacier2.Test.Router
                 };
                 try
                 {
-                    ICallbackPrx otherCategoryTwoway =
-                        twoway.Clone(Identity.Parse("c3/callback"), ICallbackPrx.Factory);
+                    ICallbackPrx otherCategoryTwoway = twoway.Clone(ICallbackPrx.Factory,
+                                                                    identity: Identity.Parse("c3/callback"));
                     otherCategoryTwoway.InitiateCallback(twowayR, context);
                     Assert(false);
                 }
@@ -324,8 +324,8 @@ namespace ZeroC.Glacier2.Test.Router
                 {
                     ["_fwd"] = "t"
                 };
-                ICallbackPrx otherCategoryTwoway =
-                    twoway.Clone(Identity.Parse("_userid/callback"), ICallbackPrx.Factory);
+                ICallbackPrx otherCategoryTwoway = twoway.Clone(ICallbackPrx.Factory,
+                                                                identity: Identity.Parse("_userid/callback"));
                 otherCategoryTwoway.InitiateCallback(twowayR, context);
                 callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");

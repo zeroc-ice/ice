@@ -25,21 +25,12 @@ namespace ZeroC.Ice
         public static T? CheckedCast<T>(
             this IObjectPrx prx,
             ProxyFactory<T> factory,
-            IReadOnlyDictionary<string, string>? context = null) where T : class, IObjectPrx
-        {
-            if (prx.IceIsA(TypeExtensions.GetIceTypeId(typeof(T))!, context))
-            {
-                return factory(prx.IceReference);
-            }
-            else
-            {
-                return null;
-            }
-        }
+            IReadOnlyDictionary<string, string>? context = null) where T : class, IObjectPrx =>
+            prx.IceIsA(typeof(T).GetIceTypeId()!, context) ? factory(prx.IceReference) : null;
+
         /// <summary>Creates a clone of this proxy, with a new identity and optionally other options. The clone
         /// is identical to this proxy except for its identity and other options set through parameters.</summary>
         /// <param name="prx">The source proxy.</param>
-        /// <param name="identity">The identity of the clone.</param>
         /// <param name="factory">The proxy factory used to manufacture the clone.</param>
         /// <param name="adapterId">The adapter ID of the clone (optional).</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
@@ -55,6 +46,7 @@ namespace ZeroC.Ice
         /// <param name="facet">The facet of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
+        /// <param name="identity">The identity of the clone.</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
@@ -67,7 +59,6 @@ namespace ZeroC.Ice
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(
             this IObjectPrx prx,
-            Identity identity,
             ProxyFactory<T> factory,
             string? adapterId = null,
             bool? cacheConnection = null,
@@ -80,175 +71,33 @@ namespace ZeroC.Ice
             IEnumerable<Endpoint>? endpoints = null,
             string? facet = null,
             Connection? fixedConnection = null,
+            Identity? identity = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
             bool? preferNonSecure = null,
-            IRouterPrx? router = null) where T : class, IObjectPrx
-        {
-            return factory(prx.IceReference.Clone(adapterId,
-                                                  cacheConnection,
-                                                  clearLocator,
-                                                  clearRouter,
-                                                  connectionId,
-                                                  context,
-                                                  encoding,
-                                                  endpointSelection,
-                                                  endpoints,
-                                                  facet,
-                                                  fixedConnection,
-                                                  identity,
-                                                  invocationMode,
-                                                  invocationTimeout,
-                                                  locator,
-                                                  locatorCacheTimeout,
-                                                  oneway,
-                                                  preferNonSecure,
-                                                  router));
-        }
-
-        /// <summary>Creates a clone of this proxy, with a new facet and optionally other options. The clone is
-        /// identical to this proxy except for its facet and other options set through parameters.</summary>
-        /// <param name="prx">The source proxy.</param>
-        /// <param name="facet">The facet of the clone.</param>
-        /// <param name="factory">The proxy factory used to manufacture the clone.</param>
-        /// <param name="adapterId">The adapter ID of the clone (optional).</param>
-        /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
-        /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
-        /// </param>
-        /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
-        /// </param>
-        /// <param name="connectionId">The connection ID of the clone (optional).</param>
-        /// <param name="context">The context of the clone (optional).</param>
-        /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
-        /// <param name="endpoints">The endpoints of the clone (optional).</param>
-        /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
-        /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
-        /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
-        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
-        /// <param name="locator">The locator proxy of the clone (optional).</param>
-        /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
-        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
-        /// version of the invocationMode parameter.</param>
-        /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
-        /// connections (optional).</param>
-        /// <param name="router">The router proxy of the clone (optional).</param>
-        /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
-        public static T Clone<T>(
-            this IObjectPrx prx,
-            string facet,
-            ProxyFactory<T> factory,
-            string? adapterId = null,
-            bool? cacheConnection = null,
-            bool clearLocator = false,
-            bool clearRouter = false,
-            string? connectionId = null,
-            IReadOnlyDictionary<string, string>? context = null,
-            Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
-            IEnumerable<Endpoint>? endpoints = null,
-            Connection? fixedConnection = null,
-            InvocationMode? invocationMode = null,
-            TimeSpan? invocationTimeout = null,
-            ILocatorPrx? locator = null,
-            TimeSpan? locatorCacheTimeout = null,
-            bool? oneway = null,
-            bool? preferNonSecure = null,
-            IRouterPrx? router = null) where T : class, IObjectPrx
-        {
-            return factory(prx.IceReference.Clone(adapterId,
-                                                  cacheConnection,
-                                                  clearLocator,
-                                                  clearRouter,
-                                                  connectionId,
-                                                  context,
-                                                  encoding,
-                                                  endpointSelection,
-                                                  endpoints,
-                                                  facet,
-                                                  fixedConnection,
-                                                  identity: null,
-                                                  invocationMode,
-                                                  invocationTimeout,
-                                                  locator,
-                                                  locatorCacheTimeout,
-                                                  oneway,
-                                                  preferNonSecure,
-                                                  router));
-        }
-
-        /// <summary>Creates a clone of this proxy. The clone is identical to this proxy except for options set
-        /// through parameters. This method returns this proxy instead of a new proxy in the event none of the options
-        /// specified through the parameters change this proxy's options.</summary>
-        /// <param name="prx">The source proxy.</param>
-        /// <param name="factory">The proxy factory used to manufacture the clone.</param>
-        /// <param name="adapterId">The adapter ID of the clone (optional).</param>
-        /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
-        /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
-        /// </param>
-        /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
-        /// </param>
-        /// <param name="connectionId">The connection ID of the clone (optional).</param>
-        /// <param name="context">The context of the clone (optional).</param>
-        /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
-        /// <param name="endpoints">The endpoints of the clone (optional).</param>
-        /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
-        /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
-        /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
-        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
-        /// <param name="locator">The locator proxy of the clone (optional).</param>
-        /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
-        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
-        /// version of the invocationMode parameter.</param>
-        /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
-        /// connections (optional).</param>
-        /// <param name="router">The router proxy of the clone (optional).</param>
-        /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
-        public static T Clone<T>(
-            this IObjectPrx prx,
-            ProxyFactory<T> factory,
-            string? adapterId = null,
-            bool? cacheConnection = null,
-            bool clearLocator = false,
-            bool clearRouter = false,
-            string? connectionId = null,
-            IReadOnlyDictionary<string, string>? context = null,
-            Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
-            IEnumerable<Endpoint>? endpoints = null,
-            Connection? fixedConnection = null,
-            InvocationMode? invocationMode = null,
-            TimeSpan? invocationTimeout = null,
-            ILocatorPrx? locator = null,
-            TimeSpan? locatorCacheTimeout = null,
-            bool? oneway = null,
-            bool? preferNonSecure = null,
-            IRouterPrx? router = null) where T : IObjectPrx
-        {
-            return factory(prx.IceReference.Clone(adapterId,
-                                                  cacheConnection,
-                                                  clearLocator,
-                                                  clearRouter,
-                                                  connectionId,
-                                                  context,
-                                                  encoding,
-                                                  endpointSelection,
-                                                  endpoints,
-                                                  facet: null,
-                                                  fixedConnection,
-                                                  identity: null,
-                                                  invocationMode,
-                                                  invocationTimeout,
-                                                  locator,
-                                                  locatorCacheTimeout,
-                                                  oneway,
-                                                  preferNonSecure,
-                                                  router));
-        }
+            IRouterPrx? router = null) where T : class, IObjectPrx =>
+            factory(prx.IceReference.Clone(adapterId,
+                                           cacheConnection,
+                                           clearLocator,
+                                           clearRouter,
+                                           connectionId,
+                                           context,
+                                           encoding,
+                                           endpointSelection,
+                                           endpoints,
+                                           facet,
+                                           fixedConnection,
+                                           identity,
+                                           invocationMode,
+                                           invocationTimeout,
+                                           locator,
+                                           locatorCacheTimeout,
+                                           oneway,
+                                           preferNonSecure,
+                                           router));
 
         /// <summary>Creates a clone of this proxy. The clone is identical to this proxy except for options set
         /// through parameters. This method returns this proxy instead of a new proxy in the event none of the options

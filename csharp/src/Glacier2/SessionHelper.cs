@@ -366,7 +366,7 @@ namespace ZeroC.Glacier2
                         {
                             // In case of error getting router identity from RouterFinder use default identity.
                             _communicator.DefaultRouter =
-                                finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory);
+                                finder.Clone(Ice.IRouterPrx.Factory, identity: new Identity("router", "Glacier2"));
                         }
                     }
                 }

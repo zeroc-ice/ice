@@ -26,7 +26,7 @@ namespace ZeroC.IceBox.Test.Admin
                 //
                 // Test: Verify that the custom facet is present.
                 //
-                facet = admin.Clone(facet: "TestFacet", IObjectPrx.Factory).Clone(ITestFacetPrx.Factory);
+                facet = admin.Clone(IObjectPrx.Factory, facet: "TestFacet").Clone(ITestFacetPrx.Factory);
                 TestHelper.Assert(facet != null);
                 facet.IcePing();
             }
@@ -35,8 +35,8 @@ namespace ZeroC.IceBox.Test.Admin
             Console.Out.Write("testing properties facet... ");
             Console.Out.Flush();
             {
-                IPropertiesAdminPrx pa = admin.Clone(facet: "IceBox.Service.TestService.Properties",
-                                                     IObjectPrx.Factory).Clone(IPropertiesAdminPrx.Factory);
+                IPropertiesAdminPrx pa = admin.Clone(IObjectPrx.Factory,
+                    facet: "IceBox.Service.TestService.Properties").Clone(IPropertiesAdminPrx.Factory);
 
                 // Test: PropertiesAdmin.GetProperty()
                 TestHelper.Assert(pa != null);
@@ -86,12 +86,13 @@ namespace ZeroC.IceBox.Test.Admin
             Console.Out.Write("testing metrics admin facet... ");
             Console.Out.Flush();
             {
-                IMetricsAdminPrx? ma =
-                    admin.Clone(facet: "IceBox.Service.TestService.Metrics",
-                                IObjectPrx.Factory).CheckedCast(IMetricsAdminPrx.Factory);
-                IPropertiesAdminPrx? pa =
-                    admin.Clone(facet: "IceBox.Service.TestService.Properties",
-                                IObjectPrx.Factory).CheckedCast(IPropertiesAdminPrx.Factory);
+                IMetricsAdminPrx? ma = admin.Clone(
+                    IObjectPrx.Factory,
+                    facet: "IceBox.Service.TestService.Metrics").CheckedCast(IMetricsAdminPrx.Factory);
+
+                IPropertiesAdminPrx? pa = admin.Clone(
+                    IObjectPrx.Factory,
+                    facet: "IceBox.Service.TestService.Properties").CheckedCast(IPropertiesAdminPrx.Factory);
 
                 TestHelper.Assert(ma != null && pa != null);
                 string[] views = ma.GetMetricsViewNames().ReturnValue;
@@ -110,7 +111,7 @@ namespace ZeroC.IceBox.Test.Admin
                 TestHelper.Assert(views.Length == 3);
 
                 // Make sure that the IceBox communicator metrics admin is a separate instance.
-                views = admin.Clone(facet: "Metrics", IMetricsAdminPrx.Factory).GetMetricsViewNames().ReturnValue;
+                views = admin.Clone(IMetricsAdminPrx.Factory, facet: "Metrics").GetMetricsViewNames().ReturnValue;
                 TestHelper.Assert(views.Length == 0);
             }
             Console.Out.WriteLine("ok");

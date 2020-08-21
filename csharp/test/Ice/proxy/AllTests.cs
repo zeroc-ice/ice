@@ -667,7 +667,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             output.Write("testing proxy Clone... ");
 
-            TestHelper.Assert(baseProxy.Clone(facet: "facet", IObjectPrx.Factory).Facet == "facet");
+            TestHelper.Assert(baseProxy.Clone(IObjectPrx.Factory, facet: "facet").Facet == "facet");
             TestHelper.Assert(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
             TestHelper.Assert(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
@@ -739,10 +739,10 @@ namespace ZeroC.Ice.Test.Proxy
 
             var compObj = IObjectPrx.Parse("ice:foo", communicator);
 
-            TestHelper.Assert(compObj.Clone(facet: "facet", IObjectPrx.Factory).Equals(
-                              compObj.Clone(facet: "facet", IObjectPrx.Factory)));
-            TestHelper.Assert(!compObj.Clone(facet: "facet", IObjectPrx.Factory).Equals(
-                              compObj.Clone(facet: "facet1", IObjectPrx.Factory)));
+            TestHelper.Assert(compObj.Clone(IObjectPrx.Factory, facet: "facet").Equals(
+                              compObj.Clone(IObjectPrx.Factory, facet: "facet")));
+            TestHelper.Assert(!compObj.Clone(IObjectPrx.Factory, facet: "facet").Equals(
+                              compObj.Clone(IObjectPrx.Factory, facet: "facet1")));
 
             TestHelper.Assert(compObj.Clone(invocationMode: InvocationMode.Oneway).Equals(
                               compObj.Clone(invocationMode: InvocationMode.Oneway)));
@@ -848,7 +848,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(cl.Equals(derived));
             try
             {
-                cl.Clone(facet: "facet", IMyDerivedClassPrx.Factory).IcePing();
+                cl.Clone(IMyDerivedClassPrx.Factory, facet: "facet").IcePing();
                 TestHelper.Assert(false);
             }
             catch (ObjectNotExistException)
@@ -902,8 +902,11 @@ namespace ZeroC.Ice.Test.Proxy
                     IMyClassPrx prx = cl.Clone(fixedConnection: connection2);
                     TestHelper.Assert(prx.IsFixed);
                     prx.IcePing();
-                    TestHelper.Assert(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection2).Facet == "facet");
-                    TestHelper.Assert(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection2).IsOneway);
+                    TestHelper.Assert(cl.Clone(IObjectPrx.Factory,
+                                               facet: "facet",
+                                               fixedConnection: connection2).Facet == "facet");
+                    TestHelper.Assert(cl.Clone(invocationMode: InvocationMode.Oneway,
+                                               fixedConnection: connection2).IsOneway);
                     var ctx = new Dictionary<string, string>
                     {
                         ["one"] = "hello",

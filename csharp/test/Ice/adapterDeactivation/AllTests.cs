@@ -127,7 +127,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Flush();
             {
                 var routerId = new Identity("router", "");
-                IRouterPrx router = obj.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
+                IRouterPrx router = obj.Clone(IRouterPrx.Factory, connectionId: "rc", identity: routerId);
                 ObjectAdapter adapter = communicator.CreateObjectAdapterWithRouter(router);
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 string endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
@@ -165,7 +165,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 try
                 {
                     routerId = new Identity("test", "");
-                    router = obj.Clone(routerId, IRouterPrx.Factory);
+                    router = obj.Clone(IRouterPrx.Factory, identity: routerId);
                     communicator.CreateObjectAdapterWithRouter(router);
                     TestHelper.Assert(false);
                 }
