@@ -166,8 +166,8 @@ namespace ZeroC.Ice
 
                 // We only include the encapsulation.
                 Data.Add(request.Data.Slice(
-                    request.Encapsulation.Offset - request.Data.Offset, request.Encapsulation.Count));
-                _encapsulationEnd = new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count);
+                    request.Payload.Offset - request.Data.Offset, request.Payload.Count));
+                _encapsulationEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
@@ -179,7 +179,7 @@ namespace ZeroC.Ice
                     if (!hasSlot0 || request.BinaryContext.Count > 1)
                     {
                         _defaultBinaryContext = request.Data.Slice(
-                            request.Encapsulation.Offset - request.Data.Offset + request.Encapsulation.Count);
+                            request.Payload.Offset - request.Data.Offset + request.Payload.Count);
 
                         // When slot 0 has an empty value, there is no need to always write it since the default
                         // (empty Context) is correctly represented by the entry in the _defaultBinaryContext.
@@ -193,26 +193,26 @@ namespace ZeroC.Ice
                 // constructor (when Protocol == Ice1) or will be written by Finish (when Protocol == Ice2).
                 // The payload encoding must remain the same since we cannot transcode the encoded bytes.
 
-                int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : (1 << (request.Encapsulation[0] & 0x03));
+                int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : (1 << (request.Payload[0] & 0x03));
 
                 OutputStream.Position tail =
                     OutputStream.WriteEncapsulationHeader(Data,
                                                           _encapsulationStart,
                                                           Protocol.GetEncoding(),
-                                                          request.Encapsulation.Count - sizeLength,
+                                                          request.Payload.Count - sizeLength,
                                                           request.Encoding);
 
                 // Finish off current segment
                 Data[^1] = Data[^1].Slice(0, tail.Offset);
 
                 // "2" below corresponds to the encoded length of the encoding.
-                if (request.Encapsulation.Count > sizeLength + 2)
+                if (request.Payload.Count > sizeLength + 2)
                 {
                     // Add encoded bytes, not including the header or binary context.
-                    Data.Add(request.Encapsulation.Slice(sizeLength + 2));
+                    Data.Add(request.Payload.Slice(sizeLength + 2));
 
                     _encapsulationEnd =
-                        new OutputStream.Position(Data.Count - 1, request.Encapsulation.Count - sizeLength - 2);
+                        new OutputStream.Position(Data.Count - 1, request.Payload.Count - sizeLength - 2);
                 }
                 else
                 {
