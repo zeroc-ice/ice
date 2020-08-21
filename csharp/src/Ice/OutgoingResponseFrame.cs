@@ -13,6 +13,20 @@ namespace ZeroC.Ice
     {
         public override Encoding Encoding { get; }
 
+        public override IList<ArraySegment<byte>> Payload
+        {
+            get
+            {
+                if (Protocol == Protocol.Ice1)
+                {
+                    return Data;
+                }
+
+                _payload ??= Data.Slice(default, _payloadEnd);
+                return _payload;
+            }
+        }
+
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
 

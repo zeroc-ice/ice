@@ -47,6 +47,15 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
+        public override IList<ArraySegment<byte>> Payload
+        {
+            get
+            {
+                _payload ??= Data.Slice(_encapsulationStart, _payloadEnd);
+                return _payload;
+            }
+        }
+
         private Dictionary<string, string>? _contextOverride;
 
         private readonly IReadOnlyDictionary<string, string> _initialContext;

@@ -30,21 +30,7 @@ namespace ZeroC.Ice
         public bool IsSealed { get; private protected set; }
 
         /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
-        public IList<ArraySegment<byte>> Payload
-        {
-            get
-            {
-                if (Protocol == Protocol.Ice1)
-                {
-                    return Data;
-                }
-                else if (_payload == null)
-                {
-                    _payload = Data.Slice(default, _payloadEnd);
-                }
-                return _payload;
-            }
-        }
+        public abstract IList<ArraySegment<byte>> Payload { get; }
 
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
@@ -61,6 +47,8 @@ namespace ZeroC.Ice
         private protected OutputStream? _binaryContextOstr;
         private protected ArraySegment<byte> _defaultBinaryContext;
 
+        private protected IList<ArraySegment<byte>>? _payload;
+
         // Position of the end of the payload, for ice1 this is always the frame end.
         private protected OutputStream.Position _payloadEnd;
         // Position of the start of the encapsulation.
@@ -70,8 +58,6 @@ namespace ZeroC.Ice
         private readonly int _compressionMinSize;
 
         private HashSet<int>? _binaryContextKeys;
-
-        private IList<ArraySegment<byte>>? _payload;
 
         /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
         /// <param name="key">The binary context entry key.</param>
