@@ -10,11 +10,10 @@ namespace ZeroC.Ice
 {
     public static class VectoredBufferExtensions
     {
-        /// <summary>Returns the sum of the count of all the array segments in
-        /// source segment list.</summary>
-        /// <param name="src">The source segment list.</param>
+        /// <summary>Returns the sum of the count of all the array segments in the source enumerable.</summary>
+        /// <param name="src">The list of segments.</param>
         /// <returns>The byte count of the segment list.</returns>
-        public static int GetByteCount(this IList<ArraySegment<byte>> src)
+        public static int GetByteCount(this IEnumerable<ArraySegment<byte>> src)
         {
             int count = 0;
             foreach (ArraySegment<byte> segment in src)
@@ -24,56 +23,7 @@ namespace ZeroC.Ice
             return count;
         }
 
-        /// <summary>Fill the destination segment list with at most count bytes from the source segment list
-        /// starting at the given offset. The destination list is fill with segments from the source list, or
-        /// with slices of the segments in the source list if the offset is beyong the start of a segment or
-        /// the count is reach before the end of a segment. The underlying arrays are own by the source list.</summary>
-        /// <param name="src">The source list.</param>
-        /// <param name="srcOffset">The zero-based byte offset into the source list.</param>
-        /// <param name="dst">The destination list to fill with array segments from the source list.</param>
-        /// <param name="count">The number of bytes to fill the destination lists with.</param>
-        public static void FillSegments(this IList<ArraySegment<byte>> src, int srcOffset,
-            IList<ArraySegment<byte>> dst, int count)
-        {
-            Debug.Assert(count > 0 && count <= src.GetByteCount() - srcOffset,
-                $"count: {count} srcSize: {src.GetByteCount()} srcOffset: {srcOffset}");
-            dst.Clear();
-
-            int dstCount = 0;
-            int srcIndex = 0;
-            for (; srcIndex < src.Count && srcOffset > 0; srcIndex++)
-            {
-                ArraySegment<byte> segment = src[srcIndex];
-                if (segment.Count > srcOffset)
-                {
-                    dstCount = Math.Min(count, segment.Count - srcOffset);
-                    dst.Add(segment.Slice(srcOffset, dstCount));
-                    srcIndex++;
-                    break;
-                }
-                else
-                {
-                    srcOffset -= segment.Count;
-                }
-            }
-
-            for (; srcIndex < src.Count && dstCount < count; srcIndex++)
-            {
-                ArraySegment<byte> segment = src[srcIndex];
-                if (segment.Count > count - dstCount)
-                {
-                    dst.Add(segment.Slice(0, count - dstCount));
-                    break;
-                }
-                else
-                {
-                    dst.Add(segment);
-                    dstCount += segment.Count;
-                }
-            }
-        }
-
-        /// <summary>Returns and array segment with the requested bytes, starting at the given
+        /// <summary>Returns an array segment with the requested bytes, starting at the given
         /// byte offset, if the required bytes are available in a single segment this method returns
         /// an slice of the segment without copying the data, otherwise the data is copied into
         /// a byte array and the segment is created from the copied data.</summary>
@@ -154,8 +104,26 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static byte GetByte(this IEnumerable<ArraySegment<byte>> src, int index)
+        {
+            Debug.Assert(index >= 0);
+            foreach (ArraySegment<byte> segment in src)
+            {
+                if (index < segment.Count)
+                {
+                    return segment[index];
+                }
+                else
+                {
+                    index -= segment.Count;
+                    // and skip this segment
+                }
+            }
+            throw new IndexOutOfRangeException("index not found in vectored buffer");
+        }
+
         internal static List<ArraySegment<byte>> Slice(
-            this List<ArraySegment<byte>> src,
+            this IList<ArraySegment<byte>> src,
             OutputStream.Position from,
             OutputStream.Position to)
         {
@@ -183,6 +151,29 @@ namespace ZeroC.Ice
                 }
             }
             return dst;
+        }
+
+        internal static List<ArraySegment<byte>> Slice(this IEnumerable<ArraySegment<byte>> src, int start)
+        {
+            Debug.Assert(start >= 0);
+            var result = new List<ArraySegment<byte>>();
+            foreach (ArraySegment<byte> segment in src)
+            {
+                if (start == 0)
+                {
+                    result.Add(segment);
+                }
+                else if (segment.Count > start)
+                {
+                    result.Add(segment.Slice(start));
+                    start = 0;
+                }
+                else
+                {
+                    start -= segment.Count; // and we skip this segment
+                }
+            }
+            return result;
         }
     }
 }

@@ -1443,8 +1443,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = _buffer.Span[Pos];
-                Skip(1 << (b & 0x03));
+                Skip(_buffer.Span[Pos].ReadSizeLength20());
             }
         }
 
