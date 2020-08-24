@@ -13,22 +13,14 @@ namespace ZeroC.Ice
     {
         public override Encoding Encoding { get; }
 
-        public override IList<ArraySegment<byte>> Payload
-        {
-            get
-            {
-                if (Protocol == Protocol.Ice1)
-                {
-                    return Data;
-                }
-
-                _payload ??= Data.Slice(default, _payloadEnd);
-                return _payload;
-            }
-        }
-
         /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
+
+        // When a response frame contains an encapsulation, it always start at position 1 of the first segment,
+        // and the first segment has always at least 2 bytes.
+        private static readonly OutputStream.Position EncapsulationStart = new OutputStream.Position(0, 1);
+
+        private readonly ArraySegment<byte> _defaultBinaryContext;
 
         /// <summary>Creates a new outgoing response frame with a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
@@ -59,7 +51,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, value);
-            response.FinishEncapsulation(ostr.Finish());
+            response.PayloadEnd = ostr.Finish();
             if (compress && current.Encoding == Encoding.V2_0)
             {
                 response.CompressPayload();
@@ -86,7 +78,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, value);
-            response.FinishEncapsulation(ostr.Finish());
+            response.PayloadEnd = ostr.Finish();
             if (compress && current.Encoding == Encoding.V2_0)
             {
                 response.CompressPayload();
@@ -113,13 +105,13 @@ namespace ZeroC.Ice
                 if (Protocol == Protocol.Ice1)
                 {
                     Data.Add(response.Data);
-                    _payloadEnd = new OutputStream.Position(0, response.Data.Count);
+                    PayloadEnd = new OutputStream.Position(0, response.Data.Count);
                 }
                 else
                 {
                     // i.e. result type and encapsulation but not the binary context
                     Data.Add(response.Payload);
-                    _payloadEnd = new OutputStream.Position(0, response.Payload.Count);
+                    PayloadEnd = new OutputStream.Position(0, response.Payload.Count);
 
                     if (forwardBinaryContext)
                     {
@@ -129,7 +121,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                int sizeLength = response.Protocol == Protocol.Ice1 ? 4 : (1 << (response.Payload[1] & 0x03));
+                int sizeLength = response.Protocol == Protocol.Ice1 ? 4 : response.Payload[1].ReadSizeLength20();
 
                 // Create a small buffer to hold the result type or reply status plus the encapsulation header.
                 Debug.Assert(Data.Count == 0);
@@ -160,7 +152,7 @@ namespace ZeroC.Ice
                         {
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
-                                                                      _encapsulationStart,
+                                                                      EncapsulationStart,
                                                                       Ice1Definitions.Encoding,
                                                                       response.Payload.Count - 1 - sizeLength - 1,
                                                                       Encoding);
@@ -188,7 +180,7 @@ namespace ZeroC.Ice
                         {
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
-                                                                      _encapsulationStart,
+                                                                      EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count - 1 - sizeLength + 1,
                                                                       Encoding);
@@ -204,7 +196,7 @@ namespace ZeroC.Ice
 
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
-                                                                      _encapsulationStart,
+                                                                      EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count,
                                                                       Encoding);
@@ -219,7 +211,7 @@ namespace ZeroC.Ice
                     buffer[0] = (byte)response.ResultType;
                     OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
-                                                                      _encapsulationStart,
+                                                                      EncapsulationStart,
                                                                       Protocol.GetEncoding(),
                                                                       response.Payload.Count - 1 - sizeLength,
                                                                       Encoding);
@@ -229,7 +221,7 @@ namespace ZeroC.Ice
 
                 // There is never a binary context in this case.
                 Debug.Assert(Data.Count == 2);
-                _payloadEnd = new OutputStream.Position(1, Data[1].Count);
+                PayloadEnd = new OutputStream.Position(1, Data[1].Count);
             }
 
             Size = Data.GetByteCount();
@@ -266,10 +258,10 @@ namespace ZeroC.Ice
 
                 ostr = new OutputStream(Protocol.GetEncoding(),
                                         Data,
-                                        new OutputStream.Position(0, 1),
+                                        EncapsulationStart,
                                         Encoding,
                                         FormatType.Sliced);
-                _encapsulationStart = ostr.Tail;
+
                 if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1)
                 {
                     // The first byte of the encapsulation data is the actual ReplyStatus
@@ -311,11 +303,10 @@ namespace ZeroC.Ice
                 ostr.WriteException(exception);
             }
 
-            OutputStream.Position end = ostr.Finish();
-            FinishEncapsulation(end);
+            PayloadEnd = ostr.Finish();
             if (!hasEncapsulation)
             {
-                Data[^1] = Data[^1].Slice(0, end.Offset);
+                Data[^1] = Data[^1].Slice(0, PayloadEnd.Offset);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
@@ -326,7 +317,9 @@ namespace ZeroC.Ice
             Encoding encoding,
             List<ArraySegment<byte>> data,
             OutputStream.Position encapsulationEnd)
-            : this(protocol, encoding, data: data) => _payloadEnd = encapsulationEnd;
+            : this(protocol, encoding, data: data) => PayloadEnd = encapsulationEnd;
+
+        private protected override ArraySegment<byte> GetDefaultBinaryContext() => _defaultBinaryContext;
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,
@@ -345,7 +338,7 @@ namespace ZeroC.Ice
             response.Data.Add(buffer);
             var ostr = new OutputStream(response.Protocol.GetEncoding(),
                                         response.Data,
-                                        response._encapsulationStart,
+                                        EncapsulationStart,
                                         response.Encoding,
                                         format);
             return (response, ostr);
@@ -366,10 +359,7 @@ namespace ZeroC.Ice
         {
             Encoding = encoding;
             Size = Data?.GetByteCount() ?? 0;
-
-            // A response encapsulation (when there is one) always start at position 1. We assume the first segment
-            // in Data has more than one byte.
-            _encapsulationStart = new OutputStream.Position(0, 1);
+            PayloadStart = default;
         }
     }
 }

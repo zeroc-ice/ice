@@ -233,8 +233,10 @@ namespace ZeroC.Ice
 
             checked // make sure we don't overflow
             {
-                return ((int)size, 1 << (buffer[0] & 0x03));
+                return ((int)size, buffer[0].ReadSizeLength20());
             }
         }
+
+        internal static int ReadSizeLength20(this byte b) => 1 << (b & 0x03);
     }
 }

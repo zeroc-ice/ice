@@ -47,16 +47,9 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        public override IList<ArraySegment<byte>> Payload
-        {
-            get
-            {
-                _payload ??= Data.Slice(_encapsulationStart, _payloadEnd);
-                return _payload;
-            }
-        }
-
         private Dictionary<string, string>? _contextOverride;
+
+        private readonly ArraySegment<byte> _defaultBinaryContext;
 
         private readonly IReadOnlyDictionary<string, string> _initialContext;
 
@@ -89,11 +82,11 @@ namespace ZeroC.Ice
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Data,
-                                        request._encapsulationStart,
+                                        request.PayloadStart,
                                         request.Encoding,
                                         format);
             writer(ostr, value);
-            request.FinishEncapsulation(ostr.Finish());
+            request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
                 request.CompressPayload();
@@ -127,11 +120,11 @@ namespace ZeroC.Ice
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Data,
-                                        request._encapsulationStart,
+                                        request.PayloadStart,
                                         request.Encoding,
                                         format);
             writer(ostr, value);
-            request.FinishEncapsulation(ostr.Finish());
+            request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
                 request.CompressPayload();
@@ -171,11 +164,11 @@ namespace ZeroC.Ice
             if (request.Protocol == Protocol)
             {
                 // Finish off current segment
-                Data[^1] = Data[^1].Slice(0, _encapsulationStart.Offset);
+                Data[^1] = Data[^1].Slice(0, PayloadStart.Offset);
 
                 // We only include the encapsulation.
                 Data.Add(request.Payload);
-                _payloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
+                PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
@@ -201,11 +194,11 @@ namespace ZeroC.Ice
                 // constructor (when Protocol == Ice1) or will be written by Finish (when Protocol == Ice2).
                 // The payload encoding must remain the same since we cannot transcode the encoded bytes.
 
-                int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : (1 << (request.Payload[0] & 0x03));
+                int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : request.Payload[0].ReadSizeLength20();
 
                 OutputStream.Position tail =
                     OutputStream.WriteEncapsulationHeader(Data,
-                                                          _encapsulationStart,
+                                                          PayloadStart,
                                                           Protocol.GetEncoding(),
                                                           request.Payload.Count - sizeLength,
                                                           request.Encoding);
@@ -219,11 +212,11 @@ namespace ZeroC.Ice
                     // Add encoded bytes, not including the header or binary context.
                     Data.Add(request.Payload.Slice(sizeLength + 2));
 
-                    _payloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count - sizeLength - 2);
+                    PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count - sizeLength - 2);
                 }
                 else
                 {
-                    _payloadEnd = tail;
+                    PayloadEnd = tail;
                 }
             }
 
@@ -248,6 +241,8 @@ namespace ZeroC.Ice
                 base.Finish();
             }
         }
+
+        private protected override ArraySegment<byte> GetDefaultBinaryContext() => _defaultBinaryContext;
 
         private OutgoingRequestFrame(
             IObjectPrx proxy,
@@ -303,11 +298,11 @@ namespace ZeroC.Ice
             {
                 ContextHelper.Write(ostr, _initialContext);
             }
-            _encapsulationStart = ostr.Tail;
+            PayloadStart = ostr.Tail;
 
             if (writeEmptyParamList)
             {
-                FinishEncapsulation(ostr.WriteEmptyEncapsulation(Encoding));
+                PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
             }
         }
     }
