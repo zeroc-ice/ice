@@ -278,10 +278,18 @@ namespace ZeroC.Ice
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request);
 
-            IncomingResponseFrame response = await proxy.InvokeAsync(forwardedRequest,
-                                                                     oneway: oneway,
-                                                                     progress,
-                                                                     cancel).ConfigureAwait(false);
+            IncomingResponseFrame response;
+            try
+            {
+                response = await proxy.InvokeAsync(forwardedRequest, oneway, progress, cancel).ConfigureAwait(false);
+            }
+            catch (DispatchException ex)
+            {
+                // It looks like InvokeAsync threw a 1.1 system exception (used for retries)
+                // TODO: fix (remove) when we fix retries
+                ex.ConvertToUnhandled = false;
+                throw;
+            }
             return new OutgoingResponseFrame(request, response);
         }
 
