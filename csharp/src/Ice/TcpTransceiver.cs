@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         {
         }
 
-        public ValueTask ClosingAsync(Exception ex, CancellationToken cancel) => new ValueTask();
+        public ValueTask CloseAsync(Exception ex, CancellationToken cancel) => new ValueTask();
 
         public ValueTask DisposeAsync()
         {
@@ -75,7 +75,7 @@ namespace ZeroC.Ice
         public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
             throw new InvalidOperationException();
 
-        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
         {
             int received;
             try

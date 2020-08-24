@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
+using System.IO;
 
 namespace ZeroC.Ice
 {
@@ -20,29 +21,96 @@ namespace ZeroC.Ice
         private Action _heartbeatCallback;
         private readonly bool _incoming;
         private long _nextStreamId;
+        private Stream _readStream;
+        private BinaryReader _reader;
         private Action<int> _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
         private Action<int> _sentCallback;
 
-        private static readonly List<ArraySegment<byte>> _closeConnectionFrame =
-            new List<ArraySegment<byte>> { Ice2Definitions.CloseConnectionFrame };
+        private const int HeaderSizeMax = 16;
 
-        private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
-            new List<ArraySegment<byte>> { Ice2Definitions.ValidateConnectionFrame };
+        private enum SlicVersion : byte
+        {
+            Unsupported = 0,
+            Slic1 = 1,
+        };
+
+        private static readonly List<ArraySegment<byte>> _initializeFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x00, // Frame type
+                (byte)SlicVersion.Slic1, // Slic1 version
+                (byte)Protocol.Ice2, // Ice2 protocol version
+            }
+        };
+
+        private static readonly List<ArraySegment<byte>> _initializeAckFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x01, // Frame type
+                (byte)SlicVersion.Slic1, // Slic1 version
+                (byte)Protocol.Ice2, // Ice2 protocol version
+            }
+        };
+
+        private static readonly List<ArraySegment<byte>> _versionFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x02, // Frame type
+                0x01, // Version sequence length
+                (byte)SlicVersion.Slic1, // Slic1 version
+                0x01, // Ice protocol version sequence length
+                (byte)Protocol.Ice2, // Ice protocol version
+            }
+        };
+
+        private static readonly List<ArraySegment<byte>> _pingFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x03, // Frame type
+            }
+        };
+        private static readonly List<ArraySegment<byte>> _pongFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x04, // Frame type
+            }
+        };
+
+        private static readonly List<ArraySegment<byte>> _streamFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x08, // Frame type (0x08 and 0x09 for stream frame with FIN bit set)
+                // stream ID (varlong)
+                // stream data length (varlong)
+                // stream data
+            }
+        };
+
+        private static readonly List<ArraySegment<byte>> _resetStreamFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x04, // Frame type (0x08 and 0x09 for stream frame with FIN bit set)
+                // stream ID (varlong)
+                // error code (varlong)
+            }
+        };
+
+        private static readonly List<ArraySegment<byte>> _closeFrame = new List<ArraySegment<byte>> { new byte[]
+            {
+                0x1c, // Frame type (0x08 and 0x09 for stream frame with FIN bit set)
+                // stream ID (varlong)
+                // error code (varlong)
+                // reason (string)
+            }
+        };
 
         public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             // Write the close connection frame.
-            await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
+            await SendFrameAsync(0, _closeFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
+            await Transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
         public ValueTask DisposeAsync() => Transceiver.DisposeAsync();
 
         public async ValueTask HeartbeatAsync(CancellationToken cancel) =>
-            await SendFrameAsync(0, _validateConnectionFrame, cancel).ConfigureAwait(false);
+            await SendFrameAsync(0, _pingFrame, cancel).ConfigureAwait(false);
 
         public async ValueTask InitializeAsync(
             Action heartbeatCallback,
@@ -57,40 +125,91 @@ namespace ZeroC.Ice
             // Initialize the transport
             await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
-            ArraySegment<byte> readBuffer;
-            if (_incoming) // The server side has the active role for connection validation.
+            if (_incoming)
             {
-                await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
+                // Read the INITIALIZE frame from the client
+                ArraySegment<byte> frame;
+                frame = await ReceiveBufferedAsync(_initializeFrame.GetByteCount(), cancel).ConfigureAwait(false);
 
-                ProtocolTrace.TraceSend(Endpoint.Communicator,
-                                        Endpoint.Protocol,
-                                        Ice2Definitions.ValidateConnectionFrame);
+                // Check the frame type
+                if (frame[0] != _initializeFrame[0][0])
+                {
+                    throw new InvalidDataException(@$"unexpected Slic frame with frame type `{frame[0]}'");
+                }
+
+                // Check that the Slic version and Ice protocol are supported
+                if ((SlicVersion)frame[1] != SlicVersion.Slic1 || (Protocol)frame[2] != Protocol.Ice2)
+                {
+                    // Unsupported Slic or Ice protocol version, stop reading there and reply with a VERSION frame to
+                    // provide the client with the supported Slic/Ice protocol versions.
+                    await SendAsync(_versionFrame, cancel).ConfigureAwait(false);
+
+                    // Wait for a new INITIALIZE frame with hopefully this time supported versions
+                    await ReceiveAsync(frame, cancel).ConfigureAwait(false);
+
+                    // Check the frame type
+                    if (frame[0] != _initializeFrame[0][0])
+                    {
+                        throw new InvalidDataException(@$"unexpected Slic frame with frame type `{readBuffer[0]}'");
+                    }
+
+                    if ((SlicVersion)frame[1] != SlicVersion.Slic1)
+                    {
+                        throw new InvalidDataException(@$"unsupported Slic version `{readBuffer[1]}'");
+                    }
+                    if ((Protocol)frame[2] != Protocol.Ice2)
+                    {
+                        throw new InvalidDataException(@$"unsupported Ice protocol version `{readBuffer[2]}'");
+                    }
+                }
+
+                // Send back an INITIALIZE_ACK frame
+                await SendAsync(_initializeAckFrame, cancel).ConfigureAwait(false);
             }
-            else // The client side has the passive role for connection validation.
+            else
             {
-                readBuffer = new ArraySegment<byte>(new byte[Ice2Definitions.HeaderSize]);
-                await ReceiveAsync(readBuffer, cancel).ConfigureAwait(false);
+                // Send the initialization frame to the server
+                await SendAsync(_initializeFrame, cancel).ConfigureAwait(false);
 
-                Ice2Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
-                var frameType = (Ice2Definitions.FrameType)readBuffer[8];
-                if (frameType != Ice2Definitions.FrameType.ValidateConnection)
+                // Wait for the INITIALIZE_ACK frame or VERSION frame
+                ArraySegment<byte> frame;
+                frame = await ReceiveBufferedAsync(1, cancel).ConfigureAwait(false);
+
+                if (frame[0] == _initializeAckFrame[0][0])
                 {
-                    throw new InvalidDataException(@$"received ice2 frame with frame type `{frameType
-                        }' before receiving the validate connection frame");
+                    frame = await ReceiveBufferedAsync(2, cancel).ConfigureAwait(false);
+                    if ((SlicVersion)frame[0] != SlicVersion.Slic1)
+                    {
+                        throw new InvalidDataException(@$"unsupported Slic version `{frame[1]}'");
+                    }
+                    if ((Protocol)frame[1] != Protocol.Ice2)
+                    {
+                        throw new InvalidDataException(@$"unsupported Ice protocol version `{frame[2]}'");
+                    }
+                }
+                else if (frame[0] == _versionFrame[0][0])
+                {
+                    SlicVersion slicVersion = SlicVersion.Unsupported;
+                    int size = (int)frame[1];
+                    frame = await ReceiveBufferedAsync((int)frame[1], cancel).ConfigureAwait(false);
+                    for (int i = 0; i < (int)frame[1]; ++i)
+                    {
+                        if ((SlicVersion)frame[1 + i] == SlicVersion.Slic1)
+                        {
+                            slicVersion = SlicVersion.Slic1;
+                            break;
+                        }
+                    }
+                    if (slicVersion == SlicVersion.Unsupported)
+                    {
+                        throw new InvalidDataException(@$"unsupported Slic version `{frame[1]}'");
+                    }
+                }
+                else
+                {
+                    throw new InvalidDataException(@$"unexpected Slic frame with frame type `{frame[0]}'");
                 }
 
-                // TODO: this is temporary code. With the 2.0 encoding, sizes are always variable-length
-                // with the length encoded on the first 2 bits of the size. Assuming the size is encoded
-                // on 4 bytes (like we do below) is not correct.
-                int size = readBuffer.AsReadOnlySpan(10, 4).ReadFixedLengthSize(Endpoint.Protocol.GetEncoding());
-                if (size != Ice2Definitions.HeaderSize)
-                {
-                    throw new InvalidDataException(
-                        @$"received an ice2 frame with validate connection type and a size of `{size
-                        }' bytes");
-                }
-
-                ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
             }
 
             if (Endpoint.Communicator.TraceLevels.Network >= 1)
@@ -137,6 +256,8 @@ namespace ZeroC.Ice
             _frameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             _sentCallback = _receivedCallback = _ => {};
             _heartbeatCallback = () => {};
+            _readStream = new BufferedStream(new TransceiverReadStream(transceiver), 256);
+            _reader = new BinaryReader(_readStream);
         }
 
         private (int, IncomingFrame?) ParseFrame(ArraySegment<byte> readBuffer)
@@ -286,8 +407,38 @@ namespace ZeroC.Ice
                 await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
             }
         }
+
         private async ValueTask ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
+            int received;
+            if (_receivePayloadOffset == _receivePayloadLength)
+            {
+                // If the payload has been fully read, read a new frame.
+                received = await ReceiveFrameAsync(buffer, cancel).ConfigureAwait(false);
+                Debug.Assert(_receivePayloadLength > 0 && _receivePayloadOffset == 0);
+            }
+            else if (_receiveBuffer.Count > 0)
+            {
+                // Otherwise, if there's still data buffered for the payload, consume the buffered data.
+                int length = Math.Min(_receiveBuffer.Count, buffer.Count);
+                ArraySegment<byte> buffered = await ReceiveBufferedAsync(length, cancel).ConfigureAwait(false);
+                buffered.CopyTo(buffer);
+                received = length;
+            }
+            else
+            {
+                // No buffered data, we'll read the payload directly from the underlying transport.
+                received = 0;
+            }
+
+            // Read the reminder of the payload from the underlying transport
+            if (received < buffer.Count)
+            {
+                int length = Math.Min(_receivePayloadLength - _receivePayloadOffset, buffer.Count);
+                received += await _underlying.ReceiveAsync(buffer.Slice(received, length - received),
+                                                           cancel).ConfigureAwait(false);
+            }
+
             int offset = 0;
             while (offset != buffer.Count)
             {
@@ -295,6 +446,56 @@ namespace ZeroC.Ice
                 offset += received;
                 _receivedCallback!(received);
             }
+        }
+
+        private async ValueTask<ArraySegment<byte>> ReceiveBufferedAsync(int byteCount, CancellationToken cancel)
+        {
+            int offset = _receiveBuffer.Count;
+            if (_receiveBuffer.Count < byteCount)
+            {
+                // If there's not enough data buffered for byteCount we read more data in the buffer. We first
+                // need to make sure there's enough space in the buffer to read it however.
+                if (_receiveBuffer.Count == 0)
+                {
+                    // Use the full buffer array if there's no more buffered data.
+                    _receiveBuffer = new ArraySegment<byte>(_receiveBuffer.Array!);
+                }
+                else if (_receiveBuffer.Offset + _receiveBuffer.Count + byteCount > _receiveBuffer.Array!.Length)
+                {
+                    // There's still buffered data but not enough space left in the array to read the given bytes.
+                    // In theory, the number of bytes to read should always be lower than the un-used buffer space
+                    // at the start of the buffer. We move the data at the end of the buffer to the begining to
+                    // make space to read the given number of bytes.
+                    Debug.Assert(_receiveBuffer.Offset >= byteCount);
+                    _receiveBuffer.CopyTo(_receiveBuffer.Array!, 0);
+                    _receiveBuffer = new ArraySegment<byte>(_receiveBuffer.Array);
+                }
+                else
+                {
+                    // There's still buffered data and enough space to read the given bytes after the buffered
+                    // data.
+                    _receiveBuffer = new ArraySegment<byte>(
+                        _receiveBuffer.Array,
+                        _receiveBuffer.Offset,
+                        _receiveBuffer.Array.Length - _receiveBuffer.Offset);
+                }
+
+                while (offset < byteCount)
+                {
+                    offset += await _underlying.ReceiveAsync(_receiveBuffer.Slice(offset), cancel);
+                }
+            }
+
+            ArraySegment<byte> buffer = _receiveBuffer.Slice(0, byteCount);
+            if (byteCount < offset)
+            {
+                _receiveBuffer = _receiveBuffer.Slice(byteCount, offset - byteCount);
+            }
+            else
+            {
+                _receiveBuffer = _receiveBuffer.Slice(0, 0);
+            }
+            return buffer;
         }
 
         private async ValueTask SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)

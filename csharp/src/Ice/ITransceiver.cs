@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace ZeroC.Ice
         /// of the connection closure.</summary>
         /// <param name="exception">The reason of the connection closure.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        ValueTask ClosingAsync(Exception exception, CancellationToken cancel);
+        ValueTask CloseAsync(Exception exception, CancellationToken cancel);
 
         /// <summary>Initializes the transceiver. The transceiver might use this method to establish or accept the
         /// connection.</summary>
@@ -46,7 +47,7 @@ namespace ZeroC.Ice
         /// <param name="buffer">The buffer that holds the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The number of bytes received.</return>
-        ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
+        ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel);
 
         /// <summary>Receive data from the connection.</summary>
         /// <param name="buffer">The buffer containing the data to send.</param>
@@ -58,4 +59,140 @@ namespace ZeroC.Ice
         /// <return>The detailed description.</return>
         string ToDetailedString();
     }
+
+    internal class BufferedReadTransceiver : ITransceiver
+    {
+        private ArraySegment<byte> _buffer;
+
+        public ITransceiver Underlying { get; }
+
+        public Socket? Socket => Underlying.Socket;
+
+        public void CheckSendSize(int size) => Underlying.CheckSendSize(size);
+
+        public ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
+            Underlying.CloseAsync(exception, cancel);
+
+        public ValueTask DisposeAsync() => Underlying.DisposeAsync();
+
+        public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
+
+        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
+            Underlying.ReceiveAsync(cancel);
+
+        public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
+        {
+            int received = 0;
+            if (_buffer.Count > 0)
+            {
+                // If there's still data buffered for the payload, consume the buffered data.
+                int length = Math.Min(_buffer.Count, buffer.Length);
+                ReadOnlyMemory<byte> buffered = await BufferedReceiveAsync(length, cancel).ConfigureAwait(false);
+                buffered.CopyTo(buffer);
+                received = length;
+            }
+
+            // Then, read the reminder from the underlying transport.
+            if (received < buffer.Length)
+            {
+                received += await Underlying.ReceiveAsync(buffer.Slice(received), cancel).ConfigureAwait(false);
+            }
+            return received;
+        }
+
+        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel) =>
+            Underlying.SendAsync(buffer, cancel);
+
+        public string ToDetailedString() => Underlying.ToDetailedString();
+
+        public async ValueTask<ReadOnlyMemory<byte>> BufferedReceiveAsync(int byteCount, CancellationToken cancel)
+        {
+            if (byteCount > _buffer.Array!.Length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    $"byteCount should be inferior to the buffer size of {_buffer.Array.Length} bytes");
+            }
+
+            int offset = _buffer.Count;
+            if (_buffer.Count < byteCount)
+            {
+                // If there's not enough data buffered for byteCount we read more data in the buffer. We first
+                // need to make sure there's enough space in the buffer to read it however.
+                if (_buffer.Count == 0)
+                {
+                    // Use the full buffer array if there's no more buffered data.
+                    _buffer = new ArraySegment<byte>(_buffer.Array!);
+                }
+                else if (_buffer.Offset + _buffer.Count + byteCount > _buffer.Array!.Length)
+                {
+                    // There's still buffered data but not enough space left in the array to read the given bytes.
+                    // In theory, the number of bytes to read should always be lower than the un-used buffer space
+                    // at the start of the buffer. We move the data at the end of the buffer to the begining to
+                    // make space to read the given number of bytes.
+                    Debug.Assert(_buffer.Offset >= byteCount);
+                    _buffer.CopyTo(_buffer.Array!, 0);
+                    _buffer = new ArraySegment<byte>(_buffer.Array);
+                }
+                else
+                {
+                    // There's still buffered data and enough space to read the given bytes after the buffered
+                    // data.
+                    _buffer = new ArraySegment<byte>(
+                        _buffer.Array,
+                        _buffer.Offset,
+                        _buffer.Array.Length - _buffer.Offset);
+                }
+
+                while (offset < byteCount)
+                {
+                    offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
+                }
+            }
+
+            ArraySegment<byte> buffer = _buffer.Slice(0, byteCount);
+            if (byteCount < offset)
+            {
+                _buffer = _buffer.Slice(byteCount, offset - byteCount);
+            }
+            else
+            {
+                _buffer = _buffer.Slice(0, 0);
+            }
+            return buffer;
+        }
+
+        internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
+        {
+            Underlying = underlying;
+            _buffer = new byte[bufferSize];
+        }
+    };
+
+    internal class TransceiverReadStream : System.IO.Stream
+    {
+        private readonly ITransceiver _transceiver;
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override long Length => throw new NotSupportedException();
+        public override bool CanWrite => false;
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+
+        public override void Flush() => throw new NotSupportedException();
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken) =>
+            _transceiver.ReceiveAsync(buffer, cancellationToken);
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        internal TransceiverReadStream(ITransceiver transceiver) => _transceiver = transceiver;
+    };
 }

@@ -106,10 +106,10 @@ namespace ZeroC.Ice
             _writeStream = new BufferedStream(SslStream);
         }
 
-        public ValueTask ClosingAsync(Exception exception, CancellationToken cancel) =>
+        public ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             // TODO: implement TLS close_notify and call ShutdownAsync? This might be required for implementation
             // session resumption if we want to allow connection migration.
-            _underlying.ClosingAsync(exception, cancel);
+            _underlying.CloseAsync(exception, cancel);
 
         public void CheckSendSize(int size) => _underlying.CheckSendSize(size);
 
@@ -134,7 +134,7 @@ namespace ZeroC.Ice
         public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
             throw new InvalidOperationException();
 
-        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
         {
             int received;
             try
