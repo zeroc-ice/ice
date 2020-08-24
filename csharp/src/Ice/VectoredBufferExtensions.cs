@@ -155,7 +155,11 @@ namespace ZeroC.Ice
 
         internal static List<ArraySegment<byte>> Slice(this IEnumerable<ArraySegment<byte>> src, int start)
         {
-            Debug.Assert(start >= 0);
+            if (start < 0)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(start)} must greater or equal to 0", nameof(start));
+            }
+
             var result = new List<ArraySegment<byte>>();
             foreach (ArraySegment<byte> segment in src)
             {
@@ -172,6 +176,11 @@ namespace ZeroC.Ice
                 {
                     start -= segment.Count; // and we skip this segment
                 }
+            }
+
+            if (start > 0)
+            {
+                throw new ArgumentOutOfRangeException("start exceeds the buffer's length", nameof(start));
             }
             return result;
         }

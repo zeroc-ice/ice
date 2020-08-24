@@ -53,7 +53,7 @@ namespace ZeroC.Ice
 
         internal List<ArraySegment<byte>> Data { get; }
 
-         // Position of the end of the payload. With ice1, this is always the end of the frame.
+        // Position of the end of the payload. With ice1, this is always the end of the frame.
         private protected OutputStream.Position PayloadEnd { get; set; }
 
         // Position of the start of the payload.
@@ -197,8 +197,6 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                int start = PayloadStart.Segment;
-
                 int binaryContextLastSegmentOffset = -1;
 
                 if (_binaryContextOstr is OutputStream ostr)
@@ -224,6 +222,8 @@ namespace ZeroC.Ice
                     }
                     // else the binary context already starts with its own segment
                 }
+
+                int start = PayloadStart.Segment;
 
                 if (PayloadStart.Offset > 0)
                 {
