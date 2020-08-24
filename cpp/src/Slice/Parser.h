@@ -417,7 +417,6 @@ public:
     std::string findMetaDataWithPrefix(const std::string&) const;
     std::list<std::string> getMetaData() const;
     void setMetaData(const std::list<std::string>&);
-    void addMetaData(const std::string&); // TODO: remove this method once "cs:" and "vb:" are hard errors.
 
     FormatType parseFormatMetaData() const;
 
@@ -695,23 +694,25 @@ public:
 
     // The "in" bit sequence length. It corresponds to the number of in-parameters with optional types that are not
     // class/proxy and that are not tagged.
-    size_t inBitSequenceSize() const;
+    size_t paramsBitSequenceSize() const;
 
     // The "return" bit sequence length. It corresponds to the number of return parameters with optional types that are
     // not class/proxy and that are not tagged.
     size_t returnBitSequenceSize() const;
 
     void destroy() override;
-    TypePtr returnType() const;
-    bool returnIsTagged() const;
-    int returnTag() const;
+    TypePtr returnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    bool returnIsTagged() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    int returnTag() const; //TODO remove this once the compilers have been updated to use return-tuples.
     Mode mode() const;
     Mode sendMode() const;
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
+    MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int);
     MemberList parameters() const;
-    MemberList inParameters() const;
-    MemberList outParameters() const;
+    MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    MemberList returnValues() const;
+    MemberList allMembers() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     ContainedList contents() const override;
@@ -720,6 +721,10 @@ public:
     bool returnsClasses(bool) const;
     bool returnsData() const;
     bool returnsMultipleValues() const;
+    bool hasReturnAndOut() const;
+    bool hasOutParameters() const;
+    bool hasTupleReturnType() const;
+    bool hasSingleReturnType() const;
     int attributes() const;
     FormatType format() const;
     std::string kindOf() const override;
@@ -727,15 +732,14 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
+    Operation(const ContainerPtr& container, const std::string& name, Mode mode);
 
     friend class InterfaceDef;
 
-    MemberList _inParameters;
-    MemberList _outParameters;
-    TypePtr _returnType;
-    bool _returnIsTagged;
-    int _returnTag;
+    MemberList _parameters;
+    MemberList _returnValues;
+    bool _usesOutParameters;
+    bool _hasReturnType;
     std::list<ExceptionPtr> _throws;
     Mode _mode;
 };
@@ -754,7 +758,7 @@ class InterfaceDef : public virtual Container, public virtual Contained
 public:
 
     void destroy() override;
-    OperationPtr createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
+    OperationPtr createOperation(const std::string&, Operation::Mode = Operation::Normal);
 
     InterfaceDeclPtr declaration() const;
     InterfaceList bases() const;

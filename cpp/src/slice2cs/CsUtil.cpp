@@ -582,7 +582,7 @@ list<ParamInfo>
 Slice::getAllInParams(const OperationPtr& op, bool readOnly, const string& prefix)
 {
     list<ParamInfo> inParams;
-    for(const auto& p : op->inParameters())
+    for(const auto& p : op->parameters())
     {
         inParams.push_back(ParamInfo(p, readOnly, prefix));
     }
@@ -1591,7 +1591,7 @@ void
 Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
     validate(p);
-    for (const auto& param : p->parameters())
+    for (const auto& param : p->allMembers())
     {
         visitParameter(param);
     }

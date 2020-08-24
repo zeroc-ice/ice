@@ -1752,7 +1752,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 {
     ostringstream os;
 
-    MemberList inParams = op->inParameters();
+    MemberList inParams = op->parameters();
     const bool isTuple = inParams.size() > 1;
 
     if(!inParams.empty())
@@ -1810,7 +1810,7 @@ ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
     ParamInfoList r;
-    for (const auto& param : op->inParameters())
+    for (const auto& param : op->parameters())
     {
         ParamInfo info;
         info.name = param->name();
@@ -2519,7 +2519,7 @@ SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
     assert(dc);
 
     p->setMetaData(validate(p, metaData, p->file(), p->line()));
-    for (auto& param : p->parameters())
+    for (auto& param : p->allMembers())
     {
         param->setMetaData(validate(param->type(), param->getMetaData(), p->file(), param->line()));
     }

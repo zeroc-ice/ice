@@ -113,7 +113,7 @@ emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const
 string
 getEscapedParamName(const OperationPtr& p, const string& name)
 {
-    for (const auto& param : p->parameters())
+    for (const auto& param : p->allMembers())
     {
         if (param->name() == name)
         {
@@ -177,7 +177,7 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
         }
         else
         {
-            bitSequenceSize = op->inBitSequenceSize();
+            bitSequenceSize = op->paramsBitSequenceSize();
         }
 
         if (bitSequenceSize > 0)
@@ -223,7 +223,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
         }
         else
         {
-            bitSequenceSize = op->inBitSequenceSize();
+            bitSequenceSize = op->paramsBitSequenceSize();
         }
 
         if (bitSequenceSize > 0)
@@ -344,7 +344,7 @@ vector<string>
 getInvocationParams(const OperationPtr& op, const string& ns)
 {
     vector<string> params;
-    for (const auto& p : op->inParameters())
+    for (const auto& p : op->parameters())
     {
         ostringstream param;
         param << getParamAttributes(p);
@@ -366,7 +366,7 @@ vector<string>
 getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultValues, const string& prefix = "")
 {
     vector<string> params;
-    for (const auto& p : op->inParameters())
+    for (const auto& p : op->parameters())
     {
         ostringstream param;
         param << getParamAttributes(p);
@@ -927,7 +927,7 @@ void
 Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo& comment, ParamDir paramType)
 {
     // Collect the names of the in- or -out parameters to be documented.
-    MemberList parameters = (paramType == InParam) ? op->inParameters() : op->outParameters();
+    MemberList parameters = (paramType == InParam) ? op->parameters() : op->outParameters();
     for (const auto param : parameters)
     {
         auto i = comment.params.find(param->name());
@@ -2567,7 +2567,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     list<ParamInfo> taggedParams;
     getInParams(operation, true, requiredParams, taggedParams, "iceP_");
 
-    bool defaultWriter = params.size() == 1 && operation->inBitSequenceSize() == 0 && !params.front().tagged;
+    bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front().tagged;
     if (defaultWriter)
     {
         _out << outputStreamWriter(params.front().type, ns, false);
@@ -2850,7 +2850,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns, false) :
         "_iceD_" + opName + "Writer";
 
-    bool defaultReader = inParams.size() == 1 && operation->inBitSequenceSize() == 0 && !inParams.front().tagged;
+    bool defaultReader = inParams.size() == 1 && operation->paramsBitSequenceSize() == 0 && !inParams.front().tagged;
     string reader = defaultReader ? inputStreamReader(inParams.front().type, ns) : "_iceD_" + opName + "Reader";
 
     _out << sp;
