@@ -67,7 +67,7 @@ opFormatTypeToString(const OperationPtr& op)
 string
 getEscapedParamName(const OperationPtr& p, const string& name)
 {
-    for (const auto& param : p->parameters())
+    for (const auto& param : p->allMembers())
     {
         if (param->name() == name)
         {
@@ -603,7 +603,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
     const InterfaceDefPtr interface = op->interface();
     assert(interface);
 
-    for(const auto& q : op->inParameters())
+    for(const auto& q : op->parameters())
     {
         const string type = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
         params.push_back(type + ' ' + fixKwd(q->name()));
@@ -616,7 +616,7 @@ vector<string>
 Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool internal)
 {
     vector<string> params;
-    for(const auto& q : op->inParameters())
+    for(const auto& q : op->parameters())
     {
         const string typeString = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
         params.push_back(typeString + ' ' + (internal ? "iceP_" + q->name() : fixKwd(q->name())));
@@ -629,7 +629,7 @@ vector<string>
 Slice::JavaVisitor::getArgs(const OperationPtr& op)
 {
     vector<string> args;
-    for(const auto& q : op->parameters())
+    for(const auto& q : op->allMembers())
     {
         args.push_back(fixKwd(q->name()));
     }
@@ -641,7 +641,7 @@ vector<string>
 Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
 {
     vector<string> args;
-    for(const auto& q : op->inParameters())
+    for(const auto& q : op->parameters())
     {
         string s = internal ? "iceP_" + q->name() : fixKwd(q->name());
         args.push_back(s);
@@ -653,7 +653,7 @@ Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
 void
 Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, const OperationPtr& op)
 {
-    const auto [requiredParams, taggedParams] = getSortedMembers(op->inParameters());
+    const auto [requiredParams, taggedParams] = getSortedMembers(op->parameters());
 
     int iter = 0;
     for(const auto pli : requiredParams)
@@ -1021,7 +1021,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
         const TypePtr ret = unwrapIfOptional(op->returnType());
 
-        const MemberList inParams = op->inParameters();
+        const MemberList inParams = op->parameters();
         const MemberList outParams = op->outParameters();
 
         out << nl << getUnqualified("com.zeroc.Ice.Object", package)
@@ -1056,7 +1056,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             //
             // Unmarshal 'in' parameters.
             //
-            const auto [requiredParams, taggedParams] = getSortedMembers(op->inParameters());
+            const auto [requiredParams, taggedParams] = getSortedMembers(op->parameters());
             int iter = 0;
             for(const auto& pli : requiredParams)
             {
@@ -1662,7 +1662,7 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
     //
     // Show in-params in order of declaration, but only those with docs.
     //
-    for(const auto& i : p->inParameters())
+    for(const auto& i : p->parameters())
     {
         const string name = i->name();
         map<string, StringList>::const_iterator j = paramDocs.find(name);
@@ -1781,7 +1781,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     //
     // Show in-aration
     //
-    for(const auto& i : p->inParameters())
+    for(const auto& i : p->parameters())
     {
         const string name = i->name();
         out << nl << " * @param " << "iceP_" << name << " -";
@@ -1821,7 +1821,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     //
     // Show in-params in order of declaration, but only those with docs.
     //
-    for(const auto& i : p->inParameters())
+    for(const auto& i : p->parameters())
     {
         const string name = i->name();
         map<string, StringList>::const_iterator j = paramDocs.find(name);
@@ -2338,7 +2338,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             break;
         }
 
-        for(const auto& q : op->parameters())
+        for(const auto& q : op->allMembers())
         {
             if(q->tagged())
             {
@@ -3935,7 +3935,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             break;
         }
 
-        for(const auto& q : op->parameters())
+        for(const auto& q : op->allMembers())
         {
             if(q->tagged())
             {
@@ -4493,7 +4493,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << nl << "f.invoke(";
     out.useCurrentPosAsIndent();
     out << (p->returnsData() ? "true" : "false") << ", context, " << opFormatTypeToString(p) << ", ";
-    if(!p->inParameters().empty())
+    if(!p->parameters().empty())
     {
         out << "ostr -> {";
         out.inc();

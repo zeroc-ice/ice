@@ -9,14 +9,14 @@ IllegalUseOfKeyword.ice:21: keyword `struct' cannot be used as class name
 IllegalUseOfKeyword.ice:23: syntax error
 IllegalUseOfKeyword.ice:28: keyword `extends' cannot be used as interface name
 IllegalUseOfKeyword.ice:35: keyword `implements' cannot be used as operation name
-IllegalUseOfKeyword.ice:37: keyword `throws' cannot be used as parameter name
-IllegalUseOfKeyword.ice:37: keyword `void' cannot be used as parameter name
-IllegalUseOfKeyword.ice:39: keyword `byte' cannot be used as parameter name
-IllegalUseOfKeyword.ice:39: keyword `short' cannot be used as parameter name
-IllegalUseOfKeyword.ice:44: keyword `int' cannot be used as data member name
-IllegalUseOfKeyword.ice:45: keyword `long' cannot be used as data member name
-IllegalUseOfKeyword.ice:46: keyword `float' cannot be used as data member name
-IllegalUseOfKeyword.ice:47: keyword `double' cannot be used as data member name
+IllegalUseOfKeyword.ice:37: keyword `throws' cannot be used as an identifier
+IllegalUseOfKeyword.ice:37: keyword `void' cannot be used as an identifier
+IllegalUseOfKeyword.ice:39: keyword `byte' cannot be used as an identifier
+IllegalUseOfKeyword.ice:39: keyword `short' cannot be used as an identifier
+IllegalUseOfKeyword.ice:44: keyword `int' cannot be used as an identifier
+IllegalUseOfKeyword.ice:45: keyword `long' cannot be used as an identifier
+IllegalUseOfKeyword.ice:46: keyword `float' cannot be used as an identifier
+IllegalUseOfKeyword.ice:47: keyword `double' cannot be used as an identifier
 IllegalUseOfKeyword.ice:50: keyword `Object' cannot be used as sequence name
 IllegalUseOfKeyword.ice:54: keyword `string' cannot be used as enumeration name
 IllegalUseOfKeyword.ice:61: keyword `sequence' cannot be used as enumerator

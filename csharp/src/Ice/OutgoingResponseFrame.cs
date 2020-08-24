@@ -113,7 +113,7 @@ namespace ZeroC.Ice
                     Data.Add(response.Payload);
                     PayloadEnd = new OutputStream.Position(0, response.Payload.Count);
 
-                    if (forwardBinaryContext && response.BinaryContext.Count > 0)
+                    if (forwardBinaryContext)
                     {
                         _defaultBinaryContext = response.Data.Slice(response.Payload.Count); // can be empty
                     }
@@ -140,7 +140,7 @@ namespace ZeroC.Ice
                     {
                         Debug.Assert(response.Protocol == Protocol.Ice2);
 
-                        // Read the reply status byte immediately after the encapsulation header; +2 corresponds to the
+                        // Read the reply status byte immediately after the encapsulation header; + 2 corresponds to the
                         // encoding in the header.
                         byte b = response.Payload[1 + sizeLength + 2];
                         ReplyStatus replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
@@ -161,15 +161,15 @@ namespace ZeroC.Ice
                         }
                         else
                         {
+                            // TODO: this code is currently unreachable because the application never gets an incoming
+                            // response frame carrying a system exception - this system exception is always thrown.
+                            Debug.Assert(false);
+
                             Data[0] = Data[0].Slice(0, 1);
                         }
                         // 1 for the result type in the response, then sizeLength + 2 to skip the encapsulation header,
                         // then + 1 to skip the reply status byte
                         Data.Add(response.Payload.Slice(1 + sizeLength + 2 + 1));
-                        if (replyStatus == ReplyStatus.UserException)
-                        {
-                            PayloadEnd = new OutputStream.Position(1, Data[1].Count);
-                        }
                     }
                     else
                     {
@@ -190,6 +190,10 @@ namespace ZeroC.Ice
                         }
                         else
                         {
+                            // TODO: this code is currently unreachable because the application never gets an incoming
+                            // response frame carrying a system exception - this system exception is always thrown.
+                            Debug.Assert(false);
+
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
                                                                       EncapsulationStart,
@@ -198,9 +202,8 @@ namespace ZeroC.Ice
                                                                       Encoding);
                             buffer[tail.Offset++] = (byte)replyStatus;
                             Data[0] = Data[0].Slice(0, tail.Offset);
-                            Data.Add(response.Payload.Slice(1));
+                            Data.Add(response.Payload);
                         }
-                        PayloadEnd = new OutputStream.Position(1, Data[1].Count);
                     }
                 }
                 else
@@ -214,8 +217,11 @@ namespace ZeroC.Ice
                                                                       Encoding);
                     Data[0] = Data[0].Slice(0, tail.Offset);
                     Data.Add(response.Payload.Slice(1 + sizeLength + 2));
-                    PayloadEnd = new OutputStream.Position(1, Data[1].Count);
                 }
+
+                // There is never a binary context in this case.
+                Debug.Assert(Data.Count == 2);
+                PayloadEnd = new OutputStream.Position(1, Data[1].Count);
             }
 
             Size = Data.GetByteCount();

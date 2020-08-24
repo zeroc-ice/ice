@@ -468,13 +468,13 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
     switch(type)
     {
         case OpDocInParams:
-            params = op->inParameters();
+            params = op->parameters();
             break;
         case OpDocOutParams:
             params = op->outParameters();
             break;
         case OpDocAllParams:
-            params = op->parameters();
+            params = op->allMembers();
             break;
     }
 
@@ -1271,7 +1271,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     p->setMetaData(metaData);
 
-    for (auto& param : p->parameters())
+    for (auto& param : p->allMembers())
     {
         metaData = validate(param->type(), param->getMetaData(), p->file(), param->line(), true);
         param->setMetaData(metaData);
@@ -2148,8 +2148,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> futureOutParams;
     vector<string> lambdaOutParams;
 
-    MemberList paramList = p->parameters();
-    MemberList inParams = p->inParameters();
+    MemberList paramList = p->allMembers();
+    MemberList inParams = p->parameters();
     MemberList outParams = p->outParameters();
 
     string returnValueS = "returnValue";
@@ -2964,9 +2964,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(interface->scope() + interface->name() + "::");
     string scoped = fixKwd(interface->scope() + interface->name() + "::" + p->name());
 
-    MemberList inParams = p->inParameters();
+    MemberList inParams = p->parameters();
     MemberList outParams = p->outParameters();
-    MemberList paramList = p->parameters();
+    MemberList paramList = p->allMembers();
 
     const bool amd = (interface->hasMetaData("amd") || p->hasMetaData("amd"));
 
@@ -3897,7 +3897,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             scoped + "::" + resultStructName(opName, "", true) :
             returnTypeToString(ret, op->returnIsTagged(), "", op->getMetaData(), _useWstring);
 
-        MemberList inParams = op->inParameters();
+        MemberList inParams = op->parameters();
         MemberList outParams = op->outParameters();
 
         if(p->hasMetaData("amd") || op->hasMetaData("amd"))

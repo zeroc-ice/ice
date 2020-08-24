@@ -9,9 +9,18 @@ namespace ZeroC.Glacier2.Test.Router
 {
     public sealed class Callback : ICallback
     {
-        public void InitiateCallback(ICallbackReceiverPrx? proxy, Current current) =>
-            proxy!.Callback(current.Context);
-
+        public void InitiateCallback(ICallbackReceiverPrx? proxy, Current current)
+        {
+            try
+            {
+                proxy!.Callback(current.Context);
+            }
+            catch (DispatchException ex)
+            {
+                ex.ConvertToUnhandled = false;
+                throw;
+            }
+        }
         public void InitiateCallbackEx(ICallbackReceiverPrx? proxy, Current current)
         {
             try

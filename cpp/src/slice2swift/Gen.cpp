@@ -187,7 +187,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             addImport(ret, p);
         }
 
-        for (const auto& param : (*i)->parameters())
+        for (const auto& param : (*i)->allMembers())
         {
             addImport(param->type(), p);
         }
