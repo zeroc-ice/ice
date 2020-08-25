@@ -1161,17 +1161,17 @@ allTests(TestHelper* helper)
                                          Ice::Identity(),
                                          Ice::Identity());
 
-        auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
+        auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         auto appObs2 = make_shared<ApplicationObserverI>("appObs2");
         auto app2 = adpt2->addWithUUID(appObs2);
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
         auto no2 = adpt2->addWithUUID(nodeObs2);
         adpt2->activate();
-        session2->setObservers(0,
+        session2->setObservers(nullptr,
                                Ice::uncheckedCast<NodeObserverPrx>(no2),
                                Ice::uncheckedCast<ApplicationObserverPrx>(app2),
-                               0,
-                               0);
+                               nullptr,
+                               nullptr);
 
         appObs1->waitForUpdate(__LINE__);
         appObs2->waitForUpdate(__LINE__);
@@ -1823,12 +1823,12 @@ allTests(TestHelper* helper)
 
         session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
-        auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "default");
+        auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
 
-        session1->setObservers(0, Ice::uncheckedCast<NodeObserverPrx>(no1), 0, 0, 0);
+        session1->setObservers(nullptr, Ice::uncheckedCast<NodeObserverPrx>(no1), nullptr, nullptr, nullptr);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();
@@ -1840,7 +1840,7 @@ allTests(TestHelper* helper)
     {
         cout << "testing observer with indirect proxy... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
-        communicator->getProperties()->setProperty("IndirectAdpt1.Endpoints", "default");
+        communicator->getProperties()->setProperty("IndirectAdpt1.Endpoints", "tcp");
         communicator->getProperties()->setProperty("IndirectAdpt1.AdapterId", "adapter1");
         auto adpt1 = communicator->createObjectAdapter("IndirectAdpt1");
         test(communicator->getDefaultLocator());
@@ -1850,7 +1850,7 @@ allTests(TestHelper* helper)
         assert(no1->ice_getAdapterId() == "adapter1");
         adpt1->activate();
 
-        session1->setObservers(0, Ice::uncheckedCast<NodeObserverPrx>(no1), 0, 0, 0);
+        session1->setObservers(nullptr, Ice::uncheckedCast<NodeObserverPrx>(no1), nullptr, nullptr, nullptr);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();
