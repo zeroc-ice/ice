@@ -1777,7 +1777,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets the number of bytes needed to encode a long value.</summary>
-        /// <param name="value">The value to encoded.</param>
+        /// <param name="value">The value to encode.</param>
         /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
         /// </returns>
         private static int GetEncodedSize(long value)
@@ -1797,7 +1797,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets the number of bytes needed to encode a long value.</summary>
-        /// <param name="value">The value to encoded.</param>
+        /// <param name="value">The value to encode.</param>
         /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
         /// </returns>
         private static int GetEncodedSize(ulong value)

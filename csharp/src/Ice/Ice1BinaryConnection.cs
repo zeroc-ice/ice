@@ -36,7 +36,7 @@ namespace ZeroC.Ice
             await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            await Transceiver.ClosingAsync(exception, cancel).ConfigureAwait(false);
+            await Transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
         public ValueTask DisposeAsync() => Transceiver.DisposeAsync();

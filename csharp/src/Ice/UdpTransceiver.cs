@@ -177,7 +177,7 @@ namespace ZeroC.Ice
             return buffer.Slice(0, received);
         }
 
-        public ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel) =>
+        public ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
             throw new InvalidOperationException();
 
         public override string ToString()

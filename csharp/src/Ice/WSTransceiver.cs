@@ -235,7 +235,7 @@ namespace ZeroC.Ice
         public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
             throw new InvalidOperationException();
 
-        public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             // If we've fully read the previous DATA frame payload, read a new frame
             if (_receivePayloadOffset == _receivePayloadLength)
@@ -246,14 +246,14 @@ namespace ZeroC.Ice
 
             // Read the payload
             Debug.Assert(_receivePayloadLength > 0);
-            int length = Math.Min(_receivePayloadLength, buffer.Length);
+            int length = Math.Min(_receivePayloadLength, buffer.Count);
             int received = await _underlying.ReceiveAsync(buffer[0..length], cancel).ConfigureAwait(false);
 
             if (_incoming)
             {
                 for (int i = 0; i < received; ++i)
                 {
-                    buffer.Span[i] = (byte)(buffer.Span[i] ^ _receiveMask[_receivePayloadOffset++ % 4]);
+                    buffer[i] = (byte)(buffer[i] ^ _receiveMask[_receivePayloadOffset++ % 4]);
                 }
             }
             else
@@ -352,8 +352,7 @@ namespace ZeroC.Ice
             while (true)
             {
                 // Read the first 2 bytes of the WS frame header
-                ReadOnlyMemory<byte> header = await _underlying.BufferedReceiveAsync(2, cancel).ConfigureAwait(false);
-
+                ReadOnlyMemory<byte> header = await _underlying.ReceiveAsync(2, cancel).ConfigureAwait(false);
                 // Most-significant bit indicates if this is the last frame, least-significant four bits hold the opcode.
                 var opCode = (OpCode)(header.Span[0] & 0xf);
 
@@ -384,13 +383,13 @@ namespace ZeroC.Ice
                 int payloadLength = header.Span[1] & 0x7f;
                 if (payloadLength == 126)
                 {
-                    header = await _underlying.BufferedReceiveAsync(2, cancel).ConfigureAwait(false);
+                    header = await _underlying.ReceiveAsync(2, cancel).ConfigureAwait(false);
                     ushort length = header.Span.ReadUShort();
                     payloadLength = (ushort)System.Net.IPAddress.NetworkToHostOrder((short)length);
                 }
                 else if (payloadLength == 127)
                 {
-                    header = await _underlying.BufferedReceiveAsync(8, cancel).ConfigureAwait(false);
+                    header = await _underlying.ReceiveAsync(8, cancel).ConfigureAwait(false);
                     long length = System.Net.IPAddress.NetworkToHostOrder(header.Span.ReadLong());
                     if (length > int.MaxValue)
                     {
@@ -403,7 +402,7 @@ namespace ZeroC.Ice
                 if (_incoming)
                 {
                     // Read the mask if this is an incoming connection.
-                    (await _underlying.BufferedReceiveAsync(4, cancel).ConfigureAwait(false)).CopyTo(_receiveMask);
+                    (await _underlying.ReceiveAsync(4, cancel).ConfigureAwait(false)).CopyTo(_receiveMask);
                 }
 
                 if (_communicator.TraceLevels.Network >= 3)
@@ -431,7 +430,7 @@ namespace ZeroC.Ice
                     {
                         // Read the Close frame payload.
                         ReadOnlyMemory<byte> payloadBuffer =
-                            await _underlying.BufferedReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
 
                         byte[] payload = payloadBuffer.ToArray();
                         if (_incoming)
@@ -459,7 +458,7 @@ namespace ZeroC.Ice
                     {
                         // Read the ping payload.
                         ReadOnlyMemory<byte> payload =
-                            await _underlying.BufferedReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
 
                         // Send a Pong frame with the received payload.
                         var sendBuffer = new List<ArraySegment<byte>> { payload.ToArray() };
@@ -470,7 +469,7 @@ namespace ZeroC.Ice
                     {
                         // Read the pong payload.
                         ReadOnlyMemory<byte> payload =
-                            await _underlying.BufferedReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
 
                         // Nothing to do, this can be received even if we don't send a ping frame if the peer sends
                         // an unidirectional heartbeat.

@@ -47,7 +47,7 @@ namespace ZeroC.Ice
         /// <param name="buffer">The buffer that holds the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The number of bytes received.</return>
-        ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel);
+        ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
 
         /// <summary>Receive data from the connection.</summary>
         /// <param name="buffer">The buffer containing the data to send.</param>
@@ -80,32 +80,69 @@ namespace ZeroC.Ice
         public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
             Underlying.ReceiveAsync(cancel);
 
-        public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
             int received = 0;
             if (_buffer.Count > 0)
             {
                 // If there's still data buffered for the payload, consume the buffered data.
-                int length = Math.Min(_buffer.Count, buffer.Length);
-                ReadOnlyMemory<byte> buffered = await BufferedReceiveAsync(length, cancel).ConfigureAwait(false);
+                int length = Math.Min(_buffer.Count, buffer.Count);
+                ArraySegment<byte> buffered = await ReceiveAsync(length, cancel).ConfigureAwait(false);
                 buffered.CopyTo(buffer);
                 received = length;
             }
 
             // Then, read the reminder from the underlying transport.
-            if (received < buffer.Length)
+            if (received < buffer.Count)
             {
                 received += await Underlying.ReceiveAsync(buffer.Slice(received), cancel).ConfigureAwait(false);
             }
             return received;
         }
 
-        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel) =>
-            Underlying.SendAsync(buffer, cancel);
+        public async ValueTask<byte> ReceiveByteAsync(CancellationToken cancel = default)
+        {
+            if (_buffer.Count > 0)
+            {
+                byte b = _buffer[0];
+                _buffer = _buffer.Slice(1);
+                return b;
+            }
+            else
+            {
+                return (await ReceiveAsync(1, cancel).ConfigureAwait(false))[0];
+            }
+        }
 
-        public string ToDetailedString() => Underlying.ToDetailedString();
+        public async ValueTask<long> ReceiveVarLongAsync(CancellationToken cancel = default)
+        {
+            if (_buffer.Count == 0)
+            {
+                // Read the first byte for the varlong
+                await ReceiveInBufferAsync(1, cancel).ConfigureAwait(false);
+                Debug.Assert(_buffer.Count > 0);
+            }
 
-        public async ValueTask<ReadOnlyMemory<byte>> BufferedReceiveAsync(int byteCount, CancellationToken cancel)
+            int bytesLeft = _buffer[0] & 0x03;
+            if (_buffer.Count < bytesLeft)
+            {
+                // Read the additional bytes for the varlong
+                await ReceiveInBufferAsync(bytesLeft, cancel).ConfigureAwait(false);
+            }
+
+            long size = bytesLeft switch
+            {
+                0 => _buffer[0] >> 2,
+                1 => BitConverter.ToInt16(_buffer) >> 2,
+                2 => BitConverter.ToInt32(_buffer) >> 2,
+                _ => BitConverter.ToInt64(_buffer) >> 2
+            };
+
+            _buffer = _buffer.Slice(bytesLeft + 1);
+            return size;
+        }
+
+        public async ValueTask<ArraySegment<byte>> ReceiveAsync(int byteCount, CancellationToken cancel = default)
         {
             if (byteCount > _buffer.Array!.Length)
             {
@@ -113,86 +150,67 @@ namespace ZeroC.Ice
                     $"byteCount should be inferior to the buffer size of {_buffer.Array.Length} bytes");
             }
 
-            int offset = _buffer.Count;
             if (_buffer.Count < byteCount)
             {
-                // If there's not enough data buffered for byteCount we read more data in the buffer. We first
-                // need to make sure there's enough space in the buffer to read it however.
-                if (_buffer.Count == 0)
-                {
-                    // Use the full buffer array if there's no more buffered data.
-                    _buffer = new ArraySegment<byte>(_buffer.Array!);
-                }
-                else if (_buffer.Offset + _buffer.Count + byteCount > _buffer.Array!.Length)
-                {
-                    // There's still buffered data but not enough space left in the array to read the given bytes.
-                    // In theory, the number of bytes to read should always be lower than the un-used buffer space
-                    // at the start of the buffer. We move the data at the end of the buffer to the begining to
-                    // make space to read the given number of bytes.
-                    Debug.Assert(_buffer.Offset >= byteCount);
-                    _buffer.CopyTo(_buffer.Array!, 0);
-                    _buffer = new ArraySegment<byte>(_buffer.Array);
-                }
-                else
-                {
-                    // There's still buffered data and enough space to read the given bytes after the buffered
-                    // data.
-                    _buffer = new ArraySegment<byte>(
-                        _buffer.Array,
-                        _buffer.Offset,
-                        _buffer.Array.Length - _buffer.Offset);
-                }
-
-                while (offset < byteCount)
-                {
-                    offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
-                }
+                await ReceiveInBufferAsync(byteCount, cancel);
+                Debug.Assert(_buffer.Count >= byteCount);
             }
 
             ArraySegment<byte> buffer = _buffer.Slice(0, byteCount);
-            if (byteCount < offset)
-            {
-                _buffer = _buffer.Slice(byteCount, offset - byteCount);
-            }
-            else
-            {
-                _buffer = _buffer.Slice(0, 0);
-            }
+            _buffer = _buffer.Slice(byteCount);
             return buffer;
         }
+
+        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
+            Underlying.SendAsync(buffer, cancel);
+
+        public string ToDetailedString() => Underlying.ToDetailedString();
 
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
         {
             Underlying = underlying;
             _buffer = new byte[bufferSize];
         }
-    };
 
-    internal class TransceiverReadStream : System.IO.Stream
-    {
-        private readonly ITransceiver _transceiver;
-
-        public override long Position
+        private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)
         {
-            get => throw new NotSupportedException();
-            set => throw new NotSupportedException();
+            Debug.Assert(_buffer.Count < byteCount);
+
+            int offset = _buffer.Count;
+
+            // If there's not enough data buffered for byteCount we read more data in the buffer. We first
+            // need to make sure there's enough space in the buffer to read it however.
+            if (_buffer.Count == 0)
+            {
+                // Use the full buffer array if there's no more buffered data.
+                _buffer = new ArraySegment<byte>(_buffer.Array!);
+            }
+            else if (_buffer.Offset + _buffer.Count + byteCount > _buffer.Array!.Length)
+            {
+                // There's still buffered data but not enough space left in the array to read the given bytes.
+                // In theory, the number of bytes to read should always be lower than the un-used buffer space
+                // at the start of the buffer. We move the data at the end of the buffer to the begining to
+                // make space to read the given number of bytes.
+                Debug.Assert(_buffer.Offset >= byteCount);
+                _buffer.CopyTo(_buffer.Array!, 0);
+                _buffer = new ArraySegment<byte>(_buffer.Array);
+            }
+            else
+            {
+                // There's still buffered data and enough space to read the given bytes after the buffered
+                // data.
+                _buffer = new ArraySegment<byte>(
+                    _buffer.Array,
+                    _buffer.Offset,
+                    _buffer.Array.Length - _buffer.Offset);
+            }
+
+            while (offset < byteCount)
+            {
+                offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
+            }
+
+            _buffer = _buffer.Slice(0, offset);
         }
-
-        public override long Length => throw new NotSupportedException();
-        public override bool CanWrite => false;
-        public override bool CanRead => true;
-        public override bool CanSeek => false;
-
-        public override void Flush() => throw new NotSupportedException();
-        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken) =>
-            _transceiver.ReceiveAsync(buffer, cancellationToken);
-        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-        public override void SetLength(long value) => throw new NotSupportedException();
-        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
-
-        internal TransceiverReadStream(ITransceiver transceiver) => _transceiver = transceiver;
     };
 }

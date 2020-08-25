@@ -16,21 +16,6 @@ namespace ZeroC.Ice
     {
         internal static readonly Encoding Encoding = Encoding.V2_0;
 
-        // Size of an ice2 frame header for now:
-        // Magic number (4 bytes)
-        // Protocol bytes (4 bytes)
-        // Frame type (Byte)
-        // Compression status (Byte) (not used)
-        // Frame size (size = varulong on 4 bytes)
-        internal const int HeaderSize = 14;
-
-        // The magic number at the front of each frame.
-        internal static readonly byte[] Magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
-
-        // 4-bytes after magic that provide the protocol version (always 2.0 for an ice2 frame) and the
-        // encoding of the frame header (always set to 2.0 with the an ice2 frame).
-        internal static readonly byte[] ProtocolBytes = new byte[] { 2, 0, 2, 0 };
-
         // ice2 frame types:
         internal enum FrameType : byte
         {
@@ -40,20 +25,13 @@ namespace ZeroC.Ice
 
         internal static readonly byte[] RequestHeader = new byte[]
         {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             (byte) FrameType.Request,
-            0, // Compression status.
             0, 0, 0, 0, // Frame size (placeholder).
-            0, 0, 0, 0 // Request ID (placeholder).
         };
 
         internal static readonly byte[] ReplyHeader = new byte[]
         {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             (byte)FrameType.Reply,
-            0, // Compression status.
             0, 0, 0, 0 // Frame size (placeholder).
         };
 

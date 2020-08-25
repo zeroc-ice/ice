@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace ZeroC.Ice
 {
@@ -189,11 +190,12 @@ namespace ZeroC.Ice
                 return buffer.ReadSize20().Size;
             }
         }
-
         internal static int ReadInt(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
-        internal static short ReadShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
+        internal static uint ReadUInt(this ReadOnlySpan<byte> buffer) => BitConverter.ToUInt32(buffer);
+        internal static ulong ReadULong(this ReadOnlySpan<byte> buffer) => BitConverter.ToUInt64(buffer);
         internal static ushort ReadUShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToUInt16(buffer);
+        internal static short ReadShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
 
         internal static (int Size, int SizeLength) ReadSize(this ReadOnlySpan<byte> buffer, Encoding encoding) =>
             encoding == Encoding.V1_1 ? buffer.ReadSize11() : buffer.ReadSize20();
@@ -223,7 +225,29 @@ namespace ZeroC.Ice
 
         internal static (int Size, int SizeLength) ReadSize20(this ReadOnlySpan<byte> buffer)
         {
-            ulong size = (buffer[0] & 0x03) switch
+            (ulong size, int sizeLength) = buffer.ReadVarULong();
+            checked // make sure we don't overflow
+            {
+                return ((int)size, sizeLength);
+            }
+        }
+
+        internal static (long Value, int ValueLength) ReadVarLong(this ReadOnlySpan<byte> buffer)
+        {
+            long value = (buffer[0] & 0x03) switch
+            {
+                0 => buffer[0] >> 2,
+                1 => BitConverter.ToInt16(buffer) >> 2,
+                2 => BitConverter.ToInt32(buffer) >> 2,
+                _ => BitConverter.ToInt64(buffer) >> 2
+            };
+
+            return (value, 1 << (buffer[0] & 0x03));
+        }
+
+        internal static (ulong Value, int ValueLength) ReadVarULong(this ReadOnlySpan<byte> buffer)
+        {
+            ulong value = (buffer[0] & 0x03) switch
             {
                 0 => (uint)buffer[0] >> 2,
                 1 => (uint)BitConverter.ToUInt16(buffer) >> 2,
@@ -231,10 +255,39 @@ namespace ZeroC.Ice
                 _ => BitConverter.ToUInt64(buffer) >> 2
             };
 
-            checked // make sure we don't overflow
-            {
-                return ((int)size, 1 << (buffer[0] & 0x03));
-            }
+            return (value, 1 << (buffer[0] & 0x03));
         }
+
+        internal static void WriteInt(this Span<byte> buffer, int value) => MemoryMarshal.Write(buffer, ref value);
+        internal static void WriteLong(this Span<byte> buffer, long value) => MemoryMarshal.Write(buffer, ref value);
+        internal static void WriteShort(this Span<byte> buffer, short value) => MemoryMarshal.Write(buffer, ref value);
+        internal static void WriteUInt(this Span<byte> buffer, uint value) => MemoryMarshal.Write(buffer, ref value);
+        internal static void WriteULong(this Span<byte> buffer, ulong value) => MemoryMarshal.Write(buffer, ref value);
+        internal static void WriteUShort(this Span<byte> buffer, ushort value) => MemoryMarshal.Write(buffer, ref value);
+
+        internal static int WriteVarLong(this Span<byte> buffer, long value)
+        {
+            if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varlong value `{value}' is out of range", nameof(value));
+            }
+
+            int encodedSize = (value << 2) switch
+            {
+                long b when b >= sbyte.MinValue && b <= sbyte.MaxValue => 0,
+                long s when s >= short.MinValue && s <= short.MaxValue => 1,
+                long i when i >= int.MinValue && i <= int.MaxValue => 2,
+                _ => 3
+            };
+
+            value <<= 2;
+            value |= (uint)encodedSize;
+
+            Span<byte> data = stackalloc byte[sizeof(long)];
+            MemoryMarshal.Write(data, ref value);
+            data.Slice(0, 1 << encodedSize).CopyTo(buffer);
+            return 1 << encodedSize;
+        }
+
     }
 }

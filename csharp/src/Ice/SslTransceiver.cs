@@ -134,7 +134,7 @@ namespace ZeroC.Ice
         public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
             throw new InvalidOperationException();
 
-        public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
+        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             int received;
             try
