@@ -977,30 +977,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IReadOnlyDictionary<string, string> CurrentContext()
-        {
-            IReadOnlyDictionary<string, string> context;
-
-            if (Context.Count == 0)
-            {
-                context = Communicator.CurrentContext;
-            }
-            else if (Communicator.CurrentContext.Count == 0)
-            {
-                context = Context;
-            }
-            else
-            {
-                var combinedContext = new Dictionary<string, string>(Communicator.CurrentContext);
-                foreach ((string key, string value) in Context)
-                {
-                    combinedContext[key] = value;  // the proxy Context entry prevails.
-                }
-                context = combinedContext;
-            }
-            return context;
-        }
-
         internal Connection? GetCachedConnection() => _requestHandler?.GetConnection();
 
         internal async ValueTask<IRequestHandler> GetConnectionRequestHandlerAsync(CancellationToken cancel)

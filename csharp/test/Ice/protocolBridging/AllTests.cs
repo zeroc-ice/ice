@@ -14,7 +14,6 @@ namespace ZeroC.Ice.Test.ProtocolBridging
         public static ITestIntfPrx Run(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
 
             var forwardSamePrx = ITestIntfPrx.Parse(helper.GetTestProxy("ForwardSame", 0), communicator);
             var forwardOtherPrx = ITestIntfPrx.Parse(helper.GetTestProxy("ForwardOther", 0), communicator);
@@ -40,7 +39,15 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             TestHelper.Assert(newPrx.Protocol != forwardOtherPrx.Protocol);
             TestHelper.Assert(newPrx.Encoding == forwardOtherPrx.Encoding); // encoding must remain the same
             _ = TestProxy(newPrx);
+            output.WriteLine("ok");
 
+            output.Write("testing forwarding with other protocol and other encoding... ");
+            output.Flush();
+            Encoding encoding = forwardOtherPrx.Encoding == Encoding.V1_1 ? Encoding.V2_0 : Encoding.V1_1;
+            newPrx = TestProxy(forwardOtherPrx.Clone(encoding: encoding));
+            TestHelper.Assert(newPrx.Protocol != forwardOtherPrx.Protocol);
+            TestHelper.Assert(newPrx.Encoding == encoding);
+            _ = TestProxy(newPrx);
             output.WriteLine("ok");
 
             return forwardSamePrx;
@@ -48,7 +55,8 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
         private static ITestIntfPrx TestProxy(ITestIntfPrx prx)
         {
-            var ctx = new Dictionary<string, string> { { "MyCtx", "hello"} };
+            var ctx = new Dictionary<string, string>(prx.Context);
+            ctx.Add("MyCtx", "hello");
 
             TestHelper.Assert(prx.Op(13, ctx) == 13);
             prx.OpVoid(ctx);

@@ -136,6 +136,11 @@ namespace ZeroC.Ice
 
         public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
+            if (buffer.Count == 0)
+            {
+                throw new ArgumentException("empty buffer");
+            }
+
             int received;
             try
             {

@@ -18,15 +18,20 @@ namespace ZeroC.Ice.Test.ProtocolBridging
         {
             if (current.Operation == "op" || current.Operation == "opVoid")
             {
-                TestHelper.Assert(current.Context.Count == 1);
-                TestHelper.Assert(current.Context["MyCtx"] == "hello");
+                TestHelper.Assert(request.Context.Count == 1);
+                TestHelper.Assert(request.Context["MyCtx"] == "hello");
+
+                if (current.Operation == "opVoid")
+                {
+                    request.Context.Clear();
+                }
             }
             else
             {
-                TestHelper.Assert(current.Context.Count == 0);
+                TestHelper.Assert(request.Context.Count == 0);
             }
 
-            if (current.Operation != "shutdown")
+            if (current.Operation != "opVoid" && current.Operation != "shutdown")
             {
                 request.Context["Intercepted"] = "1";
             }
@@ -42,22 +47,21 @@ namespace ZeroC.Ice.Test.ProtocolBridging
         public int Op(int x, Current current)
         {
             TestHelper.Assert(current.Context["MyCtx"] == "hello");
-            if (current.Context.Count > 1)
-            {
-                TestHelper.Assert(current.Context.Count == 2);
-                TestHelper.Assert(current.Context.ContainsKey("Intercepted"));
-            }
-
+            TestHelper.Assert(current.Context.Count == 2);
+            TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
             return x;
         }
 
         public void OpVoid(Current current)
         {
-            TestHelper.Assert(current.Context["MyCtx"] == "hello");
-            if (current.Context.Count > 1)
+            if (current.Context.Count == 2)
             {
-                TestHelper.Assert(current.Context.Count == 2);
-                TestHelper.Assert(current.Context.ContainsKey("Intercepted"));
+                TestHelper.Assert(current.Context["MyCtx"] == "hello");
+                TestHelper.Assert(current.Context.ContainsKey("Direct"));
+            }
+            else
+            {
+                TestHelper.Assert(current.Context.Count == 0);
             }
         }
 

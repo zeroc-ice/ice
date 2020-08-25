@@ -252,13 +252,13 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
     switch (type)
     {
     case OpDocInParams:
-        params = op->inParameters();
+        params = op->parameters();
         break;
     case OpDocOutParams:
         params = op->outParameters();
         break;
     case OpDocAllParams:
-        params = op->parameters();
+        params = op->allMembers();
         break;
     }
 
@@ -1520,7 +1520,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             OperationPtr op = *q;
             const string name = fixId(op->name());
             const TypePtr ret = op->returnType();
-            const MemberList inParams = op->inParameters();
+            const MemberList inParams = op->parameters();
             const MemberList outParams = op->outParameters();
 
             //
@@ -2299,7 +2299,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
             addImport(ret, p);
         }
 
-        for (const auto& param : (*i)->parameters())
+        for (const auto& param : (*i)->allMembers())
         {
             addImport(param->type(), p);
         }
@@ -2485,7 +2485,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
             addAlias(ret, module);
         }
 
-        for (const auto& param : (*i)->parameters())
+        for (const auto& param : (*i)->allMembers())
         {
             addAlias(param->type(), module);
         }
@@ -2663,9 +2663,9 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
-        const MemberList paramList = op->parameters();
+        const MemberList paramList = op->allMembers();
         const TypePtr ret = op->returnType();
-        const MemberList inParams = op->inParameters();
+        const MemberList inParams = op->parameters();
         const MemberList outParams = op->outParameters();
 
         const string contextParam = escapeParam(paramList, "context");
@@ -2753,9 +2753,9 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         const OperationPtr op = *q;
-        const MemberList paramList = op->parameters();
+        const MemberList paramList = op->allMembers();
         const TypePtr ret = op->returnType();
-        const MemberList inParams = op->inParameters();
+        const MemberList inParams = op->parameters();
         const MemberList outParams = op->outParameters();
 
         const string currentParam = escapeParam(inParams, "current");

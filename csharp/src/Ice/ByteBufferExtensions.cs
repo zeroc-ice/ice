@@ -231,6 +231,7 @@ namespace ZeroC.Ice
                 return ((int)size, sizeLength);
             }
         }
+        internal static int ReadSizeLength20(this byte b) => b.ReadVarLongLength();
 
         internal static (long Value, int ValueLength) ReadVarLong(this ReadOnlySpan<byte> buffer)
         {
@@ -242,8 +243,10 @@ namespace ZeroC.Ice
                 _ => BitConverter.ToInt64(buffer) >> 2
             };
 
-            return (value, 1 << (buffer[0] & 0x03));
+            return (value, buffer[0].ReadVarLongLength());
         }
+
+        internal static int ReadVarLongLength(this byte b) => 1 << (b & 0x03);
 
         internal static (ulong Value, int ValueLength) ReadVarULong(this ReadOnlySpan<byte> buffer)
         {
@@ -255,7 +258,7 @@ namespace ZeroC.Ice
                 _ => BitConverter.ToUInt64(buffer) >> 2
             };
 
-            return (value, 1 << (buffer[0] & 0x03));
+            return (value, buffer[0].ReadVarLongLength());
         }
 
         internal static void WriteInt(this Span<byte> buffer, int value) => MemoryMarshal.Write(buffer, ref value);
@@ -288,6 +291,5 @@ namespace ZeroC.Ice
             data.Slice(0, 1 << encodedSize).CopyTo(buffer);
             return 1 << encodedSize;
         }
-
     }
 }

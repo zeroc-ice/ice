@@ -95,7 +95,7 @@ namespace ZeroC.Ice
             string name,
             bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null) =>
-            AddObjectAdapter(name, serializeDispatch, taskScheduler);
+            CreateObjectAdapter(name, serializeDispatch, taskScheduler, null);
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
         /// associated with a bi-directional connection.</summary>
@@ -107,8 +107,19 @@ namespace ZeroC.Ice
         public ObjectAdapter CreateObjectAdapter(
             bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null,
-            Protocol protocol = Protocol.Ice2) =>
-            AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler, protocol: protocol);
+            Protocol protocol = Protocol.Ice2)
+        {
+            lock (_mutex)
+            {
+                if (IsDisposed)
+                {
+                    throw new CommunicatorDisposedException();
+                }
+                var adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
+                _adapters.Add(adapter);
+                return adapter;
+            }
+        }
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
         /// to setting the name.Endpoints property and then calling
@@ -128,7 +139,7 @@ namespace ZeroC.Ice
             }
 
             SetProperty($"{name}.Endpoints", endpoints);
-            return AddObjectAdapter(name, serializeDispatch, taskScheduler);
+            return CreateObjectAdapter(name, serializeDispatch, taskScheduler);
         }
 
         /// <summary>Creates a new object adapter with the specified endpoint string. This method generates a UUID for
@@ -172,7 +183,7 @@ namespace ZeroC.Ice
                 SetProperty(entry.Key, entry.Value);
             }
 
-            return AddObjectAdapter(name, serializeDispatch, taskScheduler, router);
+            return CreateObjectAdapter(name, serializeDispatch, taskScheduler, router);
         }
 
         /// <summary>Creates a new object adapter with the specified router proxy. This method generates a UUID for
@@ -232,14 +243,13 @@ namespace ZeroC.Ice
             }
         }
 
-        private ObjectAdapter AddObjectAdapter(
-            string? name = null,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            IRouterPrx? router = null,
-            Protocol protocol = Protocol.Ice2)
+        private ObjectAdapter CreateObjectAdapter(
+            string name,
+            bool serializeDispatch,
+            TaskScheduler? taskScheduler,
+            IRouterPrx? router)
         {
-            if (name != null && name.Length == 0)
+            if (name.Length == 0)
             {
                 throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
@@ -251,15 +261,12 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                if (name != null)
+                if (_adapterNamesInUse.Contains(name))
                 {
-                    if (_adapterNamesInUse.Contains(name))
-                    {
-                        throw new ArgumentException($"an object adapter with name `{name}' is already registered",
-                            nameof(name));
-                    }
-                    _adapterNamesInUse.Add(name);
+                    throw new ArgumentException($"an object adapter with name `{name}' is already registered",
+                        nameof(name));
                 }
+                _adapterNamesInUse.Add(name);
             }
 
             // Must be called outside the synchronization since the constructor can make client invocations
@@ -267,16 +274,13 @@ namespace ZeroC.Ice
             ObjectAdapter adapter;
             try
             {
-                adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router, protocol);
+                adapter = new ObjectAdapter(this, name, serializeDispatch, taskScheduler, router);
             }
             catch
             {
-                if (name != null)
+                lock (_mutex)
                 {
-                    lock (_mutex)
-                    {
-                        _adapterNamesInUse.Remove(name);
-                    }
+                    _adapterNamesInUse.Remove(name);
                 }
                 throw;
             }

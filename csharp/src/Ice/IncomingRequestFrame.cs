@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace ZeroC.Ice
 {
@@ -47,8 +46,9 @@ namespace ZeroC.Ice
 
             (int size, int sizeLength, Encoding encoding) =
                 Data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-            Encapsulation = Data.Slice(istr.Pos, size + sizeLength);
-            Payload = Data.Slice(0, istr.Pos + size + sizeLength);
+
+            Payload = Data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
+
             if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
             {
                 Context = value.Read(ContextHelper.IceReader);
@@ -62,7 +62,7 @@ namespace ZeroC.Ice
             }
 
             Encoding = encoding;
-            HasCompressedPayload = Encoding == Encoding.V2_0 && Encapsulation[sizeLength + 2] != 0;
+            HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
         }
 
         internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
@@ -78,7 +78,7 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
-            Encapsulation.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+            Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
         }
 
         /// <summary>Reads the request frame parameter list.</summary>
@@ -93,7 +93,9 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
-            return Encapsulation.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
         }
+
+        private protected override ArraySegment<byte> GetEncapsulation() => Payload;
     }
 }

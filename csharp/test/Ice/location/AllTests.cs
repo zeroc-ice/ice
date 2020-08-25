@@ -18,9 +18,9 @@ namespace ZeroC.Ice.Test.Location
             TestHelper.Assert(communicator != null);
             bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
             var manager = IServerManagerPrx.Parse(helper.GetTestProxy("ServerManager", 0), communicator);
-            var locator = ITestLocatorPrx.UncheckedCast(communicator.DefaultLocator!);
+            var locator = communicator.DefaultLocator!.Clone(ITestLocatorPrx.Factory);
             Console.WriteLine("registry checkedcast");
-            var registry = ITestLocatorRegistryPrx.CheckedCast(locator.GetRegistry()!);
+            var registry = locator.GetRegistry()!.Clone(ITestLocatorRegistryPrx.Factory);
             TestHelper.Assert(registry != null);
 
             System.IO.TextWriter output = helper.GetWriter();
@@ -86,17 +86,17 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing checked cast... ");
             output.Flush();
-            var obj1 = ITestIntfPrx.CheckedCast(base1);
+            var obj1 = base1.CheckedCast(ITestIntfPrx.Factory);
             TestHelper.Assert(obj1 != null);
-            var obj2 = ITestIntfPrx.CheckedCast(base2);
+            var obj2 = base2.CheckedCast(ITestIntfPrx.Factory);
             TestHelper.Assert(obj2 != null);
-            var obj3 = ITestIntfPrx.CheckedCast(base3);
+            var obj3 = base3.CheckedCast(ITestIntfPrx.Factory);
             TestHelper.Assert(obj3 != null);
-            var obj4 = IServerManagerPrx.CheckedCast(base4);
+            var obj4 = base4.CheckedCast(IServerManagerPrx.Factory);
             TestHelper.Assert(obj4 != null);
-            var obj5 = ITestIntfPrx.CheckedCast(base5);
+            var obj5 = base5.CheckedCast(ITestIntfPrx.Factory);
             TestHelper.Assert(obj5 != null);
-            var obj6 = ITestIntfPrx.CheckedCast(base6);
+            var obj6 = base6.CheckedCast(ITestIntfPrx.Factory);
             TestHelper.Assert(obj6 != null);
             output.WriteLine("ok");
 
@@ -190,7 +190,7 @@ namespace ZeroC.Ice.Test.Location
             manager.StartServer();
             try
             {
-                obj5 = ITestIntfPrx.CheckedCast(base5);
+                obj5 = base5.CheckedCast(ITestIntfPrx.Factory);
                 TestHelper.Assert(obj5 != null);
                 obj5.IcePing();
             }
@@ -641,11 +641,11 @@ namespace ZeroC.Ice.Test.Location
             TestHelper.Assert(helloPrx.GetConnection() == null);
 
             // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-            helloPrx = IHelloPrx.CheckedCast(adapter.CreateIndirectProxy(id, IObjectPrx.Factory));
+            helloPrx = adapter.CreateIndirectProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
             TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() == null);
 
             // Ensure that calls on the direct proxy is collocated
-            helloPrx = IHelloPrx.CheckedCast(adapter.CreateDirectProxy(id, IObjectPrx.Factory));
+            helloPrx = adapter.CreateDirectProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
             TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() == null);
 
             output.WriteLine("ok");

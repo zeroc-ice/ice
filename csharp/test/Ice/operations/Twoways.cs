@@ -1856,7 +1856,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(p.OpStringS2(Array.Empty<string>()).Length == 0);
                 TestHelper.Assert(p.OpByteBoolD2(new Dictionary<byte, bool>()).Count == 0);
 
-                var d = IMyDerivedClassPrx.UncheckedCast(p);
+                var d = p.Clone(IMyDerivedClassPrx.Factory);
                 var s = new MyStruct1();
                 s.TesT = "MyStruct1.s";
                 s.MyClass = null;

@@ -948,13 +948,6 @@ Slice::Contained::setMetaData(const list<string>& metaData)
     _metaData = metaData;
 }
 
-// TODO: remove this method once "cs:" and "vb:" prefix are hard errors.
-void
-Slice::Contained::addMetaData(const string& s)
-{
-    _metaData.push_back(s);
-}
-
 FormatType
 Slice::Contained::parseFormatMetaData() const
 {
@@ -2958,12 +2951,8 @@ Slice::InterfaceDef::destroy()
 
 OperationPtr
 Slice::InterfaceDef::createOperation(const string& name,
-                                 const TypePtr& returnType,
-                                 bool tagged,
-                                 int tag,
-                                 Operation::Mode mode)
+                                     Operation::Mode mode)
 {
-    _unit->checkType(returnType);
     if (!checkForRedefinition(this, name, "operation"))
     {
         return nullptr;
@@ -3008,7 +2997,7 @@ Slice::InterfaceDef::createOperation(const string& name,
         }
     }
 
-    OperationPtr op = new Operation(this, name, returnType, tagged, tag, mode);
+    OperationPtr op = new Operation(this, name, mode);
     _operations.push_back(op);
     return op;
 }
@@ -4095,61 +4084,22 @@ Slice::Operation::interface() const
 }
 
 size_t
-Slice::Operation::inBitSequenceSize() const
+Slice::Operation::paramsBitSequenceSize() const
 {
-    size_t length = 0;
-    for (const auto& param : _inParameters)
-    {
-        if (!param->tagged())
-        {
-            if (auto optional = OptionalPtr::dynamicCast(param->type()))
-            {
-                if (!optional->isClassType() && !optional->isInterfaceType())
-                {
-                    length++;
-                }
-            }
-        }
-    }
-    return length;
+    return getBitSequenceSize(_parameters);
 }
 
 size_t
 Slice::Operation::returnBitSequenceSize() const
 {
-    size_t length = 0;
-    for (const auto& param : _outParameters)
-    {
-        if (!param->tagged())
-        {
-            if (auto optional = OptionalPtr::dynamicCast(param->type()))
-            {
-                if (!optional->isClassType() && !optional->isInterfaceType())
-                {
-                    length++;
-                }
-            }
-        }
-    }
-
-    if (_returnType && !_returnIsTagged)
-    {
-        if (auto optional = OptionalPtr::dynamicCast(_returnType))
-        {
-            if (!optional->isClassType() && !optional->isInterfaceType())
-            {
-                length++;
-            }
-        }
-    }
-    return length;
+    return getBitSequenceSize(_returnValues);
 }
 
 void
 Slice::Operation::destroy()
 {
-    _inParameters.clear();
-    _outParameters.clear();
+    _parameters.clear();
+    _returnValues.clear();
     _throws.clear();
     Container::destroy();
 }
@@ -4157,19 +4107,31 @@ Slice::Operation::destroy()
 TypePtr
 Slice::Operation::returnType() const
 {
-    return _returnType;
+    if (_hasReturnType)
+    {
+        return _returnValues.front()->_type;
+    }
+    return nullptr;
 }
 
 bool
 Slice::Operation::returnIsTagged() const
 {
-    return _returnIsTagged;
+    if (_hasReturnType)
+    {
+        return _returnValues.front()->_tagged;
+    }
+    return false;
 }
 
 int
 Slice::Operation::returnTag() const
 {
-    return _returnTag;
+    if (_hasReturnType)
+    {
+        return _returnValues.front()->_tag;
+    }
+    return -1;
 }
 
 Operation::Mode
@@ -4198,13 +4160,9 @@ Slice::Operation::hasMarshaledResult() const
     assert(interface);
     if (interface->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
     {
-        if (returnType() && isMutableAfterReturnType(returnType()))
+        for (const auto& returnValue : _returnValues)
         {
-            return true;
-        }
-        for (const auto& param : _outParameters)
-        {
-            if (isMutableAfterReturnType(param->type()))
+            if (isMutableAfterReturnType(returnValue->type()))
             {
                 return true;
             }
@@ -4222,29 +4180,25 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         return nullptr;
     }
 
-    // Check that in parameters don't follow out parameters.
-    if (!_outParameters.empty() && !isOutParam)
+    if (isOutParam)
     {
+        _usesOutParameters = true;
+    }
+    else if (_usesOutParameters)
+    {
+        // In parameters must be declared before out parameters.
         _unit->error("`" + name + "': in parameters cannot follow out parameters");
     }
 
-    MemberList& params = isOutParam ? _outParameters : _inParameters;
+    MemberList& params = isOutParam ? _returnValues : _parameters;
     if (tagged && tag > -1)
     {
         // Check for a duplicate tag.
-        const string msg = "tag for parameter `" + name + "' is already in use";
-        if (_returnIsTagged && tag == _returnTag)
+        for (const auto& param : params)
         {
-            _unit->error(msg);
-        }
-        else
-        {
-            for (const auto& param : params)
+            if (param->tagged() && param->tag() == tag)
             {
-                if (param->tagged() && param->tag() == tag)
-                {
-                    _unit->error(msg);
-                }
+                _unit->error("tag for parameter `" + name + "' is already in use");
             }
         }
     }
@@ -4254,25 +4208,75 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
     return param;
 }
 
-MemberList
-Slice::Operation::parameters() const
+MemberPtr
+Slice::Operation::createReturnMember(const std::string& name, const TypePtr& type, bool tagged, int tag)
 {
-    MemberList result;
-    result.insert(result.end(), _inParameters.begin(), _inParameters.end());
-    result.insert(result.end(), _outParameters.begin(), _outParameters.end());
-    return result;
+    _hasReturnType = true;
+
+    _unit->checkType(type);
+    if (tagged && tag > -1)
+    {
+        // Check for a duplicate tag.
+        for (const auto& param : _returnValues)
+        {
+            if (param->tagged() && param->tag() == tag)
+            {
+                _unit->error("tag for return value `" + name + "' is already in use");
+            }
+        }
+    }
+
+    if (!checkForRedefinition(this, name, "parameter"))
+    {
+        return nullptr;
+    }
+
+    MemberPtr returnMember = new Member(this, name, type, tagged, tag);
+    _returnValues.push_back(returnMember);
+    return returnMember;
 }
 
 MemberList
-Slice::Operation::inParameters() const
+Slice::Operation::parameters() const
 {
-    return _inParameters;
+    return _parameters;
 }
 
 MemberList
 Slice::Operation::outParameters() const
 {
-    return _outParameters;
+    if (!_usesOutParameters)
+    {
+        return MemberList();
+    }
+
+    MemberList outParameters = _returnValues;
+    // Check if the operation had a return type and if so, remove it, so we're left with only out parameters.
+    if (_hasReturnType)
+    {
+        outParameters.pop_front();
+    }
+    return outParameters;
+}
+
+MemberList
+Slice::Operation::returnValues() const
+{
+    return _returnValues;
+}
+
+MemberList
+Slice::Operation::allMembers() const
+{
+    MemberList result;
+    result.insert(result.end(), _parameters.begin(), _parameters.end());
+    if (_usesOutParameters)
+    {
+        // Skip the return type if it's present, so only out parameters are added to result.
+        auto start = _hasReturnType ? next(_returnValues.begin()) : _returnValues.begin();
+        result.insert(result.end(), start, _returnValues.end());
+    }
+    return result;
 }
 
 ExceptionList
@@ -4323,8 +4327,13 @@ ContainedList
 Slice::Operation::contents() const
 {
     ContainedList result;
-    result.insert(result.end(), _inParameters.begin(), _inParameters.end());
-    result.insert(result.end(), _outParameters.begin(), _outParameters.end());
+    result.insert(result.end(), _parameters.begin(), _parameters.end());
+    if (_usesOutParameters)
+    {
+        // Skip the return type if it's present, so only out parameters are added to result.
+        auto start = _hasReturnType ? next(_returnValues.begin()) : _returnValues.begin();
+        result.insert(result.end(), start, _returnValues.end());
+    }
     return result;
 
 }
@@ -4332,8 +4341,9 @@ Slice::Operation::contents() const
 bool
 Slice::Operation::uses(const ContainedPtr& contained) const
 {
+    if (_hasReturnType)
     {
-        ContainedPtr contained2 = ContainedPtr::dynamicCast(_returnType);
+        ContainedPtr contained2 = ContainedPtr::dynamicCast(_returnValues.front()->_type);
         if (contained2 && contained2 == contained)
         {
             return true;
@@ -4357,7 +4367,7 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 bool
 Slice::Operation::sendsClasses(bool includeTagged) const
 {
-    for (const auto& param : _inParameters)
+    for (const auto& param : _parameters)
     {
         if (param->type()->usesClasses() && (includeTagged || !param->tagged()))
         {
@@ -4370,14 +4380,9 @@ Slice::Operation::sendsClasses(bool includeTagged) const
 bool
 Slice::Operation::returnsClasses(bool includeTagged) const
 {
-    TypePtr type = returnType();
-    if (type && type->usesClasses() && (includeTagged || !_returnIsTagged))
+    for (const auto& returnValue : _returnValues)
     {
-        return true;
-    }
-    for (const auto& param : _outParameters)
-    {
-        if (param->type()->usesClasses() && (includeTagged || !param->tagged()))
+        if (returnValue->type()->usesClasses() && (includeTagged || !returnValue->tagged()))
         {
             return true;
         }
@@ -4388,13 +4393,37 @@ Slice::Operation::returnsClasses(bool includeTagged) const
 bool
 Slice::Operation::returnsData() const
 {
-    return returnType() || !_outParameters.empty() || !_throws.empty();
+    return !_returnValues.empty() || !_throws.empty();
 }
 
 bool
 Slice::Operation::returnsMultipleValues() const
 {
-    return _outParameters.size() + (returnType() ? 1 : 0) > 1;
+    return _returnValues.size() > 1;
+}
+
+bool
+Slice::Operation::hasReturnAndOut() const
+{
+    return _hasReturnType && _usesOutParameters;
+}
+
+bool
+Slice::Operation::hasOutParameters() const
+{
+    return _usesOutParameters;
+}
+
+bool
+Slice::Operation::hasTupleReturnType() const
+{
+    return !_usesOutParameters && _returnValues.size() > 1;
+}
+
+bool
+Slice::Operation::hasSingleReturnType() const
+{
+    return _hasReturnType && (_usesOutParameters || _returnValues.size() == 1);
 }
 
 FormatType
@@ -4424,16 +4453,12 @@ Slice::Operation::visit(ParserVisitor* visitor, bool)
 
 Slice::Operation::Operation(const ContainerPtr& container,
                             const string& name,
-                            const TypePtr& returnType,
-                            bool returnIsTagged,
-                            int returnTag,
                             Mode mode) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     Container(container->unit()),
-    _returnType(returnType),
-    _returnIsTagged(returnIsTagged),
-    _returnTag(returnTag),
+    _usesOutParameters(false),
+    _hasReturnType(false),
     _mode(mode)
 {
 }

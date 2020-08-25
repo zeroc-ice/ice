@@ -1200,10 +1200,12 @@ namespace ZeroC.Ice
         /// </summary>
         /// <param name="replyStatus">The reply status.</param>
         /// <returns>The exception read from the stream.</returns>
-        internal Exception ReadSystemException11(ReplyStatus replyStatus)
+        internal DispatchException ReadSystemException11(ReplyStatus replyStatus)
         {
             Debug.Assert(OldEncoding);
             Debug.Assert((byte)replyStatus > (byte)ReplyStatus.UserException);
+
+            DispatchException systemException;
 
             switch (replyStatus)
             {
@@ -1216,16 +1218,21 @@ namespace ZeroC.Ice
 
                     if (replyStatus == ReplyStatus.OperationNotExistException)
                     {
-                        return new OperationNotExistException(identity, facet, operation);
+                        systemException = new OperationNotExistException(identity, facet, operation);
                     }
                     else
                     {
-                        return new ObjectNotExistException(identity, facet, operation);
+                        systemException = new ObjectNotExistException(identity, facet, operation);
                     }
+                    break;
 
                 default:
-                    return new UnhandledException(ReadString(), Identity.Empty, "", "");
+                    systemException = new UnhandledException(ReadString(), Identity.Empty, "", "");
+                    break;
             }
+
+            systemException.ConvertToUnhandled = true;
+            return systemException;
         }
 
         internal void Skip(int size)
@@ -1443,8 +1450,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = _buffer.Span[Pos];
-                Skip(1 << (b & 0x03));
+                Skip(_buffer.Span[Pos].ReadSizeLength20());
             }
         }
 

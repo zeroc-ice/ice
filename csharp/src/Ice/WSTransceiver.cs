@@ -121,38 +121,36 @@ namespace ZeroC.Ice
 
                     await _underlying.SendAsync(_sendBuffer, cancel).ConfigureAwait(false);
                 }
-
-                //
-                // Try to read the client's upgrade request or the server's response.
-                //
-                int offset = 0;
-                ArraySegment<byte> receiveBuffer = new byte[1024];
                 _sendBuffer.Clear();
-                ArraySegment<byte> httpBuffer;
+
+                // Try to read the client's upgrade request or the server's response.
+                var httpBuffer = new ArraySegment<byte>();
                 while (true)
                 {
-                    offset += await _underlying.ReceiveAsync(receiveBuffer.Slice(offset), cancel).ConfigureAwait(false);
+                    ArraySegment<byte> buffer = await _underlying.ReceiveAsync(0, cancel).ConfigureAwait(false);
+                    if (httpBuffer.Count + buffer.Count > _communicator.IncomingFrameSizeMax)
+                    {
+                        throw new InvalidDataException(
+                            "WebSocket frame size is greater than the configured IncomingFrameSizeMax value");
+                    }
+
+                    ArraySegment<byte> tmpBuffer = new byte[httpBuffer.Count + buffer.Count];
+                    if (httpBuffer.Count > 0)
+                    {
+                        httpBuffer.CopyTo(tmpBuffer);
+                    }
+                    buffer.CopyTo(tmpBuffer.Slice(httpBuffer.Count));
+                    httpBuffer = tmpBuffer;
 
                     // Check if we have enough data for a complete frame.
-                    int p = HttpParser.IsCompleteMessage(receiveBuffer.AsSpan(0, offset));
-                    if (p != -1)
+                    int endPos = HttpParser.IsCompleteMessage(httpBuffer);
+                    if (endPos != -1)
                     {
-                        httpBuffer = receiveBuffer.Slice(0, p);
-                        receiveBuffer = receiveBuffer.Slice(p, offset - p);
+                        httpBuffer = httpBuffer.Slice(0, endPos);
+                        _underlying.SkipBuffered(buffer.Count - httpBuffer.Count + endPos);
                         break; // Done
                     }
-                    else if (offset == receiveBuffer.Array!.Length)
-                    {
-                        // Enlarge the buffer and try to read more.
-                        if (offset + 1024 > _communicator.IncomingFrameSizeMax)
-                        {
-                            throw new InvalidDataException(
-                                "WebSocket frame size is greater than the configured IncomingFrameSizeMax value");
-                        }
-                        byte[] tmpBuffer = new byte[offset + 1024];
-                        receiveBuffer.AsSpan(0, offset).CopyTo(tmpBuffer);
-                        receiveBuffer = tmpBuffer;
-                    }
+                    _underlying.SkipBuffered(buffer.Count);
                 }
 
                 try

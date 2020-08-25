@@ -63,15 +63,15 @@ namespace ZeroC.Ice
         private static readonly ReadOnlyMemory<byte> _streamFrame = new byte[]
         {
             0x06, // Frame type
-            //0x00, 0x00, 0x00, 0x00, // Frame data length (uint)
-            //0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // Frame data: StreamID (varlong) - Data (bytes)
+            // Frame data length (uint)
+            // Frame data: StreamID (varlong) - Protocol Data (bytes)
         };
 
         private static readonly ReadOnlyMemory<byte> _lastStreamFrame = new byte[]
         {
             0x07, // Frame type
-            //0x00, 0x00, 0x00, 0x00, // Frame data length (uint)
-            //0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // Frame data: StreamID (varlong) - Data (bytes)
+            // Frame data length (uint)
+            // Frame data: StreamID (varlong) - Protocol Data (bytes)
         };
 
         private static readonly ReadOnlyMemory<byte> _resetStreamFrame = new byte[]
@@ -230,41 +230,39 @@ namespace ZeroC.Ice
                                         CancellationToken.None).ConfigureAwait(false);
         }
 
-        public async ValueTask SendAsync(long streamId, OutgoingFrame protocolFrame, bool fin, CancellationToken cancel)
+        public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel)
         {
-            List<ArraySegment<byte>> buffer;
-
-            // The header is as follow:
-            // - Slic frame type (byte)
-            // - Slic frame frame size (uint)
-            // - stream ID (varlong)
-            // - Ice2 frame type (byte)
-            // - Ice2 frame size (varlong)
-
-            byte[] header = new byte[protocolFrame.Size];
-
-            if (protocolFrame is OutgoingRequestFrame requestFrame)
+            ArraySegment<byte> header = new byte[32];
+            int pos = 0;
+            header[pos++] = fin ? _lastStreamFrame.Span[0] : _streamFrame.Span[0];
+            pos +=4 ; // Placeholder for Slic frame size (int)
+            int slicFrameSize = header.Slice(pos).AsSpan().WriteVarLong(streamId);
+            pos += slicFrameSize;
+            if (frame is OutgoingRequestFrame requestFrame)
             {
-                buffer = Ice2Definitions.GetRequestData(requestFrame, streamId);
-                ProtocolTrace.TraceFrame(Endpoint.Communicator, buffer[0], requestFrame);
+                header[pos++] = (byte)Ice2Definitions.FrameType.Request;
+                //ProtocolTrace.TraceFrame(Endpoint.Communicator, header, requestFrame);
             }
-            else if (protocolFrame is OutgoingResponseFrame responseFrame)
+            else if (frame is OutgoingResponseFrame responseFrame)
             {
-                Debug.Assert(streamId > 0);
-                buffer = Ice2Definitions.GetResponseData(responseFrame, streamId);
-                ProtocolTrace.TraceFrame(Endpoint.Communicator, buffer[0], responseFrame);
+                header[pos++] = (byte)Ice2Definitions.FrameType.Response;
+                //ProtocolTrace.TraceFrame(Endpoint.Communicator, header, responseFrame);
             }
             else
             {
                 Debug.Assert(false);
                 return;
             }
+            slicFrameSize += header.Slice(pos + slicFrameSize).AsSpan().WriteVarLong(frame.Size);
 
-            int size = buffer.GetByteCount();
-            ArraySegment<byte> frame = (fin ? _lastStreamFrame : _streamFrame).ToArray();
-            frame.Slice(1).AsSpan().WriteUInt((uint)size);
-            int sizeLength = frame.Slice(5).AsSpan().WriteVarLong(size);
-            buffer.Insert(0, frame.Slice(0, 5 + sizeLength));
+            // Write the Slic frame size
+            header.Slice(1).AsSpan().WriteInt(slicFrameSize);
+
+            // TODO: split large protocol frames to allow multiplexing. For now, we send one Slic frame for each
+            // Ice protocol frame.
+
+            var buffer = new List<ArraySegment<byte>>() { header.Slice(0, 5 + slicFrameSize) };
+            buffer.AddRange(frame.Data);
             await PerformSendFrameAsync(buffer, cancel);
         }
 
@@ -281,38 +279,46 @@ namespace ZeroC.Ice
             _transceiver = new BufferedReadTransceiver(transceiver);
         }
 
-        private IncomingFrame? ParseProtocolFrame(ArraySegment<byte> readBuffer)
+        private IncomingFrame? ParseProtocolFrame(ArraySegment<byte> buffer)
         {
             // The magic and version fields have already been checked.
-            var frameType = (Ice2Definitions.FrameType)readBuffer[0];
+            var frameType = (Ice2Definitions.FrameType)buffer[0];
+
+            (long size, int sizeLength) = buffer.AsReadOnlySpan().ReadVarLong();
+            if (size > _frameSizeMax)
+            {
+                throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
+            }
+
+            buffer = buffer.Slice(1 + sizeLength);
+
+            // TODO: support receiving an Ice2 frame with multiple Slic frame, for now we only support one Slic frame
+            // for each Ice2 protocol frame.
+            Debug.Assert(size == buffer.Count);
 
             switch (frameType)
             {
                 case Ice2Definitions.FrameType.Request:
                 {
-                    var request = new IncomingRequestFrame(Endpoint.Protocol,
-                                                           readBuffer.Slice(Ice2Definitions.HeaderSize + 4),
-                                                           _frameSizeMax);
-                    ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, request);
+                    var request = new IncomingRequestFrame(Endpoint.Protocol, buffer, _frameSizeMax);
+                    //ProtocolTrace.TraceFrame(Endpoint.Communicator, buffer, request);
                     return request;
                 }
 
-                case Ice2Definitions.FrameType.Reply:
+                case Ice2Definitions.FrameType.Response:
                 {
-                    var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
-                                                                  readBuffer.Slice(Ice2Definitions.HeaderSize + 4),
-                                                                  _frameSizeMax);
-                    ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, responseFrame);
+                    var responseFrame = new IncomingResponseFrame(Endpoint.Protocol, buffer, _frameSizeMax);
+                    //ProtocolTrace.TraceFrame(Endpoint.Communicator, buffer, responseFrame);
                     return responseFrame;
                 }
 
                 default:
                 {
-                    ProtocolTrace.Trace(
-                        "received unknown frame\n(invalid, closing connection)",
-                        Endpoint.Communicator,
-                        Endpoint.Protocol,
-                        readBuffer);
+                    // ProtocolTrace.Trace(
+                    //     "received unknown frame\n(invalid, closing connection)",
+                    //     Endpoint.Communicator,
+                    //     Endpoint.Protocol,
+                    //     buffer);
                     throw new InvalidDataException($"received ice2 frame with unknown frame type `{frameType}'");
                 }
             }
@@ -332,7 +338,6 @@ namespace ZeroC.Ice
             }
             else if (frameType == _pongFrame[0][0])
             {
-                // TODO
                 //ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, frame);
                 _receivedCallback(1);
                 return default;

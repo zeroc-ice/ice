@@ -114,34 +114,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<long> ReceiveVarLongAsync(CancellationToken cancel = default)
-        {
-            if (_buffer.Count == 0)
-            {
-                // Read the first byte for the varlong
-                await ReceiveInBufferAsync(1, cancel).ConfigureAwait(false);
-                Debug.Assert(_buffer.Count > 0);
-            }
-
-            int bytesLeft = _buffer[0] & 0x03;
-            if (_buffer.Count < bytesLeft)
-            {
-                // Read the additional bytes for the varlong
-                await ReceiveInBufferAsync(bytesLeft, cancel).ConfigureAwait(false);
-            }
-
-            long size = bytesLeft switch
-            {
-                0 => _buffer[0] >> 2,
-                1 => BitConverter.ToInt16(_buffer) >> 2,
-                2 => BitConverter.ToInt32(_buffer) >> 2,
-                _ => BitConverter.ToInt64(_buffer) >> 2
-            };
-
-            _buffer = _buffer.Slice(bytesLeft + 1);
-            return size;
-        }
-
         public async ValueTask<ArraySegment<byte>> ReceiveAsync(int byteCount, CancellationToken cancel = default)
         {
             if (byteCount > _buffer.Array!.Length)
@@ -150,7 +122,19 @@ namespace ZeroC.Ice
                     $"byteCount should be inferior to the buffer size of {_buffer.Array.Length} bytes");
             }
 
-            if (_buffer.Count < byteCount)
+            if (byteCount == 0)
+            {
+                if (_buffer.Count > 0)
+                {
+                    return _buffer;
+                }
+                else
+                {
+                    await ReceiveInBufferAsync(0, cancel);
+                    return _buffer;
+                }
+            }
+            else if (_buffer.Count < byteCount)
             {
                 await ReceiveInBufferAsync(byteCount, cancel);
                 Debug.Assert(_buffer.Count >= byteCount);
@@ -164,6 +148,15 @@ namespace ZeroC.Ice
         public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
             Underlying.SendAsync(buffer, cancel);
 
+        public void SkipBuffered(int byteCount)
+        {
+            if (byteCount > _buffer.Count)
+            {
+                throw new ArgumentOutOfRangeException("byteCount should be inferior to the buffer size");
+            }
+            _buffer = _buffer.Slice(byteCount);
+        }
+
         public string ToDetailedString() => Underlying.ToDetailedString();
 
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
@@ -174,12 +167,12 @@ namespace ZeroC.Ice
 
         private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)
         {
-            Debug.Assert(_buffer.Count < byteCount);
+            Debug.Assert(byteCount == 0 || _buffer.Count < byteCount);
 
             int offset = _buffer.Count;
 
-            // If there's not enough data buffered for byteCount we read more data in the buffer. We first
-            // need to make sure there's enough space in the buffer to read it however.
+            // If there's not enough data buffered for byteCount we read more data in the buffer. We first need
+            // to make sure there's enough space in the buffer to read it however.
             if (_buffer.Count == 0)
             {
                 // Use the full buffer array if there's no more buffered data.
@@ -197,17 +190,23 @@ namespace ZeroC.Ice
             }
             else
             {
-                // There's still buffered data and enough space to read the given bytes after the buffered
-                // data.
+                // There's still buffered data and enough space to read the given bytes after the buffered data.
                 _buffer = new ArraySegment<byte>(
                     _buffer.Array,
                     _buffer.Offset,
                     _buffer.Array.Length - _buffer.Offset);
             }
 
-            while (offset < byteCount)
+            if (byteCount == 0)
             {
                 offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
+            }
+            else
+            {
+                while (offset < byteCount)
+                {
+                    offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
+                }
             }
 
             _buffer = _buffer.Slice(0, offset);

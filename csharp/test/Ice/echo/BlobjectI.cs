@@ -13,8 +13,9 @@ namespace ZeroC.Ice.Test.Echo
         {
             TestHelper.Assert(current.Connection != null);
             IObjectPrx proxy = current.Connection.CreateProxy(current.Identity, IObjectPrx.Factory).Clone(
-                current.Facet,
-                IObjectPrx.Factory, oneway: current.IsOneway);
+                IObjectPrx.Factory,
+                facet: current.Facet,
+                oneway: current.IsOneway);
             return proxy.ForwardAsync(current.IsOneway, request);
         }
     }
