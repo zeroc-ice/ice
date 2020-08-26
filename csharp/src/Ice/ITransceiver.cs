@@ -161,6 +161,8 @@ namespace ZeroC.Ice
 
         public string ToDetailedString() => Underlying.ToDetailedString();
 
+        public override string? ToString() => Underlying.ToString();
+
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
         {
             Underlying = underlying;
