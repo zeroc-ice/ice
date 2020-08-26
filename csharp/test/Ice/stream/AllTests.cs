@@ -61,9 +61,9 @@ namespace ZeroC.Ice.Test.Stream
 
         public static int Run(TestHelper helper)
         {
-            //Communicator? communicator = helper.Communicator();
+            //Communicator? communicator = helper.Communicator;
 
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Writer;
             output.Write("testing primitive types... ");
             output.Flush();
 

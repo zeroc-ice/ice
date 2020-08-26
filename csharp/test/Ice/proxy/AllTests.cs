@@ -13,10 +13,10 @@ namespace ZeroC.Ice.Test.Proxy
     {
         public static IMyClassPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
-            System.IO.TextWriter output = helper.GetWriter();
+            bool ice1 = helper.Protocol == Protocol.Ice1;
+            System.IO.TextWriter output = helper.Writer;
             output.Write("testing proxy parsing... ");
             output.Flush();
 
@@ -948,14 +948,14 @@ namespace ZeroC.Ice.Test.Proxy
             }
             output.WriteLine("ok");
 
-            if (helper.GetTestProtocol() == Protocol.Ice2)
+            if (helper.Protocol == Protocol.Ice2)
             {
                 output.Write("testing protocol versioning... ");
                 output.Flush();
                 string ref3 = helper.GetTestProxy("test", 0);
                 ref3 += "?protocol=3";
 
-                string transport = helper.GetTestTransport();
+                string transport = helper.Transport;
                 ref3 = ref3.Replace($"ice+{transport}", "ice+universal");
                 ref3 += $"&transport={transport}";
                 var cl3 = IMyClassPrx.Parse(ref3, communicator);

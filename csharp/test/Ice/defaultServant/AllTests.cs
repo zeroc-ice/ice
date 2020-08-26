@@ -12,8 +12,8 @@ namespace ZeroC.Ice.Test.DefaultServant
     {
         public static void Run(TestHelper helper)
         {
-            TextWriter output = helper.GetWriter();
-            Communicator? communicator = helper.Communicator();
+            TextWriter output = helper.Writer;
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
             oa.Activate();

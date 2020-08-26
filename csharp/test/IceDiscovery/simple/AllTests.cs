@@ -14,12 +14,12 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public static void Run(TestHelper helper, int num)
         {
-            TextWriter output = helper.GetWriter();
-            Communicator? communicator = helper.Communicator();
+            TextWriter output = helper.Writer;
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var proxies = new List<IControllerPrx>();
             var indirectProxies = new List<IControllerPrx>();
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+            bool ice1 = helper.Protocol == Protocol.Ice1;
 
             for (int i = 0; i < num; ++i)
             {

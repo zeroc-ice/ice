@@ -57,9 +57,9 @@ namespace ZeroC.Ice.Test.Perf
 
         public static IPerformancePrx Run(TestHelper helper)
         {
-            Communicator communicator = helper.Communicator()!;
+            Communicator communicator = helper.Communicator!;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Writer;
 
 #if DEBUG
             output.WriteLine("warning: performance test built with DEBUG");

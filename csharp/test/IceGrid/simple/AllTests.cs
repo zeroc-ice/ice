@@ -13,7 +13,7 @@ namespace ZeroC.IceGrid.Test.Simple
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             Console.Out.Write("testing stringToProxy... ");
             Console.Out.Flush();
@@ -51,9 +51,9 @@ namespace ZeroC.IceGrid.Test.Simple
                 Dictionary<string, string>? properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
                 properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
-                properties["IceLocatorDiscovery.Port"] = helper.GetTestPort(99).ToString();
+                properties["IceLocatorDiscovery.Port"] = $"{helper.BasePort + 99}";
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
-                properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.GetTestTransport()} -h 127.0.0.1";
+                properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.Transport} -h 127.0.0.1";
 
                 {
                     using var com = new Communicator(properties);
@@ -174,7 +174,7 @@ namespace ZeroC.IceGrid.Test.Simple
                         {
                             intf = $" --interface \"{intf}\"";
                         }
-                        string port = helper.GetTestPort(99).ToString();
+                        string port = $"{helper.BasePort + 99}";
                         properties["IceLocatorDiscovery.Lookup"] =
                             $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
                     }
@@ -200,7 +200,7 @@ namespace ZeroC.IceGrid.Test.Simple
 
         public static void RunWithDeploy(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             Console.Out.Write("testing stringToProxy... ");
             Console.Out.Flush();

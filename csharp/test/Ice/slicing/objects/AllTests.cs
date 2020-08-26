@@ -25,9 +25,9 @@ namespace ZeroC.Ice.Test.Slicing.Objects
     {
         public static ITestIntfPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.GetWriter();
+            TextWriter? output = helper.Writer;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);

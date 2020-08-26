@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.UDP
 
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             communicator.SetProperty("ReplyAdapter.Endpoints", "udp -h localhost");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
@@ -164,7 +164,7 @@ namespace ZeroC.Ice.Test.UDP
                 sb.Append("239.255.1.1");
             }
             sb.Append(" -p ");
-            sb.Append(helper.GetTestPort(10));
+            sb.Append(helper.BasePort + 10);
             if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
             {
                 if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)

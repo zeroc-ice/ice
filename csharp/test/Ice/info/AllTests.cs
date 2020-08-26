@@ -15,11 +15,11 @@ namespace ZeroC.Ice.Test.Info
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
-            string transport = helper.GetTestTransport();
-            TextWriter output = helper.GetWriter();
+            bool ice1 = helper.Protocol == Protocol.Ice1;
+            string transport = helper.Transport;
+            TextWriter output = helper.Writer;
             output.Write("testing proxy endpoint information... ");
             output.Flush();
             {
@@ -111,7 +111,7 @@ namespace ZeroC.Ice.Test.Info
 
                 adapter.Dispose();
 
-                int port = helper.GetTestPort(1);
+                int port = helper.BasePort + 1;
                 communicator.SetProperty("TestAdapter.Endpoints",
                     ice1 ? $"{transport} -h 0.0.0.0 -p {port}" : $"ice+{transport}://0.0.0.0:{port}");
                 communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.GetTestEndpoint(1));
@@ -135,7 +135,7 @@ namespace ZeroC.Ice.Test.Info
             }
             output.WriteLine("ok");
 
-            int endpointPort = helper.GetTestPort(0);
+            int endpointPort = helper.BasePort + 0;
 
             ITestIntfPrx testIntf;
             if (ice1)
@@ -148,7 +148,7 @@ namespace ZeroC.Ice.Test.Info
                 testIntf = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             }
 
-            string defaultHost = helper.GetTestHost();
+            string defaultHost = helper.Host;
 
             output.Write("test connection endpoint information... ");
             output.Flush();

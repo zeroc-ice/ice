@@ -12,10 +12,10 @@ namespace ZeroC.Ice.Test.Enums
     {
         public static ITestIntfPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Writer;
 
             output.Write("testing enum values... ");
             output.Flush();

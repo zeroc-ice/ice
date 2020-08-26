@@ -12,10 +12,10 @@ namespace ZeroC.Ice.Test.Exceptions
     {
         public static IThrowerPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
-            TextWriter output = helper.GetWriter();
+            bool ice1 = helper.Protocol == Protocol.Ice1;
+            TextWriter output = helper.Writer;
             {
                 output.Write("testing object adapter registration exceptions... ");
                 ObjectAdapter first;

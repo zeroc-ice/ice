@@ -13,10 +13,10 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
     {
         public static ITestIntfPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Writer;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var obj = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);

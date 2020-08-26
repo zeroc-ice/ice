@@ -32,7 +32,7 @@ class Callback(CallbackBase):
         test(False)
 
 def onewaysAMI(helper, proxy):
-    communicator = helper.communicator()
+    communicator = helper.Communicator
     p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
     cb = Callback()

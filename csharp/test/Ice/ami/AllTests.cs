@@ -115,13 +115,13 @@ namespace ZeroC.Ice.Test.AMI
 
         public static void Run(TestHelper helper, bool collocated)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
 
             var p = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var serialized = ITestIntfPrx.Parse(helper.GetTestProxy("serialized", 1), communicator);
 
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Writer;
 
             output.Write("testing async invocation...");
             output.Flush();

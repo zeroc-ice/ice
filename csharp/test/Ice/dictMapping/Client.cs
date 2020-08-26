@@ -12,12 +12,11 @@ namespace ZeroC.Ice.Test.DictMapping
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            System.IO.TextWriter output = GetWriter();
             IMyClassPrx myClass = AllTests.Run(this, false);
-            output.Write("shutting down server... ");
-            output.Flush();
+            Writer.Write("shutting down server... ");
+            Writer.Flush();
             await myClass.ShutdownAsync();
-            output.WriteLine("ok");
+            Writer.WriteLine("ok");
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

@@ -10,9 +10,9 @@ namespace ZeroC.Ice.Test.Inheritance
     {
         public static IInitialPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Writer;
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
 
             output.Write("getting proxies for interface hierarchy... ");

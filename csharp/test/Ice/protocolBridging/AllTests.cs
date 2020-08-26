@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
     {
         public static ITestIntfPrx Run(TestHelper helper)
         {
-            Communicator communicator = helper.Communicator()!;
+            Communicator communicator = helper.Communicator!;
 
             var forwardSamePrx = ITestIntfPrx.Parse(helper.GetTestProxy("ForwardSame", 0), communicator);
             var forwardOtherPrx = ITestIntfPrx.Parse(helper.GetTestProxy("ForwardOther", 0), communicator);
@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
             ITestIntfPrx newPrx;
 
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Writer;
             output.Write("testing forwarding with same protocol... ");
             output.Flush();
             newPrx = TestProxy(forwardSamePrx);

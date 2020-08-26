@@ -9,7 +9,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def onewaysFuture(helper, proxy):
-    communicator = helper.communicator()
+    communicator = helper.Communicator
     p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
     f = p.ice_pingAsync()

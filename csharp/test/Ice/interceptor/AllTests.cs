@@ -13,9 +13,9 @@ namespace ZeroC.Ice.Test.Interceptor
     {
         public static IMyObjectPrx Run(TestHelper helper)
         {
-            bool ice2 = helper.GetTestProtocol() == Protocol.Ice2;
-            var prx = IMyObjectPrx.Parse(helper.GetTestProxy("test"), helper.Communicator()!);
-            System.IO.TextWriter output = helper.GetWriter();
+            bool ice2 = helper.Protocol == Protocol.Ice2;
+            var prx = IMyObjectPrx.Parse(helper.GetTestProxy("test"), helper.Communicator!);
+            System.IO.TextWriter output = helper.Writer;
 
             output.Write("testing retry... ");
             output.Flush();

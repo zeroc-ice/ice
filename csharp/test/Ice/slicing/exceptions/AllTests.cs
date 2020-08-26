@@ -36,9 +36,9 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 
         public static ITestIntfPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.GetWriter();
+            TextWriter? output = helper.Writer;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
@@ -767,7 +767,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     TestHelper.Assert(slices[0].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved2"));
                 }
 
-                ObjectAdapter adapter = communicator.CreateObjectAdapter(protocol: helper.GetTestProtocol());
+                ObjectAdapter adapter = communicator.CreateObjectAdapter(protocol: helper.Protocol);
                 IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
                 adapter.Activate();
                 testPrx.GetConnection()!.Adapter = adapter;
