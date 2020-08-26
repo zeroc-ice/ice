@@ -47,7 +47,7 @@ namespace Test
         {
             if (transport.Length == 0 || transport == "default")
             {
-                if (properties.TryGetValue("Ice.Default.Transport", out string? value))
+                if (properties.TryGetValue("Test.Transport", out string? value))
                 {
                     transport = value;
                 }
@@ -191,8 +191,7 @@ namespace Test
 
         public static string GetTestTransport(Dictionary<string, string> properties)
         {
-            // TODO: switch to a different test-only property to select the transport
-            if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
+            if (!properties.TryGetValue("Test.Transport", out string? transport))
             {
                 transport = "tcp";
             }

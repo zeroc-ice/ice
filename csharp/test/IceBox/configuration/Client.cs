@@ -17,7 +17,7 @@ namespace ZeroC.IceBox.Test.Configuration
             await using Communicator communicator = Initialize(properties);
             AllTests.Run(this);
             // Shutdown the IceBox server.
-            string transport = communicator.DefaultTransport.ToString().ToLowerInvariant();
+            string transport = GetTestTransport();
 
             await IProcessPrx.Parse(GetTestProtocol() == Protocol.Ice1 ?
                                     $"DemoIceBox/admin -f Process:{transport} -h 127.0.0.1 -p 9996" :

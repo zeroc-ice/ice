@@ -117,7 +117,6 @@ namespace ZeroC.Ice
         public bool DefaultPreferNonSecure { get; }
 
         public IPAddress? DefaultSourceAddress { get; }
-        public string DefaultTransport { get; }
         public TimeSpan DefaultInvocationTimeout { get; }
         public TimeSpan DefaultLocatorCacheTimeout { get; }
 
@@ -404,8 +403,6 @@ namespace ZeroC.Ice
                             $"invalid IP address set for Ice.Default.SourceAddress: `{address}'", ex);
                     }
                 }
-
-                DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
 
                 DefaultInvocationTimeout =
                     GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;;
