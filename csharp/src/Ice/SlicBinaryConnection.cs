@@ -39,47 +39,14 @@ namespace ZeroC.Ice
             Close
         }
 
-        private static readonly List<ArraySegment<byte>> _pingFrame = new List<ArraySegment<byte>> { new byte[]
-            {
-                (byte)FrameType.Ping, // Frame type (byte)
-            }
-        };
-
-        private static readonly List<ArraySegment<byte>> _pongFrame = new List<ArraySegment<byte>> { new byte[]
-            {
-                (byte)FrameType.Pong, // Frame type (byte)
-            }
-        };
-
-        private static readonly ReadOnlyMemory<byte> _resetStreamFrame = new byte[]
-        {
-            (byte)FrameType.ResetStream, // Frame type (0x08 and 0x09 for stream frame with FIN bit set)
-            // stream ID (long)
-            // error code (ushort)
-        };
-
-        private static readonly ReadOnlyMemory<byte> _closeFrame = new byte[]
-        {
-            (byte)FrameType.Close, // Frame type (0x08 and 0x09 for stream frame with FIN bit set)
-            // Frame data length (varlong encoded on 4 bytes)
-            // Frame data:
-            // - error code (ushort)
-            // - reason (string)
-        };
-
         public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             // Write the close connection frame.
-            var data = new List<ArraySegment<byte>>();
-            var ostr = new OutputStream(Encoding, data);
-            ostr.WriteByte((byte)FrameType.Close);
-            OutputStream.Position sizePos = ostr.StartFixedLengthSize();
-            ostr.WriteShort(0); // TODO: error code?
-            ostr.WriteString(exception.ToString()); // TODO: is this a good string for reason?
-            ostr.EndFixedLengthSize(sizePos);
-            data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
-
-            await PerformSendFrameAsync(data, cancel).ConfigureAwait(false);
+            await SendFrameAsync(FrameType.Close, ostr =>
+            {
+                ostr.WriteShort(0); // TODO: error code?
+                ostr.WriteString(exception.ToString()); // TODO: is this a good string for reason?
+            }, CancellationToken.None);
 
             // Notify the transport of the graceful connection closure.
             await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
@@ -87,44 +54,7 @@ namespace ZeroC.Ice
 
         public ValueTask DisposeAsync() => _transceiver.DisposeAsync();
 
-        public async ValueTask HeartbeatAsync(CancellationToken cancel) =>
-            await PerformSendFrameAsync(_pingFrame, cancel).ConfigureAwait(false);
-
-        private async ValueTask SendFrameAsync(FrameType type, Action<OutputStream> writer, CancellationToken cancel)
-        {
-            var data = new List<ArraySegment<byte>>();
-            var ostr = new OutputStream(Encoding, data);
-            ostr.WriteByte((byte)type);
-            OutputStream.Position sizePos = ostr.StartFixedLengthSize();
-            writer(ostr);
-            ostr.EndFixedLengthSize(sizePos);
-            data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
-            await _transceiver.SendAsync(data, cancel).ConfigureAwait(false);
-        }
-
-        private async ValueTask<(FrameType, ArraySegment<byte>)> ReceiveFrameAsync(CancellationToken cancel)
-        {
-            ArraySegment<byte> buffer = await _transceiver.ReceiveAsync(2, cancel).ConfigureAwait(false);
-            var frameType = (FrameType)buffer[0];
-            byte firstSizeByte = buffer[1];
-            int sizeLength = firstSizeByte.ReadSizeLength20();
-            buffer = await _transceiver.ReceiveAsync(sizeLength - 1, cancel).ConfigureAwait(false);
-            _receivedCallback(sizeLength + 1);
-
-            int frameSize = ComputeSize20(firstSizeByte, buffer.AsReadOnlySpan());
-
-            ArraySegment<byte> frame = new byte[frameSize];
-            await ReceiveAsync(frame).ConfigureAwait(false);
-            return (frameType, frame);
-
-            static int ComputeSize20(byte firstByte, ReadOnlySpan<byte> otherBytes)
-            {
-                Span<byte> buf = stackalloc byte[otherBytes.Length + 1];
-                buf[0] = firstByte;
-                otherBytes.CopyTo(buf[1..]);
-                return ((ReadOnlySpan<byte>)buf).ReadSize20().Size;
-            }
-        }
+        public ValueTask HeartbeatAsync(CancellationToken cancel) => SendFrameAsync(FrameType.Ping, null, cancel);
 
         public async ValueTask InitializeAsync(
             Action heartbeatCallback,
@@ -262,7 +192,7 @@ namespace ZeroC.Ice
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(Encoding, data);
             ostr.WriteByte((byte)(fin ? FrameType.StreamLast : FrameType.Stream));
-            OutputStream.Position sizePos = ostr.StartFixedLengthSize();
+            OutputStream.Position sizePos = ostr.StartFixedLengthSize(4);
             ostr.WriteVarLong(streamId);
             if (frame is OutgoingRequestFrame requestFrame)
             {
@@ -280,7 +210,8 @@ namespace ZeroC.Ice
                 return;
             }
             ostr.WriteSize(frame.Size);
-            ostr.EndFixedLengthSize(sizePos);
+            Debug.Assert(sizePos.Segment == ostr.Tail.Segment);
+            ostr.RewriteFixedLengthSize20(ostr.Tail.Offset - sizePos.Offset - 4 + frame.Size, sizePos, 4);
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
             data.AddRange(frame.Data);
 
@@ -316,7 +247,10 @@ namespace ZeroC.Ice
             // TODO: support receiving an Ice2 frame with multiple Slic frame, for now we only support one Slic frame
             // for each Ice2 protocol frame.
             ArraySegment<byte> buffer = data.Slice(sizeLength + 1);
-            Debug.Assert(size == buffer.Count);
+            if (size != buffer.Count)
+            {
+                throw new InvalidDataException($"frame with size {buffer.Count} doesn't match expected size {size}");
+            }
 
             switch (frameType)
             {
@@ -350,7 +284,7 @@ namespace ZeroC.Ice
         {
             // Read Slice frame header
             (FrameType type, ArraySegment<byte> data) =
-            await ReceiveFrameAsync(CancellationToken.None).ConfigureAwait(false);
+                await ReceiveFrameAsync(CancellationToken.None).ConfigureAwait(false);
             switch (type)
             {
                 case FrameType.Ping:
@@ -421,15 +355,49 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask ReceiveAsync(ArraySegment<byte> buffer)
+        private async ValueTask<(FrameType, ArraySegment<byte>)> ReceiveFrameAsync(CancellationToken cancel)
         {
+            ArraySegment<byte> buffer = await _transceiver.ReceiveAsync(2, cancel).ConfigureAwait(false);
+            var frameType = (FrameType)buffer[0];
+            byte firstSizeByte = buffer[1];
+            int sizeLength = firstSizeByte.ReadSizeLength20();
+            buffer = await _transceiver.ReceiveAsync(sizeLength - 1, cancel).ConfigureAwait(false);
+            _receivedCallback(sizeLength + 1);
+
+            int frameSize = ComputeSize20(firstSizeByte, buffer.AsReadOnlySpan());
+
+            ArraySegment<byte> frame = new byte[frameSize];
             int offset = 0;
-            while (offset != buffer.Count)
+            while (offset != frameSize)
             {
-                int received = await _transceiver.ReceiveAsync(buffer.Slice(offset)).ConfigureAwait(false);
+                int received = await _transceiver.ReceiveAsync(frame.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
                 _receivedCallback!(received);
             }
+            return (frameType, frame);
+
+            static int ComputeSize20(byte firstByte, ReadOnlySpan<byte> otherBytes)
+            {
+                Span<byte> buf = stackalloc byte[otherBytes.Length + 1];
+                buf[0] = firstByte;
+                otherBytes.CopyTo(buf[1..]);
+                return ((ReadOnlySpan<byte>)buf).ReadSize20().Size;
+            }
+        }
+
+        private async ValueTask SendFrameAsync(FrameType type, Action<OutputStream>? writer, CancellationToken cancel)
+        {
+            var data = new List<ArraySegment<byte>>();
+            var ostr = new OutputStream(Encoding, data);
+            ostr.WriteByte((byte)type);
+            OutputStream.Position sizePos = ostr.StartFixedLengthSize();
+            if (writer != null)
+            {
+                writer!(ostr);
+            }
+            ostr.EndFixedLengthSize(sizePos);
+            data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
+            await PerformSendFrameAsync(data, cancel).ConfigureAwait(false);
         }
     }
 }

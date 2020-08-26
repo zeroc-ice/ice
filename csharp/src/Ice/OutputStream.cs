@@ -1643,7 +1643,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>The tail position that marks the end of the stream.</returns>
         /// TODO: The stream should not longer be used, how can we enforce it.
-        internal Position Finish(bool adjustLastSegmentToTail = false)
+        internal Position Finish()
         {
             if (_startPos is Position startPos)
             {
