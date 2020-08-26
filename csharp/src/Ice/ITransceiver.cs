@@ -38,7 +38,7 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         ValueTask InitializeAsync(CancellationToken cancel);
 
-        /// <summary>Receives data from the connection. This is used for datagram connections only.</summary>
+        /// <summary>Receives data from the connection.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The received data.</return>
         ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
@@ -68,6 +68,21 @@ namespace ZeroC.Ice
 
         public Socket? Socket => Underlying.Socket;
 
+        /// <summary>Append data to the read buffer. This can be used if too much buffered data has been read to add
+        /// it back to the buffer. The size of the data to add back should fit in the buffer so this should only be
+        /// used to add back data read from the buffer.</summary>
+        /// <param name="data">The data to add back to the buffer.</param>
+        public void AppendToBuffer(ArraySegment<byte> data)
+        {
+            if (data.Count + _buffer.Count > _buffer.Array!.Length)
+            {
+                throw new ArgumentOutOfRangeException($"data to append to is too large");
+            }
+            _buffer.CopyTo(_buffer.Array!, 0);
+            data.CopyTo(_buffer.Array!, _buffer.Count);
+            _buffer = new ArraySegment<byte>(_buffer.Array, 0, _buffer.Count + data.Count);
+        }
+
         public void CheckSendSize(int size) => Underlying.CheckSendSize(size);
 
         public ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
@@ -77,8 +92,16 @@ namespace ZeroC.Ice
 
         public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
 
-        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
-            Underlying.ReceiveAsync(cancel);
+        public async ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel)
+        {
+            if (_buffer.Count == 0)
+            {
+                await ReceiveInBufferAsync(0, cancel);
+            }
+            ArraySegment<byte> buffer = _buffer.ToArray();
+            _buffer = new ArraySegment<byte>(_buffer.Array!, 0, 0);
+            return buffer;
+        }
 
         public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
@@ -122,19 +145,7 @@ namespace ZeroC.Ice
                     $"byteCount should be inferior to the buffer size of {_buffer.Array.Length} bytes");
             }
 
-            if (byteCount == 0)
-            {
-                if (_buffer.Count > 0)
-                {
-                    return _buffer;
-                }
-                else
-                {
-                    await ReceiveInBufferAsync(0, cancel);
-                    return _buffer;
-                }
-            }
-            else if (_buffer.Count < byteCount)
+            if (_buffer.Count < byteCount)
             {
                 await ReceiveInBufferAsync(byteCount, cancel);
                 Debug.Assert(_buffer.Count >= byteCount);
@@ -148,21 +159,12 @@ namespace ZeroC.Ice
         public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
             Underlying.SendAsync(buffer, cancel);
 
-        public void SkipBuffered(int byteCount)
-        {
-            if (byteCount > _buffer.Count)
-            {
-                throw new ArgumentOutOfRangeException("byteCount should be inferior to the buffer size");
-            }
-            _buffer = _buffer.Slice(byteCount);
-        }
-
         public string ToDetailedString() => Underlying.ToDetailedString();
 
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
         {
             Underlying = underlying;
-            _buffer = new byte[bufferSize];
+            _buffer = new ArraySegment<byte>(new byte[bufferSize], 0, 0);
         }
 
         private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)

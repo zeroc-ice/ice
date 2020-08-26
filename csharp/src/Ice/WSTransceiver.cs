@@ -127,7 +127,7 @@ namespace ZeroC.Ice
                 var httpBuffer = new ArraySegment<byte>();
                 while (true)
                 {
-                    ArraySegment<byte> buffer = await _underlying.ReceiveAsync(0, cancel).ConfigureAwait(false);
+                    ArraySegment<byte> buffer = await _underlying.ReceiveAsync(cancel).ConfigureAwait(false);
                     if (httpBuffer.Count + buffer.Count > _communicator.IncomingFrameSizeMax)
                     {
                         throw new InvalidDataException(
@@ -147,10 +147,11 @@ namespace ZeroC.Ice
                     if (endPos != -1)
                     {
                         httpBuffer = httpBuffer.Slice(0, endPos);
-                        _underlying.SkipBuffered(buffer.Count - httpBuffer.Count + endPos);
+
+                        // Add back the un-consumed data to the buffer.
+                        _underlying.AppendToBuffer(httpBuffer.Slice(endPos));
                         break; // Done
                     }
-                    _underlying.SkipBuffered(buffer.Count);
                 }
 
                 try
