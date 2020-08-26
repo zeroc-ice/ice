@@ -741,10 +741,8 @@ class Mapping(object):
                     transportProperty = "Test.Transport" if useTestTransport else "Ice.Default.Transport"
                     props[transportProperty] = self.transport
                 if self.protocol:
-                    useTestProtocol = isinstance(process.getMapping(current), CSharpMapping) \
-                                      and not process.isFromBinDir()
-                    protocolProperty = "Test.Protocol" if useTestProtocol else "Ice.Default.Protocol"
-                    props[protocolProperty] = self.protocol
+                    if isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir():
+                        props["Test.Protocol"] = self.protocol
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:

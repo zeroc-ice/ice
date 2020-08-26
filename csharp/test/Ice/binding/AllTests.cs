@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.Binding
             bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
             TestHelper.Assert(communicator != null);
             var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
-            var testTransport = helper.GetTestTransport();
+            string testTransport = helper.GetTestTransport();
 
             var rand = new Random(unchecked((int)DateTime.Now.Ticks));
             System.IO.TextWriter output = helper.GetWriter();
