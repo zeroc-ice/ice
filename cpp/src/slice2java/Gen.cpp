@@ -2179,7 +2179,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << dataMember << epar;
                 out << sb;
 
-                ICE_MAYBE_UNUSED const auto [requiredBaseMembers, _] = getSortedMembers(baseDataMembers);
+                [[maybe_unused]] const auto [requiredBaseMembers, _] = getSortedMembers(baseDataMembers);
+                (void)_; // Keep the compiler happy.
                 if (!requiredBaseMembers.empty())
                 {
                     out << nl << "super" << spar;
@@ -2510,7 +2511,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if(hasRequiredMembers && hasTaggedMembers)
             {
-                ICE_MAYBE_UNUSED const auto [requiredBaseMembers, _] = getSortedMembers(baseDataMembers);
+                [[maybe_unused]] const auto [requiredBaseMembers, _] = getSortedMembers(baseDataMembers);
+                (void)_; // Keep the compiler happy.
 
                 //
                 // Generate a constructor accepting parameters for just the required members.
