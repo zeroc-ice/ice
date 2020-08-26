@@ -91,7 +91,7 @@ class Component(object):
     or the mapping directory if using a source distribution.
     """
     def getInstallDir(self, mapping, current):
-        raise Error("must be overriden")
+        raise Error("must be overridden")
 
     def getSourceDir(self):
         return toplevel
@@ -736,12 +736,15 @@ class Mapping(object):
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
                 if self.transport:
-                    props["Ice.Default.Transport"] = self.transport
+                    useTestTransport = isinstance(process.getMapping(current), CSharpMapping) \
+                                      and not process.isFromBinDir()
+                    transportProperty = "Test.Transport" if useTestTransport else "Ice.Default.Transport"
+                    props[transportProperty] = self.transport
                 if self.protocol:
                     useTestProtocol = isinstance(process.getMapping(current), CSharpMapping) \
                                       and not process.isFromBinDir()
-                    hostProperty = "Test.Protocol" if useTestProtocol else "Ice.Default.Protocol"
-                    props[hostProperty] = self.protocol
+                    protocolProperty = "Test.Protocol" if useTestProtocol else "Ice.Default.Protocol"
+                    props[protocolProperty] = self.protocol
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:

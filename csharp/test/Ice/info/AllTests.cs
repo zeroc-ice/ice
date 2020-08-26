@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Info
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
-            string transport = communicator.DefaultTransport;
+            string transport = helper.GetTestTransport();
             TextWriter output = helper.GetWriter();
             output.Write("testing proxy endpoint information... ");
             output.Flush();
@@ -113,7 +113,7 @@ namespace ZeroC.Ice.Test.Info
 
                 int port = helper.GetTestPort(1);
                 communicator.SetProperty("TestAdapter.Endpoints",
-                    ice1 ? $"default -h 0.0.0.0 -p {port}" : $"ice+{transport}://0.0.0.0:{port}");
+                    ice1 ? $"{transport} -h 0.0.0.0 -p {port}" : $"ice+{transport}://0.0.0.0:{port}");
                 communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.GetTestEndpoint(1));
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 

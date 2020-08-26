@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.AdapterDeactivation
 {
@@ -10,8 +11,12 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
     {
         public void Transient(Current current)
         {
+            bool ice1 = TestHelper.GetTestProtocol(current.Adapter.Communicator.GetProperties()) == Protocol.Ice1;
+            var transport = TestHelper.GetTestTransport(current.Adapter.Communicator.GetProperties());
+            var endpoint = ice1 ? "{transport} -h localhost" : $"ice+{transport}://localhost:0";
+
             using ObjectAdapter adapter = current.Adapter.Communicator.CreateObjectAdapterWithEndpoints(
-                "TransientTestAdapter", "default -h localhost");
+                "TransientTestAdapter", endpoint);
             adapter.Activate();
         }
 
