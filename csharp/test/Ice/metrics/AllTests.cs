@@ -507,12 +507,12 @@ namespace ZeroC.Ice.Test.Metrics
 
                 ConnectionMetrics cm1, sm1, cm2, sm2;
                 cm1 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                sm1 = GetServerConnectionMetrics(serverMetrics, 22)!;
+                sm1 = GetServerConnectionMetrics(serverMetrics, ice1 ? 22 : 12)!;
 
                 metrics.IcePing();
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                sm2 = GetServerConnectionMetrics(serverMetrics, 44)!;
+                sm2 = GetServerConnectionMetrics(serverMetrics, ice1 ? 44 : 19)!;
 
                 if (ice1)
                 {
@@ -523,11 +523,10 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 else
                 {
-                    // Currently we're saving 3 bytes with the 2.0 encoding
-                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 42); // ice_ping request
-                    TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 23); // ice_ping response
-                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 42);
-                    TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 23);
+                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 32); // ice_ping request
+                    TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 13); // ice_ping response
+                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 32);
+                    TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 13);
                 }
 
                 cm1 = cm2;
@@ -550,7 +549,8 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                int sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 1;
+                // 2 additional bytes with ice2 and Encoding2: one for the sequence size and one for the frame size
+                int sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 2;
 
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
@@ -566,7 +566,8 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 3;
+                // 6 additional bytes with ice2 and Encoding2: 3 for the sequence size and 3 for the frame size
+                sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 6;
 
                 TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + sizeLengthIncrease));
                 TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
