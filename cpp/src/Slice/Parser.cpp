@@ -4408,24 +4408,6 @@ Slice::Operation::hasReturnAndOut() const
     return _hasReturnType && _usesOutParameters;
 }
 
-bool
-Slice::Operation::hasOutParameters() const
-{
-    return _usesOutParameters;
-}
-
-bool
-Slice::Operation::hasTupleReturnType() const
-{
-    return !_usesOutParameters && _returnValues.size() > 1;
-}
-
-bool
-Slice::Operation::hasSingleReturnType() const
-{
-    return _hasReturnType && (_usesOutParameters || _returnValues.size() == 1);
-}
-
 FormatType
 Slice::Operation::format() const
 {
@@ -4525,6 +4507,12 @@ Slice::Member::visit(ParserVisitor* visitor, bool)
 {
     assert(!OperationPtr::dynamicCast(this->container())); // Ensure this isn't being called for a parameter.
     visitor->visitDataMember(this);
+}
+
+OperationPtr
+Slice::Member::operation() const
+{
+    return OperationPtr::dynamicCast(container());
 }
 
 Slice::Member::Member(const ContainerPtr& container, const string& name, const TypePtr& type,
