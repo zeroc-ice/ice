@@ -149,7 +149,7 @@ namespace ZeroC.Ice
                         httpBuffer = httpBuffer.Slice(0, endPos);
 
                         // Add back the un-consumed data to the buffer.
-                        _underlying.AppendToBuffer(httpBuffer.Slice(endPos));
+                        _underlying.SetBuffer(httpBuffer.Slice(endPos));
                         break; // Done
                     }
                 }
