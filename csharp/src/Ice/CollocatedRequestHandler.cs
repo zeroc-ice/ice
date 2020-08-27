@@ -52,10 +52,7 @@ namespace ZeroC.Ice
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
-                                                       (byte)Ice1Definitions.FrameType.Request,
-                                                       requestId,
-                                                       outgoingRequest);
+                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, outgoingRequest.Size, outgoingRequest);
                 }
             }
 
@@ -95,21 +92,18 @@ namespace ZeroC.Ice
             {
                 OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
 
-                var incomingResponseFrame = new IncomingResponseFrame(
+                var incomingResponse = new IncomingResponseFrame(
                     outgoingRequest.Protocol,
                     outgoingResponseFrame.Data.AsArraySegment(),
                     _adapter.IncomingFrameSizeMax);
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
-                                                        (byte)Ice1Definitions.FrameType.Reply,
-                                                        requestId,
-                                                        incomingResponseFrame);
+                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, incomingResponse.Size, incomingResponse);
                 }
 
-                childObserver?.Reply(incomingResponseFrame.Size);
-                return incomingResponseFrame;
+                childObserver?.Reply(incomingResponse.Size);
+                return incomingResponse;
             }
             catch (Exception ex)
             {

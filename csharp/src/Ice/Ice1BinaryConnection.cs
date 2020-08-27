@@ -62,9 +62,7 @@ namespace ZeroC.Ice
                 if (_incoming) // The server side has the active role for connection validation.
                 {
                     await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
-                    ProtocolTrace.TraceSend(Endpoint.Communicator,
-                                            Endpoint.Protocol,
-                                            Ice1Definitions.ValidateConnectionFrame);
+                    TraceSendFrame(Ice1Definitions.FrameType.ValidateConnection, _validateConnectionFrame[0].Count);
                 }
                 else // The client side has the passive role for connection validation.
                 {
@@ -87,7 +85,7 @@ namespace ZeroC.Ice
                             }' bytes");
                     }
 
-                    ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
+                    TraceSendFrame(Ice1Definitions.FrameType.ValidateConnection, size);
                 }
             }
 
@@ -171,6 +169,7 @@ namespace ZeroC.Ice
             // The magic and version fields have already been checked.
             var frameType = (Ice1Definitions.FrameType)readBuffer[8];
             byte compressionStatus = readBuffer[9];
+            int size = readBuffer.Count;
             if (compressionStatus == 2)
             {
                 if (BZip2.IsLoaded)
@@ -187,7 +186,7 @@ namespace ZeroC.Ice
             {
                 case Ice1Definitions.FrameType.CloseConnection:
                 {
-                    ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
+                    TraceReceivedFrame(frameType, size);
                     if (Endpoint.IsDatagram)
                     {
                         if (Endpoint.Communicator.WarnConnections)
@@ -208,13 +207,14 @@ namespace ZeroC.Ice
                     var request = new IncomingRequestFrame(Endpoint.Protocol,
                                                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
                                                            _incomingFrameSizeMax);
-                    ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, request);
-                    return (readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt(), request);
+                    int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
+                    ProtocolTrace.TraceFrame(Endpoint.Communicator, requestId, size, request, compressionStatus);
+                    return (requestId, request);
                 }
 
                 case Ice1Definitions.FrameType.RequestBatch:
                 {
-                    ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
+                    TraceReceivedFrame(frameType, size);
                     int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
                     {
@@ -227,29 +227,25 @@ namespace ZeroC.Ice
 
                 case Ice1Definitions.FrameType.Reply:
                 {
-                    var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
-                                                                  readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
-                                                                  _incomingFrameSizeMax);
-                    ProtocolTrace.TraceFrame(Endpoint.Communicator, readBuffer, responseFrame);
-                    return (readBuffer.AsReadOnlySpan(14, 4).ReadInt(), responseFrame);
+                    var response = new IncomingResponseFrame(Endpoint.Protocol,
+                                                             readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
+                                                             _incomingFrameSizeMax);
+                    int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
+                    ProtocolTrace.TraceFrame(Endpoint.Communicator, requestId, size, response, compressionStatus);
+                    return (requestId, response);
                 }
 
                 case Ice1Definitions.FrameType.ValidateConnection:
                 {
-                    ProtocolTrace.TraceReceived(Endpoint.Communicator, Endpoint.Protocol, readBuffer);
+                    TraceReceivedFrame(frameType, size);
                     _heartbeatCallback!();
                     return default;
                 }
 
                 default:
                 {
-                    ProtocolTrace.Trace(
-                        "received unknown frame\n(invalid, closing connection)",
-                        Endpoint.Communicator,
-                        Endpoint.Protocol,
-                        readBuffer);
-                    throw new InvalidDataException(
-                        $"received ice1 frame with unknown frame type `{frameType}'");
+                    TraceReceivedFrame(frameType, size);
+                    throw new InvalidDataException($"received ice1 frame with unknown frame type `{frameType}'");
                 }
             }
         }
@@ -329,24 +325,22 @@ namespace ZeroC.Ice
             {
                 writeBuffer = Ice1Definitions.GetRequestData(requestFrame, (int)streamId);
                 compress = requestFrame.Compress;
-                ProtocolTrace.TraceFrame(Endpoint.Communicator, writeBuffer[0], requestFrame);
             }
             else if (frame is OutgoingResponseFrame responseFrame)
             {
                 Debug.Assert(streamId > 0);
                 writeBuffer = Ice1Definitions.GetResponseData(responseFrame, (int)streamId);
                 compress = responseFrame.Compress;
-                ProtocolTrace.TraceFrame(Endpoint.Communicator, writeBuffer[0], responseFrame);
             }
             else
             {
                 Debug.Assert(frame is List<ArraySegment<byte>>);
                 writeBuffer = (List<ArraySegment<byte>>)frame;
-                ProtocolTrace.TraceSend(Endpoint.Communicator, Endpoint.Protocol, writeBuffer[0]);
             }
 
             // Compress the frame if needed and possible
             int size = writeBuffer.GetByteCount();
+            byte compressionStatus = 0;
             if (BZip2.IsLoaded && compress)
             {
                 List<ArraySegment<byte>>? compressed = null;
@@ -358,16 +352,28 @@ namespace ZeroC.Ice
                                                 Endpoint.Communicator.CompressionLevel);
                 }
 
+                ArraySegment<byte> header;
                 if (compressed != null)
                 {
                     writeBuffer = compressed;
+                    header = writeBuffer[0];
                     size = writeBuffer.GetByteCount();
                 }
                 else // Message not compressed, request compressed response, if any.
                 {
-                    ArraySegment<byte> header = writeBuffer[0];
+                    header = writeBuffer[0];
                     header[9] = 1; // Write the compression status
                 }
+                compressionStatus = header[9];
+            }
+
+            if (writeBuffer == frame)
+            {
+                TraceSendFrame((Ice1Definitions.FrameType)writeBuffer[0][8], size);
+            }
+            else
+            {
+                ProtocolTrace.TraceFrame(Endpoint.Communicator, (int)streamId, size, frame, compressionStatus);
             }
 
             // Ensure the frame isn't bigger than what we can send with the transport.
@@ -427,6 +433,40 @@ namespace ZeroC.Ice
             int sent = await Transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
             Debug.Assert(sent == buffers.GetByteCount()); // TODO: do we need to support partial writes?
             _sentCallback!(sent);
+        }
+
+        private void TraceSendFrame(Ice1Definitions.FrameType type, int size) =>
+            TraceFrame("sending ", type, size);
+
+        private void TraceReceivedFrame(Ice1Definitions.FrameType type, int size) =>
+            TraceFrame("received ", type, size);
+
+        private void TraceFrame(string prefix, Ice1Definitions.FrameType type, int size)
+        {
+            if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            {
+                string frameType = type switch
+                {
+                    Ice1Definitions.FrameType.Request => "request",
+                    Ice1Definitions.FrameType.RequestBatch => "batch request",
+                    Ice1Definitions.FrameType.Reply => "reply",
+                    Ice1Definitions.FrameType.ValidateConnection => "validate connection",
+                    Ice1Definitions.FrameType.CloseConnection => "close connection",
+                    _ => "unknown frame",
+                };
+
+                var s = new StringBuilder();
+                s.Append(prefix);
+                s.Append(frameType);
+
+                s.Append("\nprotocol = ");
+                s.Append(Endpoint.Protocol.GetName());
+
+                s.Append("\nframe size = ");
+                s.Append(size);
+
+                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.ProtocolCategory, s.ToString());
+            }
         }
     }
 }
