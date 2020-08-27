@@ -181,7 +181,7 @@ class Ice(Component):
         if parent not in ["Ice", "IceBox", "IceGrid", "Glacier2", "IceStorm", "IceDiscovery", "IceBridge"]:
             return None
 
-        if not isinstance(testcase, ClientServerTestCase):
+        if isinstance(testcase, CollocatedTestCase):
             return None
 
         # Define here Ice tests which are slow to execute and for which it's not useful to test different options
@@ -189,7 +189,7 @@ class Ice(Component):
             return self.serviceOptions
 
         # We only run the client/server tests defined for cross testing with all transports
-        if testcase.__class__.__name__ == 'ClientServerTestCase' and self.isCross(testcase.getTestSuite().getId()):
+        if isinstance(testcase, ClientServerTestCase) and self.isCross(testcase.getTestSuite().getId()):
             return self.transportOptions
         elif parent in ["Ice", "IceBox"]:
             return self.coreOptions

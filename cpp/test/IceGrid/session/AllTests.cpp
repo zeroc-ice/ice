@@ -1186,7 +1186,7 @@ allTests(Test::TestHelper* helper)
                                          Ice::Identity(),
                                          Ice::Identity());
 
-        Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
+        Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         ApplicationObserverIPtr appObs2 = new ApplicationObserverI("appObs2");
         Ice::ObjectPrx app2 = adpt2->addWithUUID(appObs2);
         NodeObserverIPtr nodeObs2 = new NodeObserverI("nodeObs1");
@@ -1972,7 +1972,7 @@ allTests(Test::TestHelper* helper)
 
         session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
 
-        Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapterWithEndpoints("", "default");
+        Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
         Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
@@ -1989,7 +1989,7 @@ allTests(Test::TestHelper* helper)
     {
         cout << "testing observer with indirect proxy... " << flush;
         AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
-        communicator->getProperties()->setProperty("IndirectAdpt1.Endpoints", "default");
+        communicator->getProperties()->setProperty("IndirectAdpt1.Endpoints", "tcp");
         communicator->getProperties()->setProperty("IndirectAdpt1.AdapterId", "adapter1");
         Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("IndirectAdpt1");
         test(communicator->getDefaultLocator());

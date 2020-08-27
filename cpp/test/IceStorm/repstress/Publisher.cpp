@@ -115,7 +115,7 @@ Publisher::run(int argc, char** argv)
     //
     SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "tcp");
     Ice::ObjectPrx controller = adapter->addWithUUID(new ControllerI);
     adapter->activate();
     cout << communicator->proxyToString(controller) << endl;
