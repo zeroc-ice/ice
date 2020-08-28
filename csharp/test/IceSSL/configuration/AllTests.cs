@@ -80,7 +80,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
         public static IServerFactoryPrx Run(TestHelper helper, string testDir)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             string factoryRef = helper.GetTestProxy("factory", 0, "tcp");
 
@@ -272,7 +272,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                         });
 
-                    bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+                    bool ice1 = helper.Protocol == Protocol.Ice1;
                     ObjectAdapter adapter = serverCommunicator.CreateObjectAdapterWithEndpoints(
                             "MyAdapter", ice1 ? $"ssl -h {host}" : $"ice+ssl://{host}:0");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
@@ -318,7 +318,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                         });
 
-                    bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+                    bool ice1 = helper.Protocol == Protocol.Ice1;
                     ObjectAdapter adapter = serverCommunicator.CreateObjectAdapterWithEndpoints(
                         "MyAdapter", ice1 ? $"ssl -h {host}" : $"ice+ssl://{host}:0");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);

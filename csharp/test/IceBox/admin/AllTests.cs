@@ -14,7 +14,7 @@ namespace ZeroC.IceBox.Test.Admin
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var admin = IObjectPrx.Parse("DemoIceBox/admin:default -h localhost -p 9996 -t 10000", communicator);
 

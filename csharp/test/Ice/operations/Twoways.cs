@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Operations
     {
         internal static void Run(TestHelper helper, IMyClassPrx p)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             string[] literals = p.OpStringLiterals();
 

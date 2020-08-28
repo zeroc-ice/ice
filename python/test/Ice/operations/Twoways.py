@@ -11,7 +11,7 @@ def test(b):
 
 def twoways(helper, p, bprx):
 
-    communicator = helper.communicator()
+    communicator = helper.Communicator
     literals = p.opStringLiterals()
 
     test(Test.s0 == "\\")

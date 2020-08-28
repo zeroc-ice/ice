@@ -30,6 +30,27 @@ namespace Test
 
     public abstract class TestHelper
     {
+        private TextWriter? _writer;
+
+        public ushort BasePort => GetTestBasePort(Communicator!.GetProperties());
+
+        public IControllerHelper? ControllerHelper { get; set; }
+        public Communicator? Communicator { get; private set; }
+
+        public ZeroC.Ice.Encoding Encoding => GetTestEncoding(Communicator!.GetProperties());
+
+        public string Host => GetTestHost(Communicator!.GetProperties());
+
+        public Protocol Protocol => GetTestProtocol(Communicator!.GetProperties());
+
+        public string Transport => GetTestTransport(Communicator!.GetProperties());
+
+        public TextWriter Output
+        {
+            get => _writer ?? Console.Out;
+            set => _writer = value;
+        }
+
         public static void Assert([DoesNotReturnIf(false)] bool b)
         {
             if (!b)
@@ -41,7 +62,7 @@ namespace Test
         public abstract Task RunAsync(string[] args);
 
         public string GetTestEndpoint(int num = 0, string transport = "") =>
-            GetTestEndpoint(_communicator!.GetProperties(), num, transport);
+            GetTestEndpoint(Communicator!.GetProperties(), num, transport);
 
         public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
@@ -76,7 +97,7 @@ namespace Test
                     sb.Append(host);
                 }
                 sb.Append(':');
-                sb.Append(GetTestPort(properties, num));
+                sb.Append(GetTestBasePort(properties) + num);
                 return sb.ToString();
             }
             else
@@ -94,13 +115,13 @@ namespace Test
                     sb.Append(host);
                 }
                 sb.Append(" -p ");
-                sb.Append(GetTestPort(properties, num));
+                sb.Append(GetTestBasePort(properties) + num);
                 return sb.ToString();
             }
         }
 
         public string GetTestProxy(string identity, int num = 0, string? transport = null) =>
-            GetTestProxy(identity, _communicator!.GetProperties(), num, transport);
+            GetTestProxy(identity, Communicator!.GetProperties(), num, transport);
 
         public static string GetTestProxy(
             string identity,
@@ -125,7 +146,7 @@ namespace Test
                     sb.Append(host);
                 }
                 sb.Append(':');
-                sb.Append(GetTestPort(properties, num));
+                sb.Append(GetTestBasePort(properties) + num);
                 sb.Append('/');
                 sb.Append(identity);
                 return sb.ToString();
@@ -148,11 +169,10 @@ namespace Test
                     sb.Append(host);
                 }
                 sb.Append(" -p ");
-                sb.Append(GetTestPort(properties, num));
+                sb.Append(GetTestBasePort(properties) + num);
                 return sb.ToString();
             }
         }
-        public string GetTestHost() => GetTestHost(_communicator!.GetProperties());
 
         public static string GetTestHost(Dictionary<string, string> properties)
         {
@@ -162,8 +182,6 @@ namespace Test
             }
             return host;
         }
-
-        public Protocol GetTestProtocol() => GetTestProtocol(_communicator!.GetProperties());
 
         public static Protocol GetTestProtocol(Dictionary<string, string> properties)
         {
@@ -182,12 +200,8 @@ namespace Test
             }
         }
 
-        public ZeroC.Ice.Encoding GetTestEncoding() => GetTestEncoding(_communicator!.GetProperties());
-
         public static ZeroC.Ice.Encoding GetTestEncoding(Dictionary<string, string> properties)
             => ProtocolExtensions.GetEncoding(GetTestProtocol(properties));
-
-        public string GetTestTransport() => GetTestTransport(_communicator!.GetProperties());
 
         public static string GetTestTransport(Dictionary<string, string> properties)
         {
@@ -198,32 +212,15 @@ namespace Test
             return transport;
         }
 
-        public int GetTestPort(int num) => GetTestPort(_communicator!.GetProperties(), num);
-
-        // TODO: switch to ushort
-        public static int GetTestPort(Dictionary<string, string> properties, int num)
+        public static ushort GetTestBasePort(Dictionary<string, string> properties)
         {
-            int basePort = 12010;
+            ushort basePort = 12010;
             if (properties.TryGetValue("Test.BasePort", out string? value))
             {
-                basePort = int.Parse(value);
+                basePort = ushort.Parse(value);
             }
-            return basePort + num;
+            return basePort;
         }
-
-        public TextWriter GetWriter()
-        {
-            if (_writer == null)
-            {
-                return Console.Out;
-            }
-            else
-            {
-                return _writer;
-            }
-        }
-
-        public void SetWriter(TextWriter writer) => _writer = writer;
 
         public Dictionary<string, string> CreateTestProperties(
             ref string[] args,
@@ -246,31 +243,14 @@ namespace Test
             ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null)
         {
             var communicator = new Communicator(properties, observer: observer);
-            if (_communicator == null)
-            {
-                _communicator = communicator;
-            }
-            if (_controllerHelper != null)
-            {
-                _controllerHelper.CommunicatorInitialized(communicator);
-            }
+
+            Communicator ??= communicator;
+            ControllerHelper?.CommunicatorInitialized(communicator);
+
             return communicator;
         }
 
-        public Communicator? Communicator() => _communicator;
-        public void SetControllerHelper(IControllerHelper controllerHelper) => _controllerHelper = controllerHelper;
-
-        public void ServerReady()
-        {
-            if (_controllerHelper != null)
-            {
-                _controllerHelper.ServerReady();
-            }
-        }
-
-        private Communicator? _communicator;
-        private IControllerHelper? _controllerHelper;
-        private TextWriter? _writer;
+        public void ServerReady() => ControllerHelper?.ServerReady();
     }
 
     public static class TestDriver

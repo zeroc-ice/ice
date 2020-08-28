@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Location
             // its endpoints with the locator and create references containing
             // the adapter id instead of the endpoints.
             //
-            Dictionary<string, string> properties = _helper.Communicator()!.GetProperties();
+            Dictionary<string, string> properties = _helper.Communicator!.GetProperties();
             properties["TestAdapter.AdapterId"] = "TestAdapter";
             properties["TestAdapter.ReplicaGroupId"] = "ReplicatedAdapter";
             properties["TestAdapter2.AdapterId"] = "TestAdapter2";

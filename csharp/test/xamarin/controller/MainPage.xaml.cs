@@ -399,7 +399,7 @@ namespace controller
 
         public string getOutput()
         {
-            return _helper.getWriter().ToString();
+            return _helper.Output.ToString();
         }
 
         public void join()
@@ -427,14 +427,14 @@ namespace controller
                 try
                 {
                     _helper = TestFactory.create(_typename);
-                    _helper.setControllerHelper(this);
-                    _helper.setWriter(new StringWriter());
+                    _helper.ControllerHelper = this;
+                    _helper.Output = new StringWriter();
                     _helper.run(_args);
                     completed(0);
                 }
                 catch (System.Exception ex)
                 {
-                    _helper.getWriter().WriteLine("unexpected unknown exception while running `{0}':\n", ex);
+                    _helper.Output.WriteLine("unexpected unknown exception while running `{0}':\n", ex);
                     completed(1);
                 }
             });
@@ -466,7 +466,7 @@ namespace controller
 
                 if (_helper != null)
                 {
-                    var communicator = _helper.communicator();
+                    var communicator = _helper.Communicator;
                     if (communicator != null)
                     {
                         communicator.shutdown();

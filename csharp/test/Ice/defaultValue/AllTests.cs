@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.DefaultValue
     {
         public static void Run(TestHelper helper)
         {
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing default values... ");
             output.Flush();
 

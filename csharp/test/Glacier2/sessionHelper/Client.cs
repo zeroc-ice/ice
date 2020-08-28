@@ -154,9 +154,6 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
             using Communicator communicator = Initialize(properties);
 
-            string transport = GetTestTransport();
-            string host = GetTestHost();
-
             var factory = new SessionFactoryHelper(new SessionCallback1(this), properties);
             Glacier2.SessionHelper? session = null;
 
@@ -168,7 +165,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
 
-                factory.Transport = transport;
+                factory.Transport = Transport;
                 session = factory.Connect("userid", "xxx");
                 while (true)
                 {
@@ -193,9 +190,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             {
                 Console.Out.Write("testing SessionHelper connect interrupt... ");
                 Console.Out.Flush();
-                factory.RouterHost = host;
-                factory.Port = GetTestPort(1);
-                factory.Transport = transport;
+                factory.RouterHost = Host;
+                factory.Port = BasePort + 1;
+                factory.Transport = Transport;
                 session = factory.Connect("userid", "abc123");
 
                 Thread.Sleep(100);
@@ -223,9 +220,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             {
                 Console.Out.Write("testing SessionHelper connect... ");
                 Console.Out.Flush();
-                factory.RouterHost = host;
-                factory.Port = GetTestPort(50);
-                factory.Transport = transport;
+                factory.RouterHost = Host;
+                factory.Port = BasePort + 50;
+                factory.Transport = Transport;
                 session = factory.Connect("userid", "abc123");
                 while (true)
                 {
@@ -359,9 +356,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.Write("testing SessionHelper connect after router shutdown... ");
                 Console.Out.Flush();
 
-                factory.RouterHost = host;
-                factory.Port = GetTestPort(50);
-                factory.Transport = transport;
+                factory.RouterHost = Host;
+                factory.Port = BasePort + 50;
+                factory.Transport = Transport;
                 session = factory.Connect("userid", "abc123");
                 while (true)
                 {

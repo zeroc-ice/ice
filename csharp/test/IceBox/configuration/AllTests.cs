@@ -13,7 +13,7 @@ namespace ZeroC.IceBox.Test.Configuration
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var service1 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var service2 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 1), communicator);

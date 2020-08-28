@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Timeout
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
             try
@@ -30,12 +30,12 @@ namespace ZeroC.Ice.Test.Timeout
 
         public static void RunWithController(TestHelper helper, IControllerPrx controller)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
 
             var timeout = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), communicator);
 
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing connect timeout... ");
             output.Flush();
             {

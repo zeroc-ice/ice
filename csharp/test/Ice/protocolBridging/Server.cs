@@ -15,17 +15,15 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapterForwarder.Endpoints", GetTestEndpoint(0));
 
-            string transport = GetTestTransport();
-
-            if (GetTestProtocol() == Protocol.Ice1)
+            if (Protocol == Protocol.Ice1)
             {
-                communicator.SetProperty("TestAdapterSame.Endpoints", $"{transport} -h localhost");
-                communicator.SetProperty("TestAdapterOther.Endpoints", $"ice+{transport}://localhost:0");
+                communicator.SetProperty("TestAdapterSame.Endpoints", $"{Transport} -h localhost");
+                communicator.SetProperty("TestAdapterOther.Endpoints", $"ice+{Transport}://localhost:0");
             }
             else
             {
-                communicator.SetProperty("TestAdapterSame.Endpoints", $"ice+{transport}://localhost:0");
-                communicator.SetProperty("TestAdapterOther.Endpoints", $"{transport} -h localhost");
+                communicator.SetProperty("TestAdapterSame.Endpoints", $"ice+{Transport}://localhost:0");
+                communicator.SetProperty("TestAdapterOther.Endpoints", $"{Transport} -h localhost");
             }
 
             ObjectAdapter adapterForwarder = communicator.CreateObjectAdapter("TestAdapterForwarder");

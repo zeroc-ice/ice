@@ -36,11 +36,11 @@ namespace ZeroC.Ice.Test.Threading
         }
         public static async ValueTask AllTestsWithServer(TestHelper helper, bool collocated, int server)
         {
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
 
             TaskScheduler? scheduler = TaskScheduler.Current;
 
-            var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", server), helper.Communicator()!);
+            var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", server), helper.Communicator!);
 
             if (collocated)
             {
@@ -100,12 +100,12 @@ namespace ZeroC.Ice.Test.Threading
 
         public static async Task<ITestIntfPrx> Run(TestHelper helper, bool collocated)
         {
-            Communicator communicator = helper.Communicator()!;
+            Communicator communicator = helper.Communicator!;
             TestHelper.Assert(communicator != null);
 
             var schedulers = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 2);
             Dictionary<string, string> properties = communicator.GetProperties();
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
 
             // Use the Default task scheduler to run continuations tests with the 3 object adapters
             // setup by the server, each object adapter uses a different task scheduler.

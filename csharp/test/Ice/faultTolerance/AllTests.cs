@@ -36,9 +36,9 @@ namespace ZeroC.Ice.Test.FaultTolerance
 
         public static void Run(TestHelper helper, List<int> ports)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
 
@@ -48,15 +48,15 @@ namespace ZeroC.Ice.Test.FaultTolerance
             if (ports.Count > 1)
             {
                 var sb = new StringBuilder(refString);
-                if (helper.GetTestProtocol() == Protocol.Ice1)
+                if (helper.Protocol == Protocol.Ice1)
                 {
-                    string transport = helper.GetTestTransport();
+                    string transport = helper.Transport;
                     for (int i = 1; i < ports.Count; ++i)
                     {
                         sb.Append($": {transport} -h ");
-                        sb.Append(helper.GetTestHost());
+                        sb.Append(helper.Host);
                         sb.Append(" -p ");
-                        sb.Append(helper.GetTestPort(ports[i]));
+                        sb.Append(helper.BasePort + ports[i]);
                     }
                 }
                 else
@@ -68,9 +68,9 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         {
                             sb.Append(',');
                         }
-                        sb.Append(helper.GetTestHost());
+                        sb.Append(helper.Host);
                         sb.Append(':');
-                        sb.Append(helper.GetTestPort(ports[i]));
+                        sb.Append(helper.BasePort + ports[i]);
                     }
                 }
                 refString = sb.ToString();

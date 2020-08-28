@@ -894,7 +894,7 @@ class Callback(CallbackBase):
         self.called()
 
 def twowaysFuture(helper, p):
-    communicator = helper.communicator()
+    communicator = helper.Communicator
     f = p.ice_pingAsync()
     test(f.result() is None)
 

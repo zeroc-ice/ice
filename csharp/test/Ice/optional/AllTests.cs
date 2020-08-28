@@ -14,10 +14,10 @@ namespace ZeroC.Ice.Test.Optional
     {
         internal static ITestPrx Run(TestHelper helper)
         {
-            Communicator communicator = helper.Communicator()!;
+            Communicator communicator = helper.Communicator!;
             var test = ITestPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing BitSequence and ReadOnlyBitSequence... ");
 
             Span<byte> span1 = stackalloc byte[7];

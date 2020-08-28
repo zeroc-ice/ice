@@ -48,11 +48,11 @@ namespace ZeroC.Ice.Test.Retry
             Communicator communicator2,
             string rf)
         {
-           bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+           bool ice1 = helper.Protocol == Protocol.Ice1;
 
             Instrumentation.TestInvocationReset();
 
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var retry1 = IRetryPrx.Parse(rf, communicator);

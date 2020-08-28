@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             string sref = helper.GetTestProxy("test", 0);
             var testPrx = ITestIntfPrx.Parse(sref, communicator);
@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??
                             communicator.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 0;
 
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing connection... ");
             output.Flush();
             {

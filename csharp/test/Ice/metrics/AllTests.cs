@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public static string GetPort(IPropertiesAdminPrx p, int port) =>
-            TestHelper.GetTestPort(p.Communicator.GetProperties(), port).ToString();
+            $"{TestHelper.GetTestBasePort(p.Communicator.GetProperties()) + port}";
 
         private static Dictionary<string, string> GetClientProps(
             IPropertiesAdminPrx p,
@@ -364,13 +364,13 @@ namespace ZeroC.Ice.Test.Metrics
 
         public static IMetricsPrx Run(TestHelper helper, CommunicatorObserver obsv)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
-            string host = helper.GetTestHost();
-            string port = helper.GetTestPort(0).ToString();
+            bool ice1 = helper.Protocol == Protocol.Ice1;
+            string host = helper.Host;
+            string port = $"{helper.BasePort + 0}";
             string hostAndPort = host + ":" + port;
-            string transport = helper.GetTestTransport();
+            string transport = helper.Transport;
             string defaultTimeout = "60000";
             string endpoint = ice1 ?
                 $"{transport} -h {host} -p {port}" : $"ice+{transport}://{host}:{port}";
@@ -380,7 +380,7 @@ namespace ZeroC.Ice.Test.Metrics
                 IMetricsPrx.Parse($"{endpoint}/metrics", communicator);
 
             bool collocated = metrics.GetConnection() == null;
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing metrics admin facet checkedCast... ");
             output.Flush();
             IObjectPrx? admin = communicator.GetAdmin();
@@ -550,7 +550,7 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                int sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 1;
+                int sizeLengthIncrease = helper.Encoding == Encoding.V1_1 ? 4 : 1;
 
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
@@ -566,7 +566,7 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                sizeLengthIncrease = helper.GetTestEncoding() == Encoding.V1_1 ? 4 : 3;
+                sizeLengthIncrease = helper.Encoding == Encoding.V1_1 ? 4 : 3;
 
                 TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + sizeLengthIncrease));
                 TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
@@ -1152,8 +1152,8 @@ namespace ZeroC.Ice.Test.Metrics
                 }
             }
 
-            Encoding defaultEncoding = helper.GetTestEncoding();
-            string defaultProtocolName = helper.GetTestProtocol().GetName();
+            Encoding defaultEncoding = helper.Encoding;
+            string defaultProtocolName = helper.Protocol.GetName();
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
             if (ice1)

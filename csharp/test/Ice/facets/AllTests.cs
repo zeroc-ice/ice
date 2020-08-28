@@ -13,9 +13,9 @@ namespace ZeroC.Ice.Test.Facets
         public static IGPrx Run(TestHelper helper)
         {
 
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             output.Write("testing Ice.Admin.Facets property... ");
             TestHelper.Assert(communicator.GetPropertyAsList("Ice.Admin.Facets") == null);
             communicator.SetProperty("Ice.Admin.Facets", "foobar");

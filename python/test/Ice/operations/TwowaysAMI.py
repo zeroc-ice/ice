@@ -747,7 +747,7 @@ class Callback(CallbackBase):
         test(False)
 
 def twowaysAMI(helper, p):
-    communicator = helper.communicator()
+    communicator = helper.Communicator
     cb = Callback()
     p.begin_ice_ping(cb.ping, cb.exCB)
     cb.check()

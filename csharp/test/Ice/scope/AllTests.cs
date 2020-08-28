@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Scope
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             {
                 var i = IIPrx.Parse(helper.GetTestProxy("i1"), communicator);

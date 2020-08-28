@@ -10,9 +10,9 @@ namespace ZeroC.Ice.Test.Operations
     {
         public static IMyClassPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
 
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var derivedProxy = IMyDerivedClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
