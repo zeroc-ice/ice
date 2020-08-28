@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Serialize
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing serialization... ");
             output.Flush();
 

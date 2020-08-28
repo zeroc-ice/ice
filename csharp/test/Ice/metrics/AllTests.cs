@@ -380,7 +380,7 @@ namespace ZeroC.Ice.Test.Metrics
                 IMetricsPrx.Parse($"{endpoint}/metrics", communicator);
 
             bool collocated = metrics.GetConnection() == null;
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing metrics admin facet checkedCast... ");
             output.Flush();
             IObjectPrx? admin = communicator.GetAdmin();

@@ -36,7 +36,7 @@ namespace ZeroC.Ice.Test.Threading
         }
         public static async ValueTask AllTestsWithServer(TestHelper helper, bool collocated, int server)
         {
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
 
             TaskScheduler? scheduler = TaskScheduler.Current;
 
@@ -105,7 +105,7 @@ namespace ZeroC.Ice.Test.Threading
 
             var schedulers = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 2);
             Dictionary<string, string> properties = communicator.GetProperties();
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
 
             // Use the Default task scheduler to run continuations tests with the 3 object adapters
             // setup by the server, each object adapter uses a different task scheduler.

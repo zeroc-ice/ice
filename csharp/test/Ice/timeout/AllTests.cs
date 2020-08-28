@@ -35,7 +35,7 @@ namespace ZeroC.Ice.Test.Timeout
 
             var timeout = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), communicator);
 
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing connect timeout... ");
             output.Flush();
             {

@@ -132,7 +132,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             _name = name;
             _com = com;
-            _output = helper.Writer;
+            _output = helper.Output;
             _logger = new Logger(_name, _output);
             _helper = helper;
 
@@ -587,7 +587,7 @@ namespace ZeroC.Ice.Test.ACM
             TestHelper.Assert(communicator != null);
             var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
 
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
 
             var tests = new List<TestCase>
             {

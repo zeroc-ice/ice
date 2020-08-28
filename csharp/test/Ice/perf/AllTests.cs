@@ -59,7 +59,7 @@ namespace ZeroC.Ice.Test.Perf
         {
             Communicator communicator = helper.Communicator!;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
 
 #if DEBUG
             output.WriteLine("warning: performance test built with DEBUG");

@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Threading
             }
             catch (TestFailedException ex)
             {
-                Writer.WriteLine($"test failed: {ex.Reason}");
+                Output.WriteLine($"test failed: {ex.Reason}");
                 Assert(false);
                 throw;
             }

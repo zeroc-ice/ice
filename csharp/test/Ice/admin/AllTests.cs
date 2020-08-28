@@ -126,7 +126,7 @@ namespace ZeroC.Ice.Test.Admin
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             bool ice1 = helper.Protocol == Protocol.Ice1;
 
             output.Write("testing communicator operations... ");

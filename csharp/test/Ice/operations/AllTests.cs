@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Operations
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
 
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var derivedProxy = IMyDerivedClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);

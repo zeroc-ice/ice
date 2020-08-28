@@ -121,7 +121,7 @@ namespace ZeroC.Ice.Test.AMI
             var p = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var serialized = ITestIntfPrx.Parse(helper.GetTestProxy("serialized", 1), communicator);
 
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
 
             output.Write("testing async invocation...");
             output.Flush();

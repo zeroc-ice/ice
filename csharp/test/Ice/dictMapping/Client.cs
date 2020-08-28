@@ -13,10 +13,10 @@ namespace ZeroC.Ice.Test.DictMapping
         {
             await using Communicator communicator = Initialize(ref args);
             IMyClassPrx myClass = AllTests.Run(this, false);
-            Writer.Write("shutting down server... ");
-            Writer.Flush();
+            Output.Write("shutting down server... ");
+            Output.Flush();
             await myClass.ShutdownAsync();
-            Writer.WriteLine("ok");
+            Output.WriteLine("ok");
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

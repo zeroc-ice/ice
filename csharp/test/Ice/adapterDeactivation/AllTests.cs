@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var obj = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);

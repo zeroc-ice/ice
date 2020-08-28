@@ -12,10 +12,10 @@ namespace ZeroC.Ice.Test.Scope
         public override async Task RunAsync(string[] args)
         {
             await using var communicator = Initialize(ref args);
-            Writer.Write("test using same type name in different Slice modules... ");
-            Writer.Flush();
+            Output.Write("test using same type name in different Slice modules... ");
+            Output.Flush();
             AllTests.Run(this);
-            Writer.WriteLine("ok");
+            Output.WriteLine("ok");
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

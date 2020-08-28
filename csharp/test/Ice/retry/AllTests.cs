@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.Retry
 
             Instrumentation.TestInvocationReset();
 
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var retry1 = IRetryPrx.Parse(rf, communicator);

@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??
                             communicator.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 0;
 
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing connection... ");
             output.Flush();
             {

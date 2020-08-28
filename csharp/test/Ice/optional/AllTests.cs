@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Optional
             Communicator communicator = helper.Communicator!;
             var test = ITestPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing BitSequence and ReadOnlyBitSequence... ");
 
             Span<byte> span1 = stackalloc byte[7];

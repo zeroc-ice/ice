@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Info
             TestHelper.Assert(communicator != null);
             bool ice1 = helper.Protocol == Protocol.Ice1;
             string transport = helper.Transport;
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing proxy endpoint information... ");
             output.Flush();
             {

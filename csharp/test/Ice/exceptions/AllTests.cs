@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Exceptions
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             bool ice1 = helper.Protocol == Protocol.Ice1;
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             {
                 output.Write("testing object adapter registration exceptions... ");
                 ObjectAdapter first;

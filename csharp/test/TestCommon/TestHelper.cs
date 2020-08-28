@@ -45,7 +45,7 @@ namespace Test
 
         public string Transport => GetTestTransport(Communicator!.GetProperties());
 
-        public TextWriter Writer
+        public TextWriter Output
         {
             get => _writer ?? Console.Out;
             set => _writer = value;
@@ -243,14 +243,10 @@ namespace Test
             ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null)
         {
             var communicator = new Communicator(properties, observer: observer);
-            if (Communicator == null)
-            {
-                Communicator = communicator;
-            }
-            if (ControllerHelper != null)
-            {
-                ControllerHelper.CommunicatorInitialized(communicator);
-            }
+
+            Communicator ??= communicator;
+            ControllerHelper?.CommunicatorInitialized(communicator);
+
             return communicator;
         }
 

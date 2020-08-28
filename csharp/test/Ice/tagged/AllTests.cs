@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Tagged
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
 
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
 
             output.Write("testing tagged data members... ");

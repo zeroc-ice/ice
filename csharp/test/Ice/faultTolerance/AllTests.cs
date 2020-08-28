@@ -38,7 +38,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
 

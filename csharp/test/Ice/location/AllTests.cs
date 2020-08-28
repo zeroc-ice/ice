@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Location
             var registry = locator.GetRegistry()!.Clone(ITestLocatorRegistryPrx.Factory);
             TestHelper.Assert(registry != null);
 
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             IObjectPrx base1, base2, base3, base4, base5, base6;

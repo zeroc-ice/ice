@@ -38,7 +38,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.Writer;
+            TextWriter? output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);

@@ -41,7 +41,7 @@ namespace ZeroC.Ice.Test.Objects
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.Writer;
+            TextWriter? output = helper.Output;
 
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
             TestHelper.Assert(initial != null);

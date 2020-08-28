@@ -399,7 +399,7 @@ namespace controller
 
         public string getOutput()
         {
-            return _helper.Writer.ToString();
+            return _helper.Output.ToString();
         }
 
         public void join()
@@ -428,13 +428,13 @@ namespace controller
                 {
                     _helper = TestFactory.create(_typename);
                     _helper.ControllerHelper = this;
-                    _helper.Writer = new StringWriter();
+                    _helper.Output = new StringWriter();
                     _helper.run(_args);
                     completed(0);
                 }
                 catch (System.Exception ex)
                 {
-                    _helper.Writer.WriteLine("unexpected unknown exception while running `{0}':\n", ex);
+                    _helper.Output.WriteLine("unexpected unknown exception while running `{0}':\n", ex);
                     completed(1);
                 }
             });

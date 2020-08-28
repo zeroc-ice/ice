@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);

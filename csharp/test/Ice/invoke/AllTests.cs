@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Invoke
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             IMyClassPrx oneway = cl.Clone(oneway: true);
 
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing Invoke... ");
             output.Flush();
 

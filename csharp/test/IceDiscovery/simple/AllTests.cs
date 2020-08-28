@@ -14,7 +14,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public static void Run(TestHelper helper, int num)
         {
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var proxies = new List<IControllerPrx>();

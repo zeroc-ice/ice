@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
             ITestIntfPrx newPrx;
 
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing forwarding with same protocol... ");
             output.Flush();
             newPrx = TestProxy(forwardSamePrx);

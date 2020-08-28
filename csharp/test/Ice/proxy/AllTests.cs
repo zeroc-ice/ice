@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Proxy
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             bool ice1 = helper.Protocol == Protocol.Ice1;
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing proxy parsing... ");
             output.Flush();
 

@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Enums
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
 
             output.Write("testing enum values... ");
             output.Flush();

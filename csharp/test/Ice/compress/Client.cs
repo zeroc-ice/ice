@@ -14,8 +14,8 @@ namespace ZeroC.Ice.Test.Compress
         public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
-            Writer.Write("testing operations using compression... ");
-            Writer.Flush();
+            Output.Write("testing operations using compression... ");
+            Output.Flush();
             {
                 properties["Ice.CompressionMinSize"] = "1K";
                 await using Communicator communicator = Initialize(properties);
@@ -30,7 +30,7 @@ namespace ZeroC.Ice.Test.Compress
                 await server.ShutdownAsync();
             }
 
-            Writer.WriteLine("ok");
+            Output.WriteLine("ok");
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

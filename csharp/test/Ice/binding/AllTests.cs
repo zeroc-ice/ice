@@ -60,7 +60,7 @@ namespace ZeroC.Ice.Test.Binding
             string testTransport = helper.Transport;
 
             var rand = new Random(unchecked((int)DateTime.Now.Ticks));
-            System.IO.TextWriter output = helper.Writer;
+            System.IO.TextWriter output = helper.Output;
 
             output.Write("testing binding with single endpoint... ");
             output.Flush();

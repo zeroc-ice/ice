@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.DictMapping
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.Writer;
+            TextWriter output = helper.Output;
 
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
