@@ -446,7 +446,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::returnTypeStr(const OperationPtr& op, const string& scope, bool dispatch)
 {
     InterfaceDefPtr interface = op->interface();
     auto returnValues = op->returnValues();
@@ -472,9 +472,9 @@ Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 }
 
 string
-Slice::resultTask(const OperationPtr& op, const string& ns, bool dispatch)
+Slice::returnTaskStr(const OperationPtr& op, const string& ns, bool dispatch)
 {
-    string t = resultType(op, ns, dispatch);
+    string t = returnTypeStr(op, ns, dispatch);
     if(t == "void")
     {
         if (dispatch)

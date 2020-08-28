@@ -161,10 +161,9 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
                                      const MemberList& requiredParams,
                                      const MemberList& taggedParams,
                                      bool isReturnValue,
-                                     const string& customStream,
                                      const string& obj)
 {
-    const string stream = customStream.empty() ? "ostr" : customStream;
+    const string stream = "ostr";
     string ns = getNamespace(op->interface());
 
     int bitSequenceIndex = -1;
@@ -214,10 +213,9 @@ void
 Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
                                        const MemberList& requiredParams,
                                        const MemberList& taggedParams,
-                                       bool isReturnValue,
-                                       const string& customStream)
+                                       bool isReturnValue)
 {
-    const string stream = customStream.empty() ? "istr" : customStream;
+    const string stream = "istr";
     string ns = getNamespace(op->interface());
 
     int bitSequenceIndex = -1;
@@ -2473,7 +2471,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
-        _out << nl << resultType(operation, ns, false)  << " " << name << spar
+        _out << nl << returnTypeStr(operation, ns, false)  << " " << name << spar
              << getInvocationParams(operation, ns)
              << epar << " =>";
         _out.inc();
@@ -2497,7 +2495,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
 
-        _out << nl << resultTask(operation, ns, false) << " "
+        _out << nl << returnTaskStr(operation, ns, false) << " "
              << asyncName << spar << getInvocationParamsAMI(operation, ns, true) << epar << " =>";
         _out.inc();
         _out << nl << requestProperty << ".InvokeAsync(this, ";
@@ -2575,7 +2573,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     {
         _out << "(ZeroC.Ice.OutputStream ostr, in " << toTupleType(params, true) << " value) =>";
         _out << sb;
-        writeMarshalParams(operation, requiredParams, taggedParams, false, "ostr", "value.");
+        writeMarshalParams(operation, requiredParams, taggedParams, false, "value.");
         _out << eb;
     }
     else
@@ -2583,7 +2581,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
         auto p = params.front();
         _out << "(ZeroC.Ice.OutputStream ostr, " << paramTypeStr(p, true) << " value) =>";
         _out << sb;
-        writeMarshalParams(operation, requiredParams, taggedParams, false, "ostr");
+        writeMarshalParams(operation, requiredParams, taggedParams, false);
         _out << eb;
     }
 }
@@ -2776,14 +2774,14 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         {
             _out << nl << "(ZeroC.Ice.OutputStream ostr, " << toTupleType(returnValues, true) << " value) =>";
             _out << sb;
-            writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "ostr", "value.");
+            writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "value.");
             _out << eb;
         }
         else
         {
             _out << nl << "(ostr, value) =>";
             _out << sb;
-            writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "ostr");
+            writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true);
             _out << eb;
         }
         _out << ");";
@@ -2808,11 +2806,11 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
 
     if(amd)
     {
-        _out << resultTask(operation, ns, true);
+        _out << returnTaskStr(operation, ns, true);
     }
     else
     {
-        _out << resultType(operation, ns, true);
+        _out << returnTypeStr(operation, ns, true);
     }
 
     _out << " " << name << spar;
@@ -2997,7 +2995,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                  << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in " << toTupleType(returnValues, true)
                  << " value) =>";
             _out << sb;
-            writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "ostr", "value.");
+            writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "value.");
             _out << eb << ";";
         }
         else if (returnValues.size() == 1 && !defaultWriter)
@@ -3010,7 +3008,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                 _out << nl << "private static readonly ZeroC.Ice.OutputStreamWriter<" << paramTypeStr(param, true)
                     << "> " << writer << " = (ostr, value) =>";
                 _out << sb;
-                writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "ostr");
+                writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true);
                 _out << eb << ";";
             }
             else
@@ -3027,7 +3025,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                         << paramTypeStr(param, true) << "> " << writer << " = (ostr, value) =>";
                 }
                 _out.inc();
-                writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true, "ostr");
+                writeMarshalParams(operation, requiredReturnValues, taggedReturnValues, true);
                 _out.dec();
             }
         }
@@ -3105,7 +3103,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
 
     if(interface->hasMetaData("amd") || op->hasMetaData("amd"))
     {
-        _out << "public override " << resultTask(op, ns, true) << " " << opName << "Async" << spar
+        _out << "public override " << returnTaskStr(op, ns, true) << " " << opName << "Async" << spar
              << getNames(op->parameters())
              << ("ZeroC.Ice.Current " + getEscapedParamName(op, "current"))
              << epar;
@@ -3140,7 +3138,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
     }
     else
     {
-        _out << "public override " << resultType(op, ns, true) << " " << opName << spar
+        _out << "public override " << returnTypeStr(op, ns, true) << " " << opName << spar
              << getNames(op->parameters())
              << ("ZeroC.Ice.Current " + getEscapedParamName(op, "current"))
              << epar;

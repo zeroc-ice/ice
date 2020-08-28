@@ -32,15 +32,13 @@ protected:
         const MemberList& requiredParams,
         const MemberList& taggedParams,
         bool isReturnValue,
-        const std::string& stream = "ostr",
         const std::string& obj = "");
 
     void writeUnmarshalParams(
         const OperationPtr& op,
         const MemberList& requiredParams,
         const MemberList& taggedParams,
-        bool isReturnValue,
-        const std::string& stream = "istr");
+        bool isReturnValue);
 
     void writeMarshalDataMembers(const MemberList&, const std::string&, unsigned int);
     void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);

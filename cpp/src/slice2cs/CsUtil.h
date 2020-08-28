@@ -44,8 +44,8 @@ std::string helperName(const TypePtr&, const std::string&);
 
 std::string builtinSuffix(const BuiltinPtr&);
 
-std::string resultType(const OperationPtr&, const std::string&, bool);
-std::string resultTask(const OperationPtr&, const std::string&, bool);
+std::string returnTypeStr(const OperationPtr&, const std::string& ns, bool dispatch);
+std::string returnTaskStr(const OperationPtr&, const std::string& ns, bool dispatch);
 
 bool isCollectionType(const TypePtr&);
 bool isValueType(const TypePtr&); // value with C# "struct" meaning
