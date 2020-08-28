@@ -79,7 +79,7 @@ namespace ZeroC.Ice
         {
             if (buffer.Count == 0)
             {
-                throw new ArgumentException("empty buffer");
+                throw new ArgumentException($"empty {nameof(buffer)}");
             }
 
             int received;

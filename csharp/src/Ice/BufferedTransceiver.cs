@@ -19,11 +19,11 @@ namespace ZeroC.Ice
     /// </summary>
     internal class BufferedReadTransceiver : ITransceiver
     {
-        private ArraySegment<byte> _buffer;
-
         public Socket? Socket => Underlying.Socket;
+        internal ITransceiver Underlying { get; }
 
-        public ITransceiver Underlying { get; }
+        // The buffered data.
+        private ArraySegment<byte> _buffer;
 
         public void CheckSendSize(int size) => Underlying.CheckSendSize(size);
 
@@ -34,16 +34,8 @@ namespace ZeroC.Ice
 
         public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
 
-        public async ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel)
-        {
-            if (_buffer.Count == 0)
-            {
-                await ReceiveInBufferAsync(0, cancel);
-            }
-            ArraySegment<byte> buffer = _buffer.ToArray();
-            _buffer = new ArraySegment<byte>(_buffer.Array!, 0, 0);
-            return buffer;
-        }
+        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException();
 
         public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
@@ -52,7 +44,7 @@ namespace ZeroC.Ice
             {
                 // If there's still data buffered for the payload, consume the buffered data.
                 int length = Math.Min(_buffer.Count, buffer.Count);
-                ArraySegment<byte> buffered = await ReceiveAsync(length, cancel).ConfigureAwait(false);
+                ReadOnlyMemory<byte> buffered = await ReceiveAsync(length, cancel).ConfigureAwait(false);
                 buffered.CopyTo(buffer);
                 received = length;
             }
@@ -65,60 +57,42 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public async ValueTask<byte> ReceiveByteAsync(CancellationToken cancel = default)
-        {
-            if (_buffer.Count > 0)
-            {
-                byte b = _buffer[0];
-                _buffer = _buffer.Slice(1);
-                return b;
-            }
-            else
-            {
-                return (await ReceiveAsync(1, cancel).ConfigureAwait(false))[0];
-            }
-        }
-
-        public async ValueTask<ArraySegment<byte>> ReceiveAsync(int byteCount, CancellationToken cancel = default)
+        /// <summary>Returns buffered data. If there's no buffered data, the buffer is filled using the underlying
+        /// transceiver to receive additional data. The method returns when the buffer contains at least byteCount
+        /// data. If byteCount is 0, it returns all the buffered data.</summary>
+        /// <param name="byteCount">The number of bytes of buffered data to return. It can be set to null to get all
+        /// the buffered data.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <return>The buffered data.</return>
+        public async ValueTask<ReadOnlyMemory<byte>> ReceiveAsync(int byteCount, CancellationToken cancel = default)
         {
             if (byteCount > _buffer.Array!.Length)
             {
                 throw new ArgumentOutOfRangeException(
-                    $"byteCount should be inferior to the buffer size of {_buffer.Array.Length} bytes");
+                    $"{nameof(byteCount)} should be inferior to the buffer size of {_buffer.Array.Length} bytes");
             }
 
-            if (_buffer.Count < byteCount)
+            // Receive additional data if there's not enough or no buffered data.
+            if (_buffer.Count < byteCount || (byteCount == 0 && _buffer.Count == 0))
             {
                 await ReceiveInBufferAsync(byteCount, cancel);
                 Debug.Assert(_buffer.Count >= byteCount);
             }
 
-            ArraySegment<byte> buffer = _buffer.Slice(0, byteCount);
-            _buffer = _buffer.Slice(byteCount);
+            if (byteCount == 0)
+            {
+                // Return all the buffered data.
+                byteCount = _buffer.Count;
+            }
+
+            ReadOnlyMemory<byte> buffer = _buffer.Slice(0, byteCount);
+            _buffer = _buffer.Slice(byteCount); // Remaining buffered data.
             return buffer;
         }
 
         public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
             Underlying.SendAsync(buffer, cancel);
 
-        /// <summary>Set the buffered data. This can be used if too much buffered data has been read to add
-        /// it back to the buffer. This can only be used if the buffered data was all consumed.</summary>
-        /// <param name="data">The data to add back to the buffer.</param>
-        public void SetBuffer(ArraySegment<byte> data)
-        {
-            if (_buffer.Count != 0)
-            {
-                throw new ArgumentOutOfRangeException("buffer is not empty");
-            }
-            if (_buffer.Array!.Length < data.Count)
-            {
-                throw new ArgumentOutOfRangeException("data is too large");
-            }
-
-            _buffer.CopyTo(_buffer.Array!, 0);
-            data.CopyTo(_buffer.Array!, _buffer.Count);
-            _buffer = new ArraySegment<byte>(_buffer.Array, 0, _buffer.Count + data.Count);
-        }
         public string ToDetailedString() => Underlying.ToDetailedString();
 
         public override string? ToString() => Underlying.ToString();
@@ -126,7 +100,29 @@ namespace ZeroC.Ice
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
         {
             Underlying = underlying;
+
+            // The _buffer data member holds the buffered data. There's no buffered data until we receive data
+            // from the underlying socket so the array segment point to an empty segment.
             _buffer = new ArraySegment<byte>(new byte[bufferSize], 0, 0);
+        }
+
+        /// <summary>Sets the buffered data. This can be used if too much buffered data has been read to add
+        /// it back to the buffer. This can only be used if the buffered data was all previously consumed.</summary>
+        /// <param name="data">The data to add back to the buffer.</param>
+        internal void SetBuffer(ArraySegment<byte> data)
+        {
+            if (_buffer.Count != 0)
+            {
+                throw new ArgumentOutOfRangeException("buffer is not empty");
+            }
+            if (_buffer.Array!.Length < data.Count)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(data)} is too large");
+            }
+
+            _buffer.CopyTo(_buffer.Array!, 0);
+            data.CopyTo(_buffer.Array!, _buffer.Count);
+            _buffer = new ArraySegment<byte>(_buffer.Array, 0, _buffer.Count + data.Count);
         }
 
         private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)
@@ -135,7 +131,7 @@ namespace ZeroC.Ice
 
             int offset = _buffer.Count;
 
-            // If there's not enough data buffered for byteCount we read more data in the buffer. We first need
+            // If there's not enough data buffered for byteCount we need to receive additional data. We first need
             // to make sure there's enough space in the buffer to read it however.
             if (_buffer.Count == 0)
             {
@@ -146,9 +142,8 @@ namespace ZeroC.Ice
             {
                 // There's still buffered data but not enough space left in the array to read the given bytes.
                 // In theory, the number of bytes to read should always be lower than the un-used buffer space
-                // at the start of the buffer. We move the data at the end of the buffer to the begining to
+                // at the start of the buffer. We move the data at the end of the buffer to the beginning to
                 // make space to read the given number of bytes.
-                Debug.Assert(_buffer.Offset >= byteCount);
                 _buffer.CopyTo(_buffer.Array!, 0);
                 _buffer = new ArraySegment<byte>(_buffer.Array);
             }
@@ -161,18 +156,22 @@ namespace ZeroC.Ice
                     _buffer.Array.Length - _buffer.Offset);
             }
 
+            // Receive additional data.
             if (byteCount == 0)
             {
+                // Perform a single receive and we're done.
                 offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
             }
             else
             {
+                // Receive data until we have read at least "byteCount" bytes in the buffer.
                 while (offset < byteCount)
                 {
                     offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
                 }
             }
 
+            // Set _buffer to the buffered data array segment.
             _buffer = _buffer.Slice(0, offset);
         }
     }

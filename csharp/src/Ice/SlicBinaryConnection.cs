@@ -31,12 +31,12 @@ namespace ZeroC.Ice
         public ITransceiver Transceiver => _transceiver.Underlying;
         internal static readonly Encoding Encoding = Encoding.V2_0;
         private readonly int _frameSizeMax;
-        private Action _heartbeatCallback;
+        private Action? _heartbeatCallback;
         private readonly bool _incoming;
         private long _nextStreamId;
-        private Action<int> _receivedCallback;
+        private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
-        private Action<int> _sentCallback;
+        private Action<int>? _sentCallback;
         private readonly BufferedReadTransceiver _transceiver;
 
         public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
@@ -106,7 +106,7 @@ namespace ZeroC.Ice
                 string protocol = istr.ReadString();
                 if (ProtocolExtensions.Parse(protocol) != Protocol.Ice2)
                 {
-                    throw new NotSupportedException($"Ice protocol `{protocol}' is not supported with Slic");
+                    throw new NotSupportedException($"application protocol `{protocol}' is not supported with Slic");
                 }
 
                 // TODO: transport parameters
@@ -172,7 +172,7 @@ namespace ZeroC.Ice
                     case FrameType.Ping:
                     {
                         ValueTask task = PrepareAndSendFrameAsync(FrameType.Pong, null, CancellationToken.None);
-                        _heartbeatCallback();
+                        _heartbeatCallback!();
                         break;
                     }
                     case FrameType.Pong:
@@ -270,8 +270,6 @@ namespace ZeroC.Ice
 
             _incoming = adapter != null;
             _frameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
-            _sentCallback = _receivedCallback = _ => {};
-            _heartbeatCallback = () => {};
             _transceiver = new BufferedReadTransceiver(transceiver);
         }
 
@@ -339,14 +337,14 @@ namespace ZeroC.Ice
 
         private async ValueTask<(FrameType, ArraySegment<byte>)> ReceiveFrameAsync(CancellationToken cancel)
         {
-            ArraySegment<byte> buffer = await _transceiver.ReceiveAsync(2, cancel).ConfigureAwait(false);
-            var frameType = (FrameType)buffer[0];
-            byte firstSizeByte = buffer[1];
+            ReadOnlyMemory<byte> buffer = await _transceiver.ReceiveAsync(2, cancel).ConfigureAwait(false);
+            var frameType = (FrameType)buffer.Span[0];
+            byte firstSizeByte = buffer.Span[1];
             int sizeLength = firstSizeByte.ReadSizeLength20();
             buffer = await _transceiver.ReceiveAsync(sizeLength - 1, cancel).ConfigureAwait(false);
-            _receivedCallback(sizeLength + 1);
+            _receivedCallback!(sizeLength + 1);
 
-            int frameSize = ComputeSize20(firstSizeByte, buffer.AsReadOnlySpan());
+            int frameSize = ComputeSize20(firstSizeByte, buffer.Span);
 
             ArraySegment<byte> frame = new byte[frameSize];
             int offset = 0;
