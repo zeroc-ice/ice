@@ -33,12 +33,15 @@ namespace ZeroC.Ice.Test.AMI
             try
             {
                 Task.Delay(ms, current.CancellationToken).Wait();
-                TestHelper.Assert(!current.Context.ContainsKey("cancel") || current.Connection != null);
+                // Cancellation isn't supported with Ice1
+                TestHelper.Assert(!current.Context.ContainsKey("cancel") ||
+                                  current.Context["cancel"] == "mightSucceed" ||
+                                  current.Protocol == Protocol.Ice1);
             }
             catch (TaskCanceledException)
             {
                 // Expected if the request is canceled.
-                TestHelper.Assert(current.Context.ContainsKey("cancel") && current.Connection == null);
+                TestHelper.Assert(current.Context.ContainsKey("cancel"));
             }
         }
 

@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
@@ -37,6 +38,8 @@ namespace ZeroC.Ice
         private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
         private Action<int>? _sentCallback;
+        private ConcurrentDictionary<long, CancellationTokenRegistration> _streams =
+            new ConcurrentDictionary<long, CancellationTokenRegistration>();
         private readonly BufferedReadTransceiver _transceiver;
 
         public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
@@ -45,6 +48,11 @@ namespace ZeroC.Ice
             await PrepareAndSendFrameAsync(FrameType.Close, ostr =>
             {
                 ostr.WriteVarLong(0);
+                // TODO: we are potentially leaking the reason of the connection closure here. Is it a good
+                // idea? Reasons for graceful close are:
+                // - connection idle
+                // - the communicator or adapter was disposed
+                // - user called Connection.Close
                 ostr.WriteString(exception.ToString());
             }, cancel);
 
@@ -52,7 +60,14 @@ namespace ZeroC.Ice
             await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync() => _transceiver.DisposeAsync();
+        public ValueTask DisposeAsync()
+        {
+            foreach (CancellationTokenRegistration registration in _streams.Values)
+            {
+                registration.Unregister();
+            }
+            return _transceiver.DisposeAsync();
+        }
 
         public ValueTask HeartbeatAsync(CancellationToken cancel) =>
             PrepareAndSendFrameAsync(FrameType.Ping, null, cancel);
@@ -187,6 +202,14 @@ namespace ZeroC.Ice
                         data = data.Slice(streamIdSize);
                         IncomingFrame frame = ParseIce2Frame(data);
                         ProtocolTrace.TraceFrame(Endpoint.Communicator, streamId, data.Count, frame);
+                        if (type == FrameType.StreamLast)
+                        {
+                            // If it's a known stream, unregister the cancellation token.
+                            if (_streams.TryRemove(streamId, out CancellationTokenRegistration registration))
+                            {
+                                registration.Unregister();
+                            }
+                        }
                         return (StreamId: streamId, Frame: frame, Fin: type == FrameType.StreamLast);
                     }
                     case FrameType.ResetStream:
@@ -194,15 +217,19 @@ namespace ZeroC.Ice
                         var istr = new InputStream(data, Encoding);
                         long streamId = istr.ReadVarLong();
                         long reason = istr.ReadVarLong();
-                        // TODO: release resources allocated for the stream.
-                        break;
+                        // If it's a known stream, unregister the cancellation token.
+                        if (_streams.TryRemove(streamId, out CancellationTokenRegistration registration))
+                        {
+                            registration.Unregister();
+                        }
+                        return (StreamId: streamId, Frame: null, Fin: true);
                     }
                     case FrameType.Close:
                     {
                         var istr = new InputStream(data, Encoding);
-                        long code = istr.ReadVarLong();
+                        long code = istr.ReadVarLong(); // TODO: is this really useful?
                         string reason = istr.ReadString();
-                        throw new ConnectionClosedByPeerException();
+                        throw new ConnectionClosedByPeerException(reason);
                     }
                     default:
                     {
@@ -257,6 +284,22 @@ namespace ZeroC.Ice
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame("sending ", frameType, data.GetByteCount(), streamId);
+            }
+
+            // If the stream isn't finished, we keep track of it.
+            // TODO: For now, we only keep track of the cancelation token registration, later, when we support
+            // multiplexing, we'll also keep track of the data left to send and receive.
+            if (!fin)
+            {
+                _streams[streamId] = cancel.Register(async () =>
+                    {
+                        // If cancellation is requested, we sent a reset stream frame.
+                        await PrepareAndSendFrameAsync(FrameType.ResetStream, ostr =>
+                            {
+                                ostr.WriteVarLong(streamId);
+                                ostr.WriteVarLong(0);
+                            }, CancellationToken.None).ConfigureAwait(false);
+                    });
             }
 
             await SendSlicFrameAsync(data, cancel);
@@ -319,17 +362,22 @@ namespace ZeroC.Ice
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(Encoding, data);
             ostr.WriteByte((byte)type);
-            OutputStream.Position sizePos = ostr.StartFixedLengthSize();
+            OutputStream.Position sizePos = ostr.StartFixedLengthSize(4);
             if (writer != null)
             {
                 writer!(ostr);
             }
-            ostr.EndFixedLengthSize(sizePos);
+            ostr.EndFixedLengthSize(sizePos, 4);
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
 
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceFrame("sending ", type, data.GetByteCount());
+                long streamId = 0;
+                if (type == FrameType.ResetStream)
+                {
+                    streamId = data[0].Slice(sizePos.Offset + 4).AsReadOnlySpan().ReadVarLong().Value;
+                }
+                TraceFrame("sending ", type, data.GetByteCount(), streamId);
             }
 
             await SendSlicFrameAsync(data, cancel).ConfigureAwait(false);
@@ -388,25 +436,17 @@ namespace ZeroC.Ice
             async ValueTask QueueAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
             {
                 // Wait for the previous send to complete
-                try
-                {
-                    await _sendTask.ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    // If the send was canceled, ignore and continue sending.
-                }
+                await _sendTask.ConfigureAwait(false);
 
-                // If the send got cancelled, throw now. This isn't a fatal connection error, the next pending
-                // outgoing will be sent because we ignore the cancelation exception above.
-                // TODO: is it really a good idea to cancel the request here? The stream/request ID assigned for the
-                // the request won't be used.
-                cancel.ThrowIfCancellationRequested();
-
-                // Perform the write
-                int sent = await _transceiver.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-                Debug.Assert(sent == buffer.GetByteCount()); // TODO: do we need to support partial writes?
-                _sentCallback!(sent);
+                // If the send got cancelled, just return. This isn't a fatal connection error, the next pending frame
+                // will be sent.
+                if (!cancel.IsCancellationRequested)
+                {
+                    // Perform the write
+                    int sent = await _transceiver.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+                    Debug.Assert(sent == buffer.GetByteCount());
+                    _sentCallback!(sent);
+                }
             }
         }
 

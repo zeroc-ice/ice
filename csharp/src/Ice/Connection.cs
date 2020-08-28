@@ -157,6 +157,8 @@ namespace ZeroC.Ice
         private Task _receiveTask = Task.CompletedTask;
         private readonly Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
             new Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
+        private readonly Dictionary<long, CancellationTokenSource> _dispatch =
+            new Dictionary<long, CancellationTokenSource>();
         private ConnectionState _state; // The current state.
         private bool _validated;
 
@@ -448,7 +450,7 @@ namespace ZeroC.Ice
             }
 
             IChildInvocationObserver? childObserver = null;
-            Task writeTask;
+            ValueTask writeTask;
             Task<IncomingResponseFrame>? responseTask = null;
             long streamId;
             lock (_mutex)
@@ -479,28 +481,13 @@ namespace ZeroC.Ice
                     childObserver?.Attach();
                 }
 
-                // TODO: this returns a ValueTask
-                // TODO: fin = oneway isn't correct for ice2
-                writeTask = BinaryConnection.SendAsync(streamId, request, fin: oneway, cancel).AsTask();
+                // If oneway, terminate the stream after sending the request.
+                writeTask = BinaryConnection.SendAsync(streamId, request, fin: oneway, cancel);
             }
 
             try
             {
                 await writeTask.ConfigureAwait(false);
-            }
-            catch (OperationCanceledException ex)
-            {
-                childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                childObserver?.Detach();
-                lock (_mutex)
-                {
-                    _requests.Remove(streamId);
-                    if (_requests.Count == 0)
-                    {
-                        System.Threading.Monitor.PulseAll(_mutex); // Notify threads blocked in Close()
-                    }
-                    throw;
-                }
             }
             catch (Exception ex)
             {
@@ -697,7 +684,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long requestId)
+        private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long streamId)
         {
             IDispatchObserver? dispatchObserver = null;
             OutgoingResponseFrame? response = null;
@@ -707,7 +694,7 @@ namespace ZeroC.Ice
                 ICommunicatorObserver? communicatorObserver = _communicator.Observer;
                 if (communicatorObserver != null)
                 {
-                    dispatchObserver = communicatorObserver.GetDispatchObserver(current, requestId, request.Size);
+                    dispatchObserver = communicatorObserver.GetDispatchObserver(current, streamId, request.Size);
                     dispatchObserver?.Attach();
                 }
 
@@ -747,10 +734,16 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
+                    // Dispose of the cancellation token source
+                    if (_dispatch.Remove(streamId, out CancellationTokenSource? cancelSource))
+                    {
+                        cancelSource.Dispose();
+                    }
+
                     // Send the response if there's a response
                     if (_state < ConnectionState.Closed && response != null)
                     {
-                        _ = SendResponseAsync(requestId, response);
+                        _ = SendResponseAsync(streamId, response);
                     }
 
                     // Decrease the dispatch count
@@ -769,9 +762,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    // TODO: support for cancellation, the sending of the response should be canceled if the client
-                    // cancels the requests (ice2)
-                    await BinaryConnection.SendAsync(requestId, response, fin: true, cancel: default);
+                    await BinaryConnection.SendAsync(requestId, response, fin: true, cancel: current.CancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -805,8 +796,12 @@ namespace ZeroC.Ice
 
                         if (frame == null)
                         {
-                            // TODO: this indicates that the stream was reset (ice2).
+                            // The stream was reset by the peer, cancel the dispatch.
                             Debug.Assert(fin);
+                            if (_dispatch.TryGetValue(streamId, out CancellationTokenSource? cancelSource))
+                            {
+                                cancelSource.Cancel();
+                            }
                         }
                         else if (frame is IncomingRequestFrame requestFrame)
                         {
@@ -821,13 +816,21 @@ namespace ZeroC.Ice
                                 adapter = _adapter;
                                 serialize = adapter.SerializeDispatch;
 
-                                // TODO: if fin != false, we need to keep track of the stream in a dictionnary. The
-                                // cancellation token provided here will have to be a token created for a stream to
-                                // allow cancelling the request if the stream is closed.
+                                // If the stream isn't terminated, we create a cancellation token source to be able
+                                // to cancel the dispatch if the client sends a stream reset (which can occur if the
+                                // invocation times out or is canceled for example).
+                                CancellationToken cancellationToken;
+                                if (!fin)
+                                {
+                                    var source = new CancellationTokenSource();
+                                    _dispatch[streamId] = source;
+                                    cancellationToken = source.Token;
+                                }
+
                                 var current = new Current(_adapter,
                                                           requestFrame,
                                                           oneway: fin,
-                                                          cancel: default,
+                                                          cancel: cancellationToken,
                                                           this);
                                 incoming = () => InvokeAsync(requestFrame, current, streamId);
                                 ++_dispatchCount;

@@ -197,7 +197,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        throw new ConnectionClosedByPeerException();
+                        throw new ConnectionClosedByPeerException("");
                     }
                     return default;
                 }
@@ -401,19 +401,16 @@ namespace ZeroC.Ice
                 {
                     // If the send failed because the datagram was too large, ignore and continue sending.
                 }
-                catch (OperationCanceledException)
-                {
-                    // If the send was canceled, ignore and continue sending.
-                }
 
                 // If the send got cancelled, throw now. This isn't a fatal connection error, the next pending
                 // outgoing will be sent because we ignore the cancelation exception above.
-                // TODO: is it really a good idea to cancel the request here with ice1?  The stream/request ID assigned
-                // for the request won't be used.
-                cancel.ThrowIfCancellationRequested();
-
-                // Perform the write
-                await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
+                //
+                // TODO: is it really a good idea to cancel the request here with ice1?  The request ID assigned
+                // for the request won't be used so the server might receive non-continuous request IDs with 4.0.
+                if (!cancel.IsCancellationRequested)
+                {
+                    await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
+                }
             }
         }
 
