@@ -34,8 +34,8 @@ namespace ZeroC.Ice
 
         public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
 
-        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
-            throw new InvalidOperationException();
+        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+            Underlying.ReceiveDatagramAsync(cancel);
 
         public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
@@ -44,8 +44,8 @@ namespace ZeroC.Ice
             {
                 // If there's still data buffered for the payload, consume the buffered data.
                 int length = Math.Min(_buffer.Count, buffer.Count);
-                ReadOnlyMemory<byte> buffered = await ReceiveAsync(length, cancel).ConfigureAwait(false);
-                buffered.CopyTo(buffer);
+                _buffer.Slice(0, length).CopyTo(buffer);
+                _buffer = _buffer.Slice(length);
                 received = length;
             }
 
@@ -57,14 +57,31 @@ namespace ZeroC.Ice
             return received;
         }
 
+        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
+            Underlying.SendAsync(buffer, cancel);
+
+        public string ToDetailedString() => Underlying.ToDetailedString();
+
+        public override string? ToString() => Underlying.ToString();
+
+        internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
+        {
+            Underlying = underlying;
+
+            // The _buffer data member holds the buffered data. There's no buffered data until we receive data
+            // from the underlying socket so the array segment point to an empty segment.
+            _buffer = new ArraySegment<byte>(new byte[bufferSize], 0, 0);
+        }
+
         /// <summary>Returns buffered data. If there's no buffered data, the buffer is filled using the underlying
         /// transceiver to receive additional data. The method returns when the buffer contains at least byteCount
-        /// data. If byteCount is 0, it returns all the buffered data.</summary>
+        /// data. If byteCount is set to zero, it returns all the buffered data.</summary>
         /// <param name="byteCount">The number of bytes of buffered data to return. It can be set to null to get all
         /// the buffered data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <return>The buffered data.</return>
-        public async ValueTask<ReadOnlyMemory<byte>> ReceiveAsync(int byteCount, CancellationToken cancel = default)
+        /// <return>The buffered data. The returned data points to an internal buffer that is only valid until the next
+        /// ReceiveAsync call.</return>
+        internal async ValueTask<ReadOnlyMemory<byte>> ReceiveAsync(int byteCount, CancellationToken cancel = default)
         {
             if (byteCount > _buffer.Array!.Length)
             {
@@ -88,22 +105,6 @@ namespace ZeroC.Ice
             ReadOnlyMemory<byte> buffer = _buffer.Slice(0, byteCount);
             _buffer = _buffer.Slice(byteCount); // Remaining buffered data.
             return buffer;
-        }
-
-        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
-            Underlying.SendAsync(buffer, cancel);
-
-        public string ToDetailedString() => Underlying.ToDetailedString();
-
-        public override string? ToString() => Underlying.ToString();
-
-        internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
-        {
-            Underlying = underlying;
-
-            // The _buffer data member holds the buffered data. There's no buffered data until we receive data
-            // from the underlying socket so the array segment point to an empty segment.
-            _buffer = new ArraySegment<byte>(new byte[bufferSize], 0, 0);
         }
 
         /// <summary>Sets the buffered data. This can be used if too much buffered data has been read to add

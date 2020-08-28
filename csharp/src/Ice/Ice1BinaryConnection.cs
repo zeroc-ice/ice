@@ -256,7 +256,7 @@ namespace ZeroC.Ice
             ArraySegment<byte> readBuffer;
             if (Endpoint.IsDatagram)
             {
-                readBuffer = await Transceiver.ReceiveAsync(default).ConfigureAwait(false);
+                readBuffer = await Transceiver.ReceiveDatagramAsync(default).ConfigureAwait(false);
                 if (readBuffer.Count == 0)
                 {
                     // The transport failed to read a datagram which was too big or it received an empty datagram.

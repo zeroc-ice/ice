@@ -231,8 +231,8 @@ namespace ZeroC.Ice
                 }
             }
         }
-        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
-            throw new InvalidOperationException();
+        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException("only supported by datagram transports");
 
         public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {

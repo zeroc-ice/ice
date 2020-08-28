@@ -122,7 +122,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel)
+        public async ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel)
         {
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
             ArraySegment<byte> buffer = new byte[packetSize];

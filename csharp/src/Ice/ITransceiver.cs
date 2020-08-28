@@ -38,10 +38,10 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         ValueTask InitializeAsync(CancellationToken cancel);
 
-        /// <summary>Receives data from the connection.</summary>
+        /// <summary>Receives a new datagram from the connection, only supported for datagram connections.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The received data.</return>
-        ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
+        ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel);
 
         /// <summary>Receives data from the connection. This is used for stream based connections only.</summary>
         /// <param name="buffer">The buffer that holds the received data.</param>
