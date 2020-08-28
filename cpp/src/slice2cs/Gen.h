@@ -40,6 +40,10 @@ protected:
         const MemberList& taggedParams,
         bool isReturnValue);
 
+    // Write the unmarshaling code for the operation params or return type - operation params in the skeleton and return
+    // type in the proxy.
+    void writeUnmarshal(const OperationPtr& operation, bool returnType);
+
     void writeMarshalDataMembers(const MemberList&, const std::string&, unsigned int);
     void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);
 

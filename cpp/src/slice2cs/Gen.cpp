@@ -263,6 +263,80 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
 }
 
 void
+Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
+{
+    const string stream = "istr";
+    string ns = getNamespace(operation->interface());
+
+    MemberList members;
+    MemberList requiredMembers;
+    MemberList taggedMembers;
+
+    if (returnType)
+    {
+        members = operation->returnValues();
+
+        auto ice1Members = members;
+        if (operation->hasReturnAndOut())
+        {
+            // TODO: temporary: move return to last position
+            ice1Members.push_back(members.front());
+            ice1Members.pop_front();
+        }
+
+        tie(requiredMembers, taggedMembers) = getSortedMembers(ice1Members);
+    }
+    else
+    {
+        members = operation->parameters();
+        tie(requiredMembers, taggedMembers) = getSortedMembers(members);
+    }
+
+    int bitSequenceIndex = -1;
+    size_t bitSequenceSize = 0;
+    if (requiredMembers.size() > 0)
+    {
+        if (returnType)
+        {
+            bitSequenceSize = operation->returnBitSequenceSize();
+        }
+        else
+        {
+            bitSequenceSize = operation->paramsBitSequenceSize();
+        }
+
+        if (bitSequenceSize > 0)
+        {
+            _out << nl << "var bitSequence = " << stream << ".ReadBitSequence(" << bitSequenceSize << ");";
+            bitSequenceIndex = 0;
+        }
+    }
+
+    for (const auto& member : requiredMembers)
+    {
+        _out << nl << paramTypeStr(member, false);
+        _out << " ";
+        writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"), stream);
+    }
+    if (bitSequenceSize > 0)
+    {
+        assert(static_cast<size_t>(bitSequenceIndex) == bitSequenceSize);
+    }
+
+    for (const auto& member : taggedMembers)
+    {
+        _out << nl << paramTypeStr(member, false) << " ";
+        writeTaggedUnmarshalCode(_out,
+                                 OptionalPtr::dynamicCast(member->type()),
+                                 ns,
+                                 paramName(member, "iceP_"),
+                                 member->tag(),
+                                 nullptr,
+                                 stream);
+    }
+}
+
+void
 Slice::CsVisitor::writeMarshalDataMembers(const MemberList& p, const string& ns, unsigned int baseTypes)
 {
 #ifndef NDEBUG
@@ -2593,15 +2667,6 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
     string ns = getNamespace(interface);
 
     auto returnValues = operation->returnValues();
-    auto ice1ReturnValues = returnValues;
-    if (operation->hasReturnAndOut())
-    {
-        // TODO: temporary: move return to last position
-        ice1ReturnValues.push_back(ice1ReturnValues.front());
-        ice1ReturnValues.pop_front();
-    }
-
-    auto [requiredParams, taggedParams] = getSortedMembers(ice1ReturnValues);
 
     bool defaultReader =
         returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 && !returnValues.front()->tagged();
@@ -2613,7 +2678,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
     {
         _out << "istr =>";
         _out << sb;
-        writeUnmarshalParams(operation, requiredParams, taggedParams, true);
+        writeUnmarshal(operation, true);
 
         if(returnValues.size() == 1)
         {
@@ -2834,7 +2899,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string internalName = "IceD_" + operation->name() + "Async";
 
     auto params = operation->parameters();
-    auto [requiredParams, taggedParams] = getSortedMembers(params);
 
     auto returnValues = operation->returnValues();
 
@@ -3037,7 +3101,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "private static readonly ZeroC.Ice.InputStreamReader<" << toTupleType(params, false) << "> "
              << reader << " = istr =>";
         _out << sb;
-        writeUnmarshalParams(operation, requiredParams, taggedParams, false);
+        writeUnmarshal(operation, false);
         _out << nl << "return " << toTuple(params, "iceP_") << ";";
         _out << eb << ";";
     }
@@ -3047,7 +3111,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << "private static readonly ZeroC.Ice.InputStreamReader<" << paramTypeStr(params.front(), false)
             << "> " << reader << " = istr =>";
         _out << sb;
-        writeUnmarshalParams(operation, requiredParams, taggedParams, false);
+        writeUnmarshal(operation, false);
         _out << nl << "return " << paramName(params.front(), "iceP_") << ";";
         _out << eb << ";";
     }
