@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         {
         }
 
-        public ValueTask ClosingAsync(Exception ex, CancellationToken cancel) => new ValueTask();
+        public ValueTask CloseAsync(Exception ex, CancellationToken cancel) => new ValueTask();
 
         public ValueTask DisposeAsync()
         {
@@ -72,11 +72,16 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel) =>
-            throw new InvalidOperationException();
+        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+            throw new InvalidOperationException("only supported by datagram transports");
 
         public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
+            if (buffer.Count == 0)
+            {
+                throw new ArgumentException($"empty {nameof(buffer)}");
+            }
+
             int received;
             try
             {

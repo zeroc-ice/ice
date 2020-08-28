@@ -441,6 +441,12 @@ namespace ZeroC.Ice
             IProgress<bool> progress,
             CancellationToken cancel)
         {
+            if (request.Protocol != Endpoint.Protocol)
+            {
+                throw new ArgumentException(
+                    $"the frame protocol `{request.Protocol}' doesn't match the connection protocol `{Endpoint.Protocol}'");
+            }
+
             IChildInvocationObserver? childObserver = null;
             Task writeTask;
             Task<IncomingResponseFrame>? responseTask = null;

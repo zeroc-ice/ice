@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
@@ -30,17 +31,17 @@ namespace ZeroC.Ice
         /// of the connection closure.</summary>
         /// <param name="exception">The reason of the connection closure.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        ValueTask ClosingAsync(Exception exception, CancellationToken cancel);
+        ValueTask CloseAsync(Exception exception, CancellationToken cancel);
 
         /// <summary>Initializes the transceiver. The transceiver might use this method to establish or accept the
         /// connection.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         ValueTask InitializeAsync(CancellationToken cancel);
 
-        /// <summary>Receives data from the connection. This is used for datagram connections only.</summary>
+        /// <summary>Receives a new datagram from the connection, only supported for datagram connections.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The received data.</return>
-        ValueTask<ArraySegment<byte>> ReceiveAsync(CancellationToken cancel);
+        ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel);
 
         /// <summary>Receives data from the connection. This is used for stream based connections only.</summary>
         /// <param name="buffer">The buffer that holds the received data.</param>
