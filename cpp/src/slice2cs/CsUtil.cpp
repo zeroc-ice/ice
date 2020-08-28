@@ -39,9 +39,37 @@ Slice::operationName(const OperationPtr& op)
 }
 
 std::string
-Slice::paramName(const ParamInfo& info)
+Slice::paramName(const MemberPtr& param, const string& prefix)
 {
-    return normalizeCase(info.operation) ? camelCase(info.name) : info.name;
+    string name = param->name();
+    // TODO: this is temporary, until the Slice parser gives the correct name
+    if (name == "")
+    {
+        name = "ReturnValue";
+    }
+
+    return normalizeCase(param) ? fixId(prefix + camelCase(name)) : fixId(prefix + name);
+}
+
+std::string
+Slice::paramTypeStr(const MemberPtr& param, bool readOnly)
+{
+    return CsGenerator::typeToString(param->type(),
+                                     getNamespace(InterfaceDefPtr::dynamicCast(param->operation()->container())),
+                                     readOnly);
+}
+
+std::string
+Slice::fieldName(const MemberPtr& member)
+{
+    string name = member->name();
+
+    // TODO: this is temporary, until the Slice parser gives the correct name
+    if (name == "")
+    {
+        name = "ReturnValue";
+    }
+    return normalizeCase(member) ? fixId(pascalCase(name)) : fixId(name);
 }
 
 std::string
@@ -55,18 +83,6 @@ std::string
 Slice::interfaceName(const InterfaceDefPtr& def)
 {
     return interfaceName(def->declaration());
-}
-
-std::string
-Slice::dataMemberName(const ParamInfo& info)
-{
-    return normalizeCase(info.operation) ? pascalCase(info.name) : info.name;
-}
-
-std::string
-Slice::dataMemberName(const MemberPtr& p)
-{
-    return normalizeCase(p) ? pascalCase(p->name()) : p->name();
 }
 
 std::string
@@ -430,40 +446,28 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::returnValueName(const MemberList& outParams)
-{
-    for (const auto& param : outParams)
-    {
-        if (param->name() == "ReturnValue")
-        {
-            return "ReturnValue_";
-        }
-    }
-    return "ReturnValue";
-}
-
-string
 Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
     InterfaceDefPtr interface = op->interface();
-    // when dispatch is true, the result-type is read-only
-    list<ParamInfo> outParams = getAllOutParams(op, dispatch,  "", true);
-    if(outParams.size() == 0)
+    auto returnValues = op->returnValues();
+
+    if (returnValues.size() == 0)
     {
         return "void";
     }
-    else if(dispatch && op->hasMarshaledResult())
+    else if (dispatch && op->hasMarshaledResult())
     {
         string name = getNamespace(interface) + "." + interfaceName(interface);
         return getUnqualified(name, scope) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
     }
-    else if(outParams.size() > 1)
+    else if (returnValues.size() > 1)
     {
-        return toTupleType(outParams);
+        // when dispatch is true, the result-type is read-only
+        return toTupleType(returnValues, dispatch);
     }
     else
     {
-        return outParams.front().typeStr;
+        return paramTypeStr(returnValues.front(), dispatch);
     }
 }
 
@@ -548,162 +552,41 @@ Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
         !seq->hasMetaDataWithPrefix("cs:serializable") && !seq->hasMetaDataWithPrefix("cs:generic");
 }
 
-Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
-                            const string& pName,
-                            const TypePtr& pType,
-                            bool readOnly,
-                            bool pTagged,
-                            int pTag,
-                            const string& pPrefix)
+vector<string>
+Slice::getNames(const MemberList& params, const string& prefix)
 {
-    this->operation = pOperation;
-    this->name = fixId(pPrefix + pName);
-    this->type = pType;
-    this->typeStr = CsGenerator::typeToString(pType, getNamespace(InterfaceDefPtr::dynamicCast(operation->container())),
-                                              readOnly);
-    this->tagged = pTagged;
-    this->tag = pTag;
-    this->param = 0;
-}
-
-Slice::ParamInfo::ParamInfo(const MemberPtr& pParam, bool readOnly, const string& pPrefix)
-{
-    this->operation = OperationPtr::dynamicCast(pParam->container());
-    this->name = fixId(pPrefix + pParam->name());
-    this->type = pParam->type();
-    this->typeStr = CsGenerator::typeToString(type, getNamespace(InterfaceDefPtr::dynamicCast(operation->container())),
-                                              readOnly);
-    this->tagged = pParam->tagged();
-    this->tag = pParam->tag();
-    this->param = pParam;
-}
-
-list<ParamInfo>
-Slice::getAllInParams(const OperationPtr& op, bool readOnly, const string& prefix)
-{
-    list<ParamInfo> inParams;
-    for(const auto& p : op->parameters())
-    {
-        inParams.push_back(ParamInfo(p, readOnly, prefix));
-    }
-    return inParams;
-}
-void
-Slice::getInParams(const OperationPtr& op, bool readOnly, list<ParamInfo>& requiredParams,
-    list<ParamInfo>& taggedParams, const string& prefix)
-{
-    requiredParams.clear();
-    taggedParams.clear();
-    for(const auto& p : getAllInParams(op, readOnly, prefix))
-    {
-        if(p.tagged)
-        {
-            taggedParams.push_back(p);
-        }
-        else
-        {
-            requiredParams.push_back(p);
-        }
-    }
-
-    //
-    // Sort tagged parameters by tag.
-    //
-    taggedParams.sort([](const auto& lhs, const auto& rhs)
-                      {
-                          return lhs.tag < rhs.tag;
-                      });
-}
-
-list<ParamInfo>
-Slice::getAllOutParams(const OperationPtr& op, bool readOnly, const string& prefix, bool returnTypeIsFirst)
-{
-    list<ParamInfo> outParams;
-
-    for(const auto& p : op->outParameters())
-    {
-        outParams.push_back(ParamInfo(p, readOnly, prefix));
-    }
-
-    if(op->returnType())
-    {
-        auto ret = ParamInfo(op,
-                             returnValueName(op->outParameters()),
-                             op->returnType(),
-                             readOnly,
-                             op->returnIsTagged(),
-                             op->returnTag(),
-                             prefix);
-
-        if(returnTypeIsFirst)
-        {
-            outParams.push_front(ret);
-        }
-        else
-        {
-            outParams.push_back(ret);
-        }
-    }
-
-    return outParams;
-}
-
-void
-Slice::getOutParams(const OperationPtr& op, bool readOnly, list<ParamInfo>& requiredParams,
-    list<ParamInfo>& taggedParams, const string& prefix)
-{
-    requiredParams.clear();
-    taggedParams.clear();
-
-    for(const auto& p : getAllOutParams(op, readOnly, prefix))
-    {
-        if(p.tagged)
-        {
-            taggedParams.push_back(p);
-        }
-        else
-        {
-            requiredParams.push_back(p);
-        }
-    }
-
-    //
-    // Sort tagged parameters by tag.
-    //
-    taggedParams.sort([](const auto& lhs, const auto& rhs)
-                      {
-                          return lhs.tag < rhs.tag;
-                      });
+    return getNames(params, [&](const auto& item) { return paramName(item, prefix); });
 }
 
 vector<string>
-Slice::getNames(const list<ParamInfo>& params, string prefix)
+Slice::getNames(const MemberList& params, function<string (const MemberPtr&)> fn)
 {
-    return getNames(params, [p = move(prefix)](const auto& item)
-                            {
-                                return p + item.name;
-                            });
+    return mapfn<MemberPtr>(params, move(fn));
 }
 
 std::string
-Slice::toTuple(const list<ParamInfo>& params, const string& paramPrefix)
+Slice::toTuple(const MemberList& params, const string& prefix)
 {
     if(params.size() == 1)
     {
-        auto p = params.front();
-        return p.param ?  fixId(paramPrefix + p.param->name()) : fixId(paramPrefix + p.name);
+        return paramName(params.front(), prefix);
     }
     else
     {
         ostringstream os;
         os << "(";
-        for(list<ParamInfo>::const_iterator it = params.begin(); it != params.end();)
+        bool firstParam = true;
+        for (const auto& param : params)
         {
-            os << (it->param ? fixId(paramPrefix + it->param->name()) : fixId(paramPrefix + it->name));
-            if(++it != params.end())
+            if (firstParam)
+            {
+                firstParam = false;
+            }
+            else
             {
                 os << ", ";
             }
+            os << paramName(param, prefix);
         }
         os << ")";
         return os.str();
@@ -711,35 +594,33 @@ Slice::toTuple(const list<ParamInfo>& params, const string& paramPrefix)
 }
 
 std::string
-Slice::toTupleType(const list<ParamInfo>& params, const string& prefix)
+Slice::toTupleType(const MemberList& params, bool readOnly)
 {
     if(params.size() == 1)
     {
-        auto param = params.front();
-        return param.typeStr;
+        return paramTypeStr(params.front(), readOnly);
     }
     else
     {
         ostringstream os;
         os << "(";
-        for(list<ParamInfo>::const_iterator it = params.begin(); it != params.end();)
+        bool firstParam = true;
+        for (const auto& param : params)
         {
-            os << it->typeStr;
-            os << " " << (it->param ? fixId(prefix + it->param->name()) : fixId(prefix + it->name));
-            if(++it != params.end())
+            if (firstParam)
+            {
+                firstParam = false;
+            }
+            else
             {
                 os << ", ";
             }
+
+            os << paramTypeStr(param, readOnly) << " " << fieldName(param);
         }
         os << ")";
         return os.str();
     }
-}
-
-vector<string>
-Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&)> fn)
-{
-    return mapfn<ParamInfo>(params, move(fn));
 }
 
 string

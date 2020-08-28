@@ -10,9 +10,9 @@ namespace ZeroC.Ice.Test.NamespaceMD
     {
         public static IInitialPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);

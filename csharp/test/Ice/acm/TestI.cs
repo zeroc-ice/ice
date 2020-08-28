@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.ACM
         public IRemoteObjectAdapterPrx CreateObjectAdapter(int timeout, string? close, string? heartbeat, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
-            string transport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
+            string transport = communicator.GetProperty("Test.Transport")!;
             string host = communicator.GetProperty("Test.Host")!;
 
             string name = Guid.NewGuid().ToString();

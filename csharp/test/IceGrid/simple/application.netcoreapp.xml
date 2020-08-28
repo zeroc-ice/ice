@@ -3,7 +3,7 @@
     <node name="localnode">
       <server id="server" exe="${dotnet.exe}" pwd="." activation="on-demand">
         <option>${test.dir}/${server.dir}/server.dll</option>
-        <adapter name="TestAdapter" id="TestAdapter" endpoints="default -h ${test.host}">
+        <adapter name="TestAdapter" id="TestAdapter" endpoints="${test.transport} -h ${test.host}">
           <object identity="test" type="Test"/>
         </adapter>
       </server>

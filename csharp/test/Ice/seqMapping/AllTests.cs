@@ -11,9 +11,9 @@ namespace ZeroC.Ice.Test.SeqMapping
     {
         public static IMyClassPrx Run(TestHelper helper, bool collocated)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            TextWriter output = helper.GetWriter();
+            TextWriter output = helper.Output;
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             output.Write("testing twoway operations... ");
             output.Flush();

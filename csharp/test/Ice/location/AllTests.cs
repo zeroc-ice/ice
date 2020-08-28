@@ -14,16 +14,16 @@ namespace ZeroC.Ice.Test.Location
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+            bool ice1 = helper.Protocol == Protocol.Ice1;
             var manager = IServerManagerPrx.Parse(helper.GetTestProxy("ServerManager", 0), communicator);
             var locator = communicator.DefaultLocator!.Clone(ITestLocatorPrx.Factory);
             Console.WriteLine("registry checkedcast");
             var registry = locator.GetRegistry()!.Clone(ITestLocatorRegistryPrx.Factory);
             TestHelper.Assert(registry != null);
 
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             IObjectPrx base1, base2, base3, base4, base5, base6;

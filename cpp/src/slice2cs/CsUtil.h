@@ -13,7 +13,7 @@
 namespace Slice
 {
 
-enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
+enum CSharpBaseType { ObjectType = 1, ExceptionType = 2 };
 
 std::string fixId(const std::string&, unsigned int = 0);
 //
@@ -31,34 +31,19 @@ std::string getUnqualified(const ContainedPtr&,
                            const std::string& prefix = "",
                            const std::string& suffix = "");
 
-struct ParamInfo
-{
-    std::string name;
-    TypePtr type;
-    std::string typeStr;
-    bool tagged;
-    int tag;
-    MemberPtr param; // 0 == return value
-    OperationPtr operation;
-
-    ParamInfo(const OperationPtr& operation, const std::string& name, const TypePtr& type, bool readOnly,
-              bool tagged, int tag, const std::string& prefix = "");
-    ParamInfo(const MemberPtr& param, bool readOnly, const std::string& prefix = "");
-};
-
 bool normalizeCase(const ContainedPtr&);
 std::string operationName(const OperationPtr&);
-std::string paramName(const ParamInfo&);
+std::string paramName(const MemberPtr& param, const std::string& prefix = "");
+std::string paramTypeStr(const MemberPtr& param, bool readOnly = false);
+
+std::string fieldName(const MemberPtr&);
 std::string interfaceName(const InterfaceDeclPtr&);
 std::string interfaceName(const InterfaceDefPtr&);
-std::string dataMemberName(const ParamInfo&);
-std::string dataMemberName(const MemberPtr&);
 
 std::string helperName(const TypePtr&, const std::string&);
 
 std::string builtinSuffix(const BuiltinPtr&);
 
-std::string returnValueName(const MemberList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);
 
@@ -67,20 +52,11 @@ bool isValueType(const TypePtr&); // value with C# "struct" meaning
 bool isReferenceType(const TypePtr&); // opposite of value
 bool isMappedToReadOnlyMemory(const SequencePtr& seq);
 
-std::list<ParamInfo> getAllInParams(const OperationPtr&, bool readOnly, const std::string& prefix = "");
-void getInParams(const OperationPtr&, bool, std::list<ParamInfo>&, std::list<ParamInfo>&,
-    const std::string& prefix = "");
+std::vector<std::string> getNames(const MemberList& params, const std::string& prefix = "");
+std::vector<std::string> getNames(const MemberList&, std::function<std::string (const MemberPtr&)>);
 
-std::list<ParamInfo> getAllOutParams(const OperationPtr&, bool readOnly, const std::string& prefix = "",
-                                     bool returnTypeIsFirst = false);
-void getOutParams(const OperationPtr&, bool readOnly, std::list<ParamInfo>&, std::list<ParamInfo>&,
-    const std::string& prefix = "");
-
-std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::string prefix = "");
-std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::function<std::string (const ParamInfo&)>);
-
-std::string toTuple(const std::list<ParamInfo>& params, const std::string& = "");
-std::string toTupleType(const std::list<ParamInfo>& params, const std::string& = "");
+std::string toTuple(const MemberList& params, const std::string& prefix = "");
+std::string toTupleType(const MemberList& params, bool readOnly);
 
 template<typename T> inline std::vector<std::string>
 mapfn(const std::list<T>& items, std::function<std::string (const T&)> fn)

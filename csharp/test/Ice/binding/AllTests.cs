@@ -53,17 +53,19 @@ namespace ZeroC.Ice.Test.Binding
 
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+            Communicator? communicator = helper.Communicator;
+            bool ice1 = helper.Protocol == Protocol.Ice1;
             TestHelper.Assert(communicator != null);
             var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
+            string testTransport = helper.Transport;
 
             var rand = new Random(unchecked((int)DateTime.Now.Ticks));
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
 
             output.Write("testing binding with single endpoint... ");
             output.Flush();
             {
+                // Use "default" here to ensure that it still works
                 IRemoteObjectAdapterPrx? adapter = com.CreateObjectAdapter("Adapter", "default");
                 TestHelper.Assert(adapter != null);
                 ITestIntfPrx? test1 = adapter.GetTestIntf();
@@ -96,9 +98,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("Adapter11", "default")!,
-                    com.CreateObjectAdapter("Adapter12", "default")!,
-                    com.CreateObjectAdapter("Adapter13", "default")!
+                    com.CreateObjectAdapter("Adapter11", testTransport)!,
+                    com.CreateObjectAdapter("Adapter12", testTransport)!,
+                    com.CreateObjectAdapter("Adapter13", testTransport)!
                 };
 
                 // Ensure that when a connection is opened it's reused for new proxies and that all endpoints are
@@ -186,11 +188,11 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new IRemoteObjectAdapterPrx[5]
                 {
-                    com.CreateObjectAdapter("AdapterRandom11", "default")!,
-                    com.CreateObjectAdapter("AdapterRandom12", "default")!,
-                    com.CreateObjectAdapter("AdapterRandom13", "default")!,
-                    com.CreateObjectAdapter("AdapterRandom14", "default")!,
-                    com.CreateObjectAdapter("AdapterRandom15", "default")!
+                    com.CreateObjectAdapter("AdapterRandom11", testTransport)!,
+                    com.CreateObjectAdapter("AdapterRandom12", testTransport)!,
+                    com.CreateObjectAdapter("AdapterRandom13", testTransport)!,
+                    com.CreateObjectAdapter("AdapterRandom14", testTransport)!,
+                    com.CreateObjectAdapter("AdapterRandom15", testTransport)!
                 };
 
                 int count = 20;
@@ -268,9 +270,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("AdapterAMI11", "default")!,
-                    com.CreateObjectAdapter("AdapterAMI12", "default")!,
-                    com.CreateObjectAdapter("AdapterAMI13", "default")!
+                    com.CreateObjectAdapter("AdapterAMI11", testTransport)!,
+                    com.CreateObjectAdapter("AdapterAMI12", testTransport)!,
+                    com.CreateObjectAdapter("AdapterAMI13", testTransport)!
                 };
 
                 //
@@ -362,9 +364,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("Adapter21", "default")!,
-                    com.CreateObjectAdapter("Adapter22", "default")!,
-                    com.CreateObjectAdapter("Adapter23", "default")!
+                    com.CreateObjectAdapter("Adapter21", testTransport)!,
+                    com.CreateObjectAdapter("Adapter22", testTransport)!,
+                    com.CreateObjectAdapter("Adapter23", testTransport)!
                 };
 
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters);
@@ -404,9 +406,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("Adapter31", "default")!,
-                    com.CreateObjectAdapter("Adapter32", "default")!,
-                    com.CreateObjectAdapter("Adapter33", "default")!
+                    com.CreateObjectAdapter("Adapter31", testTransport)!,
+                    com.CreateObjectAdapter("Adapter32", testTransport)!,
+                    com.CreateObjectAdapter("Adapter33", testTransport)!
                 };
 
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters);
@@ -476,7 +478,7 @@ namespace ZeroC.Ice.Test.Binding
             output.Write("testing per request binding with single endpoint... ");
             output.Flush();
             {
-                IRemoteObjectAdapterPrx? adapter = com.CreateObjectAdapter("Adapter41", "default");
+                IRemoteObjectAdapterPrx? adapter = com.CreateObjectAdapter("Adapter41", testTransport);
                 TestHelper.Assert(adapter != null);
                 ITestIntfPrx test1 = adapter.GetTestIntf()!.Clone(cacheConnection: false);
                 ITestIntfPrx test2 = adapter.GetTestIntf()!.Clone(cacheConnection: false);
@@ -506,9 +508,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("Adapter51", "default")!,
-                    com.CreateObjectAdapter("Adapter52", "default")!,
-                    com.CreateObjectAdapter("Adapter53", "default")!
+                    com.CreateObjectAdapter("Adapter51", testTransport)!,
+                    com.CreateObjectAdapter("Adapter52", testTransport)!,
+                    com.CreateObjectAdapter("Adapter53", testTransport)!
                 };
 
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters).Clone(cacheConnection: false);
@@ -547,9 +549,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("AdapterAMI51", "default")!,
-                    com.CreateObjectAdapter("AdapterAMI52", "default")!,
-                    com.CreateObjectAdapter("AdapterAMI53", "default")!
+                    com.CreateObjectAdapter("AdapterAMI51", testTransport)!,
+                    com.CreateObjectAdapter("AdapterAMI52", testTransport)!,
+                    com.CreateObjectAdapter("AdapterAMI53", testTransport)!
                 };
 
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters).Clone(cacheConnection: false);
@@ -588,9 +590,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("Adapter61", "default")!,
-                    com.CreateObjectAdapter("Adapter62", "default")!,
-                    com.CreateObjectAdapter("Adapter63", "default")!
+                    com.CreateObjectAdapter("Adapter61", testTransport)!,
+                    com.CreateObjectAdapter("Adapter62", testTransport)!,
+                    com.CreateObjectAdapter("Adapter63", testTransport)!
                 };
 
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters);
@@ -631,7 +633,7 @@ namespace ZeroC.Ice.Test.Binding
                 adapters.Clear();
 
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (helper.GetTestProtocol() == Protocol.Ice1)
+                if (helper.Protocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter66", endpoints[2].ToString()));
@@ -662,9 +664,9 @@ namespace ZeroC.Ice.Test.Binding
             {
                 var adapters = new List<IRemoteObjectAdapterPrx>
                 {
-                    com.CreateObjectAdapter("AdapterAMI61", "default")!,
-                    com.CreateObjectAdapter("AdapterAMI62", "default")!,
-                    com.CreateObjectAdapter("AdapterAMI63", "default")!
+                    com.CreateObjectAdapter("AdapterAMI61", testTransport)!,
+                    com.CreateObjectAdapter("AdapterAMI62", testTransport)!,
+                    com.CreateObjectAdapter("AdapterAMI63", testTransport)!
                 };
 
                 ITestIntfPrx? obj = CreateTestIntfPrx(adapters);
@@ -705,7 +707,7 @@ namespace ZeroC.Ice.Test.Binding
                 adapters.Clear();
 
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (helper.GetTestProtocol() == Protocol.Ice1)
+                if (helper.Protocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("AdapterAMI66", endpoints[2].ToString()));
@@ -730,14 +732,14 @@ namespace ZeroC.Ice.Test.Binding
             }
             output.WriteLine("ok");
 
-            if (helper.GetTestProtocol() == Protocol.Ice1)
+            if (helper.Protocol == Protocol.Ice1)
             {
                 output.Write("testing endpoint mode filtering... ");
                 output.Flush();
                 {
                     var adapters = new List<IRemoteObjectAdapterPrx>
                     {
-                        com.CreateObjectAdapter("Adapter71", "default"),
+                        com.CreateObjectAdapter("Adapter71", testTransport),
                         com.CreateObjectAdapter("Adapter72", "udp")
                     };
 
@@ -792,7 +794,7 @@ namespace ZeroC.Ice.Test.Binding
                     }
 
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                    if (helper.GetTestProtocol() == Protocol.Ice1)
+                    if (helper.Protocol == Protocol.Ice1)
                     {
                         com.CreateObjectAdapterWithEndpoints("Adapter83", obj.Endpoints[1].ToString()); // Recreate a tcp OA.
 

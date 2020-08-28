@@ -246,6 +246,7 @@ class IceGridTestCase(TestCase):
             variables = {
                 "test.dir" : self.getPath(current),
                 "test.host": current.driver.getHost(current.config.transport, current.config.ipv6),
+                "test.transport": current.config.transport,
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),

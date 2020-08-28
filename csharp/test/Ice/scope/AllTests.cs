@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Scope
     {
         public static void Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             {
                 var i = IIPrx.Parse(helper.GetTestProxy("i1"), communicator);
@@ -67,36 +67,36 @@ namespace ZeroC.Ice.Test.Scope
                         var s1 = new S(0);
                         var opSResult = await i.OpSAsync(s1);
                         TestHelper.Assert(s1.Equals(opSResult.ReturnValue));
-                        TestHelper.Assert(s1.Equals(opSResult.s2));
+                        TestHelper.Assert(s1.Equals(opSResult.S2));
 
                         var sseq1 = new S[] { s1 };
                         var opSSeqResult = await i.OpSSeqAsync(sseq1);
                         TestHelper.Assert(opSSeqResult.ReturnValue[0].Equals(s1));
-                        TestHelper.Assert(opSSeqResult.s2[0].Equals(s1));
+                        TestHelper.Assert(opSSeqResult.S2[0].Equals(s1));
 
                         var smap1 = new Dictionary<string, S>();
                         smap1["a"] = s1;
                         var opSMapResult = await i.OpSMapAsync(smap1);
                         TestHelper.Assert(opSMapResult.ReturnValue["a"].Equals(s1));
-                        TestHelper.Assert(opSMapResult.s2["a"].Equals(s1));
+                        TestHelper.Assert(opSMapResult.S2["a"].Equals(s1));
 
                         var c1 = new C(s1);
-                        (C? ReturnValue, C? c2) opCResult = await i.OpCAsync(c1);
+                        (C? ReturnValue, C? C2) opCResult = await i.OpCAsync(c1);
                         TestHelper.Assert(opCResult.ReturnValue != null && c1.S.Equals(opCResult.ReturnValue.S));
-                        TestHelper.Assert(opCResult.c2 != null && c1.S.Equals(opCResult.c2.S));
+                        TestHelper.Assert(opCResult.C2 != null && c1.S.Equals(opCResult.C2.S));
 
                         var cseq1 = new C[] { c1 };
-                        (C?[] ReturnValue, C?[] c2) opCSeqResult = await i.OpCSeqAsync(cseq1);
+                        (C?[] ReturnValue, C?[] C2) opCSeqResult = await i.OpCSeqAsync(cseq1);
                         TestHelper.Assert(opCSeqResult.ReturnValue[0]!.S.Equals(s1));
-                        TestHelper.Assert(opCSeqResult.c2[0]!.S.Equals(s1));
+                        TestHelper.Assert(opCSeqResult.C2[0]!.S.Equals(s1));
 
                         var cmap1 = new Dictionary<string, C?>
                         {
                             ["a"] = c1
                         };
-                        (Dictionary<string, C?> ReturnValue, Dictionary<string, C?> c2) =
+                        (Dictionary<string, C?> returnValue, Dictionary<string, C?> c2) =
                             await i.OpCMapAsync(cmap1);
-                        TestHelper.Assert(ReturnValue["a"]!.S.Equals(s1));
+                        TestHelper.Assert(returnValue["a"]!.S.Equals(s1));
                         TestHelper.Assert(c2["a"]!.S.Equals(s1));
 
                         E1 e = await i.OpE1Async(E1.v1);
@@ -152,34 +152,34 @@ namespace ZeroC.Ice.Test.Scope
                         Inner.Inner2.S s1 = new Inner.Inner2.S(0);
                         var opSResult = await i.OpSAsync(s1);
                         TestHelper.Assert(s1.Equals(opSResult.ReturnValue));
-                        TestHelper.Assert(s1.Equals(opSResult.s2));
+                        TestHelper.Assert(s1.Equals(opSResult.S2));
 
                         var sseq1 = new Inner.Inner2.S[] { s1 };
-                        (Inner.Inner2.S[] ReturnValue, Inner.Inner2.S[] s2) opSSeqResult = await i.OpSSeqAsync(sseq1);
+                        (Inner.Inner2.S[] ReturnValue, Inner.Inner2.S[] S2) opSSeqResult = await i.OpSSeqAsync(sseq1);
                         TestHelper.Assert(opSSeqResult.ReturnValue[0].Equals(s1));
-                        TestHelper.Assert(opSSeqResult.s2[0].Equals(s1));
+                        TestHelper.Assert(opSSeqResult.S2[0].Equals(s1));
 
                         var smap1 = new Dictionary<string, Inner.Inner2.S> { ["a"] = s1 };
-                        (Dictionary<string, Inner.Inner2.S> ReturnValue,
+                        (Dictionary<string, Inner.Inner2.S> returnValue,
                          Dictionary<string, Inner.Inner2.S> s2) = await i.OpSMapAsync(smap1);
-                        TestHelper.Assert(ReturnValue["a"].Equals(s1));
+                        TestHelper.Assert(returnValue["a"].Equals(s1));
                         TestHelper.Assert(s2["a"].Equals(s1));
 
                         var c1 = new Inner.Inner2.C(s1);
-                        (Inner.Inner2.C? ReturnValue, Inner.Inner2.C? c2) opCResult = await i.OpCAsync(c1);
+                        (Inner.Inner2.C? ReturnValue, Inner.Inner2.C? C2) opCResult = await i.OpCAsync(c1);
                         TestHelper.Assert(c1.S.Equals(opCResult.ReturnValue!.S));
-                        TestHelper.Assert(c1.S.Equals(opCResult.c2!.S));
+                        TestHelper.Assert(c1.S.Equals(opCResult.C2!.S));
 
                         Inner.Inner2.C[] cseq1 = new Inner.Inner2.C[] { c1 };
-                        (Inner.Inner2.C?[] ReturnValue, Inner.Inner2.C?[] c2) opCSeqResult = await i.OpCSeqAsync(cseq1);
+                        (Inner.Inner2.C?[] ReturnValue, Inner.Inner2.C?[] C2) opCSeqResult = await i.OpCSeqAsync(cseq1);
                         TestHelper.Assert(opCSeqResult.ReturnValue[0]!.S.Equals(s1));
-                        TestHelper.Assert(opCSeqResult.c2[0]!.S.Equals(s1));
+                        TestHelper.Assert(opCSeqResult.C2[0]!.S.Equals(s1));
 
                         var cmap1 = new Dictionary<string, Inner.Inner2.C?> { ["a"] = c1 };
                         (Dictionary<string, Inner.Inner2.C?> ReturnValue,
-                         Dictionary<string, Inner.Inner2.C?> c2) opCMapResult = await i.OpCMapAsync(cmap1);
+                         Dictionary<string, Inner.Inner2.C?> C2) opCMapResult = await i.OpCMapAsync(cmap1);
                         TestHelper.Assert(opCMapResult.ReturnValue["a"]!.S.Equals(s1));
-                        TestHelper.Assert(opCMapResult.c2["a"]!.S.Equals(s1));
+                        TestHelper.Assert(opCMapResult.C2["a"]!.S.Equals(s1));
                     }).Wait();
             }
 
@@ -237,22 +237,22 @@ namespace ZeroC.Ice.Test.Scope
                         var smap1 = new Dictionary<string, Inner.Inner2.S> { ["a"] = s1 };
                         var opSMapResult = await i.OpSMapAsync(smap1);
                         TestHelper.Assert(opSMapResult.ReturnValue["a"].Equals(s1));
-                        TestHelper.Assert(opSMapResult.s2["a"].Equals(s1));
+                        TestHelper.Assert(opSMapResult.S2["a"].Equals(s1));
 
                         Inner.Inner2.C c1 = new Inner.Inner2.C(s1);
                         var opCResult = await i.OpCAsync(c1);
                         TestHelper.Assert(c1.S.Equals(opCResult.ReturnValue!.S));
-                        TestHelper.Assert(c1.S.Equals(opCResult.c2!.S));
+                        TestHelper.Assert(c1.S.Equals(opCResult.C2!.S));
 
                         Inner.Inner2.C[] cseq1 = new Inner.Inner2.C[] { c1 };
                         var opCSeqResult = await i.OpCSeqAsync(cseq1);
                         TestHelper.Assert(opCSeqResult.ReturnValue[0]!.S.Equals(s1));
-                        TestHelper.Assert(opCSeqResult.c2[0]!.S.Equals(s1));
+                        TestHelper.Assert(opCSeqResult.C2[0]!.S.Equals(s1));
 
                         var cmap1 = new Dictionary<string, Inner.Inner2.C?> { ["a"] = c1 };
                         var opCMapResult = await i.OpCMapAsync(cmap1);
                         TestHelper.Assert(opCMapResult.ReturnValue["a"]!.S.Equals(s1));
-                        TestHelper.Assert(opCMapResult.c2["a"]!.S.Equals(s1));
+                        TestHelper.Assert(opCMapResult.C2["a"]!.S.Equals(s1));
                     }).Wait();
             }
 

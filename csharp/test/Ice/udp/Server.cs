@@ -69,7 +69,7 @@ namespace ZeroC.Ice.Test.UDP
                 }
             }
             endpoint.Append(" -p ");
-            endpoint.Append(GetTestPort(properties, 10));
+            endpoint.Append(GetTestBasePort(properties) + 10);
             communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
             ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
             mcastAdapter.Add("test", new TestIntf());

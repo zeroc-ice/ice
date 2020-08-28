@@ -113,7 +113,7 @@ Publisher::run(int argc, char** argv)
     //
     auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
 
-    auto adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "tcp");
     auto controller = adapter->addWithUUID(make_shared<ControllerI>());
     adapter->activate();
     cout << communicator->proxyToString(controller) << endl;

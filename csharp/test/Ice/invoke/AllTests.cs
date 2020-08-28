@@ -13,13 +13,13 @@ namespace ZeroC.Ice.Test.Invoke
 
         public static IMyClassPrx Run(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator();
+            Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            bool ice1 = helper.GetTestProtocol() == Protocol.Ice1;
+            bool ice1 = helper.Protocol == Protocol.Ice1;
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             IMyClassPrx oneway = cl.Clone(oneway: true);
 
-            System.IO.TextWriter output = helper.GetWriter();
+            System.IO.TextWriter output = helper.Output;
             output.Write("testing Invoke... ");
             output.Flush();
 

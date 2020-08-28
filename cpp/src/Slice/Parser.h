@@ -722,10 +722,6 @@ public:
     bool returnsData() const;
     bool returnsMultipleValues() const;
     bool hasReturnAndOut() const;
-    bool hasOutParameters() const;
-    bool hasTupleReturnType() const;
-    bool hasSingleReturnType() const;
-    int attributes() const;
     FormatType format() const;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -1064,6 +1060,9 @@ public:
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
+
+    // Returns the enclosing operation when this member is a parameter or return value member. Otherwise, returns null.
+    OperationPtr operation() const;
 
 protected:
 

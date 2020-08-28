@@ -539,7 +539,7 @@ namespace ZeroC.Ice
             string transportName = args[0];
             if (transportName == "default")
             {
-                transportName = communicator.DefaultTransport;
+                transportName = "tcp";
             }
 
             var options = new Dictionary<string, string?>();
