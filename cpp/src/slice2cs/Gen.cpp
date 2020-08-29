@@ -157,34 +157,13 @@ Slice::CsVisitor::~CsVisitor()
 }
 
 void
-Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType, const string& obj)
+Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 {
     const string stream = "ostr";
     string ns = getNamespace(operation->interface());
 
-    MemberList members;
-    MemberList requiredMembers;
-    MemberList taggedMembers;
-
-    if (returnType)
-    {
-        members = operation->returnValues();
-
-        auto ice1Members = members;
-        if (operation->hasReturnAndOut())
-        {
-            // TODO: temporary: move return to last position
-            ice1Members.push_back(members.front());
-            ice1Members.pop_front();
-        }
-
-        tie(requiredMembers, taggedMembers) = getSortedMembers(ice1Members);
-    }
-    else
-    {
-        members = operation->parameters();
-        tie(requiredMembers, taggedMembers) = getSortedMembers(members);
-    }
+    MemberList members = returnType ? operation->returnValues() : operation->parameters();
+    auto [requiredMembers, taggedMembers] = getSortedMembers(members);
 
     int bitSequenceIndex = -1;
     size_t bitSequenceSize = 0;
@@ -198,39 +177,73 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType, c
         {
             bitSequenceSize = operation->paramsBitSequenceSize();
         }
+    }
 
+    bool write11ReturnLast = returnType && operation->hasReturnAndOut() && !members.front()->tagged() &&
+        requiredMembers.size() > 1;
+    if (write11ReturnLast)
+    {
+        _out << nl << "if (" << stream << ".Encoding != ZeroC.Ice.Encoding.V1_1)";
+        _out << sb;
+    }
+
+    bool repeat = false;
+    do
+    {
         if (bitSequenceSize > 0)
         {
             _out << nl << "var bitSequence = " << stream << ".WriteBitSequence(" << bitSequenceSize << ");";
             bitSequenceIndex = 0;
         }
-    }
 
-    bool singleMember = requiredMembers.size() + taggedMembers.size() == 1;
+        for (const auto& member : requiredMembers)
+        {
+            writeMarshalCode(_out,
+                             member->type(),
+                             bitSequenceIndex,
+                             false,
+                             ns,
+                             members.size() == 1 ? "value" : "value." + fieldName(member),
+                             stream);
+        }
+        if (bitSequenceSize > 0)
+        {
+            assert(static_cast<size_t>(bitSequenceIndex) == bitSequenceSize);
+        }
 
-    for (const auto& member : requiredMembers)
-    {
-        writeMarshalCode(_out,
-                         member->type(),
-                         bitSequenceIndex,
-                         false,
-                         ns,
-                         singleMember ? "value" : obj + fieldName(member),
-                         stream);
-    }
-    if (bitSequenceSize > 0)
-    {
-        assert(static_cast<size_t>(bitSequenceIndex) == bitSequenceSize);
-    }
+        for (const auto& member : taggedMembers)
+        {
+            writeTaggedMarshalCode(_out,
+                                   OptionalPtr::dynamicCast(member->type()),
+                                   false,
+                                   ns,
+                                   members.size() == 1 ? "value" : "value." + fieldName(member), member->tag(),
+                                   stream);
+        }
 
-    for (const auto& member : taggedMembers)
+        if (repeat)
+        {
+            repeat = false;
+        }
+        else if (write11ReturnLast)
+        {
+            _out << eb;
+            _out << nl;
+            _out << "else";
+            _out << sb;
+
+            // Repeat after updating requiredMembers
+            repeat = true;
+            requiredMembers.push_back(requiredMembers.front());
+            requiredMembers.pop_front();
+        }
+    }
+    while (repeat)
+        ;
+
+    if (write11ReturnLast)
     {
-        writeTaggedMarshalCode(_out,
-                               OptionalPtr::dynamicCast(member->type()),
-                               false,
-                               ns,
-                               singleMember ? "value" : obj + fieldName(member), member->tag(),
-                               stream);
+        _out << eb;
     }
 }
 
@@ -240,29 +253,8 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
     const string stream = "istr";
     string ns = getNamespace(operation->interface());
 
-    MemberList members;
-    MemberList requiredMembers;
-    MemberList taggedMembers;
-
-    if (returnType)
-    {
-        members = operation->returnValues();
-
-        auto ice1Members = members;
-        if (operation->hasReturnAndOut())
-        {
-            // TODO: temporary: move return to last position
-            ice1Members.push_back(members.front());
-            ice1Members.pop_front();
-        }
-
-        tie(requiredMembers, taggedMembers) = getSortedMembers(ice1Members);
-    }
-    else
-    {
-        members = operation->parameters();
-        tie(requiredMembers, taggedMembers) = getSortedMembers(members);
-    }
+    MemberList members = returnType ? operation->returnValues() : operation->parameters();
+    auto [requiredMembers, taggedMembers] = getSortedMembers(members);
 
     int bitSequenceIndex = -1;
     size_t bitSequenceSize = 0;
@@ -276,35 +268,80 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
         {
             bitSequenceSize = operation->paramsBitSequenceSize();
         }
+    }
 
+    bool read11ReturnLast = returnType && operation->hasReturnAndOut() && requiredMembers.size() > 1 &&
+        !members.front()->tagged();
+
+    if (read11ReturnLast)
+    {
+        _out << nl << "if (" << stream << ".Encoding != ZeroC.Ice.Encoding.V1_1)";
+        _out << sb;
+    }
+
+    bool repeat = false;
+
+    do
+    {
         if (bitSequenceSize > 0)
         {
             _out << nl << "var bitSequence = " << stream << ".ReadBitSequence(" << bitSequenceSize << ");";
             bitSequenceIndex = 0;
         }
-    }
 
-    for (const auto& member : requiredMembers)
-    {
-        _out << nl << paramTypeStr(member, false);
-        _out << " ";
-        writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"), stream);
-    }
-    if (bitSequenceSize > 0)
-    {
-        assert(static_cast<size_t>(bitSequenceIndex) == bitSequenceSize);
-    }
+        for (const auto& member : requiredMembers)
+        {
+            _out << nl << paramTypeStr(member, false);
+            _out << " ";
+            writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"), stream);
+        }
+        if (bitSequenceSize > 0)
+        {
+            assert(static_cast<size_t>(bitSequenceIndex) == bitSequenceSize);
+        }
 
-    for (const auto& member : taggedMembers)
+        for (const auto &member : taggedMembers)
+        {
+            _out << nl << paramTypeStr(member, false) << " ";
+            writeTaggedUnmarshalCode(_out,
+                                     OptionalPtr::dynamicCast(member->type()),
+                                     ns,
+                                     paramName(member, "iceP_"),
+                                     member->tag(),
+                                     nullptr,
+                                     stream);
+        }
+
+        if (members.size() == 1)
+        {
+            _out << nl << "return " << paramName(members.front(), "iceP_") << ";";
+        }
+        else
+        {
+            _out << nl << "return " << spar << getNames(members, "iceP_") << epar << ";";
+        }
+
+        if (repeat)
+        {
+            repeat = false;
+        }
+        else if (read11ReturnLast)
+        {
+            _out << eb;
+            _out << nl;
+            _out << "else";
+            _out << sb;
+
+            // Repeat after updating requiredMembers
+            repeat = true;
+            requiredMembers.push_back(requiredMembers.front());
+            requiredMembers.pop_front();
+        }
+    } while (repeat);
+
+    if (read11ReturnLast)
     {
-        _out << nl << paramTypeStr(member, false) << " ";
-        writeTaggedUnmarshalCode(_out,
-                                 OptionalPtr::dynamicCast(member->type()),
-                                 ns,
-                                 paramName(member, "iceP_"),
-                                 member->tag(),
-                                 nullptr,
-                                 stream);
+        _out << eb;
     }
 }
 
@@ -2618,7 +2655,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     {
         _out << "(ZeroC.Ice.OutputStream ostr, in " << toTupleType(params, true) << " value) =>";
         _out << sb;
-        writeMarshal(operation, false, "value.");
+        writeMarshal(operation, false);
         _out << eb;
     }
     else
@@ -2650,15 +2687,6 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
         _out << "istr =>";
         _out << sb;
         writeUnmarshal(operation, true);
-
-        if(returnValues.size() == 1)
-        {
-            _out << nl << "return " << paramName(returnValues.front(), "iceP_") << ";";
-        }
-        else
-        {
-            _out << nl << "return " << spar << getNames(returnValues, "iceP_") << epar << ";";
-        }
         _out << eb;
     }
 }
@@ -2809,7 +2837,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         {
             _out << nl << "(ZeroC.Ice.OutputStream ostr, " << toTupleType(returnValues, true) << " value) =>";
             _out << sb;
-            writeMarshal(operation, true, "value.");
+            writeMarshal(operation, true);
             _out << eb;
         }
         else
@@ -3029,7 +3057,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                  << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in " << toTupleType(returnValues, true)
                  << " value) =>";
             _out << sb;
-            writeMarshal(operation, true, "value.");
+            writeMarshal(operation, true);
             _out << eb << ";";
         }
         else if (returnValues.size() == 1 && !defaultWriter)
@@ -3072,7 +3100,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
              << reader << " = istr =>";
         _out << sb;
         writeUnmarshal(operation, false);
-        _out << nl << "return " << toTuple(params, "iceP_") << ";";
         _out << eb << ";";
     }
     else if (params.size() == 1 && !defaultReader)
@@ -3082,7 +3109,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             << "> " << reader << " = istr =>";
         _out << sb;
         writeUnmarshal(operation, false);
-        _out << nl << "return " << paramName(params.front(), "iceP_") << ";";
         _out << eb << ";";
     }
 }

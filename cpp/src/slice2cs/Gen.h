@@ -28,7 +28,7 @@ public:
 protected:
 
     // Write the marshaling code for the operation's params or return type.
-    void writeMarshal(const OperationPtr& operation, bool returnType, const std::string& obj = "");
+    void writeMarshal(const OperationPtr& operation, bool returnType);
 
     // Write the unmarshaling code for the operation's params or return type - operation's params in the skeleton and
     // return type in the proxy.
