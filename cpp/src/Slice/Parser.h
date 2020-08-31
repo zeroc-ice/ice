@@ -722,6 +722,7 @@ public:
     bool returnsData() const;
     bool returnsMultipleValues() const;
     bool hasReturnAndOut() const;
+    bool hasSingleReturnType() const;
     FormatType format() const;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;

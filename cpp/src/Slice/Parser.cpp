@@ -4415,6 +4415,12 @@ Slice::Operation::hasReturnAndOut() const
     return _hasReturnType && _usesOutParameters;
 }
 
+bool
+Slice::Operation::hasSingleReturnType() const
+{
+    return _hasReturnType && (_usesOutParameters || _returnValues.size() == 1);
+}
+
 FormatType
 Slice::Operation::format() const
 {
