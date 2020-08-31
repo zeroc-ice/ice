@@ -18,7 +18,7 @@
 
 [[3.7]] // TODO, temporary
 
-[cs:namespace:ZeroC.Ice]
+[cs:namespace:ZeroC]
 module Ice
 {
     /// A sequence of bools.

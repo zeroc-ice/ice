@@ -27,20 +27,12 @@ public:
 
 protected:
 
-    void writeMarshalParams(
-        const OperationPtr& op,
-        const MemberList& requiredParams,
-        const MemberList& taggedParams,
-        bool isReturnValue,
-        const std::string& stream = "ostr",
-        const std::string& obj = "");
+    // Write the marshaling code for the operation's params or return type.
+    void writeMarshal(const OperationPtr& operation, bool returnType);
 
-    void writeUnmarshalParams(
-        const OperationPtr& op,
-        const MemberList& requiredParams,
-        const MemberList& taggedParams,
-        bool isReturnValue,
-        const std::string& stream = "istr");
+    // Write the unmarshaling code for the operation's params or return type - operation's params in the skeleton and
+    // return type in the proxy.
+    void writeUnmarshal(const OperationPtr& operation, bool returnType);
 
     void writeMarshalDataMembers(const MemberList&, const std::string&, unsigned int);
     void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);
