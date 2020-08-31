@@ -147,6 +147,8 @@ namespace ZeroC.Ice
         private Task? _closeTask;
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
+        private readonly Dictionary<long, CancellationTokenSource> _dispatch =
+            new Dictionary<long, CancellationTokenSource>();
         private int _dispatchCount;
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
@@ -157,8 +159,6 @@ namespace ZeroC.Ice
         private Task _receiveTask = Task.CompletedTask;
         private readonly Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
             new Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
-        private readonly Dictionary<long, CancellationTokenSource> _dispatch =
-            new Dictionary<long, CancellationTokenSource>();
         private ConnectionState _state; // The current state.
         private bool _validated;
 
@@ -463,6 +463,7 @@ namespace ZeroC.Ice
                 {
                     throw new RetryException(_exception);
                 }
+                cancel.ThrowIfCancellationRequested();
 
                 Debug.Assert(_state > ConnectionState.Validating);
                 Debug.Assert(_state < ConnectionState.Closing);
@@ -481,64 +482,65 @@ namespace ZeroC.Ice
                     childObserver?.Attach();
                 }
 
-                // If oneway, terminate the stream after sending the request.
+                // It's important to call SendAsync from the synchronization here to ensure the requests are queued
+                // for sending in the same order as the streamId are allocated.
                 writeTask = BinaryConnection.SendAsync(streamId, request, fin: oneway, cancel);
             }
 
             try
             {
+                // Wait for the sending of the request.
                 await writeTask.ConfigureAwait(false);
+
+                // The request is sent
+                progress.Report(false); // sentSynchronously: false
+
+                if (responseTask == null)
+                {
+                    // We're done if no response is expected.
+                    return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
+                }
+                else
+                {
+                    // Wait for the reception of the response.
+                    IncomingResponseFrame response = await responseTask.WaitAsync(cancel).ConfigureAwait(false);
+                    childObserver?.Reply(response.Size);
+                    return response;
+                }
             }
             catch (Exception ex)
             {
-                if (ex is OperationCanceledException || ex is DatagramLimitException)
+                if (ex is OperationCanceledException)
                 {
-                    // Non fatal exception, remove the request from the request map.
+                    try
+                    {
+                        // Reset the stream
+                        await BinaryConnection.ResetAsync(streamId).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                    }
+
                     lock (_mutex)
                     {
-                        _requests.Remove(streamId);
-                        if (_requests.Count == 0)
+                        if (_requests.Remove(streamId) && _requests.Count == 0)
                         {
                             System.Threading.Monitor.PulseAll(_mutex); // Notify threads blocked in Close()
                         }
                     }
                 }
-                else
+                else if (!(ex is DatagramLimitException))
                 {
                     // If it's a fatal exception, we close the connection and rethrow the connection's exception
                     _ = CloseAsync(ex);
                     ex = _exception!;
                 }
                 childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                childObserver?.Detach();
                 throw ExceptionUtil.Throw(ex);
             }
-
-            // The request is sent
-            progress.Report(false); // sentSynchronously: false
-
-            if (responseTask == null)
+            finally
             {
                 childObserver?.Detach();
-                return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
-            }
-            else
-            {
-                try
-                {
-                    IncomingResponseFrame response = await responseTask.WaitAsync(cancel).ConfigureAwait(false);
-                    childObserver?.Reply(response.Size);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw;
-                }
-                finally
-                {
-                    childObserver?.Detach();
-                }
             }
         }
 
@@ -686,89 +688,79 @@ namespace ZeroC.Ice
 
         private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long streamId)
         {
+            // Notify and set dispatch observer, if any.
             IDispatchObserver? dispatchObserver = null;
+            ICommunicatorObserver? communicatorObserver = _communicator.Observer;
+            if (communicatorObserver != null)
+            {
+                dispatchObserver = communicatorObserver.GetDispatchObserver(current, streamId, request.Size);
+                dispatchObserver?.Attach();
+            }
+
             OutgoingResponseFrame? response = null;
             try
             {
-                // Notify and set dispatch observer, if any.
-                ICommunicatorObserver? communicatorObserver = _communicator.Observer;
-                if (communicatorObserver != null)
+                ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(request, current);
+                if (!current.IsOneway)
                 {
-                    dispatchObserver = communicatorObserver.GetDispatchObserver(current, streamId, request.Size);
-                    dispatchObserver?.Attach();
+                    response = await vt.ConfigureAwait(false);
                 }
+            }
+            catch (Exception ex)
+            {
+                if (!current.IsOneway)
+                {
+                    RemoteException actualEx;
+                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                    {
+                        actualEx = remoteEx;
+                    }
+                    else
+                    {
+                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
+                    }
+                    Incoming.ReportException(actualEx, dispatchObserver, current);
+                    response = new OutgoingResponseFrame(request, actualEx);
+                }
+            }
+
+            if (response != null)
+            {
+                response.Finish();
+                dispatchObserver?.Reply(response.Size);
 
                 try
                 {
-                    ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(request, current);
-                    if (!current.IsOneway)
-                    {
-                        response = await vt.ConfigureAwait(false);
-                    }
+                    await BinaryConnection.SendAsync(streamId, response, fin: true, cancel: current.CancellationToken);
                 }
-                catch (Exception ex)
+                catch (OperationCanceledException)
                 {
-                    if (!current.IsOneway)
-                    {
-                        RemoteException actualEx;
-                        if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
-                        {
-                            actualEx = remoteEx;
-                        }
-                        else
-                        {
-                            actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
-                        }
-                        Incoming.ReportException(actualEx, dispatchObserver, current);
-                        response = new OutgoingResponseFrame(request, actualEx);
-                    }
-                }
-
-                if (response != null)
-                {
-                    response.Finish();
-                    dispatchObserver?.Reply(response.Size);
-                }
-            }
-            finally
-            {
-                lock (_mutex)
-                {
-                    // Dispose of the cancellation token source
-                    if (_dispatch.Remove(streamId, out CancellationTokenSource? cancelSource))
-                    {
-                        cancelSource.Dispose();
-                    }
-
-                    // Send the response if there's a response
-                    if (_state < ConnectionState.Closed && response != null)
-                    {
-                        _ = SendResponseAsync(streamId, response);
-                    }
-
-                    // Decrease the dispatch count
-                    Debug.Assert(_dispatchCount > 0);
-                    if (--_dispatchCount == 0 && _dispatchTaskCompletionSource != null)
-                    {
-                        Debug.Assert(_state > ConnectionState.Active);
-                        _dispatchTaskCompletionSource.SetResult(true);
-                    }
-                }
-
-                dispatchObserver?.Detach();
-            }
-
-            async Task SendResponseAsync(long requestId, OutgoingResponseFrame response)
-            {
-                try
-                {
-                    await BinaryConnection.SendAsync(requestId, response, fin: true, cancel: current.CancellationToken);
+                    // Ignore, the dispatch got canceled.
                 }
                 catch (Exception ex)
                 {
                     _ = CloseAsync(ex);
                 }
             }
+
+            lock (_mutex)
+            {
+                // Dispose of the cancellation token source
+                if (_dispatch.Remove(streamId, out CancellationTokenSource? cancelSource))
+                {
+                    cancelSource.Dispose();
+                }
+
+                // Decrease the dispatch count
+                Debug.Assert(_dispatchCount > 0);
+                if (--_dispatchCount == 0 && _dispatchTaskCompletionSource != null)
+                {
+                    Debug.Assert(_state > ConnectionState.Active);
+                    _dispatchTaskCompletionSource.SetResult(true);
+                }
+            }
+
+            dispatchObserver?.Detach();
         }
 
         private async ValueTask ReceiveAndDispatchFrameAsync()
@@ -840,11 +832,11 @@ namespace ZeroC.Ice
                         {
                             if (_requests.Remove(streamId,
                                     out (TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource,
-                                        bool Synchronous) request))
+                                         bool Synchronous) request))
                             {
-                                // Unless i's a synchronous request whose continuation is safe to call from here since
+                                // Unless it's a synchronous request whose continuation is safe to call from here since
                                 // it won't call user code, we can't call SetResult directly here as if could end up
-                                // running user code with mutex locked.
+                                // running user code with the mutex locked.
                                 if (request.Synchronous)
                                 {
                                     request.TaskCompletionSource.SetResult(responseFrame);

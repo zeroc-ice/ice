@@ -19,6 +19,7 @@ namespace ZeroC.Ice
         private readonly int _incomingFrameSizeMax;
         private Action? _heartbeatCallback;
         private readonly bool _incoming;
+        private readonly object _mutex = new object();
         private int _nextRequestId;
         private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
@@ -147,8 +148,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask ResetAsync(long streamId) =>
-            throw new NotSupportedException("ice1 transports don't support stream reset");
+        public ValueTask ResetAsync(long streamId) => new ValueTask();
 
         public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel) =>
             await SendFrameAsync(streamId, frame, cancel);
@@ -197,7 +197,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        throw new ConnectionClosedByPeerException("");
+                        throw new ConnectionClosedByPeerException("close connection frame received from the peer");
                     }
                     return default;
                 }
@@ -319,7 +319,6 @@ namespace ZeroC.Ice
         {
             List<ArraySegment<byte>> writeBuffer;
 
-            // TODO: add abstract OutgoingFrame class with an abstract GetRequestData(streamId) method?
             bool compress = false;
             if (frame is OutgoingRequestFrame requestFrame)
             {
@@ -386,31 +385,37 @@ namespace ZeroC.Ice
         private Task SendFrameAsync(long streamId, object frame, CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
-            ValueTask sendTask = QueueAsync(streamId, frame, cancel);
-            _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
-            return _sendTask;
+
+            // Synchronization is required here because this might be called concurrently by the connection code
+            lock (_mutex)
+            {
+                ValueTask sendTask = QueueAsync(streamId, frame, cancel);
+                _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
+                return _sendTask;
+            }
 
             async ValueTask QueueAsync(long streamId, object frame, CancellationToken cancel)
             {
-                // Wait for the previous send to complete
                 try
                 {
+                    // Wait for the previous send to complete
                     await _sendTask.ConfigureAwait(false);
                 }
                 catch (DatagramLimitException)
                 {
                     // If the send failed because the datagram was too large, ignore and continue sending.
                 }
-
-                // If the send got cancelled, throw now. This isn't a fatal connection error, the next pending
-                // outgoing will be sent because we ignore the cancelation exception above.
-                //
-                // TODO: is it really a good idea to cancel the request here with ice1?  The request ID assigned
-                // for the request won't be used so the server might receive non-continuous request IDs with 4.0.
-                if (!cancel.IsCancellationRequested)
+                catch (OperationCanceledException)
                 {
-                    await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
+                    // Ignore if it got canceled.
                 }
+
+                // If the send got cancelled, throw to notify the connection of the cancellation. This isn't a fatal
+                // connection error, the next pending frame will be sent.
+                cancel.ThrowIfCancellationRequested();
+
+                // Perform the sending.
+                await PerformSendFrameAsync(streamId, frame).ConfigureAwait(false);
             }
         }
 
