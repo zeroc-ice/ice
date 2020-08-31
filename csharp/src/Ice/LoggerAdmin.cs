@@ -19,10 +19,11 @@ namespace ZeroC.Ice
         private Task _lastRequestTask = Task.CompletedTask;
         private readonly HashSet<string> _traceCategories;
 
-        internal LogForwarder(LoggerAdmin loggerAdmin,
-                              IRemoteLoggerPrx prx,
-                              HashSet<LogMessageType> messageTypes,
-                              HashSet<string> traceCategories)
+        internal LogForwarder(
+            LoggerAdmin loggerAdmin,
+            IRemoteLoggerPrx prx,
+            HashSet<LogMessageType> messageTypes,
+            HashSet<string> traceCategories)
         {
             _remoteLoggerPrx = prx;
             _loggerAdmin = loggerAdmin;
@@ -362,10 +363,11 @@ namespace ZeroC.Ice
             return new Communicator(ref args, properties, logger: logger);
         }
 
-        private static void FilterLogMessages(LinkedList<LogMessage> logMessages,
-                                              HashSet<LogMessageType> messageTypes,
-                                              HashSet<string> traceCategories,
-                                              int messageMax)
+        private static void FilterLogMessages(
+            LinkedList<LogMessage> logMessages,
+            HashSet<LogMessageType> messageTypes,
+            HashSet<string> traceCategories,
+            int messageMax)
         {
             Debug.Assert(logMessages.Count > 0 && messageMax != 0);
 
