@@ -2089,6 +2089,10 @@ tagged_type
         type = new Optional(TypePtr::dynamicCast($2));
         unit->error("only optional types can be tagged");
     }
+    if (type->usesClasses())
+    {
+        unit->error("types that use classes cannot be tagged");
+    }
 
     taggedDef->type = type;
     $$ = taggedDef;
@@ -2102,6 +2106,10 @@ tagged_type
     {
         // Infer the type to be optional for backwards compatibility.
         type = new Optional(TypePtr::dynamicCast($2));
+    }
+    if (type->usesClasses())
+    {
+        unit->error("types that use classes cannot be tagged");
     }
 
     taggedDef->type = type;
