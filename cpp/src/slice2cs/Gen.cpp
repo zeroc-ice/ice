@@ -166,17 +166,11 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
     auto [requiredMembers, taggedMembers] = getSortedMembers(members);
 
     int bitSequenceIndex = -1;
-    size_t bitSequenceSize = 0;
-    if (requiredMembers.size() > 0)
+    size_t bitSequenceSize = returnType ? operation->returnBitSequenceSize() : operation->paramsBitSequenceSize();
+
+    if (bitSequenceSize > 0)
     {
-        if (returnType)
-        {
-            bitSequenceSize = operation->returnBitSequenceSize();
-        }
-        else
-        {
-            bitSequenceSize = operation->paramsBitSequenceSize();
-        }
+        _out << nl << "var bitSequence = " << stream << ".WriteBitSequence(" << bitSequenceSize << ");";
     }
 
     bool write11ReturnLast = returnType && operation->hasReturnAndOut() && !members.front()->tagged() &&
@@ -187,12 +181,11 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
         _out << sb;
     }
 
-    bool repeat = false;
-    do
+    // Two loops when write11ReturnLast is true.
+    for (int i = 0; i < (write11ReturnLast ? 2 : 1); i++)
     {
         if (bitSequenceSize > 0)
         {
-            _out << nl << "var bitSequence = " << stream << ".WriteBitSequence(" << bitSequenceSize << ");";
             bitSequenceIndex = 0;
         }
 
@@ -221,11 +214,7 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
                                    stream);
         }
 
-        if (repeat)
-        {
-            repeat = false;
-        }
-        else if (write11ReturnLast)
+        if (i == 0 && write11ReturnLast) // only for first loop
         {
             _out << eb;
             _out << nl;
@@ -233,13 +222,10 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
             _out << sb;
 
             // Repeat after updating requiredMembers
-            repeat = true;
             requiredMembers.push_back(requiredMembers.front());
             requiredMembers.pop_front();
         }
     }
-    while (repeat)
-        ;
 
     if (write11ReturnLast)
     {
@@ -257,17 +243,11 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
     auto [requiredMembers, taggedMembers] = getSortedMembers(members);
 
     int bitSequenceIndex = -1;
-    size_t bitSequenceSize = 0;
-    if (requiredMembers.size() > 0)
+    size_t bitSequenceSize = returnType ? operation->returnBitSequenceSize() : operation->paramsBitSequenceSize();
+
+    if (bitSequenceSize > 0)
     {
-        if (returnType)
-        {
-            bitSequenceSize = operation->returnBitSequenceSize();
-        }
-        else
-        {
-            bitSequenceSize = operation->paramsBitSequenceSize();
-        }
+        _out << nl << "var bitSequence = " << stream << ".ReadBitSequence(" << bitSequenceSize << ");";
     }
 
     bool read11ReturnLast = returnType && operation->hasReturnAndOut() && requiredMembers.size() > 1 &&
@@ -279,13 +259,11 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
         _out << sb;
     }
 
-    bool repeat = false;
-
-    do
+    // Two loops when write11ReturnLast is true.
+    for (int i = 0; i < (read11ReturnLast ? 2 : 1); i++)
     {
         if (bitSequenceSize > 0)
         {
-            _out << nl << "var bitSequence = " << stream << ".ReadBitSequence(" << bitSequenceSize << ");";
             bitSequenceIndex = 0;
         }
 
@@ -321,11 +299,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
             _out << nl << "return " << spar << getNames(members, "iceP_") << epar << ";";
         }
 
-        if (repeat)
-        {
-            repeat = false;
-        }
-        else if (read11ReturnLast)
+        if (i == 0 && read11ReturnLast)
         {
             _out << eb;
             _out << nl;
@@ -333,11 +307,10 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
             _out << sb;
 
             // Repeat after updating requiredMembers
-            repeat = true;
             requiredMembers.push_back(requiredMembers.front());
             requiredMembers.pop_front();
         }
-    } while (repeat);
+    }
 
     if (read11ReturnLast)
     {
