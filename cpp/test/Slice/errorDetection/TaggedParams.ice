@@ -28,8 +28,8 @@ interface I
     tag(C4) byte? r9();           // out of range
     tag(C5) bool? r10();          // invalid tag
     tag(C6) bool? r11();          // ok
-    tag(E::e1) int? r12();           // ok
-    tag(E::e2) void r13();          // syntax error
+    tag(E::e1) int? r12();        // ok
+    tag(E::e2) void r13();        // syntax error
 
     void i1(tag string? p);             // missing tag
     void i2(tag() int? p);              // missing tag
@@ -44,7 +44,7 @@ interface I
     void i11(tag(C6) bool? p);          // ok
     void i12(tag(e2) int? p);           // ok (warning)
 
-    void o1(out tag string?p);             // missing tag
+    void o1(out tag string?p);              // missing tag
     void o2(out tag() int? p);              // missing tag
     void o3(out tag(abc) bool? p);          // invalid tag
     void o4(out tag(0x80000000) short? p);  // out of range
