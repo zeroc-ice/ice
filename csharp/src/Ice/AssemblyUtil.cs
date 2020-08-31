@@ -91,7 +91,7 @@ namespace ZeroC.Ice
                 }
             }
             Debug.Assert(failure != null);
-            throw failure;
+            throw ExceptionUtil.Throw(failure);
         }
 
         // Make sure that all assemblies that are referenced by this process are actually loaded. This is necessary so

@@ -1160,8 +1160,12 @@ return_type
 // ----------------------------------------------------------------------
 : tagged_type
 {
+    TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($1);
+    // For unnamed return types we infer their name to be 'returnValue'.
+    returnMember->name = "returnValue";
+
     TaggedDefListTokPtr returnMembers = new TaggedDefListTok();
-    returnMembers->v.push_back(TaggedDefTokPtr::dynamicCast($1));
+    returnMembers->v.push_back(returnMember);
     $$ = returnMembers;
 }
 | '(' return_tuple ')'

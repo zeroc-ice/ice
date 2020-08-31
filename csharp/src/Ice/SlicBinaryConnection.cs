@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
@@ -33,6 +34,7 @@ namespace ZeroC.Ice
         private readonly int _frameSizeMax;
         private Action? _heartbeatCallback;
         private readonly bool _incoming;
+        private readonly object _mutex = new object();
         private long _nextStreamId;
         private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
@@ -45,14 +47,18 @@ namespace ZeroC.Ice
             await PrepareAndSendFrameAsync(FrameType.Close, ostr =>
             {
                 ostr.WriteVarLong(0);
+#if DEBUG
                 ostr.WriteString(exception.ToString());
+#else
+                ostr.WriteString(exception.Message);
+#endif
             }, cancel);
 
             // Notify the transport of the graceful connection closure.
             await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync() => _transceiver.DisposeAsync();
+        public ValueTask DisposeAsync()=> _transceiver.DisposeAsync();
 
         public ValueTask HeartbeatAsync(CancellationToken cancel) =>
             PrepareAndSendFrameAsync(FrameType.Ping, null, cancel);
@@ -194,15 +200,14 @@ namespace ZeroC.Ice
                         var istr = new InputStream(data, Encoding);
                         long streamId = istr.ReadVarLong();
                         long reason = istr.ReadVarLong();
-                        // TODO: release resources allocated for the stream.
-                        break;
+                        return (StreamId: streamId, Frame: null, Fin: true);
                     }
                     case FrameType.Close:
                     {
                         var istr = new InputStream(data, Encoding);
-                        long code = istr.ReadVarLong();
+                        long code = istr.ReadVarLong(); // TODO: is this really useful?
                         string reason = istr.ReadString();
-                        throw new ConnectionClosedByPeerException();
+                        throw new ConnectionClosedByPeerException(reason);
                     }
                     default:
                     {
@@ -214,6 +219,7 @@ namespace ZeroC.Ice
 
         public long NewStream(bool bidirectional) => bidirectional ? ++_nextStreamId : 0;
 
+        // TODO: check that the stream is active. If it's not active, there's no need to send this frame.
         public ValueTask ResetAsync(long streamId) => PrepareAndSendFrameAsync(FrameType.ResetStream, ostr =>
             {
                 ostr.WriteVarLong(streamId);
@@ -259,7 +265,7 @@ namespace ZeroC.Ice
                 TraceFrame("sending ", frameType, data.GetByteCount(), streamId);
             }
 
-            await SendSlicFrameAsync(data, cancel);
+            await SendSlicFrameAsync(data, cancel).ConfigureAwait(false);
         }
 
         public override string ToString() => _transceiver.ToString()!;
@@ -319,17 +325,22 @@ namespace ZeroC.Ice
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(Encoding, data);
             ostr.WriteByte((byte)type);
-            OutputStream.Position sizePos = ostr.StartFixedLengthSize();
+            OutputStream.Position sizePos = ostr.StartFixedLengthSize(4);
             if (writer != null)
             {
                 writer!(ostr);
             }
-            ostr.EndFixedLengthSize(sizePos);
+            ostr.EndFixedLengthSize(sizePos, 4);
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
 
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceFrame("sending ", type, data.GetByteCount());
+                long streamId = 0;
+                if (type == FrameType.ResetStream)
+                {
+                    streamId = data[0].Slice(sizePos.Offset + 4).AsReadOnlySpan().ReadVarLong().Value;
+                }
+                TraceFrame("sending ", type, data.GetByteCount(), streamId);
             }
 
             await SendSlicFrameAsync(data, cancel).ConfigureAwait(false);
@@ -381,31 +392,34 @@ namespace ZeroC.Ice
         private Task SendSlicFrameAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
-            ValueTask sendTask = QueueAsync(buffer, cancel);
-            _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
-            return _sendTask;
+
+            // Synchronization is required here because this might be called concurrently by the connection code
+            lock (_mutex)
+            {
+                ValueTask sendTask = QueueAsync(buffer, cancel);
+                _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
+                return _sendTask;
+            }
 
             async ValueTask QueueAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
             {
-                // Wait for the previous send to complete
                 try
                 {
+                    // Wait for the previous send to complete
                     await _sendTask.ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
-                    // If the send was canceled, ignore and continue sending.
+                    // Ignore if it got canceled.
                 }
 
-                // If the send got cancelled, throw now. This isn't a fatal connection error, the next pending
-                // outgoing will be sent because we ignore the cancelation exception above.
-                // TODO: is it really a good idea to cancel the request here? The stream/request ID assigned for the
-                // the request won't be used.
+                // If the send got cancelled, throw to notify the connection of the cancellation. This isn't a fatal
+                // connection error, the next pending frame will be sent.
                 cancel.ThrowIfCancellationRequested();
 
                 // Perform the write
                 int sent = await _transceiver.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-                Debug.Assert(sent == buffer.GetByteCount()); // TODO: do we need to support partial writes?
+                Debug.Assert(sent == buffer.GetByteCount());
                 _sentCallback!(sent);
             }
         }

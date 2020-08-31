@@ -620,14 +620,16 @@ namespace ZeroC.Ice.Test.AMI
             }
             if (p.GetConnection() != null)
             {
-                // Stress test cancellation to ensure we exercise the various cancellation points.
+                // Stress test cancellation to ensure we exercise the various cancellation points. Cancellation of
+                // the sleep might fail or succeed on the server side depending how long we sleep.
+                var cancelCtx = new Dictionary<string, string> { { "cancel", "mightSucceed" } };
                 for (int i = 0; i < 20; ++i)
                 {
                     var source = new CancellationTokenSource();
                     source.CancelAfter(TimeSpan.FromMilliseconds(i));
                     try
                     {
-                        p.Clone(connectionId: $"cancel{i}").SleepAsync(50, cancel: source.Token).Wait();
+                        p.Clone().SleepAsync(50, cancel: source.Token, context: cancelCtx).Wait();
                         TestHelper.Assert(false);
                     }
                     catch (AggregateException ae)
