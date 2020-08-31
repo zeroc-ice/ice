@@ -151,7 +151,7 @@ namespace ZeroC.Ice
                 OutgoingResponseFrame? outgoingResponseFrame = null;
                 try
                 {
-                    ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(incomingRequest, current);
+                    ValueTask<OutgoingResponseFrame> vt = _adapter.DispatchAsync(incomingRequest, current);
                     if (!current.IsOneway)
                     {
                         // We don't use the cancelable WaitAsync for the await here. The asynchronous dispatch is
