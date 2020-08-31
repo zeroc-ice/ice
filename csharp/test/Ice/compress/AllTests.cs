@@ -25,6 +25,16 @@ namespace ZeroC.Ice.Test.Compress
 
                 p2 = prx1.OpCompressReturn(size);
                 TestHelper.Assert(p1.SequenceEqual(p2));
+
+                try
+                {
+                    prx1.OpWithUserException(size);
+                    TestHelper.Assert(false);
+                }
+                catch (MyException ex)
+                {
+                    TestHelper.Assert(ex.Bytes.SequenceEqual(p1));
+                }
             }
 
             for (int size = 2; size < 1024; size *= 2)
@@ -37,6 +47,16 @@ namespace ZeroC.Ice.Test.Compress
 
                 p2 = prx2.OpCompressReturn(size);
                 TestHelper.Assert(p1.SequenceEqual(p2));
+
+                try
+                {
+                    prx1.OpWithUserException(size);
+                    TestHelper.Assert(false);
+                }
+                catch (MyException ex)
+                {
+                    TestHelper.Assert(ex.Bytes.SequenceEqual(p1));
+                }
             }
 
             return prx1;

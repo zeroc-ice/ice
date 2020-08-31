@@ -59,6 +59,11 @@ namespace ZeroC.Ice.Test.Compress
                     }
                 }
             }
+
+            if (response.Encoding == Encoding.V2_0 && current.Operation == "opWithUserException")
+            {
+                response.CompressPayload();
+            }
             return response;
         }
     }
@@ -80,6 +85,9 @@ namespace ZeroC.Ice.Test.Compress
 
         public ReadOnlyMemory<byte> OpCompressReturn(int size, Current current) =>
             Enumerable.Range(0, size).Select(i => (byte)i).ToArray();
+
+        public void OpWithUserException(int size, Current current) =>
+            throw new MyException(Enumerable.Range(0, size).Select(i => (byte)i).ToArray());
 
         public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }

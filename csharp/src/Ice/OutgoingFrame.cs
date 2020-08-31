@@ -165,7 +165,11 @@ namespace ZeroC.Ice
                 // Reserve memory for the compressed data, this should never be greater than the uncompressed data
                 // otherwise we will just send the uncompressed data.
                 byte[] compressedData = new byte[encapsulationOffset + encapsulationSize];
-
+                // Copy the byte before the encapsulation, if any
+                if (encapsulationOffset == 1)
+                {
+                    compressedData[0] = payload[0][0];
+                }
                 // Write the encapsulation header
                 int offset = encapsulationOffset + sizeLength;
                 compressedData[offset++] = Encoding.Major;

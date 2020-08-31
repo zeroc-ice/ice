@@ -2,9 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Compress
@@ -13,7 +12,7 @@ namespace ZeroC.Ice.Test.Compress
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             Output.Write("testing operations using compression... ");
             Output.Flush();
             {
