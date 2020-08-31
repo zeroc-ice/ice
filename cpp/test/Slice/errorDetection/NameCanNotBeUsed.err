@@ -5,3 +5,5 @@ NameCanNotBeUsed.ice:21: data member `EBar' cannot have the same name as its enc
 NameCanNotBeUsed.ice:20: note: exception `EBar' is defined here
 NameCanNotBeUsed.ice:27: data member `SBar' cannot have the same name as its enclosing struct
 NameCanNotBeUsed.ice:26: note: struct `SBar' is defined here
+NameCanNotBeUsed.ice:34: the identifier `returnValue' cannot be used for out parameters of non-void operations
+NameCanNotBeUsed.ice:35: the identifier `RETURNvalue' cannot be used for out parameters of non-void operations

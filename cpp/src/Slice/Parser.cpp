@@ -4175,19 +4175,26 @@ MemberPtr
 Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
 {
     _unit->checkType(type);
-    if (!checkForRedefinition(this, name, "parameter"))
-    {
-        return nullptr;
-    }
 
     if (isOutParam)
     {
         _usesOutParameters = true;
+        // Check if the out parameter conflicts with a single return value (which is implicitely named 'returnValue').
+        if (hasSingleReturnType() && ciequals(name, "returnValue"))
+        {
+            _unit->error("the identifier `" + name + "' cannot be used for out parameters of non-void operations");
+            return nullptr;
+        }
     }
     else if (_usesOutParameters)
     {
         // In parameters must be declared before out parameters.
         _unit->error("`" + name + "': in parameters cannot follow out parameters");
+    }
+
+    if (!checkForRedefinition(this, name, "parameter"))
+    {
+        return nullptr;
     }
 
     MemberList& params = isOutParam ? _returnValues : _parameters;
