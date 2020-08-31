@@ -42,12 +42,6 @@ std::string
 Slice::paramName(const MemberPtr& param, const string& prefix)
 {
     string name = param->name();
-    // TODO: this is temporary, until the Slice parser gives the correct name
-    if (name == "")
-    {
-        name = "ReturnValue";
-    }
-
     return normalizeCase(param) ? fixId(prefix + camelCase(name)) : fixId(prefix + name);
 }
 
@@ -63,12 +57,6 @@ std::string
 Slice::fieldName(const MemberPtr& member)
 {
     string name = member->name();
-
-    // TODO: this is temporary, until the Slice parser gives the correct name
-    if (name == "")
-    {
-        name = "ReturnValue";
-    }
     return normalizeCase(member) ? fixId(pascalCase(name)) : fixId(name);
 }
 
