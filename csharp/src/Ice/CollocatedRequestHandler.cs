@@ -18,8 +18,6 @@ namespace ZeroC.Ice
         private readonly Reference _reference;
         private int _requestId;
 
-        public Connection? GetConnection() => null;
-
         public async ValueTask<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame outgoingRequest,
             bool oneway,

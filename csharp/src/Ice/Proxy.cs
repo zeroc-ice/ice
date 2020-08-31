@@ -178,14 +178,7 @@ namespace ZeroC.Ice
             try
             {
                 ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync(cancel: default);
-                if (task.IsCompleted)
-                {
-                    return (task.Result as ConnectionRequestHandler)?.GetConnection();
-                }
-                else
-                {
-                    return (task.AsTask().Result as ConnectionRequestHandler)?.GetConnection();
-                }
+                return (task.IsCompleted ? task.Result : task.AsTask().Result) as Connection;
             }
             catch (AggregateException ex)
             {
@@ -202,7 +195,7 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
         {
             IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
-            return (handler as ConnectionRequestHandler)?.GetConnection();
+            return handler as Connection;
         }
 
         /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
