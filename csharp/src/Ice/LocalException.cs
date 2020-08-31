@@ -225,7 +225,8 @@ namespace ZeroC.Ice
     [Serializable]
     public class ConnectionClosedByPeerException : ConnectionClosedException
     {
-        public ConnectionClosedByPeerException()
+        public ConnectionClosedByPeerException(string message)
+            : base(message)
         {
         }
 
