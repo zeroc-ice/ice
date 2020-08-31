@@ -1386,6 +1386,15 @@ operation_list
     if (operation && !metaData->v.empty())
     {
         operation->setMetaData(metaData->v);
+
+        // If the operation had a single return type (not a return tuple), also apply the metadata to the return type.
+        // TODO: once we introduce more concrete metadata validation, we could sort the metadata out between the return
+        // type and the operation itself. So metadata relevant to operations would only be set for the operation, and
+        // metadata only relevant to the return type would only be set on the return type.
+        if (operation->hasSingleReturnType())
+        {
+            operation->returnValues().front()->setMetaData(metaData->v);
+        }
     }
 }
 | local_metadata operation
