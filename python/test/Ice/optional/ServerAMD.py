@@ -17,25 +17,25 @@ class InitialI(Test.Initial):
     def pingPong(self, o, current=None):
         return Ice.Future.completed(o)
 
-    def opOptionalException(self, a, b, o, current=None):
+    def opOptionalException(self, a, b, vs, current=None):
         f = Ice.Future()
-        f.set_exception(Test.OptionalException(False, a, b, o))
+        f.set_exception(Test.OptionalException(False, a, b, vs))
         return f
 
-    def opDerivedException(self, a, b, o, current=None):
+    def opDerivedException(self, a, b, vs, current=None):
         f = Ice.Future()
-        f.set_exception(Test.DerivedException(False, a, b, o, b, o))
+        f.set_exception(Test.DerivedException(False, a, b, vs, b, vs))
         return f
 
-    def opRequiredException(self, a, b, o, current=None):
+    def opRequiredException(self, a, b, vs, current=None):
         e = Test.RequiredException()
         e.a = a
         e.b = b
-        e.o = o
+        e.vs = vs
         if b is not Ice.Unset:
             e.ss = b
-        if o is not Ice.Unset:
-            e.o2 = o
+        if vs is not Ice.Unset:
+            e.vs2 = vs
         f = Ice.Future()
         f.set_exception(e)
         return f

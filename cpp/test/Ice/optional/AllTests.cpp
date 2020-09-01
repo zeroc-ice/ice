@@ -1653,14 +1653,14 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            initial->opOptionalException(30, string("test"), std::make_shared<OneOptional>(53));
+            initial->opOptionalException(30, string("test"), Test::VarStruct{"hello"});
             test(false);
         }
         catch(const OptionalException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test"));
-            test((*ex.o)->a = 53);
+            test(ex.vs->m = string("hello"));
         }
 
         try
@@ -1669,31 +1669,31 @@ allTests(Test::TestHelper* helper, bool)
             // Use the 1.0 encoding with an exception whose only class members are optional.
             //
             initial->ice_encodingVersion(Ice::Encoding_1_0)->
-                opOptionalException(30, string("test"), std::make_shared<OneOptional>(53));
+                opOptionalException(30, string("test"), Test::VarStruct{"hello"});
             test(false);
         }
         catch(const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
         }
 
         try
         {
             IceUtil::Optional<Ice::Int> a;
             IceUtil::Optional<string> b;
-            IceUtil::Optional<OneOptionalPtr> o;
-            initial->opDerivedException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs;
+            initial->opDerivedException(a, b, vs);
             test(false);
         }
         catch(const DerivedException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
             test(!ex.ss);
-            test(!ex.o2);
+            test(!ex.vs2);
         }
         catch(const OptionalException&)
         {
@@ -1704,17 +1704,17 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<OneOptionalPtr> o = std::make_shared<OneOptional>(53);
-            initial->opDerivedException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs = Test::VarStruct{"hello2"};
+            initial->opDerivedException(a, b, vs);
             test(false);
         }
         catch(const DerivedException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
+            test(ex.vs.m == hello2);
             test(ex.ss == string("test2"));
-            test((*ex.o2)->a == 53);
+            test(ex.vs2.m == hello2);
         }
         catch(const OptionalException&)
         {
@@ -1725,17 +1725,17 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a;
             IceUtil::Optional<string> b;
-            IceUtil::Optional<OneOptionalPtr> o;
-            initial->opRequiredException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs;
+            initial->opRequiredException(a, b, vs);
             test(false);
         }
         catch(const RequiredException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
             test(ex.ss == string("test"));
-            test(!ex.o2);
+            test(!ex.vs2);
         }
         catch(const OptionalException&)
         {
@@ -1746,17 +1746,17 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<OneOptionalPtr> o = std::make_shared<OneOptional>(53);
-            initial->opRequiredException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs = Test::VarStruct{"hello2"}
+            initial->opRequiredException(a, b, vs);
             test(false);
         }
         catch(const RequiredException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
+            test(ex.vs.m == "hello2");
             test(ex.ss == string("test2"));
-            test(ex.o2->a == 53);
+            test(ex.vs2.m == "hello2");
         }
         catch(const OptionalException&)
         {

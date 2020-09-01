@@ -17,7 +17,7 @@ export class AMDInitialI extends Test.Initial
         return obj;
     }
 
-    opOptionalException(a:number, b:string, o:Test.OneOptional, current:Ice.Current):void
+    opOptionalException(a:number, b:string, vs:Test.VarStruct, current:Ice.Current):void
     {
         const ex = new Test.OptionalException();
         if(a !== undefined)
@@ -32,14 +32,14 @@ export class AMDInitialI extends Test.Initial
         {
             ex.b = b;
         }
-        if(o !== undefined)
+        if(vs !== undefined)
         {
-            ex.o = o;
+            ex.vs = vs;
         }
         throw ex;
     }
 
-    opDerivedException(a:number, b:string, o:Test.OneOptional, current:Ice.Current):void
+    opDerivedException(a:number, b:string, vs:Test.VarStruct, current:Ice.Current):void
     {
         const ex = new Test.DerivedException();
         if(a !== undefined)
@@ -59,15 +59,15 @@ export class AMDInitialI extends Test.Initial
         {
             ex.ss = undefined; // The member "ss" has a default value.
         }
-        if(o !== undefined)
+        if(vs !== undefined)
         {
-            ex.o = o;
-            ex.o2 = o;
+            ex.vs = vs;
+            ex.vs2 = vs;
         }
         throw ex;
     }
 
-    opRequiredException(a:number, b:string, o:Test.OneOptional, current:Ice.Current):void
+    opRequiredException(a:number, b:string, vs:Test.VarStruct, current:Ice.Current):void
     {
         const ex = new Test.RequiredException();
         if(a !== undefined)
@@ -83,10 +83,10 @@ export class AMDInitialI extends Test.Initial
             ex.b = b;
             ex.ss = b;
         }
-        if(o !== undefined)
+        if(vs !== undefined)
         {
-            ex.o = o;
-            ex.o2 = o;
+            ex.vs = vs;
+            ex.vs2 = vs;
         }
         throw ex;
     }

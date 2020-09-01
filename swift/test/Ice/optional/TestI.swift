@@ -17,30 +17,30 @@ class InitialI: Initial {
 
     func opOptionalException(a: Int32?,
                              b: String?,
-                             o: OneOptional?,
+                             vs: VarStruct?,
                              current _: Ice.Current) throws {
-        throw OptionalException(req: false, a: a, b: b, o: o)
+        throw OptionalException(req: false, a: a, b: b, vs: vs)
     }
 
     func opDerivedException(a: Int32?,
                             b: String?,
-                            o: OneOptional?,
+                            vs: VarStruct?,
                             current _: Ice.Current) throws {
-        throw DerivedException(req: false, a: a, b: b, o: o, ss: b, o2: o)
+        throw DerivedException(req: false, a: a, b: b, vs: vs, ss: b, vs2: vs)
     }
 
     func opRequiredException(a: Int32?,
                              b: String?,
-                             o: OneOptional?,
+                             vs: VarStruct?,
                              current _: Ice.Current) throws {
         let e = RequiredException()
         e.a = a
         e.b = b
-        e.o = o
+        e.vs = vs
         if let b = b {
             e.ss = b
         }
-        e.o2 = o
+        e.vs2 = vs
         throw e
     }
 

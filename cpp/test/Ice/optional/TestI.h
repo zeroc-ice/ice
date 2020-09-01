@@ -18,17 +18,17 @@ public:
 
     virtual void opOptionalException(IceUtil::Optional< ::Ice::Int>,
                                      IceUtil::Optional< ::std::string>,
-                                     IceUtil::Optional<Test::OneOptionalPtr>,
+                                     IceUtil::Optional<Test::VarStruct>,
                                      const Ice::Current&);
 
     virtual void opDerivedException(IceUtil::Optional< ::Ice::Int>,
                                     IceUtil::Optional< ::std::string>,
-                                    IceUtil::Optional<Test::OneOptionalPtr>,
+                                    IceUtil::Optional<Test::VarStruct>,
                                     const Ice::Current&);
 
     virtual void opRequiredException(IceUtil::Optional< ::Ice::Int>,
                                      IceUtil::Optional< ::std::string>,
-                                     IceUtil::Optional<Test::OneOptionalPtr>,
+                                     IceUtil::Optional<Test::VarStruct>,
                                      const Ice::Current&);
 
     virtual IceUtil::Optional< ::Ice::Byte> opByte(IceUtil::Optional< ::Ice::Byte>,

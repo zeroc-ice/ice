@@ -651,60 +651,60 @@ def allTests(helper, communicator):
     except Test.OptionalException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
 
     try:
-        initial.opOptionalException(30, "test", Test.OneOptional(53))
+        initial.opOptionalException(30, "test", Test.VarStruct("hello"))
     except Test.OptionalException as ex:
         test(ex.a == 30)
         test(ex.b == "test")
-        test(ex.o.a == 53)
+        test(ex.vs.m == "hello")
 
     try:
         #
         # Use the 1.0 encoding with an exception whose only class members are optional.
         #
-        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test", Test.OneOptional(53))
+        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test", Test.VarStruct("hello"))
     except Test.OptionalException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
 
     try:
         initial.opDerivedException(Ice.Unset, Ice.Unset, Ice.Unset)
     except Test.DerivedException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
         test(ex.ss is Ice.Unset)
-        test(ex.o2 is Ice.Unset)
+        test(ex.vs2 is Ice.Unset)
 
     try:
-        initial.opDerivedException(30, "test2", Test.OneOptional(53))
+        initial.opDerivedException(30, "test2", Test.VarStruct("hello2"))
     except Test.DerivedException as ex:
         test(ex.a == 30)
         test(ex.b == "test2")
-        test(ex.o.a == 53)
+        test(ex.vs.m == "hello2")
         test(ex.ss == "test2")
-        test(ex.o2 == ex.o)
+        test(ex.vs2 == ex.vs)
 
     try:
         initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset)
     except Test.RequiredException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
         test(ex.ss == "test")
-        test(ex.o2 == None)
+        test(ex.vs2 == None)
 
     try:
-        initial.opRequiredException(30, "test2", Test.OneOptional(53))
+        initial.opRequiredException(30, "test2", Test.VarStruct("hello2"))
     except Test.RequiredException as ex:
         test(ex.a == 30)
         test(ex.b == "test2")
-        test(ex.o.a == 53)
+        test(ex.vs.m == "hello2")
         test(ex.ss == "test2")
-        test(ex.o2 == ex.o)
+        test(ex.vs2 == ex.vs)
 
     print("ok")
 

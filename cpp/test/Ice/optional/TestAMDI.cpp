@@ -31,15 +31,15 @@ InitialI::pingPongAsync(::std::shared_ptr<::Ice::Value> obj,
 }
 
 void
-InitialI::opOptionalExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
+InitialI::opOptionalExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::VarStruct>> vs,
                                    ::std::function<void()>,
                                    ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
-    ex(make_exception_ptr(OptionalException(false, a, b, o)));
+    ex(make_exception_ptr(OptionalException(false, a, b, vs)));
 }
 
 void
-InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
+InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::VarStruct>> vs,
                                   ::std::function<void()>,
                                   ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
@@ -47,21 +47,21 @@ InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::str
 }
 
 void
-InitialI::opRequiredExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
+InitialI::opRequiredExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::VarStruct>> vs,
                                    ::std::function<void()>,
                                    ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
     RequiredException e;
     e.a = a;
     e.b = b;
-    e.o = o;
+    e.vs = vs;
     if(b)
     {
         e.ss = b.value();
     }
-    if(o)
+    if(vs)
     {
-        e.o2 = o.value();
+        e.vs2 = vs.value();
     }
 
     ex(make_exception_ptr(e));

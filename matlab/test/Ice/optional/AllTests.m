@@ -658,28 +658,28 @@ classdef AllTests
                 assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
+                assert(ex.vs == Ice.Unset);
             end
 
             try
-                initial.opOptionalException(30, 'test', OneOptional(53));
+                initial.opOptionalException(30, 'test', VarStruct('hello'));
             catch ex
                 assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test'));
-                assert(ex.o.a == 53);
+                assert(strcmp(ex.vs.m, 'hello'));
             end
 
             try
                 %
                 % Use the 1.0 encoding with an exception whose only class members are optional.
                 %
-                initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test', OneOptional(53));
+                initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test', VarStruct('hello'));
             catch ex
                 assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
+                assert(ex.vs == Ice.Unset);
             end
 
             try
@@ -688,20 +688,20 @@ classdef AllTests
                 assert(isa(ex, 'Test.DerivedException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
+                assert(ex.vs == Ice.Unset);
                 assert(ex.ss == Ice.Unset);
-                assert(ex.o2 == Ice.Unset);
+                assert(ex.vs2 == Ice.Unset);
             end
 
             try
-                initial.opDerivedException(30, 'test2', OneOptional(53));
+                initial.opDerivedException(30, 'test2', VarStruct('hello2'));
             catch ex
                 assert(isa(ex, 'Test.DerivedException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
-                assert(ex.o.a == 53);
+                assert(strcmp(ex.vs.m, 'hello2'));
                 assert(strcmp(ex.ss, 'test2'));
-                assert(ex.o2 == ex.o);
+                assert(strcmp(ex.vs2.m, 'hello2'));
             end
 
             try
@@ -710,20 +710,20 @@ classdef AllTests
                 assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
-                assert(ex.o == Ice.Unset);
+                assert(ex.vs == Ice.Unset);
                 assert(strcmp(ex.ss, 'test'));
-                assert(isempty(ex.o2));
+                assert(isempty(ex.vs2));
             end
 
             try
-                initial.opRequiredException(30, 'test2', OneOptional(53));
+                initial.opRequiredException(30, 'test2', VarStruct('hello2'));
             catch ex
                 assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
-                assert(ex.o.a == 53);
+                assert(strcmp(ex.vs.m, 'hello2');
                 assert(strcmp(ex.ss, 'test2'));
-                assert(ex.o2 == ex.o);
+                assert(strcmp(ex.vs2.m, 'hello2'));
             end
 
             fprintf('ok\n');

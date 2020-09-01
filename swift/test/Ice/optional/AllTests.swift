@@ -2886,19 +2886,19 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.write("testing exception optionals... ")
     do {
-        try initial.opOptionalException(a: nil, b: nil, o: nil)
+        try initial.opOptionalException(a: nil, b: nil, vs: nil)
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
-        try initial.opOptionalException(o: nil)
+        try initial.opOptionalException(vs: nil)
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
@@ -2906,7 +2906,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
@@ -2914,15 +2914,15 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
-        try initial.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
+        try initial.opOptionalException(a: 30, b: "test", o: VarStruct(m: "hello"))
     } catch let ex as OptionalException {
         try test(ex.a == 30)
         try test(ex.b == "test")
-        try test(ex.o!.a == 53)
+        try test(ex.vs.m == "hello")
     }
 
     do {
@@ -2930,41 +2930,41 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         // Use the 1.0 encoding with an exception whose only class members are optional.
         //
         let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-        try initial2.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
+        try initial2.opOptionalException(a: 30, b: "test", vs: VarStruct(m: "hello"))
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
-        try initial.opDerivedException(a: nil, b: nil, o: nil)
+        try initial.opDerivedException(a: nil, b: nil, vs: nil)
     } catch let ex as DerivedException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == nil)
-        try test(ex.o2 == nil)
+        try test(ex.vs2 == nil)
     }
 
     do {
-        try initial.opDerivedException(a: 30, b: "test2", o: OneOptional(a: 53))
+        try initial.opDerivedException(a: 30, b: "test2", vs: VarStruct(m: "hello2"))
     } catch let ex as DerivedException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
-        try test(ex.o!.a == 53)
+        try test(ex.vs.m == "hello2")
         try test(ex.ss == "test2")
-        try test(ex.o2!.a == 53)
+        try test(ex.vs2.m == "hello2")
     }
 
     do {
-        try initial.opRequiredException(a: nil, b: nil, o: nil)
+        try initial.opRequiredException(a: nil, b: nil, vs: nil)
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2 == nil)
     }
 
     do {
@@ -2972,19 +2972,19 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2 == nil)
     }
 
     do {
-        try initial.opRequiredException(o: nil)
+        try initial.opRequiredException(vs: nil)
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2 == nil)
     }
 
     do {
@@ -2992,19 +2992,19 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2 == nil)
     }
 
     do {
-        try initial.opRequiredException(a: 30, b: "test2", o: OneOptional(a: 53))
+        try initial.opRequiredException(a: 30, b: "test2", vs: VarStruct(m: "hello2"))
     } catch let ex as RequiredException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
-        try test(ex.o!.a == 53)
+        try test(ex.vs.m == "hello2")
         try test(ex.ss == "test2")
-        try test(ex.o2!.a == 53)
+        try test(ex.vs2.m == "hello2")
     }
     output.writeLine("ok")
 

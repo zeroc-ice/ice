@@ -29,48 +29,48 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 void
 InitialI::opOptionalException(Optional<Int> a,
                               Optional<string> b,
-                              Optional<OneOptionalPtr> o,
+                              Optional<VarStruct> vs,
                               const Ice::Current&)
 {
     OptionalException ex;
     ex.a = a;
     ex.b = b;
-    ex.o = o;
+    ex.vs = vs;
     throw ex;
 }
 
 void
 InitialI::opDerivedException(Optional<Int> a,
                              Optional<string> b,
-                             Optional<OneOptionalPtr> o,
+                             Optional<VarStruct> vs,
                              const Ice::Current&)
 {
     DerivedException ex;
     ex.a = a;
     ex.b = b;
-    ex.o = o;
+    ex.vs = vs;
     ex.ss = b;
-    ex.o2 = o;
+    ex.vs2 = vs;
     throw ex;
 }
 
 void
 InitialI::opRequiredException(Optional<Int> a,
                               Optional<string> b,
-                              Optional<OneOptionalPtr> o,
+                              Optional<VarStruct> vs,
                               const Ice::Current&)
 {
     RequiredException ex;
     ex.a = a;
     ex.b = b;
-    ex.o = o;
+    ex.vs = vs;
     if(b)
     {
         ex.ss = b.value();
     }
-    if(o)
+    if(vs)
     {
-        ex.o2 = o.value();
+        ex.vs2 = vs.value();
     }
     throw ex;
 }

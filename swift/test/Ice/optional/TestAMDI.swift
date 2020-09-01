@@ -19,28 +19,28 @@ class InitialI: Initial {
         return Promise.value(o)
     }
 
-    func opOptionalExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
+    func opOptionalExceptionAsync(a: Int32?, b: String?, vs: VarStruct?, current _: Current) -> Promise<Void> {
         return Promise { seal in
-            seal.reject(OptionalException(req: false, a: a, b: b, o: o))
+            seal.reject(OptionalException(req: false, a: a, b: b, vs: vs))
         }
     }
 
-    func opDerivedExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
+    func opDerivedExceptionAsync(a: Int32?, b: String?, vs: VarStruct?, current _: Current) -> Promise<Void> {
         return Promise { seal in
-            seal.reject(DerivedException(req: false, a: a, b: b, o: o, ss: b, o2: o))
+            seal.reject(DerivedException(req: false, a: a, b: b, vs: vs, ss: b, vs2: vs))
         }
     }
 
-    func opRequiredExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
+    func opRequiredExceptionAsync(a: Int32?, b: String?, vs: VarStruct?, current _: Current) -> Promise<Void> {
         return Promise { seal in
             let e = RequiredException()
             e.a = a
             e.b = b
-            e.o = o
+            e.vs = vs
             if let b = b {
                 e.ss = b
             }
-            e.o2 = o
+            e.vs2 = vs
 
             seal.reject(e)
         }

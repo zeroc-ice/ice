@@ -30,7 +30,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Void> opOptionalExceptionAsync(@Nullable Integer a, @Nullable String b,
-                                                          @Nullable OneOptional o,  Current current)
+                                                          @Nullable VarStruct vs,  Current current)
         throws OptionalException
     {
         OptionalException ex = new OptionalException();
@@ -46,9 +46,9 @@ public final class AMDInitialI implements Initial
         {
             ex.setB(b);
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
+            ex.setVs(vs);
         }
         CompletableFuture<Void> f = new CompletableFuture<>();
         f.completeExceptionally(ex);
@@ -57,7 +57,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Void> opDerivedExceptionAsync(@Nullable Integer a, @Nullable String b,
-                                                         @Nullable OneOptional o, Current current)
+                                                         @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         DerivedException ex = new DerivedException();
@@ -78,10 +78,10 @@ public final class AMDInitialI implements Initial
         {
             ex.clearSs(); // The member "ss" has a default value.
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
-            ex.setO2(o);
+            ex.setVs(vs);
+            ex.setVs2(vs);
         }
         CompletableFuture<Void> f = new CompletableFuture<>();
         f.completeExceptionally(ex);
@@ -90,7 +90,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Void> opRequiredExceptionAsync(@Nullable Integer a, @Nullable String b,
-                                                          @Nullable OneOptional o, Current current)
+                                                          @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         RequiredException ex = new RequiredException();
@@ -107,10 +107,10 @@ public final class AMDInitialI implements Initial
             ex.setB(b);
             ex.ss = b;
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
-            ex.o2 = o;
+            ex.setVs(vs);
+            ex.vs2 = vs;
         }
         CompletableFuture<Void> f = new CompletableFuture<>();
         f.completeExceptionally(ex);

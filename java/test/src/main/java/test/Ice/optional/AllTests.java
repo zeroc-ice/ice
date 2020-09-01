@@ -1811,28 +1811,28 @@ public class AllTests
             {
                 @Nullable Integer a = null;
                 @Nullable String b = null;
-                @Nullable OneOptional o = null;
-                initial.opOptionalException(a, b, o);
+                @Nullable VarStruct sv = null;
+                initial.opOptionalException(a, b, sv);
             }
             catch(OptionalException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasSv());
             }
 
             try
             {
                 int a = 30;
                 String b = "test";
-                OneOptional o = new OneOptional(53);
-                initial.opOptionalException(a, b, o);
+                VarStruct vs = new VarStruct("hello");
+                initial.opOptionalException(a, b, vs);
             }
             catch(OptionalException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test"));
-                test(ex.getO().getA() == 53);
+                test(ex.getVs().getM() == "hello");
             }
 
             try
@@ -1842,30 +1842,30 @@ public class AllTests
                 //
                 int a = 30;
                 String b = "test";
-                OneOptional o = new OneOptional(53);
-                initial2.opOptionalException(a, b, o);
+                VarStruct vs = new VarStruct("hello");
+                initial2.opOptionalException(a, b, vs);
             }
             catch(OptionalException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
             }
 
             try
             {
                 @Nullable Integer a = null;
                 @Nullable String b = null;
-                @Nullable OneOptional o = null;
-                initial.opDerivedException(a, b, o);
+                @Nullable VarStruct vs = null;
+                initial.opDerivedException(a, b, vs);
             }
             catch(DerivedException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
                 test(!ex.hasSs());
-                test(!ex.hasO2());
+                test(!ex.hasVs2());
             }
             catch(OptionalException ex)
             {
@@ -1876,16 +1876,16 @@ public class AllTests
             {
                 int a = 30;
                 String b = "test2";
-                OneOptional o = new OneOptional(53);
-                initial.opDerivedException(a, b, o);
+                VarStruct vs = new VarStruct("hello2");
+                initial.opDerivedException(a, b, vs);
             }
             catch(DerivedException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
-                test(ex.getO().getA() == 53);
+                test(ex.getVs().getM() == "hello2");
                 test(ex.getSs().equals("test2"));
-                test(ex.getO2().getA() == 53);
+                test(ex.getVs2().getM() == "hello2");
             }
             catch(OptionalException ex)
             {
@@ -1896,16 +1896,16 @@ public class AllTests
             {
                 @Nullable Integer a = null;
                 @Nullable String b = null;
-                @Nullable OneOptional o = null;
-                initial.opRequiredException(a, b, o);
+                @Nullable VarStruct vs = null;
+                initial.opRequiredException(a, b, vs);
             }
             catch(RequiredException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
                 test(ex.ss.equals("test"));
-                test(ex.o2 == null);
+                test(ex.vs2 == null);
             }
             catch(OptionalException ex)
             {
@@ -1916,16 +1916,16 @@ public class AllTests
             {
                 int a = 30;
                 String b = "test2";
-                OneOptional o = new OneOptional(53);
-                initial.opRequiredException(a, b, o);
+                VarStruct vs = new VarStruct("hello2");
+                initial.opRequiredException(a, b, vs);
             }
             catch(RequiredException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
-                test(ex.getO().getA() == 53);
+                test(ex.getVs().getM() == "hello2");
                 test(ex.ss.equals("test2"));
-                test(ex.o2.getA() == 53);
+                test(ex.vs2.getM() == "hello2");
             }
             catch(OptionalException ex)
             {
