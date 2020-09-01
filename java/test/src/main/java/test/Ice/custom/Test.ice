@@ -71,9 +71,6 @@ interface TestIntf
     FloatBuffer opFloatBufferSeq(FloatBuffer inSeq, out FloatBuffer outSeq);
     DoubleBuffer opDoubleBufferSeq(DoubleBuffer inSeq, out DoubleBuffer outSeq);
 
-    tag(1) CSeq? opOptCSeq(tag(2) CSeq? inSeq, out tag(3) CSeq? outSeq);
-    tag(1) CArray? opOptCArray(tag(2) CArray? inSeq, out tag(3) CArray? outSeq);
-    tag(1) CList? opOptCList(tag(2) CList? inSeq, out tag(3) CList? outSeq);
     tag(1) BoolSeq? opOptBoolSeq(tag(2) BoolSeq? inSeq, out tag(3) BoolSeq? outSeq);
     tag(1) ByteSeq? opOptByteSeq(tag(2) ByteSeq? inSeq, out tag(3) ByteSeq? outSeq);
     tag(1) ShortSeq? opOptShortSeq(tag(2) ShortSeq? inSeq, out tag(3) ShortSeq? outSeq);

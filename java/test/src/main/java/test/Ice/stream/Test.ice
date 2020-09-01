@@ -40,40 +40,16 @@ struct SmallStruct
     SerialSmall ss;
 }
 
-struct Point
-{
-    int x;
-    int y;
-}
-
-sequence<MyEnum> MyEnumS;
-sequence<MyClass> MyClassS;
-dictionary<byte, bool> ByteBoolD;
-dictionary<short, int> ShortIntD;
-dictionary<string, MyClass> StringMyClassD;
-
 class OptionalClass
 {
     bool bo;
     byte by;
     tag(1) short? sh;
     tag(2) int? i;
-    tag(3) SmallStruct? sm;
-
-    tag(4) MyEnumS? enumS4;
-    tag(5) MyClassS? myClassS5;
-
-    tag(6) ByteBoolD? byteBoolD6;
-    tag(7) ShortIntD? shortIntD7;
-
-    tag(8) MyEnum? enum8;
-    tag(9) MyClass? class9;
-    tag(10) StringMyClassD? stringMyClassD10;
-    tag(12) Ice::IntSeq? intSeq12;
-    tag(13) Ice::ByteSeq? byteSeq13;
-    tag(14) Ice::StringSeq? stringSeq14;
-    tag(15) Point? p15;
 }
+
+sequence<MyEnum> MyEnumS;
+sequence<MyClass> MyClassS;
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -86,10 +62,11 @@ sequence<Ice::StringSeq> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
 
+dictionary<byte, bool> ByteBoolD;
+dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
-
-class Bar;
+dictionary<string, MyClass> StringMyClassD;
 
 class MyClass
 {
