@@ -736,10 +736,11 @@ class Mapping(object):
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
                 if self.transport:
-                    useTestTransport = isinstance(process.getMapping(current), CSharpMapping) \
-                                      and not process.isFromBinDir()
-                    transportProperty = "Test.Transport" if useTestTransport else "Ice.Default.Transport"
-                    props[transportProperty] = self.transport
+                    if isinstance(process.getMapping(current), CSharpMapping):
+                        if not process.isFromBinDir():
+                            props["Test.Transport"] = self.transport
+                    else:
+                        props["Ice.Default.Transport"] = self.transport
                 if self.protocol:
                     if isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir():
                         props["Test.Protocol"] = self.protocol
@@ -3029,10 +3030,12 @@ class Driver:
 
         if isinstance(process, IceProcess):
             # TODO: remove Ice.Default.Host and only use Test.Host
-            useTestHost = isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir()
-            hostProperty = "Test.Host" if useTestHost else "Ice.Default.Host"
-            props[hostProperty] = self.host or "::1" if current.config.ipv6 else "127.0.0.1"
-
+            testHost = self.host or "::1" if current.config.ipv6 else "127.0.0.1"
+            if isinstance(process.getMapping(current), CSharpMapping):
+                if not process.isFromBinDir():
+                    props["Test.Host"] = testHost
+            else:
+                props["Ice.Default.Host"] = testHost
         return props
 
     def getMappings(self):
