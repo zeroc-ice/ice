@@ -40,7 +40,9 @@ class InitialI: Initial {
             if let b = b {
                 e.ss = b
             }
-            e.vs2 = vs
+            if let vs = vs {
+                e.vs2 = vs
+            }
 
             seal.reject(e)
         }

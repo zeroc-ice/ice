@@ -20,15 +20,15 @@ public:
                                ::std::function<void(const ::std::shared_ptr<::Ice::Value>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opOptionalExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opOptionalExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::Test::VarStruct>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opDerivedExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opDerivedExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::Test::VarStruct>,
                                          ::std::function<void()>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opRequiredExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opRequiredExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::Test::VarStruct>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 

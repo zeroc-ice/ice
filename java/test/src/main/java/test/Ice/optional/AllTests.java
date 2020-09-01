@@ -82,21 +82,21 @@ public class AllTests
         FixedStruct fs = new FixedStruct();
         fs.m = 78;
         mo1.setFs(fs);
-        VarStruct vs = new VarStruct();
-        vs.m = "hello";
-        mo1.setVs(vs);
+        VarStruct vs1 = new VarStruct();
+        vs1.m = "hello";
+        mo1.setVs(vs1);
 
         mo1.setShs(new short[] { 1 });
         mo1.setEs(new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember });
         mo1.setFss(new FixedStruct[] { fs });
-        mo1.setVss(new VarStruct[] { vs });
+        mo1.setVss(new VarStruct[] { vs1 });
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
         mo1.setIfsd(new java.util.HashMap<>());
         mo1.getIfsd().put(4, fs);
         mo1.setIvsd(new java.util.HashMap<>());
-        mo1.getIvsd().put(5, vs);
+        mo1.getIvsd().put(5, vs1);
 
         mo1.setBos(new boolean[] { false, true, false });
 
@@ -1818,7 +1818,7 @@ public class AllTests
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasSv());
+                test(!ex.hasVs());
             }
 
             try
@@ -1832,7 +1832,7 @@ public class AllTests
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test"));
-                test(ex.getVs().getM() == "hello");
+                test(ex.getVs().m.equals("hello"));
             }
 
             try
@@ -1840,6 +1840,8 @@ public class AllTests
                 //
                 // Use the 1.0 encoding with an exception whose only class members are tagged.
                 //
+                InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
+
                 int a = 30;
                 String b = "test";
                 VarStruct vs = new VarStruct("hello");
@@ -1883,9 +1885,9 @@ public class AllTests
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
-                test(ex.getVs().getM() == "hello2");
+                test(ex.getVs().m.equals("hello2"));
                 test(ex.getSs().equals("test2"));
-                test(ex.getVs2().getM() == "hello2");
+                test(ex.getVs2().m.equals("hello2"));
             }
             catch(OptionalException ex)
             {
@@ -1905,7 +1907,7 @@ public class AllTests
                 test(!ex.hasB());
                 test(!ex.hasVs());
                 test(ex.ss.equals("test"));
-                test(ex.vs2 == null);
+                test(ex.vs2.m.equals(""));
             }
             catch(OptionalException ex)
             {
@@ -1923,9 +1925,9 @@ public class AllTests
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
-                test(ex.getVs().getM() == "hello2");
+                test(ex.getVs().m.equals("hello2"));
                 test(ex.ss.equals("test2"));
-                test(ex.vs2.getM() == "hello2");
+                test(ex.vs2.m.equals("hello2"));
             }
             catch(OptionalException ex)
             {

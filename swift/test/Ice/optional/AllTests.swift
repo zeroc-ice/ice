@@ -2918,11 +2918,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     }
 
     do {
-        try initial.opOptionalException(a: 30, b: "test", o: VarStruct(m: "hello"))
+        try initial.opOptionalException(a: 30, b: "test", vs: VarStruct(m: "hello"))
     } catch let ex as OptionalException {
         try test(ex.a == 30)
         try test(ex.b == "test")
-        try test(ex.vs.m == "hello")
+        try test(ex.vs!.m == "hello")
     }
 
     do {
@@ -2952,9 +2952,9 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as DerivedException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
-        try test(ex.vs.m == "hello2")
+        try test(ex.vs!.m == "hello2")
         try test(ex.ss == "test2")
-        try test(ex.vs2.m == "hello2")
+        try test(ex.vs2!.m == "hello2")
     }
 
     do {
@@ -2964,7 +2964,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.b == nil)
         try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.vs2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
@@ -2974,7 +2974,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.b == nil)
         try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.vs2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
@@ -2984,7 +2984,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.b == nil)
         try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.vs2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
@@ -2994,7 +2994,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.b == nil)
         try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.vs2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
@@ -3002,7 +3002,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as RequiredException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
-        try test(ex.vs.m == "hello2")
+        try test(ex.vs!.m == "hello2")
         try test(ex.ss == "test2")
         try test(ex.vs2.m == "hello2")
     }

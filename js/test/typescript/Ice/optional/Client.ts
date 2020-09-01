@@ -716,9 +716,9 @@ export class Client extends TestHelper
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === 30);
             test(ex.b == "test2");
-            test(ex.vm.m === "hello2");
+            test(ex.vs.m === "hello2");
             test(ex.ss == "test2");
-            test(ex.vm2.m === "hello2");
+            test(ex.vs2.m === "hello2");
         }
 
         out.writeLine("ok");

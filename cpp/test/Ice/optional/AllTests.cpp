@@ -376,9 +376,9 @@ allTests(Test::TestHelper* helper, bool)
     FixedStruct fs;
     fs.m = 78;
     mo1->fs = fs;
-    VarStruct vs;
-    vs.m = "hello";
-    mo1->vs = vs;
+    VarStruct vs1;
+    vs1.m = "hello";
+    mo1->vs = vs1;
 
     mo1->shs = ShortSeq();
     mo1->shs->push_back(1);
@@ -388,14 +388,14 @@ allTests(Test::TestHelper* helper, bool)
     mo1->fss = FixedStructSeq();
     mo1->fss->push_back(fs);
     mo1->vss = VarStructSeq();
-    mo1->vss->push_back(vs);
+    mo1->vss->push_back(vs1);
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = MyEnum::MyEnumMember;
     mo1->ifsd = IntFixedStructDict();
     mo1->ifsd.value()[4] = fs;
     mo1->ivsd = IntVarStructDict();
-    mo1->ivsd.value()[5] = vs;
+    mo1->ivsd.value()[5] = vs1;
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -1648,7 +1648,7 @@ allTests(Test::TestHelper* helper, bool)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
         }
 
         try
@@ -1660,7 +1660,7 @@ allTests(Test::TestHelper* helper, bool)
         {
             test(ex.a == 30);
             test(ex.b == string("test"));
-            test(ex.vs->m = string("hello"));
+            test(ex.vs->m == string("hello"));
         }
 
         try
@@ -1712,9 +1712,9 @@ allTests(Test::TestHelper* helper, bool)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test(ex.vs.m == hello2);
+            test(ex.vs->m == string("hello2"));
             test(ex.ss == string("test2"));
-            test(ex.vs2.m == hello2);
+            test(ex.vs2->m == string("hello2"));
         }
         catch(const OptionalException&)
         {
@@ -1735,7 +1735,7 @@ allTests(Test::TestHelper* helper, bool)
             test(!ex.b);
             test(!ex.vs);
             test(ex.ss == string("test"));
-            test(!ex.vs2);
+            test(ex.vs2.m == string(""));
         }
         catch(const OptionalException&)
         {
@@ -1746,7 +1746,7 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<Test::VarStruct> vs = Test::VarStruct{"hello2"}
+            IceUtil::Optional<Test::VarStruct> vs = Test::VarStruct{"hello2"};
             initial->opRequiredException(a, b, vs);
             test(false);
         }
@@ -1754,9 +1754,9 @@ allTests(Test::TestHelper* helper, bool)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test(ex.vs.m == "hello2");
+            test(ex.vs->m == string("hello2"));
             test(ex.ss == string("test2"));
-            test(ex.vs2.m == "hello2");
+            test(ex.vs2.m == string("hello2"));
         }
         catch(const OptionalException&)
         {
