@@ -120,9 +120,8 @@ namespace ZeroC.Ice
                 throw new ArgumentOutOfRangeException($"{nameof(data)} is too large");
             }
 
-            _buffer.CopyTo(_buffer.Array!, 0);
-            data.CopyTo(_buffer.Array!, _buffer.Count);
-            _buffer = new ArraySegment<byte>(_buffer.Array, 0, _buffer.Count + data.Count);
+            _buffer = new ArraySegment<byte>(_buffer.Array, 0, data.Count);
+            data.CopyTo(_buffer);
         }
 
         private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)
