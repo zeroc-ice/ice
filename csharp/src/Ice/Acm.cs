@@ -79,15 +79,32 @@ namespace ZeroC.Ice
             Heartbeat = heartbeat;
         }
 
+        /// <summary>Computes hash code for the current object.</summary>
+        /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode() => HashCode.Combine(Timeout, Close, Heartbeat);
 
+        /// <summary>Determines whether two object instances are equal.</summary>
+        /// <param name="other">The object to compare to.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.
+        /// </returns>
         public bool Equals(Acm other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
 
+        /// <summary>Determines whether two object instances are equal.</summary>
+        /// <param name="other">The object to compare to.</param>
+        /// <returns>true if the specified object is equal to the current object; otherwise, false.</returns>
         public override bool Equals(object? other) => other is Acm value && Equals(value);
 
+        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns>returns true if its operands are equal, false otherwise</returns>
         public static bool operator ==(Acm lhs, Acm rhs) => Equals(lhs, rhs);
 
+        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns>returns true if its operands are not equal, false otherwise</returns>
         public static bool operator !=(Acm lhs, Acm rhs) => !Equals(lhs, rhs);
 
         internal Acm(Communicator communicator, string prefix, Acm defaults)
