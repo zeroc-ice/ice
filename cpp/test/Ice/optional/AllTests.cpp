@@ -652,15 +652,6 @@ allTests(Test::TestHelper* helper, bool)
     initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
     test(!oo);
 
-    RecursiveSeq recursive1;
-    recursive1.push_back(std::make_shared<Recursive>());
-    RecursiveSeq recursive2;
-    recursive2.push_back(std::make_shared<Recursive>());
-    recursive1[0]->value = recursive2;
-    RecursivePtr outer = std::make_shared<Recursive>();
-    outer->value = recursive1;
-    initial->pingPong(outer);
-
     GPtr g = std::make_shared<G>();
     g->gg1Opt = std::make_shared<G1>("gg1Opt");
     g->gg2 = std::make_shared<G2>(10);
