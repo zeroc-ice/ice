@@ -81,11 +81,11 @@ namespace ZeroC.Ice
             }
             else // Optimization: directly call DispatchAsync
             {
-                Debug.Assert(!oneway);
                 progress.Report(false);
                 task = DispatchAsync(outgoingRequest, requestId, cancel);
             }
 
+            Debug.Assert(!oneway);
             try
             {
                 OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
@@ -129,69 +129,14 @@ namespace ZeroC.Ice
             // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is in
             // progress. This will also throw if the object adapter has been deactivated.
             _adapter.IncDirectCount();
-
-            IDispatchObserver? dispatchObserver = null;
             try
             {
                 var incomingRequest = new IncomingRequestFrame(outgoingRequest, _adapter.IncomingFrameSizeMax);
                 var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
-
-                // Then notify and set dispatch observer, if any.
-                ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
-                if (communicatorObserver != null)
-                {
-                    dispatchObserver = communicatorObserver.GetDispatchObserver(current,
-                                                                                requestId,
-                                                                                incomingRequest.Size);
-                    dispatchObserver?.Attach();
-                }
-
-                OutgoingResponseFrame? outgoingResponseFrame = null;
-                try
-                {
-                    ValueTask<OutgoingResponseFrame> vt = _adapter.DispatchAsync(incomingRequest, current);
-                    if (!current.IsOneway)
-                    {
-                        // We don't use the cancelable WaitAsync for the await here. The asynchronous dispatch is
-                        // not completed yet and we want to make sure the observer is detached only when the dispatch
-                        // completes, not when the caller cancels the request.
-                        outgoingResponseFrame = await vt.ConfigureAwait(false);
-                        outgoingResponseFrame.Finish();
-                        dispatchObserver?.Reply(outgoingResponseFrame.Size);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    RemoteException actualEx;
-                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
-                    {
-                        actualEx = remoteEx;
-                    }
-                    else
-                    {
-                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
-                    }
-
-                    Incoming.ReportException(actualEx, dispatchObserver, current);
-
-                    if (requestId != 0)
-                    {
-                        outgoingResponseFrame = new OutgoingResponseFrame(incomingRequest, actualEx);
-                        outgoingResponseFrame.Finish();
-                        dispatchObserver?.Reply(outgoingResponseFrame.Size);
-                    }
-                }
-
-                if (outgoingResponseFrame == null)
-                {
-                    outgoingResponseFrame = OutgoingResponseFrame.WithVoidReturnValue(current);
-                    outgoingResponseFrame.Finish();
-                }
-                return outgoingResponseFrame;
+                return await _adapter.DispatchAsync(requestId, incomingRequest, current).ConfigureAwait(false);
             }
             finally
             {
-                dispatchObserver?.Detach();
                 _adapter.DecDirectCount();
             }
         }

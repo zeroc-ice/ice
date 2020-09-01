@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ZeroC.Ice.Instrumentation;
+
 namespace ZeroC.Ice
 {
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
@@ -876,22 +878,76 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
+            long streamId,
+            IncomingRequestFrame request,
+            Current current)
         {
-            Debug.Assert(current.Adapter == this);
-            IObject? servant = Find(current.Identity, current.Facet);
-            if (servant == null)
+            IDispatchObserver? dispatchObserver = null;
+            if (Communicator.Observer != null)
             {
-                throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+                dispatchObserver = Communicator.Observer.GetDispatchObserver(current, streamId, request.Size);
+                dispatchObserver?.Attach();
             }
 
-            return DispatchAsync(request, current, servant, 0);
+            try
+            {
+                Debug.Assert(current.Adapter == this);
+                IObject? servant = Find(current.Identity, current.Facet);
+                if (servant == null)
+                {
+                    throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+                }
 
-            ValueTask<OutgoingResponseFrame> DispatchAsync(
-                IncomingRequestFrame request,
-                Current current,
-                IObject servant,
-                int i)
+                OutgoingResponseFrame response = await DispatchAsync(servant, 0).ConfigureAwait(false);
+                if (!current.IsOneway)
+                {
+                    response.Finish();
+                    dispatchObserver?.Reply(response.Size);
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                if (!current.IsOneway)
+                {
+                    RemoteException actualEx;
+                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                    {
+                        actualEx = remoteEx;
+                        dispatchObserver?.RemoteException();
+                    }
+                    else
+                    {
+                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
+                        dispatchObserver?.Failed(actualEx.InnerException!.GetType().FullName ?? "System.Exception");
+                    }
+
+                    if (Communicator.WarnDispatch && actualEx is UnhandledException)
+                    {
+                        Warning(ex);
+                    }
+                    var response = new OutgoingResponseFrame(request, actualEx);
+                    response.Finish();
+                    dispatchObserver?.Reply(response.Size);
+                    return response;
+                }
+                else
+                {
+                    if (Communicator.WarnDispatch)
+                    {
+                        Warning(ex);
+                    }
+                    dispatchObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    return OutgoingResponseFrame.WithVoidReturnValue(current);
+                }
+            }
+            finally
+            {
+                dispatchObserver?.Detach();
+            }
+
+            ValueTask<OutgoingResponseFrame> DispatchAsync(IObject servant, int i)
             {
                 if (i < Interceptors.Count)
                 {
@@ -899,12 +955,28 @@ namespace ZeroC.Ice
 
                     return interceptor(request,
                                        current,
-                                       (request, current) => DispatchAsync(request, current, servant, i));
+                                       (request, current) => DispatchAsync(servant, i));
                 }
                 else
                 {
                     return servant.DispatchAsync(request, current);
                 }
+            }
+
+            void Warning(Exception ex)
+            {
+                var output = new StringBuilder();
+                output.Append("dispatch exception:");
+                output.Append("\nidentity: ").Append(current.Identity.ToString(Communicator.ToStringMode));
+                output.Append("\nfacet: ").Append(StringUtil.EscapeString(current.Facet, Communicator.ToStringMode));
+                output.Append("\noperation: ").Append(current.Operation);
+                if ((current.Connection as IPConnection)?.RemoteEndpoint is System.Net.IPEndPoint remoteEndpoint)
+                {
+                    output.Append("\nremote address: ").Append(remoteEndpoint);
+                }
+                output.Append('\n');
+                output.Append(ex.ToString());
+                Communicator.Logger.Warning(output.ToString());
             }
         }
 

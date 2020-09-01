@@ -688,47 +688,11 @@ namespace ZeroC.Ice
 
         private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long streamId)
         {
-            // Notify and set dispatch observer, if any.
-            IDispatchObserver? dispatchObserver = null;
-            ICommunicatorObserver? communicatorObserver = _communicator.Observer;
-            if (communicatorObserver != null)
-            {
-                dispatchObserver = communicatorObserver.GetDispatchObserver(current, streamId, request.Size);
-                dispatchObserver?.Attach();
-            }
+            OutgoingResponseFrame response =
+                await current.Adapter.DispatchAsync(streamId, request, current).ConfigureAwait(false);
 
-            OutgoingResponseFrame? response = null;
-            try
+            if (!current.IsOneway)
             {
-                ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(request, current);
-                if (!current.IsOneway)
-                {
-                    response = await vt.ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (!current.IsOneway)
-                {
-                    RemoteException actualEx;
-                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
-                    {
-                        actualEx = remoteEx;
-                    }
-                    else
-                    {
-                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
-                    }
-                    Incoming.ReportException(actualEx, dispatchObserver, current);
-                    response = new OutgoingResponseFrame(request, actualEx);
-                }
-            }
-
-            if (response != null)
-            {
-                response.Finish();
-                dispatchObserver?.Reply(response.Size);
-
                 try
                 {
                     await BinaryConnection.SendAsync(streamId, response, fin: true, cancel: current.CancellationToken);
@@ -759,8 +723,6 @@ namespace ZeroC.Ice
                     _dispatchTaskCompletionSource.SetResult(true);
                 }
             }
-
-            dispatchObserver?.Detach();
         }
 
         private async ValueTask ReceiveAndDispatchFrameAsync()
