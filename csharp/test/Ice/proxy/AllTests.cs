@@ -671,6 +671,22 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
             TestHelper.Assert(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
+
+            IObjectPrx other = baseProxy.Clone(IObjectPrx.Factory, identityAndFacet: "test#facet");
+            TestHelper.Assert(other.Facet == "facet");
+            TestHelper.Assert(other.Identity.Name == "test");
+            TestHelper.Assert(other.Identity.Category.Length == 0);
+
+            other = other.Clone(IObjectPrx.Factory, identityAndFacet: "category/test");
+            TestHelper.Assert(other.Facet.Length == 0);
+            TestHelper.Assert(other.Identity.Name == "test");
+            TestHelper.Assert(other.Identity.Category == "category");
+
+            other = baseProxy.Clone(IObjectPrx.Factory, identityAndFacet: "foo#facet1");
+            TestHelper.Assert(other.Facet == "facet1");
+            TestHelper.Assert(other.Identity.Name == "foo");
+            TestHelper.Assert(other.Identity.Category.Length == 0);
+
             if (ice1)
             {
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
