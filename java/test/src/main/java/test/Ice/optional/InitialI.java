@@ -456,21 +456,6 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public Initial.OpIntOneOptionalDictResult opIntOneOptionalDict(java.util.@Nullable Map<Integer, OneOptional> p1,
-                                                                   Current current)
-    {
-        return new Initial.OpIntOneOptionalDictResult(p1, p1);
-    }
-
-    @Override
-    public Initial.OpIntOneOptionalDictReqResult opIntOneOptionalDictReq(
-        java.util.@Nullable Map<Integer, OneOptional> p1,
-        Current current)
-    {
-        return new Initial.OpIntOneOptionalDictReqResult(p1, p1);
-    }
-
-    @Override
     public void opClassAndUnknownOptional(A p, Current current)
     {
     }

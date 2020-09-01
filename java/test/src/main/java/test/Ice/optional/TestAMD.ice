@@ -63,7 +63,6 @@ dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
-dictionary<int, OneOptional> IntOneOptionalDict;
 
 class MultiOptional
 {
@@ -92,7 +91,6 @@ class MultiOptional
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
-    optional(27) IntOneOptionalDict iood;
 
     optional(29) BoolSeq bos;
 
@@ -292,12 +290,6 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
     optional(1) StringIntDict opStringIntDictReq(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
-
-    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
-                                                        out optional(3) IntOneOptionalDict p3);
-
-    optional(1) IntOneOptionalDict opIntOneOptionalDictReq(optional(2) IntOneOptionalDict p1,
-                                                           out optional(3) IntOneOptionalDict p3);
 
     void opClassAndUnknownOptional(A p);
 

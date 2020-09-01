@@ -73,9 +73,6 @@ class InitialI(Test.Initial):
     def opOneOptional(self, p1, current=None):
         return (p1, p1)
 
-    def opOneOptionalProxy(self, p1, current=None):
-        return (p1, p1)
-
     def opByteSeq(self, p1, current=None):
         return (p1, p1)
 
@@ -122,9 +119,6 @@ class InitialI(Test.Initial):
         return (p1, p1)
 
     def opStringIntDict(self, p1, current=None):
-        return (p1, p1)
-
-    def opIntOneOptionalDict(self, p1, current=None):
         return (p1, p1)
 
     def opClassAndUnknownOptional(self, p, current=None):

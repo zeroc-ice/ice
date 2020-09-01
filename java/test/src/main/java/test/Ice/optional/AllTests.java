@@ -97,8 +97,6 @@ public class AllTests
         mo1.getIfsd().put(4, fs);
         mo1.setIvsd(new java.util.HashMap<>());
         mo1.getIvsd().put(5, vs);
-        mo1.setIood(new java.util.HashMap<>());
-        mo1.getIood().put(5, new OneOptional(15));
 
         mo1.setBos(new boolean[] { false, true, false });
 
@@ -129,7 +127,6 @@ public class AllTests
         test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
-        test(mo1.getIood().get(5).getA() == 15);
 
         test(java.util.Arrays.equals(mo1.getBos(), new boolean[] { false, true, false }));
 
@@ -171,7 +168,6 @@ public class AllTests
         test(!mo4.hasIed());
         test(!mo4.hasIfsd());
         test(!mo4.hasIvsd());
-        test(!mo4.hasIood());
 
         test(!mo4.hasBos());
 
@@ -207,7 +203,6 @@ public class AllTests
         test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
-        test(mo5.getIood().get(5).getA() == 15);
 
         test(java.util.Arrays.equals(mo5.getBos(), new boolean[] { false, true, false }));
 
@@ -228,7 +223,6 @@ public class AllTests
         mo6.setShs(mo5.getShs());
         mo6.setFss(mo5.getFss());
         mo6.setIfsd(mo5.getIfsd());
-        mo6.setIood(mo5.getIood());
         mo6.setBos(mo5.getBos());
 
         MultiOptional mo7 = (MultiOptional)initial.pingPong(mo6);
@@ -256,7 +250,6 @@ public class AllTests
         test(!mo7.hasIed());
         test(mo7.getIfsd().get(4).equals(new FixedStruct(78)));
         test(!mo7.hasIvsd());
-        test(mo7.getIood().get(5).getA() == 15);
 
         test(java.util.Arrays.equals(mo7.getBos(), new boolean[] { false, true, false }));
 
@@ -302,7 +295,6 @@ public class AllTests
         test(mo9.getIed().get(4) == MyEnum.MyEnumMember);
         test(!mo9.hasIfsd());
         test(mo9.getIvsd().get(5).equals(new VarStruct("hello")));
-        test(!mo9.hasIood());
 
         test(!mo9.hasBos());
 
@@ -1842,58 +1834,6 @@ public class AllTests
                 in.skip(4);
                 m = StringIntDictHelper.read(in);
                 test(m.equals(p1));
-                in.endEncapsulation();
-
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                in.endEncapsulation();
-            }
-        }
-
-        {
-            java.util.@Nullable Map<Integer, OneOptional> p1 = null;
-            java.util.@Nullable Map<Integer, OneOptional> p3 = null;
-            Initial.OpIntOneOptionalDictResult r = initial.opIntOneOptionalDict(p1);
-            test(r.returnValue == null && r.p3 == null);
-
-            p1 = new java.util.HashMap<>();
-            p1.put(1, new OneOptional(15));
-            p1.put(2, new OneOptional(12));
-            r = initial.opIntOneOptionalDict(p1);
-            test(r.returnValue.get(1).getA() == 15 && r.p3.get(1).getA() == 15);
-            test(r.returnValue.get(2).getA() == 12 && r.p3.get(2).getA() == 12);
-            r = initial.opIntOneOptionalDictAsync(p1).join();
-            test(r.returnValue.get(1).getA() == 15 && r.p3.get(1).getA() == 15);
-            test(r.returnValue.get(2).getA() == 12 && r.p3.get(2).getA() == 12);
-
-            if(reqParams)
-            {
-                Initial.OpIntOneOptionalDictReqResult rr = initial.opIntOneOptionalDictReq(p1);
-                test(rr.returnValue.get(1).getA() == 15 && rr.p3.get(1).getA() == 15);
-                test(rr.returnValue.get(2).getA() == 12 && rr.p3.get(2).getA() == 12);
-                rr = initial.opIntOneOptionalDictReqAsync(p1).join();
-                test(rr.returnValue.get(1).getA() == 15 && rr.p3.get(1).getA() == 15);
-                test(rr.returnValue.get(2).getA() == 12 && rr.p3.get(2).getA() == 12);
-
-                os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeTag(2, TagFormat.FSize);
-                int pos = os.startSize();
-                IntOneOptionalDictHelper.write(os, p1);
-                os.endSize(pos);
-                os.endEncapsulation();
-                inEncaps = os.finished();
-                inv = initial.ice_invoke("opIntOneOptionalDictReq", OperationMode.Normal, inEncaps);
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                test(in.readTag(1, TagFormat.FSize));
-                in.skip(4);
-                java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
-                test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-                test(in.readTag(3, TagFormat.FSize));
-                in.skip(4);
-                m = IntOneOptionalDictHelper.read(in);
-                test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
                 in.endEncapsulation();
 
                 in = new InputStream(communicator, inv.outParams);

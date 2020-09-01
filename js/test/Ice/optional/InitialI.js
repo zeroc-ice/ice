@@ -157,11 +157,6 @@
             return [p1, p1];
         }
 
-        opOneOptionalProxy(p1, current)
-        {
-            return [p1, p1];
-        }
-
         opByteSeq(p1, current)
         {
             return [p1, p1];
@@ -238,11 +233,6 @@
         }
 
         opStringIntDict(p1, current)
-        {
-            return [p1, p1];
-        }
-
-        opIntOneOptionalDict(p1, current)
         {
             return [p1, p1];
         }

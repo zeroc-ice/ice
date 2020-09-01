@@ -160,11 +160,6 @@ public:
         IceUtil::Optional< ::Test::StringIntDict>&,
         const ::Ice::Current&);
 
-    virtual IceUtil::Optional< ::Test::IntOneOptionalDict> opIntOneOptionalDict(
-        IceUtil::Optional< ::Test::IntOneOptionalDict>,
-        IceUtil::Optional< ::Test::IntOneOptionalDict>&,
-        const ::Ice::Current&);
-
     virtual IceUtil::Optional< ::Test::IntStringDict> opCustomIntStringDict(
         IceUtil::Optional<std::map<int, Util::string_view> >,
         IceUtil::Optional< ::Test::IntStringDict>&,

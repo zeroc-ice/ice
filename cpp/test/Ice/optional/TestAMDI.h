@@ -152,10 +152,6 @@ public:
                                       ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)>,
                                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opIntOneOptionalDictAsync(Ice::optional<::Test::IntOneOptionalDict>,
-                                           ::std::function<void(const Ice::optional<::Test::IntOneOptionalDict>&, const Ice::optional<::Test::IntOneOptionalDict>&)>,
-                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
     virtual void opCustomIntStringDictAsync(Ice::optional<::std::map< int, ::Util::string_view>>,
                                             ::std::function<void(const Ice::optional<::std::map< int, ::Util::string_view>>&, const Ice::optional<::std::map< int, ::Util::string_view>>&)>,
                                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;

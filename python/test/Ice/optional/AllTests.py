@@ -59,8 +59,6 @@ def allTests(helper, communicator):
     test(mo1.ied is Ice.Unset)
     test(mo1.ifsd is Ice.Unset)
     test(mo1.ivsd is Ice.Unset)
-    test(mo1.iood is Ice.Unset)
-    test(mo1.ioopd is Ice.Unset)
 
     test(mo1.bos is Ice.Unset)
 
@@ -71,9 +69,7 @@ def allTests(helper, communicator):
                              [5], ["test", "test2"], {4:3}, {"test":10}, fs, vs, [1], \
                              [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember], \
                              [ fs ], [ vs ], \
-                             [ communicator.stringToProxy("test") ], \
-                             {4:Test.MyEnum.MyEnumMember}, {4:fs}, {5:vs}, {5:Test.OneOptional(15)}, \
-                             {5:communicator.stringToProxy("test")}, \
+                             {4:Test.MyEnum.MyEnumMember}, {4:fs}, {5:vs}, \
                              [False, True, False])
 
     test(mo1.a == 15)
@@ -96,13 +92,10 @@ def allTests(helper, communicator):
     test(mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
-    test(mo1.oops[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo1.ifsd[4] == Test.FixedStruct(78))
     test(mo1.ivsd[5] == Test.VarStruct("hello"))
-    test(mo1.iood[5].a == 15)
-    test(mo1.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [False, True, False])
 
@@ -146,13 +139,10 @@ def allTests(helper, communicator):
     test(mo4.es is Ice.Unset)
     test(mo4.fss is Ice.Unset)
     test(mo4.vss is Ice.Unset)
-    test(mo4.oops is Ice.Unset)
 
     test(mo4.ied is Ice.Unset)
     test(mo4.ifsd is Ice.Unset)
     test(mo4.ivsd is Ice.Unset)
-    test(mo4.iood is Ice.Unset)
-    test(mo4.ioopd is Ice.Unset)
 
     test(mo4.bos is Ice.Unset)
 
@@ -179,13 +169,10 @@ def allTests(helper, communicator):
     test(mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
-    test(mo5.oops[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo5.ifsd[4] == Test.FixedStruct(78))
     test(mo5.ivsd[5] == Test.VarStruct("hello"))
-    test(mo5.iood[5].a == 15)
-    test(mo5.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -201,7 +188,6 @@ def allTests(helper, communicator):
     mo6.shs = mo5.shs
     mo6.fss = mo5.fss
     mo6.ifsd = mo5.ifsd
-    mo6.iood = mo5.iood
     mo6.bos = mo5.bos
 
     mo7 = initial.pingPong(mo6)
@@ -228,13 +214,10 @@ def allTests(helper, communicator):
     test(mo7.es is Ice.Unset)
     test(mo7.fss[0] == Test.FixedStruct(78))
     test(mo7.vss is Ice.Unset)
-    test(mo7.oops is Ice.Unset)
 
     test(mo7.ied is Ice.Unset)
     test(mo7.ifsd[4] == Test.FixedStruct(78))
     test(mo7.ivsd is Ice.Unset)
-    test(mo7.iood[5].a == 15)
-    test(mo7.ioopd is Ice.Unset)
 
     test(mo7.bos == [False, True, False])
 
@@ -251,11 +234,9 @@ def allTests(helper, communicator):
 
     mo8.es = mo5.es
     mo8.vss = mo5.vss
-    mo8.oops = mo5.oops
 
     mo8.ied = mo5.ied
     mo8.ivsd = mo5.ivsd
-    mo8.ioopd = mo5.ioopd
 
     mo9 = initial.pingPong(mo8)
     test(mo9.a == mo1.a)
@@ -278,13 +259,10 @@ def allTests(helper, communicator):
     test(mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo9.fss is Ice.Unset)
     test(mo9.vss[0] == Test.VarStruct("hello"))
-    test(mo9.oops[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo9.ifsd is Ice.Unset)
     test(mo9.ivsd[5] == Test.VarStruct("hello"))
-    test(mo9.iood is Ice.Unset)
-    test(mo9.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo9.bos is Ice.Unset)
 
@@ -547,15 +525,6 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2.a == p1.a and p3.a == p1.a)
 
-    (p2, p3) = initial.opOneOptionalProxy(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = communicator.stringToProxy("test")
-    (p2, p3) = initial.opOneOptionalProxy(p1)
-    test(p2 == p1 and p3 == p1)
-    f = initial.opOneOptionalProxyAsync(p1)
-    (p2, p3) = f.result()
-    test(p2 == p1 and p3 == p1)
-
     (p2, p3) = initial.opByteSeq(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
     p1 = [56 for x in range(100)]
@@ -702,15 +671,6 @@ def allTests(helper, communicator):
     f = initial.opStringIntDictAsync(p1)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
-
-    (p2, p3) = initial.opIntOneOptionalDict(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = {1:Test.OneOptional(58), 2:Test.OneOptional(59)}
-    (p2, p3) = initial.opIntOneOptionalDict(p1)
-    test(p2[1].a == 58 and p3[1].a == 58);
-    f = initial.opIntOneOptionalDictAsync(p1)
-    (p2, p3) = f.result()
-    test(p2[1].a == 58 and p3[1].a == 58);
 
     print("ok")
 

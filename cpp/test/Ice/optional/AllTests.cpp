@@ -396,9 +396,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->ifsd.value()[4] = fs;
     mo1->ivsd = IntVarStructDict();
     mo1->ivsd.value()[5] = vs;
-    mo1->iood = IntOneOptionalDict();
-    mo1->iood.value()[5] = std::make_shared<OneOptional>();
-    mo1->iood.value()[5]->a = 15;
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -433,7 +430,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->ied == mo1->ied);
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
-    test(mo3->iood == mo1->iood);
 
     test(mo3->bos == mo1->bos);
 
@@ -489,7 +485,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->ied);
     test(!mo4->ifsd);
     test(!mo4->ivsd);
-    test(!mo4->iood);
 
     test(!mo4->bos);
 
@@ -518,7 +513,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->ied == mo1->ied);
     test(mo5->ifsd == mo1->ifsd);
     test(mo5->ivsd == mo1->ivsd);
-    test(!mo5->iood->empty() && (*mo5->iood)[5]->a == 15);
 
     test(mo5->bos == mo1->bos);
 
@@ -564,7 +558,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->ied);
     test(mo7->ifsd == mo1->ifsd);
     test(!mo7->ivsd);
-    test(!mo7->iood->empty() && (*mo7->iood)[5]->a == 15);
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = std::make_shared<MultiOptional>(*mo5);
@@ -580,7 +573,6 @@ allTests(Test::TestHelper* helper, bool)
     mo8->fss = IceUtil::None;
 
     mo8->ifsd = IceUtil::None;
-    mo8->iood = IceUtil::None;
 
     MultiOptionalPtr mo9 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo8));
     test(mo9->a == mo1->a);
@@ -607,7 +599,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->ied == mo1->ied);
     test(!mo8->ifsd);
     test(mo8->ivsd == mo1->ivsd);
-    test(!mo8->iood);
 
     Ice::ByteSeq inEncaps;
     Ice::ByteSeq outEncaps;
@@ -1654,37 +1645,6 @@ allTests(Test::TestHelper* helper, bool)
         in.read(3, p3);
         in.endEncapsulation();
         test(p2 == ss && p3 == ss);
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
-    }
-
-    {
-        IceUtil::Optional<IntOneOptionalDict> p1;
-        IceUtil::Optional<IntOneOptionalDict> p3;
-        IceUtil::Optional<IntOneOptionalDict> p2 = initial->opIntOneOptionalDict(p1, p3);
-        test(!p2 && !p3);
-
-        IntOneOptionalDict ss;
-        ss.insert(make_pair<int, OneOptionalPtr>(1, std::make_shared<OneOptional>(58)));
-        p1 = ss;
-        p2 = initial->opIntOneOptionalDict(p1, p3);
-        test(p2 && p3);
-        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(2, p1);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        initial->ice_invoke("opIntOneOptionalDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-        in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
-        in.endEncapsulation();
-        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();

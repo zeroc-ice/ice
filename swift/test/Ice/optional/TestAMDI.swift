@@ -101,11 +101,6 @@ class InitialI: Initial {
         return Promise.value((p1, p1))
     }
 
-    func opOneOptionalProxyAsync(p1: ObjectPrx?,
-                                 current _: Current) -> Promise<(returnValue: ObjectPrx?, p3: ObjectPrx?)> {
-        return Promise.value((p1, p1))
-    }
-
     func opByteSeqAsync(p1: ByteSeq?, current _: Current) -> Promise<(returnValue: ByteSeq?, p3: ByteSeq?)> {
         return Promise.value((p1, p1))
     }
@@ -175,12 +170,6 @@ class InitialI: Initial {
 
     func opStringIntDictAsync(p1: StringIntDict?,
                               current _: Current) -> Promise<(returnValue: StringIntDict?, p3: StringIntDict?)> {
-        return Promise.value((p1, p1))
-    }
-
-    func opIntOneOptionalDictAsync(p1: IntOneOptionalDict?,
-                                   current _: Current) -> Promise<(returnValue: IntOneOptionalDict?,
-                                                                   p3: IntOneOptionalDict?)> {
         return Promise.value((p1, p1))
     }
 

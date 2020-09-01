@@ -337,13 +337,6 @@ InitialI::opStringIntDict(Optional<StringIntDict> p1, Optional<StringIntDict>& p
     return p3;
 }
 
-Optional<IntOneOptionalDict>
-InitialI::opIntOneOptionalDict(Optional<IntOneOptionalDict> p1, Optional<IntOneOptionalDict>& p3, const Current&)
-{
-    p3 = p1;
-    return p3;
-}
-
 Optional<IntStringDict>
 InitialI::opCustomIntStringDict(Optional<std::map<int, Util::string_view> > p1,
                                 Optional<IntStringDict>& p3, const Current&)

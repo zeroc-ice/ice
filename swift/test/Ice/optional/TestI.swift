@@ -104,11 +104,6 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opOneOptionalProxy(p1: Ice.ObjectPrx?, current _: Ice.Current) throws -> (returnValue: Ice.ObjectPrx?,
-                                                                                   p3: Ice.ObjectPrx?) {
-        return (p1, p1)
-    }
-
     func opByteSeq(p1: ByteSeq?, current _: Ice.Current) throws -> (returnValue: ByteSeq?, p3: ByteSeq?) {
         return (p1, p1)
     }
@@ -184,12 +179,6 @@ class InitialI: Initial {
 
     func opCustomIntStringDict(p1: IntStringDict?,
                                current _: Current) throws -> (returnValue: IntStringDict?, p3: IntStringDict?) {
-        return (p1, p1)
-    }
-
-    func opIntOneOptionalDict(p1: [Int32: OneOptional?]?,
-                              current _: Ice.Current) throws -> (returnValue: [Int32: OneOptional?]?,
-                                                                 p3: [Int32: OneOptional?]?) {
         return (p1, p1)
     }
 

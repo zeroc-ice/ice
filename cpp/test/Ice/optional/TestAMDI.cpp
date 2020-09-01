@@ -308,14 +308,6 @@ InitialI::opStringIntDictAsync(Ice::optional<::Test::StringIntDict> p1,
 }
 
 void
-InitialI::opIntOneOptionalDictAsync(Ice::optional<::Test::IntOneOptionalDict> p1,
-                                    ::std::function<void(const Ice::optional<::Test::IntOneOptionalDict>&, const Ice::optional<::Test::IntOneOptionalDict>&)> response,
-                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
 InitialI::opCustomIntStringDictAsync(Ice::optional<::std::map< int, ::Util::string_view>> p1,
                                      ::std::function<void(const Ice::optional<::std::map< int, ::Util::string_view>>&, const Ice::optional<::std::map< int, ::Util::string_view>>&)> response,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
