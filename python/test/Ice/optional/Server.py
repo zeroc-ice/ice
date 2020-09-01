@@ -70,9 +70,6 @@ class InitialI(Test.Initial):
     def opVarStruct(self, p1, current=None):
         return (p1, p1)
 
-    def opOneOptional(self, p1, current=None):
-        return (p1, p1)
-
     def opByteSeq(self, p1, current=None):
         return (p1, p1)
 
@@ -123,12 +120,6 @@ class InitialI(Test.Initial):
 
     def opClassAndUnknownOptional(self, p, current=None):
         pass
-
-    def sendOptionalClass(self, req, o, current=None):
-        pass
-
-    def returnOptionalClass(self, req, current=None):
-        return Test.OneOptional(53)
 
     def opG(self, g, current=None):
         return g

@@ -266,17 +266,6 @@ def allTests(helper, communicator):
 
     test(mo9.bos is Ice.Unset)
 
-    #
-    # Use the 1.0 encoding with operations whose only class parameters are optional.
-    #
-    initial.sendOptionalClass(True, Test.OneOptional(53))
-    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalClass(True, Test.OneOptional(53))
-
-    r = initial.returnOptionalClass(True)
-    test(r != Ice.Unset)
-    r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalClass(True)
-    test(r is Ice.Unset)
-
     g = Test.G()
     g.gg1Opt = Test.G1("gg1Opt")
     g.gg2 = Test.G2(10)
@@ -504,18 +493,6 @@ def allTests(helper, communicator):
     f = initial.opVarStructAsync(p1)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
-
-    (p2, p3) = initial.opOneOptional(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    if initial.supportsNullOptional():
-        (p2, p3) = initial.opOneOptional(None)
-        test(p2 is None and p3 is None)
-    p1 = Test.OneOptional(58)
-    (p2, p3) = initial.opOneOptional(p1)
-    test(p2.a == p1.a and p3.a == p1.a)
-    f = initial.opOneOptionalAsync(p1)
-    (p2, p3) = f.result()
-    test(p2.a == p1.a and p3.a == p1.a)
 
     (p2, p3) = initial.opByteSeq(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)

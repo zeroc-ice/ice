@@ -151,11 +151,6 @@ export class AMDInitialI extends Test.Initial
         return [p1, p1];
     }
 
-    opOneOptional(p1:Test.OneOptional, current:Ice.Current):[Test.OneOptional, Test.OneOptional]
-    {
-        return [p1, p1];
-    }
-
     opByteSeq(p1:Test.ByteSeq, current:Ice.Current):[Test.ByteSeq, Test.ByteSeq]
     {
         return [p1, p1];
@@ -238,15 +233,6 @@ export class AMDInitialI extends Test.Initial
 
     opClassAndUnknownOptional(p:Test.A, current:Ice.Current):void
     {
-    }
-
-    sendOptionalClass(req:boolean, one:Test.OneOptional, current:Ice.Current):void
-    {
-    }
-
-    returnOptionalClass(req:boolean, current:Ice.Current):Test.OneOptional
-    {
-        return new Test.OneOptional(53);
     }
 
     opG(g:Test.G, current:Ice.Current):Test.G

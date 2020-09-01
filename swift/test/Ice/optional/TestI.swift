@@ -99,11 +99,6 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opOneOptional(p1: OneOptional?, current _: Ice.Current) throws -> (returnValue: OneOptional?,
-                                                                            p3: OneOptional?) {
-        return (p1, p1)
-    }
-
     func opByteSeq(p1: ByteSeq?, current _: Ice.Current) throws -> (returnValue: ByteSeq?, p3: ByteSeq?) {
         return (p1, p1)
     }
@@ -183,12 +178,6 @@ class InitialI: Initial {
     }
 
     func opClassAndUnknownOptional(p _: A?, current _: Ice.Current) throws {}
-
-    func sendOptionalClass(req _: Bool, o _: OneOptional?, current _: Ice.Current) throws {}
-
-    func returnOptionalClass(req _: Bool, current _: Ice.Current) throws -> OneOptional? {
-        return OneOptional(a: 53)
-    }
 
     func opG(g: G?, current _: Ice.Current) throws -> G? {
         return g

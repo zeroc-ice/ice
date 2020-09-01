@@ -172,14 +172,6 @@ InitialI::opVarStructAsync(Ice::optional<::Test::VarStruct> p1,
 }
 
 void
-InitialI::opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional>> p1,
-                                  ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&, const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)> response,
-                                  ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
 InitialI::opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>> p1,
                               ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
@@ -321,22 +313,6 @@ InitialI::opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response();
-}
-
-void
-InitialI::sendOptionalClassAsync(bool, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
-                                 ::std::function<void()> response,
-                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response();
-}
-
-void
-InitialI::returnOptionalClassAsync(bool,
-                                   ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)> response,
-                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(make_shared<OneOptional>(53));
 }
 
 void

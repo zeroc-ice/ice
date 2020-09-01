@@ -255,17 +255,6 @@ classdef AllTests
 
             assert(mo9.bos == Ice.Unset);
 
-            %
-            % Use the 1.0 encoding with operations whose only class parameters are optional.
-            %
-            initial.sendOptionalClass(true, OneOptional(53));
-            initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).sendOptionalClass(true, OneOptional(53));
-
-            r = initial.returnOptionalClass(true);
-            assert(r ~= Ice.Unset)
-            r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalClass(true);
-            assert(r == Ice.Unset);
-
             g = G();
             g.gg1Opt = G1('gg1Opt');
             g.gg2 = G2(10);
@@ -485,19 +474,6 @@ classdef AllTests
             f = initial.opVarStructAsync(p1);
             [p2, p3] = f.fetchOutputs();
             assert(p2 == p1 && p3 == p1);
-
-            [p2, p3] = initial.opOneOptional(Ice.Unset);
-            assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            if initial.supportsNullOptional()
-                [p2, p3] = initial.opOneOptional([]);
-                assert(isempty(p2) && isempty(p3));
-            end
-            p1 = OneOptional(58);
-            [p2, p3] = initial.opOneOptional(p1);
-            assert(p2.a == p1.a && p3.a == p1.a);
-            f = initial.opOneOptionalAsync(p1);
-            [p2, p3] = f.fetchOutputs();
-            assert(p2.a == p1.a && p3.a == p1.a);
 
             [p2, p3] = initial.opByteSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);

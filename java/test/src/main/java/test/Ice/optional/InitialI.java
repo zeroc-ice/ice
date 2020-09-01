@@ -249,18 +249,6 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public Initial.OpOneOptionalResult opOneOptional(@Nullable OneOptional p1, Current current)
-    {
-        return new Initial.OpOneOptionalResult(p1, p1);
-    }
-
-    @Override
-    public Initial.OpOneOptionalReqResult opOneOptionalReq(@Nullable OneOptional p1, Current current)
-    {
-        return new Initial.OpOneOptionalReqResult(p1, p1);
-    }
-
-    @Override
     public Initial.OpByteSeqResult opByteSeq(byte @Nullable[] p1, Current current)
     {
         return new Initial.OpByteSeqResult(p1, p1);
@@ -458,17 +446,6 @@ public final class InitialI implements Initial
     @Override
     public void opClassAndUnknownOptional(A p, Current current)
     {
-    }
-
-    @Override
-    public void sendOptionalClass(boolean req, @Nullable OneOptional o, Current current)
-    {
-    }
-
-    @Override
-    public @Nullable OneOptional returnOptionalClass(boolean req, Current current)
-    {
-        return new OneOptional(53);
     }
 
     @Override

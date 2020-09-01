@@ -347,19 +347,6 @@ public class AllTests
         test(cb.value != null);
         factory.setEnabled(false);
 
-        //
-        // Use the 1.0 encoding with operations whose only class parameters are tagged.
-        //
-        @Nullable OneOptional oo = new OneOptional(53);
-        initial.sendOptionalClass(true, oo);
-        InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
-        initial2.sendOptionalClass(true, oo);
-
-        oo = initial.returnOptionalClass(true);
-        test(oo != null);
-        oo = initial2.returnOptionalClass(true);
-        test(oo == null);
-
         G g = new G();
         g.setGg1Opt(new G1("gg1Opt"));
         g.gg2 = new G2(10);
@@ -1040,46 +1027,6 @@ public class AllTests
                 v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
                 in.endEncapsulation();
-
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                in.endEncapsulation();
-            }
-        }
-
-        {
-            @Nullable OneOptional p1 = null;
-            Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
-            test(r.returnValue == null && r.p3 == null);
-
-            p1 = new OneOptional(58);
-            r = initial.opOneOptional(p1);
-            test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
-            r = initial.opOneOptionalAsync(p1).join();
-            test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
-
-            if(reqParams)
-            {
-                Initial.OpOneOptionalReqResult rr = initial.opOneOptionalReq(p1);
-                test(rr.returnValue.getA() == 58 && rr.p3.getA() == 58);
-                rr = initial.opOneOptionalReqAsync(p1).join();
-                test(rr.returnValue.getA() == 58 && rr.p3.getA() == 58);
-
-                os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeTag(2, TagFormat.Class);
-                os.writeValue(p1);
-                os.endEncapsulation();
-                inEncaps = os.finished();
-                inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                Wrapper<@Nullable OneOptional> p2cb = new Wrapper<>();
-                in.readValue(1, v -> p2cb.value = v, OneOptional.class);
-                Wrapper<@Nullable OneOptional> p3cb = new Wrapper<>();
-                in.readValue(3, v -> p3cb.value = v, OneOptional.class);
-                in.endEncapsulation();
-                test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
 
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();

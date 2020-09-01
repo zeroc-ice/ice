@@ -152,11 +152,6 @@
             return [p1, p1];
         }
 
-        opOneOptional(p1, current)
-        {
-            return [p1, p1];
-        }
-
         opByteSeq(p1, current)
         {
             return [p1, p1];
@@ -241,10 +236,6 @@
         {
         }
 
-        sendOptionalClass(req, current)
-        {
-        }
-
         opG(g, current)
         {
             return g;
@@ -292,11 +283,6 @@
         opMG2(p1, current)
         {
             return [p1, p1];
-        }
-
-        returnOptionalClass(req, current)
-        {
-            return new Test.OneOptional(53);
         }
 
         supportsRequiredParams(current)

@@ -169,13 +169,6 @@ InitialI::opVarStruct(Optional<VarStruct> p1, Optional<VarStruct>& p3, const Cur
     return p1;
 }
 
-Optional<OneOptionalPtr>
-InitialI::opOneOptional(Optional<OneOptionalPtr> p1, Optional<OneOptionalPtr>& p3, const Current&)
-{
-    p3 = p1;
-    return p1;
-}
-
 Optional<Test::ByteSeq>
 InitialI::opByteSeq(Optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, Optional<Test::ByteSeq>& p3,
                     const Current&)
@@ -356,17 +349,6 @@ InitialI::opCustomIntStringDict(Optional<std::map<int, Util::string_view> > p1,
 void
 InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {
-}
-
-void
-InitialI::sendOptionalClass(bool, Optional<OneOptionalPtr>, const Ice::Current&)
-{
-}
-
-void
-InitialI::returnOptionalClass(bool, Optional<OneOptionalPtr>& o, const Ice::Current&)
-{
-    o = std::make_shared<OneOptional>(53);
 }
 
 GPtr

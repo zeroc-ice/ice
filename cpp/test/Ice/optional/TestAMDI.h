@@ -84,10 +84,6 @@ public:
                                   ::std::function<void(const Ice::optional<::Test::VarStruct>&, const Ice::optional<::Test::VarStruct>&)>,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
-                                    ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&, const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
-                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
     virtual void opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
                                 ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -159,14 +155,6 @@ public:
     virtual void opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
                                                 ::std::function<void()>,
                                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void sendOptionalClassAsync(bool, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
-                                        ::std::function<void()>,
-                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void returnOptionalClassAsync(bool,
-                                          ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
-                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opGAsync(::std::shared_ptr<::Test::G>,
                           ::std::function<void(const ::std::shared_ptr<::Test::G>&)>,

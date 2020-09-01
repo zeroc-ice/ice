@@ -76,9 +76,6 @@ class InitialI(Test.Initial):
     def opVarStruct(self, p1, current=None):
         return Ice.Future.completed((p1, p1))
 
-    def opOneOptional(self, p1, current=None):
-        return Ice.Future.completed((p1, p1))
-
     def opByteSeq(self, p1, current=None):
         return Ice.Future.completed((p1, p1))
 
@@ -129,12 +126,6 @@ class InitialI(Test.Initial):
 
     def opClassAndUnknownOptional(self, p, current=None):
         return Ice.Future.completed(None)
-
-    def sendOptionalClass(self, req, o, current=None):
-        return Ice.Future.completed(None)
-
-    def returnOptionalClass(self, req, current=None):
-        return Ice.Future.completed(Test.OneOptional(53))
 
     def opG(self, g, current=None):
         return Ice.Future.completed(g)

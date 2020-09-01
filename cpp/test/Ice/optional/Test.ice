@@ -226,8 +226,6 @@ interface Initial
 
     optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
 
-    optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
-
     // Custom mapping operations
     [cpp:array] optional(1) ByteSeq opByteSeq([cpp:array] optional(2) ByteSeq p1,
                                                 out [cpp:array] optional(3) ByteSeq p3);
@@ -278,10 +276,6 @@ interface Initial
         out [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] optional(3) IntStringDict p3);
 
     void opClassAndUnknownOptional(A p);
-
-    void sendOptionalClass(bool req, optional(1) OneOptional o);
-
-    void returnOptionalClass(bool req, out optional(1) OneOptional o);
 
     G opG(G g);
 

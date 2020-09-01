@@ -152,11 +152,6 @@
             return [p1, p1];
         }
 
-        opOneOptional(p1, current)
-        {
-            return [p1, p1];
-        }
-
         opByteSeq(p1, current)
         {
             return [p1, p1];
@@ -239,15 +234,6 @@
 
         opClassAndUnknownOptional(p, current)
         {
-        }
-
-        sendOptionalClass(req, current)
-        {
-        }
-
-        returnOptionalClass(req, current)
-        {
-            return new Test.OneOptional(53);
         }
 
         opG(g, current)

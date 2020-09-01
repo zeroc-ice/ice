@@ -640,18 +640,6 @@ allTests(Test::TestHelper* helper, bool)
         factory->setEnabled(false);
     }
 
-    //
-    // Use the 1.0 encoding with operations whose only class parameters are optional.
-    //
-    IceUtil::Optional<OneOptionalPtr> oo(std::make_shared<OneOptional>(53));
-    initial->sendOptionalClass(true, oo);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalClass(true, oo);
-
-    initial->returnOptionalClass(true, oo);
-    test(oo);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
-    test(!oo);
-
     GPtr g = std::make_shared<G>();
     g->gg1Opt = std::make_shared<G1>("gg1Opt");
     g->gg2 = std::make_shared<G2>(10);
@@ -1250,40 +1238,6 @@ allTests(Test::TestHelper* helper, bool)
         in.read(3, p3);
         in.endEncapsulation();
         test(p2->m == "test" && p3->m == "test");
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
-    }
-
-    {
-        IceUtil::Optional<OneOptionalPtr> p1;
-        IceUtil::Optional<OneOptionalPtr> p3;
-        IceUtil::Optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
-        test(!p2 && !p3);
-
-        if(initial->supportsNullOptional())
-        {
-            p2 = initial->opOneOptional(OneOptionalPtr(), p3);
-            test(*p2 == nullptr && *p3 == nullptr);
-        }
-
-        p1 = std::make_shared<OneOptional>(58);
-        p2 = initial->opOneOptional(p1, p3);
-        test((*p2)->a == 58 && (*p3)->a == 58);
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(2, p1);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        initial->ice_invoke("opOneOptional", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-        in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
-        in.endEncapsulation();
-        test((*p2)->a == 58 && (*p3)->a == 58);
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();

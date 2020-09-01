@@ -264,19 +264,6 @@ public final class AMDInitialI implements Initial
     }
 
     @Override
-    public CompletionStage<Initial.OpOneOptionalResult> opOneOptionalAsync(@Nullable OneOptional p1, Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpOneOptionalResult(p1, p1));
-    }
-
-    @Override
-    public CompletionStage<Initial.OpOneOptionalReqResult> opOneOptionalReqAsync(@Nullable OneOptional p1,
-                                                                                 Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpOneOptionalReqResult(p1, p1));
-    }
-
-    @Override
     public CompletionStage<Initial.OpByteSeqResult> opByteSeqAsync(byte @Nullable[] p1, Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpByteSeqResult(p1, p1));
@@ -498,17 +485,6 @@ public final class AMDInitialI implements Initial
         return CompletableFuture.completedFuture(null);
     }
 
-    @Override
-    public CompletionStage<Void> sendOptionalClassAsync(boolean req, @Nullable OneOptional o, Current current)
-    {
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletionStage<@Nullable OneOptional> returnOptionalClassAsync(boolean req, Current current)
-    {
-        return CompletableFuture.completedFuture(new OneOptional(53));
-    }
 
     @Override
     public CompletionStage<G> opGAsync(G g, Current current)

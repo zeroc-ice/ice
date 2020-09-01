@@ -226,13 +226,6 @@
             const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
             const oo = new Test.OneOptional(53);
 
-            await initial.sendOptionalClass(true, oo);
-            await initial2.sendOptionalClass(true, oo);
-            oo1 = await initial.returnOptionalClass(true);
-            test(oo1 !== undefined && oo1.a == 53);
-            oo1 = await initial2.returnOptionalClass(true);
-            test(oo1 === undefined);
-
             let g = new Test.G();
             g.gg1Opt = new Test.G1("gg1Opt");
             g.gg2 = new Test.G2(new Ice.Long(0, 10));
@@ -398,19 +391,6 @@
             [p1, p2] = await initial.opVarStruct(new Test.VarStruct("test"));
             test(p1.equals(new Test.VarStruct("test")));
             test(p2.equals(new Test.VarStruct("test")));
-            [p1, p2] = await initial.opOneOptional();
-            test(p1 === undefined);
-            test(p2 === undefined);
-            if(await initial.supportsNullOptional())
-            {
-
-                [p1, p2] = await initial.opOneOptional(null);
-                test(p1 === null);
-                test(p2 === null);
-            }
-            [p1, p2] = await initial.opOneOptional(new Test.OneOptional(58));
-            test(p1 === p2);
-            test(p2.a === 58);
             [p1, p2] = await initial.opByteSeq();
             test(p1 === undefined);
             test(p2 === undefined);

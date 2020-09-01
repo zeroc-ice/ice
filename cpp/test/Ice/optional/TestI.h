@@ -82,10 +82,6 @@ public:
                                                            IceUtil::Optional<Test::VarStruct>&,
                                                            const ::Ice::Current&);
 
-    virtual IceUtil::Optional<Test::OneOptionalPtr> opOneOptional(IceUtil::Optional< Test::OneOptionalPtr>,
-                                                                  IceUtil::Optional< Test::OneOptionalPtr>&,
-                                                                  const ::Ice::Current&);
-
     virtual IceUtil::Optional< ::Test::ByteSeq> opByteSeq(
         IceUtil::Optional< ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >,
         IceUtil::Optional< ::Test::ByteSeq>&,
@@ -166,10 +162,6 @@ public:
         const ::Ice::Current&);
 
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
-
-    virtual void sendOptionalClass(bool, IceUtil::Optional<Test::OneOptionalPtr>, const Ice::Current&);
-
-    virtual void returnOptionalClass(bool, IceUtil::Optional<Test::OneOptionalPtr>&, const Ice::Current&);
 
     virtual ::Test::GPtr opG(::Test::GPtr g, const Ice::Current&);
 

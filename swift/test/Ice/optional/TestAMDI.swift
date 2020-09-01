@@ -96,11 +96,6 @@ class InitialI: Initial {
         return Promise.value((p1, p1))
     }
 
-    func opOneOptionalAsync(p1: OneOptional?,
-                            current _: Current) -> Promise<(returnValue: OneOptional?, p3: OneOptional?)> {
-        return Promise.value((p1, p1))
-    }
-
     func opByteSeqAsync(p1: ByteSeq?, current _: Current) -> Promise<(returnValue: ByteSeq?, p3: ByteSeq?)> {
         return Promise.value((p1, p1))
     }
@@ -175,14 +170,6 @@ class InitialI: Initial {
 
     func opClassAndUnknownOptionalAsync(p _: A?, current _: Current) -> Promise<Void> {
         return Promise.value(())
-    }
-
-    func sendOptionalClassAsync(req _: Bool, o _: OneOptional?, current _: Current) -> Promise<Void> {
-        return Promise.value(())
-    }
-
-    func returnOptionalClassAsync(req _: Bool, current _: Current) -> Promise<OneOptional?> {
-        return Promise.value(OneOptional(a: 53))
     }
 
     func opGAsync(g: G?, current _: Current) -> Promise<G?> {
