@@ -956,30 +956,30 @@ namespace ZeroC.Ice
                 }
 
                 var clone = new Reference(adapterId ?? AdapterId,
-                                      cacheConnection ?? IsConnectionCached,
-                                      Communicator,
-                                      connectionId ?? ConnectionId,
-                                      context?.ToImmutableDictionary() ?? Context,
-                                      encoding ?? Encoding,
-                                      endpointSelection ?? EndpointSelection,
-                                      newEndpoints ?? Endpoints,
-                                      facet ?? Facet,
-                                      identity ?? Identity,
-                                      invocationMode ?? InvocationMode,
-                                      invocationTimeout ?? InvocationTimeout,
-                                      locatorCacheTimeout ?? LocatorCacheTimeout,
-                                      locatorInfo, // no fallback otherwise breaks clearLocator
-                                      preferNonSecure ?? PreferNonSecure,
-                                      Protocol,
-                                      routerInfo); // no fallback otherwise breaks clearRouter
+                                          cacheConnection ?? IsConnectionCached,
+                                          Communicator,
+                                          connectionId ?? ConnectionId,
+                                          context?.ToImmutableDictionary() ?? Context,
+                                          encoding ?? Encoding,
+                                          endpointSelection ?? EndpointSelection,
+                                          newEndpoints ?? Endpoints,
+                                          facet ?? Facet,
+                                          identity ?? Identity,
+                                          invocationMode ?? InvocationMode,
+                                          invocationTimeout ?? InvocationTimeout,
+                                          locatorCacheTimeout ?? LocatorCacheTimeout,
+                                          locatorInfo, // no fallback otherwise breaks clearLocator
+                                          preferNonSecure ?? PreferNonSecure,
+                                          Protocol,
+                                          routerInfo); // no fallback otherwise breaks clearRouter
 
                 return clone == this ? this : clone;
             }
         }
 
-        internal Connection? GetCachedConnection() => _requestHandler?.GetConnection();
+        internal Connection? GetCachedConnection() => _requestHandler as Connection;
 
-        internal async ValueTask<IRequestHandler> GetConnectionRequestHandlerAsync(CancellationToken cancel)
+        internal async ValueTask<IRequestHandler> GetConnectionAsync(CancellationToken cancel)
         {
             Debug.Assert(!IsFixed);
 
@@ -1126,7 +1126,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                return new ConnectionRequestHandler(connection);
+                return connection;
             }
             catch (Exception ex)
             {
@@ -1143,7 +1143,7 @@ namespace ZeroC.Ice
                         Communicator.Logger.Trace(traceLevels.RetryCategory, "connection to cached endpoints failed\n" +
                             $"removing endpoints from cache and trying again\n{ex}");
                     }
-                    return await GetConnectionRequestHandlerAsync(cancel);
+                    return await GetConnectionAsync(cancel);
                 }
                 throw;
             }
@@ -1168,7 +1168,7 @@ namespace ZeroC.Ice
 
                 if (handler == null)
                 {
-                    handler = await GetConnectionRequestHandlerAsync(cancel).ConfigureAwait(false);
+                    handler = await GetConnectionAsync(cancel).ConfigureAwait(false);
                 }
 
                 if (IsConnectionCached)
@@ -1324,7 +1324,7 @@ namespace ZeroC.Ice
 
             _fixedConnection = fixedConnection;
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection);
+            _requestHandler = _fixedConnection;
 
             if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
             {

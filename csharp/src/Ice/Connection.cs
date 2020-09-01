@@ -44,7 +44,7 @@ namespace ZeroC.Ice
     }
 
     /// <summary>Represents a connection used to send and receive Ice frames.</summary>
-    public abstract class Connection
+    public abstract class Connection : IRequestHandler
     {
         /// <summary>Gets or set the connection Acm (Active Connection Management) configuration.</summary>
         public Acm Acm
@@ -435,7 +435,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<IncomingResponseFrame> SendRequestAsync(
+        async ValueTask<IncomingResponseFrame> IRequestHandler.SendRequestAsync(
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,

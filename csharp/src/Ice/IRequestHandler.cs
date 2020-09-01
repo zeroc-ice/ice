@@ -38,9 +38,5 @@ namespace ZeroC.Ice
             IInvocationObserver? observer,
             IProgress<bool> progress,
             CancellationToken cancel);
-
-        /// <summary>Returns the Ice network connection associated with the request handler if any.</summary>
-        /// <returns>The connection or null if the request handler doesn't use a connection.</returns>
-        Connection? GetConnection();
     }
 }
