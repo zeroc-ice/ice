@@ -123,7 +123,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                // Send the the INITIALIZE frame.
+                // Send the INITIALIZE frame.
                 await PrepareAndSendFrameAsync(FrameType.Initialize, ostr =>
                 {
                     ostr.WriteUShort(1); // Slic V1
@@ -324,10 +324,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(Encoding, data);
             ostr.WriteByte((byte)type);
             OutputStream.Position sizePos = ostr.StartFixedLengthSize(4);
-            if (writer != null)
-            {
-                writer!(ostr);
-            }
+            writer?.Invoke(ostr);
             ostr.EndFixedLengthSize(sizePos, 4);
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
 
