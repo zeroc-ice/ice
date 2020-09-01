@@ -485,7 +485,6 @@ public final class AMDInitialI implements Initial
         return CompletableFuture.completedFuture(null);
     }
 
-
     @Override
     public CompletionStage<G> opGAsync(G g, Current current)
     {

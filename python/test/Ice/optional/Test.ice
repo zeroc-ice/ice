@@ -127,19 +127,19 @@ exception OptionalException
     bool req = false;
     optional(1) int a = 5;
     optional(2) string b;
-    optional(50) OneOptional o;
+    optional(50) VarStruct vs;
 }
 
 exception DerivedException extends OptionalException
 {
     optional(600) string ss = "test";
-    optional(601) OneOptional o2;
+    optional(601) VarStruct vs2;
 }
 
 exception RequiredException extends OptionalException
 {
     string ss = "test";
-    OneOptional o2;
+    VarStruct vs2;
 }
 
 class OptionalWithCustom
@@ -183,13 +183,13 @@ interface Initial
 
     Object pingPong(Object o);
 
-    void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opOptionalException(optional(1) int a, optional(2) string b, optional(3) VarStruct vs)
         throws OptionalException;
 
-    void opDerivedException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opDerivedException(optional(1) int a, optional(2) string b, optional(3) VarStruct vs)
         throws OptionalException;
 
-    void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+    void opRequiredException(optional(1) int a, optional(2) string b, optional(3) VarStruct vs)
         throws OptionalException;
 
     optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
