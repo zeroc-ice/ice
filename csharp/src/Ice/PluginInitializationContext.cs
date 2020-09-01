@@ -11,7 +11,7 @@ namespace ZeroC.Ice
         public ILogger Logger
         {
             get => _communicator.Logger;
-            set =>_communicator.Logger = value;
+            set => _communicator.Logger = value;
         }
 
         public PluginInitializationContext(Communicator communicator) => _communicator = communicator;

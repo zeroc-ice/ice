@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Globalization;
 
 namespace ZeroC.Ice
 {

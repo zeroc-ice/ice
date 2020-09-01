@@ -38,13 +38,13 @@ namespace ZeroC.Ice
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-           if (Protocol == Protocol.Ice1)
-           {
+            if (Protocol == Protocol.Ice1)
+            {
                 base.WriteOptions(ostr);
                 ostr.WriteString(_resource);
-           }
-           else
-           {
+            }
+            else
+            {
                 if (_resource != "/")
                 {
                     ostr.WriteSize(1);
@@ -54,7 +54,7 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteSize(0); // empty sequence of options
                 }
-           }
+            }
         }
 
         public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
@@ -175,7 +175,7 @@ namespace ZeroC.Ice
             }
         }
 
-         // Clone constructor
+        // Clone constructor
         private WSEndpoint(WSEndpoint endpoint, string host, ushort port)
             : base(endpoint, host, port) => _resource = endpoint._resource;
 

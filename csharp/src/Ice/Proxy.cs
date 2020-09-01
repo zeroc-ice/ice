@@ -304,21 +304,21 @@ namespace ZeroC.Ice
                 int i,
                 IProgress<bool>? progress,
                 CancellationToken cancel)
+            {
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
                 {
-                    if (i < proxy.Communicator.InvocationInterceptors.Count)
-                    {
-                        InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                        return interceptor(
-                            proxy,
-                            request,
-                            (target, request) =>
-                                InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
-                    }
-                    else
-                    {
-                        return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                    }
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
                 }
+                else
+                {
+                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
+                }
+            }
         }
 
         private static ValueTask<IncomingResponseFrame> InvokeAsync(

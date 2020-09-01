@@ -21,12 +21,12 @@ namespace ZeroC.Ice
         {
         }
 
-        internal WebSocketException(string message, System.Exception cause)
+        internal WebSocketException(string message, Exception cause)
             : base(message, cause)
         {
         }
 
-        internal WebSocketException(System.Exception cause)
+        internal WebSocketException(Exception cause)
             : base("", cause)
         {
         }
@@ -50,19 +50,16 @@ namespace ZeroC.Ice
             Response
         }
 
-        /// <summary>Check if the buffer contains a complete HTTP frame, if the buffer contains
-        /// a complete HTTP frame it returns the end index of the HTTP frame, otherwise
-        /// it returns -1.</summary>
+        /// <summary>Check if the buffer contains a complete HTTP frame, if the buffer contains a complete HTTP frame
+        /// it returns the end index of the HTTP frame, otherwise it returns -1.</summary>
         /// <param name="buffer">The buffer to check for HTTP frames.</param>
-        /// <returns>The last index of the HTTP frame if the buffer contains a complete HTTP frame,
-        /// otherwise -1.</returns>
+        /// <returns>The last index of the HTTP frame if the buffer contains a complete HTTP frame, otherwise -1.
+        /// </returns>
         internal static int IsCompleteMessage(ReadOnlySpan<byte> buffer)
         {
             int p = 0;
 
-            //
             // Skip any leading CR-LF characters.
-            //
             while (p < buffer.Length)
             {
                 byte ch = buffer[p];
@@ -73,9 +70,7 @@ namespace ZeroC.Ice
                 ++p;
             }
 
-            //
             // Look for adjacent CR-LF/CR-LF or LF/LF.
-            //
             bool seenFirst = false;
             while (p < buffer.Length)
             {
@@ -119,278 +114,494 @@ namespace ZeroC.Ice
                 switch (_state)
                 {
                     case State.Init:
-                        {
-                            _method = new StringBuilder();
-                            _uri = new StringBuilder();
-                            _versionMajor = -1;
-                            _versionMinor = -1;
-                            _status = -1;
-                            _reason = "";
-                            _headers.Clear();
-                            _state = State.Type;
-                            continue;
-                        }
+                    {
+                        _method = new StringBuilder();
+                        _uri = new StringBuilder();
+                        _versionMajor = -1;
+                        _versionMinor = -1;
+                        _status = -1;
+                        _reason = "";
+                        _headers.Clear();
+                        _state = State.Type;
+                        continue;
+                    }
                     case State.Type:
+                    {
+                        if (c == CR || c == LF)
                         {
-                            if (c == CR || c == LF)
-                            {
-                                break;
-                            }
-                            else if (c == 'H')
-                            {
-                                //
-                                // Could be the start of "HTTP/1.1" or "HEAD".
-                                //
-                                _state = State.TypeCheck;
-                                break;
-                            }
-                            else
-                            {
-                                _state = State.Request;
-                                continue;
-                            }
+                            break;
                         }
+                        else if (c == 'H')
+                        {
+                            // Could be the start of "HTTP/1.1" or "HEAD".
+                            _state = State.TypeCheck;
+                            break;
+                        }
+                        else
+                        {
+                            _state = State.Request;
+                            continue;
+                        }
+                    }
                     case State.TypeCheck:
+                    {
+                        if (c == 'T') // Continuing "H_T_TP/1.1"
                         {
-                            if (c == 'T') // Continuing "H_T_TP/1.1"
+                            _state = State.Response;
+                        }
+                        else if (c == 'E') // Expecting "HEAD"
+                        {
+                            _state = State.Request;
+                            _method.Append('H');
+                            _method.Append('E');
+                        }
+                        else
+                        {
+                            throw new WebSocketException("malformed request or response");
+                        }
+                        break;
+                    }
+                    case State.Request:
+                    {
+                        _type = Type.Request;
+                        _state = State.RequestMethod;
+                        continue;
+                    }
+                    case State.RequestMethod:
+                    {
+                        if (c == ' ' || c == CR || c == LF)
+                        {
+                            _state = State.RequestMethodSP;
+                            continue;
+                        }
+                        _method.Append(c);
+                        break;
+                    }
+                    case State.RequestMethodSP:
+                    {
+                        if (c == ' ')
+                        {
+                            break;
+                        }
+                        else if (c == CR || c == LF)
+                        {
+                            throw new WebSocketException("malformed request");
+                        }
+                        _state = State.RequestURI;
+                        continue;
+                    }
+                    case State.RequestURI:
+                    {
+                        if (c == ' ' || c == CR || c == LF)
+                        {
+                            _state = State.RequestURISP;
+                            continue;
+                        }
+                        _uri.Append(c);
+                        break;
+                    }
+                    case State.RequestURISP:
+                    {
+                        if (c == ' ')
+                        {
+                            break;
+                        }
+                        else if (c == CR || c == LF)
+                        {
+                            throw new WebSocketException("malformed request");
+                        }
+                        _state = State.Version;
+                        continue;
+                    }
+                    case State.RequestLF:
+                    {
+                        if (c != LF)
+                        {
+                            throw new WebSocketException("malformed request");
+                        }
+                        _state = State.HeaderFieldStart;
+                        break;
+                    }
+                    case State.HeaderFieldStart:
+                    {
+                        // We've already seen a LF to reach this state, another CR or LF indicates the end of the
+                        // header fields.
+                        if (c == CR)
+                        {
+                            _state = State.HeaderFieldEndLF;
+                            break;
+                        }
+                        else if (c == LF)
+                        {
+                            _state = State.Complete;
+                            break;
+                        }
+                        else if (c == ' ')
+                        {
+                            // Could be a continuation line.
+                            _state = State.HeaderFieldContStart;
+                            break;
+                        }
+
+                        _state = State.HeaderFieldNameStart;
+                        continue;
+                    }
+                    case State.HeaderFieldContStart:
+                    {
+                        if (c == ' ')
+                        {
+                            break;
+                        }
+
+                        _state = State.HeaderFieldCont;
+                        start = p;
+                        continue;
+                    }
+                    case State.HeaderFieldCont:
+                    {
+                        if (c == CR || c == LF)
+                        {
+                            if (p > start)
                             {
-                                _state = State.Response;
-                            }
-                            else if (c == 'E') // Expecting "HEAD"
-                            {
-                                _state = State.Request;
-                                _method.Append('H');
-                                _method.Append('E');
+                                if (_headerName.Length == 0)
+                                {
+                                    throw new WebSocketException("malformed header");
+                                }
+                                Debug.Assert(_headers.ContainsKey(_headerName));
+                                string s = _headers[_headerName];
+                                var newValue = new StringBuilder(s);
+                                newValue.Append(' ');
+                                for (int i = start; i < p; ++i)
+                                {
+                                    newValue.Append((char)buffer[i]);
+                                }
+                                _headers[_headerName] = newValue.ToString();
+                                _state = c == CR ? State.HeaderFieldLF : State.HeaderFieldStart;
                             }
                             else
                             {
-                                throw new WebSocketException("malformed request or response");
+                                // Could mark the end of the header fields.
+                                _state = c == CR ? State.HeaderFieldEndLF : State.Complete;
                             }
-                            break;
                         }
-                    case State.Request:
+
+                        break;
+                    }
+                    case State.HeaderFieldNameStart:
+                    {
+                        Debug.Assert(c != ' ');
+                        start = p;
+                        _headerName = "";
+                        _state = State.HeaderFieldName;
+                        continue;
+                    }
+                    case State.HeaderFieldName:
+                    {
+                        if (c == ' ' || c == ':')
                         {
-                            _type = Type.Request;
-                            _state = State.RequestMethod;
+                            _state = State.HeaderFieldNameEnd;
                             continue;
                         }
-                    case State.RequestMethod:
+                        else if (c == CR || c == LF)
                         {
-                            if (c == ' ' || c == CR || c == LF)
+                            throw new WebSocketException("malformed header");
+                        }
+                        break;
+                    }
+                    case State.HeaderFieldNameEnd:
+                    {
+                        if (_headerName.Length == 0)
+                        {
+                            var str = new StringBuilder();
+                            for (int i = start; i < p; ++i)
                             {
-                                _state = State.RequestMethodSP;
-                                continue;
+                                str.Append((char)buffer[i]);
                             }
-                            _method.Append(c);
+                            _headerName = str.ToString().ToLower();
+                            // Add a placeholder entry if necessary.
+                            if (!_headers.ContainsKey(_headerName))
+                            {
+                                _headers[_headerName] = "";
+                                _headerNames[_headerName] = str.ToString();
+                            }
+                        }
+
+                        if (c == ' ')
+                        {
                             break;
                         }
-                    case State.RequestMethodSP:
+                        else if (c != ':' || p == start)
                         {
-                            if (c == ' ')
-                            {
-                                break;
-                            }
-                            else if (c == CR || c == LF)
-                            {
-                                throw new WebSocketException("malformed request");
-                            }
-                            _state = State.RequestURI;
-                            continue;
+                            throw new WebSocketException("malformed header");
                         }
-                    case State.RequestURI:
+
+                        _state = State.HeaderFieldValueStart;
+                        break;
+                    }
+                    case State.HeaderFieldValueStart:
+                    {
+                        if (c == ' ')
                         {
-                            if (c == ' ' || c == CR || c == LF)
-                            {
-                                _state = State.RequestURISP;
-                                continue;
-                            }
-                            _uri.Append(c);
                             break;
                         }
-                    case State.RequestURISP:
+
+                        // Check for "Name:\r\n"
+                        if (c == CR)
                         {
-                            if (c == ' ')
-                            {
-                                break;
-                            }
-                            else if (c == CR || c == LF)
-                            {
-                                throw new WebSocketException("malformed request");
-                            }
-                            _state = State.Version;
+                            _state = State.HeaderFieldLF;
+                            break;
+                        }
+                        else if (c == LF)
+                        {
+                            _state = State.HeaderFieldStart;
+                            break;
+                        }
+
+                        start = p;
+                        _state = State.HeaderFieldValue;
+                        continue;
+                    }
+                    case State.HeaderFieldValue:
+                    {
+                        if (c == CR || c == LF)
+                        {
+                            _state = State.HeaderFieldValueEnd;
                             continue;
                         }
-                    case State.RequestLF:
+                        break;
+                    }
+                    case State.HeaderFieldValueEnd:
+                    {
+                        Debug.Assert(c == CR || c == LF);
+                        if (p > start)
                         {
-                            if (c != LF)
+                            var str = new StringBuilder();
+                            for (int i = start; i < p; ++i)
                             {
-                                throw new WebSocketException("malformed request");
+                                str.Append((char)buffer[i]);
+                            }
+
+                            if (!_headers.TryGetValue(_headerName, out string? s) || s.Length == 0)
+                            {
+                                _headers[_headerName] = str.ToString();
+                            }
+                            else
+                            {
+                                _headers[_headerName] = s + ", " + str.ToString();
+                            }
+                        }
+
+                        if (c == CR)
+                        {
+                            _state = State.HeaderFieldLF;
+                        }
+                        else
+                        {
+                            _state = State.HeaderFieldStart;
+                        }
+                        break;
+                    }
+                    case State.HeaderFieldLF:
+                    {
+                        if (c != LF)
+                        {
+                            throw new WebSocketException("malformed header");
+                        }
+                        _state = State.HeaderFieldStart;
+                        break;
+                    }
+                    case State.HeaderFieldEndLF:
+                    {
+                        if (c != LF)
+                        {
+                            throw new WebSocketException("malformed header");
+                        }
+                        _state = State.Complete;
+                        break;
+                    }
+                    case State.Version:
+                    {
+                        if (c != 'H')
+                        {
+                            throw new WebSocketException("malformed version");
+                        }
+                        _state = State.VersionH;
+                        break;
+                    }
+                    case State.VersionH:
+                    {
+                        if (c != 'T')
+                        {
+                            throw new WebSocketException("malformed version");
+                        }
+                        _state = State.VersionHT;
+                        break;
+                    }
+                    case State.VersionHT:
+                    {
+                        if (c != 'T')
+                        {
+                            throw new WebSocketException("malformed version");
+                        }
+                        _state = State.VersionHTT;
+                        break;
+                    }
+                    case State.VersionHTT:
+                    {
+                        if (c != 'P')
+                        {
+                            throw new WebSocketException("malformed version");
+                        }
+                        _state = State.VersionHTTP;
+                        break;
+                    }
+                    case State.VersionHTTP:
+                    {
+                        if (c != '/')
+                        {
+                            throw new WebSocketException("malformed version");
+                        }
+                        _state = State.VersionMajor;
+                        break;
+                    }
+                    case State.VersionMajor:
+                    {
+                        if (c == '.')
+                        {
+                            if (_versionMajor == -1)
+                            {
+                                throw new WebSocketException("malformed version");
+                            }
+                            _state = State.VersionMinor;
+                            break;
+                        }
+                        else if (c < '0' || c > '9')
+                        {
+                            throw new WebSocketException("malformed version");
+                        }
+                        if (_versionMajor == -1)
+                        {
+                            _versionMajor = 0;
+                        }
+                        _versionMajor *= 10;
+                        _versionMajor += c - '0';
+                        break;
+                    }
+                    case State.VersionMinor:
+                    {
+                        if (c == CR)
+                        {
+                            if (_versionMinor == -1 || _type != Type.Request)
+                            {
+                                throw new WebSocketException("malformed version");
+                            }
+                            _state = State.RequestLF;
+                            break;
+                        }
+                        else if (c == LF)
+                        {
+                            if (_versionMinor == -1 || _type != Type.Request)
+                            {
+                                throw new WebSocketException("malformed version");
                             }
                             _state = State.HeaderFieldStart;
                             break;
                         }
-                    case State.HeaderFieldStart:
+                        else if (c == ' ')
                         {
-                            //
-                            // We've already seen a LF to reach this state.
-                            //
-                            // Another CR or LF indicates the end of the header fields.
-                            //
-                            if (c == CR)
+                            if (_versionMinor == -1 || _type != Type.Response)
                             {
-                                _state = State.HeaderFieldEndLF;
-                                break;
+                                throw new WebSocketException("malformed version");
                             }
-                            else if (c == LF)
-                            {
-                                _state = State.Complete;
-                                break;
-                            }
-                            else if (c == ' ')
-                            {
-                                //
-                                // Could be a continuation line.
-                                //
-                                _state = State.HeaderFieldContStart;
-                                break;
-                            }
-
-                            _state = State.HeaderFieldNameStart;
-                            continue;
-                        }
-                    case State.HeaderFieldContStart:
-                        {
-                            if (c == ' ')
-                            {
-                                break;
-                            }
-
-                            _state = State.HeaderFieldCont;
-                            start = p;
-                            continue;
-                        }
-                    case State.HeaderFieldCont:
-                        {
-                            if (c == CR || c == LF)
-                            {
-                                if (p > start)
-                                {
-                                    if (_headerName.Length == 0)
-                                    {
-                                        throw new WebSocketException("malformed header");
-                                    }
-                                    Debug.Assert(_headers.ContainsKey(_headerName));
-                                    string s = _headers[_headerName];
-                                    var newValue = new StringBuilder(s);
-                                    newValue.Append(' ');
-                                    for (int i = start; i < p; ++i)
-                                    {
-                                        newValue.Append((char)buffer[i]);
-                                    }
-                                    _headers[_headerName] = newValue.ToString();
-                                    _state = c == CR ? State.HeaderFieldLF : State.HeaderFieldStart;
-                                }
-                                else
-                                {
-                                    //
-                                    // Could mark the end of the header fields.
-                                    //
-                                    _state = c == CR ? State.HeaderFieldEndLF : State.Complete;
-                                }
-                            }
-
+                            _state = State.ResponseVersionSP;
                             break;
                         }
-                    case State.HeaderFieldNameStart:
+                        else if (c < '0' || c > '9')
                         {
-                            Debug.Assert(c != ' ');
-                            start = p;
-                            _headerName = "";
-                            _state = State.HeaderFieldName;
-                            continue;
+                            throw new WebSocketException("malformed version");
                         }
-                    case State.HeaderFieldName:
+                        if (_versionMinor == -1)
                         {
-                            if (c == ' ' || c == ':')
-                            {
-                                _state = State.HeaderFieldNameEnd;
-                                continue;
-                            }
-                            else if (c == CR || c == LF)
-                            {
-                                throw new WebSocketException("malformed header");
-                            }
+                            _versionMinor = 0;
+                        }
+                        _versionMinor *= 10;
+                        _versionMinor += c - '0';
+                        break;
+                    }
+                    case State.Response:
+                    {
+                        _type = Type.Response;
+                        _state = State.VersionHT;
+                        continue;
+                    }
+                    case State.ResponseVersionSP:
+                    {
+                        if (c == ' ')
+                        {
                             break;
                         }
-                    case State.HeaderFieldNameEnd:
+
+                        _state = State.ResponseStatus;
+                        continue;
+                    }
+                    case State.ResponseStatus:
+                    {
+                        // TODO: Is reason string optional?
+                        if (c == CR)
                         {
-                            if (_headerName.Length == 0)
+                            if (_status == -1)
                             {
-                                var str = new StringBuilder();
-                                for (int i = start; i < p; ++i)
-                                {
-                                    str.Append((char)buffer[i]);
-                                }
-                                _headerName = str.ToString().ToLower();
-                                //
-                                // Add a placeholder entry if necessary.
-                                //
-                                if (!_headers.ContainsKey(_headerName))
-                                {
-                                    _headers[_headerName] = "";
-                                    _headerNames[_headerName] = str.ToString();
-                                }
+                                throw new WebSocketException("malformed response status");
                             }
-
-                            if (c == ' ')
-                            {
-                                break;
-                            }
-                            else if (c != ':' || p == start)
-                            {
-                                throw new WebSocketException("malformed header");
-                            }
-
-                            _state = State.HeaderFieldValueStart;
+                            _state = State.ResponseLF;
                             break;
                         }
-                    case State.HeaderFieldValueStart:
+                        else if (c == LF)
                         {
-                            if (c == ' ')
+                            if (_status == -1)
                             {
-                                break;
+                                throw new WebSocketException("malformed response status");
                             }
-
-                            //
-                            // Check for "Name:\r\n"
-                            //
-                            if (c == CR)
-                            {
-                                _state = State.HeaderFieldLF;
-                                break;
-                            }
-                            else if (c == LF)
-                            {
-                                _state = State.HeaderFieldStart;
-                                break;
-                            }
-
-                            start = p;
-                            _state = State.HeaderFieldValue;
-                            continue;
-                        }
-                    case State.HeaderFieldValue:
-                        {
-                            if (c == CR || c == LF)
-                            {
-                                _state = State.HeaderFieldValueEnd;
-                                continue;
-                            }
+                            _state = State.HeaderFieldStart;
                             break;
                         }
-                    case State.HeaderFieldValueEnd:
+                        else if (c == ' ')
                         {
-                            Debug.Assert(c == CR || c == LF);
+                            if (_status == -1)
+                            {
+                                throw new WebSocketException("malformed response status");
+                            }
+                            _state = State.ResponseReasonStart;
+                            break;
+                        }
+                        else if (c < '0' || c > '9')
+                        {
+                            throw new WebSocketException("malformed response status");
+                        }
+                        if (_status == -1)
+                        {
+                            _status = 0;
+                        }
+                        _status *= 10;
+                        _status += c - '0';
+                        break;
+                    }
+                    case State.ResponseReasonStart:
+                    {
+                        // Skip leading spaces.
+                        if (c == ' ')
+                        {
+                            break;
+                        }
+
+                        _state = State.ResponseReason;
+                        start = p;
+                        continue;
+                    }
+                    case State.ResponseReason:
+                    {
+                        if (c == CR || c == LF)
+                        {
                             if (p > start)
                             {
                                 var str = new StringBuilder();
@@ -398,258 +609,27 @@ namespace ZeroC.Ice
                                 {
                                     str.Append((char)buffer[i]);
                                 }
+                                _reason = str.ToString();
+                            }
+                            _state = c == CR ? State.ResponseLF : State.HeaderFieldStart;
+                        }
 
-                                if (!_headers.TryGetValue(_headerName, out string? s) || s.Length == 0)
-                                {
-                                    _headers[_headerName] = str.ToString();
-                                }
-                                else
-                                {
-                                    _headers[_headerName] = s + ", " + str.ToString();
-                                }
-                            }
-
-                            if (c == CR)
-                            {
-                                _state = State.HeaderFieldLF;
-                            }
-                            else
-                            {
-                                _state = State.HeaderFieldStart;
-                            }
-                            break;
-                        }
-                    case State.HeaderFieldLF:
-                        {
-                            if (c != LF)
-                            {
-                                throw new WebSocketException("malformed header");
-                            }
-                            _state = State.HeaderFieldStart;
-                            break;
-                        }
-                    case State.HeaderFieldEndLF:
-                        {
-                            if (c != LF)
-                            {
-                                throw new WebSocketException("malformed header");
-                            }
-                            _state = State.Complete;
-                            break;
-                        }
-                    case State.Version:
-                        {
-                            if (c != 'H')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            _state = State.VersionH;
-                            break;
-                        }
-                    case State.VersionH:
-                        {
-                            if (c != 'T')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            _state = State.VersionHT;
-                            break;
-                        }
-                    case State.VersionHT:
-                        {
-                            if (c != 'T')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            _state = State.VersionHTT;
-                            break;
-                        }
-                    case State.VersionHTT:
-                        {
-                            if (c != 'P')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            _state = State.VersionHTTP;
-                            break;
-                        }
-                    case State.VersionHTTP:
-                        {
-                            if (c != '/')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            _state = State.VersionMajor;
-                            break;
-                        }
-                    case State.VersionMajor:
-                        {
-                            if (c == '.')
-                            {
-                                if (_versionMajor == -1)
-                                {
-                                    throw new WebSocketException("malformed version");
-                                }
-                                _state = State.VersionMinor;
-                                break;
-                            }
-                            else if (c < '0' || c > '9')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            if (_versionMajor == -1)
-                            {
-                                _versionMajor = 0;
-                            }
-                            _versionMajor *= 10;
-                            _versionMajor += (int)(c - '0');
-                            break;
-                        }
-                    case State.VersionMinor:
-                        {
-                            if (c == CR)
-                            {
-                                if (_versionMinor == -1 || _type != Type.Request)
-                                {
-                                    throw new WebSocketException("malformed version");
-                                }
-                                _state = State.RequestLF;
-                                break;
-                            }
-                            else if (c == LF)
-                            {
-                                if (_versionMinor == -1 || _type != Type.Request)
-                                {
-                                    throw new WebSocketException("malformed version");
-                                }
-                                _state = State.HeaderFieldStart;
-                                break;
-                            }
-                            else if (c == ' ')
-                            {
-                                if (_versionMinor == -1 || _type != Type.Response)
-                                {
-                                    throw new WebSocketException("malformed version");
-                                }
-                                _state = State.ResponseVersionSP;
-                                break;
-                            }
-                            else if (c < '0' || c > '9')
-                            {
-                                throw new WebSocketException("malformed version");
-                            }
-                            if (_versionMinor == -1)
-                            {
-                                _versionMinor = 0;
-                            }
-                            _versionMinor *= 10;
-                            _versionMinor += c - '0';
-                            break;
-                        }
-                    case State.Response:
-                        {
-                            _type = Type.Response;
-                            _state = State.VersionHT;
-                            continue;
-                        }
-                    case State.ResponseVersionSP:
-                        {
-                            if (c == ' ')
-                            {
-                                break;
-                            }
-
-                            _state = State.ResponseStatus;
-                            continue;
-                        }
-                    case State.ResponseStatus:
-                        {
-                            // TODO: Is reason string optional?
-                            if (c == CR)
-                            {
-                                if (_status == -1)
-                                {
-                                    throw new WebSocketException("malformed response status");
-                                }
-                                _state = State.ResponseLF;
-                                break;
-                            }
-                            else if (c == LF)
-                            {
-                                if (_status == -1)
-                                {
-                                    throw new WebSocketException("malformed response status");
-                                }
-                                _state = State.HeaderFieldStart;
-                                break;
-                            }
-                            else if (c == ' ')
-                            {
-                                if (_status == -1)
-                                {
-                                    throw new WebSocketException("malformed response status");
-                                }
-                                _state = State.ResponseReasonStart;
-                                break;
-                            }
-                            else if (c < '0' || c > '9')
-                            {
-                                throw new WebSocketException("malformed response status");
-                            }
-                            if (_status == -1)
-                            {
-                                _status = 0;
-                            }
-                            _status *= 10;
-                            _status += c - '0';
-                            break;
-                        }
-                    case State.ResponseReasonStart:
-                        {
-                            //
-                            // Skip leading spaces.
-                            //
-                            if (c == ' ')
-                            {
-                                break;
-                            }
-
-                            _state = State.ResponseReason;
-                            start = p;
-                            continue;
-                        }
-                    case State.ResponseReason:
-                        {
-                            if (c == CR || c == LF)
-                            {
-                                if (p > start)
-                                {
-                                    var str = new StringBuilder();
-                                    for (int i = start; i < p; ++i)
-                                    {
-                                        str.Append((char)buffer[i]);
-                                    }
-                                    _reason = str.ToString();
-                                }
-                                _state = c == CR ? State.ResponseLF : State.HeaderFieldStart;
-                            }
-
-                            break;
-                        }
+                        break;
+                    }
                     case State.ResponseLF:
+                    {
+                        if (c != LF)
                         {
-                            if (c != LF)
-                            {
-                                throw new WebSocketException("malformed status line");
-                            }
-                            _state = State.HeaderFieldStart;
-                            break;
+                            throw new WebSocketException("malformed status line");
                         }
+                        _state = State.HeaderFieldStart;
+                        break;
+                    }
                     case State.Complete:
-                        {
-                            Debug.Assert(false); // Shouldn't reach
-                            break;
-                        }
+                    {
+                        Debug.Assert(false); // Shouldn't reach
+                        break;
+                    }
                 }
 
                 ++p;

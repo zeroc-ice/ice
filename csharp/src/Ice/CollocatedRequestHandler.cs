@@ -65,8 +65,8 @@ namespace ZeroC.Ice
                 // request returns as soon as it's sent over the transport.
                 task = Task.Factory.StartNew(() =>
                                              {
-                                                progress.Report(false);
-                                                return DispatchAsync(outgoingRequest, requestId, cancel);
+                                                 progress.Report(false);
+                                                 return DispatchAsync(outgoingRequest, requestId, cancel);
                                              },
                                              cancel,
                                              TaskCreationOptions.None,

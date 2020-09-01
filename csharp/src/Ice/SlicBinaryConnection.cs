@@ -3,13 +3,11 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text;
-using System.IO;
 
 namespace ZeroC.Ice
 {
@@ -58,7 +56,7 @@ namespace ZeroC.Ice
             await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync()=> _transceiver.DisposeAsync();
+        public ValueTask DisposeAsync() => _transceiver.DisposeAsync();
 
         public ValueTask HeartbeatAsync(CancellationToken cancel) =>
             PrepareAndSendFrameAsync(FrameType.Ping, null, cancel);

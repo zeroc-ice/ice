@@ -27,11 +27,11 @@ namespace ZeroC.Ice
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current)
         {
-                var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
-                ostr.WriteByte((byte)ResultType.Success);
-                _ = ostr.WriteEmptyEncapsulation(current.Encoding);
-                return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, ostr.Tail);
+            var data = new List<ArraySegment<byte>>();
+            var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
+            ostr.WriteByte((byte)ResultType.Success);
+            _ = ostr.WriteEmptyEncapsulation(current.Encoding);
+            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, ostr.Tail);
         }
 
         /// <summary>Creates a new outgoing response frame with a return value.</summary>

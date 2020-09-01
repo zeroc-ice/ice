@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -63,131 +62,131 @@ namespace ZeroC.Ice
             switch (c)
             {
                 case '\\':
-                    {
-                        sb.Append("\\\\");
-                        break;
-                    }
+                {
+                    sb.Append("\\\\");
+                    break;
+                }
                 case '\'':
-                    {
-                        sb.Append("\\'");
-                        break;
-                    }
+                {
+                    sb.Append("\\'");
+                    break;
+                }
                 case '"':
-                    {
-                        sb.Append("\\\"");
-                        break;
-                    }
+                {
+                    sb.Append("\\\"");
+                    break;
+                }
                 case '\a':
+                {
+                    if (toStringMode == ToStringMode.Compat)
                     {
-                        if (toStringMode == ToStringMode.Compat)
-                        {
-                            // Octal escape for compatibility with 3.6 and earlier
-                            sb.Append("\\007");
-                        }
-                        else
-                        {
-                            sb.Append("\\a");
-                        }
-                        break;
+                        // Octal escape for compatibility with 3.6 and earlier
+                        sb.Append("\\007");
                     }
+                    else
+                    {
+                        sb.Append("\\a");
+                    }
+                    break;
+                }
                 case '\b':
-                    {
-                        sb.Append("\\b");
-                        break;
-                    }
+                {
+                    sb.Append("\\b");
+                    break;
+                }
                 case '\f':
-                    {
-                        sb.Append("\\f");
-                        break;
-                    }
+                {
+                    sb.Append("\\f");
+                    break;
+                }
                 case '\n':
-                    {
-                        sb.Append("\\n");
-                        break;
-                    }
+                {
+                    sb.Append("\\n");
+                    break;
+                }
                 case '\r':
-                    {
-                        sb.Append("\\r");
-                        break;
-                    }
+                {
+                    sb.Append("\\r");
+                    break;
+                }
                 case '\t':
-                    {
-                        sb.Append("\\t");
-                        break;
-                    }
+                {
+                    sb.Append("\\t");
+                    break;
+                }
                 case '\v':
+                {
+                    if (toStringMode == ToStringMode.Compat)
                     {
-                        if (toStringMode == ToStringMode.Compat)
-                        {
-                            // Octal escape for compatibility with 3.6 and earlier
-                            sb.Append("\\013");
-                        }
-                        else
-                        {
-                            sb.Append("\\v");
-                        }
-                        break;
+                        // Octal escape for compatibility with 3.6 and earlier
+                        sb.Append("\\013");
                     }
-                default:
+                    else
                     {
-                        if (c == special)
+                        sb.Append("\\v");
+                    }
+                    break;
+                }
+                default:
+                {
+                    if (c == special)
+                    {
+                        sb.Append('\\');
+                        sb.Append(c);
+                    }
+                    else
+                    {
+                        int i = c;
+                        if (i < 32 || i > 126)
                         {
-                            sb.Append('\\');
-                            sb.Append(c);
-                        }
-                        else
-                        {
-                            int i = c;
-                            if (i < 32 || i > 126)
+                            if (toStringMode == ToStringMode.Compat)
                             {
-                                if (toStringMode == ToStringMode.Compat)
-                                {
-                                    //
-                                    // When ToStringMode=Compat, c is a UTF-8 byte
-                                    //
-                                    Debug.Assert(i < 256);
+                                //
+                                // When ToStringMode=Compat, c is a UTF-8 byte
+                                //
+                                Debug.Assert(i < 256);
 
-                                    sb.Append('\\');
-                                    string octal = System.Convert.ToString(i, 8);
-                                    //
-                                    // Add leading zeros so that we avoid problems during
-                                    // decoding. For example, consider the encoded string
-                                    // \0013 (i.e., a character with value 1 followed by
-                                    // the character '3'). If the leading zeros were omitted,
-                                    // the result would be incorrectly interpreted by the
-                                    // decoder as a single character with value 11.
-                                    //
-                                    for (int j = octal.Length; j < 3; j++)
-                                    {
-                                        sb.Append('0');
-                                    }
-                                    sb.Append(octal);
-                                }
-                                else if (i < 32 || i == 127 || (toStringMode == ToStringMode.ASCII))
+                                sb.Append('\\');
+                                string octal = System.Convert.ToString(i, 8);
+                                //
+                                // Add leading zeros so that we avoid problems during
+                                // decoding. For example, consider the encoded string
+                                // \0013 (i.e., a character with value 1 followed by
+                                // the character '3'). If the leading zeros were omitted,
+                                // the result would be incorrectly interpreted by the
+                                // decoder as a single character with value 11.
+                                //
+                                for (int j = octal.Length; j < 3; j++)
                                 {
-                                    // append \\unnnn
-                                    sb.Append("\\u");
-                                    string hex = System.Convert.ToString(i, 16);
-                                    for (int j = hex.Length; j < 4; j++)
-                                    {
-                                        sb.Append('0');
-                                    }
-                                    sb.Append(hex);
+                                    sb.Append('0');
                                 }
-                                else
+                                sb.Append(octal);
+                            }
+                            else if (i < 32 || i == 127 || (toStringMode == ToStringMode.ASCII))
+                            {
+                                // append \\unnnn
+                                sb.Append("\\u");
+                                string hex = System.Convert.ToString(i, 16);
+                                for (int j = hex.Length; j < 4; j++)
                                 {
-                                    // keep as is
-                                    sb.Append(c);
+                                    sb.Append('0');
                                 }
+                                sb.Append(hex);
                             }
                             else
                             {
-                                // printable ASCII character
+                                // keep as is
                                 sb.Append(c);
                             }
                         }
-                        break;
+                        else
+                        {
+                            // printable ASCII character
+                            sb.Append(c);
+                        }
                     }
+                    break;
+                }
             }
         }
 
@@ -300,101 +299,101 @@ namespace ZeroC.Ice
                     case '\'':
                     case '"':
                     case '?':
-                        {
-                            ++start;
-                            result.Append(c);
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append(c);
+                        break;
+                    }
                     case 'a':
-                        {
-                            ++start;
-                            result.Append('\a');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\a');
+                        break;
+                    }
                     case 'b':
-                        {
-                            ++start;
-                            result.Append('\b');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\b');
+                        break;
+                    }
                     case 'f':
-                        {
-                            ++start;
-                            result.Append('\f');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\f');
+                        break;
+                    }
                     case 'n':
-                        {
-                            ++start;
-                            result.Append('\n');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\n');
+                        break;
+                    }
                     case 'r':
-                        {
-                            ++start;
-                            result.Append('\r');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\r');
+                        break;
+                    }
                     case 't':
-                        {
-                            ++start;
-                            result.Append('\t');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\t');
+                        break;
+                    }
                     case 'v':
-                        {
-                            ++start;
-                            result.Append('\v');
-                            break;
-                        }
+                    {
+                        ++start;
+                        result.Append('\v');
+                        break;
+                    }
                     case 'u':
                     case 'U':
+                    {
+                        int codePoint = 0;
+                        bool inBMP = c == 'u';
+                        int size = inBMP ? 4 : 8;
+                        ++start;
+                        while (size > 0 && start < end)
                         {
-                            int codePoint = 0;
-                            bool inBMP = c == 'u';
-                            int size = inBMP ? 4 : 8;
-                            ++start;
-                            while (size > 0 && start < end)
+                            c = s[start++];
+                            int charVal;
+                            if (c >= '0' && c <= '9')
                             {
-                                c = s[start++];
-                                int charVal;
-                                if (c >= '0' && c <= '9')
-                                {
-                                    charVal = c - '0';
-                                }
-                                else if (c >= 'a' && c <= 'f')
-                                {
-                                    charVal = 10 + (c - 'a');
-                                }
-                                else if (c >= 'A' && c <= 'F')
-                                {
-                                    charVal = 10 + (c - 'A');
-                                }
-                                else
-                                {
-                                    break; // while
-                                }
-                                codePoint = (codePoint * 16) + charVal;
-                                --size;
+                                charVal = c - '0';
                             }
-                            if (size > 0)
+                            else if (c >= 'a' && c <= 'f')
                             {
-                                throw new System.ArgumentException("Invalid universal character name: too few hex digits");
+                                charVal = 10 + (c - 'a');
                             }
-                            if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
+                            else if (c >= 'A' && c <= 'F')
                             {
-                                throw new System.ArgumentException("A universal character name cannot designate a surrogate");
-                            }
-                            if (inBMP || codePoint <= 0xFFFF)
-                            {
-                                result.Append((char)codePoint);
+                                charVal = 10 + (c - 'A');
                             }
                             else
                             {
-                                result.Append(char.ConvertFromUtf32(codePoint));
+                                break; // while
                             }
-                            break;
+                            codePoint = (codePoint * 16) + charVal;
+                            --size;
                         }
+                        if (size > 0)
+                        {
+                            throw new System.ArgumentException("Invalid universal character name: too few hex digits");
+                        }
+                        if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
+                        {
+                            throw new System.ArgumentException("A universal character name cannot designate a surrogate");
+                        }
+                        if (inBMP || codePoint <= 0xFFFF)
+                        {
+                            result.Append((char)codePoint);
+                        }
+                        else
+                        {
+                            result.Append(char.ConvertFromUtf32(codePoint));
+                        }
+                        break;
+                    }
 
                     case '0':
                     case '1':
@@ -405,95 +404,95 @@ namespace ZeroC.Ice
                     case '6':
                     case '7':
                     case 'x':
+                    {
+                        // UTF-8 byte sequence encoded with octal escapes
+
+                        byte[] arr = new byte[end - start];
+                        int i = 0;
+                        bool more = true;
+                        while (more)
                         {
-                            // UTF-8 byte sequence encoded with octal escapes
-
-                            byte[] arr = new byte[end - start];
-                            int i = 0;
-                            bool more = true;
-                            while (more)
+                            int val = 0;
+                            if (c == 'x')
                             {
-                                int val = 0;
-                                if (c == 'x')
+                                int size = 2;
+                                ++start;
+                                while (size > 0 && start < end)
                                 {
-                                    int size = 2;
-                                    ++start;
-                                    while (size > 0 && start < end)
+                                    c = s[start++];
+                                    int charVal;
+                                    if (c >= '0' && c <= '9')
                                     {
-                                        c = s[start++];
-                                        int charVal;
-                                        if (c >= '0' && c <= '9')
-                                        {
-                                            charVal = c - '0';
-                                        }
-                                        else if (c >= 'a' && c <= 'f')
-                                        {
-                                            charVal = 10 + (c - 'a');
-                                        }
-                                        else if (c >= 'A' && c <= 'F')
-                                        {
-                                            charVal = 10 + (c - 'A');
-                                        }
-                                        else
-                                        {
-                                            --start; // move back
-                                            break; // while
-                                        }
-                                        val = (val * 16) + charVal;
-                                        --size;
+                                        charVal = c - '0';
                                     }
-                                    if (size == 2)
+                                    else if (c >= 'a' && c <= 'f')
                                     {
-                                        throw new System.ArgumentException("Invalid \\x escape sequence: no hex digit");
+                                        charVal = 10 + (c - 'a');
                                     }
+                                    else if (c >= 'A' && c <= 'F')
+                                    {
+                                        charVal = 10 + (c - 'A');
+                                    }
+                                    else
+                                    {
+                                        --start; // move back
+                                        break; // while
+                                    }
+                                    val = (val * 16) + charVal;
+                                    --size;
                                 }
-                                else
+                                if (size == 2)
                                 {
-                                    for (int j = 0; j < 3 && start < end; ++j)
-                                    {
-                                        int charVal = s[start++] - '0';
-                                        if (charVal < 0 || charVal > 7)
-                                        {
-                                            --start; // move back
-                                            Debug.Assert(j != 0); // must be at least one digit
-                                            break; // for
-                                        }
-                                        val = (val * 8) + charVal;
-                                    }
-                                    if (val > 255)
-                                    {
-                                        string msg = "octal value \\" + System.Convert.ToString(val, 8) + " (" + val + ") is out of range";
-                                        throw new System.ArgumentException(msg);
-                                    }
+                                    throw new System.ArgumentException("Invalid \\x escape sequence: no hex digit");
                                 }
-
-                                arr[i++] = (byte)val;
-
-                                more = false;
-
-                                if ((start + 1 < end) && s[start] == '\\')
+                            }
+                            else
+                            {
+                                for (int j = 0; j < 3 && start < end; ++j)
                                 {
-                                    c = s[start + 1];
-                                    if (c == 'x' || (c >= '0' && c <= '9'))
+                                    int charVal = s[start++] - '0';
+                                    if (charVal < 0 || charVal > 7)
                                     {
-                                        start++;
-                                        more = true;
+                                        --start; // move back
+                                        Debug.Assert(j != 0); // must be at least one digit
+                                        break; // for
                                     }
+                                    val = (val * 8) + charVal;
+                                }
+                                if (val > 255)
+                                {
+                                    string msg = "octal value \\" + System.Convert.ToString(val, 8) + " (" + val + ") is out of range";
+                                    throw new System.ArgumentException(msg);
                                 }
                             }
 
-                            result.Append(utf8Encoding.GetString(arr, 0, i)); // May raise ArgumentException.
-                            break;
+                            arr[i++] = (byte)val;
+
+                            more = false;
+
+                            if ((start + 1 < end) && s[start] == '\\')
+                            {
+                                c = s[start + 1];
+                                if (c == 'x' || (c >= '0' && c <= '9'))
+                                {
+                                    start++;
+                                    more = true;
+                                }
+                            }
                         }
+
+                        result.Append(utf8Encoding.GetString(arr, 0, i)); // May raise ArgumentException.
+                        break;
+                    }
                     default:
+                    {
+                        if (string.IsNullOrEmpty(special) || !special.Contains(c))
                         {
-                            if (string.IsNullOrEmpty(special) || !special.Contains(c))
-                            {
-                                result.Append('\\'); // not in special, so we keep the backslash
-                            }
-                            result.Append(CheckChar(s, start++));
-                            break;
+                            result.Append('\\'); // not in special, so we keep the backslash
                         }
+                        result.Append(CheckChar(s, start++));
+                        break;
+                    }
                 }
             }
             return start;
