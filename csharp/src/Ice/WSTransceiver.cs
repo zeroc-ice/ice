@@ -146,10 +146,9 @@ namespace ZeroC.Ice
                     int endPos = HttpParser.IsCompleteMessage(httpBuffer);
                     if (endPos != -1)
                     {
-                        httpBuffer = httpBuffer.Slice(0, endPos);
-
                         // Add back the un-consumed data to the buffer.
-                        _underlying.SetBuffer(httpBuffer.Slice(endPos));
+                        _underlying.Rewind(httpBuffer.Count - endPos);
+                        httpBuffer = httpBuffer.Slice(0, endPos);
                         break; // Done
                     }
                 }
