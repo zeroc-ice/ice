@@ -51,7 +51,6 @@
             test(mo4.g === undefined);
             test(mo4.h === undefined);
             test(mo4.i === undefined);
-            test(mo4.k === undefined);
             test(mo4.bs === undefined);
             test(mo4.ss === undefined);
             test(mo4.iid === undefined);
@@ -63,7 +62,6 @@
             test(mo4.es === undefined);
             test(mo4.fss === undefined);
             test(mo4.vss === undefined);
-            test(mo4.oos === undefined);
 
             test(mo4.ied === undefined);
             test(mo4.ifsd === undefined);
@@ -84,7 +82,6 @@
             mo1.g = 1.0;
             mo1.h = "test";
             mo1.i = Test.MyEnum.MyEnumMember;
-            mo1.k = mo1;
             mo1.bs = new Uint8Array([5]);
             mo1.ss = ["test", "test2"];
             mo1.iid = new Map();
@@ -100,7 +97,6 @@
             mo1.es = [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember];
             mo1.fss = [mo1.fs];
             mo1.vss = [mo1.vs];
-            mo1.oos = [oo1];
 
             mo1.ied = new Map();
             mo1.ied.set(4, Test.MyEnum.MyEnumMember);
@@ -124,7 +120,6 @@
             test(mo1.g == mo5.g);
             test(mo1.h == mo5.h);
             test(mo1.i == mo5.i);
-            test(mo5.k == mo5);
             test(ArrayUtil.equals(mo5.bs, mo1.bs));
             test(ArrayUtil.equals(mo5.ss, mo1.ss));
             test(mo5.iid.get(4) == 3);
@@ -135,7 +130,6 @@
             test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo5.es[1] == Test.MyEnum.MyEnumMember);
             test(mo5.fss[0].equals(new Test.FixedStruct(78)));
             test(mo5.vss[0].equals(new Test.VarStruct("hello")));
-            test(mo5.oos[0].a == 15);
             test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
             test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
             test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
@@ -154,7 +148,6 @@
             mo6.fs = mo5.fs;
             mo6.shs = mo5.shs;
             mo6.fss = mo5.fss;
-            mo6.oos = mo5.oos;
             mo6.ifsd = mo5.ifsd;
             mo6.iood = mo5.iood;
             mo6.bos = mo5.bos;
@@ -169,7 +162,6 @@
             test(mo7.g === undefined);
             test(mo7.h == mo1.h);
             test(mo7.i === undefined);
-            test(mo7.k === undefined);
             test(ArrayUtil.equals(mo7.bs, mo1.bs));
             test(mo7.ss === undefined);
             test(mo7.iid.get(4) == 3);
@@ -180,7 +172,6 @@
             test(mo7.es === undefined);
             test(mo7.fss[0].equals(new Test.FixedStruct(78)));
             test(mo7.vss === undefined);
-            test(mo7.oos[0].a == 15);
 
             test(mo7.ied === undefined);
             test(mo7.ifsd.get(4).equals(new Test.FixedStruct(78)));
@@ -196,7 +187,6 @@
             mo8.e = mo1.e;
             mo8.g = mo1.g;
             mo8.i = mo1.i;
-            mo8.k = mo8;
             mo8.ss = mo1.ss;
             mo8.sid = mo1.sid;
             mo8.vs = mo1.vs;
@@ -218,7 +208,6 @@
             test(mo9.g == mo1.g);
             test(mo9.h === undefined);
             test(mo9.i == mo1.i);
-            test(mo9.k == mo9);
             test(mo9.bs === undefined);
             test(ArrayUtil.equals(mo9.ss, mo1.ss));
             test(mo9.iid === undefined);
@@ -230,7 +219,6 @@
             test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo9.es[1] == Test.MyEnum.MyEnumMember);
             test(mo9.fss === undefined);
             test(mo9.vss[0].equals(new Test.VarStruct("hello")));
-            test(mo9.oos === undefined);
 
             test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);
             test(mo9.ifsd === undefined);

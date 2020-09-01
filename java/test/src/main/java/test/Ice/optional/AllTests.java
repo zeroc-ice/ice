@@ -73,7 +73,6 @@ public class AllTests
         mo1.setG(1.0);
         mo1.setH("test");
         mo1.setI(MyEnum.MyEnumMember);
-        mo1.setK(mo1);
         mo1.setBs(new byte[] { 5 });
         mo1.setSs(new String[] { "test", "test2" });
         mo1.setIid(new java.util.HashMap<>());
@@ -91,7 +90,6 @@ public class AllTests
         mo1.setEs(new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember });
         mo1.setFss(new FixedStruct[] { fs });
         mo1.setVss(new VarStruct[] { vs });
-        mo1.setOos(new OneOptional[] { oo1 });
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -116,7 +114,6 @@ public class AllTests
         test(mo1.getG() == 1.0);
         test(mo1.getH().equals("test"));
         test(mo1.getI() == MyEnum.MyEnumMember);
-        test(mo1.getK() == mo1);
         test(java.util.Arrays.equals(mo1.getBs(), new byte[] { 5 }));
         test(java.util.Arrays.equals(mo1.getSs(), new String[] { "test", "test2" }));
         test(mo1.getIid().get(4) == 3);
@@ -128,7 +125,6 @@ public class AllTests
         test(mo1.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
         test(mo1.getFss()[0].equals(new FixedStruct(78)));
         test(mo1.getVss()[0].equals(new VarStruct("hello")));
-        test(mo1.getOos()[0] == oo1);
 
         test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
@@ -160,7 +156,6 @@ public class AllTests
         test(!mo4.hasG());
         test(!mo4.hasH());
         test(!mo4.hasI());
-        test(!mo4.hasK());
         test(!mo4.hasBs());
         test(!mo4.hasSs());
         test(!mo4.hasIid());
@@ -172,7 +167,6 @@ public class AllTests
         test(!mo4.hasEs());
         test(!mo4.hasFss());
         test(!mo4.hasVss());
-        test(!mo4.hasOos());
 
         test(!mo4.hasIed());
         test(!mo4.hasIfsd());
@@ -199,7 +193,6 @@ public class AllTests
         test(mo5.getG() == mo1.getG());
         test(mo5.getH().equals(mo1.getH()));
         test(mo5.getI() == mo1.getI());
-        test(mo5.getK() == mo5);
         test(java.util.Arrays.equals(mo5.getBs(), mo1.getBs()));
         test(java.util.Arrays.equals(mo5.getSs(), mo1.getSs()));
         test(mo5.getIid().get(4) == 3);
@@ -210,7 +203,6 @@ public class AllTests
         test(mo5.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
         test(mo5.getFss()[0].equals(new FixedStruct(78)));
         test(mo5.getVss()[0].equals(new VarStruct("hello")));
-        test(mo5.getOos()[0].getA() == 15);
 
         test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
@@ -235,7 +227,6 @@ public class AllTests
         mo6.setFs(mo5.getFs());
         mo6.setShs(mo5.getShs());
         mo6.setFss(mo5.getFss());
-        mo6.setOos(mo5.getOos());
         mo6.setIfsd(mo5.getIfsd());
         mo6.setIood(mo5.getIood());
         mo6.setBos(mo5.getBos());
@@ -250,7 +241,6 @@ public class AllTests
         test(!mo7.hasG());
         test(mo7.getH().equals(mo1.getH()));
         test(!mo7.hasI());
-        test(!mo7.hasK());
         test(java.util.Arrays.equals(mo7.getBs(), mo1.getBs()));
         test(!mo7.hasSs());
         test(mo7.getIid().get(4) == 3);
@@ -262,7 +252,6 @@ public class AllTests
         test(!mo7.hasEs());
         test(mo7.getFss()[0].equals(new FixedStruct(78)));
         test(!mo7.hasVss());
-        test(mo7.getOos()[0].getA() == 15);
 
         test(!mo7.hasIed());
         test(mo7.getIfsd().get(4).equals(new FixedStruct(78)));
@@ -278,7 +267,6 @@ public class AllTests
         mo8.setE(mo5.getE());
         mo8.setG(mo5.getG());
         mo8.setI(mo5.getI());
-        mo8.setK(mo8);
         mo8.setSs(mo5.getSs());
         mo8.setSid(mo5.getSid());
         mo8.setVs(mo5.getVs());
@@ -299,7 +287,6 @@ public class AllTests
         test(mo9.getG() == mo1.getG());
         test(!mo9.hasH());
         test(mo9.getI() == mo1.getI());
-        test(mo9.getK() == mo9);
         test(!mo9.hasBs());
         test(java.util.Arrays.equals(mo9.getSs(), mo1.getSs()));
         test(!mo9.hasIid());
@@ -311,7 +298,6 @@ public class AllTests
         test(mo9.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
         test(!mo9.hasFss());
         test(mo9.getVss()[0].equals(new VarStruct("hello")));
-        test(!mo9.hasOos());
 
         test(mo9.getIed().get(4) == MyEnum.MyEnumMember);
         test(!mo9.hasIfsd());

@@ -10,13 +10,6 @@
 #include <TestHelper.h>
 #include <Test.h>
 
-namespace Test
-{
-using OneOptionalPrx = Ice::ObjectPrx;
-using OneOptionalPrxPtr = ::std::shared_ptr<Ice::ObjectPrx>;
-using MultiOptionalPrx = Ice::ObjectPrx;
-}
-
 using namespace std;
 using namespace Test;
 
@@ -371,7 +364,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->g = 1.0;
     mo1->h = string("test");
     mo1->i = MyEnum::MyEnumMember;
-    mo1->k = mo1;
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(5);
     mo1->ss = StringSeq();
@@ -397,8 +389,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->fss->push_back(fs);
     mo1->vss = VarStructSeq();
     mo1->vss->push_back(vs);
-    mo1->oos = OneOptionalSeq();
-    mo1->oos->push_back(oo1);
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = MyEnum::MyEnumMember;
@@ -429,7 +419,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
     test(mo3->i = MyEnum::MyEnumMember);
-    test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
     test(mo3->iid == mo1->iid);
@@ -441,7 +430,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->es == mo1->es);
     test(mo3->fss == mo1->fss);
     test(mo3->vss == mo1->vss);
-    test(mo3->oos == mo1->oos);
     test(mo3->ied == mo1->ied);
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
@@ -486,7 +474,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->g);
     test(!mo4->h);
     test(!mo4->i);
-    test(!mo4->k);
     test(!mo4->bs);
     test(!mo4->ss);
     test(!mo4->iid);
@@ -498,7 +485,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->es);
     test(!mo4->fss);
     test(!mo4->vss);
-    test(!mo4->oos);
 
     test(!mo4->ied);
     test(!mo4->ifsd);
@@ -507,7 +493,6 @@ allTests(Test::TestHelper* helper, bool)
 
     test(!mo4->bos);
 
-    mo1->k = mo1;
     MultiOptionalPtr mo5 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo1));
     test(mo5->a == mo1->a);
     test(mo5->b == mo1->b);
@@ -518,7 +503,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->g == mo1->g);
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
-    test(mo5->k == mo5->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
     test(mo5->iid == mo1->iid);
@@ -530,7 +514,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->es == mo1->es);
     test(mo5->fss == mo1->fss);
     test(mo5->vss == mo1->vss);
-    test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
     test(mo5->ied == mo1->ied);
     test(mo5->ifsd == mo1->ifsd);
@@ -546,7 +529,6 @@ allTests(Test::TestHelper* helper, bool)
     mo6->e = IceUtil::None;
     mo6->g = IceUtil::None;
     mo6->i = IceUtil::None;
-    mo6->k = IceUtil::None;
     mo6->ss = IceUtil::None;
     mo6->sid = IceUtil::None;
     mo6->vs = IceUtil::None;
@@ -567,7 +549,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->g);
     test(mo7->h == mo1->h);
     test(!mo7->i);
-    test(!mo7->k);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
     test(mo7->iid == mo1->iid);
@@ -579,7 +560,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->es);
     test(mo7->fss == mo1->fss);
     test(!mo7->vss);
-    test(!mo7->oos->empty() && (*mo7->oos)[0]->a == oo1->a);
 
     test(!mo7->ied);
     test(mo7->ifsd == mo1->ifsd);
@@ -598,12 +578,10 @@ allTests(Test::TestHelper* helper, bool)
 
     mo8->shs = IceUtil::None;
     mo8->fss = IceUtil::None;
-    mo8->oos = IceUtil::None;
 
     mo8->ifsd = IceUtil::None;
     mo8->iood = IceUtil::None;
 
-    mo8->k = mo8;
     MultiOptionalPtr mo9 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo8));
     test(mo9->a == mo1->a);
     test(!mo9->b);
@@ -614,7 +592,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo9->g == mo1->g);
     test(!mo9->h);
     test(mo9->i == mo1->i);
-    test(mo9->k == mo9);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
     test(!mo9->iid);
@@ -626,7 +603,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->es == mo1->es);
     test(!mo8->fss);
     test(mo8->vss == mo1->vss);
-    test(!mo8->oos);
 
     test(mo8->ied == mo1->ied);
     test(!mo8->ifsd);
@@ -672,16 +648,6 @@ allTests(Test::TestHelper* helper, bool)
         test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
         factory->setEnabled(false);
     }
-
-    mo1->k = shared_ptr<MultiOptional>();
-    mo2->k = shared_ptr<MultiOptional>();
-    mo3->k = shared_ptr<MultiOptional>();
-    mo4->k = shared_ptr<MultiOptional>();
-    mo5->k = shared_ptr<MultiOptional>();
-    mo6->k = shared_ptr<MultiOptional>();
-    mo7->k = shared_ptr<MultiOptional>();
-    mo8->k = shared_ptr<MultiOptional>();
-    mo9->k = shared_ptr<MultiOptional>();
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.

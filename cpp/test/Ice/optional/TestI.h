@@ -7,11 +7,6 @@
 
 #include <Test.h>
 
-namespace Test
-{
-using OneOptionalPrxPtr = std::shared_ptr<Ice::ObjectPrx>;
-}
-
 class InitialI : public Test::Initial
 {
 public:

@@ -228,7 +228,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo1.g = 1.0
     mo1.h = "test"
     mo1.i = .MyEnumMember
-    // mo1.k = mo1
     mo1.bs = ByteSeq([5])
     mo1.ss = ["test", "test2"]
     mo1.iid = [4: 3]
@@ -244,7 +243,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo1.es = [.MyEnumMember, .MyEnumMember]
     mo1.fss = [fs]
     mo1.vss = [vs]
-    mo1.oos = [oo1]
 
     mo1.ied = [4: .MyEnumMember]
     mo1.ifsd = [4: fs]
@@ -262,7 +260,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo1.g! == 1.0)
     try test(mo1.h! == "test")
     try test(mo1.i! == .MyEnumMember)
-    //try test(mo1.k! === mo1)
     try test(mo1.bs! == ByteSeq([5]))
     try test(mo1.ss! == ["test", "test2"])
     try test(mo1.iid![4]! == 3)
@@ -276,7 +273,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     try test(mo1.fss![0] == FixedStruct(m: 78))
     try test(mo1.vss![0] == VarStruct(m: "hello"))
-    try test(mo1.oos![0] === oo1)
 
     try test(mo1.ied![4] == .MyEnumMember)
     try test(mo1.ifsd![4] == FixedStruct(m: 78))
@@ -311,7 +307,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo4.g == nil)
         try test(mo4.h == nil)
         try test(mo4.i == nil)
-        try test(mo4.k == nil)
         try test(mo4.bs == nil)
         try test(mo4.ss == nil)
         try test(mo4.iid == nil)
@@ -323,7 +318,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo4.es == nil)
         try test(mo4.fss == nil)
         try test(mo4.vss == nil)
-        try test(mo4.oos == nil)
 
         try test(mo4.ied == nil)
         try test(mo4.ifsd == nil)
@@ -350,7 +344,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo5.g == mo1.g)
         try test(mo5.h == mo1.h)
         try test(mo5.i == mo1.i)
-        //try test(mo5.k === mo5)
         try test(mo5.bs == mo1.bs)
         try test(mo5.ss == mo1.ss)
         try test(mo5.iid![4] == 3)
@@ -362,7 +355,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
             mo1.es![1] == .MyEnumMember)
         try test(mo5.fss![0] == FixedStruct(m: 78))
         try test(mo5.vss![0] == VarStruct(m: "hello"))
-        try test(mo5.oos![0]!.a! == 15)
 
         try test(mo5.ied![4] == .MyEnumMember)
         try test(mo5.ifsd![4] == FixedStruct(m: 78))
@@ -381,7 +373,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         mo6.fs = mo5.fs
         mo6.shs = mo5.shs
         mo6.fss = mo5.fss
-        mo6.oos = mo5.oos
         mo6.ifsd = mo5.ifsd
         mo6.iood = mo5.iood
         mo6.bos = mo5.bos
@@ -392,7 +383,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         mo8.e = mo5.e
         mo8.g = mo5.g
         mo8.i = mo5.i
-        // mo8.k = mo8
         mo8.ss = mo5.ss
         mo8.sid = mo5.sid
         mo8.vs = mo5.vs
@@ -416,7 +406,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo7.g == nil)
         try test(mo7.h == mo1.h)
         try test(mo7.i == nil)
-        try test(mo7.k == nil)
         try test(mo7.bs == mo1.bs)
         try test(mo7.ss == nil)
         try test(mo7.iid![4] == 3)
@@ -428,7 +417,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo7.es == nil)
         try test(mo7.fss![0] == FixedStruct(m: 78))
         try test(mo7.vss == nil)
-        try test(mo7.oos![0]!.a == 15)
 
         try test(mo7.ied == nil)
         try test(mo7.ifsd![4] == FixedStruct(m: 78))
@@ -451,7 +439,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo9.g == mo1.g)
         try test(mo9.h == nil)
         try test(mo9.i == mo1.i)
-        //try test(mo9.k === mo9)
         try test(mo9.bs == nil)
         try test(mo9.ss == mo1.ss)
         try test(mo9.iid == nil)
@@ -464,7 +451,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
             mo9.es![1] == .MyEnumMember)
         try test(mo9.fss == nil)
         try test(mo9.vss![0] == VarStruct(m: "hello"))
-        try test(mo9.oos == nil)
 
         try test(mo9.ied![4] == .MyEnumMember)
         try test(mo9.ifsd == nil)

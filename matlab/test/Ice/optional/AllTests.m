@@ -32,7 +32,6 @@ classdef AllTests
             assert(mo1.g == Ice.Unset);
             assert(mo1.h == Ice.Unset);
             assert(mo1.i == Ice.Unset);
-            assert(mo1.k == Ice.Unset);
             assert(mo1.bs == Ice.Unset);
             assert(mo1.ss == Ice.Unset);
             assert(mo1.iid == Ice.Unset);
@@ -44,7 +43,6 @@ classdef AllTests
             assert(mo1.es == Ice.Unset);
             assert(mo1.fss == Ice.Unset);
             assert(mo1.vss == Ice.Unset);
-            assert(mo1.oos == Ice.Unset);
 
             assert(mo1.ied == Ice.Unset);
             assert(mo1.ifsd == Ice.Unset);
@@ -61,8 +59,6 @@ classdef AllTests
             sid('test') = 10;
             ied = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ied(4) = MyEnum.MyEnumMember;
-            oos = {};
-            oos{1} = oo1;
             ifsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ifsd(4) = fs;
             ivsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
@@ -70,10 +66,10 @@ classdef AllTests
             iood = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             iood(5) = OneOptional(15);
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
-                                     [], [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
-                                     [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
-                                     [ fs ], [ vs ], oos, ...
-                                     ied, ifsd, ivsd, iood, [false, true, false], []);
+                                [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
+                                [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
+                                [ fs ], [ vs ], ...
+                                ied, ifsd, ivsd, iood, [false, true, false], []);
 
             assert(mo1.a == 15);
             assert(mo1.b == true);
@@ -84,7 +80,6 @@ classdef AllTests
             assert(mo1.g == 1.0);
             assert(strcmp(mo1.h, 'test'));
             assert(mo1.i == MyEnum.MyEnumMember);
-            assert(isempty(mo1.k));
             assert(mo1.bs == [5])
             assert(isequal(mo1.ss, {'test', 'test2'}));
             assert(mo1.iid(4) == 3);
@@ -96,7 +91,6 @@ classdef AllTests
             assert(mo1.es(1) == MyEnum.MyEnumMember && mo1.es(2) == MyEnum.MyEnumMember);
             assert(isequal(mo1.fss(1), FixedStruct(78)));
             assert(isequal(mo1.vss(1), VarStruct('hello')));
-            assert(isequal(mo1.oos{1}, oo1));
 
             assert(mo1.ied(4) == MyEnum.MyEnumMember);
             assert(isequal(mo1.ifsd(4), FixedStruct(78)));
@@ -133,7 +127,6 @@ classdef AllTests
             assert(mo4.g == Ice.Unset);
             assert(mo4.h == Ice.Unset);
             assert(mo4.i == Ice.Unset);
-            assert(mo4.k == Ice.Unset);
             assert(mo4.bs == Ice.Unset);
             assert(mo4.ss == Ice.Unset);
             assert(mo4.iid == Ice.Unset);
@@ -145,7 +138,6 @@ classdef AllTests
             assert(mo4.es == Ice.Unset);
             assert(mo4.fss == Ice.Unset);
             assert(mo4.vss == Ice.Unset);
-            assert(mo4.oos == Ice.Unset);
 
             assert(mo4.ied == Ice.Unset);
             assert(mo4.ifsd == Ice.Unset);
@@ -164,9 +156,6 @@ classdef AllTests
             assert(mo5.g == mo1.g);
             assert(strcmp(mo5.h, mo1.h));
             assert(mo5.i == mo1.i);
-            % With the Swift mapping you cannot distinguish null from an
-            % unset optional, so we test for both to support cross-testing.
-            assert(isempty(mo5.k) || mo5.k == Ice.Unset);
             assert(mo5.bs(1) == 5);
             assert(isequal(mo5.ss, mo1.ss));
             assert(mo5.iid(4) == 3);
@@ -177,7 +166,6 @@ classdef AllTests
             assert(mo5.es(1) == MyEnum.MyEnumMember && mo1.es(2) == MyEnum.MyEnumMember);
             assert(mo5.fss(1) == FixedStruct(78));
             assert(mo5.vss(1) == VarStruct('hello'));
-            assert(mo5.oos{1}.a == 15);
 
             assert(mo5.ied(4) == MyEnum.MyEnumMember);
             assert(mo5.ifsd(4) == FixedStruct(78));
@@ -197,7 +185,6 @@ classdef AllTests
             mo6.fs = mo5.fs;
             mo6.shs = mo5.shs;
             mo6.fss = mo5.fss;
-            mo6.oos = mo5.oos;
             mo6.ifsd = mo5.ifsd;
             mo6.iood = mo5.iood;
             mo6.bos = mo5.bos;
@@ -212,7 +199,6 @@ classdef AllTests
             assert(mo7.g == Ice.Unset);
             assert(strcmp(mo7.h, mo1.h));
             assert(mo7.i == Ice.Unset);
-            assert(mo7.k == Ice.Unset);
             assert(mo7.bs(1) == 5);
             assert(mo7.ss == Ice.Unset);
             assert(mo7.iid(4) == 3);
@@ -224,7 +210,6 @@ classdef AllTests
             assert(mo7.es == Ice.Unset);
             assert(mo7.fss(1) == FixedStruct(78));
             assert(mo7.vss == Ice.Unset);
-            assert(mo7.oos{1}.a == 15);
 
             assert(mo7.ied == Ice.Unset);
             assert(mo7.ifsd(4) == FixedStruct(78));
@@ -240,7 +225,6 @@ classdef AllTests
             mo8.e = mo5.e;
             mo8.g = mo5.g;
             mo8.i = mo5.i;
-            mo8.k = mo8;
             mo8.ss = mo5.ss;
             mo8.sid = mo5.sid;
             mo8.vs = mo5.vs;
@@ -261,7 +245,6 @@ classdef AllTests
             assert(mo9.g == mo1.g);
             assert(mo9.h == Ice.Unset);
             assert(mo9.i == mo1.i);
-            assert(mo9.k == mo9);
             assert(mo9.bs == Ice.Unset);
             assert(isequal(mo9.ss, mo1.ss));
             assert(mo9.iid == Ice.Unset);
@@ -273,7 +256,6 @@ classdef AllTests
             assert(mo9.es(1) == MyEnum.MyEnumMember && mo1.es(2) == MyEnum.MyEnumMember);
             assert(mo9.fss == Ice.Unset);
             assert(mo9.vss(1) == VarStruct('hello'));
-            assert(mo9.oos == Ice.Unset);
 
             assert(mo9.ied(4) == MyEnum.MyEnumMember);
             assert(mo9.ifsd == Ice.Unset);

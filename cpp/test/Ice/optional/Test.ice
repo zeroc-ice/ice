@@ -57,7 +57,6 @@ sequence<SmallStruct> SmallStructSeq;
 sequence<FixedStruct> FixedStructSeq;
 [cpp:type:std::list< ::Test::FixedStruct>] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
 
 sequence<byte> Serializable;
 
@@ -81,7 +80,7 @@ class MultiOptional
     optional(7) double g;
     optional(8) string h;
     optional(9) MyEnum i;
-    optional(11) MultiOptional k;
+
     optional(12) ByteSeq bs;
     optional(13) StringSeq ss;
     optional(14) IntIntDict iid;
@@ -93,12 +92,11 @@ class MultiOptional
     optional(19) MyEnumSeq es;
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
-    optional(22) OneOptionalSeq oos;
 
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
-    optional(27) IntOneOptionalDict iood;
+    optional(27) IntOneOptionalDict iood; //TODO
 
     optional(29) BoolSeq bos;
 

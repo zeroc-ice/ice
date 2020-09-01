@@ -56,7 +56,6 @@ sequence<SmallStruct> SmallStructSeq;
 sequence<FixedStruct> FixedStructSeq;
 [clr:generic:LinkedList] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
 
 [clr:serializable:Ice.optional.Test.SerializableClass]
 sequence<byte> Serializable;
@@ -79,7 +78,7 @@ class MultiOptional
     optional(7) double g;
     optional(8) string h;
     optional(9) MyEnum i;
-    optional(11) MultiOptional k;
+
     optional(12) ByteSeq bs;
     optional(13) StringSeq ss;
     optional(14) IntIntDict iid;
@@ -91,7 +90,6 @@ class MultiOptional
     optional(19) MyEnumSeq es;
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
-    optional(22) OneOptionalSeq oos;
 
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
