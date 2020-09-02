@@ -686,10 +686,10 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long streamId)
+        private async ValueTask DispatchAsync(IncomingRequestFrame request, long streamId, Current current)
         {
             OutgoingResponseFrame response =
-                await current.Adapter.DispatchAsync(streamId, request, current).ConfigureAwait(false);
+                await current.Adapter.DispatchAsync(request, streamId, current).ConfigureAwait(false);
 
             if (!current.IsOneway)
             {
@@ -786,7 +786,7 @@ namespace ZeroC.Ice
                                                           oneway: fin,
                                                           cancel: cancellationToken,
                                                           this);
-                                incoming = () => InvokeAsync(requestFrame, current, streamId);
+                                incoming = () => DispatchAsync(requestFrame, streamId, current);
                                 ++_dispatchCount;
                             }
                         }

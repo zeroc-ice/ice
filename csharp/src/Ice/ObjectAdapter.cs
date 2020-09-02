@@ -879,8 +879,8 @@ namespace ZeroC.Ice
         }
 
         internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
-            long streamId,
             IncomingRequestFrame request,
+            long streamId,
             Current current)
         {
             IDispatchObserver? dispatchObserver = null;
@@ -899,7 +899,20 @@ namespace ZeroC.Ice
                     throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                 }
 
-                OutgoingResponseFrame response = await DispatchAsync(servant, 0).ConfigureAwait(false);
+                ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
+                {
+                    if (i < Interceptors.Count)
+                    {
+                        DispatchInterceptor interceptor = Interceptors[i++];
+                        return interceptor(request, current, (request, current) => DispatchAsync(i));
+                    }
+                    else
+                    {
+                        return servant.DispatchAsync(request, current);
+                    }
+                }
+
+                OutgoingResponseFrame response = await DispatchAsync(0).ConfigureAwait(false);
                 if (!current.IsOneway)
                 {
                     response.Finish();
@@ -921,12 +934,12 @@ namespace ZeroC.Ice
                     {
                         actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
                         dispatchObserver?.Failed(actualEx.InnerException!.GetType().FullName ?? "System.Exception");
+                        if (Communicator.WarnDispatch)
+                        {
+                            Warning(ex);
+                        }
                     }
 
-                    if (Communicator.WarnDispatch && actualEx is UnhandledException)
-                    {
-                        Warning(ex);
-                    }
                     var response = new OutgoingResponseFrame(request, actualEx);
                     response.Finish();
                     dispatchObserver?.Reply(response.Size);
@@ -945,22 +958,6 @@ namespace ZeroC.Ice
             finally
             {
                 dispatchObserver?.Detach();
-            }
-
-            ValueTask<OutgoingResponseFrame> DispatchAsync(IObject servant, int i)
-            {
-                if (i < Interceptors.Count)
-                {
-                    DispatchInterceptor interceptor = Interceptors[i++];
-
-                    return interceptor(request,
-                                       current,
-                                       (request, current) => DispatchAsync(servant, i));
-                }
-                else
-                {
-                    return servant.DispatchAsync(request, current);
-                }
             }
 
             void Warning(Exception ex)
