@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -59,7 +60,7 @@ namespace ZeroC.Ice
                         RemoteCertificateValidationCallback;
                     options.LocalCertificateSelectionCallback =
                         _engine.TlsClientOptions.ClientCertificateSelectionCallback ??
-                        CertificateSelectionCallback;
+                        (options.ClientCertificates?.Count > 0 ? CertificateSelectionCallback : (LocalCertificateSelectionCallback?)null);
                     options.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
                     await SslStream.AuthenticateAsClientAsync(options, cancel).ConfigureAwait(false);
                 }
@@ -216,11 +217,7 @@ namespace ZeroC.Ice
             X509Certificate? remoteCertificate,
             string[]? acceptableIssuers)
         {
-            if (certs == null || certs.Count == 0)
-            {
-                throw new ArgumentException("X509Certificate not available", nameof(certs));
-            }
-
+            Debug.Assert(certs != null && certs.Count > 0);
             // Use the first certificate that match the acceptable issuers.
             if (acceptableIssuers != null && acceptableIssuers.Length > 0)
             {

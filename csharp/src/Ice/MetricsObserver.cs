@@ -86,7 +86,7 @@ namespace ZeroC.IceMX
             }
         }
 
-        internal MetricsMap<T>.Entry? GetEntry(MetricsMap<T> map) => _entries?.FirstOrDefault(entry => entry.Map == map);
+        internal MetricsMap<T>.Entry? GetEntry(MetricsMap<T> map) => _entries!.FirstOrDefault(entry => entry.Map == map);
 
         internal ObserverImpl? GetObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
             where S : Metrics, new()
