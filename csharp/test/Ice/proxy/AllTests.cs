@@ -991,6 +991,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             output.WriteLine("ok");
 
+            // TODO test communicator destroy in its own test
             output.Write("testing communicator shutdown/destroy... ");
             output.Flush();
             {
@@ -1001,6 +1002,32 @@ namespace ZeroC.Ice.Test.Proxy
                 com.ShutdownAsync();
                 com.WaitForShutdownAsync();
                 com.Dispose();
+            }
+            output.WriteLine("ok");
+
+            output.Write("testing communicator default source address... ");
+            output.Flush();
+            {
+                using var comm1 = new Communicator(new Dictionary<string, string>()
+                    {
+                        { "Ice.Default.SourceAddress", "192.168.1.40" }
+                    });
+
+                using var comm2 = new Communicator();
+
+                string[] proxyArray =
+                    {
+                        "ice+tcp://host.zeroc.com/identity#facet",
+                        "ice -t:tcp -h localhost -p 10000",
+                    };
+
+                foreach (string s in proxyArray)
+                {
+                    var prx = IObjectPrx.Parse(s, comm1);
+                    TestHelper.Assert(prx.Endpoints[0]["source-address"] == "192.168.1.40");
+                    prx = IObjectPrx.Parse(s, comm2);
+                    TestHelper.Assert(prx.Endpoints[0]["source-address"] == null);
+                }
             }
             output.WriteLine("ok");
 
