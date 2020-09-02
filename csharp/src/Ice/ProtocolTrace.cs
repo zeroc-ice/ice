@@ -61,7 +61,7 @@ namespace ZeroC.Ice
 
                 if (protocol == Protocol.Ice2)
                 {
-                    s.Append("\nstream id = ");
+                    s.Append("\nstream ID = ");
                     s.Append(streamId);
                 }
                 else
@@ -76,7 +76,7 @@ namespace ZeroC.Ice
                         _ => " (unknown)"
                     });
 
-                    s.Append("\nrequest id = ");
+                    s.Append("\nrequest ID = ");
                     s.Append((int)streamId);
                     if (streamId == 0)
                     {
@@ -127,14 +127,8 @@ namespace ZeroC.Ice
                     s.Append("\noperation = ");
                     s.Append(operation);
 
-                    OperationMode mode = isIdempotent ? OperationMode.Idempotent : OperationMode.Normal;
-                    s.Append("\noperation mode = ");
-                    s.Append((byte)mode);
-                    s.Append(mode switch
-                    {
-                        OperationMode.Normal => " (non-idempotent)",
-                        _ => " (idempotent)",
-                    });
+                    s.Append($"\nidempotent = ");
+                    s.Append(isIdempotent.ToString().ToLower());
 
                     int sz = context.Count;
                     s.Append("\ncontext = ");

@@ -14,20 +14,24 @@ namespace ZeroC.Ice
 {
     public abstract class BinaryConnection : IAsyncDisposable
     {
+        protected Action? HeartbeatCallback { get; private protected set; }
+        protected int IncomingFrameSizeMax { get; }
+        protected bool IsIncoming { get; }
+
         internal Endpoint Endpoint { get; }
         internal TimeSpan LastActivity;
         internal IConnectionObserver? Observer
         {
             get
             {
-                lock (Mutex)
+                lock (_mutex)
                 {
                     return _observer;
                 }
             }
             set
             {
-                lock (Mutex)
+                lock (_mutex)
                 {
                     _observer = value;
                     _observer?.Attach();
@@ -35,12 +39,9 @@ namespace ZeroC.Ice
             }
         }
 
-        protected Action? HeartbeatCallback;
-        protected readonly int IncomingFrameSizeMax;
-        protected readonly bool IsIncoming;
-        protected readonly object Mutex = new object();
-
         private IConnectionObserver? _observer;
+        // The mutex provides thread-safety for the _observer and LastActivity data members.
+        private readonly object _mutex = new object();
 
         public abstract ValueTask DisposeAsync();
 
@@ -71,11 +72,12 @@ namespace ZeroC.Ice
             IsIncoming = adapter != null;
             IncomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             LastActivity = Time.Elapsed;
+            _mutex = new object();
         }
 
         protected void Initialized()
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 LastActivity = Time.Elapsed;
             }
@@ -105,7 +107,7 @@ namespace ZeroC.Ice
 
         protected void Received(int length)
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 Debug.Assert(length > 0);
                 _observer?.ReceivedBytes(length);
@@ -122,7 +124,7 @@ namespace ZeroC.Ice
 
         protected void Sent(int length)
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 Debug.Assert(length > 0);
                 _observer?.SentBytes(length);
@@ -139,7 +141,7 @@ namespace ZeroC.Ice
 
         protected void Closed()
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 _observer?.Detach();
             }

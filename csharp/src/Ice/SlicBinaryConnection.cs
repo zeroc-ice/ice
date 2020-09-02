@@ -27,6 +27,9 @@ namespace ZeroC.Ice
         }
 
         internal static readonly Encoding Encoding = Encoding.V2_0;
+
+        // The mutex provides thread-safety for the _sendTask data member.
+        private readonly object _mutex = new object();
         private long _nextStreamId;
         private Task _sendTask = Task.CompletedTask;
         private readonly BufferedReadTransceiver _transceiver;
@@ -370,7 +373,7 @@ namespace ZeroC.Ice
             cancel.ThrowIfCancellationRequested();
 
             // Synchronization is required here because this might be called concurrently by the connection code
-            lock (Mutex)
+            lock (_mutex)
             {
                 ValueTask sendTask = QueueAsync(buffer, cancel);
                 _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();

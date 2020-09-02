@@ -19,6 +19,8 @@ namespace ZeroC.Ice
         private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.ValidateConnectionFrame };
 
+        // The mutex provides thread-safety for the _sendTask data member.
+        private readonly object _mutex = new object();
         private int _nextRequestId;
         private Task _sendTask = Task.CompletedTask;
         private readonly ITransceiver _transceiver;
@@ -86,7 +88,7 @@ namespace ZeroC.Ice
 
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
+                        TraceReceivedProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
                     }
                 }
             }
@@ -378,7 +380,7 @@ namespace ZeroC.Ice
             cancel.ThrowIfCancellationRequested();
 
             // Synchronization is required here because this might be called concurrently by the connection code
-            lock (Mutex)
+            lock (_mutex)
             {
                 ValueTask sendTask = QueueAsync(streamId, frame, cancel);
                 _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
