@@ -347,17 +347,6 @@ public class AllTests
         test(cb.value != null);
         factory.setEnabled(false);
 
-        G g = new G();
-        g.setGg1Opt(new G1("gg1Opt"));
-        g.gg2 = new G2(10);
-        g.setGg2Opt(new G2(20));
-        g.gg1 = new G1("gg1");
-        g = initial.opG(g);
-        test("gg1Opt".equals(g.getGg1Opt().a));
-        test(10 == g.gg2.a);
-        test(20 == g.getGg2Opt().a);
-        test("gg1".equals(g.gg1.a));
-
         initial.opVoid();
 
         os = new OutputStream(communicator);
@@ -1892,7 +1881,6 @@ public class AllTests
             test(initial.opMStruct1() != null);
             test(initial.opMDict1() != null);
             test(initial.opMSeq1() != null);
-            test(initial.opMG1() != null);
 
             {
                 Initial.OpMStruct2Result result = initial.opMStruct2(null);
@@ -1919,14 +1907,6 @@ public class AllTests
                 p1.put("test", 54);
                 result = initial.opMDict2(p1);
                 test(result.p2.equals(p1) && result.returnValue.equals(p1));
-            }
-            {
-                Initial.OpMG2Result result = initial.opMG2(null);
-                test(result.p2 == null && result.returnValue == null);
-
-                G p1 = new G();
-                result = initial.opMG2(p1);
-                test(result.p2 == result.returnValue);
             }
         }
         out.println("ok");

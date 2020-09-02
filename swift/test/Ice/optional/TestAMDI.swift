@@ -174,10 +174,6 @@ class InitialI: Initial {
         return Promise.value(())
     }
 
-    func opGAsync(g: G?, current _: Current) -> Promise<G?> {
-        return Promise.value(g)
-    }
-
     func opVoidAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
@@ -205,14 +201,6 @@ class InitialI: Initial {
 
     func opMDict2Async(p1: StringIntDict?,
                        current _: Current) -> Promise<(returnValue: StringIntDict?, p2: StringIntDict?)> {
-        return Promise.value((p1, p1))
-    }
-
-    func opMG1Async(current _: Current) -> Promise<G?> {
-        return Promise.value(G())
-    }
-
-    func opMG2Async(p1: G?, current _: Current) -> Promise<(returnValue: G?, p2: G?)> {
         return Promise.value((p1, p1))
     }
 

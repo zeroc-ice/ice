@@ -490,17 +490,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     // Use the 1.0 encoding with operations whose only class parameters are optional.
     //
     do {
-        var g: G! = G()
-        g.gg1Opt = G1(a: "gg1Opt")
-        g.gg2 = G2(a: 10)
-        g.gg2Opt = G2(a: 20)
-        g.gg1 = G1(a: "gg1")
-        g = try initial.opG(g)
-        try test(g.gg1Opt!.a == "gg1Opt")
-        try test(g.gg2!.a == 10)
-        try test(g.gg2Opt!.a == 20)
-        try test(g.gg1!.a == "gg1")
-
         try initial.opVoid()
 
         let ostr = OutputStream(communicator: communicator)

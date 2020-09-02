@@ -486,12 +486,6 @@ public final class AMDInitialI implements Initial
     }
 
     @Override
-    public CompletionStage<G> opGAsync(G g, Current current)
-    {
-        return CompletableFuture.completedFuture(g);
-    }
-
-    @Override
     public CompletionStage<Void> opVoidAsync(Current current)
     {
         return CompletableFuture.completedFuture(null);
@@ -534,18 +528,6 @@ public final class AMDInitialI implements Initial
                                                                           Current current)
     {
         return CompletableFuture.completedFuture(new OpMDict2MarshaledResult(p1, p1, current));
-    }
-
-    @Override
-    public CompletionStage<OpMG1MarshaledResult> opMG1Async(Current current)
-    {
-        return CompletableFuture.completedFuture(new OpMG1MarshaledResult(new G(), current));
-    }
-
-    @Override
-    public CompletionStage<OpMG2MarshaledResult> opMG2Async(@Nullable G p1, Current current)
-    {
-        return CompletableFuture.completedFuture(new OpMG2MarshaledResult(p1, p1, current));
     }
 
     @Override

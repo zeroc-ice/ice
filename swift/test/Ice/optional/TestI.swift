@@ -181,10 +181,6 @@ class InitialI: Initial {
 
     func opClassAndUnknownOptional(p _: A?, current _: Ice.Current) throws {}
 
-    func opG(g: G?, current _: Ice.Current) throws -> G? {
-        return g
-    }
-
     func opVoid(current _: Ice.Current) throws {}
 
     func supportsRequiredParams(current _: Ice.Current) throws -> Bool {
@@ -228,14 +224,6 @@ class InitialI: Initial {
     }
 
     func opMDict2(p1: StringIntDict?, current _: Current) throws -> (returnValue: StringIntDict?, p2: StringIntDict?) {
-        return (p1, p1)
-    }
-
-    func opMG1(current _: Current) throws -> G? {
-        return G()
-    }
-
-    func opMG2(p1: G?, current _: Current) throws -> (returnValue: G?, p2: G?) {
         return (p1, p1)
     }
 }

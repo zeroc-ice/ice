@@ -121,9 +121,6 @@ class InitialI(Test.Initial):
     def opClassAndUnknownOptional(self, p, current=None):
         pass
 
-    def opG(self, g, current=None):
-        return g
-
     def opVoid(self, current=None):
         pass
 
@@ -144,12 +141,6 @@ class InitialI(Test.Initial):
 
     def opMDict2(self, p1, current):
         return Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
-
-    def opMG1(self, current):
-        return Test.Initial.OpMG1MarshaledResult(Test.G(), current)
-
-    def opMG2(self, p1, current):
-        return Test.Initial.OpMG2MarshaledResult((p1, p1), current)
 
     def supportsRequiredParams(self, current=None):
         return False

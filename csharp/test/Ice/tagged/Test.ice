@@ -91,6 +91,7 @@ class MultiTagged
     tag(7) double? g;
     tag(8) string? h;
     tag(9) MyEnum? i;
+
     tag(12) ByteSeq? bs;
     tag(13) StringSeq? ss;
     tag(14) IntIntDict? iid;

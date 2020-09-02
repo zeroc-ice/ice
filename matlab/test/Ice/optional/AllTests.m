@@ -255,17 +255,6 @@ classdef AllTests
 
             assert(mo9.bos == Ice.Unset);
 
-            g = G();
-            g.gg1Opt = G1('gg1Opt');
-            g.gg2 = G2(10);
-            g.gg2Opt = G2(20);
-            g.gg1 = G1('gg1');
-            r = initial.opG(g);
-            assert(strcmp(r.gg1Opt.a, 'gg1Opt'));
-            assert(r.gg2.a == 10);
-            assert(r.gg2Opt.a == 20);
-            assert(strcmp(r.gg1.a, 'gg1'));
-
             initial2 = Initial2Prx.uncheckedCast(base);
             initial2.opVoid(15, 'test');
 

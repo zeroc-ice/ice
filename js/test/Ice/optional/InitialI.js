@@ -236,11 +236,6 @@
         {
         }
 
-        opG(g, current)
-        {
-            return g;
-        }
-
         opVoid()
         {
         }
@@ -271,16 +266,6 @@
         }
 
         opMDict2(p1, current)
-        {
-            return [p1, p1];
-        }
-
-        opMG1(current)
-        {
-            return new Test.G();
-        }
-
-        opMG2(p1, current)
         {
             return [p1, p1];
         }

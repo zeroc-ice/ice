@@ -151,24 +151,6 @@ class OptionalWithCustom
     optional(3) ClassVarStruct s;
 }
 
-class G1
-{
-    string a;
-}
-
-class G2
-{
-    long a;
-}
-
-class G
-{
-    optional(1) G1 gg1Opt;
-    G2 gg2;
-    optional(0) G2 gg2Opt;
-    G1 gg1;
-}
-
 interface Initial
 {
     void shutdown();
@@ -265,8 +247,6 @@ interface Initial
 
     void opClassAndUnknownOptional(A p);
 
-    G opG(G g);
-
     void opVoid();
 
     [marshaled-result] optional(1) SmallStruct opMStruct1();
@@ -280,9 +260,6 @@ interface Initial
     [marshaled-result] optional(1) StringIntDict opMDict1();
     [marshaled-result] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
                                                             out optional(3) StringIntDict p2);
-
-    [marshaled-result] optional(1) G opMG1();
-    [marshaled-result] optional(1) G opMG2(optional(2) G p1, out optional(3) G p2);
 
     bool supportsRequiredParams();
 

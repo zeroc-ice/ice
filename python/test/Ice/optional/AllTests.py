@@ -266,17 +266,6 @@ def allTests(helper, communicator):
 
     test(mo9.bos is Ice.Unset)
 
-    g = Test.G()
-    g.gg1Opt = Test.G1("gg1Opt")
-    g.gg2 = Test.G2(10)
-    g.gg2Opt = Test.G2(20)
-    g.gg1 = Test.G1("gg1")
-    r = initial.opG(g)
-    test(r.gg1Opt.a == "gg1Opt")
-    test(r.gg2.a == 10)
-    test(r.gg2Opt.a == 20)
-    test(r.gg1.a == "gg1")
-
     initial2 = Test.Initial2Prx.uncheckedCast(base)
     initial2.opVoid(15, "test")
 
@@ -701,7 +690,6 @@ def allTests(helper, communicator):
     test(initial.opMStruct1() != Ice.Unset);
     test(initial.opMDict1() != Ice.Unset);
     test(initial.opMSeq1() != Ice.Unset);
-    test(initial.opMG1() != Ice.Unset);
 
     (p3, p2) = initial.opMStruct2(Ice.Unset);
     test(p2 == Ice.Unset and p3 == Ice.Unset);
@@ -723,13 +711,6 @@ def allTests(helper, communicator):
     p1 = {"test" : 54}
     (p3, p2) = initial.opMDict2(p1)
     test(p2["test"] == 54 and p3["test"] == 54)
-
-    (p3, p2) = initial.opMG2(Ice.Unset)
-    test(p2 == Ice.Unset and p3 == Ice.Unset)
-
-    p1 = Test.G();
-    (p3, p2) = initial.opMG2(p1);
-    test(p2 != Ice.Unset and p3 != Ice.Unset and p3 == p2);
 
     print("ok")
 

@@ -235,11 +235,6 @@ export class InitialI extends Test.Initial
     {
     }
 
-    opG(g:Test.G, current:Ice.Current):Test.G
-    {
-        return g;
-    }
-
     opVoid(current:Ice.Current):void
     {
     }
@@ -270,16 +265,6 @@ export class InitialI extends Test.Initial
     }
 
     opMDict2(p1:Test.StringIntDict, current:Ice.Current):[Test.StringIntDict, Test.StringIntDict]
-    {
-        return [p1, p1];
-    }
-
-    opMG1(current:Ice.Current):Test.G
-    {
-        return new Test.G();
-    }
-
-    opMG2(p1:Test.G, current:Ice.Current):[Test.G, Test.G]
     {
         return [p1, p1];
     }

@@ -224,19 +224,6 @@ export class Client extends TestHelper
         const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
         const oo = new Test.OneOptional(53);
 
-        let g = new Test.G();
-        g.gg1Opt = new Test.G1("gg1Opt");
-        g.gg2 = new Test.G2(new Ice.Long(0, 10));
-        g.gg2Opt = new Test.G2(new Ice.Long(0, 20));
-        g.gg1 = new Test.G1("gg1");
-
-        g = await initial.opG(g);
-
-        test(g.gg1Opt.a == "gg1Opt");
-        test(g.gg2.a.equals(new Ice.Long(0, 10)));
-        test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
-        test(g.gg1.a == "gg1");
-
         const init2 = Test.Initial2Prx.uncheckedCast(initial);
         await init2.opVoid(5, "test");
         out.writeLine("ok");
@@ -720,7 +707,6 @@ export class Client extends TestHelper
         test(await initial.opMStruct1() !== undefined);
         test(await initial.opMDict1() !== undefined);
         test(await initial.opMSeq1() !== undefined);
-        test(await initial.opMG1() !== undefined);
 
         {
             let [p3, p2] = await initial.opMStruct2();
@@ -748,14 +734,6 @@ export class Client extends TestHelper
             p1.set("test", 54);
             [p3, p2] = await initial.opMDict2(p1);
             test(Ice.MapUtil.equals(p2, p1) && Ice.MapUtil.equals(p3, p1));
-        }
-        {
-            let [p3, p2] = await initial.opMG2();
-            test(p2 === undefined && p3 === undefined);
-
-            const p1 = new Test.G();
-            [p3, p2] = await initial.opMG2(p1);
-            test(p3 !== undefined && p2 !== undefined && p3 === p2);
         }
 
         out.writeLine("ok");

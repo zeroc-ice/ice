@@ -351,12 +351,6 @@ InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {
 }
 
-GPtr
-InitialI::opG(GPtr g, const Ice::Current&)
-{
-    return g;
-}
-
 void
 InitialI::opVoid(const Ice::Current&)
 {
@@ -396,18 +390,6 @@ InitialI::OpMDict2MarshaledResult
 InitialI::opMDict2(IceUtil::Optional<Test::StringIntDict> p1, const Ice::Current& current)
 {
     return OpMDict2MarshaledResult(p1, p1, current);
-}
-
-InitialI::OpMG1MarshaledResult
-InitialI::opMG1(const Ice::Current& current)
-{
-    return OpMG1MarshaledResult(std::make_shared<G>(), current);
-}
-
-InitialI::OpMG2MarshaledResult
-InitialI::opMG2(IceUtil::Optional<Test::GPtr> p1, const Ice::Current& current)
-{
-    return OpMG2MarshaledResult(p1, p1, current);
 }
 
 bool

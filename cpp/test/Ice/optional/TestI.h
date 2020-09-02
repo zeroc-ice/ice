@@ -163,8 +163,6 @@ public:
 
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
-    virtual ::Test::GPtr opG(::Test::GPtr g, const Ice::Current&);
-
     virtual void opVoid(const Ice::Current&);
 
     virtual OpMStruct1MarshaledResult opMStruct1(const Ice::Current&);
@@ -178,10 +176,6 @@ public:
     virtual OpMDict1MarshaledResult opMDict1(const Ice::Current&);
 
     virtual OpMDict2MarshaledResult opMDict2(IceUtil::Optional<Test::StringIntDict>, const Ice::Current&);
-
-    virtual OpMG1MarshaledResult opMG1(const Ice::Current&);
-
-    virtual OpMG2MarshaledResult opMG2(IceUtil::Optional<Test::GPtr>, const Ice::Current&);
 
     virtual bool supportsRequiredParams(const Ice::Current&);
 

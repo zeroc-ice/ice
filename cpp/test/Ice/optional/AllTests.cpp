@@ -598,17 +598,6 @@ allTests(Test::TestHelper* helper, bool)
         factory->setEnabled(false);
     }
 
-    GPtr g = std::make_shared<G>();
-    g->gg1Opt = std::make_shared<G1>("gg1Opt");
-    g->gg2 = std::make_shared<G2>(10);
-    g->gg2Opt = std::make_shared<G2>(20);
-    g->gg1 = std::make_shared<G1>("gg1");
-    GPtr r = initial->opG(g);
-    test("gg1Opt" == r->gg1Opt.value()->a);
-    test(10 == r->gg2->a);
-    test(20 == r->gg2Opt.value()->a);
-    test("gg1" == r->gg1->a);
-
     initial->opVoid();
 
     {
@@ -1678,7 +1667,6 @@ allTests(Test::TestHelper* helper, bool)
         test(initial->opMStruct1());
         test(initial->opMDict1());
         test(initial->opMSeq1());
-        test(initial->opMG1());
 
         {
             IceUtil::Optional<Test::SmallStruct> p1, p2, p3;
@@ -1710,15 +1698,6 @@ allTests(Test::TestHelper* helper, bool)
             p1 = dict;
             p3 = initial->opMDict2(p1, p2);
             test(p2 == p1 && p3 == p1);
-        }
-        {
-            IceUtil::Optional<Test::GPtr> p1, p2, p3;
-            p3 = initial->opMG2(IceUtil::None, p2);
-            test(!p2 && !p3);
-
-            p1 = std::make_shared<Test::G>();
-            p3 = initial->opMG2(p1, p2);
-            test(p2 && p3 && *p3 == *p2);
         }
     }
     cout << "ok" << endl;

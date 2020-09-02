@@ -127,9 +127,6 @@ class InitialI(Test.Initial):
     def opClassAndUnknownOptional(self, p, current=None):
         return Ice.Future.completed(None)
 
-    def opG(self, g, current=None):
-        return Ice.Future.completed(g)
-
     def opVoid(self, current=None):
         return Ice.Future.completed(None)
 
@@ -150,12 +147,6 @@ class InitialI(Test.Initial):
 
     def opMDict2(self, p1, current):
         return Ice.Future.completed(Test.Initial.OpMDict2MarshaledResult((p1, p1), current))
-
-    def opMG1(self, current):
-        return Ice.Future.completed(Test.Initial.OpMG1MarshaledResult(Test.G(), current))
-
-    def opMG2(self, p1, current):
-        return Ice.Future.completed(Test.Initial.OpMG2MarshaledResult((p1, p1), current))
 
     def supportsRequiredParams(self, current=None):
         return Ice.Future.completed(False)

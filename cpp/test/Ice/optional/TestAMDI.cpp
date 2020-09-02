@@ -316,14 +316,6 @@ InitialI::opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
 }
 
 void
-InitialI::opGAsync(::std::shared_ptr<::Test::G> g,
-                   ::std::function<void(const ::std::shared_ptr<::Test::G>&)> response,
-                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(g);
-}
-
-void
 InitialI::opVoidAsync(::std::function<void()> response,
                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
@@ -379,23 +371,6 @@ InitialI::opMDict2Async(Ice::optional<StringIntDict> p1,
                         const Ice::Current& current)
 {
     response(OpMDict2MarshaledResult(p1, p1, current));
-}
-
-void
-InitialI::opMG1Async(function<void(const OpMG1MarshaledResult&)> response,
-                     function<void(exception_ptr)>,
-                     const Ice::Current& current)
-{
-    response(OpMG1MarshaledResult(std::make_shared<G>(), current));
-}
-
-void
-InitialI::opMG2Async(Ice::optional<GPtr> p1,
-                     function<void(const OpMG2MarshaledResult&)> response,
-                     function<void(exception_ptr)>,
-                     const Ice::Current& current)
-{
-    response(OpMG2MarshaledResult(p1, p1, current));
 }
 
 void

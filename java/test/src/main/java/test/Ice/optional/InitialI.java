@@ -449,12 +449,6 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public G opG(G g, Current current)
-    {
-        return g;
-    }
-
-    @Override
     public void opVoid(Current current)
     {
     }
@@ -493,18 +487,6 @@ public final class InitialI implements Initial
     public OpMDict2MarshaledResult opMDict2(java.util.@Nullable Map<String, Integer> p1, Current current)
     {
         return new OpMDict2MarshaledResult(p1, p1, current);
-    }
-
-    @Override
-    public OpMG1MarshaledResult opMG1(Current current)
-    {
-        return new OpMG1MarshaledResult(new G(), current);
-    }
-
-    @Override
-    public OpMG2MarshaledResult opMG2(@Nullable G p1, Current current)
-    {
-        return new OpMG2MarshaledResult(p1, p1, current);
     }
 
     @Override

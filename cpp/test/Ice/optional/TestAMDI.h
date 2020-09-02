@@ -156,10 +156,6 @@ public:
                                                 ::std::function<void()>,
                                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opGAsync(::std::shared_ptr<::Test::G>,
-                          ::std::function<void(const ::std::shared_ptr<::Test::G>&)>,
-                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
@@ -189,15 +185,6 @@ public:
                                ::std::function<void(const OpMDict2MarshaledResult&)>,
                                ::std::function<void(::std::exception_ptr)>,
                                const Ice::Current&) override;
-
-    virtual void opMG1Async(::std::function<void(const OpMG1MarshaledResult&)>,
-                            ::std::function<void(::std::exception_ptr)>,
-                            const Ice::Current&) override;
-
-    virtual void opMG2Async(Ice::optional<Test::GPtr>,
-                            ::std::function<void(const OpMG2MarshaledResult&)>,
-                            ::std::function<void(::std::exception_ptr)>,
-                            const Ice::Current&) override;
 
     virtual void supportsRequiredParamsAsync(::std::function<void(bool)>,
                                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
