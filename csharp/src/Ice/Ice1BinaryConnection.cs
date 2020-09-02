@@ -60,7 +60,7 @@ namespace ZeroC.Ice
                     await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection, _validateConnectionFrame[0].Count);
+                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
                     }
                 }
                 else // The client side has the passive role for connection validation.
@@ -86,7 +86,7 @@ namespace ZeroC.Ice
 
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection, size);
+                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
                     }
                 }
             }
@@ -162,7 +162,7 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceReceivedProtocolFrame(frameType, size);
+                        TraceReceivedProtocolFrame(frameType);
                     }
                     if (Endpoint.IsDatagram)
                     {
@@ -196,7 +196,7 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceReceivedProtocolFrame(frameType, size);
+                        TraceReceivedProtocolFrame(frameType);
                     }
                     int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
@@ -225,7 +225,7 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceReceivedProtocolFrame(frameType, size);
+                        TraceReceivedProtocolFrame(frameType);
                     }
                     HeartbeatCallback!();
                     return default;
@@ -233,10 +233,6 @@ namespace ZeroC.Ice
 
                 default:
                 {
-                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                    {
-                        TraceReceivedProtocolFrame(frameType, size);
-                    }
                     throw new InvalidDataException($"received ice1 frame with unknown frame type `{frameType}'");
                 }
             }
@@ -362,7 +358,7 @@ namespace ZeroC.Ice
             {
                 if (writeBuffer == frame)
                 {
-                    TraceSendProtocolFrame((Ice1Definitions.FrameType)writeBuffer[0][8], size);
+                    TraceSendProtocolFrame((Ice1Definitions.FrameType)writeBuffer[0][8]);
                 }
                 else
                 {
@@ -432,31 +428,28 @@ namespace ZeroC.Ice
             Sent(sent);
         }
 
-        private void TraceSendProtocolFrame(Ice1Definitions.FrameType type, int size) =>
-            TraceFrame("sending ", type, size);
+        private void TraceSendProtocolFrame(Ice1Definitions.FrameType type) => TraceFrame("sending ", type);
 
-        private void TraceReceivedProtocolFrame(Ice1Definitions.FrameType type, int size) =>
-            TraceFrame("received ", type, size);
+        private void TraceReceivedProtocolFrame(Ice1Definitions.FrameType type) => TraceFrame("received ", type);
 
-        private void TraceFrame(string prefix, Ice1Definitions.FrameType type, int size)
+        private void TraceFrame(string prefix, Ice1Definitions.FrameType type)
         {
-            string frameType = type switch
+            string? frameType = type switch
             {
-                Ice1Definitions.FrameType.Request => "request",
                 Ice1Definitions.FrameType.RequestBatch => "batch request",
-                Ice1Definitions.FrameType.Reply => "reply",
                 Ice1Definitions.FrameType.ValidateConnection => "validate connection",
                 Ice1Definitions.FrameType.CloseConnection => "close connection",
-                _ => "unknown frame",
+                _ => null,
             };
+            Debug.Assert(frameType != null);
 
+            // Validation and close connection frames are Ice1 protocol frame so we continue to trace them with
+            // the protocol tracing.
             var s = new StringBuilder();
             s.Append(prefix);
             s.Append(frameType);
             s.Append("\nprotocol = ");
             s.Append(Endpoint.Protocol.GetName());
-            s.Append("\nframe size = ");
-            s.Append(size);
             Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.ProtocolCategory, s.ToString());
         }
     }

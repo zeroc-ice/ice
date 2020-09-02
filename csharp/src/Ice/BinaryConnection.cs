@@ -70,6 +70,7 @@ namespace ZeroC.Ice
             Endpoint = endpoint;
             IsIncoming = adapter != null;
             IncomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
+            LastActivity = Time.Elapsed;
         }
 
         protected void Initialized()
