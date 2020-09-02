@@ -149,16 +149,6 @@ class OptionalWithCustom
     optional(3) ClassVarStruct s;
 }
 
-class E
-{
-    A ae;
-}
-
-class F : E
-{
-    optional(1) A af;
-}
-
 class G1
 {
     string a;

@@ -214,44 +214,6 @@ private:
     IceUtil::Optional<APtr> a;
 };
 
-class FObjectReader : public Ice::Value
-{
-public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
-
-    virtual void _iceRead(Ice::InputStream* in)
-    {
-        _f = std::make_shared<F>();
-        in->startValue();
-        in->startSlice();
-        // Don't read af on purpose
-        //in.read(1, _f->af);
-        in->endSlice();
-        in->startSlice();
-        in->read(_f->ae);
-        in->endSlice();
-        in->endValue(false);
-    }
-
-    FPtr
-    getF()
-    {
-        return _f;
-    }
-
-protected:
-
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
-    {
-        assert(0); // not used
-        return nullptr;
-    }
-
-private:
-
-    FPtr _f;
-};
-
 class FactoryI
 
 {
@@ -290,10 +252,6 @@ public:
         else if(typeId == "::Test::D")
         {
            return std::make_shared<DObjectReader>();
-        }
-        else if(typeId == "::Test::F")
-        {
-           return std::make_shared<FObjectReader>();
         }
 
         return 0;
@@ -745,35 +703,6 @@ allTests(Test::TestHelper* helper, bool)
         in.endEncapsulation();
         test(obj);
         factory->setEnabled(false);
-    }
-
-    cout << "ok" << endl;
-
-    cout << "testing marshalling of objects with optional objects..." << flush;
-    {
-        FPtr f = std::make_shared<F>();
-
-        f->af = std::make_shared<A>();
-        f->ae = *f->af;
-
-        FPtr rf = ICE_DYNAMIC_CAST(F, initial->pingPong(f));
-        test(rf->ae == *rf->af);
-
-        factory->setEnabled(true);
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(f);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
-        in.startEncapsulation();
-        Ice::ValuePtr obj;
-        in.read(obj);
-        in.endEncapsulation();
-        factory->setEnabled(false);
-
-        rf = dynamic_cast<FObjectReader*>(obj.get())->getF();
-        test(rf->ae && !rf->af);
     }
     cout << "ok" << endl;
 
@@ -1242,27 +1171,6 @@ allTests(Test::TestHelper* helper, bool)
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();
         in2.endEncapsulation();
-    }
-
-    {
-        FPtr f = std::make_shared<F>();
-        f->af = std::make_shared<A>();
-        (*f->af)->requiredA = 56;
-        f->ae = *f->af;
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(1, Ice::make_optional(f));
-        out.write(2, Ice::make_optional(f->ae));
-        out.endEncapsulation();
-        out.finished(inEncaps);
-
-        Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
-        in.startEncapsulation();
-        IceUtil::Optional<APtr> a;
-        in.read(2, a);
-        in.endEncapsulation();
-        test(a && *a && (*a)->requiredA == 56);
     }
     cout << "ok" << endl;
 

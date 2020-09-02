@@ -317,18 +317,6 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            fprintf('testing marshalling of objects with optional objects... ');
-
-            f = F();
-
-            f.af = A();
-            f.ae = f.af;
-
-            rf = initial.pingPong(f);
-            assert(rf.ae == rf.af);
-
-            fprintf('ok\n');
-
             fprintf('testing optional with default values... ');
 
             wd = initial.pingPong(WD());

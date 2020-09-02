@@ -122,32 +122,6 @@ class DValueReader: Ice.Value {
     }
 }
 
-class FValueReader: Ice.Value {
-    public required init() {
-        _f = F()
-        super.init()
-    }
-
-    public override func _iceRead(from istr: Ice.InputStream) throws {
-        _f = F()
-        _ = istr.startValue()
-        _ = try istr.startSlice()
-        // Don't read af on purpose
-        // in.read(1, _f.af);
-        try istr.endSlice()
-        _ = try istr.startSlice()
-        try istr.read(A.self) { self._f.ae = $0 }
-        try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
-    }
-
-    public func getF() -> F? {
-        return _f
-    }
-
-    var _f: F
-}
-
 class FactoryI {
     init(helper: TestHelper) {
         _enabled = false
@@ -169,8 +143,6 @@ class FactoryI {
             return CValueReader()
         case "::Test::D":
             return DValueReader(helper: _helper!)
-        case "::Test::F":
-            return FValueReader()
         default:
             return nil
         }
@@ -615,33 +587,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try istr.endEncapsulation()
         try test(v != nil)
         factory.setEnabled(enabled: false)
-    }
-    output.writeLine("ok")
-
-    output.write("testing marshalling of objects with optional objects...")
-    do {
-        let f = F()
-
-        f.af = A()
-        f.ae = f.af
-
-        var rf = try initial.pingPong(f) as! F
-        try test(rf.ae === rf.af)
-
-        factory.setEnabled(enabled: true)
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(f)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        var v: Value?
-        try istr.read { v = $0 }
-        try istr.endEncapsulation()
-        factory.setEnabled(enabled: false)
-        rf = (v as! FValueReader).getF()!
-        try test(rf.ae != nil && rf.af == nil)
     }
     output.writeLine("ok")
 
@@ -2862,25 +2807,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try istr.endEncapsulation()
-
-        let f = F()
-        f.af = A()
-        f.af!.requiredA = 56
-        f.ae = f.af
-
-        ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 1, value: f)
-        ostr.write(tag: 2, value: f.ae)
-        ostr.endEncapsulation()
-        inEncaps = ostr.finished()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        var a: Value?
-        try istr.read(tag: 2) { a = $0 }
-        try istr.endEncapsulation()
-        try test(a != nil && (a as! A).requiredA == 56)
     }
     output.writeLine("ok")
 

@@ -453,33 +453,6 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing marshalling of objects with tagged objects...");
-        out.flush();
-        {
-            F f = new F();
-
-            f.setAf(new A());
-            f.ae = f.getAf();
-
-            F rf = (F)initial.pingPong(f);
-            test(rf.ae == rf.getAf());
-
-            factory.setEnabled(true);
-            os = new OutputStream(communicator);
-            os.startEncapsulation();
-            os.writeValue(f);
-            os.endEncapsulation();
-            inEncaps = os.finished();
-            in = new InputStream(communicator, inEncaps);
-            in.startEncapsulation();
-            final Wrapper<F> w = new Wrapper<>();
-            in.readValue(v -> w.value = v.getF(), FObjectReader.class);
-            in.endEncapsulation();
-            factory.setEnabled(false);
-            test(w.value.ae != null && !w.value.hasAf());
-        }
-        out.println("ok");
-
         out.print("testing tagged members with default values... ");
         out.flush();
         {
@@ -1779,29 +1752,6 @@ public class AllTests
                 in.endEncapsulation();
             }
         }
-
-        {
-            F f = new F();
-            f.setAf(new A());
-            f.getAf().requiredA = 56;
-            f.ae = f.getAf();
-
-            os = new OutputStream(communicator);
-            os.startEncapsulation();
-            os.writeTag(1, TagFormat.Class);
-            os.writeValue(f);
-            os.writeTag(2, TagFormat.Class);
-            os.writeValue(f.ae);
-            os.endEncapsulation();
-            inEncaps = os.finished();
-
-            in = new InputStream(communicator, inEncaps);
-            in.startEncapsulation();
-            final Wrapper<@Nullable A> w = new Wrapper<>();
-            in.readValue(2, v -> w.value = v, A.class);
-            in.endEncapsulation();
-            test(w.value != null && w.value.requiredA == 56);
-        }
         out.println("ok");
 
         out.print("testing exceptions with tagged members... ");
@@ -2101,31 +2051,6 @@ public class AllTests
         private Wrapper<@Nullable A> a = new Wrapper<>();
     }
 
-    private static class FObjectReader extends com.zeroc.Ice.ValueReader
-    {
-        @Override
-        public void read(InputStream in)
-        {
-            _f = new F();
-            in.startValue();
-            in.startSlice();
-            // Don't read af on purpose
-            //in.read(1, _f.af);
-            in.endSlice();
-            in.startSlice();
-            in.readValue(v -> _f.ae = v, A.class);
-            in.endSlice();
-            in.endValue(false);
-        }
-
-        F getF()
-        {
-            return _f;
-        }
-
-        private F _f;
-    }
-
     private static class FactoryI implements com.zeroc.Ice.ValueFactory
     {
         @Override
@@ -2155,10 +2080,6 @@ public class AllTests
             else if(typeId.equals("::Test::D"))
             {
                 return new DObjectReader();
-            }
-            else if(typeId.equals("::Test::F"))
-            {
-                return new FObjectReader();
             }
 
             return null;

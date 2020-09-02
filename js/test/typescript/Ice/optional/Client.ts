@@ -287,14 +287,6 @@ export class Client extends TestHelper
         test(b.md == 13);
         out.writeLine("ok");
 
-        out.write("testing marshaling of objects with optional objects... ");
-        let f = new Test.F();
-        f.af = new Test.A();
-        f.ae = f.af;
-        f = await initial.pingPong(f) as Test.F;
-        test(f.ae === f.af);
-        out.writeLine("ok");
-
         out.write("testing optional with default values... ");
 
         let wd = await initial.pingPong(new Test.WD()) as Test.WD;
