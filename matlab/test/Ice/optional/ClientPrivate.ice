@@ -12,12 +12,12 @@ module Test
 //
 // The server doesn't know this class.
 //
-class D : B
-{
-    string ds;
-    tag(990) StringSeq? seq;
-    tag(1000) A? ao;
-}
+// class D : B
+// {
+//     string ds;
+//     tag(990) StringSeq? seq;
+//     tag(1000) A? ao;
+// }
 
 //
 // This class is a hack that allows us to invoke the opClassAndUnknownOptional operation
@@ -26,7 +26,7 @@ class D : B
 //
 interface Initial2
 {
-    void opClassAndUnknownOptional(A p, tag(1) AnyClass? o);
+    void opClassAndUnknownOptional(A p);
 
     void opVoid(tag(1) int? a, tag(2) string? v);
 }

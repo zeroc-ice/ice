@@ -26,7 +26,7 @@ class D extends B
 //
 interface Initial2
 {
-    void opClassAndUnknownOptional(A p, optional(1) Object o);
+    void opClassAndUnknownOptional(A p);
 
     void opVoid(optional(1) int a, optional(2) string v);
 }

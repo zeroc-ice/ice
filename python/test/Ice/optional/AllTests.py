@@ -356,13 +356,7 @@ def allTests(helper, communicator):
         sys.stdout.flush()
 
         initial2 = Test.Initial2Prx.uncheckedCast(base)
-        d = Test.D()
-        d.ds = "test"
-        d.seq = ["test1", "test2", "test3", "test4"]
-        d.ao = Test.A(18)
-        d.requiredB = 14;
-        d.requiredA = 14;
-        initial2.opClassAndUnknownOptional(Test.A(), d)
+        initial2.opClassAndUnknownOptional(Test.A())
 
         print("ok")
 

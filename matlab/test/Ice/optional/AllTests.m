@@ -338,13 +338,7 @@ classdef AllTests
                 fprintf('testing optionals with unknown classes... ');
 
                 initial2 = Initial2Prx.uncheckedCast(base);
-                d = D();
-                d.ds = 'test';
-                d.seq = {'test1', 'test2', 'test3', 'test4'};
-                d.ao = A(18, Ice.Unset, Ice.Unset, Ice.Unset);
-                d.requiredB = 14;
-                d.requiredA = 14;
-                initial2.opClassAndUnknownOptional(A(), d);
+                initial2.opClassAndUnknownOptional(A());
 
                 fprintf('ok\n');
             end
