@@ -13,20 +13,25 @@ namespace ZeroC.Ice.Test.Tagged
 
         public AnyClass? PingPong(AnyClass? obj, Current current) => obj;
 
-        public void OpTaggedException(int? a, string? b, Current current) =>
-            throw new TaggedException(false, a, b);
+        public void OpTaggedException(int? a, string? b, VarStruct? vs, Current current) =>
+            throw new TaggedException(false, a, b, vs);
 
-        public void OpDerivedException(int? a, string? b, Current current) =>
-            throw new DerivedException(false, a, b, b);
+        public void OpDerivedException(int? a, string? b, VarStruct? vs, Current current) =>
+            throw new DerivedException(false, a, b, vs, b, vs);
 
-        public void OpRequiredException(int? a, string? b, Current current)
+        public void OpRequiredException(int? a, string? b, VarStruct? vs, Current current)
         {
             var e = new RequiredException();
             e.A = a;
             e.B = b;
+            e.Vs = vs;
             if (b != null)
             {
                 e.Ss = b;
+            }
+            if (vs != null)
+            {
+                e.Vs2 = vs;
             }
             throw e;
         }
@@ -101,9 +106,6 @@ namespace ZeroC.Ice.Test.Tagged
 
         public (IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)
         OpStringIntDict(Dictionary<string, int>? p1, Current current) => (p1, p1);
-
-        public (IReadOnlyDictionary<int, OneTagged?>?, IReadOnlyDictionary<int, OneTagged?>?)
-        OpIntOneTaggedDict(Dictionary<int, OneTagged?>? p1, Current current) => (p1, p1);
 
         public void OpClassAndUnknownTagged(A? p, Current current)
         {

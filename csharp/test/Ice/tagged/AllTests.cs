@@ -53,15 +53,14 @@ namespace ZeroC.Ice.Test.Tagged
             var fs = new FixedStruct();
             fs.M = 78;
             mo1.Fs = fs;
-            var vs = new VarStruct();
-            vs.M = "hello";
-            mo1.Vs = vs;
+            var vs1 = new VarStruct();
+            vs1.M = "hello";
+            mo1.Vs = vs1;
 
             mo1.Shs = new short[] { 1 };
             mo1.Es = new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember };
             mo1.Fss = new FixedStruct[] { fs };
-            mo1.Vss = new VarStruct[] { vs };
-            mo1.Oos = new OneTagged[] { oo1 };
+            mo1.Vss = new VarStruct[] { vs1 };
 
             mo1.Ied = new Dictionary<int, MyEnum>
             {
@@ -73,11 +72,7 @@ namespace ZeroC.Ice.Test.Tagged
             };
             mo1.Ivsd = new Dictionary<int, VarStruct>
             {
-                { 5, vs }
-            };
-            mo1.Iood = new Dictionary<int, OneTagged?>
-            {
-                { 5, new OneTagged(15) }
+                { 5, vs1 }
             };
 
             mo1.Bos = new bool[] { false, true, false };
@@ -115,12 +110,10 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo1.Es[0] == MyEnum.MyEnumMember && mo1.Es[1] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo1.Fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo1.Vss[0].Equals(new VarStruct("hello")));
-            TestHelper.Assert(mo1.Oos[0] == oo1);
 
             TestHelper.Assert(mo1.Ied[4] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo1.Ifsd[4].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo1.Ivsd[5].Equals(new VarStruct("hello")));
-            TestHelper.Assert(mo1.Iood[5]!.A == 15);
 
             TestHelper.Assert(Enumerable.SequenceEqual(mo1.Bos, new bool[] { false, true, false }));
             TestHelper.Assert(mo1.Ser.Equals(new SerializableClass(56)));
@@ -158,12 +151,10 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo4.Es == null);
             TestHelper.Assert(mo4.Fss == null);
             TestHelper.Assert(mo4.Vss == null);
-            TestHelper.Assert(mo4.Oos == null);
 
             TestHelper.Assert(mo4.Ied == null);
             TestHelper.Assert(mo4.Ifsd == null);
             TestHelper.Assert(mo4.Ivsd == null);
-            TestHelper.Assert(mo4.Iood == null);
 
             TestHelper.Assert(mo4.Bos == null);
 
@@ -208,12 +199,10 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo5.Es != null && mo5.Es[0] == MyEnum.MyEnumMember && mo1.Es[1] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo5.Fss != null && mo5.Fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo5.Vss != null && mo5.Vss[0].Equals(new VarStruct("hello")));
-            TestHelper.Assert(mo5.Oos != null && mo5.Oos[0]!.A == 15);
 
             TestHelper.Assert(mo5.Ied != null && mo5.Ied[4] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo5.Ifsd != null && mo5.Ifsd[4].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo5.Ivsd != null && mo5.Ivsd[5].Equals(new VarStruct("hello")));
-            TestHelper.Assert(mo5.Iood != null && mo5.Iood[5]!.A == 15);
 
             TestHelper.Assert(Enumerable.SequenceEqual(mo5.Bos, new bool[] { false, true, false }));
             if (supportsCsharpSerializable)
@@ -244,9 +233,7 @@ namespace ZeroC.Ice.Test.Tagged
             mo6.Fs = mo5.Fs;
             mo6.Shs = mo5.Shs;
             mo6.Fss = mo5.Fss;
-            mo6.Oos = mo5.Oos;
             mo6.Ifsd = mo5.Ifsd;
-            mo6.Iood = mo5.Iood;
             mo6.Bos = mo5.Bos;
 
             var mo7 = (MultiTagged?)initial.PingPong(mo6);
@@ -271,12 +258,10 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo7.Es == null);
             TestHelper.Assert(mo7.Fss != null && mo7.Fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo7.Vss == null);
-            TestHelper.Assert(mo7.Oos != null && mo7.Oos[0]!.A == 15);
 
             TestHelper.Assert(mo7.Ied == null);
             TestHelper.Assert(mo7.Ifsd != null && mo7.Ifsd[4].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo7.Ivsd == null);
-            TestHelper.Assert(mo7.Iood != null && mo7.Iood[5]!.A == 15);
 
             TestHelper.Assert(Enumerable.SequenceEqual(mo7.Bos, new bool[] { false, true, false }));
             TestHelper.Assert(mo7.Ser == null);
@@ -324,12 +309,10 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo9.Es != null && mo9.Es[0] == MyEnum.MyEnumMember && mo9.Es[1] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo9.Fss == null);
             TestHelper.Assert(mo9.Vss != null && mo9.Vss[0].Equals(new VarStruct("hello")));
-            TestHelper.Assert(mo9.Oos == null);
 
             TestHelper.Assert(mo9.Ied != null && mo9.Ied[4] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo9.Ifsd == null);
             TestHelper.Assert(mo9.Ivsd != null && mo9.Ivsd[5].Equals(new VarStruct("hello")));
-            TestHelper.Assert(mo9.Iood == null);
 
             TestHelper.Assert(mo9.Bos == null);
             if (supportsCsharpSerializable)
@@ -388,15 +371,6 @@ namespace ZeroC.Ice.Test.Tagged
             test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
             */
-
-            var recursive1 = new Recursive[1];
-            recursive1[0] = new Recursive();
-            var recursive2 = new Recursive[1];
-            recursive2[0] = new Recursive();
-            recursive1[0].Value = recursive2;
-            var outer = new Recursive();
-            outer.Value = recursive1;
-            initial.PingPong(outer);
 
             initial.OpVoid();
 
@@ -1681,134 +1655,103 @@ namespace ZeroC.Ice.Test.Tagged
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
-
-            {
-                Dictionary<int, OneTagged?>? p1 = null;
-                (Dictionary<int, OneTagged?>? p2, Dictionary<int, OneTagged?>? p3) = initial.OpIntOneTaggedDict(p1);
-                TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.OpIntOneTaggedDict(null);
-                TestHelper.Assert(p2 == null && p3 == null);
-
-                p1 = new Dictionary<int, OneTagged?>
-                {
-                    { 1, new OneTagged(58) },
-                    { 2, new OneTagged(59) }
-                };
-                (p2, p3) = initial.OpIntOneTaggedDict(p1);
-                TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
-                (p2, p3) = initial.OpIntOneTaggedDictAsync(p1).Result;
-                TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
-                (p2, p3) = initial.OpIntOneTaggedDict(p1);
-                TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
-                (p2, p3) = initial.OpIntOneTaggedDictAsync(p1).Result;
-                TestHelper.Assert(p2![1]!.A == 58 && p3![1]!.A == 58);
-
-                (p2, p3) = initial.OpIntOneTaggedDict(null);
-                TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
-
-                requestFrame = OutgoingRequestFrame.WithParamList(
-                    initial,
-                    "opIntOneTaggedDict",
-                    idempotent: false,
-                    compress: false,
-                    format: default,
-                    context: null,
-                    p1,
-                    (OutputStream ostr, Dictionary<int, OneTagged?>? p1) =>
-                        ostr.WriteTaggedDictionary(
-                            2, p1, (ostr, k) => ostr.WriteInt(k),
-                                (ostr, v) => ostr.WriteNullableClass(v, OneTagged.IceTypeId)));
-
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (p2, p3) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadInt(),
-                        istr => istr.ReadNullableClass<OneTagged>(OneTagged.IceTypeId)),
-                     istr.ReadTaggedDictionary(3, 1, 4, fixedSize: false, istr => istr.ReadInt(),
-                        istr => istr.ReadNullableClass<OneTagged>(OneTagged.IceTypeId))));
-                TestHelper.Assert(p2![1]!.A == 58);
-                TestHelper.Assert(p3![1]!.A == 58);
-            }
             output.WriteLine("ok");
 
-            output.Write("testing exception tagged members... ");
+            output.Write("testing exceptions with tagged members... ");
             output.Flush();
             {
                 try
                 {
                     int? a = null;
                     string? b = null;
-                    initial.OpTaggedException(a, b);
+                    VarStruct? vs = null;
+                    initial.OpTaggedException(a, b, null);
                 }
                 catch (TaggedException ex)
                 {
                     TestHelper.Assert(ex.A == null); // don't use default value for 'a' data member since set explicitly
                                                      // to null by server
                     TestHelper.Assert(ex.B == null);
+                    TestHelper.Assert(ex.Vs == null);
                 }
 
                 try
                 {
                     int? a = 30;
                     string? b = "test";
-                    initial.OpTaggedException(a, b);
+                    VarStruct? vs = new VarStruct("hello");
+                    initial.OpTaggedException(a, b, vs);
                 }
                 catch (TaggedException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test");
+                    TestHelper.Assert(ex.Vs.M == "hello");
                 }
 
                 try
                 {
                     int? a = null;
                     string? b = null;
-                    initial.OpDerivedException(a, b);
+                    VarStruct? vs = null;
+                    initial.OpDerivedException(a, b, vs);
                 }
                 catch (DerivedException ex)
                 {
                     TestHelper.Assert(ex.A == null); // don't use default value for 'a' data member since set explicitly
                                                      // to null by server
                     TestHelper.Assert(ex.B == null);
+                    TestHelper.Assert(ex.Vs == null);
                     TestHelper.Assert(ex.Ss == null);
+                    TestHelper.Assert(ex.Vs2 == null);
                 }
 
                 try
                 {
                     int? a = 30;
                     string? b = "test2";
+                    VarStruct? vs = new VarStruct("hello2");
                     initial.OpDerivedException(a, b);
                 }
                 catch (DerivedException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test2");
+                    TestHelper.Assert(ex.Vs.M == "hello2");
                     TestHelper.Assert(ex.Ss == "test2");
+                    TestHelper.Assert(ex.Vs2.M == "hello2");
                 }
 
                 try
                 {
                     int? a = null;
                     string? b = null;
-                    initial.OpRequiredException(a, b);
+                    VarStruct? vs = null;
+                    initial.OpRequiredException(a, b, vs);
                 }
                 catch (RequiredException ex)
                 {
                     TestHelper.Assert(ex.A == null);
                     TestHelper.Assert(ex.B == null);
+                    TestHelper.Assert(ex.Vs.M == "");
                     TestHelper.Assert(ex.Ss == "test");
+                    TestHelper.Assert(ex.Vs2.M == "");
                 }
 
                 try
                 {
                     int? a = 30;
                     string? b = "test2";
-                    initial.OpRequiredException(a, b);
+                    VarStruct? vs = new VarStruct("hello2");
+                    initial.OpRequiredException(a, b, vs);
                 }
                 catch (RequiredException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test2");
+                    TestHelper.Assert(ex.Vs.M == "hello2");
                     TestHelper.Assert(ex.Ss == "test2");
+                    TestHelper.Assert(ex.Vs2.M == "hello2");
                 }
             }
             output.WriteLine("ok");
