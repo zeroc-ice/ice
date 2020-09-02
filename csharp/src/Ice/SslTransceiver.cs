@@ -184,8 +184,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public string ToDetailedString() => _underlying.ToDetailedString();
-
         public override string ToString() => _underlying.ToString()!;
 
         // Only for use by TcpEndpoint.

@@ -52,9 +52,5 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The number of bytes sent.</return>
         ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel);
-
-        /// <summary>Gets a detailed description of the connection.</summary>
-        /// <return>The detailed description.</return>
-        string ToDetailedString();
     }
 }

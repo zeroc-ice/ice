@@ -118,16 +118,16 @@ namespace ZeroC.Ice
         public async ValueTask ConnectAsync(Socket socket, EndPoint endpoint, CancellationToken cancel)
         {
             // HTTP connect request
-            string addr = Network.AddrToString(endpoint);
-            var str = new System.Text.StringBuilder();
-            str.Append("CONNECT ");
-            str.Append(addr);
-            str.Append(" HTTP/1.1\r\nHost: ");
-            str.Append(addr);
-            str.Append("\r\n\r\n");
+            string addr = endpoint.ToString()!;
+            var sb = new System.Text.StringBuilder();
+            sb.Append("CONNECT ");
+            sb.Append(addr);
+            sb.Append(" HTTP/1.1\r\nHost: ");
+            sb.Append(addr);
+            sb.Append("\r\n\r\n");
 
             // Send the connect request.
-            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(str.ToString()), SocketFlags.None, cancel);
+            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(sb.ToString()), SocketFlags.None, cancel);
 
             // Read the HTTP response, reserve enough space for reading at least HTTP1.1
             byte[] buffer = new byte[256];

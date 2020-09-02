@@ -45,7 +45,7 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        public override string ToString() => Network.AddrToString(_addr);
+        public override string ToString() => _addr.ToString();
 
         internal TcpAcceptor(TcpEndpoint endpoint, ObjectAdapter adapter)
         {

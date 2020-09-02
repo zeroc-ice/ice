@@ -13,7 +13,6 @@ namespace ZeroC.Ice
         internal static void TraceFrame(
             Communicator communicator,
             long streamId,
-            int frameSize,
             object frame,
             byte compress = 0)
         {
@@ -23,6 +22,7 @@ namespace ZeroC.Ice
                 string frameType;
                 Protocol protocol;
                 Encoding encoding;
+                int frameSize;
 
                 if (frame is OutgoingFrame outgoingFrame)
                 {
@@ -30,6 +30,7 @@ namespace ZeroC.Ice
                     protocol = outgoingFrame.Protocol;
                     encoding = outgoingFrame.Encoding;
                     frameType = frame is OutgoingRequestFrame ? "request" : "response";
+                    frameSize = outgoingFrame.Size;
                 }
                 else if (frame is IncomingFrame incomingFrame)
                 {
@@ -37,6 +38,7 @@ namespace ZeroC.Ice
                     protocol = incomingFrame.Protocol;
                     encoding = incomingFrame.Encoding;
                     frameType = frame is IncomingRequestFrame ? "request" : "response";
+                    frameSize = incomingFrame.Size;
                 }
                 else
                 {

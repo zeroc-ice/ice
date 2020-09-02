@@ -22,8 +22,6 @@ namespace ZeroC.Ice
         internal const int EnableIPv6 = 1;
         internal const int EnableBoth = 2;
 
-        internal static string AddrToString(EndPoint addr) => EndpointAddressToString(addr) + ":" + EndpointPort(addr);
-
         internal static Socket CreateServerSocket(bool udp, AddressFamily family, int ipVersion)
         {
             Socket socket = CreateSocket(udp, family);
@@ -101,11 +99,6 @@ namespace ZeroC.Ice
             }
             return socket;
         }
-
-        internal static string EndpointAddressToString(EndPoint? endpoint) =>
-            (endpoint as IPEndPoint)?.Address.ToString() ?? "";
-
-        internal static ushort EndpointPort(EndPoint? endpoint) => (ushort)((endpoint as IPEndPoint)?.Port ?? 0);
 
         internal static IEnumerable<IPEndPoint> GetAddresses(
             string host,
@@ -449,23 +442,9 @@ namespace ZeroC.Ice
             addr.AddressFamily == AddressFamily.InterNetwork ?
                 (addr.Address.GetAddressBytes()[0] & 0xF0) == 0xE0 : addr.Address.IsIPv6Multicast;
 
-        internal static string LocalAddrToString(EndPoint endpoint)
-        {
-            if (endpoint == null)
-            {
-                return "<not bound>";
-            }
-            return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
-        }
+        internal static string LocalAddrToString(EndPoint endpoint) => endpoint?.ToString() ?? "<not bound>";
 
-        internal static string RemoteAddrToString(EndPoint? endpoint)
-        {
-            if (endpoint == null)
-            {
-                return "<not connected>";
-            }
-            return EndpointAddressToString(endpoint) + ":" + EndpointPort(endpoint);
-        }
+        internal static string RemoteAddrToString(EndPoint? endpoint) => endpoint?.ToString() ?? "<not connected>";
 
         internal static void SetBufSize(Socket socket, Communicator communicator, Transport transport)
         {

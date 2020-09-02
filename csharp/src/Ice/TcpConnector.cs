@@ -59,7 +59,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public override string ToString() => Network.AddrToString(_proxy?.Address ?? _addr);
+        public override string ToString() => (_proxy?.Address ?? _addr).ToString()!;
 
         public override int GetHashCode() => _hashCode;
 

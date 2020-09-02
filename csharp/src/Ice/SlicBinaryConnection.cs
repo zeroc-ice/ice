@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal class SlicBinaryConnection : IBinaryConnection
+    internal class SlicBinaryConnection : BinaryConnection
     {
         internal enum FrameType : byte
         {
@@ -26,20 +26,23 @@ namespace ZeroC.Ice
             Close = 0x09
         }
 
-        public Endpoint Endpoint { get; }
-        public ITransceiver Transceiver => _transceiver.Underlying;
         internal static readonly Encoding Encoding = Encoding.V2_0;
-        private readonly int _frameSizeMax;
-        private Action? _heartbeatCallback;
-        private readonly bool _incoming;
-        private readonly object _mutex = new object();
         private long _nextStreamId;
-        private Action<int>? _receivedCallback;
         private Task _sendTask = Task.CompletedTask;
-        private Action<int>? _sentCallback;
         private readonly BufferedReadTransceiver _transceiver;
 
-        public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
+        public override ValueTask DisposeAsync()
+        {
+            Closed();
+            return _transceiver.DisposeAsync();
+        }
+
+    public override string ToString() => _transceiver.ToString()!;
+
+        internal SlicBinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
+            base(endpoint, adapter) => _transceiver = new BufferedReadTransceiver(transceiver);
+
+        internal override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             // Write the close connection frame.
             await PrepareAndSendFrameAsync(FrameType.Close, ostr =>
@@ -56,25 +59,17 @@ namespace ZeroC.Ice
             await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync() => _transceiver.DisposeAsync();
-
-        public ValueTask HeartbeatAsync(CancellationToken cancel) =>
+        internal override ValueTask HeartbeatAsync(CancellationToken cancel) =>
             PrepareAndSendFrameAsync(FrameType.Ping, null, cancel);
 
-        public async ValueTask InitializeAsync(
-            Action heartbeatCallback,
-            Action<int> sentCallback,
-            Action<int> receivedCallback,
-            CancellationToken cancel)
+        internal override async ValueTask InitializeAsync(Action heartbeatCallback, CancellationToken cancel)
         {
-            _heartbeatCallback = heartbeatCallback;
-            _sentCallback = sentCallback;
-            _receivedCallback = receivedCallback;
+            HeartbeatCallback = heartbeatCallback;
 
             // Initialize the transport
             await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
-            if (_incoming)
+            if (IsIncoming)
             {
                 (FrameType type, ArraySegment<byte> data) = await ReceiveFrameAsync(cancel);
                 if (type != FrameType.Initialize)
@@ -151,19 +146,22 @@ namespace ZeroC.Ice
                 // TODO: transport parameters
             }
 
-            if (Endpoint.Communicator.TraceLevels.Network >= 1)
+            if (Endpoint.Communicator.TraceLevels.Transport >= 1)
             {
                 var s = new StringBuilder();
-                s.Append(_incoming ? "accepted" : "established");
+                s.Append(IsIncoming ? "accepted" : "established");
                 s.Append(' ');
                 s.Append(Endpoint.TransportName);
                 s.Append(" connection\n");
                 s.Append(ToString());
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.NetworkCategory, s.ToString());
+                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
             }
         }
 
-        public async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
+        internal override long NewStream(bool bidirectional) => bidirectional ? ++_nextStreamId : 0;
+
+        internal override async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(
+            CancellationToken cancel)
         {
             FrameType type;
             ArraySegment<byte> data;
@@ -176,7 +174,7 @@ namespace ZeroC.Ice
                     case FrameType.Ping:
                     {
                         ValueTask task = PrepareAndSendFrameAsync(FrameType.Pong, null, CancellationToken.None);
-                        _heartbeatCallback!();
+                        HeartbeatCallback!();
                         break;
                     }
                     case FrameType.Pong:
@@ -190,7 +188,10 @@ namespace ZeroC.Ice
                         (long streamId, int streamIdSize) = data.AsReadOnlySpan().ReadVarLong();
                         data = data.Slice(streamIdSize);
                         IncomingFrame frame = ParseIce2Frame(data);
-                        ProtocolTrace.TraceFrame(Endpoint.Communicator, streamId, data.Count, frame);
+                        if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                        {
+                            ProtocolTrace.TraceFrame(Endpoint.Communicator, streamId, frame);
+                        }
                         return (StreamId: streamId, Frame: frame, Fin: type == FrameType.StreamLast);
                     }
                     case FrameType.ResetStream:
@@ -215,16 +216,18 @@ namespace ZeroC.Ice
             }
         }
 
-        public long NewStream(bool bidirectional) => bidirectional ? ++_nextStreamId : 0;
-
         // TODO: check that the stream is active. If it's not active, there's no need to send this frame.
-        public ValueTask ResetAsync(long streamId) => PrepareAndSendFrameAsync(FrameType.ResetStream, ostr =>
+        internal override ValueTask ResetAsync(long streamId) => PrepareAndSendFrameAsync(FrameType.ResetStream, ostr =>
             {
                 ostr.WriteVarLong(streamId);
                 ostr.WriteVarLong(0);
             }, CancellationToken.None);
 
-        public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel)
+        internal override async ValueTask SendAsync(
+            long streamId,
+            OutgoingFrame frame,
+            bool fin,
+            CancellationToken cancel)
         {
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(Encoding, data);
@@ -249,32 +252,24 @@ namespace ZeroC.Ice
             ostr.WriteSize(frame.Size);
             int ice2HeaderSize = ostr.Tail.Offset - ice2HeaderPos.Offset;
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
-            int slicFrameSize = ostr.Tail.Offset - sizePos.Offset - 4 + frame.Size;
-            ostr.RewriteFixedLengthSize20(slicFrameSize, sizePos, 4);
+            int frameSize = ostr.Tail.Offset - sizePos.Offset - 4 + frame.Size;
+            ostr.RewriteFixedLengthSize20(frameSize, sizePos, 4);
             data.AddRange(frame.Data);
 
             // TODO: split large protocol frames to allow multiplexing. For now, we send one Slic frame for each
             // Ice protocol frame.
 
-            ProtocolTrace.TraceFrame(Endpoint.Communicator, streamId, ice2HeaderSize + frame.Size, frame);
-
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceFrame("sending ", frameType, data.GetByteCount(), streamId);
+                ProtocolTrace.TraceFrame(Endpoint.Communicator, streamId, frame);
+            }
+
+            if (Endpoint.Communicator.TraceLevels.Transport > 2)
+            {
+                TraceTransportFrame("sending ", frameType, frameSize, streamId);
             }
 
             await SendSlicFrameAsync(data, cancel).ConfigureAwait(false);
-        }
-
-        public override string ToString() => _transceiver.ToString()!;
-
-        internal SlicBinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
-        {
-            Endpoint = endpoint;
-
-            _incoming = adapter != null;
-            _frameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
-            _transceiver = new BufferedReadTransceiver(transceiver);
         }
 
         private IncomingFrame ParseIce2Frame(ArraySegment<byte> data)
@@ -282,7 +277,7 @@ namespace ZeroC.Ice
             // Get the Ice2 frame type and size
             var frameType = (Ice2Definitions.FrameType)data[0];
             (int size, int sizeLength) = data.Slice(1).AsReadOnlySpan().ReadSize20();
-            if (size > _frameSizeMax)
+            if (size > IncomingFrameSizeMax)
             {
                 throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
             }
@@ -296,23 +291,14 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"frame with size {buffer.Count} doesn't match expected size {size}");
             }
 
-            switch (frameType)
+            return frameType switch
             {
-                case Ice2Definitions.FrameType.Request:
-                {
-                    return new IncomingRequestFrame(Endpoint.Protocol, buffer, _frameSizeMax);
-                }
-
-                case Ice2Definitions.FrameType.Response:
-                {
-                    return new IncomingResponseFrame(Endpoint.Protocol, buffer, _frameSizeMax);
-                }
-
-                default:
-                {
-                    throw new InvalidDataException($"received ice2 frame with unknown frame type `{frameType}'");
-                }
-            }
+                Ice2Definitions.FrameType.Request =>
+                    new IncomingRequestFrame(Endpoint.Protocol, buffer, IncomingFrameSizeMax),
+                Ice2Definitions.FrameType.Response =>
+                    new IncomingResponseFrame(Endpoint.Protocol, buffer, IncomingFrameSizeMax),
+                _ => throw new InvalidDataException($"received ice2 frame with unknown frame type `{frameType}'")
+            };
         }
 
         private async ValueTask PrepareAndSendFrameAsync(
@@ -325,17 +311,18 @@ namespace ZeroC.Ice
             ostr.WriteByte((byte)type);
             OutputStream.Position sizePos = ostr.StartFixedLengthSize(4);
             writer?.Invoke(ostr);
+            int frameSize = ostr.Tail.Offset - sizePos.Offset - 4;
             ostr.EndFixedLengthSize(sizePos, 4);
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
 
-            if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (Endpoint.Communicator.TraceLevels.Transport > 2)
             {
                 long streamId = 0;
                 if (type == FrameType.ResetStream)
                 {
                     streamId = data[0].Slice(sizePos.Offset + 4).AsReadOnlySpan().ReadVarLong().Value;
                 }
-                TraceFrame("sending ", type, data.GetByteCount(), streamId);
+                TraceTransportFrame("sending ", type, frameSize, streamId);
             }
 
             await SendSlicFrameAsync(data, cancel).ConfigureAwait(false);
@@ -348,7 +335,7 @@ namespace ZeroC.Ice
             byte firstSizeByte = buffer.Span[1];
             int sizeLength = firstSizeByte.ReadSizeLength20();
             buffer = await _transceiver.ReceiveAsync(sizeLength - 1, cancel).ConfigureAwait(false);
-            _receivedCallback!(sizeLength + 1);
+            Received(sizeLength + 1);
 
             int frameSize = ComputeSize20(firstSizeByte, buffer.Span);
 
@@ -358,10 +345,10 @@ namespace ZeroC.Ice
             {
                 int received = await _transceiver.ReceiveAsync(frame.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
-                _receivedCallback!(received);
+                Received(received);
             }
 
-            if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (Endpoint.Communicator.TraceLevels.Transport > 2)
             {
                 long streamId = frameType switch
                 {
@@ -370,7 +357,7 @@ namespace ZeroC.Ice
                     FrameType.ResetStream => frame.AsReadOnlySpan().ReadVarLong().Value,
                     _ => 0,
                 };
-                TraceFrame("received ", frameType, 1 + sizeLength + frame.Count, streamId);
+                TraceTransportFrame("received ", frameType, frameSize, streamId);
             }
 
             return (frameType, frame);
@@ -389,7 +376,7 @@ namespace ZeroC.Ice
             cancel.ThrowIfCancellationRequested();
 
             // Synchronization is required here because this might be called concurrently by the connection code
-            lock (_mutex)
+            lock (Mutex)
             {
                 ValueTask sendTask = QueueAsync(buffer, cancel);
                 _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
@@ -415,11 +402,11 @@ namespace ZeroC.Ice
                 // Perform the write
                 int sent = await _transceiver.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
                 Debug.Assert(sent == buffer.GetByteCount());
-                _sentCallback!(sent);
+                Sent(sent);
             }
         }
 
-        private void TraceFrame(string prefix, FrameType type, int size, long streamId = 0)
+        private void TraceTransportFrame(string prefix, FrameType type, int size, long streamId = 0)
         {
             string frameType = "Slic " + type switch
             {
@@ -451,7 +438,7 @@ namespace ZeroC.Ice
                 s.Append(streamId);
             }
 
-            Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.ProtocolCategory, s.ToString());
+            Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
         }
     }
 }

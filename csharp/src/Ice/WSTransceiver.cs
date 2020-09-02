@@ -209,24 +209,24 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                if (_communicator.TraceLevels.Network >= 2)
+                if (_communicator.TraceLevels.Transport >= 2)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                         $"{_transportName} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
             }
 
-            if (_communicator.TraceLevels.Network >= 1)
+            if (_communicator.TraceLevels.Transport >= 1)
             {
                 if (_incoming)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                         $"accepted {_transportName} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                         $"{_transportName} connection HTTP upgrade request accepted\n{this}");
                 }
             }
@@ -266,8 +266,6 @@ namespace ZeroC.Ice
              SendImplAsync(OpCode.Data, buffers, cancel);
 
         public override string ToString() => _underlying.ToString()!;
-
-        public string ToDetailedString() => _underlying.ToDetailedString();
 
         internal
         WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource) :
@@ -404,9 +402,9 @@ namespace ZeroC.Ice
                     (await _underlying.ReceiveAsync(4, cancel).ConfigureAwait(false)).CopyTo(_receiveMask);
                 }
 
-                if (_communicator.TraceLevels.Network >= 3)
+                if (_communicator.TraceLevels.Transport >= 3)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                         $"received {_transportName} {opCode} frame with {_receivePayloadLength} bytes payload\n{this}");
                 }
 
@@ -679,9 +677,9 @@ namespace ZeroC.Ice
                 Debug.Assert(_sendBuffer.Count == 0);
                 int size = buffers.GetByteCount();
                 _sendBuffer.Add(PrepareHeaderForSend(opCode, size));
-                if (_communicator.TraceLevels.Network >= 3)
+                if (_communicator.TraceLevels.Transport >= 3)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                         $"sending {_transportName} {opCode} frame with {size} bytes payload\n{this}");
                 }
 

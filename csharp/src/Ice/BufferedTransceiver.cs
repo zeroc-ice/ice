@@ -59,8 +59,6 @@ namespace ZeroC.Ice
         public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
             Underlying.SendAsync(buffer, cancel);
 
-        public string ToDetailedString() => Underlying.ToDetailedString();
-
         public override string? ToString() => Underlying.ToString();
 
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
