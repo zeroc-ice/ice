@@ -50,7 +50,7 @@ namespace ZeroC.Ice
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, outgoingRequest.Size, outgoingRequest);
+                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, outgoingRequest);
                 }
             }
 
@@ -97,7 +97,7 @@ namespace ZeroC.Ice
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, incomingResponse.Size, incomingResponse);
+                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, incomingResponse);
                 }
 
                 childObserver?.Reply(incomingResponse.Size);

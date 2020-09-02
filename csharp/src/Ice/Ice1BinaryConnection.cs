@@ -11,59 +11,59 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal class Ice1BinaryConnection : IBinaryConnection
+    internal class Ice1BinaryConnection : BinaryConnection
     {
-        public Endpoint Endpoint { get; }
-        public ITransceiver Transceiver { get; }
-
-        private readonly int _incomingFrameSizeMax;
-        private Action? _heartbeatCallback;
-        private readonly bool _incoming;
-        private readonly object _mutex = new object();
-        private int _nextRequestId;
-        private Action<int>? _receivedCallback;
-        private Task _sendTask = Task.CompletedTask;
-        private Action<int>? _sentCallback;
-
         private static readonly List<ArraySegment<byte>> _closeConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.CloseConnectionFrame };
 
         private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.ValidateConnectionFrame };
 
-        public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
+        // The mutex provides thread-safety for the _sendTask data member.
+        private readonly object _mutex = new object();
+        private int _nextRequestId;
+        private Task _sendTask = Task.CompletedTask;
+        private readonly ITransceiver _transceiver;
+
+        public override ValueTask DisposeAsync()
+        {
+            Closed();
+            return _transceiver.DisposeAsync();
+        }
+
+        public override string ToString() => _transceiver.ToString()!;
+
+        internal Ice1BinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
+            base(endpoint, adapter) => _transceiver = transceiver;
+
+        internal override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             // Write the close connection frame.
             await SendFrameAsync(0, _closeConnectionFrame, cancel).ConfigureAwait(false);
 
             // Notify the transport of the graceful connection closure.
-            await Transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
+            await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync() => Transceiver.DisposeAsync();
-
-        public async ValueTask HeartbeatAsync(CancellationToken cancel) =>
+        internal override async ValueTask HeartbeatAsync(CancellationToken cancel) =>
             await SendFrameAsync(0, _validateConnectionFrame, cancel).ConfigureAwait(false);
 
-        public async ValueTask InitializeAsync(
-            Action heartbeatCallback,
-            Action<int> sentCallback,
-            Action<int> receivedCallback,
-            CancellationToken cancel)
+        internal override async ValueTask InitializeAsync(Action heartbeatCallback, CancellationToken cancel)
         {
-            _heartbeatCallback = heartbeatCallback;
-            _sentCallback = sentCallback;
-            _receivedCallback = receivedCallback;
+            HeartbeatCallback = heartbeatCallback;
 
             // Initialize the transport
-            await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
+            await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
             if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
             {
-                if (_incoming) // The server side has the active role for connection validation.
+                if (IsIncoming) // The server side has the active role for connection validation.
                 {
                     await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
-                    TraceSendFrame(Ice1Definitions.FrameType.ValidateConnection, _validateConnectionFrame[0].Count);
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                    {
+                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
+                    }
                 }
                 else // The client side has the passive role for connection validation.
                 {
@@ -86,51 +86,17 @@ namespace ZeroC.Ice
                             }' bytes");
                     }
 
-                    TraceSendFrame(Ice1Definitions.FrameType.ValidateConnection, size);
-                }
-            }
-
-            if (Endpoint.Communicator.TraceLevels.Network >= 1)
-            {
-                var s = new StringBuilder();
-                if (Endpoint.IsDatagram)
-                {
-                    s.Append("starting to ");
-                    s.Append(_incoming ? "receive" : "send");
-                    s.Append(' ');
-                    s.Append(Endpoint.TransportName);
-                    s.Append(" datagrams\n");
-                    s.Append(Transceiver.ToDetailedString());
-                }
-                else
-                {
-                    s.Append(_incoming ? "accepted" : "established");
-                    s.Append(' ');
-                    s.Append(Endpoint.TransportName);
-                    s.Append(" connection\n");
-                    s.Append(ToString());
-                }
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.NetworkCategory, s.ToString());
-            }
-        }
-
-        public async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(CancellationToken cancel)
-        {
-            while (true)
-            {
-                ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
-                if (buffer.Count > 0) // Can be empty if invalid datagram.
-                {
-                    (int requestId, IncomingFrame? frame) = ParseFrame(buffer);
-                    if (frame != null)
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
+                        TraceReceivedProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
                     }
                 }
             }
+
+            Initialized();
         }
 
-        public long NewStream(bool bidirectional)
+        internal override long NewStream(bool bidirectional)
         {
             if (bidirectional)
             {
@@ -148,21 +114,31 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask ResetAsync(long streamId) => new ValueTask();
-
-        public async ValueTask SendAsync(long streamId, OutgoingFrame frame, bool fin, CancellationToken cancel) =>
-            await SendFrameAsync(streamId, frame, cancel);
-
-        public override string ToString() => Transceiver.ToString()!;
-
-        internal Ice1BinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
+        internal override async ValueTask<(long StreamId, IncomingFrame? Frame, bool Fin)> ReceiveAsync(
+            CancellationToken cancel)
         {
-            Transceiver = transceiver;
-            Endpoint = endpoint;
-
-            _incoming = adapter != null;
-            _incomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
+            while (true)
+            {
+                ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
+                if (buffer.Count > 0) // Can be empty if invalid datagram.
+                {
+                    (int requestId, IncomingFrame? frame) = ParseFrame(buffer);
+                    if (frame != null)
+                    {
+                        return (StreamId: requestId, Frame: frame, Fin: requestId == 0 || frame is IncomingResponseFrame);
+                    }
+                }
+            }
         }
+
+        internal override ValueTask ResetAsync(long streamId) => new ValueTask();
+
+        internal override async ValueTask SendAsync(
+            long streamId,
+            OutgoingFrame frame,
+            bool fin,
+            CancellationToken cancel) =>
+            await SendFrameAsync(streamId, frame, cancel);
 
         private (int, IncomingFrame?) ParseFrame(ArraySegment<byte> readBuffer)
         {
@@ -174,7 +150,7 @@ namespace ZeroC.Ice
             {
                 if (BZip2.IsLoaded)
                 {
-                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, _incomingFrameSizeMax);
+                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, IncomingFrameSizeMax);
                 }
                 else
                 {
@@ -186,7 +162,10 @@ namespace ZeroC.Ice
             {
                 case Ice1Definitions.FrameType.CloseConnection:
                 {
-                    TraceReceivedFrame(frameType, size);
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                    {
+                        TraceReceivedProtocolFrame(frameType);
+                    }
                     if (Endpoint.IsDatagram)
                     {
                         if (Endpoint.Communicator.WarnConnections)
@@ -206,15 +185,21 @@ namespace ZeroC.Ice
                 {
                     var request = new IncomingRequestFrame(Endpoint.Protocol,
                                                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
-                                                           _incomingFrameSizeMax);
+                                                           IncomingFrameSizeMax);
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
-                    ProtocolTrace.TraceFrame(Endpoint.Communicator, requestId, size, request, compressionStatus);
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                    {
+                        ProtocolTrace.TraceFrame(Endpoint.Communicator, requestId, request, compressionStatus);
+                    }
                     return (requestId, request);
                 }
 
                 case Ice1Definitions.FrameType.RequestBatch:
                 {
-                    TraceReceivedFrame(frameType, size);
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                    {
+                        TraceReceivedProtocolFrame(frameType);
+                    }
                     int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
                     {
@@ -229,22 +214,27 @@ namespace ZeroC.Ice
                 {
                     var response = new IncomingResponseFrame(Endpoint.Protocol,
                                                              readBuffer.Slice(Ice1Definitions.HeaderSize + 4),
-                                                             _incomingFrameSizeMax);
+                                                             IncomingFrameSizeMax);
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
-                    ProtocolTrace.TraceFrame(Endpoint.Communicator, requestId, size, response, compressionStatus);
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                    {
+                        ProtocolTrace.TraceFrame(Endpoint.Communicator, requestId, response, compressionStatus);
+                    }
                     return (requestId, response);
                 }
 
                 case Ice1Definitions.FrameType.ValidateConnection:
                 {
-                    TraceReceivedFrame(frameType, size);
-                    _heartbeatCallback!();
+                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                    {
+                        TraceReceivedProtocolFrame(frameType);
+                    }
+                    HeartbeatCallback!();
                     return default;
                 }
 
                 default:
                 {
-                    TraceReceivedFrame(frameType, size);
                     throw new InvalidDataException($"received ice1 frame with unknown frame type `{frameType}'");
                 }
             }
@@ -256,13 +246,13 @@ namespace ZeroC.Ice
             ArraySegment<byte> readBuffer;
             if (Endpoint.IsDatagram)
             {
-                readBuffer = await Transceiver.ReceiveDatagramAsync(default).ConfigureAwait(false);
+                readBuffer = await _transceiver.ReceiveDatagramAsync(default).ConfigureAwait(false);
                 if (readBuffer.Count == 0)
                 {
                     // The transport failed to read a datagram which was too big or it received an empty datagram.
                     return readBuffer;
                 }
-                _receivedCallback!(readBuffer.Count);
+                Received(readBuffer.Count);
             }
             else
             {
@@ -278,7 +268,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received ice1 frame with only {size} bytes");
             }
 
-            if (size > _incomingFrameSizeMax)
+            if (size > IncomingFrameSizeMax)
             {
                 throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
             }
@@ -366,17 +356,20 @@ namespace ZeroC.Ice
                 compressionStatus = header[9];
             }
 
-            if (writeBuffer == frame)
+            if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceSendFrame((Ice1Definitions.FrameType)writeBuffer[0][8], size);
-            }
-            else
-            {
-                ProtocolTrace.TraceFrame(Endpoint.Communicator, (int)streamId, size, frame, compressionStatus);
+                if (writeBuffer == frame)
+                {
+                    TraceSendProtocolFrame((Ice1Definitions.FrameType)writeBuffer[0][8]);
+                }
+                else
+                {
+                    ProtocolTrace.TraceFrame(Endpoint.Communicator, (int)streamId, frame, compressionStatus);
+                }
             }
 
             // Ensure the frame isn't bigger than what we can send with the transport.
-            Transceiver.CheckSendSize(size);
+            _transceiver.CheckSendSize(size);
 
             // Write the frame
             await SendAsync(writeBuffer).ConfigureAwait(false);
@@ -424,51 +417,42 @@ namespace ZeroC.Ice
             int offset = 0;
             while (offset != buffer.Count)
             {
-                int received = await Transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                int received = await _transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
-                _receivedCallback!(received);
+                Received(received);
             }
         }
 
         private async ValueTask SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
         {
-            int sent = await Transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
-            Debug.Assert(sent == buffers.GetByteCount()); // TODO: do we need to support partial writes?
-            _sentCallback!(sent);
+            int sent = await _transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
+            Debug.Assert(sent == buffers.GetByteCount());
+            Sent(sent);
         }
 
-        private void TraceSendFrame(Ice1Definitions.FrameType type, int size) =>
-            TraceFrame("sending ", type, size);
+        private void TraceSendProtocolFrame(Ice1Definitions.FrameType type) => TraceFrame("sending ", type);
 
-        private void TraceReceivedFrame(Ice1Definitions.FrameType type, int size) =>
-            TraceFrame("received ", type, size);
+        private void TraceReceivedProtocolFrame(Ice1Definitions.FrameType type) => TraceFrame("received ", type);
 
-        private void TraceFrame(string prefix, Ice1Definitions.FrameType type, int size)
+        private void TraceFrame(string prefix, Ice1Definitions.FrameType type)
         {
-            if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            string? frameType = type switch
             {
-                string frameType = type switch
-                {
-                    Ice1Definitions.FrameType.Request => "request",
-                    Ice1Definitions.FrameType.RequestBatch => "batch request",
-                    Ice1Definitions.FrameType.Reply => "reply",
-                    Ice1Definitions.FrameType.ValidateConnection => "validate connection",
-                    Ice1Definitions.FrameType.CloseConnection => "close connection",
-                    _ => "unknown frame",
-                };
+                Ice1Definitions.FrameType.RequestBatch => "batch request",
+                Ice1Definitions.FrameType.ValidateConnection => "validate connection",
+                Ice1Definitions.FrameType.CloseConnection => "close connection",
+                _ => null,
+            };
+            Debug.Assert(frameType != null);
 
-                var s = new StringBuilder();
-                s.Append(prefix);
-                s.Append(frameType);
-
-                s.Append("\nprotocol = ");
-                s.Append(Endpoint.Protocol.GetName());
-
-                s.Append("\nframe size = ");
-                s.Append(size);
-
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.ProtocolCategory, s.ToString());
-            }
+            // Validation and close connection frames are Ice1 protocol frame so we continue to trace them with
+            // the protocol tracing.
+            var s = new StringBuilder();
+            s.Append(prefix);
+            s.Append(frameType);
+            s.Append("\nprotocol = ");
+            s.Append(Endpoint.Protocol.GetName());
+            Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.ProtocolCategory, s.ToString());
         }
     }
 }

@@ -128,8 +128,6 @@ namespace ZeroC.Ice
 
         public override string ToString() => _desc;
 
-        public string ToDetailedString() => _desc;
-
         internal TcpTransceiver(Communicator communicator, EndPoint addr, INetworkProxy? proxy, IPAddress? sourceAddr)
         {
             _communicator = communicator;

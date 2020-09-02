@@ -145,8 +145,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return addresses.Select(address => Clone(Network.EndpointAddressToString(address),
-                                                         Network.EndpointPort(address)));
+                return addresses.Select(address => Clone(address.Address.ToString(), (ushort)address.Port));
             }
         }
 

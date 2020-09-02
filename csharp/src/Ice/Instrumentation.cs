@@ -75,7 +75,6 @@ namespace ZeroC.Ice.Instrumentation
 
     public interface IConnectionObserver : IObserver
     {
-
         /// <summary>Notification of received bytes over the connection.</summary>
         /// <param name="num">The number of bytes received.</param>
         void ReceivedBytes(int num);

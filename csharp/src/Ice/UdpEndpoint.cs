@@ -123,11 +123,12 @@ namespace ZeroC.Ice
 
         public override Connection CreateConnection(
              IConnectionManager manager,
-             ITransceiver? transceiver,
+             ITransceiver transceiver,
              IConnector? connector,
              string connectionId,
              ObjectAdapter? adapter) => new UdpConnection(manager,
                                                           this,
+                                                          transceiver,
                                                           new Ice1BinaryConnection(transceiver!, this, adapter),
                                                           connector,
                                                           connectionId,
@@ -138,9 +139,9 @@ namespace ZeroC.Ice
             var transceiver = new UdpTransceiver(Communicator, Host, Port, MulticastInterface);
             try
             {
-                if (Communicator.TraceLevels.Network >= 2)
+                if (Communicator.TraceLevels.Transport >= 2)
                 {
-                    Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory,
+                    Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
                         $"attempting to bind to {TransportName} socket\n{transceiver}");
                 }
                 return (transceiver, transceiver.Bind(this));

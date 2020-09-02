@@ -852,9 +852,9 @@ namespace ZeroC.Ice
 
                     if (endpoints == null || endpoints.Count == 0)
                     {
-                        if (Communicator.TraceLevels.Network >= 2)
+                        if (Communicator.TraceLevels.Transport >= 2)
                         {
-                            Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory,
+                            Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
                                                       $"created adapter `{Name}' without endpoints");
                         }
                     }
@@ -1115,7 +1115,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (Communicator.TraceLevels.Network >= 1 && endpoints.Count > 0)
+            if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
             {
                 var sb = new StringBuilder("published endpoints for object adapter `");
 
@@ -1142,7 +1142,7 @@ namespace ZeroC.Ice
                         }
                     }
                 }
-                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, sb.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory, sb.ToString());
             }
 
             return endpoints;

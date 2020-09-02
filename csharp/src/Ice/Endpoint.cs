@@ -168,7 +168,7 @@ namespace ZeroC.Ice
         /// <returns>A new connection to the given endpoint.</returns>
         public abstract Connection CreateConnection(
             IConnectionManager manager,
-            ITransceiver? transceiver,
+            ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter);
