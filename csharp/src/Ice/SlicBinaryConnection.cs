@@ -334,10 +334,12 @@ namespace ZeroC.Ice
             var frameType = (FrameType)buffer.Span[0];
             byte firstSizeByte = buffer.Span[1];
             int sizeLength = firstSizeByte.ReadSizeLength20();
-            buffer = await _transceiver.ReceiveAsync(sizeLength - 1, cancel).ConfigureAwait(false);
+
+            _transceiver.Rewind(1);
+            buffer = await _transceiver.ReceiveAsync(sizeLength, cancel).ConfigureAwait(false);
             Received(sizeLength + 1);
 
-            int frameSize = ComputeSize20(firstSizeByte, buffer.Span);
+            int frameSize = buffer.Span.ReadSize20().Size;
 
             ArraySegment<byte> frame = new byte[frameSize];
             int offset = 0;
@@ -361,14 +363,6 @@ namespace ZeroC.Ice
             }
 
             return (frameType, frame);
-
-            static int ComputeSize20(byte firstByte, ReadOnlySpan<byte> otherBytes)
-            {
-                Span<byte> buf = stackalloc byte[otherBytes.Length + 1];
-                buf[0] = firstByte;
-                otherBytes.CopyTo(buf[1..]);
-                return ((ReadOnlySpan<byte>)buf).ReadSize20().Size;
-            }
         }
 
         private Task SendSlicFrameAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)

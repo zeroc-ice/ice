@@ -782,25 +782,27 @@ namespace ZeroC.Ice
             Interlocked.CompareExchange(ref _requestHandler, null, handler);
         }
 
-        internal Reference Clone(string? adapterId = null,
-                                 bool? cacheConnection = null,
-                                 bool clearLocator = false,
-                                 bool clearRouter = false,
-                                 string? connectionId = null,
-                                 IReadOnlyDictionary<string, string>? context = null, // can be provided by app
-                                 Encoding? encoding = null,
-                                 EndpointSelectionType? endpointSelection = null,
-                                 IEnumerable<Endpoint>? endpoints = null, // from app
-                                 string? facet = null,
-                                 Connection? fixedConnection = null,
-                                 Identity? identity = null,
-                                 InvocationMode? invocationMode = null,
-                                 TimeSpan? invocationTimeout = null,
-                                 ILocatorPrx? locator = null,
-                                 TimeSpan? locatorCacheTimeout = null,
-                                 bool? oneway = null,
-                                 bool? preferNonSecure = null,
-                                 IRouterPrx? router = null)
+        internal Reference Clone(
+            string? adapterId = null,
+            bool? cacheConnection = null,
+            bool clearLocator = false,
+            bool clearRouter = false,
+            string? connectionId = null,
+            IReadOnlyDictionary<string, string>? context = null, // can be provided by app
+            Encoding? encoding = null,
+            EndpointSelectionType? endpointSelection = null,
+            IEnumerable<Endpoint>? endpoints = null, // from app
+            string? facet = null,
+            Connection? fixedConnection = null,
+            Identity? identity = null,
+            string? identityAndFacet = null,
+            InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
+            ILocatorPrx? locator = null,
+            TimeSpan? locatorCacheTimeout = null,
+            bool? oneway = null,
+            bool? preferNonSecure = null,
+            IRouterPrx? router = null)
         {
             // Check for incompatible arguments
             if (locator != null && clearLocator)
@@ -815,6 +817,17 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
             }
+
+            if (identityAndFacet != null && facet != null)
+            {
+                throw new ArgumentException($"cannot set both {nameof(facet)} and {nameof(identityAndFacet)}");
+            }
+
+            if (identityAndFacet != null && identity != null)
+            {
+                throw new ArgumentException($"cannot set both {nameof(identity)} and {nameof(identityAndFacet)}");
+            }
+
             if (oneway != null)
             {
                 invocationMode = oneway.Value ? InvocationMode.Oneway : InvocationMode.Twoway;
@@ -828,6 +841,11 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException($"{invocationTimeout} is not a valid value for {nameof(invocationTimeout)}",
                                             nameof(invocationTimeout));
+            }
+
+            if (identityAndFacet != null)
+            {
+                (identity, facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             }
 
             if (IsFixed || fixedConnection != null)
