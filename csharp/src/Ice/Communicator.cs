@@ -117,7 +117,6 @@ namespace ZeroC.Ice
         public bool DefaultPreferNonSecure { get; }
 
         public IPAddress? DefaultSourceAddress { get; }
-        public TimeSpan DefaultInvocationTimeout { get; }
         public TimeSpan DefaultLocatorCacheTimeout { get; }
 
         /// <summary>The default router for this communicator. To disable the default router, null can be used.
@@ -168,7 +167,6 @@ namespace ZeroC.Ice
             "ConnectionCached",
             "PreferNonSecure",
             "LocatorCacheTimeout",
-            "InvocationTimeout",
             "Locator",
             "Router",
             "Context\\..*"
@@ -406,14 +404,6 @@ namespace ZeroC.Ice
                         throw new InvalidConfigurationException(
                             $"invalid IP address set for Ice.Default.SourceAddress: `{address}'", ex);
                     }
-                }
-
-                DefaultInvocationTimeout =
-                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;
-
-                if (DefaultInvocationTimeout == TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
                 // For locator cache timeout, 0 means disable locator cache.

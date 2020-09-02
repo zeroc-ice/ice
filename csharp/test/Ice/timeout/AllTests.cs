@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using Test;
 
@@ -114,50 +115,30 @@ namespace ZeroC.Ice.Test.Timeout
             {
                 timeout.IcePing(); // Makes sure a working connection is associated with the proxy
                 Connection? connection = timeout.GetConnection();
-                ITimeoutPrx? to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100));
-                TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
-                    to.Sleep(1000);
+                    using var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+                    timeout.SleepAsync(1000, cancel: timeoutTokenSource.Token).Wait();
                     TestHelper.Assert(false);
                 }
-                catch (TimeoutException)
+                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                 {
                 }
                 timeout.IcePing();
-                to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(1000));
-                TestHelper.Assert(connection == to.GetConnection());
-                try
-                {
-                    to.Sleep(100);
-                }
-                catch (TimeoutException)
-                {
-                    TestHelper.Assert(false);
-                }
-                TestHelper.Assert(connection == to.GetConnection());
-            }
-            {
-                //
-                // Expect TimeoutException.
-                //
-                ITimeoutPrx to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100));
-                try
-                {
-                    to.SleepAsync(1000).Wait();
-                }
-                catch (AggregateException ex) when (ex.InnerException is TimeoutException)
-                {
-                }
-                timeout.IcePing();
-            }
-            {
-                // Expect success.
-                ITimeoutPrx to = timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(1000));
-                to.SleepAsync(100).Wait();
-            }
 
-           output.WriteLine("ok");
+                TestHelper.Assert(connection == timeout.GetConnection());
+                try
+                {
+                    using var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(1000));
+                    timeout.SleepAsync(100, cancel: timeoutTokenSource.Token).Wait();
+                }
+                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                {
+                    TestHelper.Assert(false);
+                }
+                TestHelper.Assert(connection == timeout.GetConnection());
+            }
+            output.WriteLine("ok");
 
             output.Write("testing close timeout... ");
             output.Flush();
@@ -201,25 +182,17 @@ namespace ZeroC.Ice.Test.Timeout
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
                 adapter.Activate();
 
-                ITimeoutPrx proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(
-                    invocationTimeout: TimeSpan.FromMilliseconds(100));
+                ITimeoutPrx proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory);
                 try
                 {
-                    proxy.Sleep(500);
+                    using var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+                    proxy.SleepAsync(500, cancel: timeoutTokenSource.Token).Wait();
                     TestHelper.Assert(false);
                 }
-                catch (TimeoutException)
+                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                 {
                 }
 
-                try
-                {
-                    proxy.SleepAsync(500).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException ex) when (ex.InnerException is TimeoutException)
-                {
-                }
                 adapter.Dispose();
             }
             output.WriteLine("ok");

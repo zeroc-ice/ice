@@ -230,32 +230,19 @@ namespace ZeroC.Ice.Test.Retry
 
             if (ice1)
             {
-                output.Write("testing invocation timeout and retries... ");
+                output.Write("testing cancellation and retries... ");
                 output.Flush();
 
                 retry2 = IRetryPrx.Parse(retry1.ToString()!, communicator2);
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
-                    retry2.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpIdempotent(4);
+                    using var cancel = new CancellationTokenSource(500);
+                    retry2.OpIdempotentAsync(4, cancel: cancel.Token).Wait();
                     TestHelper.Assert(false);
                 }
-                catch (TimeoutException)
+                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                 {
-                    Instrumentation.TestRetryCount(2);
-                    retry2.OpIdempotent(-1); // Reset the counter
-                    Instrumentation.TestRetryCount(-1);
-                }
-                try
-                {
-                    // No more than 2 retries before timeout kicks-in
-                    IRetryPrx prx = retry2.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500));
-                    prx.OpIdempotentAsync(4).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException ex)
-                {
-                    TestHelper.Assert(ex.InnerException is TimeoutException);
                     Instrumentation.TestRetryCount(2);
                     retry2.OpIdempotent(-1); // Reset the counter
                     Instrumentation.TestRetryCount(-1);
