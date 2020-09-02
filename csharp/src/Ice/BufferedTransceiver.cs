@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
@@ -107,23 +106,17 @@ namespace ZeroC.Ice
             return buffer;
         }
 
-        /// <summary>Sets the buffered data. This can be used if too much buffered data has been read to add
-        /// it back to the buffer. This can only be used if the buffered data was all previously consumed.</summary>
-        /// <param name="data">The data to add back to the buffer.</param>
-        internal void SetBuffer(ArraySegment<byte> data)
+        /// <summary>Rewinds the buffered data. This can be used if too much buffered data has been read to add
+        /// it back to the buffer.</summary>
+        /// <param name="bytes">The number of bytes to unread from the buffer.</param>
+        internal void Rewind(int bytes)
         {
-            if (_buffer.Count != 0)
+            if (_buffer.Array!.Length < bytes)
             {
-                throw new ArgumentOutOfRangeException("buffer is not empty");
-            }
-            if (_buffer.Array!.Length < data.Count)
-            {
-                throw new ArgumentOutOfRangeException($"{nameof(data)} is too large");
+                throw new ArgumentOutOfRangeException($"{nameof(bytes)} is too large");
             }
 
-            _buffer.CopyTo(_buffer.Array!, 0);
-            data.CopyTo(_buffer.Array!, _buffer.Count);
-            _buffer = new ArraySegment<byte>(_buffer.Array, 0, _buffer.Count + data.Count);
+            _buffer = new ArraySegment<byte>(_buffer.Array, _buffer.Offset - bytes, _buffer.Count + bytes);
         }
 
         private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)

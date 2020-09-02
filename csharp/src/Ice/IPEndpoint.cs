@@ -288,7 +288,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                  Port = ushort.Parse(argument, CultureInfo.InvariantCulture);
+                    Port = ushort.Parse(argument, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {

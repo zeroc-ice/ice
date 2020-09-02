@@ -405,7 +405,7 @@ namespace ZeroC.Ice
                 }
 
                 DefaultInvocationTimeout =
-                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;;
+                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;
 
                 if (DefaultInvocationTimeout == TimeSpan.Zero)
                 {
@@ -1097,11 +1097,11 @@ namespace ZeroC.Ice
         internal IClassFactory? FindClassFactory(int compactId) =>
            _compactIdCache.GetOrAdd(compactId, compactId =>
            {
-                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
-                if (factoryClass != null)
-                {
-                    return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
-                }
+               Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
+               if (factoryClass != null)
+               {
+                   return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+               }
                return null;
            });
 

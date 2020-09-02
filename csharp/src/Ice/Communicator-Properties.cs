@@ -623,136 +623,136 @@ namespace ZeroC.Ice
                 switch (state)
                 {
                     case ParseState.Key:
+                    {
+                        switch (c)
                         {
-                            switch (c)
-                            {
-                                case '\\':
-                                    if (i < line.Length - 1)
+                            case '\\':
+                                if (i < line.Length - 1)
+                                {
+                                    c = line[++i];
+                                    switch (c)
                                     {
-                                        c = line[++i];
-                                        switch (c)
-                                        {
-                                            case '\\':
-                                            case '#':
-                                            case '=':
-                                                name.Append(whitespace);
-                                                whitespace.Clear();
-                                                name.Append(c);
-                                                break;
+                                        case '\\':
+                                        case '#':
+                                        case '=':
+                                            name.Append(whitespace);
+                                            whitespace.Clear();
+                                            name.Append(c);
+                                            break;
 
-                                            case ' ':
-                                                if (name.Length != 0)
-                                                {
-                                                    whitespace.Append(c);
-                                                }
-                                                break;
+                                        case ' ':
+                                            if (name.Length != 0)
+                                            {
+                                                whitespace.Append(c);
+                                            }
+                                            break;
 
-                                            default:
-                                                name.Append(whitespace);
-                                                whitespace.Clear();
-                                                name.Append('\\');
-                                                name.Append(c);
-                                                break;
-                                        }
+                                        default:
+                                            name.Append(whitespace);
+                                            whitespace.Clear();
+                                            name.Append('\\');
+                                            name.Append(c);
+                                            break;
                                     }
-                                    else
-                                    {
-                                        name.Append(whitespace);
-                                        name.Append(c);
-                                    }
-                                    break;
-
-                                case ' ':
-                                case '\t':
-                                case '\r':
-                                case '\n':
-                                    if (name.Length != 0)
-                                    {
-                                        whitespace.Append(c);
-                                    }
-                                    break;
-
-                                case '=':
-                                    whitespace.Clear();
-                                    state = ParseState.Value;
-                                    break;
-
-                                case '#':
-                                    finished = true;
-                                    break;
-
-                                default:
+                                }
+                                else
+                                {
                                     name.Append(whitespace);
-                                    whitespace.Clear();
                                     name.Append(c);
-                                    break;
-                            }
-                            break;
+                                }
+                                break;
+
+                            case ' ':
+                            case '\t':
+                            case '\r':
+                            case '\n':
+                                if (name.Length != 0)
+                                {
+                                    whitespace.Append(c);
+                                }
+                                break;
+
+                            case '=':
+                                whitespace.Clear();
+                                state = ParseState.Value;
+                                break;
+
+                            case '#':
+                                finished = true;
+                                break;
+
+                            default:
+                                name.Append(whitespace);
+                                whitespace.Clear();
+                                name.Append(c);
+                                break;
                         }
+                        break;
+                    }
 
                     case ParseState.Value:
+                    {
+                        switch (c)
                         {
-                            switch (c)
-                            {
-                                case '\\':
-                                    if (i < line.Length - 1)
+                            case '\\':
+                                if (i < line.Length - 1)
+                                {
+                                    c = line[++i];
+                                    switch (c)
                                     {
-                                        c = line[++i];
-                                        switch (c)
-                                        {
-                                            case '\\':
-                                            case '#':
-                                            case '=':
-                                                value.Append(value.Length == 0 ? escapedspace : whitespace);
-                                                whitespace.Clear();
-                                                escapedspace.Clear();
-                                                value.Append(c);
-                                                break;
+                                        case '\\':
+                                        case '#':
+                                        case '=':
+                                            value.Append(value.Length == 0 ? escapedspace : whitespace);
+                                            whitespace.Clear();
+                                            escapedspace.Clear();
+                                            value.Append(c);
+                                            break;
 
-                                            case ' ':
-                                                whitespace.Append(c);
-                                                escapedspace.Append(c);
-                                                break;
+                                        case ' ':
+                                            whitespace.Append(c);
+                                            escapedspace.Append(c);
+                                            break;
 
-                                            default:
-                                                value.Append(value.Length == 0 ? escapedspace : whitespace);
-                                                whitespace.Clear();
-                                                escapedspace.Clear();
-                                                value.Append('\\');
-                                                value.Append(c);
-                                                break;
-                                        }
+                                        default:
+                                            value.Append(value.Length == 0 ? escapedspace : whitespace);
+                                            whitespace.Clear();
+                                            escapedspace.Clear();
+                                            value.Append('\\');
+                                            value.Append(c);
+                                            break;
                                     }
-                                    else
-                                    {
-                                        value.Append(value.Length == 0 ? escapedspace : whitespace);
-                                        value.Append(c);
-                                    }
-                                    break;
-
-                                case ' ':
-                                case '\t':
-                                case '\r':
-                                case '\n':
-                                    if (value.Length != 0)
-                                    {
-                                        whitespace.Append(c);
-                                    }
-                                    break;
-
-                                case '#':
-                                    finished = true;
-                                    break;
-
-                                default:
+                                }
+                                else
+                                {
                                     value.Append(value.Length == 0 ? escapedspace : whitespace);
-                                    whitespace.Clear();
-                                    escapedspace.Clear();
                                     value.Append(c);
-                                    break;
-                            }
-                            break;
+                                }
+                                break;
+
+                            case ' ':
+                            case '\t':
+                            case '\r':
+                            case '\n':
+                                if (value.Length != 0)
+                                {
+                                    whitespace.Append(c);
+                                }
+                                break;
+
+                            case '#':
+                                finished = true;
+                                break;
+
+                            default:
+                                value.Append(value.Length == 0 ? escapedspace : whitespace);
+                                whitespace.Clear();
+                                escapedspace.Clear();
+                                value.Append(c);
+                                break;
                         }
+                        break;
+                    }
                 }
                 if (finished)
                 {

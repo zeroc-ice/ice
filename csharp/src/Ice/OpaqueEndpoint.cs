@@ -62,13 +62,13 @@ namespace ZeroC.Ice
             }
             else
             {
-               int hashCode = HashCode.Combine(base.GetHashCode(), ValueEncoding, Value);
-               if (hashCode == 0)
-               {
-                   hashCode = 1;
-               }
-               _hashCode = hashCode;
-               return _hashCode;
+                int hashCode = HashCode.Combine(base.GetHashCode(), ValueEncoding, Value);
+                if (hashCode == 0)
+                {
+                    hashCode = 1;
+                }
+                _hashCode = hashCode;
+                return _hashCode;
             }
         }
 

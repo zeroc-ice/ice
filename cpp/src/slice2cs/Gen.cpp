@@ -2870,18 +2870,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string internalName = "IceD_" + operation->name() + "Async";
 
     auto params = operation->parameters();
-
     auto returnValues = operation->returnValues();
-
-    auto ice1ReturnValues = returnValues;
-    if (operation->hasReturnAndOut())
-    {
-        // TODO: temporary: move return to last position
-        ice1ReturnValues.push_back(ice1ReturnValues.front());
-        ice1ReturnValues.pop_front();
-    }
-
-    auto [requiredReturnValues, taggedReturnValues] = getSortedMembers(ice1ReturnValues);
 
     bool defaultWriter = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
         !returnValues.front()->tagged();

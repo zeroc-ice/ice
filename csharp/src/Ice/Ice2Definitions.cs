@@ -2,10 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
 namespace ZeroC.Ice
 {
     // Definitions for the ice2 protocol.

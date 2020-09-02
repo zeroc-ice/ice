@@ -242,7 +242,7 @@ namespace ZeroC.Ice
             BzStatus rc;
             try
             {
-                rc = (BzStatus) BZ2_bzDecompressInit(ref bzStream, 0, 0);
+                rc = (BzStatus)BZ2_bzDecompressInit(ref bzStream, 0, 0);
                 if (rc != BzStatus.Ok)
                 {
                     throw new TransportException($"bzip2 decompression failed: {rc}");

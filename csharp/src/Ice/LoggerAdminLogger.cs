@@ -22,6 +22,10 @@ namespace ZeroC.Ice
 
         public async ValueTask DisposeAsync()
         {
+            if (LocalLogger is FileLogger fileLogger)
+            {
+                fileLogger.Dispose();
+            }
             _channel.Writer.Complete();
             await _loggerAdmin.DisposeAsync().ConfigureAwait(false);
         }

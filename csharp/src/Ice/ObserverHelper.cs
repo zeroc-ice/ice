@@ -2,9 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.Instrumentation;
-
 using System.Collections.Generic;
+using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {

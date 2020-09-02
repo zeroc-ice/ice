@@ -47,6 +47,7 @@ namespace ZeroC.Ice
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="identity">The identity of the clone.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
@@ -72,6 +73,7 @@ namespace ZeroC.Ice
             string? facet = null,
             Connection? fixedConnection = null,
             Identity? identity = null,
+            string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
             ILocatorPrx? locator = null,
@@ -91,6 +93,7 @@ namespace ZeroC.Ice
                                            facet,
                                            fixedConnection,
                                            identity,
+                                           identityAndFacet,
                                            invocationMode,
                                            invocationTimeout,
                                            locator,
@@ -158,6 +161,7 @@ namespace ZeroC.Ice
                                                      facet: null,
                                                      fixedConnection,
                                                      identity: null,
+                                                     identityAndFacet: null,
                                                      invocationMode,
                                                      invocationTimeout,
                                                      locator,
@@ -304,21 +308,21 @@ namespace ZeroC.Ice
                 int i,
                 IProgress<bool>? progress,
                 CancellationToken cancel)
+            {
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
                 {
-                    if (i < proxy.Communicator.InvocationInterceptors.Count)
-                    {
-                        InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                        return interceptor(
-                            proxy,
-                            request,
-                            (target, request) =>
-                                InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
-                    }
-                    else
-                    {
-                        return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                    }
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
                 }
+                else
+                {
+                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
+                }
+            }
         }
 
         private static ValueTask<IncomingResponseFrame> InvokeAsync(

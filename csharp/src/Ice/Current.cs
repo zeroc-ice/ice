@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Threading;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
