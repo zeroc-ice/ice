@@ -549,7 +549,7 @@ namespace ZeroC.Ice
             CancellationTokenSource? source = null;
             try
             {
-                CancellationToken cancel;
+                CancellationToken cancel = default;
                 TimeSpan timeout = _communicator.ConnectTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
@@ -811,7 +811,7 @@ namespace ZeroC.Ice
                                 // If the stream isn't terminated, we create a cancellation token source to be able
                                 // to cancel the dispatch if the client sends a stream reset (which can occur if the
                                 // invocation times out or is canceled for example).
-                                CancellationToken cancellationToken;
+                                CancellationToken cancellationToken = default;
                                 if (!fin)
                                 {
                                     var source = new CancellationTokenSource();

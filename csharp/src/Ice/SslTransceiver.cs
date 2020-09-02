@@ -209,16 +209,16 @@ namespace ZeroC.Ice
             }
         }
 
-        private X509Certificate? CertificateSelectionCallback(
+        private X509Certificate CertificateSelectionCallback(
             object sender,
             string targetHost,
             X509CertificateCollection? certs,
-            X509Certificate remoteCertificate,
+            X509Certificate? remoteCertificate,
             string[]? acceptableIssuers)
         {
             if (certs == null || certs.Count == 0)
             {
-                return null;
+                throw new ArgumentException("X509Certificate not available", nameof(certs));
             }
 
             // Use the first certificate that match the acceptable issuers.
@@ -237,8 +237,8 @@ namespace ZeroC.Ice
 
         private bool RemoteCertificateValidationCallback(
             object sender,
-            X509Certificate certificate,
-            X509Chain chain,
+            X509Certificate? certificate,
+            X509Chain? chain,
             SslPolicyErrors errors)
         {
             var message = new StringBuilder();
@@ -302,7 +302,7 @@ namespace ZeroC.Ice
                             chain.ChainPolicy.ExtraStore.Add(cert);
                         }
                     }
-                    chain.Build(certificate as X509Certificate2);
+                    chain.Build((X509Certificate2)certificate!);
                 }
 
                 if (chain != null && chain.ChainStatus != null)
@@ -344,7 +344,7 @@ namespace ZeroC.Ice
             {
                 if (buildCustomChain)
                 {
-                    chain.Dispose();
+                    chain!.Dispose();
                 }
             }
 
