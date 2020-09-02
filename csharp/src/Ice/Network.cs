@@ -324,7 +324,7 @@ namespace ZeroC.Ice
         internal static int GetIPVersion(IPAddress addr) =>
             addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
-        internal static EndPoint GetLocalAddress(Socket socket)
+        internal static EndPoint? GetLocalAddress(Socket socket)
         {
             try
             {
@@ -442,7 +442,7 @@ namespace ZeroC.Ice
             addr.AddressFamily == AddressFamily.InterNetwork ?
                 (addr.Address.GetAddressBytes()[0] & 0xF0) == 0xE0 : addr.Address.IsIPv6Multicast;
 
-        internal static string LocalAddrToString(EndPoint endpoint) => endpoint?.ToString() ?? "<not bound>";
+        internal static string LocalAddrToString(EndPoint? endpoint) => endpoint?.ToString() ?? "<not bound>";
 
         internal static string RemoteAddrToString(EndPoint? endpoint) => endpoint?.ToString() ?? "<not connected>";
 
@@ -454,7 +454,7 @@ namespace ZeroC.Ice
                 // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then
                 // read the size back to get the size that was actually set.
                 socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, rcvSize);
-                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
+                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer)!;
                 if (size < rcvSize)
                 {
                     // Warn if the size that was set is less than the requested size and we have not already warned.
@@ -474,7 +474,7 @@ namespace ZeroC.Ice
                 // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then
                 // read the size back to get the size that was actually set.
                 socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sndSize);
-                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                int size = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer)!;
                 if (size < sndSize) // Warn if the size that was set is less than the requested size.
                 {
                     // Warn if the size that was set is less than the requested size and we have not already warned.

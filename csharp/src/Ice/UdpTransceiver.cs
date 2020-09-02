@@ -58,7 +58,7 @@ namespace ZeroC.Ice
                     }
 
                     Socket.Bind(_addr);
-                    _addr = (IPEndPoint)Socket.LocalEndPoint;
+                    _addr = (IPEndPoint)Socket.LocalEndPoint!;
 
                     if (endpoint.Port == 0)
                     {
@@ -71,7 +71,7 @@ namespace ZeroC.Ice
                 else
                 {
                     Socket.Bind(_addr);
-                    _addr = (IPEndPoint)Socket.LocalEndPoint;
+                    _addr = (IPEndPoint)Socket.LocalEndPoint!;
                 }
             }
             catch (SocketException ex)
@@ -248,6 +248,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
+                    Debug.Assert(_peerAddr != null);
                     // TODO: Fix to use the cancellable API with 5.0
                     return await Socket.SendToAsync(buffer.GetSegment(0, count),
                                                     SocketFlags.None,
@@ -285,10 +286,10 @@ namespace ZeroC.Ice
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);
-                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer)!;
+                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer)!;
 
-                if (Network.IsMulticast((IPEndPoint)_addr))
+                if (Network.IsMulticast(_addr))
                 {
                     if (_multicastInterface.Length > 0)
                     {
@@ -323,8 +324,8 @@ namespace ZeroC.Ice
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);
-                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer)!;
+                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer)!;
             }
             catch (SocketException ex)
             {
