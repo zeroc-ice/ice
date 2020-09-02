@@ -210,7 +210,7 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultNetCoreFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
+            self.defaultNetCoreFramework = "net5"
         except:
             self.nugetPackageCache = None
 
@@ -281,7 +281,7 @@ class Platform(object):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netcoreapp3.1")
+            return os.path.join(installDir, "lib", "net5")
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
@@ -3382,7 +3382,7 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            self.libTargetFramework = "netcoreapp3.1"
+            self.libTargetFramework = "net5"
             self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
 
@@ -3500,7 +3500,7 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = current.config.testTargetFramework in ["netcoreapp2.1"] or process.isFromBinDir()
+        useDotnetExe = process.isFromBinDir()
 
         command = ""
         if useDotnetExe:

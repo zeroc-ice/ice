@@ -2,6 +2,6 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="../msbuild/ice.props" />
     <PropertyGroup>
-        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.1</AppTargetFramework>
+        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5</AppTargetFramework>
     </PropertyGroup>
 </Project>

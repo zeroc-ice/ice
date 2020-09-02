@@ -308,8 +308,8 @@ namespace ZeroC.Ice.Test.Properties
 
                 Console.Out.Write("testing properties as list... ");
                 await using var communicator = new Communicator(properties);
-                Assert(communicator.GetPropertyAsList("Services").SequenceEqual(services));
-                Assert(communicator.GetPropertyAsList("LoggerProperties").SequenceEqual(loggerProperties));
+                Assert(communicator.GetPropertyAsList("Services")!.SequenceEqual(services));
+                Assert(communicator.GetPropertyAsList("LoggerProperties")!.SequenceEqual(loggerProperties));
                 Console.Out.WriteLine("ok");
             }
         }

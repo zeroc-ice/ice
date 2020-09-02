@@ -301,7 +301,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                             {
                                 serverCertificateValidationCallbackCalled = true;
-                                return certificate.GetCertHashString() == serverCertificate.GetCertHashString();
+                                return certificate!.GetCertHashString() == serverCertificate.GetCertHashString();
                             }
                         });
 
@@ -314,7 +314,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                             {
                                 clientCertificateValidationCallbackCalled = true;
-                                return certificate.GetCertHashString() == clientCertificate.GetCertHashString();
+                                return certificate!.GetCertHashString() == clientCertificate.GetCertHashString();
                             }
                         });
 
@@ -779,37 +779,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                 Console.Out.Write("testing certificate selection callback... ");
                 Console.Out.Flush();
-                {
-                    clientProperties = CreateProperties(defaultProperties, null, "cacert1");
-                    clientProperties["IceSSL.Password"] = "";
-
-                    bool called = false;
-                    using var comm = new Communicator(ref args, clientProperties,
-                        tlsClientOptions: new TlsClientOptions()
-                        {
-                            ClientCertificateSelectionCallback =
-                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
-                                {
-                                    called = true;
-                                    return null;
-                                }
-                        });
-                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.CreateServer(serverProperties, false);
-                    TestHelper.Assert(server != null);
-                    try
-                    {
-                        server.NoCert();
-                        TestHelper.Assert(called);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        TestHelper.Assert(false);
-                    }
-                    fact.DestroyServer(server);
-                }
                 {
 
                     var myCerts = new X509Certificate2Collection();

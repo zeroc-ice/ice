@@ -61,7 +61,7 @@ namespace ZeroC.Ice
             try
             {
                 _socket.Bind(_addr);
-                _addr = (IPEndPoint)_socket.LocalEndPoint;
+                _addr = (IPEndPoint)_socket.LocalEndPoint!;
                 _socket.Listen(endpoint.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511);
             }
             catch (SocketException ex)

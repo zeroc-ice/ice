@@ -299,16 +299,19 @@ namespace ZeroC.Ice
 
             if (appSettings != null)
             {
-                foreach (string key in appSettings.AllKeys)
+                foreach (string? key in appSettings.AllKeys)
                 {
-                    string[]? values = appSettings.GetValues(key);
-                    if (values == null)
+                    if (key != null)
                     {
-                        combinedProperties[key] = "";
-                    }
-                    else
-                    {
-                        combinedProperties[key] = StringUtil.ToPropertyValue(values);
+                        string[]? values = appSettings.GetValues(key);
+                        if (values == null)
+                        {
+                            combinedProperties[key] = "";
+                        }
+                        else
+                        {
+                            combinedProperties[key] = StringUtil.ToPropertyValue(values);
+                        }
                     }
                 }
             }
@@ -342,8 +345,9 @@ namespace ZeroC.Ice
                         string? stdErr = GetProperty("Ice.StdErr");
                         if (stdErr != null)
                         {
-                            if (stdErr.Equals(stdOut))
+                            if (stdErr == stdOut)
                             {
+                                Debug.Assert(outStream != null);
                                 Console.SetError(outStream);
                             }
                             else

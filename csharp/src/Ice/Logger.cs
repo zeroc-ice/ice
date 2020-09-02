@@ -173,11 +173,11 @@ namespace ZeroC.Ice
         private const string Time = "HH:mm:ss:fff";
 
         public override void TraceEvent(
-            TraceEventCache cache,
+            TraceEventCache? cache,
             string source,
             TraceEventType type,
             int id,
-            string message)
+            string? message)
         {
             var s = new StringBuilder(
                 type switch
@@ -195,8 +195,8 @@ namespace ZeroC.Ice
             WriteLine(s.ToString());
         }
 
-        public override void Write(string message) => Console.Error.Write(message);
+        public override void Write(string? message) => Console.Error.Write(message);
 
-        public override void WriteLine(string message) => Console.Error.WriteLine(message);
+        public override void WriteLine(string? message) => Console.Error.WriteLine(message);
     }
 }
