@@ -21,8 +21,8 @@ namespace ZeroC.Ice
             _compress = compress;
         }
 
-        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request) =>
-            prx.Invoke(request, oneway: false).ReadReturnValue(prx.Communicator, _reader);
+        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request, CancellationToken cancel) =>
+            prx.Invoke(request, oneway: false, cancel).ReadReturnValue(prx.Communicator, _reader);
 
         private protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
                                                          OutgoingRequestFrame request,
@@ -60,8 +60,8 @@ namespace ZeroC.Ice
             _idempotent = idempotent;
         }
 
-        public TReturnValue Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context));
+        public TReturnValue Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context, CancellationToken cancel) =>
+            Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context), cancel);
 
         public Task<TReturnValue> InvokeAsync(IObjectPrx prx,
                                             IReadOnlyDictionary<string, string>? context,
@@ -97,15 +97,21 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        public TReturnValue Invoke(IObjectPrx prx, TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithParamList(prx,
-                                                           _operationName,
-                                                           _idempotent,
-                                                           _compress,
-                                                           _format,
-                                                           context,
-                                                           paramList,
-                                                           _writer));
+        public TReturnValue Invoke(
+            IObjectPrx prx,
+            TParamList paramList,
+            IReadOnlyDictionary<string, string>? context,
+            CancellationToken cancel) =>
+            Invoke(prx,
+                   OutgoingRequestFrame.WithParamList(prx,
+                                                      _operationName,
+                                                      _idempotent,
+                                                      _compress,
+                                                      _format,
+                                                      context,
+                                                      paramList,
+                                                      _writer),
+                   cancel);
 
         public Task<TReturnValue> InvokeAsync(
             IObjectPrx prx,
@@ -156,7 +162,8 @@ namespace ZeroC.Ice
         public TReturnValue Invoke(
             IObjectPrx prx,
             in TParamList paramList,
-            IReadOnlyDictionary<string, string>? context) =>
+            IReadOnlyDictionary<string, string>? context,
+            CancellationToken cancel) =>
             Invoke(prx,
                    OutgoingRequestFrame.WithParamList(prx,
                                                       _operationName,
@@ -165,7 +172,8 @@ namespace ZeroC.Ice
                                                       _format,
                                                       context,
                                                       paramList,
-                                                      _writer));
+                                                      _writer),
+                   cancel);
 
         public Task<TReturnValue> InvokeAsync(
             IObjectPrx prx,
@@ -198,10 +206,10 @@ namespace ZeroC.Ice
             _compress = compress;
         }
 
-        private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
+        private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request, CancellationToken cancel)
         {
             bool isOneway = _oneway || prx.IsOneway;
-            IncomingResponseFrame response = prx.Invoke(request, isOneway);
+            IncomingResponseFrame response = prx.Invoke(request, isOneway, cancel);
             if (!isOneway)
             {
                 response.ReadVoidReturnValue(prx.Communicator);
@@ -243,8 +251,8 @@ namespace ZeroC.Ice
             _idempotent = idempotent;
         }
 
-        public void Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context));
+        public void Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context, CancellationToken cancel) =>
+            Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context), cancel);
 
         public Task InvokeAsync(IObjectPrx prx,
                                 IReadOnlyDictionary<string, string>? context,
@@ -282,7 +290,8 @@ namespace ZeroC.Ice
         public void Invoke(
             IObjectPrx prx,
             TParamList paramList,
-            IReadOnlyDictionary<string, string>? context) =>
+            IReadOnlyDictionary<string, string>? context,
+            CancellationToken cancel) =>
             Invoke(prx,
                    OutgoingRequestFrame.WithParamList(prx,
                                                       _operationName,
@@ -291,7 +300,8 @@ namespace ZeroC.Ice
                                                       _format,
                                                       context,
                                                       paramList,
-                                                      _writer));
+                                                      _writer),
+                   cancel);
 
         public Task InvokeAsync(
             IObjectPrx prx,
@@ -341,7 +351,8 @@ namespace ZeroC.Ice
         public void Invoke(
             IObjectPrx prx,
             in TParamList paramList,
-            IReadOnlyDictionary<string, string>? context) =>
+            IReadOnlyDictionary<string, string>? context,
+            CancellationToken cancel) =>
             Invoke(prx,
                    OutgoingRequestFrame.WithParamList(prx,
                                                       _operationName,
@@ -350,7 +361,8 @@ namespace ZeroC.Ice
                                                       _format,
                                                       context,
                                                       paramList,
-                                                      _writer));
+                                                      _writer),
+                   cancel);
 
         public Task InvokeAsync(
             IObjectPrx prx, in TParamList paramList,

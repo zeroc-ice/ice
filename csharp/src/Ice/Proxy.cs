@@ -209,18 +209,21 @@ namespace ZeroC.Ice
         /// different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            bool oneway = false)
+            bool oneway = false,
+            CancellationToken cancel = default)
         {
             try
             {
                 ValueTask<IncomingResponseFrame> task = InvokeWithInterceptorsAsync(proxy,
                                                                                     request,
                                                                                     oneway,
-                                                                                    synchronous: true);
+                                                                                    synchronous: true,
+                                                                                    cancel: cancel);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
