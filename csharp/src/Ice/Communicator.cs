@@ -229,96 +229,96 @@ namespace ZeroC.Ice
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
+        /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
-        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
-        /// executed with each dispatch.</param>
         public Communicator(
             IReadOnlyDictionary<string, string> properties,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
-                   null,
-                   properties,
+                   appSettings: null,
+                   dispatchInterceptors,
+                   invocationInterceptors,
                    logger,
                    observer,
+                   properties,
                    tlsClientOptions,
-                   tlsServerOptions,
-                   invocationInterceptors,
-                   dispatchInterceptors)
+                   tlsServerOptions)
         {
         }
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
         /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
+        /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
-        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
-        /// executed with each dispatch.</param>
         public Communicator(
             ref string[] args,
             IReadOnlyDictionary<string, string> properties,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref args,
-                   null,
-                   properties,
+                   appSettings: null,
+                   dispatchInterceptors,
+                   invocationInterceptors,
                    logger,
                    observer,
+                   properties,
                    tlsClientOptions,
-                   tlsServerOptions,
-                   invocationInterceptors,
-                   dispatchInterceptors)
+                   tlsServerOptions)
         {
         }
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
         /// param has precedence over the properties param.</param>
-        /// <param name="properties">The properties of the new communicator.</param>
-        /// <param name="logger">The logger used by the new communicator.</param>
-        /// <param name="observer">The communicator observer used by the Ice run-time.</param>
-        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
-        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
         /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
         /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the Ice run-time.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
+        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             NameValueCollection? appSettings = null,
-            IReadOnlyDictionary<string, string>? properties = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
+            IReadOnlyDictionary<string, string>? properties = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings,
-                   properties,
+                   dispatchInterceptors,
+                   invocationInterceptors,
                    logger,
                    observer,
+                   properties,
                    tlsClientOptions,
-                   tlsServerOptions,
-                   invocationInterceptors,
-                   dispatchInterceptors)
+                   tlsServerOptions)
         {
         }
 
@@ -326,25 +326,25 @@ namespace ZeroC.Ice
         /// <param name="args">An array of command-line arguments used to set or override Ice.* properties</param>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
         /// param has precedence over the properties param.</param>
-        /// <param name="properties">The properties of the new communicator.</param>
-        /// <param name="logger">The logger used by the new communicator.</param>
-        /// <param name="observer">The communicator observer used by the new communicator.</param>
-        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
-        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
         /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
         /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
+        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             ref string[] args,
             NameValueCollection? appSettings,
-            IReadOnlyDictionary<string, string>? properties = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
+            IReadOnlyDictionary<string, string>? properties = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
         {
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
