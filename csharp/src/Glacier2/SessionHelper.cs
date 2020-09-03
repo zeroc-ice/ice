@@ -326,10 +326,10 @@ namespace ZeroC.Glacier2
                     lock (_mutex)
                     {
                         _communicator = new Communicator(_properties,
-                                                         _logger,
-                                                         _observer,
-                                                         _tlsClientOptions,
-                                                         _tlsServerOptions);
+                                                         logger: _logger,
+                                                         observer: _observer,
+                                                         tlsClientOptions: _tlsClientOptions,
+                                                         tlsServerOptions: _tlsServerOptions);
                     }
                 }
                 catch (Exception ex)
