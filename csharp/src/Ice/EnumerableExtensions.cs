@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace ZeroC.Ice
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         private static readonly ThreadLocal<Random> _rand = new ThreadLocal<Random>(() => new Random());
 
@@ -17,7 +17,7 @@ namespace ZeroC.Ice
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
         /// <param name="source">A sequence of values to shuffle.</param>
         /// <returns>An <see cref="IEnumerable{TSouce}"/> whose elements are shuffled.</returns>
-        public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source) =>
+        internal static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source) =>
             source.OrderBy(element => _rand.Value!.Next());
     }
 }

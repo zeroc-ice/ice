@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -127,7 +128,7 @@ namespace ZeroC.Ice.Test.ACM
     public abstract class TestCase
     {
         protected readonly object Mutex = new object();
-
+        private readonly Stopwatch _stopwatch = new Stopwatch();
         public TestCase(string name, IRemoteCommunicatorPrx com, TestHelper helper)
         {
             _name = name;
@@ -146,6 +147,7 @@ namespace ZeroC.Ice.Test.ACM
 
             Heartbeat = 0;
             Closed = false;
+            _stopwatch.Start();
         }
 
         public void Init()
@@ -233,11 +235,11 @@ namespace ZeroC.Ice.Test.ACM
         {
             lock (Mutex)
             {
-                TimeSpan now = Time.Elapsed;
+                TimeSpan now = _stopwatch.Elapsed;
                 while (!Closed)
                 {
                     Monitor.Wait(Mutex, TimeSpan.FromSeconds(30));
-                    if (Time.Elapsed - now > TimeSpan.FromSeconds(30))
+                    if (_stopwatch.Elapsed - now > TimeSpan.FromSeconds(30))
                     {
                         TestHelper.Assert(false); // Waited for more than 30s for close, something's wrong.
                         throw new Exception();
