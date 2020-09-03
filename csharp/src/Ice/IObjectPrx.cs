@@ -214,9 +214,21 @@ namespace ZeroC.Ice
 
         public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
+        /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
+        /// <param name="s">The proxy string representation.</param>
+        /// <param name="communicator">The communicator for the new proxy</param>
+        /// <returns>The new proxy</returns>
+        /// <exception cref="FormatException"><c>s</c> does not contain a valid string representation of a proxy.
+        /// </exception>
         public static IObjectPrx Parse(string s, Communicator communicator) =>
             new ObjectPrx(Reference.Parse(s, communicator));
 
+        /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
+        /// <param name="s">The proxy string representation.</param>
+        /// <param name="communicator">The communicator for the new proxy</param>
+        /// <param name="prx">When this method returns it contains the new proxy, if the conversion succeeded or null
+        /// if the conversion failed.</param>
+        /// <returns><c>true</c> if the s parameter was converted successfully; otherwise, <c>false</c>.</returns>
         public static bool TryParse(string s, Communicator communicator, out IObjectPrx? prx)
         {
             try

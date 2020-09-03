@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 namespace ZeroC.Ice.Instrumentation
 {
+    /// <summary>The child invocation observer to instrument remote or collocated invocations.
+    /// </summary>
     public interface IChildInvocationObserver : IObserver
     {
         /// <summary>Reply notification.</summary>
@@ -13,10 +15,15 @@ namespace ZeroC.Ice.Instrumentation
         void Reply(int size);
     }
 
+    /// <summary>The collocated observer to instrument invocations that are collocated.</summary>
     public partial interface ICollocatedObserver : IChildInvocationObserver
     {
     }
 
+    /// <summary>The communicator observer interface used by the Ice run-time to obtain and update observers for its
+    /// observable objects. This interface should be implemented by plug-ins that wish to observe Ice objects in order
+    /// to collect statistics. An instance of this interface can be provided to the Ice run-time through the Ice
+    /// communicator constructor.</summary>
     public interface ICommunicatorObserver
     {
         /// <summary>This method should return an observer for the given endpoint information and connector.
@@ -73,6 +80,7 @@ namespace ZeroC.Ice.Instrumentation
         void SetObserverUpdater(IObserverUpdater? updater);
     }
 
+    /// <summary>The connection observer interface to instrument Ice connections.</summary>
     public interface IConnectionObserver : IObserver
     {
         /// <summary>Notification of received bytes over the connection.</summary>
@@ -84,6 +92,7 @@ namespace ZeroC.Ice.Instrumentation
         void SentBytes(int num);
     }
 
+    /// <summary>The dispatch observer to instrument servant dispatch.</summary>
     public interface IDispatchObserver : IObserver
     {
         /// <summary>Remote exception notification.</summary>
@@ -94,6 +103,9 @@ namespace ZeroC.Ice.Instrumentation
         void Reply(int size);
     }
 
+    /// <summary>The invocation observer to instrument invocations on proxies. A proxy invocation can either result in
+    /// a collocated or remote invocation. If it results in a remote invocation, a sub-observer is requested for the
+    /// remote invocation.</summary>
     public interface IInvocationObserver : IObserver
     {
         /// <summary>Get a collocated observer for this invocation.</summary>
@@ -117,6 +129,8 @@ namespace ZeroC.Ice.Instrumentation
         void Retried();
     }
 
+    /// <summary>The object observer interface used by instrumented objects to notify the observer of their existence.
+    /// </summary>
     public interface IObserver
     {
         /// <summary>This method is called when the instrumented object is created or when the observer is attached to
@@ -132,6 +146,12 @@ namespace ZeroC.Ice.Instrumentation
         void Failed(string exceptionName);
     }
 
+    /// <summary>The observer updater interface. This interface is implemented by the Ice run-time and an instance of
+    /// this interface is provided by the Ice communicator on initialization to the CommunicatorObserver object set
+    /// with the communicator constructor.
+    /// The Ice communicator calls CommunicatorObserver.SetObserverUpdater(ZeroC.Ice.Instrumentation.ObserverUpdater)
+    /// to provide the observer updater. This interface can be used by add-ins implementing the CommunicatorObserver
+    /// interface to update the connection observers.</summary>
     public interface IObserverUpdater
     {
         /// <summary>Update the connection observers associated with each Ice connection from the communicator and its
@@ -141,6 +161,7 @@ namespace ZeroC.Ice.Instrumentation
         void UpdateConnectionObservers();
     }
 
+    /// <summary>The remote observer to instrument invocations that are sent over the wire.</summary>
     public interface IRemoteObserver : IChildInvocationObserver
     {
     }
