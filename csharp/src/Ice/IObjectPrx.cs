@@ -61,9 +61,13 @@ namespace ZeroC.Ice
         /// <summary>Tests whether the target object implements a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>True if the target object implements the Slice interface identified by id</returns>.
-        public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null) =>
-            IceI_IsARequest.Invoke(this, id, context);
+        public bool IceIsA(
+            string id,
+            IReadOnlyDictionary<string, string>? context = null,
+            CancellationToken cancel = default) =>
+            IceI_IsARequest.Invoke(this, id, context, cancel);
 
         /// <summary>Tests whether this object supports a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
@@ -79,8 +83,9 @@ namespace ZeroC.Ice
 
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
-        public void IcePing(IReadOnlyDictionary<string, string>? context = null) =>
-            IceI_PingRequest.Invoke(this, context);
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public void IcePing(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
+            IceI_PingRequest.Invoke(this, context, cancel);
 
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
@@ -94,10 +99,11 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
-        public string[] IceIds(IReadOnlyDictionary<string, string>? context = null) =>
-            IceI_IdsRequest.Invoke(this, context);
+        public string[] IceIds(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
+            IceI_IdsRequest.Invoke(this, context, cancel);
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
@@ -112,9 +118,11 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
         /// proxy.</summary>
+        /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(IReadOnlyDictionary<string, string>? context = null) =>
-            IceI_IdRequest.Invoke(this, context);
+        public string IceId(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
+            IceI_IdRequest.Invoke(this, context, cancel);
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
         /// proxy.</summary>

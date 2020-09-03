@@ -423,6 +423,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
     }
     params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " +
                      getEscapedParamName(op, "context") + " = null");
+    params.push_back("global::System.Threading.CancellationToken " + getEscapedParamName(op, "cancel") + " = default");
     return params;
 }
 
@@ -448,10 +449,10 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 
     if(defaultValues)
     {
-        params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " + context + " = null");
+        params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " + context +
+                         " = null");
         params.push_back("global::System.IProgress<bool>? " + progress + " = null");
-        params.push_back("global::System.Threading.CancellationToken " + cancel +
-                         " = default");
+        params.push_back("global::System.Threading.CancellationToken " + cancel + " = default");
     }
     else
     {
@@ -936,9 +937,9 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
         {
             _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
                  << "\">Sent progress provider.</param>";
-            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-                 << "\">A cancellation token that receives the cancellation requests.</param>";
         }
+        _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
+             << "\">A cancellation token that receives the cancellation requests.</param>";
     }
 
     if(dispatch && p->hasMarshaledResult())
@@ -2536,7 +2537,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << toTuple(params) << ", ";
         }
-        _out << context << ");";
+        _out << context << ", " << cancel << ");";
         _out.dec();
     }
 
