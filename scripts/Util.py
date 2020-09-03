@@ -210,7 +210,7 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultNetCoreFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
+            self.defaultNetCoreFramework = "net5"
         except:
             self.nugetPackageCache = None
 
@@ -281,7 +281,7 @@ class Platform(object):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netcoreapp3.1")
+            return os.path.join(installDir, "lib", "net5")
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
@@ -736,10 +736,11 @@ class Mapping(object):
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
                 if self.transport:
-                    useTestTransport = isinstance(process.getMapping(current), CSharpMapping) \
-                                      and not process.isFromBinDir()
-                    transportProperty = "Test.Transport" if useTestTransport else "Ice.Default.Transport"
-                    props[transportProperty] = self.transport
+                    if isinstance(process.getMapping(current), CSharpMapping):
+                        if not process.isFromBinDir():
+                            props["Test.Transport"] = self.transport
+                    else:
+                        props["Ice.Default.Transport"] = self.transport
                 if self.protocol:
                     if isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir():
                         props["Test.Protocol"] = self.protocol
@@ -3029,10 +3030,12 @@ class Driver:
 
         if isinstance(process, IceProcess):
             # TODO: remove Ice.Default.Host and only use Test.Host
-            useTestHost = isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir()
-            hostProperty = "Test.Host" if useTestHost else "Ice.Default.Host"
-            props[hostProperty] = self.host or "::1" if current.config.ipv6 else "127.0.0.1"
-
+            testHost = self.host or "::1" if current.config.ipv6 else "127.0.0.1"
+            if isinstance(process.getMapping(current), CSharpMapping):
+                if not process.isFromBinDir():
+                    props["Test.Host"] = testHost
+            else:
+                props["Ice.Default.Host"] = testHost
         return props
 
     def getMappings(self):
@@ -3379,7 +3382,7 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            self.libTargetFramework = "netcoreapp3.1"
+            self.libTargetFramework = "net5"
             self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
 
@@ -3497,7 +3500,7 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = current.config.testTargetFramework in ["netcoreapp2.1"] or process.isFromBinDir()
+        useDotnetExe = process.isFromBinDir()
 
         command = ""
         if useDotnetExe:

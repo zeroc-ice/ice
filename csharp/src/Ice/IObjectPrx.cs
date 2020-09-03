@@ -145,9 +145,6 @@ namespace ZeroC.Ice
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
 
-        /// <summary>The invocation timeout of this proxy.</summary>
-        public TimeSpan InvocationTimeout => IceReference.InvocationTimeout;
-
         /// <summary>Indicates whether or not this proxy caches its connection.</summary>
         /// <value>True when the proxy caches its connection; otherwise, false.</value>
         public bool IsConnectionCached => IceReference.IsConnectionCached;

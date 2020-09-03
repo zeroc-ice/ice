@@ -179,7 +179,6 @@ namespace ZeroC.Ice
             "ConnectionCached",
             "PreferNonSecure",
             "LocatorCacheTimeout",
-            "InvocationTimeout",
             "Locator",
             "Router",
             "Context\\..*"
@@ -356,16 +355,19 @@ namespace ZeroC.Ice
 
             if (appSettings != null)
             {
-                foreach (string key in appSettings.AllKeys)
+                foreach (string? key in appSettings.AllKeys)
                 {
-                    string[]? values = appSettings.GetValues(key);
-                    if (values == null)
+                    if (key != null)
                     {
-                        combinedProperties[key] = "";
-                    }
-                    else
-                    {
-                        combinedProperties[key] = StringUtil.ToPropertyValue(values);
+                        string[]? values = appSettings.GetValues(key);
+                        if (values == null)
+                        {
+                            combinedProperties[key] = "";
+                        }
+                        else
+                        {
+                            combinedProperties[key] = StringUtil.ToPropertyValue(values);
+                        }
                     }
                 }
             }
@@ -399,8 +401,9 @@ namespace ZeroC.Ice
                         string? stdErr = GetProperty("Ice.StdErr");
                         if (stdErr != null)
                         {
-                            if (stdErr.Equals(stdOut))
+                            if (stdErr == stdOut)
                             {
+                                Debug.Assert(outStream != null);
                                 Console.SetError(outStream);
                             }
                             else
@@ -459,14 +462,6 @@ namespace ZeroC.Ice
                         throw new InvalidConfigurationException(
                             $"invalid IP address set for Ice.Default.SourceAddress: `{address}'", ex);
                     }
-                }
-
-                DefaultInvocationTimeout =
-                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? Timeout.InfiniteTimeSpan;
-
-                if (DefaultInvocationTimeout == TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
                 // For locator cache timeout, 0 means disable locator cache.

@@ -115,13 +115,14 @@ namespace ZeroC.Ice
 
         public override Connection CreateConnection(
              IConnectionManager manager,
-             ITransceiver? transceiver,
+             ITransceiver transceiver,
              IConnector? connector,
              string connectionId,
              ObjectAdapter? adapter) =>
              new TcpConnection(manager,
                                this,
-                               Protocol == Protocol.Ice1 ? (IBinaryConnection)
+                               transceiver,
+                               Protocol == Protocol.Ice1 ? (BinaryConnection)
                                  new Ice1BinaryConnection(transceiver!, this, adapter) :
                                  new SlicBinaryConnection(transceiver!, this, adapter),
                                connector,

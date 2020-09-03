@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ZeroC.Ice.Instrumentation;
+
 namespace ZeroC.Ice
 {
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
@@ -850,9 +852,9 @@ namespace ZeroC.Ice
 
                     if (endpoints == null || endpoints.Count == 0)
                     {
-                        if (Communicator.TraceLevels.Network >= 2)
+                        if (Communicator.TraceLevels.Transport >= 2)
                         {
-                            Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory,
+                            Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
                                                       $"created adapter `{Name}' without endpoints");
                         }
                     }
@@ -876,35 +878,102 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
+            IncomingRequestFrame request,
+            long streamId,
+            Current current)
         {
-            Debug.Assert(current.Adapter == this);
-            IObject? servant = Find(current.Identity, current.Facet);
-            if (servant == null)
+            IDispatchObserver? dispatchObserver = null;
+            if (Communicator.Observer != null)
             {
-                throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+                dispatchObserver = Communicator.Observer.GetDispatchObserver(current, streamId, request.Size);
+                dispatchObserver?.Attach();
             }
 
-            return DispatchAsync(request, current, servant, 0);
-
-            ValueTask<OutgoingResponseFrame> DispatchAsync(
-                IncomingRequestFrame request,
-                Current current,
-                IObject servant,
-                int i)
+            try
             {
-                if (i < Interceptors.Count)
+                Debug.Assert(current.Adapter == this);
+                IObject? servant = Find(current.Identity, current.Facet);
+                if (servant == null)
                 {
-                    DispatchInterceptor interceptor = Interceptors[i++];
+                    throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+                }
 
-                    return interceptor(request,
-                                       current,
-                                       (request, current) => DispatchAsync(request, current, servant, i));
+                ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
+                {
+                    if (i < Interceptors.Count)
+                    {
+                        DispatchInterceptor interceptor = Interceptors[i++];
+                        return interceptor(request, current, (request, current) => DispatchAsync(i));
+                    }
+                    else
+                    {
+                        return servant.DispatchAsync(request, current);
+                    }
+                }
+
+                OutgoingResponseFrame response = await DispatchAsync(0).ConfigureAwait(false);
+                if (!current.IsOneway)
+                {
+                    response.Finish();
+                    dispatchObserver?.Reply(response.Size);
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                if (!current.IsOneway)
+                {
+                    RemoteException actualEx;
+                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                    {
+                        actualEx = remoteEx;
+                        dispatchObserver?.RemoteException();
+                    }
+                    else
+                    {
+                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
+                        dispatchObserver?.Failed(actualEx.InnerException!.GetType().FullName ?? "System.Exception");
+                        if (Communicator.WarnDispatch)
+                        {
+                            Warning(ex);
+                        }
+                    }
+
+                    var response = new OutgoingResponseFrame(request, actualEx);
+                    response.Finish();
+                    dispatchObserver?.Reply(response.Size);
+                    return response;
                 }
                 else
                 {
-                    return servant.DispatchAsync(request, current);
+                    if (Communicator.WarnDispatch)
+                    {
+                        Warning(ex);
+                    }
+                    dispatchObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    return OutgoingResponseFrame.WithVoidReturnValue(current);
                 }
+            }
+            finally
+            {
+                dispatchObserver?.Detach();
+            }
+
+            void Warning(Exception ex)
+            {
+                var output = new StringBuilder();
+                output.Append("dispatch exception:");
+                output.Append("\nidentity: ").Append(current.Identity.ToString(Communicator.ToStringMode));
+                output.Append("\nfacet: ").Append(StringUtil.EscapeString(current.Facet, Communicator.ToStringMode));
+                output.Append("\noperation: ").Append(current.Operation);
+                if ((current.Connection as IPConnection)?.RemoteEndpoint is System.Net.IPEndPoint remoteEndpoint)
+                {
+                    output.Append("\nremote address: ").Append(remoteEndpoint);
+                }
+                output.Append('\n');
+                output.Append(ex.ToString());
+                Communicator.Logger.Warning(output.ToString());
             }
         }
 
@@ -1046,7 +1115,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (Communicator.TraceLevels.Network >= 1 && endpoints.Count > 0)
+            if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
             {
                 var sb = new StringBuilder("published endpoints for object adapter `");
 
@@ -1073,7 +1142,7 @@ namespace ZeroC.Ice
                         }
                     }
                 }
-                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, sb.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory, sb.ToString());
             }
 
             return endpoints;

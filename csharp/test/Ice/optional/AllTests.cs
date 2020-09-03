@@ -184,12 +184,12 @@ namespace ZeroC.Ice.Test.Optional
             TestHelper.Assert(myStruct != myStructResult); // the proxies and arrays can't be identical
             TestHelper.Assert(myStructResult.Proxy!.Equals(myStruct.Proxy) &&
                 myStructResult.X == myStruct.X &&
-                myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq));
+                myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq!));
 
             myStructResult = test.OpOptMyStruct(myStruct)!.Value;
             TestHelper.Assert(myStructResult.Proxy!.Equals(myStruct.Proxy) &&
                 myStructResult.X == myStruct.X &&
-                myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq));
+                myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq!));
 
             TestHelper.Assert(test.OpOptMyStruct(null) == null);
             output.WriteLine("ok");
@@ -199,7 +199,7 @@ namespace ZeroC.Ice.Test.Optional
             Derived derivedResult = test.OpDerived(derived);
             TestHelper.Assert(derivedResult.Proxy!.Equals(derived.Proxy) &&
                 derivedResult.X == derived.X &&
-                derivedResult.StringSeq!.SequenceEqual(derived.StringSeq) &&
+                derivedResult.StringSeq!.SequenceEqual(derived.StringSeq!) &&
                 derivedResult.SomeClass == null &&
                 derivedResult.S == derived.S);
 

@@ -47,8 +47,8 @@ namespace ZeroC.Ice
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="identity">The identity of the clone.</param>
+        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
-        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
@@ -72,8 +72,8 @@ namespace ZeroC.Ice
             string? facet = null,
             Connection? fixedConnection = null,
             Identity? identity = null,
+            string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
-            TimeSpan? invocationTimeout = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
@@ -91,8 +91,8 @@ namespace ZeroC.Ice
                                            facet,
                                            fixedConnection,
                                            identity,
+                                           identityAndFacet,
                                            invocationMode,
-                                           invocationTimeout,
                                            locator,
                                            locatorCacheTimeout,
                                            oneway,
@@ -117,7 +117,6 @@ namespace ZeroC.Ice
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
-        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
@@ -139,7 +138,6 @@ namespace ZeroC.Ice
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
-            TimeSpan? invocationTimeout = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
@@ -158,8 +156,8 @@ namespace ZeroC.Ice
                                                      facet: null,
                                                      fixedConnection,
                                                      identity: null,
+                                                     identityAndFacet: null,
                                                      invocationMode,
-                                                     invocationTimeout,
                                                      locator,
                                                      locatorCacheTimeout,
                                                      oneway,
@@ -356,20 +354,6 @@ namespace ZeroC.Ice
                                                                                      request.Operation,
                                                                                      request.Context);
                 int retryCount = 0;
-                CancellationTokenSource? invocationTimeout = null;
-                if (reference.InvocationTimeout != Timeout.InfiniteTimeSpan)
-                {
-                    invocationTimeout = new CancellationTokenSource(reference.InvocationTimeout);
-                    if (cancel.CanBeCanceled)
-                    {
-                        cancel = CancellationTokenSource.CreateLinkedTokenSource(cancel, invocationTimeout.Token).Token;
-                    }
-                    else
-                    {
-                        cancel = invocationTimeout.Token;
-                    }
-                }
-
                 try
                 {
                     while (true)
@@ -443,22 +427,6 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    // Check the reason of the cancellation
-                    if (ex is OperationCanceledException)
-                    {
-                        if (invocationTimeout?.IsCancellationRequested ?? false)
-                        {
-                            ex = new TimeoutException();
-                            observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                            throw ex;
-                        }
-                        else if (proxy.Communicator.CancellationToken.IsCancellationRequested)
-                        {
-                            ex = new CommunicatorDisposedException();
-                            observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                            throw ex;
-                        }
-                    }
                     observer?.Failed(ex.GetType().FullName ?? "System.Exception");
                     throw;
                 }

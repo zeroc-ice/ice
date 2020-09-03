@@ -139,9 +139,8 @@ namespace ZeroC.Ice
             }
         }
 
-        protected IBinaryConnection BinaryConnection { get; }
+        private protected BinaryConnection BinaryConnection { get; }
 
-        private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
         private EventHandler? _closed;
         private Task? _closeTask;
@@ -155,12 +154,10 @@ namespace ZeroC.Ice
         private readonly IConnectionManager _manager;
         private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
-        private IConnectionObserver? _observer;
         private Task _receiveTask = Task.CompletedTask;
         private readonly Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
             new Dictionary<long, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private ConnectionState _state; // The current state.
-        private bool _validated;
 
         /// <summary>Manually closes the connection using the specified closure mode.</summary>
         /// <param name="mode">Determines how the connection will be closed.</param>
@@ -276,7 +273,7 @@ namespace ZeroC.Ice
         internal Connection(
             IConnectionManager manager,
             Endpoint endpoint,
-            IBinaryConnection connection,
+            BinaryConnection connection,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
@@ -406,7 +403,7 @@ namespace ZeroC.Ice
                 // monitor() method is still only called every (timeout / 2) period.
                 if (_state == ConnectionState.Active &&
                     (acm.Heartbeat == AcmHeartbeat.Always ||
-                    (acm.Heartbeat != AcmHeartbeat.Off && now >= (_acmLastActivity + (acm.Timeout / 4)))))
+                    (acm.Heartbeat != AcmHeartbeat.Off && now >= (BinaryConnection.LastActivity + (acm.Timeout / 4)))))
                 {
                     if (acm.Heartbeat != AcmHeartbeat.OnDispatch || _dispatchCount > 0)
                     {
@@ -418,7 +415,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                if (acm.Close != AcmClose.Off && now >= _acmLastActivity + acm.Timeout)
+                if (acm.Close != AcmClose.Off && now >= BinaryConnection.LastActivity + acm.Timeout)
                 {
                     if (acm.Close == AcmClose.OnIdleForceful || (acm.Close != AcmClose.OnIdle && (_requests.Count > 0)))
                     {
@@ -549,7 +546,7 @@ namespace ZeroC.Ice
             CancellationTokenSource? source = null;
             try
             {
-                CancellationToken cancel;
+                CancellationToken cancel = default;
                 TimeSpan timeout = _communicator.ConnectTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
@@ -558,7 +555,7 @@ namespace ZeroC.Ice
                 }
 
                 // Initialize the transport
-                await BinaryConnection.InitializeAsync(OnHeartbeat, OnSent, OnReceived, cancel).ConfigureAwait(false);
+                await BinaryConnection.InitializeAsync(OnHeartbeat, cancel).ConfigureAwait(false);
 
                 lock (_mutex)
                 {
@@ -596,8 +593,8 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                _observer = _communicator.Observer?.GetConnectionObserver(this, _state, _observer);
-                _observer?.Attach();
+                BinaryConnection.Observer
+                    = _communicator.Observer?.GetConnectionObserver(this, _state, BinaryConnection.Observer);
             }
         }
 
@@ -627,28 +624,6 @@ namespace ZeroC.Ice
                 catch (Exception ex)
                 {
                     _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{BinaryConnection}");
-                }
-
-                if (_state > ConnectionState.Validating && _communicator.TraceLevels.Network >= 1)
-                {
-                    var s = new StringBuilder();
-                    s.Append("closed ");
-                    s.Append(Endpoint.TransportName);
-                    s.Append(" connection\n");
-                    s.Append(ToString());
-
-                    //
-                    // Trace the cause of unexpected connection closures
-                    //
-                    if (!(_exception is ConnectionClosedException ||
-                          _exception is ConnectionIdleException ||
-                          _exception is ObjectDisposedException))
-                    {
-                        s.Append('\n');
-                        s.Append(_exception);
-                    }
-
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
                 }
 
                 // Yield to ensure the code below is executed from a separate thread pool thread. PerformCloseAsync
@@ -681,54 +656,16 @@ namespace ZeroC.Ice
 
                 // Remove the connection from the factory, must be called without the connection mutex locked
                 _manager.Remove(this);
-
-                _observer?.Detach();
             }
         }
 
-        private async ValueTask InvokeAsync(IncomingRequestFrame request, Current current, long streamId)
+        private async ValueTask DispatchAsync(IncomingRequestFrame request, long streamId, Current current)
         {
-            // Notify and set dispatch observer, if any.
-            IDispatchObserver? dispatchObserver = null;
-            ICommunicatorObserver? communicatorObserver = _communicator.Observer;
-            if (communicatorObserver != null)
-            {
-                dispatchObserver = communicatorObserver.GetDispatchObserver(current, streamId, request.Size);
-                dispatchObserver?.Attach();
-            }
+            OutgoingResponseFrame response =
+                await current.Adapter.DispatchAsync(request, streamId, current).ConfigureAwait(false);
 
-            OutgoingResponseFrame? response = null;
-            try
+            if (!current.IsOneway)
             {
-                ValueTask<OutgoingResponseFrame> vt = current.Adapter.DispatchAsync(request, current);
-                if (!current.IsOneway)
-                {
-                    response = await vt.ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (!current.IsOneway)
-                {
-                    RemoteException actualEx;
-                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
-                    {
-                        actualEx = remoteEx;
-                    }
-                    else
-                    {
-                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
-                    }
-                    Incoming.ReportException(actualEx, dispatchObserver, current);
-                    response = new OutgoingResponseFrame(request, actualEx);
-                }
-            }
-
-            if (response != null)
-            {
-                response.Finish();
-                dispatchObserver?.Reply(response.Size);
-
                 try
                 {
                     await BinaryConnection.SendAsync(streamId, response, fin: true, cancel: current.CancellationToken);
@@ -759,8 +696,26 @@ namespace ZeroC.Ice
                     _dispatchTaskCompletionSource.SetResult(true);
                 }
             }
+        }
 
-            dispatchObserver?.Detach();
+        private void OnHeartbeat()
+        {
+            // Capture the event handler which can be modified anytime by the user code.
+            EventHandler? callback = HeartbeatReceived;
+            if (callback != null)
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        callback.Invoke(this, EventArgs.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                    }
+                });
+            }
         }
 
         private async ValueTask ReceiveAndDispatchFrameAsync()
@@ -811,7 +766,7 @@ namespace ZeroC.Ice
                                 // If the stream isn't terminated, we create a cancellation token source to be able
                                 // to cancel the dispatch if the client sends a stream reset (which can occur if the
                                 // invocation times out or is canceled for example).
-                                CancellationToken cancellationToken;
+                                CancellationToken cancellationToken = default;
                                 if (!fin)
                                 {
                                     var source = new CancellationTokenSource();
@@ -824,7 +779,7 @@ namespace ZeroC.Ice
                                                           oneway: fin,
                                                           cancel: cancellationToken,
                                                           this);
-                                incoming = () => InvokeAsync(requestFrame, current, streamId);
+                                incoming = () => DispatchAsync(requestFrame, streamId, current);
                                 ++_dispatchCount;
                             }
                         }
@@ -928,7 +883,7 @@ namespace ZeroC.Ice
                 _exception = exception;
 
                 // We don't warn if we are not validated.
-                if (_communicator.WarnConnections && _validated)
+                if (_state > ConnectionState.Validating && _communicator.WarnConnections)
                 {
                     // Don't warn about certain expected exceptions.
                     if (!(_exception is ConnectionClosedException ||
@@ -977,7 +932,6 @@ namespace ZeroC.Ice
             // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (state == ConnectionState.Active)
             {
-                _acmLastActivity = Time.Elapsed;
                 _monitor.Add(this);
             }
             else if (_state == ConnectionState.Active)
@@ -990,85 +944,30 @@ namespace ZeroC.Ice
             {
                 if (_state != state)
                 {
-                    _observer = _communicator.Observer!.GetConnectionObserver(this, state, _observer);
-                    if (_observer != null)
-                    {
-                        _observer.Attach();
-                    }
+                    BinaryConnection.Observer =
+                        _communicator.Observer.GetConnectionObserver(this, state, BinaryConnection.Observer);
                 }
-                if (_observer != null && state == ConnectionState.Closed && _exception != null)
+                if (BinaryConnection.Observer != null && state == ConnectionState.Closed)
                 {
+                    Debug.Assert(_exception != null);
                     if (!(_exception is ConnectionClosedException ||
                           _exception is ConnectionIdleException ||
                           _exception is ObjectDisposedException ||
                          (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
-                        _observer.Failed(_exception.GetType().FullName!);
+                        BinaryConnection.Observer.Failed(_exception.GetType().FullName!);
                     }
                 }
             }
             _state = state;
-        }
-
-        private void OnHeartbeat()
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    HeartbeatReceived?.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                }
-            });
-        }
-
-        private void OnReceived(int length)
-        {
-            lock (_mutex)
-            {
-                _acmLastActivity = Time.Elapsed;
-
-                _validated = true;
-
-                if (_communicator.TraceLevels.Network >= 3 && length > 0)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"received {length} bytes via {Endpoint.TransportName}\n{this}");
-                }
-
-                if (_observer != null && length > 0)
-                {
-                    _observer.ReceivedBytes(length);
-                }
-            }
-        }
-
-        private void OnSent(int length)
-        {
-            lock (_mutex)
-            {
-                _acmLastActivity = Time.Elapsed;
-
-                if (_communicator.TraceLevels.Network >= 3 && length > 0)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"sent {length} bytes via {Endpoint.TransportName}\n{this}");
-                }
-
-                if (_observer != null && length > 0)
-                {
-                    _observer.SentBytes(length);
-                }
-            }
         }
     }
 
     /// <summary>Represents a connection to an IP-endpoint.</summary>
     public abstract class IPConnection : Connection
     {
+        private protected readonly ITransceiver _transceiver;
+
         /// <summary>The socket local IP-endpoint or null if it is not available.</summary>
         public System.Net.IPEndPoint? LocalEndpoint
         {
@@ -1076,7 +975,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return BinaryConnection.Transceiver.Socket?.LocalEndPoint as System.Net.IPEndPoint;
+                    return _transceiver.Socket?.LocalEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -1092,7 +991,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return BinaryConnection.Transceiver.Socket?.RemoteEndPoint as System.Net.IPEndPoint;
+                    return _transceiver.Socket?.RemoteEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -1104,13 +1003,12 @@ namespace ZeroC.Ice
         protected IPConnection(
             IConnectionManager manager,
             Endpoint endpoint,
-            IBinaryConnection connection,
+            ITransceiver transceiver,
+            BinaryConnection connection,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, connection, connector, connectionId, adapter)
-        {
-        }
+            : base(manager, endpoint, connection, connector, connectionId, adapter) => _transceiver = transceiver;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -1144,17 +1042,18 @@ namespace ZeroC.Ice
         /// null if the connection is not secure.</summary>
         public SslProtocols? SslProtocol => SslStream?.SslProtocol;
 
-        private SslStream? SslStream => (BinaryConnection.Transceiver as SslTransceiver)?.SslStream ??
-            (BinaryConnection.Transceiver as WSTransceiver)?.SslStream;
+        private SslStream? SslStream =>
+            (_transceiver as SslTransceiver)?.SslStream ?? (_transceiver as WSTransceiver)?.SslStream;
 
         protected internal TcpConnection(
             IConnectionManager manager,
             Endpoint endpoint,
-            IBinaryConnection connection,
+            ITransceiver transceiver,
+            BinaryConnection connection,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, connection, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connection, connector, connectionId, adapter)
         {
         }
     }
@@ -1163,17 +1062,17 @@ namespace ZeroC.Ice
     public class UdpConnection : IPConnection
     {
         /// <summary>The multicast IP-endpoint for a multicast connection otherwise null.</summary>
-        public System.Net.IPEndPoint? MulticastEndpoint =>
-            (BinaryConnection.Transceiver as UdpTransceiver)?.MulticastAddress;
+        public System.Net.IPEndPoint? MulticastEndpoint => (_transceiver as UdpTransceiver)?.MulticastAddress;
 
         protected internal UdpConnection(
             IConnectionManager manager,
             Endpoint endpoint,
-            IBinaryConnection connection,
+            ITransceiver transceiver,
+            BinaryConnection connection,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, connection, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connection, connector, connectionId, adapter)
         {
         }
     }
@@ -1182,16 +1081,17 @@ namespace ZeroC.Ice
     public class WSConnection : TcpConnection
     {
         /// <summary>The HTTP headers in the WebSocket upgrade request.</summary>
-        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)BinaryConnection.Transceiver).Headers;
+        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)_transceiver).Headers;
 
         protected internal WSConnection(
             IConnectionManager manager,
             Endpoint endpoint,
-            IBinaryConnection connection,
+            ITransceiver transceiver,
+            BinaryConnection connection,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, connection, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connection, connector, connectionId, adapter)
         {
         }
     }

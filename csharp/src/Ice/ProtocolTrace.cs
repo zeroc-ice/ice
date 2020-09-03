@@ -13,7 +13,6 @@ namespace ZeroC.Ice
         internal static void TraceFrame(
             Communicator communicator,
             long streamId,
-            int frameSize,
             object frame,
             byte compress = 0)
         {
@@ -23,6 +22,7 @@ namespace ZeroC.Ice
                 string frameType;
                 Protocol protocol;
                 Encoding encoding;
+                int frameSize;
 
                 if (frame is OutgoingFrame outgoingFrame)
                 {
@@ -30,6 +30,7 @@ namespace ZeroC.Ice
                     protocol = outgoingFrame.Protocol;
                     encoding = outgoingFrame.Encoding;
                     frameType = frame is OutgoingRequestFrame ? "request" : "response";
+                    frameSize = outgoingFrame.Size;
                 }
                 else if (frame is IncomingFrame incomingFrame)
                 {
@@ -37,6 +38,7 @@ namespace ZeroC.Ice
                     protocol = incomingFrame.Protocol;
                     encoding = incomingFrame.Encoding;
                     frameType = frame is IncomingRequestFrame ? "request" : "response";
+                    frameSize = incomingFrame.Size;
                 }
                 else
                 {
@@ -59,7 +61,7 @@ namespace ZeroC.Ice
 
                 if (protocol == Protocol.Ice2)
                 {
-                    s.Append("\nstream id = ");
+                    s.Append("\nstream ID = ");
                     s.Append(streamId);
                 }
                 else
@@ -74,7 +76,7 @@ namespace ZeroC.Ice
                         _ => " (unknown)"
                     });
 
-                    s.Append("\nrequest id = ");
+                    s.Append("\nrequest ID = ");
                     s.Append((int)streamId);
                     if (streamId == 0)
                     {
@@ -125,14 +127,8 @@ namespace ZeroC.Ice
                     s.Append("\noperation = ");
                     s.Append(operation);
 
-                    OperationMode mode = isIdempotent ? OperationMode.Idempotent : OperationMode.Normal;
-                    s.Append("\noperation mode = ");
-                    s.Append((byte)mode);
-                    s.Append(mode switch
-                    {
-                        OperationMode.Normal => " (non-idempotent)",
-                        _ => " (idempotent)",
-                    });
+                    s.Append($"\nidempotent = ");
+                    s.Append(isIdempotent.ToString().ToLower());
 
                     int sz = context.Count;
                     s.Append("\ncontext = ");

@@ -145,8 +145,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return addresses.Select(address => Clone(Network.EndpointAddressToString(address),
-                                                         Network.EndpointPort(address)));
+                return addresses.Select(address => Clone(address.Address.ToString(), (ushort)address.Port));
             }
         }
 
@@ -231,6 +230,10 @@ namespace ZeroC.Ice
                     SourceAddress = IPAddress.Parse(value);
                     options.Remove("source-address");
                 }
+                else
+                {
+                    SourceAddress = Communicator.DefaultSourceAddress;
+                }
             }
         }
 
@@ -252,6 +255,7 @@ namespace ZeroC.Ice
             {
                 Port = istr.ReadUShort();
             }
+            SourceAddress = communicator.DefaultSourceAddress;
         }
 
         // Constructor for ice1 endpoint parsing.
@@ -320,6 +324,10 @@ namespace ZeroC.Ice
                         $"invalid IP address provided for --sourceAddress option in endpoint `{endpointString}'", ex);
                 }
                 options.Remove("--sourceAddress");
+            }
+            else if (!oaEndpoint)
+            {
+                SourceAddress = Communicator.DefaultSourceAddress;
             }
             // else SourceAddress remains null
         }

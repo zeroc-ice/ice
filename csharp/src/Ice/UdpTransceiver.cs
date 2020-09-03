@@ -58,7 +58,7 @@ namespace ZeroC.Ice
                     }
 
                     Socket.Bind(_addr);
-                    _addr = (IPEndPoint)Socket.LocalEndPoint;
+                    _addr = (IPEndPoint)Socket.LocalEndPoint!;
 
                     if (endpoint.Port == 0)
                     {
@@ -71,7 +71,7 @@ namespace ZeroC.Ice
                 else
                 {
                     Socket.Bind(_addr);
-                    _addr = (IPEndPoint)Socket.LocalEndPoint;
+                    _addr = (IPEndPoint)Socket.LocalEndPoint!;
                 }
             }
             catch (SocketException ex)
@@ -112,6 +112,7 @@ namespace ZeroC.Ice
                     {
                         Socket.Bind(_sourceAddr);
                     }
+
                     // TODO: fix to use the cancellable ConnectAsync with 5.0
                     await Socket.ConnectAsync(_addr).WaitAsync(cancel).ConfigureAwait(false);
                 }
@@ -184,24 +185,41 @@ namespace ZeroC.Ice
         {
             try
             {
-                string s;
+                var sb = new StringBuilder();
                 if (_incoming)
                 {
-                    s = "local address = " + Network.LocalAddrToString(Network.GetLocalAddress(Socket));
+                    sb.Append("local address = " + Network.LocalAddrToString(Network.GetLocalAddress(Socket)));
                     if (_peerAddr != null)
                     {
-                        s += "\nremote address = " + Network.AddrToString(_peerAddr);
+                        sb.Append($"\nremote address = {_peerAddr}");
                     }
                 }
                 else
                 {
-                    s = Network.SocketToString(Socket);
+                    sb.Append(Network.SocketToString(Socket));
                 }
                 if (MulticastAddress != null)
                 {
-                    s += "\nmulticast address = " + Network.AddrToString(MulticastAddress);
+                    sb.Append($"\nmulticast address = {MulticastAddress}");
                 }
-                return s;
+
+                List<string> interfaces;
+                if (MulticastAddress == null)
+                {
+                    interfaces = Network.GetHostsForEndpointExpand(_addr.ToString(), _communicator.IPVersion, true);
+                }
+                else
+                {
+                    Debug.Assert(_multicastInterface != null);
+                    interfaces = Network.GetInterfacesForMulticast(_multicastInterface,
+                                                                   Network.GetIPVersion(MulticastAddress.Address));
+                }
+                if (interfaces.Count != 0)
+                {
+                    sb.Append("\nlocal interfaces = ");
+                    sb.Append(string.Join(", ", interfaces));
+                }
+                return sb.ToString();
             }
             catch (ObjectDisposedException)
             {
@@ -230,6 +248,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
+                    Debug.Assert(_peerAddr != null);
                     // TODO: Fix to use the cancellable API with 5.0
                     return await Socket.SendToAsync(buffer.GetSegment(0, count),
                                                     SocketFlags.None,
@@ -244,30 +263,6 @@ namespace ZeroC.Ice
                 }
                 throw new TransportException(ex);
             }
-        }
-
-        public string ToDetailedString()
-        {
-            var s = new StringBuilder(ToString());
-            List<string> interfaces;
-            if (MulticastAddress == null)
-            {
-                interfaces = Network.GetHostsForEndpointExpand(Network.EndpointAddressToString(_addr),
-                                                               _communicator.IPVersion,
-                                                               true);
-            }
-            else
-            {
-                Debug.Assert(_multicastInterface != null);
-                interfaces = Network.GetInterfacesForMulticast(_multicastInterface,
-                                                               Network.GetIPVersion(MulticastAddress.Address));
-            }
-            if (interfaces.Count != 0)
-            {
-                s.Append("\nlocal interfaces = ");
-                s.Append(string.Join(", ", interfaces));
-            }
-            return s.ToString();
         }
 
         // Only for use by UdpConnector.
@@ -291,10 +286,10 @@ namespace ZeroC.Ice
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);
-                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer)!;
+                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer)!;
 
-                if (Network.IsMulticast((IPEndPoint)_addr))
+                if (Network.IsMulticast(_addr))
                 {
                     if (_multicastInterface.Length > 0)
                     {
@@ -329,8 +324,8 @@ namespace ZeroC.Ice
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);
-                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
-                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
+                _rcvSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer)!;
+                _sndSize = (int)Socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer)!;
             }
             catch (SocketException ex)
             {
