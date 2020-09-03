@@ -42,8 +42,8 @@ namespace ZeroC.Ice
         /// <param name="typeId">The type ID of the Slice interface to test against.</param>
         /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>True if this object implements the interface specified by typeId.</returns>
-        public bool IceIsA(string typeId, Current current)
-            => Array.BinarySearch((string[])IceIds(current), typeId, StringComparer.Ordinal) >= 0;
+        public bool IceIsA(string typeId, Current current) =>
+            Array.BinarySearch((string[])IceIds(current), typeId, StringComparer.Ordinal) >= 0;
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>

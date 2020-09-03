@@ -2739,9 +2739,9 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> ZeroC.Ice.IObject"
-         << ".DispatchAsync(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current)";
+         << ".DispatchAsync(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current) =>";
     _out.inc();
-    _out << nl << " => DispatchAsync(this, request, current);";
+    _out << nl << "DispatchAsync(this, request, current);";
     _out.dec();
 
     _out << sp;
