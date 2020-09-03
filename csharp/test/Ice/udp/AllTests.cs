@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using Test;
 
@@ -13,6 +14,9 @@ namespace ZeroC.Ice.Test.UDP
         public class PingReplyI : IPingReply
         {
             private readonly object _mutex = new object();
+            private readonly Stopwatch _stopwatch = new Stopwatch();
+
+            public PingReplyI() => _stopwatch.Start();
 
             public void Reply(Current current)
             {
@@ -35,10 +39,10 @@ namespace ZeroC.Ice.Test.UDP
             {
                 lock (_mutex)
                 {
-                    TimeSpan end = Time.Elapsed + timeout;
+                    TimeSpan end = _stopwatch.Elapsed + timeout;
                     while (_replies < expectedReplies)
                     {
-                        TimeSpan delay = end - Time.Elapsed;
+                        TimeSpan delay = end - _stopwatch.Elapsed;
                         if (delay > TimeSpan.Zero)
                         {
                             System.Threading.Monitor.Wait(_mutex, delay);
