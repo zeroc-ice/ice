@@ -103,8 +103,7 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableDictionary();
         }
 
-        /// <summary>This property controls the default endpoint selection policy for proxies with multiple endpoints.
-        /// </summary>
+        /// <summary>Gets the default endpoint selection policy for proxies with multiple endpoints.</summary>
         public EndpointSelectionType DefaultEndpointSelection { get; }
 
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
@@ -229,10 +228,10 @@ namespace ZeroC.Ice
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
             new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
 
-        /// <summary>This constructors initializes a new Communicator.</summary>
-        /// <param name="properties">The properties to configure the new communicator.</param>
-        /// <param name="logger">The logger used by Ice run-time.</param>
-        /// <param name="observer">The communicator observer used by the Ice run-time.</param>
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
@@ -259,12 +258,11 @@ namespace ZeroC.Ice
         {
         }
 
-        /// <summary>This constructors initializes a new Communicator.</summary>
-        /// <param name="args">Array of arguments used to configure the new communicator properties. The args param has
-        /// preference over the properties param.</param>
-        /// <param name="properties">The properties to configure the new communicator.</param>
-        /// <param name="logger">The logger used by Ice run-time.</param>
-        /// <param name="observer">The communicator observer used by the Ice run-time.</param>
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
@@ -292,11 +290,11 @@ namespace ZeroC.Ice
         {
         }
 
-        /// <summary>This constructors initializes a new Communicator.</summary>
+        /// <summary>Constructs a new communicator.</summary>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
-        /// param has preference over the properties param.</param>
-        /// <param name="properties">The properties to configure the new communicator.</param>
-        /// <param name="logger">The logger used by Ice run-time.</param>
+        /// param has precedence over the properties param.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the Ice run-time.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
@@ -325,14 +323,13 @@ namespace ZeroC.Ice
         {
         }
 
-        /// <summary>This constructors initializes a new Communicator.</summary>
-        /// <param name="args">Array of arguments used to configure the new communicator properties. The args param has
-        /// preference over the appSettings and properties params.</param>
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties</param>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
-        /// param has preference over the properties param.</param>
-        /// <param name="properties">The properties to configure the new communicator.</param>
-        /// <param name="logger">The logger used by Ice run-time.</param>
-        /// <param name="observer">The communicator observer used by the Ice run-time.</param>
+        /// param has precedence over the properties param.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
@@ -1071,11 +1068,12 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Registers an endpoint factory.</summary>
-        /// <param name="transport">The transport used by endpoint factory.</param>
-        /// <param name="transportName">The transport unique name.</param>
+        /// <summary>Registers an endpoint factory for a transport. This is a publicly visible Ice internal method used
+        /// by transport plugins.</summary>
+        /// <param name="transport">The transport.</param>
+        /// <param name="transportName">The name of the transport in lower case, for example "tcp", "quic".</param>
         /// <param name="factory">The factory to register.</param>
-        /// <param name="defaultPort">The default port for endpoints created using the factory.</param>
+        /// <param name="defaultPort">The default port for URI endpoints that don't specificy a port explicitly.</param>
         public void IceAddEndpointFactory(
             Transport transport,
             string transportName,
