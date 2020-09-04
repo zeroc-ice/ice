@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace ZeroC.Ice
@@ -79,10 +80,9 @@ namespace ZeroC.Ice
         private static readonly Lazy<bool> _loaded =
             new Lazy<bool>(() =>
             {
-                // important: The call to AssemblyUtil here ensures that AssemblyUtil static constructor
-                // runs before we try to load Bzip2 library, this is required to use the custom DLL
-                // resolver register in AssemblyUtil constructor.
-                string libNames = string.Join(", ", AssemblyUtil.GetPlatformNativeLibraryNames("bzip2")).TrimEnd();
+                // Register a delegate to load native libraries used by Ice assembly.
+                NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(AssemblyUtil))!, DllImportResolver);
+                string libNames = string.Join(", ", GetPlatformNativeLibraryNames("bzip2")).TrimEnd();
                 bool loaded = false;
                 try
                 {
@@ -288,5 +288,43 @@ namespace ZeroC.Ice
 
         [DllImport("bzip2", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
         private static extern int BZ2_bzDecompressEnd(ref BZStream stream);
+
+        private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            DllNotFoundException? failure = null;
+            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
+            {
+                try
+                {
+                    return NativeLibrary.Load(name, assembly, searchPath);
+                }
+                catch (DllNotFoundException ex)
+                {
+                    failure = ex;
+                }
+            }
+            Debug.Assert(failure != null);
+            throw ExceptionUtil.Throw(failure);
+        }
+
+        private static string[] GetPlatformNativeLibraryNames(string name)
+        {
+            if (name == "bzip2")
+            {
+                if (AssemblyUtil.IsWindows)
+                {
+                    return new string[] { "bzip2.dll" };
+                }
+                else if (AssemblyUtil.IsMacOS)
+                {
+                    return new string[] { "libbz2.dylib" };
+                }
+                else
+                {
+                    return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
+                }
+            }
+            return Array.Empty<string>();
+        }
     }
 }
