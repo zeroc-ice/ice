@@ -133,13 +133,16 @@ namespace ZeroC.Ice.Test.Interceptor
 
             DispatchInterceptor op1 = async (request, current, next) =>
                 {
-                    if (request.Protocol == Protocol.Ice2 && current.Operation == "op1")
+                    if (current.Operation == "op1")
                     {
                         LocalContext.Value = int.Parse(current.Context["local-user"]);
-                        OutgoingResponseFrame response = await next(request, current);
-                        response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
-                        response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
-                        return response;
+                        if (request.Protocol == Protocol.Ice2)
+                        {
+                            OutgoingResponseFrame response = await next(request, current);
+                            response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
+                            response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
+                            return response;
+                        }
                     }
                     return await next(request, current);
                 };
