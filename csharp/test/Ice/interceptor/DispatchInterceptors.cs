@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -16,6 +17,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
     public static class DispatchInterceptors
     {
+        public static AsyncLocal<int> LocalContext { get; } = new AsyncLocal<int>();
         public static async ValueTask ActivateAsync(ObjectAdapter adapter)
         {
             DispatchInterceptor raiseInterceptor = async (request, current, next) =>
@@ -133,6 +135,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     if (request.Protocol == Protocol.Ice2 && current.Operation == "op1")
                     {
+                        LocalContext.Value = int.Parse(current.Context["local-user"]);
                         OutgoingResponseFrame response = await next(request, current);
                         response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
                         response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
