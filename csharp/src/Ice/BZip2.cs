@@ -82,7 +82,7 @@ namespace ZeroC.Ice
             {
                 // Register a delegate to load native libraries used by Ice assembly.
                 NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, DllImportResolver);
-                string libNames = string.Join(", ", GetPlatformNativeLibraryNames("bzip2")).TrimEnd();
+                string libNames = string.Join(", ", GetPlatformNativeLibraryNames()).TrimEnd();
                 bool loaded = false;
                 try
                 {
@@ -292,7 +292,8 @@ namespace ZeroC.Ice
         private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
             DllNotFoundException? failure = null;
-            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
+            Debug.Assert(libraryName == "bzip2");
+            foreach (string name in GetPlatformNativeLibraryNames())
             {
                 try
                 {
@@ -307,24 +308,20 @@ namespace ZeroC.Ice
             throw ExceptionUtil.Throw(failure);
         }
 
-        private static string[] GetPlatformNativeLibraryNames(string name)
+        private static string[] GetPlatformNativeLibraryNames()
         {
-            if (name == "bzip2")
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    return new string[] { "bzip2.dll" };
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    return new string[] { "libbz2.dylib" };
-                }
-                else
-                {
-                    return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
-                }
+                return new string[] { "bzip2.dll" };
             }
-            return Array.Empty<string>();
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return new string[] { "libbz2.dylib" };
+            }
+            else
+            {
+                return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
+            }
         }
     }
 }

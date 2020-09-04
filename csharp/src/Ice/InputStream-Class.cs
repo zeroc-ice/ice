@@ -93,7 +93,7 @@ namespace ZeroC.Ice
 
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (_communicator.FindRemoteExceptionFactory(typeId) is IceRemoteExceptionFactory factory)
+                    if (_communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
                     {
                         // The 1.1 encoding does not carry the error message so it's always null.
                         remoteEx = factory(errorMessage);
@@ -125,7 +125,7 @@ namespace ZeroC.Ice
                     }
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (_communicator.FindRemoteExceptionFactory(typeId) is IceRemoteExceptionFactory factory)
+                    if (_communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
                     {
                         remoteEx = factory(errorMessage);
                         break; // foreach
@@ -385,7 +385,7 @@ namespace ZeroC.Ice
                     // We cannot read the indirection table at this point as it may reference the new instance that is
                     // not created yet.
 
-                    IceClassFactory? factory = null;
+                    Func<AnyClass>? factory = null;
                     if (typeId != null)
                     {
                         factory = _communicator.FindClassFactory(typeId);
@@ -448,7 +448,7 @@ namespace ZeroC.Ice
                     int skipCount = 0;
                     foreach (string typeId in allTypeIds)
                     {
-                        if (_communicator.FindClassFactory(typeId) is IceClassFactory factory)
+                        if (_communicator.FindClassFactory(typeId) is Func<AnyClass> factory)
                         {
                             instance = factory();
                             break; // foreach
@@ -486,7 +486,7 @@ namespace ZeroC.Ice
                 else if (formalTypeId != null)
                 {
                     // received null and formalTypeId is not null, apply formal type optimization.
-                    if (_communicator.FindClassFactory(formalTypeId) is IceClassFactory factory)
+                    if (_communicator.FindClassFactory(formalTypeId) is Func<AnyClass> factory)
                     {
                         instance = factory();
                         _instanceMap.Add(instance);
