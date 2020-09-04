@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -37,7 +38,7 @@ namespace ZeroC.IceSSL.Test.Configuration
     public class AllTests
     {
         private static bool IsCatalinaOrGreater =>
-            AssemblyUtil.IsMacOS && Environment.OSVersion.Version.Major >= 19;
+            RuntimeInformation.IsOSPlatform(OSPlatform.macOS) && Environment.OSVersion.Version.Major >= 19;
 
         private static X509Certificate2 CreateCertificate(string certPEM) =>
             new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
@@ -109,7 +110,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
             var store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
             bool isAdministrator = false;
-            if (AssemblyUtil.IsWindows)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 try
                 {
@@ -741,7 +742,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             catch (TransportException ex)
                             {
                                 // macOS catalina does not check the certificate common name
-                                if (!AssemblyUtil.IsMacOS)
+                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
                                 {
                                     Console.WriteLine(ex.ToString());
                                     TestHelper.Assert(false);
@@ -823,7 +824,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     certStore.Open(OpenFlags.ReadWrite);
                     var certs = new X509Certificate2Collection();
                     X509KeyStorageFlags storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                    if (AssemblyUtil.IsMacOS)
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
                     {
                         //
                         // On macOS, we need to mark the key exportable because the addition of the key to the
@@ -1122,7 +1123,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
                 Console.Out.WriteLine("ok");
 
-                if (AssemblyUtil.IsWindows && isAdministrator)
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isAdministrator)
                 {
                     // LocalMachine certificate store is not supported on non Windows platforms.
                     Console.Out.Write("testing multiple CA certificates... ");
@@ -1883,7 +1884,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
             finally
             {
-                if (AssemblyUtil.IsWindows && isAdministrator)
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isAdministrator)
                 {
                     store.Remove(caCert1);
                     store.Remove(caCert2);

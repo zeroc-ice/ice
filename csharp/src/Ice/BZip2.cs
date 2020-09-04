@@ -81,7 +81,7 @@ namespace ZeroC.Ice
             new Lazy<bool>(() =>
             {
                 // Register a delegate to load native libraries used by Ice assembly.
-                NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(AssemblyUtil))!, DllImportResolver);
+                NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, DllImportResolver);
                 string libNames = string.Join(", ", GetPlatformNativeLibraryNames("bzip2")).TrimEnd();
                 bool loaded = false;
                 try
@@ -311,11 +311,11 @@ namespace ZeroC.Ice
         {
             if (name == "bzip2")
             {
-                if (AssemblyUtil.IsWindows)
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     return new string[] { "bzip2.dll" };
                 }
-                else if (AssemblyUtil.IsMacOS)
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     return new string[] { "libbz2.dylib" };
                 }

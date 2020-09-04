@@ -33,6 +33,15 @@ namespace ZeroC.Ice
         public int RcvSize;
     }
 
+    /// <summary>Internal delegate used by InputStream to create remote exception instances.</summary>
+    /// <param name="message">The message that describes the remote exception.</param>
+    /// <returns>The new remote exception.</returns>
+    internal delegate RemoteException IceRemoteExceptionFactory(string? message);
+
+    /// <summary>Delegate use by InputStream to create class instances</summary>
+    /// <returns>The new class instance.</returns>
+    internal delegate AnyClass IceClassFactory();
+
     public sealed partial class Communicator : IDisposable, IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
