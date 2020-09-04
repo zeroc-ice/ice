@@ -223,8 +223,6 @@ namespace ZeroC.Ice
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
         private Task? _shutdownTask;
-        // <type name, Type> pairs.
-        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>();
         private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
