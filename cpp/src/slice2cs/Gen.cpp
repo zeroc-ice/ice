@@ -1440,12 +1440,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
             << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
     }
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.IClassFactory factory)";
+    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr)";
     if (hasBaseClass)
     {
         // We call the base class constructor to initialize the base class fields.
         _out.inc();
-        _out << nl << ": base(factory)";
+        _out << nl << ": base(istr)";
         _out.dec();
     }
     _out << sb;
@@ -1707,12 +1707,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
             << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
     }
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.IRemoteExceptionFactory factory, string? message)";
+    _out << nl << "protected internal " << name << "(global::ZeroC.Ice.InputStream? istr, string? message)";
     // We call the base class constructor to initialize the base class fields.
     _out.inc();
     if (p->base())
     {
-        _out << nl << ": base(factory, message)";
+        _out << nl << ": base(istr, message)";
     }
     else
     {
@@ -3225,11 +3225,11 @@ Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixId(p->name());
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "public class " << name << " : global::ZeroC.Ice.IClassFactory";
+    _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public global::ZeroC.Ice.AnyClass Create() =>";
+    _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(this);";
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "((global::ZeroC.Ice.InputStream?)null);";
     _out.dec();
     _out << eb;
 
@@ -3267,11 +3267,12 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         emitCommonAttributes();
-        _out << nl << "public class CompactId_" << p->compactId() << " : global::ZeroC.Ice.IClassFactory";
+        _out << nl << "public static class CompactId_" << p->compactId();
         _out << sb;
-        _out << nl << "public global::ZeroC.Ice.AnyClass Create() =>";
+        _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
         _out.inc();
-        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name()) << "(this);";
+        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name())
+             << "((global::ZeroC.Ice.InputStream?)null);";
         _out.dec();
         _out << eb;
     }
@@ -3315,11 +3316,12 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     string name = fixId(p->name());
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "public class " << name << " : global::ZeroC.Ice.IRemoteExceptionFactory";
+    _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public global::ZeroC.Ice.RemoteException Create(string? message) =>";
+    _out << nl << "public static global::ZeroC.Ice.RemoteException Create(string? message) =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(this, message);";
+    _out << nl << "new global::" << getNamespace(p) << "." << name
+         << "((global::ZeroC.Ice.InputStream?)null, message);";
     _out.dec();
     _out << eb;
     return false;

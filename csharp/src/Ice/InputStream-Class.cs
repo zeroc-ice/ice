@@ -93,10 +93,10 @@ namespace ZeroC.Ice
 
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (_communicator.FindRemoteExceptionFactory(typeId) is IRemoteExceptionFactory factory)
+                    if (_communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
                     {
                         // The 1.1 encoding does not carry the error message so it's always null.
-                        remoteEx = factory.Create(errorMessage);
+                        remoteEx = factory(errorMessage);
                     }
                     else if (SkipSlice(typeId)) // Slice off what we don't understand.
                     {
@@ -125,9 +125,9 @@ namespace ZeroC.Ice
                     }
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (_communicator.FindRemoteExceptionFactory(typeId) is IRemoteExceptionFactory factory)
+                    if (_communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
                     {
-                        remoteEx = factory.Create(errorMessage);
+                        remoteEx = factory(errorMessage);
                         break; // foreach
                     }
                     else if (SkipSlice(typeId))
@@ -385,7 +385,7 @@ namespace ZeroC.Ice
                     // We cannot read the indirection table at this point as it may reference the new instance that is
                     // not created yet.
 
-                    IClassFactory? factory = null;
+                    Func<AnyClass>? factory = null;
                     if (typeId != null)
                     {
                         factory = _communicator.FindClassFactory(typeId);
@@ -397,7 +397,7 @@ namespace ZeroC.Ice
 
                     if (factory != null)
                     {
-                        instance = factory.Create();
+                        instance = factory();
                     }
                     else if (SkipSlice(typeId, compactId)) // Slice off what we don't understand.
                     {
@@ -448,9 +448,9 @@ namespace ZeroC.Ice
                     int skipCount = 0;
                     foreach (string typeId in allTypeIds)
                     {
-                        if (_communicator.FindClassFactory(typeId) is IClassFactory factory)
+                        if (_communicator.FindClassFactory(typeId) is Func<AnyClass> factory)
                         {
-                            instance = factory.Create();
+                            instance = factory();
                             break; // foreach
                         }
                         else
@@ -486,9 +486,9 @@ namespace ZeroC.Ice
                 else if (formalTypeId != null)
                 {
                     // received null and formalTypeId is not null, apply formal type optimization.
-                    if (_communicator.FindClassFactory(formalTypeId) is IClassFactory factory)
+                    if (_communicator.FindClassFactory(formalTypeId) is Func<AnyClass> factory)
                     {
-                        instance = factory.Create();
+                        instance = factory();
                         _instanceMap.Add(instance);
                         ReadIndirectionTableIntoCurrent();
                         // Nothing to skip

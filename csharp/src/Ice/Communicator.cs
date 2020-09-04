@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -183,7 +184,7 @@ namespace ZeroC.Ice
             "Router",
             "Context\\..*"
         };
-        private static readonly object _staticLock = new object();
+        private static readonly object _staticMutex = new object();
 
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
@@ -194,10 +195,10 @@ namespace ZeroC.Ice
         private Identity? _adminIdentity;
         private readonly bool _backgroundLocatorCacheUpdates;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
-            new ConcurrentDictionary<string, IClassFactory?>();
-        private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
-            new ConcurrentDictionary<int, IClassFactory?>();
+        private readonly ConcurrentDictionary<string, Func<AnyClass>?> _classFactoryCache =
+            new ConcurrentDictionary<string, Func<AnyClass>?>();
+        private readonly ConcurrentDictionary<int, Func<AnyClass>?> _compactIdCache =
+            new ConcurrentDictionary<int, Func<AnyClass>?>();
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext =
@@ -207,6 +208,7 @@ namespace ZeroC.Ice
         private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
         private Task? _disposeTask;
         private readonly List<InvocationInterceptor> _invocationInterceptors = new List<InvocationInterceptor>();
+        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
@@ -214,13 +216,15 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
-        private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
-            new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
+        private readonly ConcurrentDictionary<string, Func<string?, RemoteException>?> _remoteExceptionFactoryCache =
+            new ConcurrentDictionary<string, Func<string?, RemoteException>?>();
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
         private Task? _shutdownTask;
+        // <type name, Type> pairs.
+        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>();
         private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
@@ -382,7 +386,7 @@ namespace ZeroC.Ice
 
             try
             {
-                lock (_staticLock)
+                lock (_staticMutex)
                 {
                     if (!_oneOffDone)
                     {
@@ -565,7 +569,7 @@ namespace ZeroC.Ice
 
                 if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
-                    AssemblyUtil.PreloadAssemblies();
+                    LoadAssemblies();
                 }
 
                 if (dispatchInterceptors != null)
@@ -1148,37 +1152,49 @@ namespace ZeroC.Ice
         }
 
         // Returns the IClassFactory associated with this Slice type ID, not null if not found.
-        internal IClassFactory? FindClassFactory(string typeId) =>
+        internal Func<AnyClass>? FindClassFactory(string typeId) =>
             _classFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.{className}");
+                Type? factoryClass = FindType($"ZeroC.Ice.ClassFactory.{className}");
                 if (factoryClass != null)
                 {
-                    return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                    MethodInfo? method = factoryClass.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+                    Debug.Assert(method != null);
+                    return (Func<AnyClass>)Delegate.CreateDelegate(typeof(Func<AnyClass>), method);
                 }
                 return null;
             });
 
-        internal IClassFactory? FindClassFactory(int compactId) =>
+        internal Func<AnyClass>? FindClassFactory(int compactId) =>
            _compactIdCache.GetOrAdd(compactId, compactId =>
            {
-               Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
+               Type? factoryClass = FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
                if (factoryClass != null)
                {
-                   return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                   MethodInfo? method = factoryClass.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+                   Debug.Assert(method != null);
+                   return (Func<AnyClass>)Delegate.CreateDelegate(typeof(Func<AnyClass>), method);
                }
                return null;
            });
 
-        internal IRemoteExceptionFactory? FindRemoteExceptionFactory(string typeId) =>
+        internal Func<string?, RemoteException>? FindRemoteExceptionFactory(string typeId) =>
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
+                Type? factoryClass = FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
                 if (factoryClass != null)
                 {
-                    return (IRemoteExceptionFactory?)Activator.CreateInstance(factoryClass, false);
+                    MethodInfo? method = factoryClass.GetMethod("Create",
+                                                                BindingFlags.Public | BindingFlags.Static,
+                                                                null,
+                                                                CallingConventions.Any,
+                                                                new Type[] { typeof(string) },
+                                                                null);
+                    Debug.Assert(method != null);
+                    return (Func<string?, RemoteException>)Delegate.CreateDelegate(typeof(Func<string?, RemoteException>),
+                                                                                   method);
                 }
                 return null;
             });
@@ -1316,6 +1332,20 @@ namespace ZeroC.Ice
             }
         }
 
+        private static Type? FindType(string csharpId)
+        {
+            Type? t;
+            LoadAssemblies(); // Lazy initialization
+            foreach (Assembly a in _loadedAssemblies.Values)
+            {
+                if ((t = a.GetType(csharpId)) != null)
+                {
+                    return t;
+                }
+            }
+            return null;
+        }
+
         private INetworkProxy? CreateNetworkProxy(int protocolSupport)
         {
             string? proxyHost = GetProperty("Ice.SOCKSProxyHost");
@@ -1335,6 +1365,63 @@ namespace ZeroC.Ice
             }
 
             return null;
+        }
+
+        // Make sure that all assemblies that are referenced by this process are actually loaded. This is necessary so
+        // we can use reflection on any type in any assembly because the type we are after will most likely not be in
+        // the current assembly and, worse, may be in an assembly that has not been loaded yet. (Type.GetType() is no
+        // good because it looks only in the calling object's assembly and mscorlib.dll.)
+        private static void LoadAssemblies()
+        {
+            lock (_staticMutex)
+            {
+                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var newAssemblies = new List<Assembly>();
+                foreach (Assembly assembly in assemblies)
+                {
+                    if (!_loadedAssemblies.ContainsKey(assembly.FullName!))
+                    {
+                        newAssemblies.Add(assembly);
+                        _loadedAssemblies[assembly.FullName!] = assembly;
+                    }
+                }
+
+                foreach (Assembly a in newAssemblies)
+                {
+                    LoadReferencedAssemblies(a);
+                }
+            }
+        }
+
+        private static void LoadReferencedAssemblies(Assembly a)
+        {
+            try
+            {
+                AssemblyName[] names = a.GetReferencedAssemblies();
+                foreach (AssemblyName name in names)
+                {
+                    if (!_loadedAssemblies.ContainsKey(name.FullName))
+                    {
+                        try
+                        {
+                            var loadedAssembly = Assembly.Load(name);
+                            // The value of name.FullName may not match that of loadedAssembly.FullName, so we record
+                            // the assembly using both keys.
+                            _loadedAssemblies[name.FullName] = loadedAssembly;
+                            _loadedAssemblies[loadedAssembly.FullName!] = loadedAssembly;
+                            LoadReferencedAssemblies(loadedAssembly);
+                        }
+                        catch (Exception)
+                        {
+                            // Ignore assemblies that cannot be loaded.
+                        }
+                    }
+                }
+            }
+            catch (PlatformNotSupportedException)
+            {
+                // Some platforms like UWP do not support using GetReferencedAssemblies
+            }
         }
 
         private static string TypeIdToClassName(string typeId)

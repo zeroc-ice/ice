@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Test;
 
@@ -169,7 +170,7 @@ namespace ZeroC.Ice.Test.UDP
             }
             sb.Append(" -p ");
             sb.Append(helper.BasePort + 10);
-            if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
             {
                 if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
                 {

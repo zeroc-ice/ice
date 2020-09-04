@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ namespace ZeroC.Ice
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 
                     MulticastAddress = _addr;
-                    if (AssemblyUtil.IsWindows)
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         // Windows does not allow binding to the multicast address itself so we bind to INADDR_ANY
                         // instead. As a result, bi-directional connection won't work because the source address won't
@@ -133,7 +134,8 @@ namespace ZeroC.Ice
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (!_incoming ||
-                    (AssemblyUtil.IsMacOS && Socket.AddressFamily == AddressFamily.InterNetworkV6 && Socket.DualMode))
+                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
+                     Socket.AddressFamily == AddressFamily.InterNetworkV6 && Socket.DualMode))
                 {
                     received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
                 }
