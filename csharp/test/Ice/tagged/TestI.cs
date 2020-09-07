@@ -21,19 +21,7 @@ namespace ZeroC.Ice.Test.Tagged
 
         public void OpRequiredException(int? a, string? b, VarStruct? vs, Current current)
         {
-            var e = new RequiredException();
-            e.A = a;
-            e.B = b;
-            e.Vs = vs;
-            if (b != null)
-            {
-                e.Ss = b;
-            }
-            if (vs != null)
-            {
-                e.Vs2 = vs;
-            }
-            throw e;
+            throw new RequiredException(false, a, b, vs, b ?? "test", vs ?? new VarStruct(""));
         }
 
         public (byte?, byte?) OpByte(byte? p1, Current current) => (p1, p1);

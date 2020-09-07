@@ -74,7 +74,7 @@ namespace ZeroC.Ice.Test.Serialize
             ex.I = 3;
             ex.L = 4;
             ex.Vs = new ValStruct(true, 1, 2, 3, 4, MyEnum.enum2);
-            ex.Rs = new RefStruct("RefStruct", "prop", null, proxy, new IMyInterfacePrx?[] { proxy, null, proxy });
+            ex.Rs = new RefStruct("RefStruct", "prop", proxy, new IMyInterfacePrx?[] { proxy, null, proxy });
             ex.Vss = new ValStruct[1];
             ex.Vss[0] = ex.Vs;
             ex.Vsl = new List<ValStruct>();
@@ -126,13 +126,11 @@ namespace ZeroC.Ice.Test.Serialize
             rs = new RefStruct();
             rs.S = "RefStruct";
             rs.Sp = "prop";
-            rs.C = null;
             rs.P = IMyInterfacePrx.Parse("test", communicator);
             rs.Seq = new IMyInterfacePrx[] { rs.P };
             rs2 = InOut(rs, communicator);
             TestHelper.Assert(rs2.S == "RefStruct");
             TestHelper.Assert(rs2.Sp == "prop");
-            TestHelper.Assert(rs2.C == null);
             TestHelper.Assert(rs2.P != null && rs2.P.Equals(rs.P));
             TestHelper.Assert(rs2.Seq.Length == rs.Seq.Length);
             TestHelper.Assert(rs2.Seq[0]!.Equals(rs.Seq[0]));

@@ -43,7 +43,6 @@ struct RefStruct
 {
     string s;
     string sp;
-    MyClass c;
     MyInterface* p;
     ProxySeq seq;
 }

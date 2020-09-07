@@ -1665,7 +1665,7 @@ namespace ZeroC.Ice.Test.Tagged
                     int? a = null;
                     string? b = null;
                     VarStruct? vs = null;
-                    initial.OpTaggedException(a, b, null);
+                    initial.OpTaggedException(a, b, vs);
                 }
                 catch (TaggedException ex)
                 {
@@ -1686,7 +1686,7 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test");
-                    TestHelper.Assert(ex.Vs.M == "hello");
+                    TestHelper.Assert(ex.Vs.Equals(new VarStruct("hello")));
                 }
 
                 try
@@ -1711,15 +1711,15 @@ namespace ZeroC.Ice.Test.Tagged
                     int? a = 30;
                     string? b = "test2";
                     VarStruct? vs = new VarStruct("hello2");
-                    initial.OpDerivedException(a, b);
+                    initial.OpDerivedException(a, b, vs);
                 }
                 catch (DerivedException ex)
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test2");
-                    TestHelper.Assert(ex.Vs.M == "hello2");
+                    TestHelper.Assert(ex.Vs.Equals(new VarStruct("hello2")));
                     TestHelper.Assert(ex.Ss == "test2");
-                    TestHelper.Assert(ex.Vs2.M == "hello2");
+                    TestHelper.Assert(ex.Vs2.Equals(new VarStruct("hello2")));
                 }
 
                 try
@@ -1733,9 +1733,9 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     TestHelper.Assert(ex.A == null);
                     TestHelper.Assert(ex.B == null);
-                    TestHelper.Assert(ex.Vs.M == "");
+                    TestHelper.Assert(ex.Vs == null);
                     TestHelper.Assert(ex.Ss == "test");
-                    TestHelper.Assert(ex.Vs2.M == "");
+                    TestHelper.Assert(ex.Vs2.Equals(new VarStruct("")));
                 }
 
                 try
@@ -1749,9 +1749,9 @@ namespace ZeroC.Ice.Test.Tagged
                 {
                     TestHelper.Assert(ex.A == 30);
                     TestHelper.Assert(ex.B == "test2");
-                    TestHelper.Assert(ex.Vs.M == "hello2");
+                    TestHelper.Assert(ex.Vs.Equals(new VarStruct("hello2")));
                     TestHelper.Assert(ex.Ss == "test2");
-                    TestHelper.Assert(ex.Vs2.M == "hello2");
+                    TestHelper.Assert(ex.Vs2.Equals(new VarStruct("hello2")));
                 }
             }
             output.WriteLine("ok");

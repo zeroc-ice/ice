@@ -26,19 +26,7 @@ namespace ZeroC.Ice.Test.Tagged
 
         public ValueTask OpRequiredExceptionAsync(int? a, string? b, VarStruct? vs, Current c)
         {
-            var e = new RequiredException();
-            e.A = a;
-            e.B = b;
-            e.Vs = vs;
-            if (b != null)
-            {
-                e.Ss = b;
-            }
-            if (vs != null)
-            {
-                e.Vs2 = vs;
-            }
-            throw e;
+            throw new RequiredException(false, a, b, vs, b ?? "test", vs ?? new VarStruct(""));
         }
 
         public ValueTask<(byte?, byte?)> OpByteAsync(byte? p1, Current current) => MakeValueTask((p1, p1));
