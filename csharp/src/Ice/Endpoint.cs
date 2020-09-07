@@ -81,6 +81,10 @@ namespace ZeroC.Ice
         /// print. Always true for ice1 endpoints.</summary>
         protected internal abstract bool HasOptions { get; }
 
+        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
@@ -95,10 +99,16 @@ namespace ZeroC.Ice
             return rhs.Equals(lhs);
         }
 
+        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
         public static bool operator !=(Endpoint? lhs, Endpoint? rhs) => !(lhs == rhs);
 
+        /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is Endpoint other && Equals(other);
 
+        /// <inheritdoc/>
         public virtual bool Equals(Endpoint? other) =>
             other is Endpoint endpoint &&
                 Communicator == endpoint.Communicator &&
@@ -107,6 +117,7 @@ namespace ZeroC.Ice
                 Host == endpoint.Host &&
                 Port == endpoint.Port;
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             var hash = new HashCode();
@@ -136,8 +147,11 @@ namespace ZeroC.Ice
             }
         }
 
-        // Checks whether this endpoint and the given endpoint point to the same local peer. This is used for the
-        // collocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
+        /// <summary>Checks whether this endpoint and the given endpoint point to the same local peer. This is used for
+        /// the collocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
+        /// </summary>
+        /// <param name="endpoint">The other endpoint</param>
+        /// <returns><c>True</c> if the other endpoint point to the same local peer, <c>False</c> otherwise.</returns>
         public abstract bool IsLocal(Endpoint endpoint);
 
         /// <summary>Appends the options of this endpoint with non default values to the string builder.</summary>
@@ -151,7 +165,11 @@ namespace ZeroC.Ice
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
 
-        // Returns a connector for this endpoint, or empty list if no connector is available.
+        /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
+        /// <param name="endpointSelection">The endpoint selection type used when expanding the endpoint address.
+        /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A collector of connectors for this endpoint</returns>
         public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
             EndpointSelectionType endpointSelection,
             CancellationToken cancel);
@@ -173,26 +191,36 @@ namespace ZeroC.Ice
             string connectionId,
             ObjectAdapter? adapter);
 
-        // Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on server side
-        // or if no host was specified on client side.
+        /// <summary>Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on
+        /// server side or if no host was specified on client side.</summary>
+        /// <returns>The collection containing the expanded endpoints.</returns>
         public abstract IEnumerable<Endpoint> ExpandIfWildcard();
 
-        // Expands endpoint out into separate endpoints for each IP address returned by the DNS resolver. Also returns
-        // the endpoint which can be used to connect to the returned endpoints or null if no specific endpoint can be
-        // used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if it uses a fixed
-        // port, null otherwise).
+        /// <summary>Expands endpoint out into separate endpoints for each IP address returned by the DNS resolver.
+        /// Also returns the endpoint which can be used to connect to the returned endpoints or null if no specific
+        /// endpoint can be used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if
+        /// it uses a fixed port, null otherwise).
+        /// </summary>
+        /// <param name="publishedEndpoint"></param>
+        /// <returns>The collection containing the expanded endpoints.</returns>
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 
-        // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
-        // acceptor. If a non-null server side transceiver is returned, the bound endpoint is also returned.
+        /// <summary>Return a server side transceiver for this endpoint and the transceiver bound endpoint.</summary>
+        /// <returns>The server side transceiver and the bound endpoint</returns>
         public abstract (ITransceiver, Endpoint) GetTransceiver();
 
+        /// <summary>Constructs a new endpoint</summary>
+        /// <param name="communicator">The endpoint's communicator.</param>
+        /// <param name="protocol">The endpoint's protocol.</param>
         protected Endpoint(Communicator communicator, Protocol protocol)
         {
             Communicator = communicator;
             Protocol = protocol;
         }
 
+        /// <summary>Skip unknown endpoints options during unmarshal.</summary>
+        /// <param name="istr">The <see cref="InputStream"/> being used to unmarshal the endpoint.</param>
+        /// <param name="count">The number of options to skip.</param>
         protected void SkipUnknownOptions(InputStream istr, int count)
         {
             Debug.Assert(count == 0); // TODO: temporary, remove before release

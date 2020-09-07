@@ -4,6 +4,8 @@
 //
 namespace ZeroC.Ice
 {
+    /// <summary>The Ice logger. Applications can provide their own logger by implementing this interface and
+    /// installing it in a communicator.</summary>
     public interface ILogger
     {
         /// <summary>Gets the logger's prefix.</summary>

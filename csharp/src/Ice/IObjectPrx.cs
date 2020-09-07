@@ -12,39 +12,67 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>The proxy's invocation mode.</summary>
     public enum InvocationMode : byte
     {
+        /// <summary>This is the default invocation mode, a request using twoway mode always expect a response.
+        /// </summary>
         Twoway,
+        /// <summary>A request using oneway mode returns control to the application code as soon as it has been
+        /// accepted by the local transport.</summary>
         Oneway,
+        /// <summary>The batch-oneway invocation mode is no longer supported, it was supported with version up to 3.7.
+        /// </summary>
+        [Obsolete("The batch-oneway invocation mode is no longer supported, it was supported with version up to 3.7")]
         BatchOneway,
+        /// <summary>Invocation mode use by datagram based transports.</summary>
         Datagram,
+        /// <summary>
+        /// The batch-datagram invocation mode is no longer supported, it was supported with version up to 3.7
+        /// </summary>
+        [Obsolete("The batch-datagram invocation mode is no longer supported, it was supported with version up to 3.7")]
         BatchDatagram,
+
+        /// <summary>Marker for the last value.</summary>
+#pragma warning disable CS0618 // Type or member is obsolete
         Last = BatchDatagram
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
+    /// <summary>Delegate used to create typed proxies.</summary>
+    /// <typeparam name="T">The proxy type.</typeparam>
+    /// <param name="reference">The underlying reference.</param>
+    /// <returns>The new proxy.</returns>
     public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
 
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
+        /// <summary>An InputStream reader used to read non nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
 
+        /// <summary>An InputStream reader used to read nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoNullable =
             (istr) => istr.ReadNullableProxy(Factory);
 
+        /// <summary>An OutputStream writer used to write non nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
 
+        /// <summary>An OutputStream writer used to write nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
+        /// <summary>The proxy's underlying reference.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Reference IceReference { get; }
 
-        // IceClone is re-implemented by all generated proxy classes
+        /// <summary>Create a clone of the current object, IceClone is re-implemented by all generated proxy classes.</summary>
+        /// <param name="reference">The proxy's reference for the cloned proxy.</param>
+        /// <returns>The new proxy.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected IObjectPrx IceClone(Reference reference) => new ObjectPrx(reference);
         internal IObjectPrx Clone(Reference reference) => IceClone(reference);
@@ -202,9 +230,15 @@ namespace ZeroC.Ice
         /// any connection.</value>
         public bool IsFixed => IceReference.IsFixed;
 
+        /// <summary>Marshals the proxy into an OutputStream.</summary>
+        /// <param name="ostr">The OutputStream used to marshal the proxy.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream ostr) => IceReference.Write(ostr);
 
+        /// <summary>Indicates whether the two proxy operands are equal.</summary>
+        /// <param name="lhs">The left hand-side operand.</param>
+        /// <param name="rhs">The right hand-side operand.</param>
+        /// <returns><c>True</c> if the tow proxies are equal, <c>False</c> otherwise.</returns>
         public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
@@ -220,6 +254,7 @@ namespace ZeroC.Ice
             return lhs.IceReference.Equals(rhs.IceReference);
         }
 
+        /// <summary>Factory for IObjectPrx proxies.</summary>
         public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
         /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
@@ -275,14 +310,16 @@ namespace ZeroC.Ice
             _iceI_PingRequest ??= new OutgoingRequestWithEmptyParamList("ice_ping", idempotent: true, oneway: false);
     }
 
-    // The base class for all proxies. It's a publicly visible Ice-internal class. Applications should not use it
-    // directly.
+    /// <summary>The base class for all proxies. It's a publicly visible Ice-internal class. Applications
+    /// should not use it directly.</summary>
     [Serializable]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ObjectPrx : IObjectPrx, ISerializable
     {
+        /// <summary>The proxy's underlying reference.</summary>
         public Reference IceReference { get; }
 
+        /// <inheritdoc/>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
             info.AddValue("proxy", ToString());
 
@@ -307,8 +344,13 @@ namespace ZeroC.Ice
         /// <returns>True if this proxy is equal to other; otherwise, false.</returns>
         public bool Equals(IObjectPrx? other) => other != null && IceReference.Equals(other.IceReference);
 
+        /// <summary>Construct a new proxy.</summary>
+        /// <param name="reference">The proxy's underlying reference.</param>
         protected internal ObjectPrx(Reference reference) => IceReference = reference;
 
+        /// <summary>The serialization constructor.</summary>
+        /// <param name="info">The serialzation info.</param>
+        /// <param name="context">The context for serialization operations.</param>
         protected ObjectPrx(SerializationInfo info, StreamingContext context)
         {
             if (!(context.Context is Communicator communicator))

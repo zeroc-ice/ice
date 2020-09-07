@@ -13,6 +13,9 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
+    /// <summary>The object adapter provides an up-call interface from the Ice run time to the implementation of Ice
+    /// objects. The object adapter is responsible for receiving requests from endpoints, and for mapping between
+    /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
         /// <summary>Returns the communicator that created this object adapter.</summary>

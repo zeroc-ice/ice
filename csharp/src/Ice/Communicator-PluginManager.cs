@@ -13,7 +13,6 @@ namespace ZeroC.Ice
     public interface IPluginFactory
     {
         /// <summary>Called by the Ice run time to create a new plug-in.</summary>
-        ///
         /// <param name="communicator">The communicator that is in the process of being initialized.</param>
         /// <param name="name">The name of the plug-in.</param>
         /// <param name="args">The arguments that are specified in the plug-ins configuration.</param>
@@ -35,6 +34,12 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Initialize the configured plug-ins. The communicator automatically initializes the plug-ins by
+        /// default, but an application may need to interact directly with a plug-in prior to initialization. In this
+        /// case, the application must set Ice.InitPlugins=0 and then invoke InitializePlugins() manually. The plug-ins
+        /// are initialized in the order in which they are loaded. If a plug-in raises an exception during
+        /// initialization, the communicator invokes destroy on the plug-ins that have already been initialized.
+        /// </summary>
         public void InitializePlugins()
         {
             if (_pluginsInitialized)
@@ -74,6 +79,8 @@ namespace ZeroC.Ice
             _pluginsInitialized = true;
         }
 
+        /// <summary>Get a list of plugins installed.</summary>
+        /// <returns>The names of the plugins installed.</returns>
         public string[] GetPlugins()
         {
             lock (_mutex)
@@ -87,6 +94,9 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Obtain a plug-in by name.</summary>
+        /// <param name="name">The plug-in's name.</param>
+        /// <returns>The plug-in.</returns>
         public IPlugin? GetPlugin(string name)
         {
             lock (_mutex)
@@ -100,6 +110,9 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Install a new plug-in.</summary>
+        /// <param name="name">The plug-in's name.</param>
+        /// <param name="plugin">The new plug-in.</param>
         public void AddPlugin(string name, IPlugin plugin)
         {
             lock (_mutex)

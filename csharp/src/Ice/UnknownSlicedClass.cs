@@ -14,10 +14,13 @@ namespace ZeroC.Ice
         /// <value>The type ID.</value>
         public string TypeId => IceSlicedData!.Value.Slices[0].TypeId;
 
-        protected override void IceRead(InputStream istr, bool firtSlice) => IceSlicedData = istr.SlicedData;
+        /// <inheritdoc/>
+        protected override void IceRead(InputStream istr, bool firstSlice) => IceSlicedData = istr.SlicedData;
 
+        /// <inheritdoc/>
         protected override SlicedData? IceSlicedData { get; set; }
 
+        /// <inheritdoc/>
         protected override void IceWrite(OutputStream ostr, bool firstSlice) =>
             ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>());
 

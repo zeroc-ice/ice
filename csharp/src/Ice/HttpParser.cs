@@ -11,23 +11,8 @@ namespace ZeroC.Ice
 {
     public sealed class WebSocketException : Exception
     {
-        internal WebSocketException()
-            : base("", null)
-        {
-        }
-
         internal WebSocketException(string message)
             : base(message, null)
-        {
-        }
-
-        internal WebSocketException(string message, Exception cause)
-            : base(message, cause)
-        {
-        }
-
-        internal WebSocketException(Exception cause)
-            : base("", cause)
         {
         }
     }

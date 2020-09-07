@@ -18,6 +18,7 @@ namespace ZeroC.Ice
         Ice2 = 2
     }
 
+    /// <summary>Provides public extensions methods for <see cref="Protocol"/> values.</summary>
     public static class ProtocolExtensions
     {
         /// <summary>Returns the Ice encoding that this protocol uses for its headers.</summary>

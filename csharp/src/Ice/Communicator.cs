@@ -33,6 +33,8 @@ namespace ZeroC.Ice
         public int RcvSize;
     }
 
+    /// <summary>The central object in Ice. One or more communicators can be instantiated for an Ice application.
+    /// Communicator instantiation is language-specific, and not specified in Slice code.</summary>
     public sealed partial class Communicator : IDisposable, IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
