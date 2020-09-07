@@ -8,6 +8,7 @@ using System.Threading;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Provides public extension methods for <see cref="TimeSpan"/> values.</summary>
     public static class TimeSpanExtensions
     {
         /// <summary>Gets the TimeSpan as an Ice property string. The largest possible unit

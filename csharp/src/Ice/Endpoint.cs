@@ -201,7 +201,7 @@ namespace ZeroC.Ice
         /// endpoint can be used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if
         /// it uses a fixed port, null otherwise).
         /// </summary>
-        /// <param name="publishedEndpoint"></param>
+        /// <param name="publishedEndpoint">TODO???</param>
         /// <returns>The collection containing the expanded endpoints.</returns>
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 

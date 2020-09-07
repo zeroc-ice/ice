@@ -122,6 +122,7 @@ namespace ZeroC.Ice
         /// </summary>
         public bool DefaultPreferNonSecure { get; }
 
+        /// <summary>Gets the default source address value used by proxies created with this communicator.</summary>
         public IPAddress? DefaultSourceAddress { get; }
 
         /// <summary>Gets the default invocation timeout value used by proxies created with this communicator.
