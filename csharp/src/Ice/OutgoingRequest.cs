@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>publicly visible Ice-internal class used as base class for requests.</summary>
+    /// <summary>Publicly visible Ice-internal class used as base class for requests.</summary>
     /// <typeparam name="TReturnValue">The return value type.</typeparam>
     public class OutgoingRequest<TReturnValue>
     {
