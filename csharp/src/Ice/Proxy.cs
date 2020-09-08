@@ -20,7 +20,8 @@ namespace ZeroC.Ice
         /// <param name="prx">The source proxy.</param>
         /// <param name="factory">The proxy factory used to manufacture the returned proxy.</param>
         /// <param name="context">The request context used for the remote
-        /// <see cref="IObjectPrx.IceIsA(string, IReadOnlyDictionary{string, string}?)"/> invocation.</param>
+        /// <see cref="IObjectPrx.IceIsA(string, IReadOnlyDictionary{string, string}?, CancellationToken)"/>
+        /// invocation.</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T? CheckedCast<T>(
             this IObjectPrx prx,

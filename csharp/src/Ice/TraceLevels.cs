@@ -6,6 +6,17 @@ namespace ZeroC.Ice
 {
     internal sealed class TraceLevels
     {
+        internal readonly int Transport;
+        internal readonly string TransportCategory;
+        internal readonly int Protocol;
+        internal readonly string ProtocolCategory;
+        internal readonly int Retry;
+        internal readonly string RetryCategory;
+        internal readonly int Location;
+        internal readonly string LocationCategory;
+        internal readonly int Slicing;
+        internal readonly string SlicingCategory;
+
         internal TraceLevels(Communicator communicator)
         {
             TransportCategory = "Transport";
@@ -24,16 +35,5 @@ namespace ZeroC.Ice
             Location = communicator.GetPropertyAsInt(keyBase + LocationCategory) ?? 0;
             Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCategory) ?? 0;
         }
-
-        public readonly int Transport;
-        public readonly string TransportCategory;
-        public readonly int Protocol;
-        public readonly string ProtocolCategory;
-        public readonly int Retry;
-        public readonly string RetryCategory;
-        public readonly int Location;
-        public readonly string LocationCategory;
-        public readonly int Slicing;
-        public readonly string SlicingCategory;
     }
 }
