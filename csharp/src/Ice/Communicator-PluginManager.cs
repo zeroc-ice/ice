@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         /// <param name="name">The name assigned to the plug-in.</param>
         /// <param name="factory">The factory.</param>
         /// <param name="loadOnInit">If true, the plug-in is always loaded (created) during communicator
-        /// initialization, even if Ice.Plugin.name is not set.When false, the plug-in is loaded (created) during
+        /// initialization, even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during
         /// communication initialization only if Ice.Plugin.name  is set to a non-empty value
         /// (e.g.: Ice.Plugin.IceSSL= 1).</param>
         public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
