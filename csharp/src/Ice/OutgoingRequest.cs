@@ -178,8 +178,8 @@ namespace ZeroC.Ice
                         cancel);
     }
 
-    /// <summary>Publicly visible Ice-internal class used to make request with input and output parameters, the input
-    /// parameters are pass with the `in' modifier, this helper is used when input parameter is an structure type, or
+    /// <summary>Publicly visible Ice-internal class used to make request with input and output parameters. The input
+    /// parameters are passed with the `in' modifier. This helper is used when input parameter is an structure type, or
     /// when there is several input parameters as we pass them wrapped in a tuple.</summary>
     /// <typeparam name="TParamList">The input parameters type.</typeparam>
     /// <typeparam name="TReturnValue">The return value type</typeparam>
