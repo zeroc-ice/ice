@@ -8,7 +8,6 @@ using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
-    [Serializable]
     public abstract class AnyClass
     {
         [EditorBrowsable(EditorBrowsableState.Never)]

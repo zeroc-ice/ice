@@ -289,21 +289,6 @@ namespace ZeroC.Ice.Test.SeqMapping
             Custom<Custom<CV?>> i,
             Current current) => ToReturnValue(i);
 
-        public ValueTask<(Serialize.Small, Serialize.Small)> OpSerialSmallCSharpAsync(
-            Serialize.Small i,
-            Current current) =>
-            new ValueTask<(Serialize.Small, Serialize.Small)>((i, i));
-
-        public ValueTask<(Serialize.Large, Serialize.Large)> OpSerialLargeCSharpAsync(
-            Serialize.Large i,
-            Current current) =>
-            new ValueTask<(Serialize.Large, Serialize.Large)>((i, i));
-
-        public ValueTask<(Serialize.Struct, Serialize.Struct)> OpSerialStructCSharpAsync(
-            Serialize.Struct i,
-            Current current) =>
-            new ValueTask<(Serialize.Struct, Serialize.Struct)>((i, i));
-
         private static ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)> ToReturnValue<T>(T[] input) where T : struct =>
             new ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)>((input, input));
 

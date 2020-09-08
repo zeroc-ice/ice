@@ -3,12 +3,10 @@
 //
 
 using System;
-using System.Runtime.Serialization;
 
 namespace ZeroC.Ice
 {
     /// <summary>This exception reports incorrect or missing Ice configuration.</summary>
-    [Serializable]
     public class InvalidConfigurationException : Exception
     {
         public InvalidConfigurationException(string message)
@@ -20,16 +18,10 @@ namespace ZeroC.Ice
             : base(message, innerException)
         {
         }
-
-        protected InvalidConfigurationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception provides context for an exception thrown while attempting to load a class or create a
     /// class instance at runtime.</summary>
-    [Serializable]
     public class LoadException : Exception
     {
         public LoadException(string message)
@@ -41,15 +33,9 @@ namespace ZeroC.Ice
             : base(message, innerException)
         {
         }
-
-        protected LoadException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports an attempt to use a destroyed communicator.</summary>
-    [Serializable]
     public class CommunicatorDisposedException : ObjectDisposedException
     {
         public CommunicatorDisposedException()
@@ -61,30 +47,18 @@ namespace ZeroC.Ice
             : base("", innerException)
         {
         }
-
-        protected CommunicatorDisposedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports that a proxy's endpoints could not be resolved.</summary>
-    [Serializable]
     public class NoEndpointException : Exception
     {
         public NoEndpointException(string stringifiedProxy)
             : base($"could not find the endpoints for proxy `{stringifiedProxy}'")
         {
         }
-
-        protected NoEndpointException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports an error from the transport layer.</summary>
-    [Serializable]
     public class TransportException : Exception
     {
         // A plain TransportException should have a custom message or an inner exception (or both).
@@ -106,15 +80,9 @@ namespace ZeroC.Ice
             : base(message, innerException)
         {
         }
-
-        protected TransportException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports a failed attempt to establish a connection.</summary>
-    [Serializable]
     public class ConnectFailedException : TransportException
     {
         public ConnectFailedException()
@@ -125,29 +93,17 @@ namespace ZeroC.Ice
             : base(innerException)
         {
         }
-
-        protected ConnectFailedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception indicates a connection establishment timeout condition.</summary>
-    [Serializable]
     public class ConnectTimeoutException : ConnectFailedException
     {
         public ConnectTimeoutException()
         {
         }
-
-        protected ConnectTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports a connection refused error.</summary>
-    [Serializable]
     public class ConnectionRefusedException : ConnectFailedException
     {
         public ConnectionRefusedException()
@@ -158,15 +114,9 @@ namespace ZeroC.Ice
             : base(innerException)
         {
         }
-
-        protected ConnectionRefusedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports that a previously established connection was lost.</summary>
-    [Serializable]
     public class ConnectionLostException : TransportException
     {
         public ConnectionLostException()
@@ -177,29 +127,17 @@ namespace ZeroC.Ice
             : base(innerException)
         {
         }
-
-        protected ConnectionLostException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports that a previously established connection timed out.</summary>
-    [Serializable]
     public class ConnectionTimeoutException : TransportException
     {
         public ConnectionTimeoutException()
         {
         }
-
-        protected ConnectionTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception indicates that a previous established connection was closed.</summary>
-    [Serializable]
     public class ConnectionClosedException : TransportException
     {
         protected ConnectionClosedException()
@@ -210,11 +148,6 @@ namespace ZeroC.Ice
             : base(message)
         {
         }
-
-        protected ConnectionClosedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception indicates that the connection was gracefully shut down by the server. A request
@@ -222,52 +155,33 @@ namespace ZeroC.Ice
     /// exception because the client automatically retries the invocation in case the server shuts down the connection.
     /// However, if upon retry the server shuts down the connection again, and the retry limit is reached, this
     /// exception is propagated to the application code.</summary>
-    [Serializable]
     public class ConnectionClosedByPeerException : ConnectionClosedException
     {
         public ConnectionClosedByPeerException(string message)
             : base(message)
         {
         }
-
-        protected ConnectionClosedByPeerException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception indicates the application (client) closed the connection with Connection.Close.
     /// </summary>
-    [Serializable]
     public class ConnectionClosedLocallyException : ConnectionClosedException
     {
         public ConnectionClosedLocallyException(string message)
             : base(message)
         {
         }
-
-        protected ConnectionClosedLocallyException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception indicates the connection was closed by ACM because it was idle. </summary>
-    [Serializable]
     public class ConnectionIdleException : TransportException
     {
         public ConnectionIdleException()
         {
         }
-
-        protected ConnectionIdleException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports a DNS error.</summary>
-    [Serializable]
     public class DNSException : TransportException
     {
         public DNSException()
@@ -283,32 +197,20 @@ namespace ZeroC.Ice
             : base($"failed to resolve hostname `{host}'", innerException)
         {
         }
-
-        protected DNSException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports that a datagram exceeds the configured send or receive buffer size, or exceeds
     /// the maximum payload size of a UDP packet (65507 bytes).</summary>
     // TODO: eliminate this exception
-    [Serializable]
     public class DatagramLimitException : TransportException
     {
         public DatagramLimitException(string message)
             : base(message)
         {
         }
-
-        protected DatagramLimitException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This exception reports that data (bytes) received by Ice are not in an expected format.</summary>
-    [Serializable]
     public class InvalidDataException : Exception
     {
         public InvalidDataException(string message)
@@ -320,24 +222,13 @@ namespace ZeroC.Ice
             : base(message, innerException)
         {
         }
-
-        protected InvalidDataException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 
     /// <summary>This is a purely Ice-internal exception used for retries.</summary>
-    [Serializable]
     public class RetryException : Exception
     {
         internal RetryException(Exception innerException)
             : base("", innerException)
-        {
-        }
-
-        protected RetryException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

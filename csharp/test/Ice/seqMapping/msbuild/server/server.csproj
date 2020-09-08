@@ -10,8 +10,9 @@
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../MyClassI.cs" />
     <Compile Include="../../Server.cs" />
+    <Compile Include="..\..\Custom.cs" Link="Custom.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../serializable/serializable.csproj" />
+    <SliceCompile Include="..\..\Test.ice" Link="Test.ice" />
   </ItemGroup>
 </Project>

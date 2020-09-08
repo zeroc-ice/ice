@@ -9,8 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ZeroC.Ice
 {
@@ -788,16 +786,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a serializable object to the stream.</summary>
-        /// <param name="o">The serializable object to write.</param>
-        public void WriteSerializable(object o)
-        {
-            var w = new StreamWrapper(this);
-            var f = new BinaryFormatter();
-            f.Serialize(w, o);
-            w.Close();
-        }
-
         /// <summary>Writes a mapped Slice struct to the stream.</summary>
         /// <param name="v">The struct instance to write.</param>
         public void WriteStruct<T>(in T v) where T : struct, IStreamableStruct => v.IceWrite(this);
@@ -1477,21 +1465,6 @@ namespace ZeroC.Ice
                 Position pos = StartFixedLengthSize();
                 WriteSequence(value);
                 EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged serializable object to the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="o">The serializable object to write.</param>
-        public void WriteTaggedSerializable(int tag, object? o)
-        {
-            if (o != null)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
-                var w = new StreamWrapper(this);
-                IFormatter f = new BinaryFormatter();
-                f.Serialize(w, o);
-                w.Close();
             }
         }
 

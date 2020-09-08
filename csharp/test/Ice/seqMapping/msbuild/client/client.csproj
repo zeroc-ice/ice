@@ -12,8 +12,9 @@
     <Compile Include="../../Client.cs" />
     <Compile Include="../../Twoways.cs" />
     <Compile Include="../../TwowaysAMI.cs" />
+    <Compile Include="..\..\Custom.cs" Link="Custom.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../serializable/serializable.csproj" />
+    <SliceCompile Include="..\..\Test.ice" Link="Test.ice" />
   </ItemGroup>
  </Project>

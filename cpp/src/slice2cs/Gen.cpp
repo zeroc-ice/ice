@@ -509,12 +509,6 @@ Slice::CsVisitor::emitCustomAttributes(const ContainedPtr& p)
 }
 
 void
-Slice::CsVisitor::emitSerializableAttribute()
-{
-    _out << nl << "[global::System.Serializable]";
-}
-
-void
 Slice::CsVisitor::emitTypeIdAttribute(const string& typeId)
 {
     _out << nl << "[ZeroC.Ice.TypeId(\"" << typeId << "\")]";
@@ -1271,7 +1265,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
 
     emitCommonAttributes();
-    emitSerializableAttribute();
     emitTypeIdAttribute(p->scoped());
     emitCustomAttributes(p);
     _out << nl << "public partial class " << fixId(name) << " : "
@@ -1559,7 +1552,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     emitDeprecate(p, 0, _out, "type");
 
     emitCommonAttributes();
-    emitSerializableAttribute();
     emitTypeIdAttribute(p->scoped());
     emitCustomAttributes(p);
     _out << nl << "public partial class " << name << " : ";
@@ -1659,45 +1651,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
     }
 
-    if(!dataMembers.empty())
-    {
-        _out << sp;
-        _out << nl << "public override void GetObjectData(global::System.Runtime.Serialization.SerializationInfo info, "
-             << "global::System.Runtime.Serialization.StreamingContext context)";
-        _out << sb;
-        for (const auto& member : dataMembers)
-        {
-            TypePtr memberType = unwrapIfOptional(member->type());
-
-            string mName = fixId(fieldName(member), Slice::ExceptionType);
-            if (member->tagged() && isValueType(memberType))
-            {
-                _out << nl << "if (" << mName << " != null)";
-                _out << sb;
-            }
-            _out << nl << "info.AddValue(\"" << mName << "\", " << mName;
-
-            if (member->tagged() && isValueType(memberType))
-            {
-                _out << ".Value";
-            }
-
-            if (ContainedPtr::dynamicCast(memberType))
-            {
-                _out << ", typeof(" << typeToString(memberType, ns) << ")";
-            }
-
-            _out << ");";
-
-            if (member->tagged() && isValueType(memberType))
-            {
-                _out << eb;
-            }
-        }
-        _out << sp << nl << "base.GetObjectData(info, context);";
-        _out << eb;
-    }
-
     // protected internal constructor used for unmarshaling (always generated).
     // the factory parameter is used to distinguish this ctor from the parameterless ctor that users may want to add to
     // the partial class; it's not used otherwise.
@@ -1721,98 +1674,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out.dec();
     _out << sb;
     writeSuppressNonNullableWarnings(dataMembers, Slice::ExceptionType);
-    _out << eb;
-
-    // Serializable constructor
-    _out << sp;
-    _out << nl << "protected " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context)";
-    _out.inc();
-    _out << nl << ": base(info, context)";
-    _out.dec();
-    _out << sb;
-    if(!dataMembers.empty())
-    {
-        bool hasTaggedMembers = false;
-        static const std::array<std::string, 17> builtinGetter =
-        {
-            "GetBoolean",
-            "GetByte",
-            "GetInt16",
-            "GetUInt16",
-            "GetInt32",
-            "GetUInt32",
-            "GetInt32",
-            "GetUInt32",
-            "GetInt64",
-            "GetUInt64",
-            "GetInt64",
-            "GetUInt64",
-            "GetSingle",
-            "GetDouble",
-            "GetString",
-            "",
-            "",
-        };
-
-        for (const auto& member : dataMembers)
-        {
-            TypePtr memberType = unwrapIfOptional(member->type());
-
-            if (member->tagged() && isValueType(memberType))
-            {
-                hasTaggedMembers = true;
-                continue;
-            }
-            string getter;
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if (builtin)
-            {
-                getter = builtinGetter[builtin->kind()];
-            }
-            if (getter.empty())
-            {
-                getter = "GetValue";
-            }
-            string mName = fixId(fieldName(member), Slice::ExceptionType);
-            _out << nl << "this." << mName << " = ";
-
-            if (getter == "GetValue")
-            {
-                _out << "(" << typeToString(memberType, ns) << ")";
-            }
-            _out << "info." << getter << "(\"" << mName << "\"";
-            if (getter == "GetValue")
-            {
-                _out << ", typeof(" << typeToString(memberType, ns) << ")";
-            }
-            _out << ")!;";
-        }
-
-        if(hasTaggedMembers)
-        {
-            _out << nl << "foreach (var entry in info)";
-            _out << sb;
-            _out << nl << "switch (entry.Name)";
-            _out << sb;
-            for (const auto& member : dataMembers)
-            {
-                TypePtr memberType = unwrapIfOptional(member->type());
-                if (!member->tagged() || !isValueType(memberType))
-                {
-                    continue;
-                }
-                string mName = fixId(fieldName(member), Slice::ExceptionType);
-                _out << nl << "case \"" << mName << "\":";
-                _out << sb;
-                _out << nl << "this." << mName << " = (" << typeToString(memberType, ns) << ") entry.Value!;";
-                _out << nl << "break;";
-                _out << eb;
-            }
-            _out << eb;
-            _out << eb;
-        }
-    }
     _out << eb;
 
     string scoped = p->scoped();
@@ -1878,7 +1739,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitDeprecate(p, 0, _out, "type");
     emitCommonAttributes();
-    emitSerializableAttribute();
     emitCustomAttributes(p);
     _out << nl << "public ";
     if(p->hasMetaData("cs:readonly"))
@@ -2425,19 +2285,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // Proxy instance
     //
     _out << sp;
-    _out << nl << "[global::System.Serializable]";
     _out << nl << "internal sealed class _" << p->name() << "Prx : ZeroC.Ice.ObjectPrx, "
          << name;
     _out << sb;
-
-    _out << nl << "private _" << p->name() << "Prx("
-         << "global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context)";
-    _out.inc();
-    _out << nl << ": base(info, context)";
-    _out.dec();
-    _out << sb;
-    _out << eb;
 
     _out << sp;
     _out << nl << "internal _" << p->name() << "Prx(ZeroC.Ice.Reference reference)";

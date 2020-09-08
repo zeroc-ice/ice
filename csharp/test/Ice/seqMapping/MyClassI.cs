@@ -190,11 +190,5 @@ namespace ZeroC.Ice.Test.SeqMapping
         public (IEnumerable<Custom<int>>, IEnumerable<Custom<int>>) OpCustomIntSS(Custom<Custom<int>> i, Current current) => (i, i);
 
         public (IEnumerable<Custom<CV?>>, IEnumerable<Custom<CV?>>) OpCustomCVSS(Custom<Custom<CV?>> i, Current current) => (i, i);
-
-        public (Serialize.Small, Serialize.Small) OpSerialSmallCSharp(Serialize.Small i, Current current) => (i, i);
-
-        public (Serialize.Large, Serialize.Large) OpSerialLargeCSharp(Serialize.Large i, Current current) => (i, i);
-
-        public (Serialize.Struct, Serialize.Struct) OpSerialStructCSharp(Serialize.Struct i, Current current) => (i, i);
     }
 }

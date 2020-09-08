@@ -70,9 +70,6 @@ sequence<FixedStruct> FixedStructSeq;
 sequence<VarStruct> VarStructSeq;
 sequence<OneTagged> OneTaggedSeq;
 
-[cs:serializable:ZeroC.Ice.Test.Tagged.SerializableClass]
-sequence<byte> Serializable;
-
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
@@ -110,8 +107,6 @@ class MultiTagged
     tag(27) IntOneTaggedDict? iood;
 
     tag(29) BoolSeq? bos;
-
-    tag(30) Serializable? ser;
 
     tag(31) ushort? us;
     tag(32) uint? ui;
@@ -256,8 +251,6 @@ interface Initial
 
     tag(1) VarStructSeq? opVarStructSeq(tag(2) VarStructSeq? p1, out tag(3) VarStructSeq? p3);
 
-    tag(1) Serializable? opSerializable(tag(2) Serializable? p1, out tag(3) Serializable? p3);
-
     tag(1) IntIntDict? opIntIntDict(tag(2) IntIntDict? p1, out tag(3) IntIntDict? p3);
 
     tag(1) StringIntDict? opStringIntDict(tag(2) StringIntDict? p1, out tag(3) StringIntDict? p3);
@@ -281,8 +274,6 @@ interface Initial
     bool supportsRequiredParams();
 
     bool supportsJavaSerializable();
-
-    bool supportsCsharpSerializable();
 
     bool supportsCppStringView();
 
