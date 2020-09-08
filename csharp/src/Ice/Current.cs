@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     {
         /// <summary>The object adapter.</summary>
         public ObjectAdapter Adapter { get; }
-        /// <summary>A cancelation token that  is notified of cancellation when the dispatch is cancelled.</summary>
+        /// <summary>A cancelation token that is notified of cancellation when the dispatch is cancelled.</summary>
         public CancellationToken CancellationToken { get; }
         /// <summary>The communicator.</summary>
         public Communicator Communicator => Adapter.Communicator;
