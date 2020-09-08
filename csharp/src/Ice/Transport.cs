@@ -10,16 +10,23 @@ namespace ZeroC.Ice
     /// transport plug-ins.</summary>
     public enum Transport : short
     {
+        /// <summary>TCP transport.</summary>
         TCP = 1,
+        /// <summary>SSL transport.</summary>
         SSL = 2,
+        /// <summary>UDP transport.</summary>
         UDP = 3,
+        /// <summary>Web Socket transport.</summary>
         WS = 4,
+        /// <summary>Secure Web Socket transport.</summary>
         WSS = 5,
+        /// <summary>Bluetooth transport.</summary>
         BT = 6,
+        /// <summary>Secure Bluetooth transport.</summary>
         BTS = 7,
-#pragma warning disable SA1300 // Element should begin with upper-case letter
+        /// <summary>Apple iAP transport.</summary>
         iAP = 8,
+        /// <summary>Secure Apple iAP transport.</summary>
         iAPS = 9
-#pragma warning restore SA1300 // Element should begin with upper-case letter
     }
 }

@@ -147,6 +147,10 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Constructs a new <see cref="IncomingFrame"/>.</summary>
+        /// <param name="data">The frame data.</param>
+        /// <param name="protocol">The frame protocol.</param>
+        /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
         protected IncomingFrame(ArraySegment<byte> data, Protocol protocol, int sizeMax)
         {
             Data = data;

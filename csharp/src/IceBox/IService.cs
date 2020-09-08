@@ -4,6 +4,7 @@
 
 namespace ZeroC.IceBox
 {
+    /// <summary>An application service managed by a <see cref="IServiceManager"/>.</summary>
     public interface IService
     {
         /// <summary>Start the service. The given communicator is created by the ServiceManager for use by the service.

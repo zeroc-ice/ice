@@ -6,6 +6,7 @@ using System;
 
 namespace ZeroC.Ice
 {
+    /// <summary>The Ice runtime.</summary>
     public static class Runtime
     {
         /// <summary>The process-wide logger.</summary>

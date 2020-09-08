@@ -20,8 +20,6 @@
         <!-- TODO enable all warnigns as error once we fix analyzer warnings -->
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-        <!-- TODO: Fix Documentation Warnings -->
-        <NoWarn>1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
