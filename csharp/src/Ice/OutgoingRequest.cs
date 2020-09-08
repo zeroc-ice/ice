@@ -94,8 +94,8 @@ namespace ZeroC.Ice
                 progress, cancel);
     }
 
-    /// <summary>Publicly visible Ice-internal type used to make request with input and output parameters, the input
-    /// parameters are pass without the `in' modifier, this helper is used when there is a single input parameter and
+    /// <summary>Publicly visible Ice-internal type used to make request with input and output parameters. The input
+    /// parameters are passed without the `in' modifier. This helper is used when there is a single input parameter and
     /// the parameter is of a non structure type.</summary>
     /// <typeparam name="TParamList">The input parameters type.</typeparam>
     /// <typeparam name="TReturnValue">The return value type</typeparam>
