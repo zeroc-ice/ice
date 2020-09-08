@@ -30,7 +30,7 @@ namespace ZeroC.Ice
             (ostr, value) => ostr.WriteNullableClass(value, null);
 
         /// <summary>Returns the sliced data if the class has a preserved-slice base class and has been sliced during
-        /// un-marshaling, <c>null</c> is returned otherwise.</summary>
+        /// un-marshaling,  otherwise <c>null</c>.</summary>
         protected virtual SlicedData? IceSlicedData
         {
             get => null;
