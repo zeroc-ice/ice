@@ -17,7 +17,7 @@
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
                              $(IceSrcRootDir)lib\**\*.xml"/>
 
-        <Pdbs Include="$(IceSrcRootDir)lib\netstandard2.0\*.pdb" />
+        <Pdbs Include="$(IceSrcRootDir)lib\net5\*.pdb" />
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
