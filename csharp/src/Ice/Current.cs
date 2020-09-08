@@ -18,7 +18,7 @@ namespace ZeroC.Ice
         /// <summary>The communicator.</summary>
         public Communicator Communicator => Adapter.Communicator;
         /// <summary>
-        /// The <see cref="Connection"/> over with the request was dispatch, it is null for colocated dispatches.</summary>
+        /// The <see cref="Connection"/> over which the request was dispatched; it is null for colocated dispatches.</summary>
         public Connection? Connection { get; }
         /// <summary>The request context, as received from the client.</summary>
         public Dictionary<string, string> Context => IncomingRequestFrame.Context;
