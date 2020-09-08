@@ -64,7 +64,7 @@ namespace ZeroC.Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
-        /// <summary>The proxy's underlying reference.</summary>
+        /// <summary>The proxy's underlying reference. This is a publicly visible Ice-internal method. Applications should not use it directly.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Reference IceReference { get; }
 
