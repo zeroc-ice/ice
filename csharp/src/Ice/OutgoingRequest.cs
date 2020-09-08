@@ -46,7 +46,7 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>publicly visible Ice-internal class used to make request without input parameters.</summary>
+    /// <summary>Publicly visible Ice-internal class used to make request without input parameters.</summary>
     /// <typeparam name="TReturnValue">The return value type.</typeparam>
     public sealed class OutgoingRequestWithEmptyParamList<TReturnValue>
         : OutgoingRequest<TReturnValue>
