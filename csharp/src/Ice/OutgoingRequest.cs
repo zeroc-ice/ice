@@ -430,8 +430,8 @@ namespace ZeroC.Ice
                         cancel);
     }
 
-    /// <summary>Publicly visible Ice-internal type used to make void request with input parameters, the input
-    /// parameters are pass with the `in' modifier, this helper is used when input parameter is a structure type, or
+    /// <summary>Publicly visible Ice-internal type used to make void request with input parameters. The input
+    /// parameters are passed with the `in' modifier. This helper is used when input parameter is a structure type, or
     /// when there is several input parameters as we pass them wrapped in a tuple.</summary>
     /// <typeparam name="TParamList">The input parameters type.</typeparam>
     public sealed class OutgoingRequestWithStructParam<TParamList>
