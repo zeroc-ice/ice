@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Information about the current method invocation for servers. Each operation on the server has a
+    /// <summary>Information about the current method dispatch for servers. Each operation on the server has a
     /// Current as its implicit final parameter.</summary>
     public class Current
     {
