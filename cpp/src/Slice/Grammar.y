@@ -2100,7 +2100,7 @@ tagged_type
     }
     if (type->usesClasses())
     {
-        unit->error("types that use classes cannot be tagged");
+        unit->error("type '" + type->typeId() + "' cannot be tagged, as it uses classes");
     }
 
     taggedDef->type = type;
@@ -2118,7 +2118,7 @@ tagged_type
     }
     if (type->usesClasses())
     {
-        unit->error("types that use classes cannot be tagged");
+        unit->error("type '" + type->typeId() + "' cannot be tagged, as it uses classes");
     }
 
     taggedDef->type = type;

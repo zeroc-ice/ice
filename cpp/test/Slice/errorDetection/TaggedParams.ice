@@ -70,4 +70,52 @@ interface I
     int wo(out optional(1) int p);  // deprecated
 }
 
+class OnlyDeclared;
+
+class C
+{
+    long l;
+}
+
+class Derived : C
+{
+    int i;
+}
+
+sequence<byte> bs;
+sequence<C> cs;
+
+struct S
+{
+    string s1;
+    string s2;
+}
+
+struct HasClassMembers
+{
+    int m1;
+    string m2;
+    C m3;
+    Derived m4;
+}
+
+interface TaggedClassMembers
+{
+    void op1(tag(1) int? p);                   // ok
+    void op2(tag(2) S? p);                     // ok
+    void op3(tag(3) C? p);                     // tagged class
+    void op4(tag(4) Derived? p);               // tagged class
+    void op5(tag(5) HasClassMembers? p);       // tagging type that uses classes
+    void op7(tag(6) AnyClass? p);              // tagged class
+    void op8(tag(7) OnlyDeclared? p);          // tagged class
+    void op9(tag(8) bs? p);                    // ok
+    void op10(tag(9) cs? p);                  // tagging type that uses classes
+
+    tag(1) C? op11();                          // tagged class
+    tag(2) AnyClass? op12();                   // tagged class
+    tag(7) AnyClass? op13(tag(9) C? p);        // tagged classes
+
+    (tag(1) C? r1, tag(2) AnyClass? r2) op14(tag(1) cs? p1, tag(2) bs? p2, tag(3) C? p3); // tagged classes
+}
+
 }

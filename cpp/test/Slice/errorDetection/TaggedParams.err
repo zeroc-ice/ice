@@ -37,3 +37,17 @@ TaggedParams.ice:66: tag for parameter `o' is already in use
 TaggedParams.ice:68: warning: The `optional' keyword is deprecated, use `tag' instead
 TaggedParams.ice:69: warning: The `optional' keyword is deprecated, use `tag' instead
 TaggedParams.ice:70: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:106: type '::Test::C' cannot be tagged, as it uses classes
+TaggedParams.ice:107: type '::Test::Derived' cannot be tagged, as it uses classes
+TaggedParams.ice:108: type '::Test::HasClassMembers' cannot be tagged, as it uses classes
+TaggedParams.ice:109: type '::Ice::AnyClass' cannot be tagged, as it uses classes
+TaggedParams.ice:110: type '::Test::OnlyDeclared' cannot be tagged, as it uses classes
+TaggedParams.ice:112: type '::Test::cs' cannot be tagged, as it uses classes
+TaggedParams.ice:114: type '::Test::C' cannot be tagged, as it uses classes
+TaggedParams.ice:115: type '::Ice::AnyClass' cannot be tagged, as it uses classes
+TaggedParams.ice:116: type '::Ice::AnyClass' cannot be tagged, as it uses classes
+TaggedParams.ice:116: type '::Test::C' cannot be tagged, as it uses classes
+TaggedParams.ice:118: type '::Test::C' cannot be tagged, as it uses classes
+TaggedParams.ice:118: type '::Ice::AnyClass' cannot be tagged, as it uses classes
+TaggedParams.ice:118: type '::Test::cs' cannot be tagged, as it uses classes
+TaggedParams.ice:118: type '::Test::C' cannot be tagged, as it uses classes
