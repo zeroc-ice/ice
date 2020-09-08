@@ -370,12 +370,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     if(seq)
     {
         string customType = seq->findMetaDataWithPrefix("cs:generic:");
-        string serializableType = seq->findMetaDataWithPrefix("cs:serializable:");
-        if (!serializableType.empty())
-        {
-            return "global::" + serializableType + (optional ? "?" : "");
-        }
-        else if (readOnly)
+        if (readOnly)
         {
             auto elementType = seq->type();
             string elementTypeStr = "<" + typeToString(elementType, package) + ">";
@@ -537,7 +532,7 @@ Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     return builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength() &&
-        !seq->hasMetaDataWithPrefix("cs:serializable") && !seq->hasMetaDataWithPrefix("cs:generic");
+        !seq->hasMetaDataWithPrefix("cs:generic");
 }
 
 vector<string>
@@ -950,10 +945,6 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
             }
             out << ");";
         }
-        else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
-        {
-            out << nl << stream << ".WriteTaggedSerializable(" << tag << ", " << param << ");";
-        }
         else if (auto optional = OptionalPtr::dynamicCast(elementType); optional && optional->encodedUsingBitSequence())
         {
             TypePtr underlying = optional->underlying();
@@ -1092,10 +1083,6 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output& out,
                 out << "<" << typeToString(elementType, scope) << ">(" << tag << ")";
             }
         }
-        else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
-        {
-            out << stream << ".ReadTaggedSerializable(" << tag << ") as " << typeToString(seq, scope);
-        }
         else if (seq->hasMetaDataWithPrefix("cs:generic:"))
         {
             const string tmpName = (dataMember ? dataMember->name() : param) + "_";
@@ -1184,10 +1171,6 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     {
         out << stream << ".WriteSequence(" << param << ".Span)";
     }
-    else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
-    {
-        out << stream << ".WriteSerializable(" << param << ")";
-    }
     else if (auto optional = OptionalPtr::dynamicCast(type); optional && optional->encodedUsingBitSequence())
     {
         TypePtr underlying = optional->underlying();
@@ -1218,18 +1201,13 @@ string
 Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& scope, const string& stream)
 {
     string generic = seq->findMetaDataWithPrefix("cs:generic:");
-    string serializable = seq->findMetaDataWithPrefix("cs:serializable:");
 
     TypePtr type = seq->type();
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     auto en = EnumPtr::dynamicCast(type);
 
     ostringstream out;
-    if (!serializable.empty())
-    {
-        out << "(" << serializable << ") " << stream << ".ReadSerializable()";
-    }
-    else if (generic.empty())
+    if (generic.empty())
     {
         if ((builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength()) ||
             (en && en->underlying() && en->isUnchecked()))
@@ -1540,24 +1518,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     {
                         newLocalMetaData.push_back(s);
                         continue; // Custom type or List<T>
-                    }
-                }
-                static const string csSerializablePrefix = csPrefix + "serializable:";
-                if(s.find(csSerializablePrefix) == 0)
-                {
-                    string meta;
-                    if(cont->findMetaData(csPrefix + "generic:", meta))
-                    {
-                        dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + meta + "':\n" +
-                                    "serialization can only be used with the array mapping for byte sequences");
-                        continue;
-                    }
-                    string type = s.substr(csSerializablePrefix.size());
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                    if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
-                    {
-                        newLocalMetaData.push_back(s);
-                        continue;
                     }
                 }
             }

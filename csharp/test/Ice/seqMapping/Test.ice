@@ -141,10 +141,6 @@ sequence<En> AEnS;
 [clr:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CustomIntS> CustomIntSS;
 [clr:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CustomCVS> CustomCVSS;
 
-[clr:serializable:ZeroC.Ice.Test.SeqMapping.Serialize.Small] sequence<byte> SerialSmall;
-[clr:serializable:ZeroC.Ice.Test.SeqMapping.Serialize.Large] sequence<byte> SerialLarge;
-[clr:serializable:ZeroC.Ice.Test.SeqMapping.Serialize.Struct] sequence<byte> SerialStruct;
-
 interface MyClass
 {
     void shutdown();
@@ -256,33 +252,6 @@ interface MyClass
 
     CustomIntSS opCustomIntSS(CustomIntSS i, out CustomIntSS o);
     CustomCVSS opCustomCVSS(CustomCVSS i, out CustomCVSS o);
-    SerialSmall opSerialSmallCSharp(SerialSmall i, out SerialSmall o);
-    SerialLarge opSerialLargeCSharp(SerialLarge i, out SerialLarge o);
-    SerialStruct opSerialStructCSharp(SerialStruct i, out SerialStruct o);
-}
-
-// Remaining type definitions are there to verify that the generated
-// code compiles correctly.
-sequence<SerialLarge> SLS;
-sequence<SLS> SLSS;
-dictionary<int, SerialLarge> SLD;
-dictionary<int, SLS> SLSD;
-struct Foo
-{
-    SerialLarge SLmem;
-    SLS SLSmem;
-}
-
-exception Bar
-{
-    SerialLarge SLmem;
-    SLS SLSmem;
-}
-
-class Baz
-{
-    SerialLarge SLmem;
-    SLS SLSmem;
 }
 
 }

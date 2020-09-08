@@ -9,7 +9,6 @@ namespace ZeroC.Ice
 {
     /// <summary>The Ice encoding defines how Slice constructs are marshaled to and later unmarshaled from sequences
     /// of bytes. An Encoding struct holds a version of the Ice encoding.</summary>
-    [Serializable]
     public readonly struct Encoding : IEquatable<Encoding>
     {
         // The encodings known to the Ice runtime.

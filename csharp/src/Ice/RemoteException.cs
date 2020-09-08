@@ -4,13 +4,11 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace ZeroC.Ice
 {
     /// <summary>Base class for exceptions that can be transmitted in responses to Ice requests. The derived exception
     /// classes are generated from exceptions defined in Slice.</summary>
-    [Serializable]
     public class RemoteException : Exception
     {
         /// <inheritdoc/>
@@ -49,14 +47,6 @@ namespace ZeroC.Ice
         /// <param name="innerException">The inner exception.</param>
         protected RemoteException(string? message, Exception? innerException)
             : base(message, innerException) => _hasCustomMessage = message != null;
-
-        /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected RemoteException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
 
         /// <summary>Unmarshal a remote exception from the <see cref="InputStream"/>. This base implementation is only
         /// called on a plain RemoteException.</summary>

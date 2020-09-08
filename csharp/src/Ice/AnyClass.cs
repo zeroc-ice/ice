@@ -2,14 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
     /// <summary>The base class for classes defined in Slice</summary>
-    [Serializable]
     public abstract class AnyClass
     {
         /// <summary>An InputStream reader used to read non nullable class instances.</summary>

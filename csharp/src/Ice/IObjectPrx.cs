@@ -5,8 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -312,16 +310,11 @@ namespace ZeroC.Ice
 
     /// <summary>The base class for all proxies. It's a publicly visible Ice-internal class. Applications
     /// should not use it directly.</summary>
-    [Serializable]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ObjectPrx : IObjectPrx, ISerializable
+    public class ObjectPrx : IObjectPrx
     {
         /// <summary>The proxy's underlying reference.</summary>
         public Reference IceReference { get; }
-
-        /// <inheritdoc/>
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
-            info.AddValue("proxy", ToString());
 
         /// <summary>Returns the stringified form of this proxy.</summary>
         /// <returns>The stringified proxy.</returns>
@@ -347,20 +340,5 @@ namespace ZeroC.Ice
         /// <summary>Construct a new proxy.</summary>
         /// <param name="reference">The proxy's underlying reference.</param>
         protected internal ObjectPrx(Reference reference) => IceReference = reference;
-
-        /// <summary>The serialization constructor.</summary>
-        /// <param name="info">The serialzation info.</param>
-        /// <param name="context">The context for serialization operations.</param>
-        protected ObjectPrx(SerializationInfo info, StreamingContext context)
-        {
-            if (!(context.Context is Communicator communicator))
-            {
-                throw new ArgumentException("cannot deserialize proxy: communicator not found in StreamingContext",
-                    nameof(context));
-            }
-            string? str = info.GetString("proxy");
-            Debug.Assert(str != null);
-            IceReference = Reference.Parse(str, communicator);
-        }
     }
 }

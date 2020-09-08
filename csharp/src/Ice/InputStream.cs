@@ -10,8 +10,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ZeroC.Ice
 {
@@ -540,26 +538,6 @@ namespace ZeroC.Ice
         public ICollection<T?> ReadSequence<T>(InputStreamReader<T> reader) where T : struct =>
             new NullableValueCollection<T>(this, reader);
 
-        /// <summary>Reads a serializable object from the stream.</summary>
-        /// <returns>The object read from the stream.</returns>
-        public object ReadSerializable()
-        {
-            int sz = ReadAndCheckSeqSize(1);
-            if (sz == 0)
-            {
-                throw new InvalidDataException("read an empty byte sequence for a serializable object");
-            }
-            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator));
-            var streamWrapper = new StreamWrapper(_buffer.Slice(Pos, sz));
-            object result = f.Deserialize(streamWrapper);
-            if (streamWrapper.Position != sz)
-            {
-                throw new InvalidDataException($"{sz - streamWrapper.Position} bytes left in object stream");
-            }
-            Pos += sz;
-            return result;
-        }
-
         /// <summary>Reads a sorted dictionary from the stream.</summary>
         /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
         /// <param name="minValueSize">The minimum size of each value of the dictionary, in bytes.</param>
@@ -883,12 +861,6 @@ namespace ZeroC.Ice
                 return null;
             }
         }
-
-        /// <summary>Reads a tagged serializable object from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <returns>The object read from the stream, or null.</returns>
-        public object? ReadTaggedSerializable(int tag) =>
-            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize) ? ReadSerializable() : null;
 
         /// <summary>Reads a tagged sequence from the stream. The element type can be nullable only if it corresponds to
         /// a proxy class or mapped Slice class.</summary>
