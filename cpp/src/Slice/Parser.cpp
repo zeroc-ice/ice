@@ -4201,7 +4201,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         // in which case using out parameters isn't allowed, and an error is thrown.
         if (!_usesOutParameters && _returnValues.size() > 1)
         {
-            _unit->error("operations using return-tuples cannot use out parameters");
+            _unit->error("an operation returning a tuple cannot have out parameters");
         }
 
         _usesOutParameters = true;
