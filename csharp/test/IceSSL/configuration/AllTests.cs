@@ -37,9 +37,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
     public class AllTests
     {
-        private static bool IsCatalinaOrGreater =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.macOS) && Environment.OSVersion.Version.Major >= 19;
-
         private static X509Certificate2 CreateCertificate(string certPEM) =>
             new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
 
@@ -624,7 +621,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             catch
                             {
                                 // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
-                                TestHelper.Assert(IsCatalinaOrGreater);
+                                TestHelper.Assert(RuntimeInformation.IsOSPlatform(OSPlatform.macOS));
                             }
                             fact.DestroyServer(server);
                         }
