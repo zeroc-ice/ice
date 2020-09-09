@@ -28,68 +28,68 @@ namespace ZeroC.Ice.Test.Enums
         public (IEnumerable<SimpleEnum>, IEnumerable<SimpleEnum>) OpSimpleSeq(SimpleEnum[] s1, Current current) =>
             (s1, s1);
 
-        public (FLByteEnum ReturnValue, FLByteEnum B2) OpFLByte(FLByteEnum b1, Current current) => (b1, b1);
+        public (FLByteEnum R1, FLByteEnum R2) OpFLByte(FLByteEnum b1, Current current) => (b1, b1);
 
-        public (FLShortEnum ReturnValue, FLShortEnum S2) OpFLShort(FLShortEnum s1, Current current) => (s1, s1);
+        public (FLShortEnum R1, FLShortEnum R2) OpFLShort(FLShortEnum s1, Current current) => (s1, s1);
 
-        public (FLUShortEnum ReturnValue, FLUShortEnum S2) OpFLUShort(FLUShortEnum s1, Current current) => (s1, s1);
+        public (FLUShortEnum R1, FLUShortEnum R2) OpFLUShort(FLUShortEnum s1, Current current) => (s1, s1);
 
-        public (FLIntEnum ReturnValue, FLIntEnum I2) OpFLInt(FLIntEnum i1, Current current) => (i1, i1);
+        public (FLIntEnum R1, FLIntEnum R2) OpFLInt(FLIntEnum i1, Current current) => (i1, i1);
 
-        public (FLUIntEnum ReturnValue, FLUIntEnum I2) OpFLUInt(FLUIntEnum i1, Current current) => (i1, i1);
+        public (FLUIntEnum R1, FLUIntEnum R2) OpFLUInt(FLUIntEnum i1, Current current) => (i1, i1);
 
-        public (FLSimpleEnum ReturnValue, FLSimpleEnum S2) OpFLSimple(FLSimpleEnum s1, Current current) => (s1, s1);
+        public (FLSimpleEnum R1, FLSimpleEnum R2) OpFLSimple(FLSimpleEnum s1, Current current) => (s1, s1);
 
-        public (ReadOnlyMemory<FLByteEnum> ReturnValue, ReadOnlyMemory<FLByteEnum> B2) OpFLByteSeq(
+        public (ReadOnlyMemory<FLByteEnum> R1, ReadOnlyMemory<FLByteEnum> R2) OpFLByteSeq(
             FLByteEnum[] b1,
             Current current) => (b1, b1);
 
-        public (ReadOnlyMemory<FLShortEnum> ReturnValue, ReadOnlyMemory<FLShortEnum> S2) OpFLShortSeq(
+        public (ReadOnlyMemory<FLShortEnum> R1, ReadOnlyMemory<FLShortEnum> R2) OpFLShortSeq(
             FLShortEnum[] s1,
             Current current) => (s1, s1);
 
-        public (ReadOnlyMemory<FLUShortEnum> ReturnValue, ReadOnlyMemory<FLUShortEnum> S2) OpFLUShortSeq(
+        public (ReadOnlyMemory<FLUShortEnum> R1, ReadOnlyMemory<FLUShortEnum> R2) OpFLUShortSeq(
             FLUShortEnum[] s1,
             Current current) => (s1, s1);
 
-        public (ReadOnlyMemory<FLIntEnum> ReturnValue, ReadOnlyMemory<FLIntEnum> I2) OpFLIntSeq(
+        public (ReadOnlyMemory<FLIntEnum> R1, ReadOnlyMemory<FLIntEnum> R2) OpFLIntSeq(
             FLIntEnum[] i1,
             Current current) => (i1, i1);
 
-        public (ReadOnlyMemory<FLUIntEnum> ReturnValue, ReadOnlyMemory<FLUIntEnum> I2) OpFLUIntSeq(
+        public (ReadOnlyMemory<FLUIntEnum> R1, ReadOnlyMemory<FLUIntEnum> R2) OpFLUIntSeq(
             FLUIntEnum[] i1,
             Current current) => (i1, i1);
 
-        public (ReadOnlyMemory<FLSimpleEnum> ReturnValue, ReadOnlyMemory<FLSimpleEnum> S2) OpFLSimpleSeq(
+        public (ReadOnlyMemory<FLSimpleEnum> R1, ReadOnlyMemory<FLSimpleEnum> R2) OpFLSimpleSeq(
             FLSimpleEnum[] s1,
             Current current) => (s1, s1);
 
-        public (ByteEnum? ReturnValue, ByteEnum? B2) OpTaggedByte(ByteEnum? b1, Current current) => (b1, b1);
+        public (ByteEnum? R1, ByteEnum? R2) OpTaggedByte(ByteEnum? b1, Current current) => (b1, b1);
 
-        public (FLByteEnum? ReturnValue, FLByteEnum? B2) OpTaggedFLByte(FLByteEnum? b1, Current current) => (b1, b1);
+        public (FLByteEnum? R1, FLByteEnum? R2) OpTaggedFLByte(FLByteEnum? b1, Current current) => (b1, b1);
 
-        public (IEnumerable<ByteEnum>? ReturnValue, IEnumerable<ByteEnum>? B2) OpTaggedByteSeq(
+        public (IEnumerable<ByteEnum>? R1, IEnumerable<ByteEnum>? R2) OpTaggedByteSeq(
             ByteEnum[]? b1,
             Current current) => (b1, b1);
 
-        public (ReadOnlyMemory<FLByteEnum> ReturnValue, ReadOnlyMemory<FLByteEnum> B2) OpTaggedFLByteSeq(
+        public (ReadOnlyMemory<FLByteEnum> R1, ReadOnlyMemory<FLByteEnum> R2) OpTaggedFLByteSeq(
             FLByteEnum[]? b1,
             Current current) => (b1, b1);
 
-        public (ReadOnlyMemory<FLIntEnum> ReturnValue, ReadOnlyMemory<FLIntEnum> I2) OpTaggedFLIntSeq(
+        public (ReadOnlyMemory<FLIntEnum> R1, ReadOnlyMemory<FLIntEnum> R2) OpTaggedFLIntSeq(
             FLIntEnum[]? i1,
             Current current) => (i1, i1);
 
-        public (MyFlags ReturnValue, MyFlags F2) OpMyFlags(MyFlags f1, Current current) =>
+        public (MyFlags R1, MyFlags R2) OpMyFlags(MyFlags f1, Current current) =>
             (f1, f1);
 
-        public (ReadOnlyMemory<MyFlags> ReturnValue, ReadOnlyMemory<MyFlags> F2) OpMyFlagsSeq(
+        public (ReadOnlyMemory<MyFlags> R1, ReadOnlyMemory<MyFlags> R2) OpMyFlagsSeq(
             MyFlags[] f1,
             Current current) => (f1, f1);
 
-        public (MyFlags? ReturnValue, MyFlags? F2) OpTaggedMyFlags(MyFlags? f1, Current current) => (f1, f1);
+        public (MyFlags? R1, MyFlags? R2) OpTaggedMyFlags(MyFlags? f1, Current current) => (f1, f1);
 
-        public (ReadOnlyMemory<MyFlags> ReturnValue, ReadOnlyMemory<MyFlags> F2) OpTaggedMyFlagsSeq(
+        public (ReadOnlyMemory<MyFlags> R1, ReadOnlyMemory<MyFlags> R2) OpTaggedMyFlagsSeq(
             MyFlags[]? f1,
             Current current) => (f1, f1);
 
