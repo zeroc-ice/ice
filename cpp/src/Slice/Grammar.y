@@ -2098,7 +2098,11 @@ tagged_type
         type = new Optional(TypePtr::dynamicCast($2));
         unit->error("only optional types can be tagged");
     }
-    if (type->usesClasses())
+    if (type->isClassType())
+    {
+        unit->error("class '" + type->typeId() + "' cannot be tagged");
+    }
+    else if (type->usesClasses())
     {
         unit->error("type '" + type->typeId() + "' cannot be tagged, as it uses classes");
     }
@@ -2116,7 +2120,11 @@ tagged_type
         // Infer the type to be optional for backwards compatibility.
         type = new Optional(TypePtr::dynamicCast($2));
     }
-    if (type->usesClasses())
+    if (type->isClassType())
+    {
+        unit->error("class '" + type->typeId() + "' cannot be tagged");
+    }
+    else if (type->usesClasses())
     {
         unit->error("type '" + type->typeId() + "' cannot be tagged, as it uses classes");
     }
