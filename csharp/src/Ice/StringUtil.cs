@@ -8,7 +8,7 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Helper methods for string manipulation</summary>
+    /// <summary>Helper methods for string manipulation.</summary>
     public static class StringUtil
     {
         // Return the index of the first character in str to appear in match, starting from 0. Returns -1 if none is

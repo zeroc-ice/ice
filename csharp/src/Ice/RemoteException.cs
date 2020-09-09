@@ -48,10 +48,10 @@ namespace ZeroC.Ice
         protected RemoteException(string? message, Exception? innerException)
             : base(message, innerException) => _hasCustomMessage = message != null;
 
-        /// <summary>Unmarshal a remote exception from the <see cref="InputStream"/>. This base implementation is only
+        /// <summary>Unmarshals a remote exception from the <see cref="InputStream"/>. This base implementation is only
         /// called on a plain RemoteException.</summary>
         /// <param name="istr">The <see cref="InputStream"/> to read from.</param>
-        /// <param name="firstSlice"><c>True</c> if the exception correspond to the first Slice, <c>False</c>
+        /// <param name="firstSlice"><c>True</c> if the exception corresponds to the first Slice, <c>False</c>
         /// otherwise.</param>
         protected virtual void IceRead(InputStream istr, bool firstSlice)
         {
@@ -65,7 +65,7 @@ namespace ZeroC.Ice
         /// <summary>Marshal a remote exception to the <see cref="OutputStream"/>. This implementation can only be
         /// called on a plain RemoteException with IceSlicedData set.</summary>
         /// <param name="ostr">The <see cref="OutputStream"/> to marshal the exception.</param>
-        /// <param name="firstSlice"><c>True</c> if the exception correspond to the first Slice, <c>False</c>
+        /// <param name="firstSlice"><c>True</c> if the exception corresponds to the first Slice, <c>False</c>
         /// otherwise.</param>
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice) =>
             ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message);

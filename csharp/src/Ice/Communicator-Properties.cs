@@ -770,4 +770,18 @@ namespace ZeroC.Ice
             return (name.ToString(), value.ToString());
         }
     }
+
+    internal sealed class Property
+    {
+        internal bool Deprecated { get; }
+        internal string? DeprecatedBy { get; }
+        internal string Pattern { get; }
+
+        internal Property(string pattern, bool deprecated, string? deprecatedBy)
+        {
+            Pattern = pattern;
+            Deprecated = deprecated;
+            DeprecatedBy = deprecatedBy;
+        }
+    }
 }

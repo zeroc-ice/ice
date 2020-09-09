@@ -72,7 +72,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>This method is called to dispatch ice_ping operation, the method delegates to the servan't IcePing
+        /// <summary>This method is called to dispatch ice_ping operation, the method delegates to the servant's IcePing
         /// implementation.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
@@ -84,7 +84,7 @@ namespace ZeroC.Ice
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
 
-        /// <summary>This method is called to dispatch ice_isA operation, the method delegates to the servan't IceIsA
+        /// <summary>This method is called to dispatch ice_isA operation, the method delegates to the servant's IceIsA
         /// implementation.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
@@ -101,7 +101,7 @@ namespace ZeroC.Ice
                                                       OutputStream.IceWriterFromBool));
         }
 
-        /// <summary>This method is called to dispatch ice_id operation, the method delegates to the servan't IceId
+        /// <summary>This method is called to dispatch ice_id operation, the method delegates to the servant's IceId
         /// implementation.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
@@ -118,7 +118,7 @@ namespace ZeroC.Ice
                                                       OutputStream.IceWriterFromString));
         }
 
-        /// <summary>This method is called to dispatch ice_ids operation, the method delegates to the servan't IceIds
+        /// <summary>This method is called to dispatch ice_ids operation, the method delegates to the servant's IceIds
         /// implementation.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>

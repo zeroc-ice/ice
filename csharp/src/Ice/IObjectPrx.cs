@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The proxy's invocation mode.</summary>
     public enum InvocationMode : byte
     {
-        /// <summary>This is the default invocation mode, a request using twoway mode always expect a response.
+        /// <summary>This is the default invocation mode, a request using twoway mode always expects a response.
         /// </summary>
         Twoway,
         /// <summary>A request using oneway mode returns control to the application code as soon as it has been
@@ -64,11 +64,13 @@ namespace ZeroC.Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
-        /// <summary>The proxy's underlying reference. This is a publicly visible Ice-internal method. Applications should not use it directly.</summary>
+        /// <summary>The proxy's underlying reference. This is a publicly visible Ice-internal method. Applications
+        /// should not use it directly.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Reference IceReference { get; }
 
-        /// <summary>Create a clone of the current object, IceClone is re-implemented by all generated proxy classes.</summary>
+        /// <summary>Creates a clone of the current object, IceClone is re-implemented by all generated proxy classes.
+        /// </summary>
         /// <param name="reference">The proxy's reference for the cloned proxy.</param>
         /// <returns>The new proxy.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -337,7 +339,7 @@ namespace ZeroC.Ice
         /// <returns>True if this proxy is equal to other; otherwise, false.</returns>
         public bool Equals(IObjectPrx? other) => other != null && IceReference.Equals(other.IceReference);
 
-        /// <summary>Construct a new proxy.</summary>
+        /// <summary>Constructs a new proxy.</summary>
         /// <param name="reference">The proxy's underlying reference.</param>
         protected internal ObjectPrx(Reference reference) => IceReference = reference;
     }

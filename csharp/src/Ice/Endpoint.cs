@@ -148,7 +148,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Checks whether this endpoint and the given endpoint point to the same local peer. This is used for
-        /// the collocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
+        /// the colocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
         /// </summary>
         /// <param name="endpoint">The other endpoint</param>
         /// <returns><c>True</c> if the other endpoint point to the same local peer, <c>False</c> otherwise.</returns>

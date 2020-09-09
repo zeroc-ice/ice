@@ -68,7 +68,7 @@ namespace ZeroC.Ice
             _idempotent = idempotent;
         }
 
-        /// <summary>Invoke the request synchronously.</summary>
+        /// <summary>Invokes the request synchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="context">The Ice request context.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
@@ -79,7 +79,7 @@ namespace ZeroC.Ice
             CancellationToken cancel) =>
             Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context), cancel);
 
-        /// <summary>Invoke the request asynchronously.</summary>
+        /// <summary>Invokes the request asynchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="context">The Ice request context.</param>
         /// <param name="progress">Sent progress provider.</param>
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        /// <summary>Invoke the request synchronously.</summary>
+        /// <summary>Invokes the request synchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -152,7 +152,7 @@ namespace ZeroC.Ice
                                                       _writer),
                    cancel);
 
-        /// <summary>Invoke the request asynchronously.</summary>
+        /// <summary>Invokes the request asynchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -214,7 +214,7 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        /// <summary>Invoke the request synchronously.</summary>
+        /// <summary>Invokes the request synchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -236,7 +236,7 @@ namespace ZeroC.Ice
                                                       _writer),
                    cancel);
 
-        /// <summary>Invoke the request asynchronously.</summary>
+        /// <summary>Invokes the request asynchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -326,14 +326,14 @@ namespace ZeroC.Ice
             _idempotent = idempotent;
         }
 
-        /// <summary>Invoke the request synchronously.</summary>
+        /// <summary>Invokes the request synchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="context">The Ice request context.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public void Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context, CancellationToken cancel) =>
             Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context), cancel);
 
-        /// <summary>Invoke the request asynchronously.</summary>
+        /// <summary>Invokes the request asynchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="context">The Ice request context.</param>
         /// <param name="progress">Sent progress provider.</param>
@@ -384,7 +384,7 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        /// <summary>Invoke the request synchronously.</summary>
+        /// <summary>Invokes the request synchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -405,7 +405,7 @@ namespace ZeroC.Ice
                                                       _writer),
                    cancel);
 
-        /// <summary>Invoke the request asynchronously.</summary>
+        /// <summary>Invokes the request asynchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -465,7 +465,7 @@ namespace ZeroC.Ice
             _writer = writer;
         }
 
-        /// <summary>Invoke the request synchronously.</summary>
+        /// <summary>Invokes the request synchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>
@@ -486,7 +486,7 @@ namespace ZeroC.Ice
                                                       _writer),
                    cancel);
 
-        /// <summary>Invoke the request asynchronously.</summary>
+        /// <summary>Invokes the request asynchronously.</summary>
         /// <param name="prx">The proxy used to send the request.</param>
         /// <param name="paramList">The request input parameters.</param>
         /// <param name="context">The Ice request context.</param>

@@ -46,6 +46,53 @@ namespace ZeroC.IceBox
             _traceServiceObserver = _communicator.GetPropertyAsInt("IceBox.Trace.ServiceObserver") ?? 0;
         }
 
+        public void AddObserver(IServiceObserverPrx? observer, Current current)
+        {
+            // Null observers and duplicate registrations are ignored
+            if (observer != null)
+            {
+                string[] activeServices;
+                lock (_mutex)
+                {
+                    try
+                    {
+                        _observers.Add(observer);
+                    }
+                    catch (ArgumentException)
+                    {
+                        return;
+                    }
+
+                    if (_traceServiceObserver >= 1)
+                    {
+                        _logger.Trace("IceBox.ServiceObserver", $"Added service observer {observer}");
+                    }
+
+                    activeServices = _services.Where(info => info.Status == ServiceStatus.Started).Select(
+                        info => info.Name).ToArray();
+                }
+
+                if (activeServices.Length > 0)
+                {
+                    _ = StartedAsync(observer, activeServices);
+                }
+
+                async Task StartedAsync(IServiceObserverPrx observer, string[] services)
+                {
+                    try
+                    {
+                        await observer.ServicesStartedAsync(services).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        RemoveObserver(observer, ex);
+                    }
+                }
+            }
+        }
+
+        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
+
         public void StartService(string name, Current current)
         {
             ServiceInfo? info;
@@ -145,54 +192,7 @@ namespace ZeroC.IceBox
             }
         }
 
-        public void AddObserver(IServiceObserverPrx? observer, Current current)
-        {
-            // Null observers and duplicate registrations are ignored
-            if (observer != null)
-            {
-                string[] activeServices;
-                lock (_mutex)
-                {
-                    try
-                    {
-                        _observers.Add(observer);
-                    }
-                    catch (ArgumentException)
-                    {
-                        return;
-                    }
-
-                    if (_traceServiceObserver >= 1)
-                    {
-                        _logger.Trace("IceBox.ServiceObserver", $"Added service observer {observer}");
-                    }
-
-                    activeServices = _services.Where(info => info.Status == ServiceStatus.Started).Select(
-                        info => info.Name).ToArray();
-                }
-
-                if (activeServices.Length > 0)
-                {
-                    _ = StartedAsync(observer, activeServices);
-                }
-
-                async Task StartedAsync(IServiceObserverPrx observer, string[] services)
-                {
-                    try
-                    {
-                        await observer.ServicesStartedAsync(services).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        RemoveObserver(observer, ex);
-                    }
-                }
-            }
-        }
-
-        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
-
-        public async Task<int> RunAsync()
+        internal async Task<int> RunAsync()
         {
             try
             {
@@ -323,6 +323,159 @@ namespace ZeroC.IceBox
             }
 
             return 0;
+        }
+
+        private bool ConfigureAdmin(Dictionary<string, string> properties, string prefix)
+        {
+            if (_adminEnabled && !properties.ContainsKey("Ice.Admin.Enabled"))
+            {
+                var facetNames = new List<string>();
+                Debug.Assert(_adminFacetFilter != null);
+                foreach (string p in _adminFacetFilter)
+                {
+                    if (p.StartsWith(prefix))
+                    {
+                        facetNames.Add(p.Substring(prefix.Length));
+                    }
+                }
+
+                if (_adminFacetFilter.Count == 0 || facetNames.Count > 0)
+                {
+                    properties["Ice.Admin.Enabled"] = "1";
+
+                    if (facetNames.Count > 0)
+                    {
+                        properties["Ice.Admin.Facets"] = StringUtil.ToPropertyValue(facetNames);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private Dictionary<string, string> CreateServiceProperties(string service)
+        {
+            Dictionary<string, string> properties;
+            if (_communicator.GetPropertyAsBool("IceBox.InheritProperties") ?? false)
+            {
+                // Inherit all except Ice.Admin.xxx properties
+                properties = _communicator.GetProperties().Where(p => !p.Key.StartsWith("Ice.Admin.")).ToDictionary(
+                    p => p.Key, p => p.Value);
+            }
+            else
+            {
+                properties = new Dictionary<string, string>();
+            }
+
+            string? programName = _communicator.GetProperty("Ice.ProgramName");
+            properties["Ice.ProgramName"] = programName == null ? service : $"{programName}-{service}";
+            return properties;
+        }
+
+        private void DestroyServiceCommunicator(string service, Communicator communicator)
+        {
+            if (communicator != null)
+            {
+                try
+                {
+                    communicator.ShutdownAsync().Wait();
+                }
+                catch (CommunicatorDisposedException)
+                {
+                    // Ignore, the service might have already destroyed the communicator for its own reasons.
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning(@$"IceBox.ServiceManager: exception while shutting down communicator for service `{
+                        service}'\n{ex}");
+                }
+
+                RemoveAdminFacets($"IceBox.Service.{service}.");
+                communicator.Dispose();
+            }
+        }
+
+        private void RemoveAdminFacets(string prefix)
+        {
+            try
+            {
+                foreach (string p in _communicator.FindAllAdminFacets().Keys)
+                {
+                    if (p.StartsWith(prefix))
+                    {
+                        _communicator.RemoveAdminFacet(p);
+                    }
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Expected if the communicator or ObjectAdapter are disposed.
+            }
+        }
+
+        private void RemoveObserver(IServiceObserverPrx observer, Exception ex)
+        {
+            lock (_mutex)
+            {
+                if (_observers.Remove(observer))
+                {
+                    // CommunicatorDestroyedException may occur during shutdown. The observer notification has been sent,
+                    // but the communicator was destroyed before the reply was received. We do not log a message for this
+                    // exception.
+                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDisposedException))
+                    {
+                        _logger.Trace("IceBox.ServiceObserver",
+                                      $"Removed service observer {observer}\nafter catching {ex}");
+                    }
+                }
+            }
+        }
+
+        private void ServiceStarted(string service, IEnumerable<IServiceObserverPrx> observers)
+        {
+            // Must be called with '_mutex' unlocked
+            string[] services = new string[] { service };
+
+            foreach (IServiceObserverPrx observer in observers)
+            {
+                _ = StartedAsync(observer, services);
+            }
+
+            async Task StartedAsync(IServiceObserverPrx observer, string[] services)
+            {
+                try
+                {
+                    await observer.ServicesStartedAsync(services).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    RemoveObserver(observer, ex);
+                }
+            }
+        }
+
+        private void ServicesStopped(string[] services, IEnumerable<IServiceObserverPrx> observers)
+        {
+            // Must be called with '_mutex' unlocked
+            if (services.Length > 0)
+            {
+                foreach (IServiceObserverPrx observer in observers)
+                {
+                    _ = StoppedAsync(observer, services);
+                }
+
+                async Task StoppedAsync(IServiceObserverPrx observer, string[] services)
+                {
+                    try
+                    {
+                        await observer.ServicesStoppedAsync(services).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        RemoveObserver(observer, ex);
+                    }
+                }
+            }
         }
 
         private void StartService(string service, string entryPoint, string[] args)
@@ -552,160 +705,7 @@ namespace ZeroC.IceBox
             }
         }
 
-        private void ServiceStarted(string service, IEnumerable<IServiceObserverPrx> observers)
-        {
-            // Must be called with '_mutex' unlocked
-            string[] services = new string[] { service };
-
-            foreach (IServiceObserverPrx observer in observers)
-            {
-                _ = StartedAsync(observer, services);
-            }
-
-            async Task StartedAsync(IServiceObserverPrx observer, string[] services)
-            {
-                try
-                {
-                    await observer.ServicesStartedAsync(services).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    RemoveObserver(observer, ex);
-                }
-            }
-        }
-
-        private void ServicesStopped(string[] services, IEnumerable<IServiceObserverPrx> observers)
-        {
-            // Must be called with '_mutex' unlocked
-            if (services.Length > 0)
-            {
-                foreach (IServiceObserverPrx observer in observers)
-                {
-                    _ = StoppedAsync(observer, services);
-                }
-
-                async Task StoppedAsync(IServiceObserverPrx observer, string[] services)
-                {
-                    try
-                    {
-                        await observer.ServicesStoppedAsync(services).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        RemoveObserver(observer, ex);
-                    }
-                }
-            }
-        }
-
-        private void RemoveObserver(IServiceObserverPrx observer, Exception ex)
-        {
-            lock (_mutex)
-            {
-                if (_observers.Remove(observer))
-                {
-                    // CommunicatorDestroyedException may occur during shutdown. The observer notification has been sent,
-                    // but the communicator was destroyed before the reply was received. We do not log a message for this
-                    // exception.
-                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDisposedException))
-                    {
-                        _logger.Trace("IceBox.ServiceObserver",
-                                      $"Removed service observer {observer}\nafter catching {ex}");
-                    }
-                }
-            }
-        }
-
-        private Dictionary<string, string> CreateServiceProperties(string service)
-        {
-            Dictionary<string, string> properties;
-            if (_communicator.GetPropertyAsBool("IceBox.InheritProperties") ?? false)
-            {
-                // Inherit all except Ice.Admin.xxx properties
-                properties = _communicator.GetProperties().Where(p => !p.Key.StartsWith("Ice.Admin.")).ToDictionary(
-                    p => p.Key, p => p.Value);
-            }
-            else
-            {
-                properties = new Dictionary<string, string>();
-            }
-
-            string? programName = _communicator.GetProperty("Ice.ProgramName");
-            properties["Ice.ProgramName"] = programName == null ? service : $"{programName}-{service}";
-            return properties;
-        }
-
-        private void DestroyServiceCommunicator(string service, Communicator communicator)
-        {
-            if (communicator != null)
-            {
-                try
-                {
-                    communicator.ShutdownAsync().Wait();
-                }
-                catch (CommunicatorDisposedException)
-                {
-                    // Ignore, the service might have already destroyed the communicator for its own reasons.
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warning(@$"IceBox.ServiceManager: exception while shutting down communicator for service `{
-                        service}'\n{ex}");
-                }
-
-                RemoveAdminFacets($"IceBox.Service.{service}.");
-                communicator.Dispose();
-            }
-        }
-
-        private bool ConfigureAdmin(Dictionary<string, string> properties, string prefix)
-        {
-            if (_adminEnabled && !properties.ContainsKey("Ice.Admin.Enabled"))
-            {
-                var facetNames = new List<string>();
-                Debug.Assert(_adminFacetFilter != null);
-                foreach (string p in _adminFacetFilter)
-                {
-                    if (p.StartsWith(prefix))
-                    {
-                        facetNames.Add(p.Substring(prefix.Length));
-                    }
-                }
-
-                if (_adminFacetFilter.Count == 0 || facetNames.Count > 0)
-                {
-                    properties["Ice.Admin.Enabled"] = "1";
-
-                    if (facetNames.Count > 0)
-                    {
-                        properties["Ice.Admin.Facets"] = StringUtil.ToPropertyValue(facetNames);
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void RemoveAdminFacets(string prefix)
-        {
-            try
-            {
-                foreach (string p in _communicator.FindAllAdminFacets().Keys)
-                {
-                    if (p.StartsWith(prefix))
-                    {
-                        _communicator.RemoveAdminFacet(p);
-                    }
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                // Expected if the communicator or ObjectAdapter are disposed.
-            }
-        }
-
-        private enum ServiceStatus
+        private enum ServiceStatus : byte
         {
             Stopping,
             Stopped,

@@ -13,6 +13,7 @@ namespace ZeroC.Ice
     public interface IPluginFactory
     {
         /// <summary>Called by the Ice run time to create a new plug-in.</summary>
+        ///
         /// <param name="communicator">The communicator that is in the process of being initialized.</param>
         /// <param name="name">The name of the plug-in.</param>
         /// <param name="args">The arguments that are specified in the plug-ins configuration.</param>
@@ -22,6 +23,11 @@ namespace ZeroC.Ice
 
     public sealed partial class Communicator
     {
+        private static readonly List<string> _loadOnInitialization = new List<string>();
+        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
+        private bool _pluginsInitialized;
+        private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
+
         /// <summary>Manually registers a plug-in factory.</summary>
         /// <param name="name">The name assigned to the plug-in.</param>
         /// <param name="factory">The factory.</param>
@@ -41,7 +47,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Initialize the configured plug-ins. The communicator automatically initializes the plug-ins by
+        /// <summary>Initializes the configured plug-ins. The communicator automatically initializes the plug-ins by
         /// default, but an application may need to interact directly with a plug-in prior to initialization. In this
         /// case, the application must set Ice.InitPlugins=0 and then invoke InitializePlugins() manually. The plug-ins
         /// are initialized in the order in which they are loaded. If a plug-in raises an exception during
@@ -86,9 +92,10 @@ namespace ZeroC.Ice
             _pluginsInitialized = true;
         }
 
-        /// <summary>Get a list of plugins installed.</summary>
-        /// <returns>The names of the plugins installed.</returns>
-        public string[] GetPlugins()
+        /// <summary>Install a new plug-in.</summary>
+        /// <param name="name">The plug-in's name.</param>
+        /// <param name="plugin">The new plug-in.</param>
+        public void AddPlugin(string name, IPlugin plugin)
         {
             lock (_mutex)
             {
@@ -97,7 +104,12 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                return _plugins.Select(p => p.Name).ToArray();
+                if (FindPlugin(name) != null)
+                {
+                    throw new ArgumentException("a plugin named `{name}' is already registered", nameof(name));
+                }
+
+                _plugins.Add((name, plugin));
             }
         }
 
@@ -117,10 +129,9 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Install a new plug-in.</summary>
-        /// <param name="name">The plug-in's name.</param>
-        /// <param name="plugin">The new plug-in.</param>
-        public void AddPlugin(string name, IPlugin plugin)
+        /// <summary>Get a list of plugins installed.</summary>
+        /// <returns>The names of the plugins installed.</returns>
+        public string[] GetPlugins()
         {
             lock (_mutex)
             {
@@ -129,12 +140,7 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                if (FindPlugin(name) != null)
-                {
-                    throw new ArgumentException("a plugin named `{name}' is already registered", nameof(name));
-                }
-
-                _plugins.Add((name, plugin));
+                return _plugins.Select(p => p.Name).ToArray();
             }
         }
 
@@ -219,12 +225,12 @@ namespace ZeroC.Ice
                 p.MoveNext();
                 string key = p.Current.Key;
                 string val = p.Current.Value;
-                string name = key.Substring(prefix.Length);
+                string name = key[prefix.Length..];
 
                 int dotPos = name.LastIndexOf('.');
                 if (dotPos != -1)
                 {
-                    string suffix = name.Substring(dotPos + 1);
+                    string suffix = name[(dotPos + 1)..];
                     if (suffix == "cpp" || suffix == "java")
                     {
                         // Ignored
@@ -317,8 +323,8 @@ namespace ZeroC.Ice
                 }
 
                 System.Reflection.Assembly? pluginAssembly;
-                string assemblyName = entryPoint.Substring(0, sepPos);
-                string className = entryPoint.Substring(sepPos + 1);
+                string assemblyName = entryPoint[..sepPos];
+                string className = entryPoint[(sepPos + 1)..];
 
                 try
                 {
@@ -378,11 +384,5 @@ namespace ZeroC.Ice
         }
 
         private IPlugin? FindPlugin(string name) => _plugins.FirstOrDefault(p => p.Name == name).Plugin;
-
-        private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
-        private bool _pluginsInitialized;
-
-        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
-        private static readonly List<string> _loadOnInitialization = new List<string>();
     }
 }

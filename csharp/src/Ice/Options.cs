@@ -20,7 +20,7 @@ namespace ZeroC.Ice
             ANSIQuote
         }
 
-        /// <summary>Split a string into a list of command line arguments, the string is parsed using semantics similar
+        /// <summary>Splits a string into a list of command line arguments, the string is parsed using semantics similar
         /// to that of command-line arguments</summary>
         /// <param name="line">The string to split.</param>
         /// <returns>An array of strings containing the parsed command line arguments.</returns>

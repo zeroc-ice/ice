@@ -15,7 +15,7 @@ namespace ZeroC.Ice
     public abstract class IncomingFrame
     {
         /// <summary>The binary context is a collection of byte blobs with an associated int key, the dispatch and
-        /// invocation interceptors can use the binary context to marshall arbitrary data within a request.</summary>
+        /// invocation interceptors can use the binary context to marshal arbitrary data within a request.</summary>
         public IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext
         {
             get

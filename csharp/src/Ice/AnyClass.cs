@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The base class for classes defined in Slice</summary>
+    /// <summary>The base class for classes defined in Slice.</summary>
     public abstract class AnyClass
     {
         /// <summary>An InputStream reader used to read non nullable class instances.</summary>
@@ -30,7 +30,7 @@ namespace ZeroC.Ice
             (ostr, value) => ostr.WriteNullableClass(value, null);
 
         /// <summary>Returns the sliced data if the class has a preserved-slice base class and has been sliced during
-        /// un-marshaling,  otherwise <c>null</c>.</summary>
+        /// unmarshaling, otherwise <c>null</c>.</summary>
         protected virtual SlicedData? IceSlicedData
         {
             get => null;
@@ -43,13 +43,14 @@ namespace ZeroC.Ice
             set => IceSlicedData = value;
         }
 
-        /// <summary>Unmarshal the current object by reading its data members from the <see cref="InputStream"/>.</summary>
+        /// <summary>Unmarshals the current object by reading its data members from the <see cref="InputStream"/>.
+        /// </summary>
         /// <param name="istr">The stream to read from.</param>
         /// <param name="firstSlice"><c>True</c> if this is the first Slice otherwise<c>False</c>.</param>
         protected abstract void IceRead(InputStream istr, bool firstSlice);
         internal void Read(InputStream istr) => IceRead(istr, true);
 
-        /// <summary>Marshal the current object by writting its data to from the <see cref="OutputStream"/>.</summary>
+        /// <summary>Marshals the current object by writing its data to from the <see cref="OutputStream"/>.</summary>
         /// <param name="ostr">The stream to write to.</param>
         /// <param name="firstSlice"><c>True</c> if this is the first Slice otherwise<c>False</c>.</param>
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);

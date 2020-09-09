@@ -32,7 +32,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>The request payload encoding.</summary>
+        /// <summary>The encoding of the request payload.</summary>
         public override Encoding Encoding { get; }
 
         /// <summary>The facet of the target Ice object.</summary>

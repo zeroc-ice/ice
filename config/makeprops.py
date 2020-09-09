@@ -102,7 +102,7 @@ public final class %(classname)s
 csPreamble = commonPreamble + """
 namespace ZeroC.Ice
 {
-    public static class %(classname)s
+    internal static class %(classname)s
     {
 """
 
@@ -472,14 +472,14 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
-        self.srcFile.write("        public static Property[][] ValidProperties =\n")
+        self.srcFile.write("        internal static Property[][] ValidProperties =\n")
 
         self.srcFile.write("        {\n")
         for s in self.sections:
             self.srcFile.write("            %sProps,\n" % s)
         self.srcFile.write("        };\n\n")
 
-        self.srcFile.write("        public static string[] ClassPropertyNames =\n")
+        self.srcFile.write("        internal static string[] ClassPropertyNames =\n")
         self.srcFile.write("        {\n")
         for s in self.cmdLineOptions:
             self.srcFile.write("            \"%s\",\n" % s)
@@ -504,7 +504,7 @@ class CSPropertyHandler(PropertyHandler):
                 self.fix(propertyName)))
 
     def newSection(self):
-        self.srcFile.write("        public static Property[] %sProps =\n" % self.currentSection);
+        self.srcFile.write("        internal static Property[] %sProps =\n" % self.currentSection);
         self.srcFile.write("        {\n")
 
     def closeSection(self):

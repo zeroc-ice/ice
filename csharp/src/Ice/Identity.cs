@@ -9,7 +9,7 @@ namespace ZeroC.Ice
 {
     public readonly partial struct Identity
     {
-        /// <summary>The empty Idemtity.</summary>
+        /// <summary>The empty Identity.</summary>
         public static readonly Identity Empty = new Identity("", "");
 
         /// <summary>Converts the string representation of an identity to its equivalent Identity struct.</summary>
