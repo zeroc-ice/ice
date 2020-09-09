@@ -15,7 +15,7 @@
 #include <Ice/BuiltinSequences.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Glacier2
 {
     /// Information taken from an SSL connection used for permissions
