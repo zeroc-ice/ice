@@ -4197,6 +4197,13 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
 
     if (isOutParam)
     {
+        // If the operation returns multiple values, but none of those are out parameters, it must be a return-tuple,
+        // in which case using out parameters isn't allowed, and an error is thrown.
+        if (!_usesOutParameters && _returnValues.size() > 1)
+        {
+            _unit->error("operations using return-tuples cannot use out parameters");
+        }
+
         _usesOutParameters = true;
         // Check if the out parameter conflicts with a single return value (which is implicitely named 'returnValue').
         if (hasSingleReturnType() && ciequals(name, "returnValue"))
