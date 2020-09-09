@@ -14,6 +14,8 @@ namespace ZeroC.Ice
     /// <summary>Base class for incoming frames.</summary>
     public abstract class IncomingFrame
     {
+        /// <summary>The binary context is a collection of byte blobs with an associated int key, the dispatch and
+        /// invocation interceptors can use the binary context to marshal arbitrary data within a request.</summary>
         public IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext
         {
             get
@@ -145,6 +147,10 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Constructs a new <see cref="IncomingFrame"/>.</summary>
+        /// <param name="data">The frame data.</param>
+        /// <param name="protocol">The frame protocol.</param>
+        /// <param name="sizeMax">The maximum payload size, checked during decompression.</param>
         protected IncomingFrame(ArraySegment<byte> data, Protocol protocol, int sizeMax)
         {
             Data = data;

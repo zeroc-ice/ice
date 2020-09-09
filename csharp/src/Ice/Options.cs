@@ -9,9 +9,10 @@ using System.Globalization;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Provides a helper method to parse command line arguments.</summary>
     public static class Options
     {
-        public enum State
+        private enum State
         {
             Normal,
             DoubleQuote,
@@ -19,6 +20,10 @@ namespace ZeroC.Ice
             ANSIQuote
         }
 
+        /// <summary>Splits a string into a list of command line arguments, the string is parsed using semantics similar
+        /// to that of command-line arguments</summary>
+        /// <param name="line">The string to split.</param>
+        /// <returns>An array of strings containing the parsed command line arguments.</returns>
         public static string[] Split(string line)
         {
             string inputFieldSeparator = " \t\n";
@@ -104,9 +109,7 @@ namespace ZeroC.Ice
                                     vec.Add(arg);
                                     arg = "";
 
-                                    //
                                     // Move to start of next argument.
-                                    //
                                     while (++i < l.Length && inputFieldSeparator.IndexOf(l[i]) != -1)
                                     {
                                         ;

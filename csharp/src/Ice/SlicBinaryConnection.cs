@@ -40,7 +40,7 @@ namespace ZeroC.Ice
             return _transceiver.DisposeAsync();
         }
 
-    public override string ToString() => _transceiver.ToString()!;
+        public override string ToString() => _transceiver.ToString()!;
 
         internal SlicBinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
             base(endpoint, adapter) => _transceiver = new BufferedReadTransceiver(transceiver);

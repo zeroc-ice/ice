@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.IceBox
 {
-    public static class Server
+    internal static class Server
     {
         public static async Task<int> Main(string[] args)
         {

@@ -9,25 +9,14 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
+    /// <summary>This exception reports a websocket protocol error.</summary>
     public sealed class WebSocketException : Exception
     {
-        internal WebSocketException()
-            : base("", null)
-        {
-        }
-
+        /// <summary>Constructs a new instance of the <see cref="WebSocketException"/> class with a specified error message.
+        /// </summary>
+        /// <param name="message">The message that describes the error.</param>
         internal WebSocketException(string message)
-            : base(message, null)
-        {
-        }
-
-        internal WebSocketException(string message, Exception cause)
-            : base(message, cause)
-        {
-        }
-
-        internal WebSocketException(Exception cause)
-            : base("", cause)
+            : base(message)
         {
         }
     }

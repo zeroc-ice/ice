@@ -8,6 +8,7 @@ using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Provides public extensions methods to manage byte array segments.</summary>
     public static class VectoredBufferExtensions
     {
         /// <summary>Returns the sum of the count of all the array segments in the source enumerable.</summary>
