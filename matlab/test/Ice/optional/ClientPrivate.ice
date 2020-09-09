@@ -10,16 +10,6 @@ module Test
 {
 
 //
-// The server doesn't know this class.
-//
-// class D : B
-// {
-//     string ds;
-//     tag(990) StringSeq? seq;
-//     tag(1000) A? ao;
-// }
-
-//
 // This class is a hack that allows us to invoke the opClassAndUnknownOptional operation
 // on the server and pass an optional argument. This isn't necessary in other language
 // mappings where the public stream API is available.
