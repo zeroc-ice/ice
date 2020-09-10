@@ -2069,8 +2069,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr&)
 {
+    /*
     string ns = getNamespace(p);
     string name = p->name();
     TypePtr key = p->keyType();
@@ -2120,6 +2121,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         << name << ";";
 
     _out << eb;
+    */
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
@@ -2422,8 +2424,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
 
     auto params = operation->parameters();
 
-    bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged() &&
-        !SequencePtr::dynamicCast(params.front()->type()) && !DictionaryPtr::dynamicCast(params.front()->type());
+    bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
     if (defaultWriter)
     {
         _out << outputStreamWriter(params.front()->type(), ns, false);
@@ -2453,8 +2454,9 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
 
     auto returnValues = operation->returnValues();
 
-    bool defaultReader =
-        returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 && !returnValues.front()->tagged();
+    bool defaultReader = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
+        !returnValues.front()->tagged();
+
     if (defaultReader)
     {
         _out << inputStreamReader(returnValues.front()->type(), ns);
@@ -2677,8 +2679,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     auto returnValues = operation->returnValues();
 
     bool defaultWriter = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
-        !returnValues.front()->tagged() && !SequencePtr::dynamicCast(returnValues.front()->type()) &&
-        !DictionaryPtr::dynamicCast(returnValues.front()->type());
+        !returnValues.front()->tagged();
     string writer = defaultWriter ? outputStreamWriter(returnValues.front()->type(), ns, false) :
         "_iceD_" + opName + "Writer";
 

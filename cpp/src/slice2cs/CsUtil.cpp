@@ -771,7 +771,11 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
             out << helperName(type, scope) << ".IceReader";
         }
     }
-    else if (DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
+    else if (auto dict = DictionaryPtr::dynamicCast(type))
+    {
+        out << "istr => " << dictionaryUnmarshalCode(dict, scope, "istr");
+    }
+    else if (EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceReader";
     }
@@ -851,6 +855,10 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     else if (auto st = StructPtr::dynamicCast(underlying))
     {
         out << "new " << getUnqualified(st, scope) << "(" << stream << ")";
+    }
+    else if (auto dict = DictionaryPtr::dynamicCast(underlying))
+    {
+        out << dictionaryUnmarshalCode(dict, scope, stream);
     }
     else if (auto seq = SequencePtr::dynamicCast(underlying); seq && isMappedToReadOnlyMemory(seq))
     {
@@ -1275,7 +1283,6 @@ Slice::CsGenerator::dictionaryMarshalCode(
 {
     TypePtr key = dict->keyType();
     TypePtr value = dict->valueType();
-    ostringstream out;
 
     bool withBitSequence = false;
     if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
@@ -1283,6 +1290,8 @@ Slice::CsGenerator::dictionaryMarshalCode(
         withBitSequence = true;
         value = optional->underlying();
     }
+
+    ostringstream out;
 
     out << stream << ".WriteDictionary(" << param;
     if (withBitSequence && isReferenceType(value))
@@ -1299,6 +1308,37 @@ Slice::CsGenerator::dictionaryMarshalCode(
     }
     out << ")";
 
+    return out.str();
+}
+
+string
+Slice::CsGenerator::dictionaryUnmarshalCode(const DictionaryPtr& dict, const string& scope, const string& stream)
+{
+    TypePtr key = dict->keyType();
+    TypePtr value = dict->valueType();
+    string generic = dict->findMetaDataWithPrefix("cs:generic:");
+    string dictS = typeToString(dict, scope);
+
+    bool withBitSequence = false;
+    if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
+    {
+        withBitSequence = true;
+        value = optional->underlying();
+    }
+
+    ostringstream out;
+    out << stream << ".";
+    out << (generic == "SortedDictionary" ? "ReadSortedDictionary(" : "ReadDictionary(");
+    out << "minKeySize: " << key->minWireSize() << ", ";
+    if (!withBitSequence)
+    {
+        out << "minValueSize: " << value->minWireSize() << ", ";
+    }
+    if (withBitSequence && isReferenceType(value))
+    {
+        out << "withBitSequence: true, ";
+    }
+    out << inputStreamReader(key, scope) << ", " << inputStreamReader(value, scope) << ")";
     return out.str();
 }
 

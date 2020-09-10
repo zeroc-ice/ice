@@ -107,6 +107,8 @@ protected:
     std::string dictionaryMarshalCode(const DictionaryPtr& dict, const std::string& scope, const std::string& param,
         const std::string& stream);
 
+    std::string dictionaryUnmarshalCode(const DictionaryPtr& dict, const std::string& scope, const std::string& stream);
+
     void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
         const std::string& ns);
 
