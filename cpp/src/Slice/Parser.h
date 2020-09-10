@@ -525,6 +525,7 @@ public:
                          const std::string&, const std::string&, NodeType = Real);
     EnumList enums() const;
     ConstList consts() const;
+    bool hasConsts() const;
     bool hasStructs() const;
     bool hasExceptions() const;
     bool hasEnums() const;

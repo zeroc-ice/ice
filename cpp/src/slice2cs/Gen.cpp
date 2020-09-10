@@ -1210,43 +1210,46 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (p->hasOnlyClassDecls() || p->hasOnlyInterfaces())
+    if (p->hasClassDefs() || p->hasConsts() || p->hasEnums() || p->hasExceptions() || p->hasStructs())
     {
-        return false; // avoid empty namespace
-    }
+        openNamespace(p);
 
-    openNamespace(p);
-
-    // Write constants if there are any
-    if (!p->consts().empty())
-    {
-        emitCommonAttributes();
-        _out << nl << "public static partial class Constants";
-        _out << sb;
-        bool firstOne = true;
-        for (auto q : p->consts())
+        // Write constants if there are any
+        if (!p->consts().empty())
         {
-            if (firstOne)
+            emitCommonAttributes();
+            _out << nl << "public static partial class Constants";
+            _out << sb;
+            bool firstOne = true;
+            for (auto q : p->consts())
             {
-                firstOne = false;
-            }
-            else
-            {
-                _out << sp;
-            }
+                if (firstOne)
+                {
+                    firstOne = false;
+                }
+                else
+                {
+                    _out << sp;
+                }
 
-            // TODO: doc comments
+                // TODO: doc comments
 
-            string name = fixId(q->name());
-            string ns = getNamespace(q);
-            emitCustomAttributes(q);
-            _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
-            writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
-            _out << ";";
+                string name = fixId(q->name());
+                string ns = getNamespace(q);
+                emitCustomAttributes(q);
+                _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
+                writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
+                _out << ";";
+            }
+            _out << eb;
         }
-        _out << eb;
+        return true;
     }
-    return true;
+    else
+    {
+        // don't generate a file with an empty namespace
+        return false;
+    }
 }
 
 void
