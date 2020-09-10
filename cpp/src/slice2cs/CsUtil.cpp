@@ -761,15 +761,7 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     }
     else if (auto seq = SequencePtr::dynamicCast(type))
     {
-        if (isMappedToReadOnlyMemory(seq) && !EnumPtr::dynamicCast(seq->type()))
-        {
-            builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()] << "Array";
-        }
-        else
-        {
-            out << helperName(type, scope) << ".IceReader";
-        }
+        out << "istr => " << sequenceUnmarshalCode(seq, scope, "istr");
     }
     else if (auto dict = DictionaryPtr::dynamicCast(type))
     {
@@ -860,7 +852,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     {
         out << dictionaryUnmarshalCode(dict, scope, stream);
     }
-    else if (auto seq = SequencePtr::dynamicCast(underlying); seq && isMappedToReadOnlyMemory(seq))
+    else if (auto seq = SequencePtr::dynamicCast(underlying))
     {
         out << sequenceUnmarshalCode(seq, scope, stream);
     }
