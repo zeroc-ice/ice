@@ -2054,32 +2054,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         _out << nl << "public static class " << name << "Helper";
         _out << sb;
 
-        if (isMappedToReadOnlyMemory(p))
-        {
-            assert(EnumPtr::dynamicCast(p->type()));
-
-            // For such enums, we provide 2 writers but no Write method.
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
-                << "> IceWriterFromSequence = (ostr, v) => ostr.WriteSequence(v.Span);";
-
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqS
-                << "> IceWriterFromArray = (ostr, v) => ostr.WriteArray(v);";
-        }
-        else
-        {
-            _out << sp;
-            _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
-            _out.inc();
-            _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
-            _out.dec();
-
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
-                << "> IceWriter = Write;";
-        }
-
         _out << sp;
         _out << nl << "public static " << seqS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";
         _out.inc();
@@ -2116,30 +2090,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp;
     emitCommonAttributes();
     _out << nl << "public static class " << name << "Helper";
+
     _out << sb;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << readOnlyDictS << " dictionary) =>";
-    _out.inc();
-    _out << nl << "ostr.WriteDictionary(dictionary";
-
-    if (withBitSequence && isReferenceType(value))
-    {
-        _out << ", withBitSequence: true";
-    }
-    if (!StructPtr::dynamicCast(key))
-    {
-        _out << ", " << outputStreamWriter(key, ns, true);
-    }
-    if (!StructPtr::dynamicCast(value))
-    {
-        _out << ", " << outputStreamWriter(value, ns, true);
-    }
-    _out << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
-
-    _out << sp;
     _out << nl << "public static " << dictS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";
     _out.inc();
     if(generic == "SortedDictionary")
@@ -2470,7 +2422,8 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
 
     auto params = operation->parameters();
 
-    bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
+    bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged() &&
+        !SequencePtr::dynamicCast(params.front()->type()) && !DictionaryPtr::dynamicCast(params.front()->type());
     if (defaultWriter)
     {
         _out << outputStreamWriter(params.front()->type(), ns, false);
@@ -2724,7 +2677,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     auto returnValues = operation->returnValues();
 
     bool defaultWriter = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
-        !returnValues.front()->tagged();
+        !returnValues.front()->tagged() && !SequencePtr::dynamicCast(returnValues.front()->type()) &&
+        !DictionaryPtr::dynamicCast(returnValues.front()->type());
     string writer = defaultWriter ? outputStreamWriter(returnValues.front()->type(), ns, false) :
         "_iceD_" + opName + "Writer";
 

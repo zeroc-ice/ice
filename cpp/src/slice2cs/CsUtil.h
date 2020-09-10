@@ -100,8 +100,12 @@ protected:
     void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, const std::string&,
                                   const std::string&, int, const MemberPtr&, const std::string& = "istr");
 
-    std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
+    std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&,
+        bool forNestedType);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
+
+    std::string dictionaryMarshalCode(const DictionaryPtr& dict, const std::string& scope, const std::string& param,
+        const std::string& stream);
 
     void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
         const std::string& ns);

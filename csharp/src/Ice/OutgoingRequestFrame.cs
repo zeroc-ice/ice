@@ -47,6 +47,10 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
+        private static readonly OutputStreamWriter<IReadOnlyDictionary<string, string>> _contextWriter =
+            (ostr, dictionary) =>
+                ostr.WriteDictionary(dictionary, OutputStream.IceWriterFromString, OutputStream.IceWriterFromString);
+
         private Dictionary<string, string>? _contextOverride;
 
         private readonly ArraySegment<byte> _defaultBinaryContext;
@@ -235,7 +239,7 @@ namespace ZeroC.Ice
                     {
                         // When _writeSlot0 is true, we may write an empty string-string context, thus preventing base
                         // from writing a non-empty Context.
-                        AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
+                        AddBinaryContextEntry(0, Context, _contextWriter);
                     }
                 }
                 base.Finish();
@@ -296,7 +300,9 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                ContextHelper.Write(ostr, _initialContext);
+                ostr.WriteDictionary(_initialContext,
+                                     OutputStream.IceWriterFromString,
+                                     OutputStream.IceWriterFromString);
             }
             PayloadStart = ostr.Tail;
 
