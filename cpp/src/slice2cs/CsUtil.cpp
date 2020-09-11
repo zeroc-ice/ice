@@ -636,29 +636,19 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     {
         out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
-    else if (DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
+    else if (EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceWriter";
     }
+    else if (auto dict = DictionaryPtr::dynamicCast(type))
+    {
+        out << "(ostr, dictionary) => " << dictionaryMarshalCode(dict, scope, "dictionary", "ostr");
+    }
     else if (auto seq = SequencePtr::dynamicCast(type))
     {
-        if (isMappedToReadOnlyMemory(seq))
-        {
-            if (EnumPtr::dynamicCast(seq->type()))
-            {
-                out << helperName(type, scope) << ".IceWriterFrom" << (forNestedType ? "Array" : "Sequence");
-            }
-            else
-            {
-                builtin = BuiltinPtr::dynamicCast(seq->type());
-                out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()]
-                    << (forNestedType ? "Array" : "Sequence");
-            }
-        }
-        else
-        {
-            out << helperName(type, scope) << ".IceWriter";
-        }
+        // We generate the sequence writer inline, so this function must not be called when the top-level object is
+        // not cached.
+        out << "(ostr, sequence) => " << sequenceMarshalCode(seq, scope, "sequence", "ostr", forNestedType);
     }
     else
     {
@@ -738,17 +728,13 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
         {
             out << nl << param << ".IceWrite(" << stream << ");";
         }
-        else if (auto seq = SequencePtr::dynamicCast(type); seq && isMappedToReadOnlyMemory(seq))
+        else if (auto seq = SequencePtr::dynamicCast(type))
         {
-            out << nl << stream;
-            if (forNestedType)
-            {
-                out << ".WriteArray(" << param << ");";
-            }
-            else
-            {
-                out << ".WriteSequence(" << param << ".Span);";
-            }
+            out << nl << sequenceMarshalCode(seq, scope, param, stream, forNestedType) << ";";
+        }
+        else if (auto dict = DictionaryPtr::dynamicCast(type))
+        {
+            out << nl << dictionaryMarshalCode(dict, scope, param, stream) << ";";
         }
         else
         {
@@ -775,17 +761,13 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     }
     else if (auto seq = SequencePtr::dynamicCast(type))
     {
-        if (isMappedToReadOnlyMemory(seq) && !EnumPtr::dynamicCast(seq->type()))
-        {
-            builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()] << "Array";
-        }
-        else
-        {
-            out << helperName(type, scope) << ".IceReader";
-        }
+        out << "istr => " << sequenceUnmarshalCode(seq, scope, "istr");
     }
-    else if (DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
+    else if (auto dict = DictionaryPtr::dynamicCast(type))
+    {
+        out << "istr => " << dictionaryUnmarshalCode(dict, scope, "istr");
+    }
+    else if (EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceReader";
     }
@@ -866,7 +848,11 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     {
         out << "new " << getUnqualified(st, scope) << "(" << stream << ")";
     }
-    else if (auto seq = SequencePtr::dynamicCast(underlying); seq && isMappedToReadOnlyMemory(seq))
+    else if (auto dict = DictionaryPtr::dynamicCast(underlying))
+    {
+        out << dictionaryUnmarshalCode(dict, scope, stream);
+    }
+    else if (auto seq = SequencePtr::dynamicCast(underlying))
     {
         out << sequenceUnmarshalCode(seq, scope, stream);
     }
@@ -1162,14 +1148,21 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output& out,
 
 string
 Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& scope, const string& param,
-                                        const string& stream)
+                                        const string& stream, bool forNestedType)
 {
     TypePtr type = seq->type();
     ostringstream out;
 
     if (isMappedToReadOnlyMemory(seq))
     {
-        out << stream << ".WriteSequence(" << param << ".Span)";
+        if (forNestedType)
+        {
+            out << stream << ".WriteArray(" << param << ")";
+        }
+        else
+        {
+            out << stream << ".WriteSequence(" << param << ".Span)";
+        }
     }
     else if (auto optional = OptionalPtr::dynamicCast(type); optional && optional->encodedUsingBitSequence())
     {
@@ -1270,6 +1263,74 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         out << ")";
     }
+    return out.str();
+}
+
+string
+Slice::CsGenerator::dictionaryMarshalCode(
+    const DictionaryPtr& dict,
+    const string& scope,
+    const string& param,
+    const string& stream)
+{
+    TypePtr key = dict->keyType();
+    TypePtr value = dict->valueType();
+
+    bool withBitSequence = false;
+    if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
+    {
+        withBitSequence = true;
+        value = optional->underlying();
+    }
+
+    ostringstream out;
+
+    out << stream << ".WriteDictionary(" << param;
+    if (withBitSequence && isReferenceType(value))
+    {
+        out << ", withBitSequence: true";
+    }
+    if (!StructPtr::dynamicCast(key))
+    {
+        out << ", " << outputStreamWriter(key, scope, true);
+    }
+    if (!StructPtr::dynamicCast(value))
+    {
+        out << ", " << outputStreamWriter(value, scope, true);
+    }
+    out << ")";
+
+    return out.str();
+}
+
+string
+Slice::CsGenerator::dictionaryUnmarshalCode(const DictionaryPtr& dict, const string& scope, const string& stream)
+{
+    TypePtr key = dict->keyType();
+    TypePtr value = dict->valueType();
+    string generic = dict->findMetaDataWithPrefix("cs:generic:");
+    string dictS = typeToString(dict, scope);
+
+    bool withBitSequence = false;
+    if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
+    {
+        withBitSequence = true;
+        value = optional->underlying();
+    }
+
+    ostringstream out;
+    out << stream << ".";
+    out << (generic == "SortedDictionary" ? "ReadSortedDictionary(" : "ReadDictionary(");
+    out << "minKeySize: " << key->minWireSize() << ", ";
+    if (!withBitSequence)
+    {
+        out << "minValueSize: " << value->minWireSize() << ", ";
+    }
+    if (withBitSequence && isReferenceType(value))
+    {
+        out << "withBitSequence: true, ";
+    }
+    out << inputStreamReader(key, scope) << ", " << inputStreamReader(value, scope) << ")";
     return out.str();
 }
 

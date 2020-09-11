@@ -118,8 +118,6 @@ private:
         void visitStructEnd(const StructPtr&) override;
         void visitEnum(const EnumPtr&) override;
         void visitDataMember(const MemberPtr&) override;
-        void visitSequence(const SequencePtr&) override;
-        void visitDictionary(const DictionaryPtr&) override;
 
     private:
 
