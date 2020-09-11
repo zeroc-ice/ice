@@ -17,26 +17,18 @@ namespace ZeroC.Ice
     internal interface IRequestHandler
     {
         /// <summary>Sends a request. The sending is asynchronous because it might block waiting for the underlying
-        /// transport to send other queued requests. When the sending of the request completes, this method eventually
-        /// returns another Task for waiting the response. If the request is a oneway request, the returned task is
-        /// null. If it's a twoway request, a non-null task is returned and the caller should use this task to wait for
-        /// the receipt of the response).</summary>
+        /// transport to send other queued requests. When the sending of the request completes, this method returns
+        /// the stream created to send the request. The stream can be used to receive the response or for stream
+        /// parameters.</summary>
         /// <param name="frame">The request frame to send.</param>
-        /// <param name="oneway">Indicates if the request is a oneway request or not.</param>
-        /// <param name="synchronous">Indicates whether or not the request is synchronous or asynchronous. This is
-        /// useful for the collocated request handler implementation to figure out whether or not the request can be
-        /// invoked on the user thread or not.</param>
+        /// <param name="bidirectional">Indicates if the request should create a bi-directional stream.</param>
         /// <param name="observer">The invocation observer.</param>
-        /// <param name="progress">The progress callback.</param>
         /// <param name="cancel">The cancellation token to cancel the sending of the request</param>
-        /// <returns>A task if the request is a twoway request or null if it's a oneway request. The returned task can
-        /// be used to wait for the receipt of the response.</returns>
-        ValueTask<IncomingResponseFrame> SendRequestAsync(
+        /// <returns>The stream to receive the response or stream additional data.</returns>
+        ValueTask<Stream> SendRequestAsync(
             OutgoingRequestFrame frame,
-            bool oneway,
-            bool synchronous,
+            bool bidirectional,
             IInvocationObserver? observer,
-            IProgress<bool> progress,
             CancellationToken cancel);
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace ZeroC.Ice
     internal sealed class TcpTransceiver : ITransceiver
     {
         public Socket Socket { get; }
+        public SslStream? SslStream => null;
 
         private readonly EndPoint? _addr;
         private readonly Communicator _communicator;
@@ -27,11 +29,7 @@ namespace ZeroC.Ice
 
         public ValueTask CloseAsync(Exception ex, CancellationToken cancel) => new ValueTask();
 
-        public ValueTask DisposeAsync()
-        {
-            Socket.Dispose();
-            return new ValueTask();
-        }
+        public void Dispose() => Socket.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {

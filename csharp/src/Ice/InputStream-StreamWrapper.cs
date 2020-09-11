@@ -3,14 +3,13 @@
 //
 
 using System;
-using System.IO;
 
 namespace ZeroC.Ice
 {
     public sealed partial class InputStream
     {
         // Adapts InputStream to System.IO.Stream.
-        private sealed class StreamWrapper : Stream
+        private sealed class StreamWrapper : System.IO.Stream
         {
             public override bool CanRead => true;
             public override bool CanSeek => false;
@@ -43,7 +42,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new IOException("could not read from stream", ex);
+                    throw new System.IO.IOException("could not read from stream", ex);
                 }
             }
 
@@ -55,11 +54,11 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new IOException("could not read from stream", ex);
+                    throw new System.IO.IOException("could not read from stream", ex);
                 }
             }
 
-            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override long Seek(long offset, System.IO.SeekOrigin origin) => throw new NotSupportedException();
             public override void SetLength(long value) => throw new NotSupportedException();
             public override void Write(byte[] array, int offset, int count) => throw new NotSupportedException();
             public override void WriteByte(byte value) => throw new NotSupportedException();

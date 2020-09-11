@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace ZeroC.Ice
     internal class BufferedReadTransceiver : ITransceiver
     {
         public Socket? Socket => Underlying.Socket;
+        public SslStream? SslStream => Underlying.SslStream;
+
         internal ITransceiver Underlying { get; }
 
         // The buffered data.
@@ -29,7 +32,7 @@ namespace ZeroC.Ice
         public ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             Underlying.CloseAsync(exception, cancel);
 
-        public ValueTask DisposeAsync() => Underlying.DisposeAsync();
+        public void Dispose() => Underlying.Dispose();
 
         public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
 

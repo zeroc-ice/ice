@@ -358,32 +358,48 @@ namespace ZeroC.Ice
                 {
                     while (true)
                     {
+                        bool sent = false;
                         IRequestHandler? handler = null;
-                        var progressWrapper = new ProgressWrapper(progress);
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
                             handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
 
-                            // Send the request and if it's a twoway request get the task to wait for the response
-                            IncomingResponseFrame response =
+                            // Send the request and get the stream created for sending the request
+                            using Stream stream =
                                 await handler.SendRequestAsync(request,
-                                                               oneway,
-                                                               synchronous,
+                                                               !oneway,
                                                                observer,
-                                                               progressWrapper,
                                                                cancel).ConfigureAwait(false);
 
-                            if (response.ResultType == ResultType.Failure)
+                            // The request is sent
+                            if (progress != null)
                             {
-                                observer?.RemoteException();
-
-                                // TODO: revisit
-                                // We throw here the 1.1 system exceptions, as they are used for retries
-                                response.ThrowIfSystemException(proxy.Communicator);
+                                _ = Task.Run(() => progress.Report(false), CancellationToken.None);
                             }
+                            sent = true;
 
-                            return response;
+                            if (oneway)
+                            {
+                                return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
+                            }
+                            else
+                            {
+                                // Wait for the reception of the response.
+                                (IncomingResponseFrame response, bool fin) =
+                                    await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+
+                                if (response.ResultType == ResultType.Failure)
+                                {
+                                    observer?.RemoteException();
+
+                                    // TODO: revisit
+                                    // We throw here the 1.1 system exceptions, as they are used for retries
+                                    response.ThrowIfSystemException(proxy.Communicator);
+                                }
+
+                                return response;
+                            }
                         }
                         catch (RetryException)
                         {
@@ -408,7 +424,7 @@ namespace ZeroC.Ice
                             // TODO: revisit retry logic
                             // We only retry after failing with an ObjectNotExistException or a local exception.
                             int delay = reference.CheckRetryAfterException(ex,
-                                                                           progressWrapper.IsSent,
+                                                                           sent,
                                                                            request.IsIdempotent,
                                                                            ref retryCount);
                             if (delay > 0)

@@ -18,8 +18,8 @@ namespace ZeroC.Ice
     internal sealed class WSTransceiver : ITransceiver
     {
         public Socket? Socket => _underlying.Socket;
+        public SslStream? SslStream => (_underlying.Underlying as SslTransceiver)?.SslStream;
         internal IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
-        internal SslStream? SslStream => (_underlying.Underlying as SslTransceiver)?.SslStream;
 
         private enum OpCode : byte
         {
@@ -83,7 +83,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask DisposeAsync() => _underlying.DisposeAsync();
+        public void Dispose() => _underlying.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {

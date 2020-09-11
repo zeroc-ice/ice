@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,10 +13,13 @@ namespace ZeroC.Ice
 {
     /// <summary>A transceiver enables transmitting and receiving raw binary data over a transport such as TCP,
     /// UDP, TLS or WebSocket. More transports can be supported by implementing this interface.</summary>
-    public interface ITransceiver : IAsyncDisposable
+    public interface ITransceiver : IDisposable
     {
         /// <summary>Gets the optional socket associated with this transceiver.</summary>
         Socket? Socket { get; }
+
+        /// <summary>Gets the optional SslStream associated with this transceiver.</summary>
+        SslStream? SslStream { get; }
 
         /// <summary>Checks if the transceiver can send messages of the given size. Throw if the message is too large.
         /// </summary>

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace ZeroC.Ice
     internal sealed class UdpTransceiver : ITransceiver
     {
         public Socket Socket { get; }
+        public SslStream? SslStream => null;
+
         internal IPEndPoint? MulticastAddress { get; private set; }
 
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
@@ -96,11 +99,7 @@ namespace ZeroC.Ice
 
         public ValueTask CloseAsync(Exception exception, CancellationToken cancel) => new ValueTask();
 
-        public ValueTask DisposeAsync()
-        {
-            Socket.Dispose();
-            return new ValueTask();
-        }
+        public void Dispose() => Socket.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {

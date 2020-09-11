@@ -88,16 +88,16 @@ namespace ZeroC.Ice
         };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
-        internal static void CheckHeader(Span<byte> header)
+        internal static void CheckHeader(ReadOnlySpan<byte> header)
         {
-            Debug.Assert(header.Length >= 8);
+            Debug.Assert(header.Length == 14);
             if (header[0] != Magic[0] || header[1] != Magic[1] || header[2] != Magic[2] || header[3] != Magic[3])
             {
                 throw new InvalidDataException(
                     $"received incorrect magic bytes in header of ice1 frame: {BytesToString(header.Slice(0, 4))}");
             }
 
-            header = header.Slice(4);
+            header = header[4..];
 
             if (header[0] != ProtocolBytes[0] || header[1] != ProtocolBytes[1])
             {
@@ -138,6 +138,6 @@ namespace ZeroC.Ice
             return data;
         }
 
-        private static string BytesToString(Span<byte> bytes) => BitConverter.ToString(bytes.ToArray());
+        private static string BytesToString(ReadOnlySpan<byte> bytes) => BitConverter.ToString(bytes.ToArray());
     }
 }

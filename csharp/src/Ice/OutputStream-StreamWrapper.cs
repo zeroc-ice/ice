@@ -3,7 +3,6 @@
 //
 using System;
 using System.Diagnostics;
-using System.IO;
 
 namespace ZeroC.Ice
 {
@@ -23,7 +22,7 @@ namespace ZeroC.Ice
         //
         // 2.0 encoding: we write the size on DefaultSizeLength bytes and the data directly into the OutputStream
         // buffer.
-        private sealed class StreamWrapper : Stream
+        private sealed class StreamWrapper : System.IO.Stream
         {
             public override bool CanRead => false;
 
@@ -80,7 +79,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new IOException("could not flush stream", ex);
+                    throw new System.IO.IOException("could not flush stream", ex);
                 }
             }
 
@@ -88,7 +87,7 @@ namespace ZeroC.Ice
 
             public override int ReadByte() => throw new NotSupportedException();
 
-            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override long Seek(long offset, System.IO.SeekOrigin origin) => throw new NotSupportedException();
 
             public override void SetLength(long value) => throw new NotSupportedException();
 
@@ -125,7 +124,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new IOException("could not write to stream", ex);
+                    throw new System.IO.IOException("could not write to stream", ex);
                 }
             }
 
@@ -159,7 +158,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new IOException("could not write to stream", ex);
+                    throw new System.IO.IOException("could not write to stream", ex);
                 }
             }
 

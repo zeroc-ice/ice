@@ -18,101 +18,107 @@ namespace ZeroC.Ice
         private readonly Reference _reference;
         private int _requestId;
 
-        public async ValueTask<IncomingResponseFrame> SendRequestAsync(
-            OutgoingRequestFrame outgoingRequest,
-            bool oneway,
-            bool synchronous,
+        public ValueTask<Stream> SendRequestAsync(
+            OutgoingRequestFrame frame,
+            bool bidirectional,
             IInvocationObserver? observer,
-            IProgress<bool> progress,
-            CancellationToken cancel)
-        {
-            cancel.ThrowIfCancellationRequested();
+            CancellationToken cancel) => throw new NotImplementedException();
 
-            IChildInvocationObserver? childObserver = null;
-            int requestId = 0;
+        // public async ValueTask<IncomingResponseFrame> SendRequestAsync(
+        //     OutgoingRequestFrame outgoingRequest,
+        //     bool oneway,
+        //     bool synchronous,
+        //     IInvocationObserver? observer,
+        //     IProgress<bool> progress,
+        //     CancellationToken cancel)
+        // {
+        //     cancel.ThrowIfCancellationRequested();
 
-            // The CollocatedRequestHandler is an internal object so it's safe to lock (this) as long as our
-            // code doesn't use the collocated request handler as a lock. The lock here is useful to ensure
-            // the protocol trace and observer call is output or called in the same order as the request ID
-            // is allocated.
-            lock (_mutex)
-            {
-                if (!oneway)
-                {
-                    requestId = ++_requestId;
-                }
+        //     IChildInvocationObserver? childObserver = null;
+        //     int requestId = 0;
 
-                if (observer != null)
-                {
-                    childObserver = observer.GetCollocatedObserver(_adapter, requestId, outgoingRequest.Size);
-                    childObserver?.Attach();
-                }
+        //     // The CollocatedRequestHandler is an internal object so it's safe to lock (this) as long as our
+        //     // code doesn't use the collocated request handler as a lock. The lock here is useful to ensure
+        //     // the protocol trace and observer call is output or called in the same order as the request ID
+        //     // is allocated.
+        //     lock (_mutex)
+        //     {
+        //         if (!oneway)
+        //         {
+        //             requestId = ++_requestId;
+        //         }
 
-                if (_adapter.Communicator.TraceLevels.Protocol >= 1)
-                {
-                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, outgoingRequest);
-                }
-            }
+        //         if (observer != null)
+        //         {
+        //             childObserver = observer.GetCollocatedObserver(_adapter, requestId, outgoingRequest.Size);
+        //             childObserver?.Attach();
+        //         }
 
-            Task<OutgoingResponseFrame> task;
-            if (_adapter.TaskScheduler != null ||
-                !synchronous ||
-                oneway ||
-                cancel != CancellationToken.None)
-            {
-                // Don't invoke from the user thread if async or cancellation token is set. We also don't dispatch
-                // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
-                // request returns as soon as it's sent over the transport.
-                task = Task.Factory.StartNew(() =>
-                                             {
-                                                 progress.Report(false);
-                                                 return DispatchAsync(outgoingRequest, requestId, cancel);
-                                             },
-                                             cancel,
-                                             TaskCreationOptions.None,
-                                             _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
+        //         if (_adapter.Communicator.TraceLevels.Protocol >= 1)
+        //         {
+        //             ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, outgoingRequest);
+        //         }
+        //     }
 
-                if (oneway)
-                {
-                    childObserver?.Detach();
-                    return IncomingResponseFrame.WithVoidReturnValue(outgoingRequest.Protocol,
-                                                                     outgoingRequest.Encoding);
-                }
-            }
-            else // Optimization: directly call DispatchAsync
-            {
-                progress.Report(false);
-                task = DispatchAsync(outgoingRequest, requestId, cancel);
-            }
+        //     Task<OutgoingResponseFrame> task;
+        //     if (_adapter.TaskScheduler != null ||
+        //         !synchronous ||
+        //         oneway ||
+        //         cancel != CancellationToken.None)
+        //     {
+        //         // Don't invoke from the user thread if async or cancellation token is set. We also don't dispatch
+        //         // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
+        //         // request returns as soon as it's sent over the transport.
+        //         task = Task.Factory.StartNew(() =>
+        //                                      {
+        //                                          progress.Report(false);
+        //                                          return DispatchAsync(outgoingRequest, requestId, cancel);
+        //                                      },
+        //                                      cancel,
+        //                                      TaskCreationOptions.None,
+        //                                      _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
 
-            Debug.Assert(!oneway);
-            try
-            {
-                OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
+        //         if (oneway)
+        //         {
+        //             childObserver?.Detach();
+        //             return IncomingResponseFrame.WithVoidReturnValue(outgoingRequest.Protocol,
+        //                                                              outgoingRequest.Encoding);
+        //         }
+        //     }
+        //     else // Optimization: directly call DispatchAsync
+        //     {
+        //         progress.Report(false);
+        //         task = DispatchAsync(outgoingRequest, requestId, cancel);
+        //     }
 
-                var incomingResponse = new IncomingResponseFrame(
-                    outgoingRequest.Protocol,
-                    outgoingResponseFrame.Data.AsArraySegment(),
-                    _adapter.IncomingFrameSizeMax);
+        //     Debug.Assert(!oneway);
+        //     try
+        //     {
+        //         OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
 
-                if (_adapter.Communicator.TraceLevels.Protocol >= 1)
-                {
-                    ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, incomingResponse);
-                }
+        //         var incomingResponse = new IncomingResponseFrame(
+        //             outgoingRequest.Protocol,
+        //             outgoingResponseFrame.Data.AsArraySegment(),
+        //             _adapter.IncomingFrameSizeMax);
 
-                childObserver?.Reply(incomingResponse.Size);
-                return incomingResponse;
-            }
-            catch (Exception ex)
-            {
-                childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                throw;
-            }
-            finally
-            {
-                childObserver?.Detach();
-            }
-        }
+        //         if (_adapter.Communicator.TraceLevels.Protocol >= 1)
+        //         {
+        //             ProtocolTrace.TraceFrame(_adapter.Communicator, requestId, incomingResponse);
+        //         }
+
+        //         childObserver?.Reply(incomingResponse.Size);
+        //         return incomingResponse;
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+        //         throw;
+        //     }
+        //     finally
+        //     {
+        //         childObserver?.Detach();
+        //     }
+        // }
 
         internal CollocatedRequestHandler(Reference reference, ObjectAdapter adapter)
         {
@@ -121,24 +127,24 @@ namespace ZeroC.Ice
             _requestId = 0;
         }
 
-        private async Task<OutgoingResponseFrame> DispatchAsync(
-            OutgoingRequestFrame outgoingRequest,
-            int requestId,
-            CancellationToken cancel)
-        {
-            // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is in
-            // progress. This will also throw if the object adapter has been deactivated.
-            _adapter.IncDirectCount();
-            try
-            {
-                var incomingRequest = new IncomingRequestFrame(outgoingRequest, _adapter.IncomingFrameSizeMax);
-                var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
-                return await _adapter.DispatchAsync(incomingRequest, requestId, current).ConfigureAwait(false);
-            }
-            finally
-            {
-                _adapter.DecDirectCount();
-            }
-        }
+        // private async Task<OutgoingResponseFrame> DispatchAsync(
+        //     OutgoingRequestFrame outgoingRequest,
+        //     int requestId,
+        //     CancellationToken cancel)
+        // {
+        //     // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is in
+        //     // progress. This will also throw if the object adapter has been deactivated.
+        //     _adapter.IncDirectCount();
+        //     try
+        //     {
+        //         var incomingRequest = new IncomingRequestFrame(outgoingRequest, _adapter.IncomingFrameSizeMax);
+        //         var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
+        //         return await _adapter.DispatchAsync(incomingRequest, requestId, current).ConfigureAwait(false);
+        //     }
+        //     finally
+        //     {
+        //         _adapter.DecDirectCount();
+        //     }
+        // }
     }
 }

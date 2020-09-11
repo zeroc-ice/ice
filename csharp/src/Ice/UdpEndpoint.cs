@@ -128,8 +128,7 @@ namespace ZeroC.Ice
              string connectionId,
              ObjectAdapter? adapter) => new UdpConnection(manager,
                                                           this,
-                                                          transceiver,
-                                                          new Ice1BinaryConnection(transceiver!, this, adapter),
+                                                          new LegacyTransceiver(transceiver!, this, adapter),
                                                           connector,
                                                           connectionId,
                                                           adapter);
@@ -148,7 +147,7 @@ namespace ZeroC.Ice
             }
             catch (Exception)
             {
-                transceiver.DisposeAsync().AsTask().Wait();
+                transceiver.Dispose();
                 throw;
             }
         }

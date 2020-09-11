@@ -878,17 +878,12 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
+        internal async ValueTask<(OutgoingResponseFrame, bool)> DispatchAsync(
             IncomingRequestFrame request,
-            long streamId,
+            Stream stream,
             Current current)
         {
-            IDispatchObserver? dispatchObserver = null;
-            if (Communicator.Observer != null)
-            {
-                dispatchObserver = Communicator.Observer.GetDispatchObserver(current, streamId, request.Size);
-                dispatchObserver?.Attach();
-            }
+            stream.Observer = Communicator.Observer?.GetDispatchObserver(current, stream.Id, request.Size);
 
             try
             {
@@ -916,12 +911,12 @@ namespace ZeroC.Ice
                 if (!current.IsOneway)
                 {
                     response.Finish();
-                    dispatchObserver?.Reply(response.Size);
                 }
-                return response;
+                return (response, true);
             }
             catch (Exception ex)
             {
+                var dispatchObserver = stream.Observer as IDispatchObserver;
                 if (!current.IsOneway)
                 {
                     RemoteException actualEx;
@@ -942,8 +937,7 @@ namespace ZeroC.Ice
 
                     var response = new OutgoingResponseFrame(request, actualEx);
                     response.Finish();
-                    dispatchObserver?.Reply(response.Size);
-                    return response;
+                    return (response, true);
                 }
                 else
                 {
@@ -952,12 +946,8 @@ namespace ZeroC.Ice
                         Warning(ex);
                     }
                     dispatchObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    return OutgoingResponseFrame.WithVoidReturnValue(current);
+                    return (OutgoingResponseFrame.WithVoidReturnValue(current), true);
                 }
-            }
-            finally
-            {
-                dispatchObserver?.Detach();
             }
 
             void Warning(Exception ex)

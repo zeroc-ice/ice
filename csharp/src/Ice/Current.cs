@@ -27,14 +27,13 @@ namespace ZeroC.Ice
         internal Current(
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
-            bool oneway,
-            CancellationToken cancel,
+            Stream stream,
             Connection? connection = null)
         {
             Adapter = adapter;
-            CancellationToken = cancel;
+            CancellationToken = stream.CancellationToken;
             Connection = connection;
-            IsOneway = oneway;
+            IsOneway = !stream.IsBidirectional;
             IncomingRequestFrame = incomingRequestFrame;
         }
     }

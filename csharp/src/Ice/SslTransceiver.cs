@@ -19,7 +19,7 @@ namespace ZeroC.Ice
     internal sealed class SslTransceiver : ITransceiver
     {
         public Socket? Socket => _underlying.Socket;
-        internal SslStream? SslStream { get; private set; }
+        public SslStream? SslStream { get; private set; }
 
         private readonly string? _adapterName;
         private readonly Communicator _communicator;
@@ -113,16 +113,16 @@ namespace ZeroC.Ice
 
         public void CheckSendSize(int size) => _underlying.CheckSendSize(size);
 
-        public async ValueTask DisposeAsync()
+        public void Dispose()
         {
-            await _underlying.DisposeAsync();
+            _underlying.Dispose();
 
             if (SslStream != null)
             {
-                await SslStream.DisposeAsync();
+                SslStream.Dispose();
                 try
                 {
-                    await _writeStream!.DisposeAsync();
+                    _writeStream!.Dispose();
                 }
                 catch (Exception)
                 {

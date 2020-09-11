@@ -1562,6 +1562,8 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static int GetSize20Length(long size) => 1 << GetEncodedSize(size);
+
         internal static Position WriteEncapsulationHeader(
             IList<ArraySegment<byte>> data,
             Position startAt,
@@ -1586,11 +1588,43 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
+        /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
+        /// <param name="size">The size to write.</param>
+        /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
+        internal static void WriteFixedLengthSize20(int size, Span<byte> data)
+        {
+            int sizeLength = data.Length;
+            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
 
-        // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
-        internal static void WriteSize20(int size, Span<byte> data) =>
-            WriteFixedLengthSize20(size, data);
+            if (size < 0 || size > 1_073_741_823) // 2^30 -1
+            {
+                throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
+            }
+
+            Span<byte> uintBuf = stackalloc byte[4];
+            uint v = (uint)size;
+            v <<= 2;
+
+            uint encodedSize = sizeLength switch
+            {
+                1 => 0x00,
+                2 => 0x01,
+                _ => 0x02
+            };
+            v |= encodedSize;
+            MemoryMarshal.Write(uintBuf, ref v);
+            for (int i = sizeLength; i < 4; ++i)
+            {
+                if (uintBuf[i] != 0)
+                {
+                    throw new ArgumentOutOfRangeException($"size `{size}' does not fit in {sizeLength} bytes",
+                        nameof(size));
+                }
+            }
+            uintBuf.Slice(0, sizeLength).CopyTo(data);
+        }
+
+        internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
@@ -1652,6 +1686,90 @@ namespace ZeroC.Ice
                 RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos);
             }
             return _tail;
+        }
+
+        /// <summary>Computes the amount of data written from the start position to the current position and writes that
+        /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
+        /// length.</summary>
+        /// <param name="start">The start position.</param>
+        /// <param name="sizeLength">The number of bytes used to marshal the size 1, 2 or 4.</param>
+        internal void EndFixedLengthSize(Position start, int sizeLength = DefaultSizeLength)
+        {
+            Debug.Assert(start.Offset >= 0);
+            if (OldEncoding)
+            {
+                RewriteFixedLengthSize11(Distance(start) - 4, start);
+            }
+            else
+            {
+                RewriteFixedLengthSize20(Distance(start) - sizeLength, start, sizeLength);
+            }
+        }
+
+        /// <summary>Writes a size on a fixed number of bytes at the given position of the stream.</summary>
+        /// <param name="size">The size to write.</param>
+        /// <param name="pos">The position to write to.</param>
+        /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
+        internal void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
+        {
+            Debug.Assert(pos.Segment < _segmentList.Count);
+            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
+                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
+
+            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
+
+            Span<byte> data = stackalloc byte[sizeLength];
+            WriteFixedLengthSize20(size, data);
+            RewriteByteSpan(data, pos);
+        }
+
+        /// <summary>Returns the current position and writes placeholder for a fixed-length size value. The
+        /// position must be used to rewrite the size later.</summary>
+        /// <param name="sizeLength">The number of bytes reserved to write the fixed-length size.</param>
+        /// <returns>The position before writing the size.</returns>
+        internal Position StartFixedLengthSize(int sizeLength = DefaultSizeLength)
+        {
+            Position pos = _tail;
+            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLength]); // placeholder for future size
+            return pos;
+        }
+
+        /// <summary>Writes a span of bytes. The stream capacity is expanded if required, the size and tail position are
+        /// increased according to the span length.</summary>
+        /// <param name="span">The data to write as a span of bytes.</param>
+        internal void WriteByteSpan(ReadOnlySpan<byte> span)
+        {
+            int length = span.Length;
+            Expand(length);
+            Size += length;
+            int offset = _tail.Offset;
+            int remaining = _currentSegment.Count - offset;
+            Debug.Assert(remaining > 0); // guaranteed by Expand
+            int sz = Math.Min(length, remaining);
+            if (length > remaining)
+            {
+                span.Slice(0, remaining).CopyTo(_currentSegment.AsSpan(offset, sz));
+            }
+            else
+            {
+                span.CopyTo(_currentSegment.AsSpan(offset, length));
+            }
+            _tail.Offset += sz;
+            length -= sz;
+
+            if (length > 0)
+            {
+                _currentSegment = _segmentList[++_tail.Segment];
+                if (remaining == 0)
+                {
+                    span.CopyTo(_currentSegment.AsSpan(0, length));
+                }
+                else
+                {
+                    span.Slice(remaining, length).CopyTo(_currentSegment.AsSpan(0, length));
+                }
+                _tail.Offset = length;
+            }
         }
 
         /// <summary>Writes an empty encapsulation.</summary>
@@ -1816,42 +1934,6 @@ namespace ZeroC.Ice
             };
         }
 
-        /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
-        /// <param name="size">The size to write.</param>
-        /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
-        internal static void WriteFixedLengthSize20(int size, Span<byte> data)
-        {
-            int sizeLength = data.Length;
-            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
-
-            if (size < 0 || size > 1_073_741_823) // 2^30 -1
-            {
-                throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
-            }
-
-            Span<byte> uintBuf = stackalloc byte[4];
-            uint v = (uint)size;
-            v <<= 2;
-
-            uint encodedSize = sizeLength switch
-            {
-                1 => 0x00,
-                2 => 0x01,
-                _ => 0x02
-            };
-            v |= encodedSize;
-            MemoryMarshal.Write(uintBuf, ref v);
-            for (int i = sizeLength; i < 4; ++i)
-            {
-                if (uintBuf[i] != 0)
-                {
-                    throw new ArgumentOutOfRangeException($"size `{size}' does not fit in {sizeLength} bytes",
-                        nameof(size));
-                }
-            }
-            uintBuf.Slice(0, sizeLength).CopyTo(data);
-        }
-
         /// <summary>Returns the distance in bytes from start position to the current position.</summary>
         /// <param name="start">The start position from where to calculate distance to current position.</param>
         /// <returns>The distance in bytes from the current position to the start position.</returns>
@@ -1861,24 +1943,6 @@ namespace ZeroC.Ice
                         (_tail.Segment == start.Segment && _tail.Offset >= start.Offset));
 
             return Distance(_segmentList, start, _tail);
-        }
-
-        /// <summary>Computes the amount of data written from the start position to the current position and writes that
-        /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
-        /// length.</summary>
-        /// <param name="start">The start position.</param>
-        /// <param name="sizeLength">The number of bytes used to marshal the size 1, 2 or 4.</param>
-        internal void EndFixedLengthSize(Position start, int sizeLength = DefaultSizeLength)
-        {
-            Debug.Assert(start.Offset >= 0);
-            if (OldEncoding)
-            {
-                RewriteFixedLengthSize11(Distance(start) - 4, start);
-            }
-            else
-            {
-                RewriteFixedLengthSize20(Distance(start) - sizeLength, start, sizeLength);
-            }
         }
 
         /// <summary>Expands the stream to make room for more data. If the bytes remaining in the stream are not enough
@@ -1984,23 +2048,6 @@ namespace ZeroC.Ice
             RewriteByteSpan(data, pos);
         }
 
-        /// <summary>Writes a size on a fixed number of bytes at the given position of the stream.</summary>
-        /// <param name="size">The size to write.</param>
-        /// <param name="pos">The position to write to.</param>
-        /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
-        internal void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
-        {
-            Debug.Assert(pos.Segment < _segmentList.Count);
-            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
-                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
-
-            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
-
-            Span<byte> data = stackalloc byte[sizeLength];
-            WriteFixedLengthSize20(size, data);
-            RewriteByteSpan(data, pos);
-        }
-
         private void RewriteByteSpan(Span<byte> data, Position pos)
         {
             ArraySegment<byte> segment = _segmentList[pos.Segment];
@@ -2014,55 +2061,6 @@ namespace ZeroC.Ice
             {
                 segment = _segmentList[pos.Segment + 1];
                 data[remaining..].CopyTo(segment.AsSpan(0, data.Length - remaining));
-            }
-        }
-
-        /// <summary>Returns the current position and writes placeholder for a fixed-length size value. The
-        /// position must be used to rewrite the size later.</summary>
-        /// <param name="sizeLength">The number of bytes reserved to write the fixed-length size.</param>
-        /// <returns>The position before writing the size.</returns>
-        internal Position StartFixedLengthSize(int sizeLength = DefaultSizeLength)
-        {
-            Position pos = _tail;
-            WriteByteSpan(stackalloc byte[OldEncoding ? 4 : sizeLength]); // placeholder for future size
-            return pos;
-        }
-
-        /// <summary>Writes a span of bytes. The stream capacity is expanded if required, the size and tail position are
-        /// increased according to the span length.</summary>
-        /// <param name="span">The data to write as a span of bytes.</param>
-        internal void WriteByteSpan(ReadOnlySpan<byte> span)
-        {
-            int length = span.Length;
-            Expand(length);
-            Size += length;
-            int offset = _tail.Offset;
-            int remaining = _currentSegment.Count - offset;
-            Debug.Assert(remaining > 0); // guaranteed by Expand
-            int sz = Math.Min(length, remaining);
-            if (length > remaining)
-            {
-                span.Slice(0, remaining).CopyTo(_currentSegment.AsSpan(offset, sz));
-            }
-            else
-            {
-                span.CopyTo(_currentSegment.AsSpan(offset, length));
-            }
-            _tail.Offset += sz;
-            length -= sz;
-
-            if (length > 0)
-            {
-                _currentSegment = _segmentList[++_tail.Segment];
-                if (remaining == 0)
-                {
-                    span.CopyTo(_currentSegment.AsSpan(0, length));
-                }
-                else
-                {
-                    span.Slice(remaining, length).CopyTo(_currentSegment.AsSpan(0, length));
-                }
-                _tail.Offset = length;
             }
         }
 
