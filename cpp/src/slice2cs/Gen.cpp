@@ -423,6 +423,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
     }
     params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " +
                      getEscapedParamName(op, "context") + " = null");
+    params.push_back("global::System.Threading.CancellationToken " + getEscapedParamName(op, "cancel") + " = default");
     return params;
 }
 
@@ -448,10 +449,10 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
 
     if(defaultValues)
     {
-        params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " + context + " = null");
+        params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " + context +
+                         " = null");
         params.push_back("global::System.IProgress<bool>? " + progress + " = null");
-        params.push_back("global::System.Threading.CancellationToken " + cancel +
-                         " = default");
+        params.push_back("global::System.Threading.CancellationToken " + cancel + " = default");
     }
     else
     {
@@ -505,12 +506,6 @@ Slice::CsVisitor::emitCustomAttributes(const ContainedPtr& p)
             _out << nl << '[' << i->substr(prefix.size()) << ']';
         }
     }
-}
-
-void
-Slice::CsVisitor::emitSerializableAttribute()
-{
-    _out << nl << "[global::System.Serializable]";
 }
 
 void
@@ -936,9 +931,9 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
         {
             _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
                  << "\">Sent progress provider.</param>";
-            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-                 << "\">A cancellation token that receives the cancellation requests.</param>";
         }
+        _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
+             << "\">A cancellation token that receives the cancellation requests.</param>";
     }
 
     if(dispatch && p->hasMarshaledResult())
@@ -1215,43 +1210,46 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (p->hasOnlyClassDecls() || p->hasOnlyInterfaces())
+    if (p->hasClassDefs() || p->hasConsts() || p->hasEnums() || p->hasExceptions() || p->hasStructs())
     {
-        return false; // avoid empty namespace
-    }
+        openNamespace(p);
 
-    openNamespace(p);
-
-    // Write constants if there are any
-    if (!p->consts().empty())
-    {
-        emitCommonAttributes();
-        _out << nl << "public static partial class Constants";
-        _out << sb;
-        bool firstOne = true;
-        for (auto q : p->consts())
+        // Write constants if there are any
+        if (!p->consts().empty())
         {
-            if (firstOne)
+            emitCommonAttributes();
+            _out << nl << "public static partial class Constants";
+            _out << sb;
+            bool firstOne = true;
+            for (auto q : p->consts())
             {
-                firstOne = false;
-            }
-            else
-            {
-                _out << sp;
-            }
+                if (firstOne)
+                {
+                    firstOne = false;
+                }
+                else
+                {
+                    _out << sp;
+                }
 
-            // TODO: doc comments
+                // TODO: doc comments
 
-            string name = fixId(q->name());
-            string ns = getNamespace(q);
-            emitCustomAttributes(q);
-            _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
-            writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
-            _out << ";";
+                string name = fixId(q->name());
+                string ns = getNamespace(q);
+                emitCustomAttributes(q);
+                _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
+                writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
+                _out << ";";
+            }
+            _out << eb;
         }
-        _out << eb;
+        return true;
     }
-    return true;
+    else
+    {
+        // don't generate a file with an empty namespace
+        return false;
+    }
 }
 
 void
@@ -1270,7 +1268,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
 
     emitCommonAttributes();
-    emitSerializableAttribute();
     emitTypeIdAttribute(p->scoped());
     emitCustomAttributes(p);
     _out << nl << "public partial class " << fixId(name) << " : "
@@ -1439,12 +1436,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
             << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
     }
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.IClassFactory factory)";
+    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr)";
     if (hasBaseClass)
     {
         // We call the base class constructor to initialize the base class fields.
         _out.inc();
-        _out << nl << ": base(factory)";
+        _out << nl << ": base(istr)";
         _out.dec();
     }
     _out << sb;
@@ -1558,7 +1555,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     emitDeprecate(p, 0, _out, "type");
 
     emitCommonAttributes();
-    emitSerializableAttribute();
     emitTypeIdAttribute(p->scoped());
     emitCustomAttributes(p);
     _out << nl << "public partial class " << name << " : ";
@@ -1658,45 +1654,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
     }
 
-    if(!dataMembers.empty())
-    {
-        _out << sp;
-        _out << nl << "public override void GetObjectData(global::System.Runtime.Serialization.SerializationInfo info, "
-             << "global::System.Runtime.Serialization.StreamingContext context)";
-        _out << sb;
-        for (const auto& member : dataMembers)
-        {
-            TypePtr memberType = unwrapIfOptional(member->type());
-
-            string mName = fixId(fieldName(member), Slice::ExceptionType);
-            if (member->tagged() && isValueType(memberType))
-            {
-                _out << nl << "if (" << mName << " != null)";
-                _out << sb;
-            }
-            _out << nl << "info.AddValue(\"" << mName << "\", " << mName;
-
-            if (member->tagged() && isValueType(memberType))
-            {
-                _out << ".Value";
-            }
-
-            if (ContainedPtr::dynamicCast(memberType))
-            {
-                _out << ", typeof(" << typeToString(memberType, ns) << ")";
-            }
-
-            _out << ");";
-
-            if (member->tagged() && isValueType(memberType))
-            {
-                _out << eb;
-            }
-        }
-        _out << sp << nl << "base.GetObjectData(info, context);";
-        _out << eb;
-    }
-
     // protected internal constructor used for unmarshaling (always generated).
     // the factory parameter is used to distinguish this ctor from the parameterless ctor that users may want to add to
     // the partial class; it's not used otherwise.
@@ -1706,12 +1663,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
             << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
     }
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.IRemoteExceptionFactory factory, string? message)";
+    _out << nl << "protected internal " << name << "(global::ZeroC.Ice.InputStream? istr, string? message)";
     // We call the base class constructor to initialize the base class fields.
     _out.inc();
     if (p->base())
     {
-        _out << nl << ": base(factory, message)";
+        _out << nl << ": base(istr, message)";
     }
     else
     {
@@ -1720,98 +1677,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out.dec();
     _out << sb;
     writeSuppressNonNullableWarnings(dataMembers, Slice::ExceptionType);
-    _out << eb;
-
-    // Serializable constructor
-    _out << sp;
-    _out << nl << "protected " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context)";
-    _out.inc();
-    _out << nl << ": base(info, context)";
-    _out.dec();
-    _out << sb;
-    if(!dataMembers.empty())
-    {
-        bool hasTaggedMembers = false;
-        static const std::array<std::string, 17> builtinGetter =
-        {
-            "GetBoolean",
-            "GetByte",
-            "GetInt16",
-            "GetUInt16",
-            "GetInt32",
-            "GetUInt32",
-            "GetInt32",
-            "GetUInt32",
-            "GetInt64",
-            "GetUInt64",
-            "GetInt64",
-            "GetUInt64",
-            "GetSingle",
-            "GetDouble",
-            "GetString",
-            "",
-            "",
-        };
-
-        for (const auto& member : dataMembers)
-        {
-            TypePtr memberType = unwrapIfOptional(member->type());
-
-            if (member->tagged() && isValueType(memberType))
-            {
-                hasTaggedMembers = true;
-                continue;
-            }
-            string getter;
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if (builtin)
-            {
-                getter = builtinGetter[builtin->kind()];
-            }
-            if (getter.empty())
-            {
-                getter = "GetValue";
-            }
-            string mName = fixId(fieldName(member), Slice::ExceptionType);
-            _out << nl << "this." << mName << " = ";
-
-            if (getter == "GetValue")
-            {
-                _out << "(" << typeToString(memberType, ns) << ")";
-            }
-            _out << "info." << getter << "(\"" << mName << "\"";
-            if (getter == "GetValue")
-            {
-                _out << ", typeof(" << typeToString(memberType, ns) << ")";
-            }
-            _out << ")!;";
-        }
-
-        if(hasTaggedMembers)
-        {
-            _out << nl << "foreach (var entry in info)";
-            _out << sb;
-            _out << nl << "switch (entry.Name)";
-            _out << sb;
-            for (const auto& member : dataMembers)
-            {
-                TypePtr memberType = unwrapIfOptional(member->type());
-                if (!member->tagged() || !isValueType(memberType))
-                {
-                    continue;
-                }
-                string mName = fixId(fieldName(member), Slice::ExceptionType);
-                _out << nl << "case \"" << mName << "\":";
-                _out << sb;
-                _out << nl << "this." << mName << " = (" << typeToString(memberType, ns) << ") entry.Value!;";
-                _out << nl << "break;";
-                _out << eb;
-            }
-            _out << eb;
-            _out << eb;
-        }
-    }
     _out << eb;
 
     string scoped = p->scoped();
@@ -1877,7 +1742,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitDeprecate(p, 0, _out, "type");
     emitCommonAttributes();
-    emitSerializableAttribute();
     emitCustomAttributes(p);
     _out << nl << "public ";
     if(p->hasMetaData("cs:readonly"))
@@ -2178,137 +2042,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     }
 }
 
-void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
-{
-    if (!isMappedToReadOnlyMemory(p) || EnumPtr::dynamicCast(p->type()))
-    {
-        string name = p->name();
-        string scope = getNamespace(p);
-        string seqS = typeToString(p, scope);
-        string seqReadOnly = typeToString(p, scope, true);
-
-        _out << sp;
-        emitCommonAttributes();
-        _out << nl << "public static class " << name << "Helper";
-        _out << sb;
-
-        if (isMappedToReadOnlyMemory(p))
-        {
-            assert(EnumPtr::dynamicCast(p->type()));
-
-            // For such enums, we provide 2 writers but no Write method.
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
-                << "> IceWriterFromSequence = (ostr, v) => ostr.WriteSequence(v.Span);";
-
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqS
-                << "> IceWriterFromArray = (ostr, v) => ostr.WriteArray(v);";
-        }
-        else
-        {
-            _out << sp;
-            _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
-            _out.inc();
-            _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
-            _out.dec();
-
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
-                << "> IceWriter = Write;";
-        }
-
-        _out << sp;
-        _out << nl << "public static " << seqS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";
-        _out.inc();
-        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
-        _out.dec();
-
-        _out << sp;
-        _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << seqS << "> IceReader = Read"
-            << name << ";";
-
-        _out << eb;
-    }
-}
-
-void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    string ns = getNamespace(p);
-    string name = p->name();
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-
-    bool withBitSequence = false;
-    if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
-    {
-        withBitSequence = true;
-        value = optional->underlying();
-    }
-
-    string dictS = typeToString(p, ns);
-    string readOnlyDictS = typeToString(p, ns, true);
-    string generic = p->findMetaDataWithPrefix("cs:generic:");
-
-    _out << sp;
-    emitCommonAttributes();
-    _out << nl << "public static class " << name << "Helper";
-    _out << sb;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << readOnlyDictS << " dictionary) =>";
-    _out.inc();
-    _out << nl << "ostr.WriteDictionary(dictionary";
-
-    if (withBitSequence && isReferenceType(value))
-    {
-        _out << ", withBitSequence: true";
-    }
-    if (!StructPtr::dynamicCast(key))
-    {
-        _out << ", " << outputStreamWriter(key, ns, true);
-    }
-    if (!StructPtr::dynamicCast(value))
-    {
-        _out << ", " << outputStreamWriter(value, ns, true);
-    }
-    _out << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
-
-    _out << sp;
-    _out << nl << "public static " << dictS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";
-    _out.inc();
-    if(generic == "SortedDictionary")
-    {
-        _out << nl << "istr.ReadSortedDictionary(";
-    }
-    else
-    {
-        _out << nl << "istr.ReadDictionary(";
-    }
-    _out << "minKeySize: " << key->minWireSize() << ", ";
-    if (!withBitSequence)
-    {
-        _out << "minValueSize: " << value->minWireSize() << ", ";
-    }
-    if (withBitSequence && isReferenceType(value))
-    {
-         _out << "withBitSequence: true, ";
-    }
-
-    _out << inputStreamReader(key, ns) << ", " << inputStreamReader(value, ns) << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << dictS << "> IceReader = Read"
-        << name << ";";
-
-    _out << eb;
-}
-
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
     CsVisitor(out)
 {
@@ -2424,19 +2157,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // Proxy instance
     //
     _out << sp;
-    _out << nl << "[global::System.Serializable]";
     _out << nl << "internal sealed class _" << p->name() << "Prx : ZeroC.Ice.ObjectPrx, "
          << name;
     _out << sb;
-
-    _out << nl << "private _" << p->name() << "Prx("
-         << "global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context)";
-    _out.inc();
-    _out << nl << ": base(info, context)";
-    _out.dec();
-    _out << sb;
-    _out << eb;
 
     _out << sp;
     _out << nl << "internal _" << p->name() << "Prx(ZeroC.Ice.Reference reference)";
@@ -2536,7 +2259,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << toTuple(params) << ", ";
         }
-        _out << context << ");";
+        _out << context << ", " << cancel << ");";
         _out.dec();
     }
 
@@ -2649,8 +2372,9 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
 
     auto returnValues = operation->returnValues();
 
-    bool defaultReader =
-        returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 && !returnValues.front()->tagged();
+    bool defaultReader = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
+        !returnValues.front()->tagged();
+
     if (defaultReader)
     {
         _out << inputStreamReader(returnValues.front()->type(), ns);
@@ -2739,9 +2463,9 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> ZeroC.Ice.IObject"
-         << ".DispatchAsync(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current)";
+         << ".DispatchAsync(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current) =>";
     _out.inc();
-    _out << nl << " => DispatchAsync(this, request, current);";
+    _out << nl << "DispatchAsync(this, request, current);";
     _out.dec();
 
     _out << sp;
@@ -3224,11 +2948,11 @@ Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixId(p->name());
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "public class " << name << " : global::ZeroC.Ice.IClassFactory";
+    _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public global::ZeroC.Ice.AnyClass Create() =>";
+    _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(this);";
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "((global::ZeroC.Ice.InputStream?)null);";
     _out.dec();
     _out << eb;
 
@@ -3266,11 +2990,12 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         emitCommonAttributes();
-        _out << nl << "public class CompactId_" << p->compactId() << " : global::ZeroC.Ice.IClassFactory";
+        _out << nl << "public static class CompactId_" << p->compactId();
         _out << sb;
-        _out << nl << "public global::ZeroC.Ice.AnyClass Create() =>";
+        _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
         _out.inc();
-        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name()) << "(this);";
+        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name())
+             << "((global::ZeroC.Ice.InputStream?)null);";
         _out.dec();
         _out << eb;
     }
@@ -3314,11 +3039,12 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     string name = fixId(p->name());
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "public class " << name << " : global::ZeroC.Ice.IRemoteExceptionFactory";
+    _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public global::ZeroC.Ice.RemoteException Create(string? message) =>";
+    _out << nl << "public static global::ZeroC.Ice.RemoteException Create(string? message) =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(this, message);";
+    _out << nl << "new global::" << getNamespace(p) << "." << name
+         << "((global::ZeroC.Ice.InputStream?)null, message);";
     _out.dec();
     _out << eb;
     return false;

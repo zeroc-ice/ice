@@ -81,7 +81,6 @@ namespace ZeroC.Ice.Test.Tagged
             };
 
             mo1.Bos = new bool[] { false, true, false };
-            mo1.Ser = new SerializableClass(56);
 
             mo1.Us = 321;
             mo1.Ui = 123;
@@ -123,7 +122,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo1.Iood[5]!.A == 15);
 
             TestHelper.Assert(Enumerable.SequenceEqual(mo1.Bos, new bool[] { false, true, false }));
-            TestHelper.Assert(mo1.Ser.Equals(new SerializableClass(56)));
 
             output.WriteLine("ok");
 
@@ -167,8 +165,6 @@ namespace ZeroC.Ice.Test.Tagged
 
             TestHelper.Assert(mo4.Bos == null);
 
-            TestHelper.Assert(mo4.Ser == null);
-
             TestHelper.Assert(mo4.Us == null);
             TestHelper.Assert(mo4.Ui == null);
             TestHelper.Assert(mo4.Ul == null);
@@ -180,12 +176,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo4.Uss == null);
             TestHelper.Assert(mo4.Vuls == null);
             TestHelper.Assert(mo4.Vil == null);
-
-            bool supportsCsharpSerializable = initial.SupportsCsharpSerializable();
-            if (!supportsCsharpSerializable)
-            {
-                mo1.Ser = null;
-            }
 
             var mo5 = (MultiTagged?)initial.PingPong(mo1);
             TestHelper.Assert(mo5 != null);
@@ -214,12 +204,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo5.Ifsd != null && mo5.Ifsd[4].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo5.Ivsd != null && mo5.Ivsd[5].Equals(new VarStruct("hello")));
             TestHelper.Assert(mo5.Iood != null && mo5.Iood[5]!.A == 15);
-
-            TestHelper.Assert(Enumerable.SequenceEqual(mo5.Bos!, new bool[] { false, true, false }));
-            if (supportsCsharpSerializable)
-            {
-                TestHelper.Assert(mo5.Ser!.Equals(new SerializableClass(56)));
-            }
 
             TestHelper.Assert(mo5.Us == mo1.Us);
             TestHelper.Assert(mo5.Ui == mo1.Ui);
@@ -279,7 +263,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo7.Iood != null && mo7.Iood[5]!.A == 15);
 
             TestHelper.Assert(Enumerable.SequenceEqual(mo7.Bos!, new bool[] { false, true, false }));
-            TestHelper.Assert(mo7.Ser == null);
 
             // Clear the second half of the tagged members
             var mo8 = new MultiTagged();
@@ -297,10 +280,6 @@ namespace ZeroC.Ice.Test.Tagged
 
             mo8.Ied = mo5.Ied;
             mo8.Ivsd = mo5.Ivsd;
-            if (supportsCsharpSerializable)
-            {
-                mo8.Ser = new SerializableClass(56);
-            }
 
             var mo9 = (MultiTagged?)initial.PingPong(mo8);
             TestHelper.Assert(mo9 != null);
@@ -332,10 +311,6 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo9.Iood == null);
 
             TestHelper.Assert(mo9.Bos == null);
-            if (supportsCsharpSerializable)
-            {
-                TestHelper.Assert(mo9.Ser!.Equals(new SerializableClass(56)));
-            }
 
             {
                 var owc1 = new TaggedWithCustom();
@@ -1547,45 +1522,6 @@ namespace ZeroC.Ice.Test.Tagged
                         istr.ReadTaggedArray(3, 1, fixedSize: false, istr => new VarStruct(istr))));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3!));
-            }
-
-            if (supportsCsharpSerializable)
-            {
-                SerializableClass? p1 = null;
-                (SerializableClass? p2, SerializableClass? p3) = initial.OpSerializable(p1);
-                TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.OpSerializable(null);
-                TestHelper.Assert(p2 == null && p3 == null);
-
-                p1 = new SerializableClass(58);
-                (p2, p3) = initial.OpSerializable(p1);
-                TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
-                (p2, p3) = initial.OpSerializableAsync(p1).Result;
-                TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
-                (p2, p3) = initial.OpSerializable(p1);
-                TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
-                (p2, p3) = initial.OpSerializableAsync(p1).Result;
-                TestHelper.Assert(p2!.Equals(p1) && p3!.Equals(p1));
-
-                (p2, p3) = initial.OpSerializable(null);
-                TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
-
-                requestFrame = OutgoingRequestFrame.WithParamList(
-                    initial,
-                    "opSerializable",
-                    idempotent: false,
-                    compress: false,
-                    format: default,
-                    context: null,
-                    p1,
-                    (OutputStream ostr, SerializableClass? p1) => ostr.WriteTaggedSerializable(2, p1));
-
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (p2, p3) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedSerializable(1) as SerializableClass,
-                        istr.ReadTaggedSerializable(3) as SerializableClass));
-                TestHelper.Assert(p2!.Equals(p1));
-                TestHelper.Assert(p3!.Equals(p1));
             }
 
             {

@@ -2232,6 +2232,25 @@ Slice::Module::consts() const
 }
 
 bool
+Slice::Module::hasConsts() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ConstPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasConsts())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
 Slice::Module::hasStructs() const
 {
     for (const auto& content : _contents)

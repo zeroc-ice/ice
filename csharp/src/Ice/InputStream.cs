@@ -10,8 +10,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ZeroC.Ice
 {
@@ -24,105 +22,80 @@ namespace ZeroC.Ice
     public sealed partial class InputStream
     {
         //
-        // Cached InputStreamWriter static objects used by the generated code
+        // Cached InputStreamReader static objects used by the generated code
         //
 
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>bool</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<bool> IceReaderIntoBool =
             istr => istr.ReadBool();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<bool[]> IceReaderIntoBoolArray =
-            istr => istr.ReadArray<bool>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>byte</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<byte> IceReaderIntoByte =
             istr => istr.ReadByte();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<byte[]> IceReaderIntoByteArray =
-            istr => istr.ReadArray<byte>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>double</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<double> IceReaderIntoDouble =
             istr => istr.ReadDouble();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<double[]> IceReaderIntoDoubleArray =
-            istr => istr.ReadArray<double>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>float</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<float> IceReaderIntoFloat =
             istr => istr.ReadFloat();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<float[]> IceReaderIntoFloatArray =
-            istr => istr.ReadArray<float>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>int</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int> IceReaderIntoInt =
             istr => istr.ReadInt();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<int[]> IceReaderIntoIntArray =
-            istr => istr.ReadArray<int>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>long</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long> IceReaderIntoLong =
             istr => istr.ReadLong();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<long[]> IceReaderIntoLongArray =
-            istr => istr.ReadArray<long>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>short</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<short> IceReaderIntoShort =
             istr => istr.ReadShort();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<short[]> IceReaderIntoShortArray =
-            istr => istr.ReadArray<short>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>string</c> instances.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<string> IceReaderIntoString =
             istr => istr.ReadString();
 
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>uint</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<uint> IceReaderIntoUInt =
             istr => istr.ReadUInt();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<uint[]> IceReaderIntoUIntArray =
-            istr => istr.ReadArray<uint>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>ulong</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ulong> IceReaderIntoULong =
             istr => istr.ReadULong();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<ulong[]> IceReaderIntoULongArray =
-            istr => istr.ReadArray<ulong>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>ushort</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ushort> IceReaderIntoUShort =
             istr => istr.ReadUShort();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<ushort[]> IceReaderIntoUShortArray =
-            istr => istr.ReadArray<ushort>();
-
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read var int values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int> IceReaderIntoVarInt =
             istr => istr.ReadVarInt();
 
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read var long values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long> IceReaderIntoVarLong =
             istr => istr.ReadVarLong();
 
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read var uint values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<uint> IceReaderIntoVarUInt =
             istr => istr.ReadVarUInt();
 
+        /// <summary>A <see cref="InputStreamReader{T}"/> used to read var ulong values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ulong> IceReaderIntoVarULong =
             istr => istr.ReadVarULong();
@@ -515,26 +488,6 @@ namespace ZeroC.Ice
         public ICollection<T?> ReadSequence<T>(InputStreamReader<T> reader) where T : struct =>
             new NullableValueCollection<T>(this, reader);
 
-        /// <summary>Reads a serializable object from the stream.</summary>
-        /// <returns>The object read from the stream.</returns>
-        public object ReadSerializable()
-        {
-            int sz = ReadAndCheckSeqSize(1);
-            if (sz == 0)
-            {
-                throw new InvalidDataException("read an empty byte sequence for a serializable object");
-            }
-            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator));
-            var streamWrapper = new StreamWrapper(_buffer.Slice(Pos, sz));
-            object result = f.Deserialize(streamWrapper);
-            if (streamWrapper.Position != sz)
-            {
-                throw new InvalidDataException($"{sz - streamWrapper.Position} bytes left in object stream");
-            }
-            Pos += sz;
-            return result;
-        }
-
         /// <summary>Reads a sorted dictionary from the stream.</summary>
         /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
         /// <param name="minValueSize">The minimum size of each value of the dictionary, in bytes.</param>
@@ -858,12 +811,6 @@ namespace ZeroC.Ice
                 return null;
             }
         }
-
-        /// <summary>Reads a tagged serializable object from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <returns>The object read from the stream, or null.</returns>
-        public object? ReadTaggedSerializable(int tag) =>
-            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize) ? ReadSerializable() : null;
 
         /// <summary>Reads a tagged sequence from the stream. The element type can be nullable only if it corresponds to
         /// a proxy class or mapped Slice class.</summary>

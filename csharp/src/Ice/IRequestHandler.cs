@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The request handler interface is used by the proxy code to send requests and get a response task in
     /// return to wait for the reception of the response for twoway requests. This interface has two concrete
     /// implementations: the connection request handler which hands over the request to an Ice network connection and
-    /// the collocated request handler which instead directly invokes the request on the collocated servant.</summary>
+    /// the colocated request handler which instead directly invokes the request on the colocated servant.</summary>
     internal interface IRequestHandler
     {
         /// <summary>Sends a request. The sending is asynchronous because it might block waiting for the underlying

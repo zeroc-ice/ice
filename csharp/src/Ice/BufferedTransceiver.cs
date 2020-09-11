@@ -62,6 +62,7 @@ namespace ZeroC.Ice
         public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
             Underlying.SendAsync(buffer, cancel);
 
+        /// <inheritdoc/>
         public override string? ToString() => Underlying.ToString();
 
         internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
@@ -112,12 +113,12 @@ namespace ZeroC.Ice
         /// <param name="bytes">The number of bytes to unread from the buffer.</param>
         internal void Rewind(int bytes)
         {
-            if (_buffer.Array!.Length < bytes)
+            if (bytes > _buffer.Offset)
             {
                 throw new ArgumentOutOfRangeException($"{nameof(bytes)} is too large");
             }
 
-            _buffer = new ArraySegment<byte>(_buffer.Array, _buffer.Offset - bytes, _buffer.Count + bytes);
+            _buffer = new ArraySegment<byte>(_buffer.Array!, _buffer.Offset - bytes, _buffer.Count + bytes);
         }
 
         private async ValueTask ReceiveInBufferAsync(int byteCount, CancellationToken cancel = default)

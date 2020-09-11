@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
-    public sealed class MyDerivedClass : IMyDerivedClass, IObject
+    public sealed class MyDerivedClass : IMyDerivedClass
     {
         private readonly object _mutex = new object();
 

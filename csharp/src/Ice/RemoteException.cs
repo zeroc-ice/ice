@@ -4,15 +4,14 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace ZeroC.Ice
 {
     /// <summary>Base class for exceptions that can be transmitted in responses to Ice requests. The derived exception
     /// classes are generated from exceptions defined in Slice.</summary>
-    [Serializable]
     public class RemoteException : Exception
     {
+        /// <inheritdoc/>
         public override string Message => _hasCustomMessage || DefaultMessage == null ? base.Message : DefaultMessage;
 
         /// <summary>When true, if this exception is thrown from the implementation of an operation, Ice will convert
@@ -26,6 +25,8 @@ namespace ZeroC.Ice
         /// derived partial exception classes that provide a custom default message.</summary>
         protected virtual string? DefaultMessage => null;
 
+        /// <summary>Returns the sliced data if the exception has a preserved-slice base exception and has been sliced during
+        /// un-marshaling, <c>null</c> is returned otherwise.</summary>
         protected SlicedData? IceSlicedData { get; set; }
         internal SlicedData? SlicedData => IceSlicedData;
 
@@ -47,16 +48,11 @@ namespace ZeroC.Ice
         protected RemoteException(string? message, Exception? innerException)
             : base(message, innerException) => _hasCustomMessage = message != null;
 
-        /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected RemoteException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-
-        // See InputStream
-        // This base implementation is only called on a plain RemoteException.
+        /// <summary>Unmarshals a remote exception from the <see cref="InputStream"/>. This base implementation is only
+        /// called on a plain RemoteException.</summary>
+        /// <param name="istr">The <see cref="InputStream"/> to read from.</param>
+        /// <param name="firstSlice"><c>True</c> if the exception corresponds to the first Slice, <c>False</c>
+        /// otherwise.</param>
         protected virtual void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
@@ -66,14 +62,18 @@ namespace ZeroC.Ice
 
         internal void Read(InputStream istr) => IceRead(istr, true);
 
-        // See OutputStream
-        // This implementation can only called on a plain RemoteException with IceSlicedData set.
+        /// <summary>Marshal a remote exception to the <see cref="OutputStream"/>. This implementation can only be
+        /// called on a plain RemoteException with IceSlicedData set.</summary>
+        /// <param name="ostr">The <see cref="OutputStream"/> to marshal the exception.</param>
+        /// <param name="firstSlice"><c>True</c> if the exception corresponds to the first Slice, <c>False</c>
+        /// otherwise.</param>
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice) =>
             ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message);
 
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }
 
+    /// <summary>Provides public extensions methods for RemoteException instances.</summary>
     public static class RemoteExceptionExtensions
     {
         /// <summary>During unmarshaling, Ice slices off derived slices that it does not know how to read, and preserves

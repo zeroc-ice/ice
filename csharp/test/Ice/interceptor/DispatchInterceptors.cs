@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -16,6 +17,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
     public static class DispatchInterceptors
     {
+        public static AsyncLocal<int> LocalContext { get; } = new AsyncLocal<int>();
         public static async ValueTask ActivateAsync(ObjectAdapter adapter)
         {
             DispatchInterceptor raiseInterceptor = async (request, current, next) =>
@@ -105,7 +107,8 @@ namespace ZeroC.Ice.Test.Interceptor
                         TestHelper.Assert(t1.Expiration == t2.Expiration);
                         TestHelper.Assert(t1.Payload.SequenceEqual(t2.Payload));
                         Debug.Assert(request.BinaryContext.ContainsKey(2));
-                        string[] s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
+                        string[] s2 = request.BinaryContext[2].Read(istr =>
+                            istr.ReadArray(1, InputStream.IceReaderIntoString));
                         Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
 
                         if (request.HasCompressedPayload)
@@ -122,7 +125,8 @@ namespace ZeroC.Ice.Test.Interceptor
                             TestHelper.Assert(t1.Expiration == t2.Expiration);
                             TestHelper.Assert(t1.Payload.SequenceEqual(t2.Payload));
                             Debug.Assert(request.BinaryContext.ContainsKey(2));
-                            s2 = request.BinaryContext[2].Read(Ice.StringSeqHelper.IceReader);
+                            s2 = request.BinaryContext[2].Read(istr =>
+                                istr.ReadArray(1, InputStream.IceReaderIntoString));
                             Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
                         }
                     }
@@ -131,12 +135,16 @@ namespace ZeroC.Ice.Test.Interceptor
 
             DispatchInterceptor op1 = async (request, current, next) =>
                 {
-                    if (request.Protocol == Protocol.Ice2 && current.Operation == "op1")
+                    if (current.Operation == "op1")
                     {
-                        OutgoingResponseFrame response = await next(request, current);
-                        response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
-                        response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
-                        return response;
+                        LocalContext.Value = int.Parse(current.Context["local-user"]);
+                        if (request.Protocol == Protocol.Ice2)
+                        {
+                            OutgoingResponseFrame response = await next(request, current);
+                            response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
+                            response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
+                            return response;
+                        }
                     }
                     return await next(request, current);
                 };

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
+
 namespace ZeroC.Ice.Test.Interceptor
 {
     public class MyObject : IMyObject
@@ -21,9 +23,8 @@ namespace ZeroC.Ice.Test.Interceptor
 
         public int NotExistAdd(int x, int y, Current current) => throw new ObjectNotExistException(current);
 
-        public void Op1(Current current)
-        {
-        }
+        public void Op1(Current current) =>
+            TestHelper.Assert(DispatchInterceptors.LocalContext.Value == int.Parse(current.Context["local-user"]));
 
         public void OpWithBinaryContext(Token token, Current current)
         {

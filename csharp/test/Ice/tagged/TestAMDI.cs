@@ -121,9 +121,6 @@ namespace ZeroC.Ice.Test.Tagged
         public ValueTask<(IEnumerable<VarStruct>?, IEnumerable<VarStruct>?)> OpVarStructSeqAsync(
             VarStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<VarStruct>);
 
-        public ValueTask<(ZeroC.Ice.Test.Tagged.SerializableClass?, ZeroC.Ice.Test.Tagged.SerializableClass?)>
-        OpSerializableAsync(ZeroC.Ice.Test.Tagged.SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
-
         public ValueTask<(IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)>
         OpIntIntDictAsync(Dictionary<int, int>? p1, Current current) => ToReturnValue(p1);
 
@@ -184,9 +181,6 @@ namespace ZeroC.Ice.Test.Tagged
 
         public ValueTask<bool>
         SupportsJavaSerializableAsync(Current current) => MakeValueTask(false);
-
-        public ValueTask<bool>
-        SupportsCsharpSerializableAsync(Current current) => MakeValueTask(true);
 
         public ValueTask<bool>
         SupportsCppStringViewAsync(Current current) => MakeValueTask(false);

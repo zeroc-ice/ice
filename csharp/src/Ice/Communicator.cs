@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ namespace ZeroC.Ice
         public int RcvSize;
     }
 
+    /// <summary>The central object in Ice. One or more communicators can be instantiated for an Ice application.</summary>
     public sealed partial class Communicator : IDisposable, IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
@@ -103,6 +105,7 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableDictionary();
         }
 
+        /// <summary>Gets the default endpoint selection policy for proxies with multiple endpoints.</summary>
         public EndpointSelectionType DefaultEndpointSelection { get; }
 
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
@@ -114,9 +117,19 @@ namespace ZeroC.Ice
             set => _defaultLocator = value;
         }
 
+        /// <summary>Gets whether or not non-secure endpoints should have preference over secure endpoints.
+        /// </summary>
         public bool DefaultPreferNonSecure { get; }
 
+        /// <summary>Gets the default source address value used by proxies created with this communicator.</summary>
         public IPAddress? DefaultSourceAddress { get; }
+
+        /// <summary>Gets the default invocation timeout value used by proxies created with this communicator.
+        /// </summary>
+        public TimeSpan DefaultInvocationTimeout { get; }
+
+        /// <summary>Gets the default value for the locator cache timeout used by proxies created with this
+        /// communicator.</summary>
         public TimeSpan DefaultLocatorCacheTimeout { get; }
 
         /// <summary>The default router for this communicator. To disable the default router, null can be used.
@@ -131,10 +144,12 @@ namespace ZeroC.Ice
         /// <summary>The logger for this communicator.</summary>
         public ILogger Logger { get; internal set; }
 
+        /// <summary>Gets the communicator observer used by the Ice run-time or null if a communicator observer
+        /// was not set during communicator initialization.</summary>
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
         /// <summary>The output mode or format for ToString on Ice proxies when the protocol is ice1. See
-        /// <see cref="ZeroC.Ice.ToStringMode"/>.</summary>
+        /// <see cref="Ice.ToStringMode"/>.</summary>
         public ToStringMode ToStringMode { get; }
 
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
@@ -171,7 +186,7 @@ namespace ZeroC.Ice
             "Router",
             "Context\\..*"
         };
-        private static readonly object _staticLock = new object();
+        private static readonly object _staticMutex = new object();
 
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
@@ -182,10 +197,10 @@ namespace ZeroC.Ice
         private Identity? _adminIdentity;
         private readonly bool _backgroundLocatorCacheUpdates;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
-            new ConcurrentDictionary<string, IClassFactory?>();
-        private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
-            new ConcurrentDictionary<int, IClassFactory?>();
+        private readonly ConcurrentDictionary<string, Func<AnyClass>?> _classFactoryCache =
+            new ConcurrentDictionary<string, Func<AnyClass>?>();
+        private readonly ConcurrentDictionary<int, Func<AnyClass>?> _compactIdCache =
+            new ConcurrentDictionary<int, Func<AnyClass>?>();
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext =
@@ -195,6 +210,7 @@ namespace ZeroC.Ice
         private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
         private Task? _disposeTask;
         private readonly List<InvocationInterceptor> _invocationInterceptors = new List<InvocationInterceptor>();
+        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
@@ -202,8 +218,8 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
-        private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
-            new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
+        private readonly ConcurrentDictionary<string, Func<string?, RemoteException>?> _remoteExceptionFactoryCache =
+            new ConcurrentDictionary<string, Func<string?, RemoteException>?>();
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
@@ -215,78 +231,124 @@ namespace ZeroC.Ice
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
             new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
 
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
+        /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
+        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
+        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             IReadOnlyDictionary<string, string> properties,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
-                   null,
-                   properties,
+                   appSettings: null,
+                   dispatchInterceptors,
+                   invocationInterceptors,
                    logger,
                    observer,
+                   properties,
                    tlsClientOptions,
-                   tlsServerOptions,
-                   invocationInterceptors,
-                   dispatchInterceptors)
+                   tlsServerOptions)
         {
         }
 
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
+        /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
+        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
+        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             ref string[] args,
             IReadOnlyDictionary<string, string> properties,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref args,
-                   null,
-                   properties,
+                   appSettings: null,
+                   dispatchInterceptors,
+                   invocationInterceptors,
                    logger,
                    observer,
+                   properties,
                    tlsClientOptions,
-                   tlsServerOptions,
-                   invocationInterceptors,
-                   dispatchInterceptors)
+                   tlsServerOptions)
         {
         }
 
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
+        /// param has precedence over the properties param.</param>
+        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
+        /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the Ice run-time.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
+        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             NameValueCollection? appSettings = null,
-            IReadOnlyDictionary<string, string>? properties = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
+            IReadOnlyDictionary<string, string>? properties = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings,
-                   properties,
+                   dispatchInterceptors,
+                   invocationInterceptors,
                    logger,
                    observer,
+                   properties,
                    tlsClientOptions,
-                   tlsServerOptions,
-                   invocationInterceptors,
-                   dispatchInterceptors)
+                   tlsServerOptions)
         {
         }
 
+        /// <summary>Constructs a new communicator.</summary>
+        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties</param>
+        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
+        /// param has precedence over the properties param.</param>
+        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
+        /// executed with each dispatch.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
+        /// be executed with each invocation.</param>
+        /// <param name="logger">The logger used by the new communicator.</param>
+        /// <param name="observer">The communicator observer used by the new communicator.</param>
+        /// <param name="properties">The properties of the new communicator.</param>
+        /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
+        /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             ref string[] args,
-            NameValueCollection? appSettings,
-            IReadOnlyDictionary<string, string>? properties = null,
+            NameValueCollection? appSettings = null,
+            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
+            IReadOnlyDictionary<string, string>? properties = null,
             TlsClientOptions? tlsClientOptions = null,
-            TlsServerOptions? tlsServerOptions = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null)
+            TlsServerOptions? tlsServerOptions = null)
         {
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
@@ -324,7 +386,7 @@ namespace ZeroC.Ice
 
             try
             {
-                lock (_staticLock)
+                lock (_staticMutex)
                 {
                     if (!_oneOffDone)
                     {
@@ -507,7 +569,7 @@ namespace ZeroC.Ice
 
                 if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
-                    AssemblyUtil.PreloadAssemblies();
+                    LoadAssemblies();
                 }
 
                 if (dispatchInterceptors != null)
@@ -650,6 +712,12 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Adds an admin facet to the communicator.</summary>
+        /// <param name="facet">The facet name.</param>
+        /// <param name="servant">The servant that implements the admin facet.</param>
+        /// <exception cref="ArgumentException">If the configuration doesn't allow adding a facet with
+        /// the given name or if there is already a facet with the given name registered with the communicator.
+        /// </exception>
         public void AddAdminFacet(string facet, IObject servant)
         {
             lock (_mutex)
@@ -999,7 +1067,12 @@ namespace ZeroC.Ice
             }
         }
 
-        // Registers an endpoint factory.
+        /// <summary>Registers an endpoint factory for a transport. This is a publicly visible Ice internal method used
+        /// by transport plugins.</summary>
+        /// <param name="transport">The transport.</param>
+        /// <param name="transportName">The name of the transport in lower case, for example "tcp", "quic".</param>
+        /// <param name="factory">The factory to register.</param>
+        /// <param name="defaultPort">The default port for URI endpoints that don't specificy a port explicitly.</param>
         public void IceAddEndpointFactory(
             Transport transport,
             string transportName,
@@ -1025,7 +1098,10 @@ namespace ZeroC.Ice
             }
         }
 
-        // Finds an endpoint factory previously registered using IceAddEndpointFactory.
+        /// <summary>Finds an endpoint factory previously registered using IceAddEndpointFactory.</summary>
+        /// <param name="transport">The transport used to lookup the endpoint factory.</param>
+        /// <returns>And endpoint factory for the given transport or null if a factory has not been registered
+        /// for the given transport.</returns>
         public IEndpointFactory? IceFindEndpointFactory(Transport transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
@@ -1076,37 +1152,49 @@ namespace ZeroC.Ice
         }
 
         // Returns the IClassFactory associated with this Slice type ID, not null if not found.
-        internal IClassFactory? FindClassFactory(string typeId) =>
+        internal Func<AnyClass>? FindClassFactory(string typeId) =>
             _classFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.{className}");
+                Type? factoryClass = FindType($"ZeroC.Ice.ClassFactory.{className}");
                 if (factoryClass != null)
                 {
-                    return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                    MethodInfo? method = factoryClass.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+                    Debug.Assert(method != null);
+                    return (Func<AnyClass>)Delegate.CreateDelegate(typeof(Func<AnyClass>), method);
                 }
                 return null;
             });
 
-        internal IClassFactory? FindClassFactory(int compactId) =>
+        internal Func<AnyClass>? FindClassFactory(int compactId) =>
            _compactIdCache.GetOrAdd(compactId, compactId =>
            {
-               Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
+               Type? factoryClass = FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
                if (factoryClass != null)
                {
-                   return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                   MethodInfo? method = factoryClass.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+                   Debug.Assert(method != null);
+                   return (Func<AnyClass>)Delegate.CreateDelegate(typeof(Func<AnyClass>), method);
                }
                return null;
            });
 
-        internal IRemoteExceptionFactory? FindRemoteExceptionFactory(string typeId) =>
+        internal Func<string?, RemoteException>? FindRemoteExceptionFactory(string typeId) =>
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
+                Type? factoryClass = FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
                 if (factoryClass != null)
                 {
-                    return (IRemoteExceptionFactory?)Activator.CreateInstance(factoryClass, false);
+                    MethodInfo? method = factoryClass.GetMethod("Create",
+                                                                BindingFlags.Public | BindingFlags.Static,
+                                                                null,
+                                                                CallingConventions.Any,
+                                                                new Type[] { typeof(string) },
+                                                                null);
+                    Debug.Assert(method != null);
+                    return (Func<string?, RemoteException>)Delegate.CreateDelegate(typeof(Func<string?, RemoteException>),
+                                                                                   method);
                 }
                 return null;
             });
@@ -1244,6 +1332,20 @@ namespace ZeroC.Ice
             }
         }
 
+        private static Type? FindType(string csharpId)
+        {
+            Type? t;
+            LoadAssemblies(); // Lazy initialization
+            foreach (Assembly a in _loadedAssemblies.Values)
+            {
+                if ((t = a.GetType(csharpId)) != null)
+                {
+                    return t;
+                }
+            }
+            return null;
+        }
+
         private INetworkProxy? CreateNetworkProxy(int protocolSupport)
         {
             string? proxyHost = GetProperty("Ice.SOCKSProxyHost");
@@ -1263,6 +1365,63 @@ namespace ZeroC.Ice
             }
 
             return null;
+        }
+
+        // Make sure that all assemblies that are referenced by this process are actually loaded. This is necessary so
+        // we can use reflection on any type in any assembly because the type we are after will most likely not be in
+        // the current assembly and, worse, may be in an assembly that has not been loaded yet. (Type.GetType() is no
+        // good because it looks only in the calling object's assembly and mscorlib.dll.)
+        private static void LoadAssemblies()
+        {
+            lock (_staticMutex)
+            {
+                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var newAssemblies = new List<Assembly>();
+                foreach (Assembly assembly in assemblies)
+                {
+                    if (!_loadedAssemblies.ContainsKey(assembly.FullName!))
+                    {
+                        newAssemblies.Add(assembly);
+                        _loadedAssemblies[assembly.FullName!] = assembly;
+                    }
+                }
+
+                foreach (Assembly a in newAssemblies)
+                {
+                    LoadReferencedAssemblies(a);
+                }
+            }
+        }
+
+        private static void LoadReferencedAssemblies(Assembly a)
+        {
+            try
+            {
+                AssemblyName[] names = a.GetReferencedAssemblies();
+                foreach (AssemblyName name in names)
+                {
+                    if (!_loadedAssemblies.ContainsKey(name.FullName))
+                    {
+                        try
+                        {
+                            var loadedAssembly = Assembly.Load(name);
+                            // The value of name.FullName may not match that of loadedAssembly.FullName, so we record
+                            // the assembly using both keys.
+                            _loadedAssemblies[name.FullName] = loadedAssembly;
+                            _loadedAssemblies[loadedAssembly.FullName!] = loadedAssembly;
+                            LoadReferencedAssemblies(loadedAssembly);
+                        }
+                        catch (Exception)
+                        {
+                            // Ignore assemblies that cannot be loaded.
+                        }
+                    }
+                }
+            }
+            catch (PlatformNotSupportedException)
+            {
+                // Some platforms like UWP do not support using GetReferencedAssemblies
+            }
         }
 
         private static string TypeIdToClassName(string typeId)

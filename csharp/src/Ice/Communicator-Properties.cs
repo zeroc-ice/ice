@@ -521,6 +521,7 @@ namespace ZeroC.Ice
         }
     }
 
+    /// <summary>Provides public extension methods to parse command-line args into properties.</summary>
     public static class PropertiesExtensions
     {
         /// <summary>Extract the reserved Ice properties from command-line args.</summary>
@@ -767,6 +768,20 @@ namespace ZeroC.Ice
             }
 
             return (name.ToString(), value.ToString());
+        }
+    }
+
+    internal sealed class Property
+    {
+        internal bool Deprecated { get; }
+        internal string? DeprecatedBy { get; }
+        internal string Pattern { get; }
+
+        internal Property(string pattern, bool deprecated, string? deprecatedBy)
+        {
+            Pattern = pattern;
+            Deprecated = deprecated;
+            DeprecatedBy = deprecatedBy;
         }
     }
 }

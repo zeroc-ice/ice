@@ -39,7 +39,6 @@ protected:
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
-    void emitSerializableAttribute();
     void emitTypeIdAttribute(const std::string&); // the Ice type ID attribute
 
     std::string writeValue(const TypePtr&, const std::string&);
@@ -119,8 +118,6 @@ private:
         void visitStructEnd(const StructPtr&) override;
         void visitEnum(const EnumPtr&) override;
         void visitDataMember(const MemberPtr&) override;
-        void visitSequence(const SequencePtr&) override;
-        void visitDictionary(const DictionaryPtr&) override;
 
     private:
 

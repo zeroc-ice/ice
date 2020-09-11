@@ -9,7 +9,6 @@
         <UwpPlatform Condition="'$(Platform)' == 'x64'">x64</UwpPlatform>
         <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
 
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</DefaultPlatformToolset>
     </PropertyGroup>
 
@@ -115,17 +114,10 @@
 
     <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-
-        <!-- Build iceboxnet with netcoreapp2.1 target framework (default) -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp2.1;BaseIntermediateOutputPath=obj\netcoreapp2.1\"
-                 Targets="Restore;Publish"/>
-
         <!-- Build iceboxnet with net5 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net5;BaseIntermediateOutputPath=obj\net5\"
-                 Targets="Restore;Publish"
-                 Condition="'$(VisualStudioVersion)' == '16.0'"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\iceboxnet\iceboxnet.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU"
+                 Targets="Restore;Publish"/>
 
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net;CppPlatform=$(CppPlatform);Configuration=$(Configuration)"/>
@@ -143,10 +135,6 @@
               DestinationFiles="zeroc.ice.net\LICENSE.txt" />
 
         <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.$(DefaultPlatformToolset).1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.$(DefaultPlatformToolset).1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.1"/>
-
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.$(DefaultPlatformToolset).1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.$(DefaultPlatformToolset).1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net5"

@@ -42,6 +42,10 @@ namespace ZeroC.Ice
         private int _hashCode;
         private volatile IRequestHandler? _requestHandler; // readonly when IsFixed is true
 
+        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>
         public static bool operator ==(Reference? lhs, Reference? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
@@ -56,6 +60,10 @@ namespace ZeroC.Ice
             return rhs.Equals(lhs);
         }
 
+        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
         public static bool operator !=(Reference? lhs, Reference? rhs) => !(lhs == rhs);
 
         /// <summary>Creates a reference from a string and a communicator. This an Ice-internal publicly visible static
@@ -201,8 +209,10 @@ namespace ZeroC.Ice
                                  routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object? obj) => Equals(obj as Reference);
 
+        /// <inheritdoc/>
         public bool Equals(Reference? other)
         {
             if (other == null)
@@ -301,6 +311,7 @@ namespace ZeroC.Ice
             return true;
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             if (_hashCode != 0)
@@ -407,13 +418,17 @@ namespace ZeroC.Ice
                     case InvocationMode.Oneway:
                         sb.Append(" -o");
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchOneway:
+#pragma warning restore CS0618 // Type or member is obsolete
                         sb.Append(" -O");
                         break;
                     case InvocationMode.Datagram:
                         sb.Append(" -d");
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchDatagram:
+#pragma warning restore CS0618 // Type or member is obsolete
                         sb.Append(" -D");
                         break;
                 }
@@ -1017,7 +1032,9 @@ namespace ZeroC.Ice
                 {
                     case InvocationMode.Twoway:
                     case InvocationMode.Oneway:
+#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchOneway:
+#pragma warning restore CS0618 // Type or member is obsolete
                         if (endpoint.IsDatagram)
                         {
                             return false;
@@ -1025,7 +1042,9 @@ namespace ZeroC.Ice
                         break;
 
                     case InvocationMode.Datagram:
+#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchDatagram:
+#pragma warning restore CS0618 // Type or member is obsolete
                         if (!endpoint.IsDatagram)
                         {
                             return false;
@@ -1327,7 +1346,9 @@ namespace ZeroC.Ice
                         nameof(fixedConnection));
                 }
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }

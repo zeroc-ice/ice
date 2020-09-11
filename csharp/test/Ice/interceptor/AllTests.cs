@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
@@ -82,6 +84,9 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing invocation interceptors... ");
             output.Flush();
             {
+
+                var tasks = new List<Task>();
+                var invocationContext = new AsyncLocal<int>();
                 using var communicator = new Communicator(
                     prx.Communicator.GetProperties(),
                     invocationInterceptors: new InvocationInterceptor[]
@@ -104,6 +109,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                 request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
                             }
                             IncomingResponseFrame response = await next(target, request);
+                            TestHelper.Assert(invocationContext.Value == int.Parse(request.Context["local-user"]));
                             if (ice2)
                             {
                                 TestHelper.Assert(response.BinaryContext.ContainsKey(110));
@@ -114,8 +120,15 @@ namespace ZeroC.Ice.Test.Interceptor
                             return response;
                         }
                     });
-                var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
-                prx1.Op1();
+
+                for (int i = 0; i < 10; ++i)
+                {
+                    invocationContext.Value = i;
+                    var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
+                    Task t = prx1.Op1Async(new Dictionary<string, string> { { "local-user", $"{i}"} });
+                    tasks.Add(t);
+                }
+                Task.WaitAll(tasks.ToArray());
             }
 
             {
@@ -152,9 +165,9 @@ namespace ZeroC.Ice.Test.Interceptor
                     });
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
-                prx1.Op1();
-                prx1.Op1();
-                prx1.Op1();
+                prx1.Op1(new Dictionary<string, string> { { "local-user", "10" } });
+                prx1.Op1(new Dictionary<string, string> { { "local-user", "11" } });
+                prx1.Op1(new Dictionary<string, string> { { "local-user", "12" } });
                 TestHelper.Assert(invocations == 1);
             }
 
@@ -212,9 +225,10 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                      Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                    request.AddBinaryContextEntry(2,
-                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                                  Ice.StringSeqHelper.IceWriter);
+                    request.AddBinaryContextEntry(
+                        2,
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                        (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
 
                     // Adding the same key twice throws ArgumentException
                     try
@@ -249,9 +263,10 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                    request.AddBinaryContextEntry(2,
-                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                                  Ice.StringSeqHelper.IceWriter);
+                    request.AddBinaryContextEntry(
+                        2,
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                        (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
                     TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
                     prx.Invoke(request);
 
@@ -268,9 +283,10 @@ namespace ZeroC.Ice.Test.Interceptor
                     TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                    request.AddBinaryContextEntry(2,
-                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                                  Ice.StringSeqHelper.IceWriter);
+                    request.AddBinaryContextEntry(
+                        2,
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                        (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
                     prx.Invoke(request);
                 }
             }
