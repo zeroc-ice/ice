@@ -202,16 +202,13 @@ namespace ZeroC.Ice
     }
 
     /// <summary>This exception indicates that the stream was closed by the peer.</summary>
-    [Serializable]
     public class StreamClosedByPeerException : TransportException
     {
+        /// <summary>Constructs a new instance of the <see cref="StreamClosedByPeerException"/> class with a specified
+        /// error message.</summary>
+        /// <param name="message">The message that describes the error.</param>
         public StreamClosedByPeerException(string message)
             : base(message)
-        {
-        }
-
-        protected StreamClosedByPeerException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

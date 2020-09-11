@@ -392,6 +392,8 @@ namespace ZeroC.Ice
                             }
                             else
                             {
+                                // TODO: Is the synchronous boolean still useful there?
+
                                 // Wait for the reception of the response.
                                 (IncomingResponseFrame response, bool fin) =
                                     await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
