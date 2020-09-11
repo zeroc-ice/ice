@@ -16,13 +16,11 @@ namespace Slice
 enum CSharpBaseType { ObjectType = 1, ExceptionType = 2 };
 
 std::string fixId(const std::string&, unsigned int = 0);
-//
+
 // Returns the namespace of a Contained entity.
-//
 std::string getNamespace(const ContainedPtr&);
-//
+
 // Returns the namespace prefix of a Contained entity.
-//
 std::string getNamespacePrefix(const ContainedPtr&);
 
 std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
@@ -53,7 +51,7 @@ bool isReferenceType(const TypePtr&); // opposite of value
 bool isMappedToReadOnlyMemory(const SequencePtr& seq);
 
 std::vector<std::string> getNames(const MemberList& params, const std::string& prefix = "");
-std::vector<std::string> getNames(const MemberList&, std::function<std::string (const MemberPtr&)>);
+std::vector<std::string> getNames(const MemberList& params, std::function<std::string (const MemberPtr&)> fn);
 
 std::string toTuple(const MemberList& params, const std::string& prefix = "");
 std::string toTupleType(const MemberList& params, bool readOnly);
@@ -75,45 +73,71 @@ public:
 
     virtual ~CsGenerator() {};
 
-    //
     // Validate all metadata in the unit with a "cs:" prefix.
-    //
     static void validateMetaData(const UnitPtr&);
 
     static std::string typeToString(const TypePtr& type, const std::string& package, bool readOnly = false);
 
 protected:
 
-    //
-    // Generate code to marshal or unmarshal a type
-    //
-    std::string outputStreamWriter(const TypePtr&, const std::string&, bool);
-    void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, int&, bool, const std::string&,
-                          const std::string&, const std::string& = "ostr");
+    std::string outputStreamWriter(const TypePtr& type, const std::string& scope, bool forNestedType);
 
-    std::string inputStreamReader(const TypePtr&, const std::string&);
-    void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, int&, const std::string&, const std::string&,
-                            const std::string& = "istr");
+    void writeMarshalCode(
+        ::IceUtilInternal::Output& out,
+        const TypePtr& type,
+        int& bitSequenceIndex,
+        bool forNestedType,
+        const std::string& scope,
+        const std::string& param);
 
-    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, bool, const std::string&,
-                                const std::string&, int, const std::string& = "ostr");
-    void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, const std::string&,
-                                  const std::string&, int, const MemberPtr&, const std::string& = "istr");
+    std::string inputStreamReader(const TypePtr& type, const std::string& scope);
 
-    std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&,
-        bool forNestedType);
-    std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
+    void writeUnmarshalCode(
+        ::IceUtilInternal::Output& out,
+        const TypePtr& type,
+        int& bitSequenceIndex,
+        const std::string& scope,
+        const std::string& param);
 
-    std::string dictionaryMarshalCode(const DictionaryPtr& dict, const std::string& scope, const std::string& param,
-        const std::string& stream);
+    void writeTaggedMarshalCode(
+        ::IceUtilInternal::Output& out,
+        const OptionalPtr& optionalType,
+        bool isDataMember,
+        const std::string& scope,
+        const std::string& param,
+        int tag);
 
-    std::string dictionaryUnmarshalCode(const DictionaryPtr& dict, const std::string& scope, const std::string& stream);
+    void writeTaggedUnmarshalCode(
+        ::IceUtilInternal::Output& out,
+        const OptionalPtr& optionaType,
+        const std::string& scope,
+        const std::string& param,
+        int tag,
+        const MemberPtr& dataMember);
 
-    void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
-        const std::string& ns);
+    void writeConstantValue(
+        ::IceUtilInternal::Output& out,
+        const TypePtr& type,
+        const SyntaxTreeBasePtr& valueType,
+        const std::string& value,
+        const std::string& scope);
 
 private:
 
+    std::string sequenceMarshalCode(
+        const SequencePtr& seq,
+        const std::string& scope,
+        const std::string& param,
+        bool forNestedType = false);
+
+    std::string sequenceUnmarshalCode(const SequencePtr& seq, const std::string& scope);
+
+    std::string dictionaryMarshalCode(
+        const DictionaryPtr& dict,
+        const std::string& scope,
+        const std::string& param);
+
+    std::string dictionaryUnmarshalCode(const DictionaryPtr& dict, const std::string& scope);
     class MetaDataVisitor : public ParserVisitor
     {
     public:
