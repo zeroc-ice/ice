@@ -1142,16 +1142,28 @@ data_members
 // ----------------------------------------------------------------------
 return_tuple
 // ----------------------------------------------------------------------
-: member
+: out_qualifier member
 {
+    TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($2);
+    if (BoolTokPtr::dynamicCast($1)->v)
+    {
+        unit->error("`" + returnMember->name + "': return members cannot be marked as out");
+    }
+
     TaggedDefListTokPtr returnMembers = new TaggedDefListTok();
-    returnMembers->v.push_back(TaggedDefTokPtr::dynamicCast($1));
+    returnMembers->v.push_back(returnMember);
     $$ = returnMembers;
 }
-| return_tuple ',' member
+| return_tuple ',' out_qualifier member
 {
+    TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($4);
+    if (BoolTokPtr::dynamicCast($3)->v)
+    {
+        unit->error("`" + returnMember->name + "': return members cannot be marked as out");
+    }
+
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($1);
-    returnMembers->v.push_back(TaggedDefTokPtr::dynamicCast($3));
+    returnMembers->v.push_back(returnMember);
     $$ = returnMembers;
 }
 
