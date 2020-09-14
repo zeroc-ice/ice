@@ -1164,6 +1164,11 @@ return_type
     // For unnamed return types we infer their name to be 'returnValue'.
     returnMember->name = "returnValue";
 
+    if (returnMember->isTagged)
+    {
+        checkForTaggableType(returnMember->type);
+    }
+
     TaggedDefListTokPtr returnMembers = new TaggedDefListTok();
     returnMembers->v.push_back(returnMember);
     $$ = returnMembers;
@@ -2098,14 +2103,6 @@ tagged_type
         type = new Optional(TypePtr::dynamicCast($2));
         unit->error("only optional types can be tagged");
     }
-    if (type->isClassType())
-    {
-        unit->error("class '" + type->typeId() + "' cannot be tagged");
-    }
-    else if (type->usesClasses())
-    {
-        unit->error("type '" + type->typeId() + "' cannot be tagged, as it uses classes");
-    }
 
     taggedDef->type = type;
     $$ = taggedDef;
@@ -2119,14 +2116,6 @@ tagged_type
     {
         // Infer the type to be optional for backwards compatibility.
         type = new Optional(TypePtr::dynamicCast($2));
-    }
-    if (type->isClassType())
-    {
-        unit->error("class '" + type->typeId() + "' cannot be tagged");
-    }
-    else if (type->usesClasses())
-    {
-        unit->error("type '" + type->typeId() + "' cannot be tagged, as it uses classes");
     }
 
     taggedDef->type = type;
@@ -2148,12 +2137,21 @@ member
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     def->name = StringTokPtr::dynamicCast($2)->v;
     checkIdentifier(def->name);
+    if (def->isTagged)
+    {
+        checkForTaggableType(def->type, def->name);
+    }
+
     $$ = def;
 }
 | tagged_type keyword
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     def->name = StringTokPtr::dynamicCast($2)->v;
+    if (def->isTagged)
+    {
+        checkForTaggableType(def->type, def->name);
+    }
     unit->error("keyword `" + def->name + "' cannot be used as an identifier");
     $$ = def;
 }
@@ -2161,6 +2159,10 @@ member
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     def->name = IceUtil::generateUUID(); // Dummy
+    if (def->isTagged)
+    {
+        checkForTaggableType(def->type);
+    }
     unit->error("missing identifier");
     $$ = def;
 }
