@@ -1164,6 +1164,11 @@ return_type
     // For unnamed return types we infer their name to be 'returnValue'.
     returnMember->name = "returnValue";
 
+    if (returnMember->isTagged)
+    {
+        checkForTaggableType(returnMember->type);
+    }
+
     TaggedDefListTokPtr returnMembers = new TaggedDefListTok();
     returnMembers->v.push_back(returnMember);
     $$ = returnMembers;
@@ -1386,6 +1391,15 @@ operation_list
     if (operation && !metaData->v.empty())
     {
         operation->setMetaData(metaData->v);
+
+        // If the operation had a single return type (not a return tuple), also apply the metadata to the return type.
+        // TODO: once we introduce more concrete metadata validation, we could sort the metadata out between the return
+        // type and the operation itself. So metadata relevant to operations would only be set for the operation, and
+        // metadata only relevant to the return type would only be set on the return type.
+        if (operation->hasSingleReturnType())
+        {
+            operation->returnValues().front()->setMetaData(metaData->v);
+        }
     }
 }
 | local_metadata operation
@@ -2123,12 +2137,21 @@ member
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     def->name = StringTokPtr::dynamicCast($2)->v;
     checkIdentifier(def->name);
+    if (def->isTagged)
+    {
+        checkForTaggableType(def->type, def->name);
+    }
+
     $$ = def;
 }
 | tagged_type keyword
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     def->name = StringTokPtr::dynamicCast($2)->v;
+    if (def->isTagged)
+    {
+        checkForTaggableType(def->type, def->name);
+    }
     unit->error("keyword `" + def->name + "' cannot be used as an identifier");
     $$ = def;
 }
@@ -2136,6 +2159,10 @@ member
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($1);
     def->name = IceUtil::generateUUID(); // Dummy
+    if (def->isTagged)
+    {
+        checkForTaggableType(def->type);
+    }
     unit->error("missing identifier");
     $$ = def;
 }

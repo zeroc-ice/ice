@@ -88,4 +88,32 @@ struct S
     tag(2) int? m2 = 2;         // not allowed in struct
 }
 
+class OnlyDeclared;
+
+sequence<byte> bs;
+sequence<C> cs;
+
+struct HasClassMembers
+{
+    int m1;
+    string m2;
+    C m3;
+    Derived m4;
+}
+
+class TaggedClassMembers
+{
+    tag(1) int? m1;                 // ok
+    tag(2) S? m2;                   // ok
+    tag(3) C? m3;                   // tagged class
+    tag(4) Derived? m4;             // tagged class
+    tag(5) HasClassMembers? m5;     // tagging type that uses classes
+    tag(6) TaggedClassMembers? m6;  // tagged class
+    tag(7) AnyClass? m7;            // tagged class
+    tag(8) OnlyDeclared? m8;        // tagged class
+
+    tag(9) bs? m9;                  // ok
+    tag(10) cs? m10;                // tagging type that uses classes
+}
+
 }

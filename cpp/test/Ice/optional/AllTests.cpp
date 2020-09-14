@@ -10,13 +10,6 @@
 #include <TestHelper.h>
 #include <Test.h>
 
-namespace Test
-{
-using OneOptionalPrx = Ice::ObjectPrx;
-using OneOptionalPrxPtr = ::std::shared_ptr<Ice::ObjectPrx>;
-using MultiOptionalPrx = Ice::ObjectPrx;
-}
-
 using namespace std;
 using namespace Test;
 
@@ -221,44 +214,6 @@ private:
     IceUtil::Optional<APtr> a;
 };
 
-class FObjectReader : public Ice::Value
-{
-public:
-    virtual void _iceWrite(Ice::OutputStream*) const { }
-
-    virtual void _iceRead(Ice::InputStream* in)
-    {
-        _f = std::make_shared<F>();
-        in->startValue();
-        in->startSlice();
-        // Don't read af on purpose
-        //in.read(1, _f->af);
-        in->endSlice();
-        in->startSlice();
-        in->read(_f->ae);
-        in->endSlice();
-        in->endValue(false);
-    }
-
-    FPtr
-    getF()
-    {
-        return _f;
-    }
-
-protected:
-
-    virtual std::shared_ptr<Value> _iceCloneImpl() const
-    {
-        assert(0); // not used
-        return nullptr;
-    }
-
-private:
-
-    FPtr _f;
-};
-
 class FactoryI
 
 {
@@ -297,10 +252,6 @@ public:
         else if(typeId == "::Test::D")
         {
            return std::make_shared<DObjectReader>();
-        }
-        else if(typeId == "::Test::F")
-        {
-           return std::make_shared<FObjectReader>();
         }
 
         return 0;
@@ -371,7 +322,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->g = 1.0;
     mo1->h = string("test");
     mo1->i = MyEnum::MyEnumMember;
-    mo1->k = mo1;
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(5);
     mo1->ss = StringSeq();
@@ -384,9 +334,9 @@ allTests(Test::TestHelper* helper, bool)
     FixedStruct fs;
     fs.m = 78;
     mo1->fs = fs;
-    VarStruct vs;
-    vs.m = "hello";
-    mo1->vs = vs;
+    VarStruct vs1;
+    vs1.m = "hello";
+    mo1->vs = vs1;
 
     mo1->shs = ShortSeq();
     mo1->shs->push_back(1);
@@ -396,19 +346,14 @@ allTests(Test::TestHelper* helper, bool)
     mo1->fss = FixedStructSeq();
     mo1->fss->push_back(fs);
     mo1->vss = VarStructSeq();
-    mo1->vss->push_back(vs);
-    mo1->oos = OneOptionalSeq();
-    mo1->oos->push_back(oo1);
+    mo1->vss->push_back(vs1);
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = MyEnum::MyEnumMember;
     mo1->ifsd = IntFixedStructDict();
     mo1->ifsd.value()[4] = fs;
     mo1->ivsd = IntVarStructDict();
-    mo1->ivsd.value()[5] = vs;
-    mo1->iood = IntOneOptionalDict();
-    mo1->iood.value()[5] = std::make_shared<OneOptional>();
-    mo1->iood.value()[5]->a = 15;
+    mo1->ivsd.value()[5] = vs1;
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -429,7 +374,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
     test(mo3->i = MyEnum::MyEnumMember);
-    test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
     test(mo3->iid == mo1->iid);
@@ -441,11 +385,9 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->es == mo1->es);
     test(mo3->fss == mo1->fss);
     test(mo3->vss == mo1->vss);
-    test(mo3->oos == mo1->oos);
     test(mo3->ied == mo1->ied);
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
-    test(mo3->iood == mo1->iood);
 
     test(mo3->bos == mo1->bos);
 
@@ -486,7 +428,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->g);
     test(!mo4->h);
     test(!mo4->i);
-    test(!mo4->k);
     test(!mo4->bs);
     test(!mo4->ss);
     test(!mo4->iid);
@@ -498,16 +439,13 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->es);
     test(!mo4->fss);
     test(!mo4->vss);
-    test(!mo4->oos);
 
     test(!mo4->ied);
     test(!mo4->ifsd);
     test(!mo4->ivsd);
-    test(!mo4->iood);
 
     test(!mo4->bos);
 
-    mo1->k = mo1;
     MultiOptionalPtr mo5 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo1));
     test(mo5->a == mo1->a);
     test(mo5->b == mo1->b);
@@ -518,7 +456,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->g == mo1->g);
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
-    test(mo5->k == mo5->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
     test(mo5->iid == mo1->iid);
@@ -530,12 +467,10 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->es == mo1->es);
     test(mo5->fss == mo1->fss);
     test(mo5->vss == mo1->vss);
-    test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
     test(mo5->ied == mo1->ied);
     test(mo5->ifsd == mo1->ifsd);
     test(mo5->ivsd == mo1->ivsd);
-    test(!mo5->iood->empty() && (*mo5->iood)[5]->a == 15);
 
     test(mo5->bos == mo1->bos);
 
@@ -546,7 +481,6 @@ allTests(Test::TestHelper* helper, bool)
     mo6->e = IceUtil::None;
     mo6->g = IceUtil::None;
     mo6->i = IceUtil::None;
-    mo6->k = IceUtil::None;
     mo6->ss = IceUtil::None;
     mo6->sid = IceUtil::None;
     mo6->vs = IceUtil::None;
@@ -567,7 +501,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->g);
     test(mo7->h == mo1->h);
     test(!mo7->i);
-    test(!mo7->k);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
     test(mo7->iid == mo1->iid);
@@ -579,12 +512,10 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->es);
     test(mo7->fss == mo1->fss);
     test(!mo7->vss);
-    test(!mo7->oos->empty() && (*mo7->oos)[0]->a == oo1->a);
 
     test(!mo7->ied);
     test(mo7->ifsd == mo1->ifsd);
     test(!mo7->ivsd);
-    test(!mo7->iood->empty() && (*mo7->iood)[5]->a == 15);
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = std::make_shared<MultiOptional>(*mo5);
@@ -598,12 +529,9 @@ allTests(Test::TestHelper* helper, bool)
 
     mo8->shs = IceUtil::None;
     mo8->fss = IceUtil::None;
-    mo8->oos = IceUtil::None;
 
     mo8->ifsd = IceUtil::None;
-    mo8->iood = IceUtil::None;
 
-    mo8->k = mo8;
     MultiOptionalPtr mo9 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo8));
     test(mo9->a == mo1->a);
     test(!mo9->b);
@@ -614,7 +542,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo9->g == mo1->g);
     test(!mo9->h);
     test(mo9->i == mo1->i);
-    test(mo9->k == mo9);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
     test(!mo9->iid);
@@ -626,12 +553,10 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->es == mo1->es);
     test(!mo8->fss);
     test(mo8->vss == mo1->vss);
-    test(!mo8->oos);
 
     test(mo8->ied == mo1->ied);
     test(!mo8->ifsd);
     test(mo8->ivsd == mo1->ivsd);
-    test(!mo8->iood);
 
     Ice::ByteSeq inEncaps;
     Ice::ByteSeq outEncaps;
@@ -672,48 +597,6 @@ allTests(Test::TestHelper* helper, bool)
         test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
         factory->setEnabled(false);
     }
-
-    mo1->k = shared_ptr<MultiOptional>();
-    mo2->k = shared_ptr<MultiOptional>();
-    mo3->k = shared_ptr<MultiOptional>();
-    mo4->k = shared_ptr<MultiOptional>();
-    mo5->k = shared_ptr<MultiOptional>();
-    mo6->k = shared_ptr<MultiOptional>();
-    mo7->k = shared_ptr<MultiOptional>();
-    mo8->k = shared_ptr<MultiOptional>();
-    mo9->k = shared_ptr<MultiOptional>();
-
-    //
-    // Use the 1.0 encoding with operations whose only class parameters are optional.
-    //
-    IceUtil::Optional<OneOptionalPtr> oo(std::make_shared<OneOptional>(53));
-    initial->sendOptionalClass(true, oo);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalClass(true, oo);
-
-    initial->returnOptionalClass(true, oo);
-    test(oo);
-    initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
-    test(!oo);
-
-    RecursiveSeq recursive1;
-    recursive1.push_back(std::make_shared<Recursive>());
-    RecursiveSeq recursive2;
-    recursive2.push_back(std::make_shared<Recursive>());
-    recursive1[0]->value = recursive2;
-    RecursivePtr outer = std::make_shared<Recursive>();
-    outer->value = recursive1;
-    initial->pingPong(outer);
-
-    GPtr g = std::make_shared<G>();
-    g->gg1Opt = std::make_shared<G1>("gg1Opt");
-    g->gg2 = std::make_shared<G2>(10);
-    g->gg2Opt = std::make_shared<G2>(20);
-    g->gg1 = std::make_shared<G1>("gg1");
-    GPtr r = initial->opG(g);
-    test("gg1Opt" == r->gg1Opt.value()->a);
-    test(10 == r->gg2->a);
-    test(20 == r->gg2Opt.value()->a);
-    test("gg1" == r->gg1->a);
 
     initial->opVoid();
 
@@ -809,35 +692,6 @@ allTests(Test::TestHelper* helper, bool)
         in.endEncapsulation();
         test(obj);
         factory->setEnabled(false);
-    }
-
-    cout << "ok" << endl;
-
-    cout << "testing marshalling of objects with optional objects..." << flush;
-    {
-        FPtr f = std::make_shared<F>();
-
-        f->af = std::make_shared<A>();
-        f->ae = *f->af;
-
-        FPtr rf = ICE_DYNAMIC_CAST(F, initial->pingPong(f));
-        test(rf->ae == *rf->af);
-
-        factory->setEnabled(true);
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(f);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
-        in.startEncapsulation();
-        Ice::ValuePtr obj;
-        in.read(obj);
-        in.endEncapsulation();
-        factory->setEnabled(false);
-
-        rf = dynamic_cast<FObjectReader*>(obj.get())->getF();
-        test(rf->ae && !rf->af);
     }
     cout << "ok" << endl;
 
@@ -1307,61 +1161,6 @@ allTests(Test::TestHelper* helper, bool)
         in2.startEncapsulation();
         in2.endEncapsulation();
     }
-
-    {
-        IceUtil::Optional<OneOptionalPtr> p1;
-        IceUtil::Optional<OneOptionalPtr> p3;
-        IceUtil::Optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
-        test(!p2 && !p3);
-
-        if(initial->supportsNullOptional())
-        {
-            p2 = initial->opOneOptional(OneOptionalPtr(), p3);
-            test(*p2 == nullptr && *p3 == nullptr);
-        }
-
-        p1 = std::make_shared<OneOptional>(58);
-        p2 = initial->opOneOptional(p1, p3);
-        test((*p2)->a == 58 && (*p3)->a == 58);
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(2, p1);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        initial->ice_invoke("opOneOptional", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-        in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
-        in.endEncapsulation();
-        test((*p2)->a == 58 && (*p3)->a == 58);
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
-    }
-
-    {
-        FPtr f = std::make_shared<F>();
-        f->af = std::make_shared<A>();
-        (*f->af)->requiredA = 56;
-        f->ae = *f->af;
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(1, Ice::make_optional(f));
-        out.write(2, Ice::make_optional(f->ae));
-        out.endEncapsulation();
-        out.finished(inEncaps);
-
-        Ice::InputStream in(communicator, out.getEncoding(), inEncaps);
-        in.startEncapsulation();
-        IceUtil::Optional<APtr> a;
-        in.read(2, a);
-        in.endEncapsulation();
-        test(a && *a && (*a)->requiredA == 56);
-    }
     cout << "ok" << endl;
 
     cout << "testing optional parameters and custom sequences... " << flush;
@@ -1695,37 +1494,6 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        IceUtil::Optional<IntOneOptionalDict> p1;
-        IceUtil::Optional<IntOneOptionalDict> p3;
-        IceUtil::Optional<IntOneOptionalDict> p2 = initial->opIntOneOptionalDict(p1, p3);
-        test(!p2 && !p3);
-
-        IntOneOptionalDict ss;
-        ss.insert(make_pair<int, OneOptionalPtr>(1, std::make_shared<OneOptional>(58)));
-        p1 = ss;
-        p2 = initial->opIntOneOptionalDict(p1, p3);
-        test(p2 && p3);
-        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(2, p1);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        initial->ice_invoke("opIntOneOptionalDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-        in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
-        in.endEncapsulation();
-        test((*p2)[1]->a == 58 && (*p3)[1]->a == 58);
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
-    }
-
-    {
         if(supportsCppStringView)
         {
             IceUtil::Optional<std::map<int, Util::string_view> > p1;
@@ -1777,19 +1545,19 @@ allTests(Test::TestHelper* helper, bool)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
         }
 
         try
         {
-            initial->opOptionalException(30, string("test"), std::make_shared<OneOptional>(53));
+            initial->opOptionalException(30, string("test"), Test::VarStruct{"hello"});
             test(false);
         }
         catch(const OptionalException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test"));
-            test((*ex.o)->a = 53);
+            test(ex.vs->m == string("hello"));
         }
 
         try
@@ -1798,31 +1566,31 @@ allTests(Test::TestHelper* helper, bool)
             // Use the 1.0 encoding with an exception whose only class members are optional.
             //
             initial->ice_encodingVersion(Ice::Encoding_1_0)->
-                opOptionalException(30, string("test"), std::make_shared<OneOptional>(53));
+                opOptionalException(30, string("test"), Test::VarStruct{"hello"});
             test(false);
         }
         catch(const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
         }
 
         try
         {
             IceUtil::Optional<Ice::Int> a;
             IceUtil::Optional<string> b;
-            IceUtil::Optional<OneOptionalPtr> o;
-            initial->opDerivedException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs;
+            initial->opDerivedException(a, b, vs);
             test(false);
         }
         catch(const DerivedException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
             test(!ex.ss);
-            test(!ex.o2);
+            test(!ex.vs2);
         }
         catch(const OptionalException&)
         {
@@ -1833,17 +1601,17 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<OneOptionalPtr> o = std::make_shared<OneOptional>(53);
-            initial->opDerivedException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs = Test::VarStruct{"hello2"};
+            initial->opDerivedException(a, b, vs);
             test(false);
         }
         catch(const DerivedException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
+            test(ex.vs->m == string("hello2"));
             test(ex.ss == string("test2"));
-            test((*ex.o2)->a == 53);
+            test(ex.vs2->m == string("hello2"));
         }
         catch(const OptionalException&)
         {
@@ -1854,17 +1622,17 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a;
             IceUtil::Optional<string> b;
-            IceUtil::Optional<OneOptionalPtr> o;
-            initial->opRequiredException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs;
+            initial->opRequiredException(a, b, vs);
             test(false);
         }
         catch(const RequiredException& ex)
         {
             test(!ex.a);
             test(!ex.b);
-            test(!ex.o);
+            test(!ex.vs);
             test(ex.ss == string("test"));
-            test(!ex.o2);
+            test(ex.vs2.m == string(""));
         }
         catch(const OptionalException&)
         {
@@ -1875,17 +1643,17 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<OneOptionalPtr> o = std::make_shared<OneOptional>(53);
-            initial->opRequiredException(a, b, o);
+            IceUtil::Optional<Test::VarStruct> vs = Test::VarStruct{"hello2"};
+            initial->opRequiredException(a, b, vs);
             test(false);
         }
         catch(const RequiredException& ex)
         {
             test(ex.a == 30);
             test(ex.b == string("test2"));
-            test((*ex.o)->a == 53);
+            test(ex.vs->m == string("hello2"));
             test(ex.ss == string("test2"));
-            test(ex.o2->a == 53);
+            test(ex.vs2.m == string("hello2"));
         }
         catch(const OptionalException&)
         {
@@ -1899,7 +1667,6 @@ allTests(Test::TestHelper* helper, bool)
         test(initial->opMStruct1());
         test(initial->opMDict1());
         test(initial->opMSeq1());
-        test(initial->opMG1());
 
         {
             IceUtil::Optional<Test::SmallStruct> p1, p2, p3;
@@ -1931,15 +1698,6 @@ allTests(Test::TestHelper* helper, bool)
             p1 = dict;
             p3 = initial->opMDict2(p1, p2);
             test(p2 == p1 && p3 == p1);
-        }
-        {
-            IceUtil::Optional<Test::GPtr> p1, p2, p3;
-            p3 = initial->opMG2(IceUtil::None, p2);
-            test(!p2 && !p3);
-
-            p1 = std::make_shared<Test::G>();
-            p3 = initial->opMG2(p1, p2);
-            test(p2 && p3 && *p3 == *p2);
         }
     }
     cout << "ok" << endl;
