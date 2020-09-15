@@ -251,27 +251,6 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             reader.Read(proxy.Invoke(request, oneway: false, cancel), proxy.Communicator);
 
-        /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
-        /// different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// twoway request.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public static void InvokeVoid(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            CancellationToken cancel = default)
-        {
-            IncomingResponseFrame response = proxy.Invoke(request, oneway, cancel);
-            if (!oneway)
-            {
-                response.ReadVoidReturnValue(proxy.Communicator);
-            }
-        }
-
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
@@ -316,6 +295,27 @@ namespace ZeroC.Ice
                 ValueTask<IncomingResponseFrame> response,
                 IncomingResponseFrameReader<T> reader,
                 Communicator communicator) => reader.Read(await response.ConfigureAwait(false), communicator);
+        }
+
+        /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
+        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
+        /// different endpoints.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// twoway request.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public static void InvokeVoid(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            CancellationToken cancel = default)
+        {
+            IncomingResponseFrame response = proxy.Invoke(request, oneway, cancel);
+            if (!oneway)
+            {
+                response.ReadVoidReturnValue(proxy.Communicator);
+            }
         }
 
         /// <summary>Sends a request that returns void and returns the result asynchronously.</summary>
