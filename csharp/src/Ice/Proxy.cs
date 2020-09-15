@@ -263,8 +263,14 @@ namespace ZeroC.Ice
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
-            CancellationToken cancel = default) =>
-            proxy.Invoke(request, oneway, cancel).ReadVoidReturnValue(proxy.Communicator);
+            CancellationToken cancel = default)
+        {
+            IncomingResponseFrame response = proxy.Invoke(request, oneway, cancel);
+            if (!oneway)
+            {
+                response.ReadVoidReturnValue(proxy.Communicator);
+            }
+        }
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -328,8 +334,8 @@ namespace ZeroC.Ice
             IProgress<bool>? progress = null,
             CancellationToken cancel = default)
         {
-            return ReadResponseAsync(proxy.InvokeAsync(request, oneway, progress, cancel),
-                                     proxy.Communicator);
+            ValueTask<IncomingResponseFrame> response = proxy.InvokeAsync(request, oneway, progress, cancel);
+            return oneway ? Task.CompletedTask : ReadResponseAsync(response, proxy.Communicator);
 
             static async Task ReadResponseAsync(
                 ValueTask<IncomingResponseFrame> response,

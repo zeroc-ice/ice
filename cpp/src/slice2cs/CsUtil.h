@@ -30,7 +30,7 @@ std::string getUnqualified(const ContainedPtr&,
                            const std::string& suffix = "");
 
 bool normalizeCase(const ContainedPtr&);
-std::string operationName(const OperationPtr&); // TODO: rename to method name!!!
+std::string operationName(const OperationPtr&);
 std::string paramName(const MemberPtr& param, const std::string& prefix = "");
 std::string paramTypeStr(const MemberPtr& param, bool readOnly = false);
 
