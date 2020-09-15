@@ -2342,12 +2342,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string requestObject = "_iceI_" + opName + "Request";
 
     {
-        //
         // Write the synchronous version of the operation.
-        //
         _out << sp;
         writeOperationDocComment(operation, deprecateReason, false, false);
-        if(!deprecateReason.empty())
+        if (!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
@@ -2355,12 +2353,24 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
              << getInvocationParams(operation, ns)
              << epar << " =>";
         _out.inc();
-        _out << nl << requestProperty << ".Invoke(this, ";
-        if(params.size() > 0)
+
+        bool voidOp = operation->returnValues().empty();
+        _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "(this, Request." << name
+            << ".Create(this, ";
+        if (params.size() > 0)
         {
             _out << toTuple(params) << ", ";
         }
-        _out << context << ", " << cancel << ");";
+        _out << context << "), ";
+        if (voidOp)
+        {
+            _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
+        }
+        else
+        {
+            _out << "Response." << name << ", ";
+        }
+        _out << cancel << ");";
         _out.dec();
     }
 
