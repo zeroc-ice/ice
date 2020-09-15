@@ -333,16 +333,19 @@ namespace ZeroC.Ice
         {
             request.Finish();
             InvocationMode mode = proxy.IceReference.InvocationMode;
-            if (mode == InvocationMode.BatchOneway || mode == InvocationMode.BatchDatagram)
+            switch (mode)
             {
-                Debug.Assert(false); // not implemented
-                return default;
+#pragma warning disable CS0618 // Type or member is obsolete
+                case InvocationMode.BatchOneway:
+                case InvocationMode.BatchDatagram:
+#pragma warning restore CS0618 // Type or member is obsolete
+                    Debug.Assert(false); // not implemented
+                    return default;
+                case InvocationMode.Datagram when !oneway:
+                    throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
+                default:
+                    return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
             }
-            if (mode == InvocationMode.Datagram && !oneway)
-            {
-                throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
-            }
-            return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
 
             static async ValueTask<IncomingResponseFrame> InvokeAsync(
                 IObjectPrx proxy,

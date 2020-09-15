@@ -9,11 +9,14 @@ namespace ZeroC.Ice
 
     public partial class DispatchException
     {
+        /// <summary>Constructs a new exception.</summary>
+        /// <param name="current">The dispatch current object.</param>
         public DispatchException(Current current)
             : this(current.Identity, current.Facet, current.Operation)
         {
         }
 
+        /// <inheritdoc/>
         protected override string DefaultMessage =>
             Facet.Length == 0 ? $"failed to dispatch request for operation `{Operation}' on Ice object `{Identity}'" :
             $"failed to dispatch request for operation `{Operation}' on Ice object `{Identity}' with facet `{Facet}'";
@@ -21,11 +24,14 @@ namespace ZeroC.Ice
 
     public partial class ObjectNotExistException
     {
+        /// <summary>Constructs a new exception.</summary>
+        /// <param name="current">The dispatch current object.</param>
         public ObjectNotExistException(Current current)
             : base(current)
         {
         }
 
+        /// <inheritdoc/>
         protected override string DefaultMessage =>
             $"could not find servant for Ice object `{Identity}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
             $" while attempting to dispatch operation `{Operation}'";
@@ -33,11 +39,14 @@ namespace ZeroC.Ice
 
     public partial class OperationNotExistException
     {
+        /// <summary>Constructs a new exception.</summary>
+        /// <param name="current">The dispatch current object.</param>
         public OperationNotExistException(Current current)
             : base(current)
         {
         }
 
+        /// <inheritdoc/>
         protected override string DefaultMessage =>
             $"could not find operation `{Operation}' for Ice object `{Identity}'" +
             (Facet.Length > 0 ? $" with facet `{Facet}'" : "");
@@ -45,6 +54,11 @@ namespace ZeroC.Ice
 
     public partial class UnhandledException
     {
+        /// <summary>Constructs a new exception.</summary>
+        /// <param name="identity">The Ice object Identity.</param>
+        /// <param name="facet">The Ice object facet.</param>
+        /// <param name="operation">The operation name.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public UnhandledException(Identity identity, string facet, string operation, Exception innerException)
             : base(CustomMessage(identity, facet, operation, innerException),
                    identity,

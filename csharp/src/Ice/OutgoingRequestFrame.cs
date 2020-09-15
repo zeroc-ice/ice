@@ -32,6 +32,7 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>The encoding of the request payload.</summary>
         public override Encoding Encoding { get; }
 
         /// <summary>The facet of the target Ice object.</summary>
@@ -45,7 +46,6 @@ namespace ZeroC.Ice
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
-
         private Dictionary<string, string>? _contextOverride;
 
         private readonly ArraySegment<byte> _defaultBinaryContext;
@@ -234,7 +234,10 @@ namespace ZeroC.Ice
                     {
                         // When _writeSlot0 is true, we may write an empty string-string context, thus preventing base
                         // from writing a non-empty Context.
-                        AddBinaryContextEntry(0, Context, ContextHelper.IceWriter);
+                        AddBinaryContextEntry(0, Context, (ostr, dictionary) =>
+                            ostr.WriteDictionary(dictionary,
+                                                 OutputStream.IceWriterFromString,
+                                                 OutputStream.IceWriterFromString));
                     }
                 }
                 base.Finish();
@@ -295,7 +298,9 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                ContextHelper.Write(ostr, _initialContext);
+                ostr.WriteDictionary(_initialContext,
+                                     OutputStream.IceWriterFromString,
+                                     OutputStream.IceWriterFromString);
             }
             PayloadStart = ostr.Tail;
 

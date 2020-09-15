@@ -191,24 +191,6 @@ public final class TestI implements TestIntf
     }
 
     @Override
-    public TestIntf.OpOptCArrayResult opOptCArray(@Nullable List<C> inSeq, com.zeroc.Ice.Current current)
-    {
-        return new TestIntf.OpOptCArrayResult(inSeq, inSeq);
-    }
-
-    @Override
-    public TestIntf.OpOptCListResult opOptCList(@Nullable List<C> inSeq, com.zeroc.Ice.Current current)
-    {
-        return new TestIntf.OpOptCListResult(inSeq, inSeq);
-    }
-
-    @Override
-    public TestIntf.OpOptCSeqResult opOptCSeq(C @Nullable[] inSeq, com.zeroc.Ice.Current current)
-    {
-        return new TestIntf.OpOptCSeqResult(inSeq, inSeq);
-    }
-
-    @Override
     public TestIntf.OpOptBoolSeqResult opOptBoolSeq(@Nullable List<Boolean> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptBoolSeqResult(inSeq, inSeq);

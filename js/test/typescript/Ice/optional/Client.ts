@@ -48,7 +48,6 @@ export class Client extends TestHelper
         test(mo4.g === undefined);
         test(mo4.h === undefined);
         test(mo4.i === undefined);
-        test(mo4.k === undefined);
         test(mo4.bs === undefined);
         test(mo4.ss === undefined);
         test(mo4.iid === undefined);
@@ -60,12 +59,10 @@ export class Client extends TestHelper
         test(mo4.es === undefined);
         test(mo4.fss === undefined);
         test(mo4.vss === undefined);
-        test(mo4.oos === undefined);
 
         test(mo4.ied === undefined);
         test(mo4.ifsd === undefined);
         test(mo4.ivsd === undefined);
-        test(mo4.iood === undefined);
 
         test(mo4.bos === undefined);
 
@@ -81,7 +78,6 @@ export class Client extends TestHelper
         mo1.g = 1.0;
         mo1.h = "test";
         mo1.i = Test.MyEnum.MyEnumMember;
-        mo1.k = mo1;
         mo1.bs = new Uint8Array([5]);
         mo1.ss = ["test", "test2"];
         mo1.iid = new Map();
@@ -97,7 +93,6 @@ export class Client extends TestHelper
         mo1.es = [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember];
         mo1.fss = [mo1.fs];
         mo1.vss = [mo1.vs];
-        mo1.oos = [oo1];
 
         mo1.ied = new Map();
         mo1.ied.set(4, Test.MyEnum.MyEnumMember);
@@ -105,8 +100,6 @@ export class Client extends TestHelper
         mo1.ifsd.set(4, mo1.fs);
         mo1.ivsd = new Map();
         mo1.ivsd.set(5, mo1.vs);
-        mo1.iood = new Map();
-        mo1.iood.set(5, new Test.OneOptional(15));
 
         mo1.bos = [false, true, false];
 
@@ -121,7 +114,6 @@ export class Client extends TestHelper
         test(mo1.g == mo5.g);
         test(mo1.h == mo5.h);
         test(mo1.i == mo5.i);
-        test(mo5.k == mo5);
         test(ArrayUtil.equals(mo5.bs, mo1.bs));
         test(ArrayUtil.equals(mo5.ss, mo1.ss));
         test(mo5.iid.get(4) == 3);
@@ -132,12 +124,10 @@ export class Client extends TestHelper
         test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo5.es[1] == Test.MyEnum.MyEnumMember);
         test(mo5.fss[0].equals(new Test.FixedStruct(78)));
         test(mo5.vss[0].equals(new Test.VarStruct("hello")));
-        test(mo5.oos[0].a == 15);
 
         test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
         test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
         test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
-        test(mo5.iood.get(5).a == 15);
 
         test(ArrayUtil.equals(mo5.bos, [false, true, false]));
 
@@ -152,9 +142,7 @@ export class Client extends TestHelper
         mo6.fs = mo5.fs;
         mo6.shs = mo5.shs;
         mo6.fss = mo5.fss;
-        mo6.oos = mo5.oos;
         mo6.ifsd = mo5.ifsd;
-        mo6.iood = mo5.iood;
         mo6.bos = mo5.bos;
 
         const mo7 = await initial.pingPong(mo6) as Test.MultiOptional;
@@ -167,7 +155,6 @@ export class Client extends TestHelper
         test(mo7.g === undefined);
         test(mo7.h == mo1.h);
         test(mo7.i === undefined);
-        test(mo7.k === undefined);
         test(ArrayUtil.equals(mo7.bs, mo1.bs));
         test(mo7.ss === undefined);
         test(mo7.iid.get(4) == 3);
@@ -178,12 +165,10 @@ export class Client extends TestHelper
         test(mo7.es === undefined);
         test(mo7.fss[0].equals(new Test.FixedStruct(78)));
         test(mo7.vss === undefined);
-        test(mo7.oos[0].a == 15);
 
         test(mo7.ied === undefined);
         test(mo7.ifsd.get(4).equals(new Test.FixedStruct(78)));
         test(mo7.ivsd === undefined);
-        test(mo7.iood.get(5).a == 15);
 
         test(ArrayUtil.equals(mo7.bos, [false, true, false]));
 
@@ -194,7 +179,6 @@ export class Client extends TestHelper
         mo8.e = mo1.e;
         mo8.g = mo1.g;
         mo8.i = mo1.i;
-        mo8.k = mo8;
         mo8.ss = mo1.ss;
         mo8.sid = mo1.sid;
         mo8.vs = mo1.vs;
@@ -216,7 +200,6 @@ export class Client extends TestHelper
         test(mo9.g == mo1.g);
         test(mo9.h === undefined);
         test(mo9.i == mo1.i);
-        test(mo9.k == mo9);
         test(mo9.bs === undefined);
         test(ArrayUtil.equals(mo9.ss, mo1.ss));
         test(mo9.iid === undefined);
@@ -228,12 +211,10 @@ export class Client extends TestHelper
         test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo9.es[1] == Test.MyEnum.MyEnumMember);
         test(mo9.fss === undefined);
         test(mo9.vss[0].equals(new Test.VarStruct("hello")));
-        test(mo9.oos === undefined);
 
         test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);
         test(mo9.ifsd === undefined);
         test(mo9.ivsd.get(5).equals(new Test.VarStruct("hello")));
-        test(mo9.iood === undefined);
 
         test(mo9.bos === undefined);
 
@@ -242,33 +223,6 @@ export class Client extends TestHelper
         //
         const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
         const oo = new Test.OneOptional(53);
-
-        await initial.sendOptionalClass(true, oo);
-        await initial2.sendOptionalClass(true, oo);
-        oo1 = await initial.returnOptionalClass(true);
-        test(oo1 !== undefined && oo1.a == 53);
-        oo1 = await initial2.returnOptionalClass(true);
-        test(oo1 === undefined);
-
-        const recursive1 = [new Test.Recursive()];
-        const recursive2 = [new Test.Recursive()];
-        recursive1[0].value = recursive2;
-        const outer = new Test.Recursive();
-        outer.value = recursive1;
-        await initial.pingPong(outer);
-
-        let g = new Test.G();
-        g.gg1Opt = new Test.G1("gg1Opt");
-        g.gg2 = new Test.G2(new Ice.Long(0, 10));
-        g.gg2Opt = new Test.G2(new Ice.Long(0, 20));
-        g.gg1 = new Test.G1("gg1");
-
-        g = await initial.opG(g);
-
-        test(g.gg1Opt.a == "gg1Opt");
-        test(g.gg2.a.equals(new Ice.Long(0, 10)));
-        test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
-        test(g.gg1.a == "gg1");
 
         const init2 = Test.Initial2Prx.uncheckedCast(initial);
         await init2.opVoid(5, "test");
@@ -318,14 +272,6 @@ export class Client extends TestHelper
         test(b.mb == 11);
         test(b.mc == 12);
         test(b.md == 13);
-        out.writeLine("ok");
-
-        out.write("testing marshaling of objects with optional objects... ");
-        let f = new Test.F();
-        f.af = new Test.A();
-        f.ae = f.af;
-        f = await initial.pingPong(f) as Test.F;
-        test(f.ae === f.af);
         out.writeLine("ok");
 
         out.write("testing optional with default values... ");
@@ -454,22 +400,6 @@ export class Client extends TestHelper
             [p1, p2] = await initial.opVarStruct(new Test.VarStruct("test"));
             test(p1.equals(new Test.VarStruct("test")));
             test(p2.equals(new Test.VarStruct("test")));
-        }
-
-        {
-            let [p1, p2] = await initial.opOneOptional();
-            test(p1 === undefined);
-            test(p2 === undefined);
-            if(await initial.supportsNullOptional())
-            {
-
-                [p1, p2] = await initial.opOneOptional(null);
-                test(p1 === null);
-                test(p2 === null);
-            }
-            [p1, p2] = await initial.opOneOptional(new Test.OneOptional(58));
-            test(p1 === p2);
-            test(p2.a === 58);
         }
 
         {
@@ -710,17 +640,6 @@ export class Client extends TestHelper
             [p1, p2] = await initial.opStringIntDict(data);
             test(Ice.MapUtil.equals(p1, p2));
         }
-
-        {
-            let [p1, p2] = await initial.opIntOneOptionalDict();
-            test(p1 === undefined);
-            test(p2 === undefined);
-            let data = new Test.IntOneOptionalDict();
-            data.set(1, new Test.OneOptional(58));
-            data.set(2, new Test.OneOptional(59));
-            [p1, p2] = await initial.opIntOneOptionalDict(data);
-            test(p1.get(1).a === 58 && p2.get(2).a === 59);
-        }
         out.writeLine("ok");
 
         out.write("testing exception optionals... ");
@@ -735,12 +654,12 @@ export class Client extends TestHelper
             test(ex instanceof Test.OptionalException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
-            test(ex.o === undefined);
+            test(ex.vs === undefined);
         }
 
         try
         {
-            await initial.opOptionalException(30, "test", new Test.OneOptional(53));
+            await initial.opOptionalException(30, "test", new Test.VarStruct("hello"));
             test(false);
         }
         catch(ex)
@@ -748,7 +667,7 @@ export class Client extends TestHelper
             test(ex instanceof Test.OptionalException, ex);
             test(ex.a === 30);
             test(ex.b == "test");
-            test(ex.o.a == 53);
+            test(ex.vs.m == "hello");
         }
 
         try
@@ -761,14 +680,14 @@ export class Client extends TestHelper
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
-            test(ex.o === undefined);
+            test(ex.vs === undefined);
             test(ex.ss === undefined);
-            test(ex.o2 === undefined);
+            test(ex.vs2 === undefined);
         }
 
         try
         {
-            await initial.opDerivedException(30, "test2", new Test.OneOptional(53));
+            await initial.opDerivedException(30, "test2", new Test.VarStruct("hello2"));
             test(false);
         }
         catch(ex)
@@ -776,9 +695,9 @@ export class Client extends TestHelper
             test(ex instanceof Test.DerivedException, ex);
             test(ex.a === 30);
             test(ex.b == "test2");
-            test(ex.o.a === 53);
+            test(ex.vs.m === "hello2");
             test(ex.ss == "test2");
-            test(ex.o2.a === 53);
+            test(ex.vs2.m === "hello2");
         }
 
         out.writeLine("ok");
@@ -788,7 +707,6 @@ export class Client extends TestHelper
         test(await initial.opMStruct1() !== undefined);
         test(await initial.opMDict1() !== undefined);
         test(await initial.opMSeq1() !== undefined);
-        test(await initial.opMG1() !== undefined);
 
         {
             let [p3, p2] = await initial.opMStruct2();
@@ -816,14 +734,6 @@ export class Client extends TestHelper
             p1.set("test", 54);
             [p3, p2] = await initial.opMDict2(p1);
             test(Ice.MapUtil.equals(p2, p1) && Ice.MapUtil.equals(p3, p1));
-        }
-        {
-            let [p3, p2] = await initial.opMG2();
-            test(p2 === undefined && p3 === undefined);
-
-            const p1 = new Test.G();
-            [p3, p2] = await initial.opMG2(p1);
-            test(p3 !== undefined && p2 !== undefined && p3 === p2);
         }
 
         out.writeLine("ok");

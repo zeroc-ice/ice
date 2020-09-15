@@ -8,20 +8,15 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Helper methods for string manipulation.</summary>
     public static class StringUtil
     {
-        //
-        // Return the index of the first character in str to
-        // appear in match, starting from 0. Returns -1 if none is
+        // Return the index of the first character in str to appear in match, starting from 0. Returns -1 if none is
         // found.
-        //
         internal static int FindFirstOf(string str, string match) => FindFirstOf(str, match, 0);
 
-        //
-        // Return the index of the first character in str to
-        // appear in match, starting from start. Returns -1 if none is
-        // found.
-        //
+        // Return the index of the first character in str to appear in match, starting from start. Returns -1 if none
+        // is found.
         internal static int FindFirstOf(string str, string match, int start)
         {
             int len = str.Length;
@@ -37,11 +32,8 @@ namespace ZeroC.Ice
             return -1;
         }
 
-        //
-        // Return the index of the first character in str which does
-        // not appear in match, starting from start. Returns -1 if none is
-        // found.
-        //
+        // Return the index of the first character in str which does not appear in match, starting from start. Returns
+        // -1 if none is found.
         internal static int FindFirstNotOf(string str, string match, int start)
         {
             int len = str.Length;
@@ -141,21 +133,16 @@ namespace ZeroC.Ice
                         {
                             if (toStringMode == ToStringMode.Compat)
                             {
-                                //
                                 // When ToStringMode=Compat, c is a UTF-8 byte
-                                //
                                 Debug.Assert(i < 256);
 
                                 sb.Append('\\');
                                 string octal = System.Convert.ToString(i, 8);
-                                //
-                                // Add leading zeros so that we avoid problems during
-                                // decoding. For example, consider the encoded string
-                                // \0013 (i.e., a character with value 1 followed by
-                                // the character '3'). If the leading zeros were omitted,
-                                // the result would be incorrectly interpreted by the
-                                // decoder as a single character with value 11.
-                                //
+
+                                // Add leading zeros so that we avoid problems during decoding. For example, consider
+                                // the encoded string \0013 (i.e., a character with value 1 followed by the character
+                                // '3'). If the leading zeros were omitted, the result would be incorrectly interpreted
+                                // by the decoder as a single character with value 11.
                                 for (int j = octal.Length; j < 3; j++)
                                 {
                                     sb.Append('0');
@@ -268,13 +255,15 @@ namespace ZeroC.Ice
             return c;
         }
 
-        //
-        // Decode the character or escape sequence starting at start and appends it to result;
-        // returns the index of the first character following the decoded character
-        // or escape sequence.
-        //
-        private static int
-        DecodeChar(string s, int start, int end, string special, StringBuilder result, UTF8Encoding utf8Encoding)
+        // Decode the character or escape sequence starting at start and appends it to result; returns the index of the
+        // first character following the decoded character or escape sequence.
+        private static int DecodeChar(
+            string s,
+            int start,
+            int end,
+            string special,
+            StringBuilder result,
+            UTF8Encoding utf8Encoding)
         {
             Debug.Assert(start >= 0);
             Debug.Assert(start < end);
@@ -498,10 +487,13 @@ namespace ZeroC.Ice
             return start;
         }
 
-        //
-        // Remove escape sequences added by escapeString. Throws System.ArgumentException
-        // for an invalid input string.
-        //
+        /// <summary>Remove escape sequences added by <see cref="EscapeString"/>. Throws System.ArgumentException for
+        /// an invalid input string.</summary>
+        /// <param name="s">The string to escape.</param>
+        /// <param name="start">Index to start escaping the string.</param>
+        /// <param name="end">Index to end escaping the string.</param>
+        /// <param name="special">String containing special characters that must be escape.</param>
+        /// <returns>The escaped stirng</returns>
         public static string UnescapeString(string s, int start, int end, string special)
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);
@@ -537,10 +529,12 @@ namespace ZeroC.Ice
             }
         }
 
-        //
-        // Split string helper; returns null for unmatched quotes
-        //
-        public static string[]? SplitString(string str, string delim)
+        /// <summary>Helper method for split string; returns null for unmatched quotes.</summary>
+        /// <param name="str">The string to split.</param>
+        /// <param name="separators">A string containing the characters used as separators.</param>
+        /// <returns>An array of strings, whose elements correspond to the parts of the string separated by one of the
+        /// separator characters.</returns>
+        public static string[]? SplitString(string str, string separators)
         {
             var l = new List<string>();
             char[] arr = new char[str.Length];
@@ -570,7 +564,7 @@ namespace ZeroC.Ice
                     quoteChar = '\0';
                     continue; // Skip the quote.
                 }
-                else if (delim.IndexOf(str[pos]) != -1)
+                else if (separators.IndexOf(str[pos]) != -1)
                 {
                     if (quoteChar == '\0')
                     {
@@ -643,12 +637,9 @@ namespace ZeroC.Ice
             return result.ToString();
         }
 
-        //
-        // If a single or double quotation mark is found at the start position,
-        // then the position of the matching closing quote is returned. If no
-        // quotation mark is found at the start position, then 0 is returned.
-        // If no matching closing quote is found, then -1 is returned.
-        //
+        // If a single or double quotation mark is found at the start position, then the position of the matching
+        // closing quote is returned. If no quotation mark is found at the start position, then 0 is returned. If
+        // no matching closing quote is found, then -1 is returned.
         internal static int CheckQuote(string s, int start)
         {
             char quoteChar = s[start];

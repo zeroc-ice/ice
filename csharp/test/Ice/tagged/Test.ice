@@ -48,6 +48,7 @@ sequence<long> LongSeq;
 sequence<float> FloatSeq;
 sequence<double> DoubleSeq;
 sequence<string> StringSeq;
+sequence<MyEnum> MyEnumSeq;
 
 sequence<ushort> UShortSeq;
 sequence<varulong> VarULongSeq;
@@ -62,20 +63,17 @@ sequence<varulong> VarULongSeq;
 [cs:generic:List] sequence<string> StringList;
 [cs:generic:List] sequence<varint> VarIntList;
 
-sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
 [cs:generic:List] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
 [cs:generic:LinkedList] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneTagged> OneTaggedSeq;
 
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
-dictionary<int, OneTagged> IntOneTaggedDict;
 
 class MultiTagged
 {
@@ -88,6 +86,7 @@ class MultiTagged
     tag(7) double? g;
     tag(8) string? h;
     tag(9) MyEnum? i;
+
     tag(12) ByteSeq? bs;
     tag(13) StringSeq? ss;
     tag(14) IntIntDict? iid;
@@ -99,12 +98,10 @@ class MultiTagged
     tag(19) MyEnumSeq? es;
     tag(20) FixedStructSeq? fss;
     tag(21) VarStructSeq? vss;
-    tag(22) OneTaggedSeq? oos;
 
     tag(24) IntEnumDict? ied;
     tag(25) IntFixedStructDict? ifsd;
     tag(26) IntVarStructDict? ivsd;
-    tag(27) IntOneTaggedDict? iood;
 
     tag(29) BoolSeq? bos;
 
@@ -153,16 +150,19 @@ exception TaggedException
     bool req = false;
     tag(1) int? a = 5;
     tag(2) string? b;
+    tag(50) VarStruct? vs;
 }
 
 exception DerivedException : TaggedException
 {
     tag(600) string? ss = "test";
+    tag(601) VarStruct? vs2;
 }
 
 exception RequiredException : TaggedException
 {
     string ss = "test";
+    VarStruct vs2;
 }
 
 [cs:property]
@@ -173,25 +173,17 @@ class TaggedWithCustom
     tag(3) ClassVarStruct? s;
 }
 
-class Recursive;
-sequence<Recursive> RecursiveSeq;
-
-class Recursive
-{
-    tag(0) RecursiveSeq? value;
-}
-
 interface Initial
 {
     void shutdown();
 
     Object pingPong(Object o);
 
-    void opTaggedException(tag(1) int? a, tag(2) string? b);
+    void opTaggedException(tag(1) int? a, tag(2) string? b, optional(3) VarStruct? vs);
 
-    void opDerivedException(tag(1) int? a, tag(2) string? b);
+    void opDerivedException(tag(1) int? a, tag(2) string? b, optional(3) VarStruct? vs);
 
-    void opRequiredException(tag(1) int? a, tag(2) string? b);
+    void opRequiredException(tag(1) int? a, tag(2) string? b, optional(3) VarStruct? vs);
 
     (tag(1) byte? r1, tag(2) byte? r2) opByte(tag(1) byte? p1);
 
@@ -254,8 +246,6 @@ interface Initial
     (tag(1) IntIntDict? r1, tag(2) IntIntDict? r2) opIntIntDict(tag(1) IntIntDict? p1);
 
     (tag(1) StringIntDict? r1, tag(2) StringIntDict? r2) opStringIntDict(tag(1) StringIntDict? p1);
-
-    (tag(1) IntOneTaggedDict? r1, tag(2) IntOneTaggedDict? r2) opIntOneTaggedDict(tag(1) IntOneTaggedDict? p1);
 
     void opClassAndUnknownTagged(A p);
 

@@ -2232,6 +2232,25 @@ Slice::Module::consts() const
 }
 
 bool
+Slice::Module::hasConsts() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ConstPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasConsts())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
 Slice::Module::hasStructs() const
 {
     for (const auto& content : _contents)
@@ -4178,6 +4197,13 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
 
     if (isOutParam)
     {
+        // If the operation returns multiple values, but none of those are out parameters, it must be a return-tuple,
+        // in which case using out parameters isn't allowed, and an error is thrown.
+        if (!_usesOutParameters && _returnValues.size() > 1)
+        {
+            _unit->error("an operation returning a tuple cannot have out parameters");
+        }
+
         _usesOutParameters = true;
         // Check if the out parameter conflicts with a single return value (which is implicitely named 'returnValue').
         if (hasSingleReturnType() && ciequals(name, "returnValue"))

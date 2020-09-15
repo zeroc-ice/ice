@@ -14,7 +14,7 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceBox
 {
-    public sealed class ServiceManager : IServiceManager
+    internal sealed class ServiceManager : IServiceManager
     {
         private readonly bool _adminEnabled;
         private readonly HashSet<string>? _adminFacetFilter;
@@ -28,7 +28,7 @@ namespace ZeroC.IceBox
         private Communicator? _sharedCommunicator;
         private readonly int _traceServiceObserver;
 
-        public ServiceManager(Communicator communicator, string[] args)
+        internal ServiceManager(Communicator communicator, string[] args)
         {
             _communicator = communicator;
             _logger = _communicator.Logger;

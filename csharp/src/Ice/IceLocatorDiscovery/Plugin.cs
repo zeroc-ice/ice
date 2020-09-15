@@ -12,13 +12,11 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceLocatorDiscovery
 {
+    /// <summary>The IceLocatorDiscovery plug-in's factory.</summary>
     public sealed class PluginFactory : IPluginFactory
     {
-        public IPlugin Create(Communicator communicator, string name, string[] args) =>
-            new Plugin(name, communicator);
-
-        public static void Register(bool loadOnInitialize) =>
-           Communicator.RegisterPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
+        /// <inheritdoc/>
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(name, communicator);
     }
 
     internal class VoidLocator : ILocator

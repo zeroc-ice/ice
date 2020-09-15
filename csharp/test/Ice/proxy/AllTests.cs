@@ -341,13 +341,17 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Oneway);
 
             b1 = IObjectPrx.Parse("test -O", communicator);
+#pragma warning disable CS0618 // Type or member is obsolete
             TestHelper.Assert(b1.InvocationMode == InvocationMode.BatchOneway);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             b1 = IObjectPrx.Parse("test -d", communicator);
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Datagram);
 
             b1 = IObjectPrx.Parse("test -D", communicator);
+#pragma warning disable CS0618 // Type or member is obsolete
             TestHelper.Assert(b1.InvocationMode == InvocationMode.BatchDatagram);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             b1 = IObjectPrx.Parse("ice:test", communicator);
             TestHelper.Assert(b1.Protocol == Protocol.Ice2 && b1.Encoding == Encoding.V2_0);
@@ -677,12 +681,20 @@ namespace ZeroC.Ice.Test.Proxy
             if (ice1)
             {
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).IsOneway);
+#pragma warning disable CS0618 // Type or member is obsolete
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchOneway).InvocationMode ==
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
                     InvocationMode.BatchOneway);
+#pragma warning restore CS0618 // Type or member is obsolete
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Datagram).InvocationMode ==
                     InvocationMode.Datagram);
+#pragma warning disable CS0618 // Type or member is obsolete
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
                     InvocationMode.BatchDatagram);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             TestHelper.Assert(baseProxy.Clone(preferNonSecure: true).PreferNonSecure);
             TestHelper.Assert(!baseProxy.Clone(preferNonSecure: false).PreferNonSecure);

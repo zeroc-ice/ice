@@ -9,7 +9,9 @@ namespace ZeroC.Ice
     // ReplyStatus.UserException.
     public enum ResultType : byte
     {
+        /// <summary>The request succeed.</summary>
         Success = 0,
+        /// <summary>The request failed.</summary>
         Failure = 1
     }
 }

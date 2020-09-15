@@ -621,7 +621,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             catch
                             {
                                 // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
-                                TestHelper.Assert(RuntimeInformation.IsOSPlatform(OSPlatform.macOS));
+                                TestHelper.Assert(RuntimeInformation.IsOSPlatform(OSPlatform.OSX));
                             }
                             fact.DestroyServer(server);
                         }
@@ -739,7 +739,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             catch (TransportException ex)
                             {
                                 // macOS catalina does not check the certificate common name
-                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
+                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                                 {
                                     Console.WriteLine(ex.ToString());
                                     TestHelper.Assert(false);
@@ -821,7 +821,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     certStore.Open(OpenFlags.ReadWrite);
                     var certs = new X509Certificate2Collection();
                     X509KeyStorageFlags storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     {
                         //
                         // On macOS, we need to mark the key exportable because the addition of the key to the

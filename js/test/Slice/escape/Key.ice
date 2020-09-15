@@ -53,30 +53,30 @@ class package
 interface optionalParams
 {
     tag(1) break? for(tag(2) var? goto,
-                          tag(3) explicit* if,
-                          tag(5) while? internal,
-                          tag(7) string? namespace,
-                          tag(8) explicit* null);
+                      tag(3) explicit* if,
+                      tag(5) while? internal,
+                      tag(7) string? namespace,
+                      tag(8) explicit* null);
 
     [amd]
     tag(1) break? continue(tag(2) var? goto,
-                               tag(3) explicit* if,
-                               tag(5) while? internal,
-                               tag(7) string? namespace,
-                               tag(8) explicit* null);
+                           tag(3) explicit* if,
+                           tag(5) while? internal,
+                           tag(7) string? namespace,
+                           tag(8) explicit* null);
 
     tag(1) break? in(out tag(2) var? goto,
-                         out tag(3) explicit* if,
-                         out tag(5) while? internal,
-                         out tag(7) string? namespace,
-                         out tag(8) explicit* null);
+                     out tag(3) explicit* if,
+                     out tag(5) while? internal,
+                     out tag(7) string? namespace,
+                     out tag(8) explicit* null);
 
     [amd]
     tag(1) break? foreach(out tag(2) var? goto,
-                              out tag(3) explicit* if,
-                              out tag(5) while? internal,
-                              out tag(7) string? namespace,
-                              out tag(8) explicit* null);
+                          out tag(3) explicit* if,
+                          out tag(5) while? internal,
+                          out tag(7) string? namespace,
+                          out tag(8) explicit* null);
 }
 
 exception fixed

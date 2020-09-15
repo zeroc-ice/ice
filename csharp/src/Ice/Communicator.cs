@@ -33,6 +33,7 @@ namespace ZeroC.Ice
         public int RcvSize;
     }
 
+    /// <summary>The central object in Ice. One or more communicators can be instantiated for an Ice application.</summary>
     public sealed partial class Communicator : IDisposable, IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
@@ -120,6 +121,7 @@ namespace ZeroC.Ice
         /// </summary>
         public bool DefaultPreferNonSecure { get; }
 
+        /// <summary>Gets the default source address value used by proxies created with this communicator.</summary>
         public IPAddress? DefaultSourceAddress { get; }
 
         /// <summary>Gets the default invocation timeout value used by proxies created with this communicator.
@@ -339,7 +341,7 @@ namespace ZeroC.Ice
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             ref string[] args,
-            NameValueCollection? appSettings,
+            NameValueCollection? appSettings = null,
             IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
@@ -365,6 +367,10 @@ namespace ZeroC.Ice
                         if (values == null)
                         {
                             combinedProperties[key] = "";
+                        }
+                        else if (values.Length == 1)
+                        {
+                            combinedProperties[key] = values[0];
                         }
                         else
                         {

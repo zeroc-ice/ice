@@ -126,11 +126,10 @@ namespace ZeroC.IceDiscovery
         internal Plugin(Communicator communicator) => _communicator = communicator;
     }
 
+    /// <summary>The IceDiscovery plug-in's factory.</summary>
     public sealed class PluginFactory : IPluginFactory
     {
-        public static void Register(bool loadOnInitialize) =>
-            Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
-
+        /// <inheritdoc/>
         public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
     }
 }

@@ -11,9 +11,10 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame : OutgoingFrame
     {
+        /// <summary>The response payload encoding.</summary>
         public override Encoding Encoding { get; }
 
-        /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
+        /// <summary>The result type; see <see cref="Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
 
         // When a response frame contains an encapsulation, it always start at position 1 of the first segment,

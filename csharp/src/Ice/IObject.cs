@@ -58,9 +58,10 @@ namespace ZeroC.Ice
         // The following protected static methods with Ice-prefixes are Ice-internal helper methods used by
         // generated servants.
 
-        // The generated code calls this method to ensure that when an operation is _not_ declared idempotent, the
-        // request is not marked idempotent (which would mean the caller incorrectly believes this operation is
-        // idempotent).
+        /// <summary>The generated code calls this method to ensure that when an operation is _not_ declared
+        /// idempotent, the request is not marked idempotent (which would mean the caller incorrectly believes this
+        /// operation is idempotent).</summary>
+        /// <param name="current">The current object for the dispatch.</param>
         protected static void IceCheckNonIdempotent(Current current)
         {
             if (current.IsIdempotent)
@@ -71,6 +72,11 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>This method is called to dispatch ice_ping operation, the method delegates to the servant's IcePing
+        /// implementation.</summary>
+        /// <param name="request">The request frame.</param>
+        /// <param name="current">The current object for the dispatch.</param>
+        /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();
@@ -78,6 +84,11 @@ namespace ZeroC.Ice
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
 
+        /// <summary>This method is called to dispatch ice_isA operation, the method delegates to the servant's IceIsA
+        /// implementation.</summary>
+        /// <param name="request">The request frame.</param>
+        /// <param name="current">The current object for the dispatch.</param>
+        /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(IncomingRequestFrame request, Current current)
         {
             string id = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
@@ -90,6 +101,11 @@ namespace ZeroC.Ice
                                                       OutputStream.IceWriterFromBool));
         }
 
+        /// <summary>This method is called to dispatch ice_id operation, the method delegates to the servant's IceId
+        /// implementation.</summary>
+        /// <param name="request">The request frame.</param>
+        /// <param name="current">The current object for the dispatch.</param>
+        /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();
@@ -102,6 +118,11 @@ namespace ZeroC.Ice
                                                       OutputStream.IceWriterFromString));
         }
 
+        /// <summary>This method is called to dispatch ice_ids operation, the method delegates to the servant's IceIds
+        /// implementation.</summary>
+        /// <param name="request">The request frame.</param>
+        /// <param name="current">The current object for the dispatch.</param>
+        /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();
