@@ -48,12 +48,39 @@ namespace ZeroC.Ice
     {
         public static class Request
         {
+            public static OutgoingRequestFrameFactory IceId =>
+                _ice_id ??= new OutgoingRequestFrameFactory("ice_id", idempotent: true);
+            public static OutgoingRequestFrameFactory IceIds =>
+                _ice_ids ??= new OutgoingRequestFrameFactory("ice_ids", idempotent: true);
+            public static SingleParamOutgoingRequestFrameFactory<string> IceIsA =>
+                _ice_isA ??= new SingleParamOutgoingRequestFrameFactory<string>(
+                    "ice_isA",
+                    idempotent: true,
+                    compress: false,
+                    format: default,
+                    writer: OutputStream.IceWriterFromString);
+            public static OutgoingRequestFrameFactory IcePing =>
+                _ice_ping ??= new OutgoingRequestFrameFactory("ice_ping", idempotent: true);
 
+            private static OutgoingRequestFrameFactory? _ice_id;
+            private static OutgoingRequestFrameFactory? _ice_ids;
+            private static SingleParamOutgoingRequestFrameFactory<string>? _ice_isA;
+            private static OutgoingRequestFrameFactory? _ice_ping;
         }
 
         public static class Response
         {
+            public static IncomingResponseFrameReader<string> IceId =>
+                _ice_id ??= new IncomingResponseFrameReader<string>(InputStream.IceReaderIntoString);
+            public static IncomingResponseFrameReader<string[]> IceIds =>
+                _ice_ids ??= new IncomingResponseFrameReader<string[]>(
+                    istr => istr.ReadArray(minElementSize: 1, InputStream.IceReaderIntoString));
+            public static IncomingResponseFrameReader<bool> IceIsA =>
+                _ice_isA ??= new IncomingResponseFrameReader<bool>(InputStream.IceReaderIntoBool);
 
+            private static IncomingResponseFrameReader<string>? _ice_id;
+            private static IncomingResponseFrameReader<string[]>? _ice_ids;
+            private static IncomingResponseFrameReader<bool>? _ice_isA;
         }
 
         /// <summary>An InputStream reader used to read non nullable proxies.</summary>
@@ -96,6 +123,48 @@ namespace ZeroC.Ice
         /// <returns>The property set.</returns>
         public Dictionary<string, string> ToProperty(string property) => IceReference.ToProperty(property);
 
+        /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
+        /// proxy.</summary>
+        /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The Slice type ID of the most-derived interface.</returns>
+        public string IceId(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
+            this.Invoke(Request.IceId.Create(this, context), Response.IceId, cancel);
+
+        /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
+        /// proxy.</summary>
+        /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public Task<string> IceIdAsync(
+            IReadOnlyDictionary<string, string>? context = null,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default) =>
+            this.InvokeAsync(Request.IceId.Create(this, context), Response.IceId, progress, cancel);
+
+        /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.</summary>
+        /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+        /// order. The first element of the returned array is always ::Ice::IObject.</returns>
+        public string[] IceIds(
+            IReadOnlyDictionary<string, string>? context = null,
+            CancellationToken cancel = default) =>
+            this.Invoke(Request.IceIds.Create(this, context), Response.IceIds, cancel);
+
+        /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="context">The context dictionary for the invocation.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        public Task<string[]> IceIdsAsync(
+            IReadOnlyDictionary<string, string>? context = null,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default) =>
+            this.InvokeAsync(Request.IceIds.Create(this, context), Response.IceIds, progress, cancel);
+
         /// <summary>Tests whether the target object implements a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
@@ -105,7 +174,7 @@ namespace ZeroC.Ice
             string id,
             IReadOnlyDictionary<string, string>? context = null,
             CancellationToken cancel = default) =>
-            IceI_IsARequest.Invoke(this, id, context, cancel);
+            this.Invoke(Request.IceIsA.Create(this, id, context), Response.IceIsA, cancel);
 
         /// <summary>Tests whether this object supports a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
@@ -113,65 +182,29 @@ namespace ZeroC.Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<bool> IceIsAAsync(string id,
-                                      IReadOnlyDictionary<string, string>? context = null,
-                                      IProgress<bool>? progress = null,
-                                      CancellationToken cancel = default) =>
-            IceI_IsARequest.InvokeAsync(this, id, context, progress, cancel);
+        public Task<bool> IceIsAAsync(
+            string id,
+            IReadOnlyDictionary<string, string>? context = null,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default) =>
+            this.InvokeAsync(Request.IceIsA.Create(this, id, context), Response.IceIsA, progress, cancel);
 
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public void IcePing(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
-            IceI_PingRequest.Invoke(this, context, cancel);
+            this.InvokeVoid(Request.IcePing.Create(this, context), IsOneway, cancel);
 
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task IcePingAsync(IReadOnlyDictionary<string, string>? context = null,
-                                 IProgress<bool>? progress = null,
-                                 CancellationToken cancel = default) =>
-            IceI_PingRequest.InvokeAsync(this, context, progress, cancel);
-
-        /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.</summary>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::IObject.</returns>
-        public string[] IceIds(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
-            IceI_IdsRequest.Invoke(this, context, cancel);
-
-        /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
-        /// </summary>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<string[]> IceIdsAsync(IReadOnlyDictionary<string, string>? context = null,
-                                          IProgress<bool>? progress = null,
-                                          CancellationToken cancel = default) =>
-            IceI_IdsRequest.InvokeAsync(this, context, progress, cancel);
-
-        /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
-        /// proxy.</summary>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
-            IceI_IdRequest.Invoke(this, context, cancel);
-
-        /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
-        /// proxy.</summary>
-        /// <param name="context">The context dictionary for the invocation.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context = null,
-                                       IProgress<bool>? progress = null,
-                                       CancellationToken cancel = default) =>
-            IceI_IdRequest.InvokeAsync(this, context, progress, cancel);
+        public Task IcePingAsync(
+            IReadOnlyDictionary<string, string>? context = null,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default) =>
+            this.InvokeVoidAsync(Request.IcePing.Create(this, context), IsOneway, progress, cancel);
 
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;

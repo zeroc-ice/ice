@@ -234,6 +234,20 @@ namespace ZeroC.Ice
             }
         }
 
+        public static T Invoke<T>(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            IncomingResponseFrameReader<T> reader,
+            CancellationToken cancel = default) =>
+            reader.Read(proxy.Invoke(request, oneway: false, cancel), proxy.Communicator);
+
+        public static void InvokeVoid(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            CancellationToken cancel = default) =>
+            proxy.Invoke(request, oneway, cancel).ReadVoidReturnValue(proxy.Communicator);
+
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
@@ -251,6 +265,38 @@ namespace ZeroC.Ice
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
             InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress, cancel);
+
+        public static Task<T> InvokeAsync<T>(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            IncomingResponseFrameReader<T> reader,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
+        {
+            return ReadResponseAsync(proxy.InvokeAsync(request, oneway: false, progress, cancel),
+                                     reader,
+                                     proxy.Communicator);
+
+            static async Task<T> ReadResponseAsync(
+                ValueTask<IncomingResponseFrame> response,
+                IncomingResponseFrameReader<T> reader,
+                Communicator communicator) => reader.Read(await response.ConfigureAwait(false), communicator);
+        }
+
+        public static Task InvokeVoidAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
+        {
+            return ReadResponseAsync(proxy.InvokeAsync(request, oneway, progress, cancel),
+                                     proxy.Communicator);
+
+            static async Task ReadResponseAsync(
+                ValueTask<IncomingResponseFrame> response,
+                Communicator communicator) => (await response.ConfigureAwait(false)).ReadVoidReturnValue(communicator);
+        }
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>

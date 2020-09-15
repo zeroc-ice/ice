@@ -2167,21 +2167,13 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sb;
         for (auto operation : p->operations())
         {
-            string propertyName = fixId(operationName(operation));
-            string fieldName = "_" + operation->name();
             auto returns = operation->returnValues();
-            size_t returnCount = returns.size();
+            if (returns.size() > 0)
+            {
+                string propertyName = fixId(operationName(operation));
+                string fieldName = "_" + operation->name();
 
-            _out << nl << "public static ";
-            if (returnCount == 0)
-            {
-                _out << "ZeroC.Ice.IncomingResponseFrameReader " << propertyName << " =>";
-                _out.inc();
-                _out << nl << "ZeroC.Ice.IncomingResponseFrameReader.Instance;";
-                _out.dec();
-            }
-            else
-            {
+                _out << nl << "public static ";
                 string readerType = "ZeroC.Ice.IncomingResponseFrameReader<" + toTupleType(returns, false) + ">";
                 _out << readerType << " " << propertyName << " =>";
                 _out.inc();
@@ -2198,9 +2190,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (auto operation : p->operations())
         {
             auto returns = operation->returnValues();
-            size_t returnCount = returns.size();
-
-            if (returnCount > 0)
+            if (returns.size() > 0)
             {
                 string fieldName = "_" + operation->name();
                 string readerType = "ZeroC.Ice.IncomingResponseFrameReader<" + toTupleType(returns, false) + ">";
