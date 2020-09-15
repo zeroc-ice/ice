@@ -46,6 +46,16 @@ namespace ZeroC.Ice
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
+        public static class Request
+        {
+
+        }
+
+        public static class Response
+        {
+
+        }
+
         /// <summary>An InputStream reader used to read non nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);

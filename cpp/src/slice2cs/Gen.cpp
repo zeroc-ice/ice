@@ -2098,9 +2098,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     if (!p->operations().empty())
     {
-        bool hasBase = !p->bases().empty(); // TODO: add Request/Response to IObjectPrx and remove
-
-        _out << nl << "public static " << (hasBase ? "new " : "") << "class Request";
+        _out << nl << "public static new class Request";
         _out << sb;
         for (auto operation : p->operations())
         {
@@ -2165,7 +2163,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << eb;
 
         _out << sp;
-        _out << nl <<  "public static " << (hasBase ? "new " : "") << "class Response";
+        _out << nl <<  "public static new class Response";
         _out << sb;
         for (auto operation : p->operations())
         {
