@@ -2094,6 +2094,124 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << sb;
 
+    // Generate nested Request and Response classes if this interface has operations.
+
+    if (!p->operations().empty())
+    {
+        bool hasBase = !p->bases().empty(); // TODO: add Request/Response to IObjectPrx and remove
+
+        _out << nl << "public static " << (hasBase ? "new " : "") << "class Request";
+        _out << sb;
+        for (auto operation : p->operations())
+        {
+            string propertyName = fixId(operationName(operation));
+            string fieldName = "_" + operation->name();
+            auto params = operation->parameters();
+            size_t paramCount = params.size();
+
+            _out << nl << "public static ";
+            if (paramCount == 0)
+            {
+                _out << "ZeroC.Ice.OutgoingRequestFrameFactory " << propertyName << " =>";
+                _out.inc();
+                _out << nl << fieldName << " ?\?= new ZeroC.Ice.OutgoingRequestFrameFactory(\""
+                    << operation->name() << "\", "
+                    << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ");";
+                _out.dec();
+            }
+            else
+            {
+                // A single Slice-struct return is treated like a tuple-return. Note this does not apply to an optional
+                // struct return although in theory it could.
+                string factoryType =
+                    (paramCount > 1 || StructPtr::dynamicCast(operation->parameters().front()->type())) ?
+                    "ZeroC.Ice.OutgoingRequestFrameFactory" : "ZeroC.Ice.SingleParamOutgoingRequestFrameFactory";
+
+                factoryType += "<" + toTupleType(params, true) + ">";
+
+                _out << factoryType << " " << propertyName << " =>";
+                _out.inc();
+                _out << nl << fieldName << " ?\?= new " << factoryType << "(";
+                _out.inc();
+                _out << nl << "\"" << operation->name() << "\","
+                    << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
+                    << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
+                    << nl << "format: " << opFormatTypeToString(operation) << ","
+                    << nl << "writer: ";
+                writeOutgoingRequestWriter(operation);
+                _out << ");";
+                _out.dec();
+                _out.dec();
+            }
+        }
+        _out << sp;
+
+        for (auto operation : p->operations())
+        {
+            string fieldName = "_" + operation->name();
+            auto params = operation->parameters();
+            size_t paramCount = params.size();
+
+            string factoryType = "ZeroC.Ice.OutgoingRequestFrameFactory";
+            if (paramCount > 0)
+            {
+                factoryType = (paramCount > 1 || StructPtr::dynamicCast(operation->parameters().front()->type())) ?
+                    "ZeroC.Ice.OutgoingRequestFrameFactory" : "ZeroC.Ice.SingleParamOutgoingRequestFrameFactory";
+                factoryType += "<" + toTupleType(params, true) + ">";
+            }
+
+            _out << nl << "private static " << factoryType << "? " << fieldName << ";";
+        }
+        _out << eb;
+
+        _out << sp;
+        _out << nl <<  "public static " << (hasBase ? "new " : "") << "class Response";
+        _out << sb;
+        for (auto operation : p->operations())
+        {
+            string propertyName = fixId(operationName(operation));
+            string fieldName = "_" + operation->name();
+            auto returns = operation->returnValues();
+            size_t returnCount = returns.size();
+
+            _out << nl << "public static ";
+            if (returnCount == 0)
+            {
+                _out << "ZeroC.Ice.IncomingResponseFrameReader " << propertyName << " =>";
+                _out.inc();
+                _out << nl << "ZeroC.Ice.IncomingResponseFrameReader.Instance;";
+                _out.dec();
+            }
+            else
+            {
+                string readerType = "ZeroC.Ice.IncomingResponseFrameReader<" + toTupleType(returns, false) + ">";
+                _out << readerType << " " << propertyName << " =>";
+                _out.inc();
+                _out << nl << fieldName << " ?\?= new " << readerType << "(";
+                _out.inc();
+                _out << nl;
+                writeOutgoingRequestReader(operation);
+                _out.dec();
+                _out << ");";
+                _out.dec();
+            }
+        }
+        _out << sp;
+        for (auto operation : p->operations())
+        {
+            auto returns = operation->returnValues();
+            size_t returnCount = returns.size();
+
+            if (returnCount > 0)
+            {
+                string fieldName = "_" + operation->name();
+                string readerType = "ZeroC.Ice.IncomingResponseFrameReader<" + toTupleType(returns, false) + ">";
+                _out << nl << "private static " << readerType << "? " << fieldName << ";";
+            }
+        }
+        _out << eb;
+    }
+
     return true;
 }
 
