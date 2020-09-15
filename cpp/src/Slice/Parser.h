@@ -302,7 +302,7 @@ class Type : public virtual SyntaxTreeBase
 public:
 
     virtual std::string typeId() const = 0;
-    virtual bool usesClasses() const = 0; // TODO: can we remove this method?
+    virtual bool usesClasses() const = 0;
     virtual bool isClassType() const { return false; }
     virtual bool isInterfaceType() const { return false; }
     virtual size_t minWireSize() const = 0;

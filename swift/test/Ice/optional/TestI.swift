@@ -17,30 +17,32 @@ class InitialI: Initial {
 
     func opOptionalException(a: Int32?,
                              b: String?,
-                             o: OneOptional?,
+                             vs: VarStruct?,
                              current _: Ice.Current) throws {
-        throw OptionalException(req: false, a: a, b: b, o: o)
+        throw OptionalException(req: false, a: a, b: b, vs: vs)
     }
 
     func opDerivedException(a: Int32?,
                             b: String?,
-                            o: OneOptional?,
+                            vs: VarStruct?,
                             current _: Ice.Current) throws {
-        throw DerivedException(req: false, a: a, b: b, o: o, ss: b, o2: o)
+        throw DerivedException(req: false, a: a, b: b, vs: vs, ss: b, vs2: vs)
     }
 
     func opRequiredException(a: Int32?,
                              b: String?,
-                             o: OneOptional?,
+                             vs: VarStruct?,
                              current _: Ice.Current) throws {
         let e = RequiredException()
         e.a = a
         e.b = b
-        e.o = o
+        e.vs = vs
         if let b = b {
             e.ss = b
         }
-        e.o2 = o
+        if let vs = vs {
+            e.vs2 = vs
+        }
         throw e
     }
 
@@ -96,16 +98,6 @@ class InitialI: Initial {
     }
 
     func opVarStruct(p1: VarStruct?, current _: Ice.Current) throws -> (returnValue: VarStruct?, p3: VarStruct?) {
-        return (p1, p1)
-    }
-
-    func opOneOptional(p1: OneOptional?, current _: Ice.Current) throws -> (returnValue: OneOptional?,
-                                                                            p3: OneOptional?) {
-        return (p1, p1)
-    }
-
-    func opOneOptionalProxy(p1: Ice.ObjectPrx?, current _: Ice.Current) throws -> (returnValue: Ice.ObjectPrx?,
-                                                                                   p3: Ice.ObjectPrx?) {
         return (p1, p1)
     }
 
@@ -187,23 +179,7 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opIntOneOptionalDict(p1: [Int32: OneOptional?]?,
-                              current _: Ice.Current) throws -> (returnValue: [Int32: OneOptional?]?,
-                                                                 p3: [Int32: OneOptional?]?) {
-        return (p1, p1)
-    }
-
     func opClassAndUnknownOptional(p _: A?, current _: Ice.Current) throws {}
-
-    func sendOptionalClass(req _: Bool, o _: OneOptional?, current _: Ice.Current) throws {}
-
-    func returnOptionalClass(req _: Bool, current _: Ice.Current) throws -> OneOptional? {
-        return OneOptional(a: 53)
-    }
-
-    func opG(g: G?, current _: Ice.Current) throws -> G? {
-        return g
-    }
 
     func opVoid(current _: Ice.Current) throws {}
 
@@ -248,14 +224,6 @@ class InitialI: Initial {
     }
 
     func opMDict2(p1: StringIntDict?, current _: Current) throws -> (returnValue: StringIntDict?, p2: StringIntDict?) {
-        return (p1, p1)
-    }
-
-    func opMG1(current _: Current) throws -> G? {
-        return G()
-    }
-
-    func opMG2(p1: G?, current _: Current) throws -> (returnValue: G?, p2: G?) {
         return (p1, p1)
     }
 }

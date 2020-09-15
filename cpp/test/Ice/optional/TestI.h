@@ -7,11 +7,6 @@
 
 #include <Test.h>
 
-namespace Test
-{
-using OneOptionalPrxPtr = std::shared_ptr<Ice::ObjectPrx>;
-}
-
 class InitialI : public Test::Initial
 {
 public:
@@ -23,17 +18,17 @@ public:
 
     virtual void opOptionalException(IceUtil::Optional< ::Ice::Int>,
                                      IceUtil::Optional< ::std::string>,
-                                     IceUtil::Optional<Test::OneOptionalPtr>,
+                                     IceUtil::Optional<Test::VarStruct>,
                                      const Ice::Current&);
 
     virtual void opDerivedException(IceUtil::Optional< ::Ice::Int>,
                                     IceUtil::Optional< ::std::string>,
-                                    IceUtil::Optional<Test::OneOptionalPtr>,
+                                    IceUtil::Optional<Test::VarStruct>,
                                     const Ice::Current&);
 
     virtual void opRequiredException(IceUtil::Optional< ::Ice::Int>,
                                      IceUtil::Optional< ::std::string>,
-                                     IceUtil::Optional<Test::OneOptionalPtr>,
+                                     IceUtil::Optional<Test::VarStruct>,
                                      const Ice::Current&);
 
     virtual IceUtil::Optional< ::Ice::Byte> opByte(IceUtil::Optional< ::Ice::Byte>,
@@ -86,10 +81,6 @@ public:
     virtual IceUtil::Optional<Test::VarStruct> opVarStruct(IceUtil::Optional<Test::VarStruct>,
                                                            IceUtil::Optional<Test::VarStruct>&,
                                                            const ::Ice::Current&);
-
-    virtual IceUtil::Optional<Test::OneOptionalPtr> opOneOptional(IceUtil::Optional< Test::OneOptionalPtr>,
-                                                                  IceUtil::Optional< Test::OneOptionalPtr>&,
-                                                                  const ::Ice::Current&);
 
     virtual IceUtil::Optional< ::Test::ByteSeq> opByteSeq(
         IceUtil::Optional< ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >,
@@ -165,23 +156,12 @@ public:
         IceUtil::Optional< ::Test::StringIntDict>&,
         const ::Ice::Current&);
 
-    virtual IceUtil::Optional< ::Test::IntOneOptionalDict> opIntOneOptionalDict(
-        IceUtil::Optional< ::Test::IntOneOptionalDict>,
-        IceUtil::Optional< ::Test::IntOneOptionalDict>&,
-        const ::Ice::Current&);
-
     virtual IceUtil::Optional< ::Test::IntStringDict> opCustomIntStringDict(
         IceUtil::Optional<std::map<int, Util::string_view> >,
         IceUtil::Optional< ::Test::IntStringDict>&,
         const ::Ice::Current&);
 
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
-
-    virtual void sendOptionalClass(bool, IceUtil::Optional<Test::OneOptionalPtr>, const Ice::Current&);
-
-    virtual void returnOptionalClass(bool, IceUtil::Optional<Test::OneOptionalPtr>&, const Ice::Current&);
-
-    virtual ::Test::GPtr opG(::Test::GPtr g, const Ice::Current&);
 
     virtual void opVoid(const Ice::Current&);
 
@@ -196,10 +176,6 @@ public:
     virtual OpMDict1MarshaledResult opMDict1(const Ice::Current&);
 
     virtual OpMDict2MarshaledResult opMDict2(IceUtil::Optional<Test::StringIntDict>, const Ice::Current&);
-
-    virtual OpMG1MarshaledResult opMG1(const Ice::Current&);
-
-    virtual OpMG2MarshaledResult opMG2(IceUtil::Optional<Test::GPtr>, const Ice::Current&);
 
     virtual bool supportsRequiredParams(const Ice::Current&);
 

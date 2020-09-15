@@ -369,7 +369,6 @@ interface MyDerivedClass : Test::MyClass
 
 }
 
-[cs:namespace:Ice.operations]
 module M
 {
     class A

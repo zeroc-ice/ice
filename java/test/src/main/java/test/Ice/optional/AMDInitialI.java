@@ -30,7 +30,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Void> opOptionalExceptionAsync(@Nullable Integer a, @Nullable String b,
-                                                          @Nullable OneOptional o,  Current current)
+                                                          @Nullable VarStruct vs,  Current current)
         throws OptionalException
     {
         OptionalException ex = new OptionalException();
@@ -46,9 +46,9 @@ public final class AMDInitialI implements Initial
         {
             ex.setB(b);
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
+            ex.setVs(vs);
         }
         CompletableFuture<Void> f = new CompletableFuture<>();
         f.completeExceptionally(ex);
@@ -57,7 +57,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Void> opDerivedExceptionAsync(@Nullable Integer a, @Nullable String b,
-                                                         @Nullable OneOptional o, Current current)
+                                                         @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         DerivedException ex = new DerivedException();
@@ -78,10 +78,10 @@ public final class AMDInitialI implements Initial
         {
             ex.clearSs(); // The member "ss" has a default value.
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
-            ex.setO2(o);
+            ex.setVs(vs);
+            ex.setVs2(vs);
         }
         CompletableFuture<Void> f = new CompletableFuture<>();
         f.completeExceptionally(ex);
@@ -90,7 +90,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Void> opRequiredExceptionAsync(@Nullable Integer a, @Nullable String b,
-                                                          @Nullable OneOptional o, Current current)
+                                                          @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         RequiredException ex = new RequiredException();
@@ -107,10 +107,10 @@ public final class AMDInitialI implements Initial
             ex.setB(b);
             ex.ss = b;
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
-            ex.o2 = o;
+            ex.setVs(vs);
+            ex.vs2 = vs;
         }
         CompletableFuture<Void> f = new CompletableFuture<>();
         f.completeExceptionally(ex);
@@ -261,19 +261,6 @@ public final class AMDInitialI implements Initial
     public CompletionStage<Initial.OpVarStructReqResult> opVarStructReqAsync(@Nullable VarStruct p1, Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpVarStructReqResult(p1, p1));
-    }
-
-    @Override
-    public CompletionStage<Initial.OpOneOptionalResult> opOneOptionalAsync(@Nullable OneOptional p1, Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpOneOptionalResult(p1, p1));
-    }
-
-    @Override
-    public CompletionStage<Initial.OpOneOptionalReqResult> opOneOptionalReqAsync(@Nullable OneOptional p1,
-                                                                                 Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpOneOptionalReqResult(p1, p1));
     }
 
     @Override
@@ -493,43 +480,9 @@ public final class AMDInitialI implements Initial
     }
 
     @Override
-    public CompletionStage<Initial.OpIntOneOptionalDictResult> opIntOneOptionalDictAsync(
-        java.util.@Nullable Map<Integer, OneOptional> p1,
-        Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpIntOneOptionalDictResult(p1, p1));
-    }
-
-    @Override
-    public CompletionStage<Initial.OpIntOneOptionalDictReqResult> opIntOneOptionalDictReqAsync(
-        java.util.@Nullable Map<Integer, OneOptional> p1,
-        Current current)
-    {
-        return CompletableFuture.completedFuture(new Initial.OpIntOneOptionalDictReqResult(p1, p1));
-    }
-
-    @Override
     public CompletionStage<Void> opClassAndUnknownOptionalAsync(A p, Current current)
     {
         return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletionStage<Void> sendOptionalClassAsync(boolean req, @Nullable OneOptional o, Current current)
-    {
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletionStage<@Nullable OneOptional> returnOptionalClassAsync(boolean req, Current current)
-    {
-        return CompletableFuture.completedFuture(new OneOptional(53));
-    }
-
-    @Override
-    public CompletionStage<G> opGAsync(G g, Current current)
-    {
-        return CompletableFuture.completedFuture(g);
     }
 
     @Override
@@ -575,18 +528,6 @@ public final class AMDInitialI implements Initial
                                                                           Current current)
     {
         return CompletableFuture.completedFuture(new OpMDict2MarshaledResult(p1, p1, current));
-    }
-
-    @Override
-    public CompletionStage<OpMG1MarshaledResult> opMG1Async(Current current)
-    {
-        return CompletableFuture.completedFuture(new OpMG1MarshaledResult(new G(), current));
-    }
-
-    @Override
-    public CompletionStage<OpMG2MarshaledResult> opMG2Async(@Nullable G p1, Current current)
-    {
-        return CompletableFuture.completedFuture(new OpMG2MarshaledResult(p1, p1, current));
     }
 
     @Override

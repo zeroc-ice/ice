@@ -1,0 +1,6 @@
+OperationMembers.ice:10: `l3': in parameters cannot follow out parameters
+OperationMembers.ice:11: `l3': in parameters cannot follow out parameters
+OperationMembers.ice:15: an operation returning a tuple cannot have out parameters
+OperationMembers.ice:15: `j': in parameters cannot follow out parameters
+OperationMembers.ice:16: `r1': return members cannot be marked as out
+OperationMembers.ice:16: `r3': return members cannot be marked as out
