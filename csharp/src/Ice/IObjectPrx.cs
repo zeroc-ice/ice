@@ -328,29 +328,6 @@ namespace ZeroC.Ice
             }
             return true;
         }
-
-        private static OutgoingRequestWithParam<string, bool>? _iceI_IsARequest;
-        private static OutgoingRequestWithParam<string, bool> IceI_IsARequest =>
-            _iceI_IsARequest ??= new OutgoingRequestWithParam<string, bool>("ice_isA",
-                                                                            idempotent: true,
-                                                                            compress: false,
-                                                                            format: default,
-                                                                            writer: OutputStream.IceWriterFromString,
-                                                                            reader: InputStream.IceReaderIntoBool);
-
-        private static OutgoingRequestWithEmptyParamList<string[]>? _iceI_IdsRequest;
-        private static OutgoingRequestWithEmptyParamList<string[]> IceI_IdsRequest =>
-            _iceI_IdsRequest ??= new OutgoingRequestWithEmptyParamList<string[]>("ice_ids", idempotent: true,
-                reader: istr => istr.ReadArray(1, InputStream.IceReaderIntoString));
-
-        private static OutgoingRequestWithEmptyParamList<string>? _iceI_IdRequest;
-        private static OutgoingRequestWithEmptyParamList<string> IceI_IdRequest =>
-            _iceI_IdRequest ??= new OutgoingRequestWithEmptyParamList<string>("ice_id", idempotent: true,
-                reader: InputStream.IceReaderIntoString);
-
-        private static OutgoingRequestWithEmptyParamList? _iceI_PingRequest;
-        private static OutgoingRequestWithEmptyParamList IceI_PingRequest =>
-            _iceI_PingRequest ??= new OutgoingRequestWithEmptyParamList("ice_ping", idempotent: true, oneway: false);
     }
 
     /// <summary>The base class for all proxies. It's a publicly visible Ice-internal class. Applications
