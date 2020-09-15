@@ -205,11 +205,11 @@ namespace ZeroC.Ice
 
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
-        /// different endpoints.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// two-way request.</param>
+        /// twoway request.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(
@@ -234,6 +234,16 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Sends a request that returns a value and waits synchronously for the result.</summary>
+        /// <typeparam name="T">The operation's return type.</typeparam>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
+        /// <param name="reader">An <see cref="IncomingResponseFrame"/> reader that converts an IncomingResponseFrame
+        /// into the return value for this operation. Typically {IInterfaceNamePrx}.Response.{OperationName}.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The return value.</returns>
         public static T Invoke<T>(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
@@ -241,6 +251,14 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             reader.Read(proxy.Invoke(request, oneway: false, cancel), proxy.Communicator);
 
+        /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
+        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
+        /// different endpoints.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// twoway request.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public static void InvokeVoid(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
@@ -250,9 +268,9 @@ namespace ZeroC.Ice
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
-        /// different endpoints.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
         /// <param name="progress">Sent progress provider.</param>
@@ -266,6 +284,17 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress, cancel);
 
+        /// <summary>Sends a request that returns a value and returns the result asynchronously.</summary>
+        /// <typeparam name="T">The operation's return type.</typeparam>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
+        /// <param name="reader">An <see cref="IncomingResponseFrame"/> reader that converts an IncomingResponseFrame
+        /// into the return value for this operation. Typically {IInterfaceNamePrx}.Response.{OperationName}.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The return value.</returns>
         public static Task<T> InvokeAsync<T>(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
@@ -283,6 +312,15 @@ namespace ZeroC.Ice
                 Communicator communicator) => reader.Read(await response.ConfigureAwait(false), communicator);
         }
 
+        /// <summary>Sends a request that returns void and returns the result asynchronously.</summary>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// twoway request.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public static Task InvokeVoidAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,

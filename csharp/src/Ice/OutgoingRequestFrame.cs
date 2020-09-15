@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         // _defaultBinaryContext is empty.
         private readonly bool _writeSlot0;
 
-        /// <summary>Create a new OutgoingRequestFrame.</summary>
+        /// <summary>Create a new OutgoingRequestFrame for an operation with a single parameter.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
@@ -68,7 +68,7 @@ namespace ZeroC.Ice
         /// <param name="value">The parameter to marshal in the frame.</param>
         /// <param name="writer">The delegate into marshal the parameter to the frame.</param>
         /// <returns>A new OutgoingRequestFrame</returns>
-        public static OutgoingRequestFrame WithParamList<T>(
+        public static OutgoingRequestFrame WithSingleParam<T>(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
@@ -93,7 +93,8 @@ namespace ZeroC.Ice
             return request;
         }
 
-        /// <summary>Create a new OutgoingRequestFrame.</summary>
+        /// <summary>Create a new OutgoingRequestFrame for an operation with multiple parameters or a single struct
+        /// parameter.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
@@ -102,8 +103,7 @@ namespace ZeroC.Ice
         /// <param name="format">The format used to marshal classes.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="value">The parameter to marshal in the frame, when the request frame contain multiple
-        /// parameters they must be passed as a tuple.</param>
+        /// <param name="value">The parameters to marshal in the frame.</param>
         /// <param name="writer">The delegate to marshal the parameters into the frame.</param>
         /// <returns>A new OutgoingRequestFrame</returns>
         public static OutgoingRequestFrame WithParamList<T>(
@@ -131,7 +131,7 @@ namespace ZeroC.Ice
             return request;
         }
 
-        /// <summary>Creates a new outgoing request frame with no parameters.</summary>
+        /// <summary>Creates a new outgoing request frame with no parameter.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
@@ -420,7 +420,7 @@ namespace ZeroC.Ice
             IObjectPrx prx,
             TParam param,
             IReadOnlyDictionary<string, string>? context) =>
-            OutgoingRequestFrame.WithParamList(prx,          // TODO: rename method!
+            OutgoingRequestFrame.WithSingleParam(prx,
                                                _operationName,
                                                _idempotent,
                                                _compress,

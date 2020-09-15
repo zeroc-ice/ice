@@ -46,12 +46,19 @@ namespace ZeroC.Ice
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
+        /// <summary>Holds an <see cref="OutgoingRequestFrame"/> factory for each remote operation defined in the
+        /// pseudo-interface Object.</summary>
         public static class Request
         {
+            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_id.</summary>
             public static OutgoingRequestFrameFactory IceId =>
                 _ice_id ??= new OutgoingRequestFrameFactory("ice_id", idempotent: true);
+
+            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_ids.</summary>
             public static OutgoingRequestFrameFactory IceIds =>
                 _ice_ids ??= new OutgoingRequestFrameFactory("ice_ids", idempotent: true);
+
+            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_isA.</summary>
             public static SingleParamOutgoingRequestFrameFactory<string> IceIsA =>
                 _ice_isA ??= new SingleParamOutgoingRequestFrameFactory<string>(
                     "ice_isA",
@@ -59,6 +66,8 @@ namespace ZeroC.Ice
                     compress: false,
                     format: default,
                     writer: OutputStream.IceWriterFromString);
+
+            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_ping.</summary>
             public static OutgoingRequestFrameFactory IcePing =>
                 _ice_ping ??= new OutgoingRequestFrameFactory("ice_ping", idempotent: true);
 
@@ -68,13 +77,20 @@ namespace ZeroC.Ice
             private static OutgoingRequestFrameFactory? _ice_ping;
         }
 
+        /// <summary>Holds an <see cref="IncomingResponseFrame"/> reader for each non-void remote operation defined in
+        /// the pseudo-interface Object.</summary>
         public static class Response
         {
+            /// <summary>The <see cref="IncomingResponseFrame"/> reader for operation ice_id.</summary>
             public static IncomingResponseFrameReader<string> IceId =>
                 _ice_id ??= new IncomingResponseFrameReader<string>(InputStream.IceReaderIntoString);
+
+            /// <summary>The <see cref="IncomingResponseFrame"/> reader for operation ice_ids.</summary>
             public static IncomingResponseFrameReader<string[]> IceIds =>
                 _ice_ids ??= new IncomingResponseFrameReader<string[]>(
                     istr => istr.ReadArray(minElementSize: 1, InputStream.IceReaderIntoString));
+
+            /// <summary>The <see cref="IncomingResponseFrame"/> reader for operation ice_isA.</summary>
             public static IncomingResponseFrameReader<bool> IceIsA =>
                 _ice_isA ??= new IncomingResponseFrameReader<bool>(InputStream.IceReaderIntoBool);
 
