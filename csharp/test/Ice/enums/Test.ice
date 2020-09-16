@@ -222,7 +222,7 @@ interface TestIntf
     (FLUIntEnumSeq r1, FLUIntEnumSeq r2) opFLUIntSeq(FLUIntEnumSeq i1);
     (FLSimpleEnumSeq r1, FLSimpleEnumSeq r2) opFLSimpleSeq(FLSimpleEnumSeq s1);
 
-    (tag(1) ByteEnum? r1, tag(3) ByteEnum? r2) opTaggedByte(tag(2) ByteEnum? b1);
+    (tag(1) ByteEnum? r1, tag(2) ByteEnum? r2) opTaggedByte(tag(2) ByteEnum? b1);
     (tag(1) FLByteEnum? r1, tag(3) FLByteEnum? r2) opTaggedFLByte(tag(2) FLByteEnum? b1);
     (tag(1) ByteEnumSeq? r1, tag(3) ByteEnumSeq? r2) opTaggedByteSeq(tag(2) ByteEnumSeq? b1);
     (tag(1) FLByteEnumSeq? r1, tag(3) FLByteEnumSeq? r2) opTaggedFLByteSeq(tag(2) FLByteEnumSeq? b1);

@@ -15,7 +15,6 @@ namespace ZeroC.Ice.Test.Optional
 
         public void OpSingleInString(string? i1, Current current) => TestHelper.Assert(i1 == null || i1 == "42");
 
-        public int? OpSingleOutInt(Current current) => 42;
         public string? OpSingleOutString(Current current) => "42";
 
         public int? OpSingleReturnInt(Current current) => 42;
@@ -28,7 +27,7 @@ namespace ZeroC.Ice.Test.Optional
             TestHelper.Assert(i3 == null || i3 == i4);
         }
 
-        public (int? R1, int R2, int? R3, string? R4) OpBasicInOut(int i1, int? i2, string? i3,
+        public (int? R1, int R2, int? R3, string? R4) OpBasicInReturnTuple(int i1, int? i2, string? i3,
             Current current) => (i2, i1, i2, i3);
 
         public IObjectPrx? OpObject(IObjectPrx i1, IObjectPrx? i2, Current current)

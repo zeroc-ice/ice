@@ -23,9 +23,9 @@ exception WstringException
 
 [amd] interface WstringClass
 {
-    string opString(string s1, out string s2);
+    (string r1, string r2) opString(string s1);
 
-    WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+    (WstringStruct r1, WstringStruct r2) opStruct(WstringStruct s1);
 
     void throwExcept(string reason)
         throws WstringException;
@@ -52,9 +52,9 @@ dictionary<[cpp:type:wstring] string, [cpp:type:wstring] string> WstringWStringD
 
 [amd] [cpp:type:wstring] interface WstringClass
 {
-    string opString(string s1, out string s2);
+    (string r1, string r2) opString(string s1);
 
-    WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+    (WstringStruct r1, WstringStruct r2) opStruct(WstringStruct s1);
 
     void throwExcept(string reason)
         throws WstringException;

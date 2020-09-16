@@ -255,8 +255,6 @@ interface Initial
 
     (tag(1) StringIntDict? r1, tag(2) StringIntDict? r2) opStringIntDict(tag(1) StringIntDict? p1);
 
-    (tag(1) IntOneTaggedDict? r1, tag(2) IntOneTaggedDict? r2) opIntOneTaggedDict(tag(1) IntOneTaggedDict? p1);
-
     void opClassAndUnknownTagged(A p);
 
     void opVoid();
