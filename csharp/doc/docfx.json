@@ -27,8 +27,6 @@
       },
       {
         "files": [
-          "articles/**.md",
-          "articles/**/toc.yml",
           "toc.yml",
           "*.md"
         ]
@@ -38,17 +36,6 @@
       {
         "files": [
           "images/**"
-        ]
-      }
-    ],
-    "overwrite": [
-      {
-        "files": [
-          "apidoc/**.md"
-        ],
-        "exclude": [
-          "obj/**",
-          "_site/**"
         ]
       }
     ],
@@ -63,6 +50,6 @@
     "noLangKeyword": false,
     "keepFileLink": false,
     "cleanupCacheHistory": false,
-    "disableGitFeatures": false
+    "disableGitFeatures": true
   }
 }
