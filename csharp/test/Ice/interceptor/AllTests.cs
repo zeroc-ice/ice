@@ -210,19 +210,18 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing binary context... ");
             output.Flush();
 
+            var requestFactory = OutgoingRequestFrame.CreateFactory("opWithBinaryContext",
+                                                                    idempotent: false,
+                                                                    compress: false,
+                                                                    format: default,
+                                                                    Token.IceWriter);
+
             if (ice2)
             {
                 for (int size = 128; size < 4096; size *= 2)
                 {
                     var token = new Token(1, "mytoken", Enumerable.Range(0, size).Select(i => (byte)2).ToArray());
-                    var request = OutgoingRequestFrame.WithParamList(prx,
-                                                                     "opWithBinaryContext",
-                                                                     idempotent: false,
-                                                                     compress: false,
-                                                                     format: default,
-                                                                     context: null,
-                                                                     token,
-                                                                     Token.IceWriter);
+                    var request = requestFactory(prx, token, context: null);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
                     request.AddBinaryContextEntry(
@@ -253,14 +252,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
 
                     // repeat with compressed frame
-                    request = OutgoingRequestFrame.WithParamList(prx,
-                                                                 "opWithBinaryContext",
-                                                                 idempotent: false,
-                                                                 compress: false,
-                                                                 format: default,
-                                                                 context: null,
-                                                                 token,
-                                                                 Token.IceWriter);
+                    request = requestFactory(prx, token, context: null);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
                     request.AddBinaryContextEntry(
@@ -271,14 +263,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     prx.Invoke(request);
 
                     // repeat compressed the frame before writing the context
-                    request = OutgoingRequestFrame.WithParamList(prx,
-                                                                 "opWithBinaryContext",
-                                                                 idempotent: false,
-                                                                 compress: false,
-                                                                 format: default,
-                                                                 context: null,
-                                                                 token,
-                                                                 Token.IceWriter);
+                    request = requestFactory(prx, token, context: null);
 
                     TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
@@ -293,14 +278,7 @@ namespace ZeroC.Ice.Test.Interceptor
             else
             {
                 var token = new Token(1, "mytoken", Enumerable.Range(0, 256).Select(i => (byte)2).ToArray());
-                var request = OutgoingRequestFrame.WithParamList(prx,
-                                                                 "opWithBinaryContext",
-                                                                 idempotent: false,
-                                                                 compress: false,
-                                                                 format: default,
-                                                                 context: null,
-                                                                 token,
-                                                                 Token.IceWriter);
+                var request = requestFactory(prx, token, context: null);
                 try
                 {
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);

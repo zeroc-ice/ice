@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithEmptyParamList(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.CreateFactory("opOneway", idempotent: false)(oneway, context: null);
 
                 // Whether the proxy is oneway or not does not matter for Invoke's oneway parameter.
 
@@ -52,14 +52,13 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(response.ResultType == ResultType.Failure);
                 }
 
-                request = OutgoingRequestFrame.WithSingleParam(cl,
-                                                             "opString",
-                                                             idempotent: false,
-                                                             compress: false,
-                                                             format: default,
-                                                             context: null,
-                                                             TestString,
-                                                             OutputStream.IceWriterFromString);
+                request = OutgoingRequestFrame.CreateSingleParamFactory(
+                    "opString",
+                    idempotent: false,
+                    compress: false,
+                    format: default,
+                    OutputStream.IceWriterFromString)(cl, TestString, context: null);
+
                 response = cl.Invoke(request);
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
@@ -81,7 +80,7 @@ namespace ZeroC.Ice.Test.Invoke
                     };
                 }
 
-                var request = OutgoingRequestFrame.WithEmptyParamList(cl, "opException", idempotent: false, context: ctx);
+                var request = OutgoingRequestFrame.CreateFactory("opException", idempotent: false)(cl, context: ctx);
                 IncomingResponseFrame response = cl.Invoke(request);
                 try
                 {
@@ -103,7 +102,7 @@ namespace ZeroC.Ice.Test.Invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithEmptyParamList(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.CreateFactory("opOneway", idempotent: false)(oneway, context: null);
                 IncomingResponseFrame response;
                 try
                 {
@@ -114,14 +113,12 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(false);
                 }
 
-                request = OutgoingRequestFrame.WithSingleParam(cl,
-                                                             "opString",
-                                                             idempotent: false,
-                                                             compress: false,
-                                                             format: default,
-                                                             context: null,
-                                                             TestString,
-                                                             OutputStream.IceWriterFromString);
+                request = OutgoingRequestFrame.CreateSingleParamFactory(
+                    "opString",
+                    idempotent: false,
+                    compress: false,
+                    format: default,
+                    OutputStream.IceWriterFromString)(cl, TestString, context: null);
 
                 response = cl.InvokeAsync(request).AsTask().Result;
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
@@ -135,7 +132,7 @@ namespace ZeroC.Ice.Test.Invoke
             }
 
             {
-                var request = OutgoingRequestFrame.WithEmptyParamList(cl, "opException", idempotent: false);
+                var request = OutgoingRequestFrame.CreateFactory("opException", idempotent: false)(cl, context: null);
                 IncomingResponseFrame response = cl.InvokeAsync(request).AsTask().Result;
 
                 try
