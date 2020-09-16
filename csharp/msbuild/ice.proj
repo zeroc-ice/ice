@@ -200,6 +200,6 @@
     </Target>
 
     <Target Name="BuildDoc" DependsOnTargets="BuildDist">
-        <Exec Command="docfx" WorkingDirectory="$(MSBuildThisFileDirectory)\..\"/>
+        <Exec Command="docfx" WorkingDirectory="$(MSBuildThisFileDirectory)..\doc"/>
     </Target>
 </Project>

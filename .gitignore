@@ -125,4 +125,4 @@ Carthage
 *.log
 
 # docfx
-csharp/_site
+csharp/doc/_site
