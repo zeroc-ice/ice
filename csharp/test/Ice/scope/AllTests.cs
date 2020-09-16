@@ -66,19 +66,19 @@ namespace ZeroC.Ice.Test.Scope
                     {
                         var s1 = new S(0);
                         var opSResult = await i.OpSAsync(s1);
-                        TestHelper.Assert(s1.Equals(opSResult.ReturnValue));
-                        TestHelper.Assert(s1.Equals(opSResult.S2));
+                        TestHelper.Assert(s1.Equals(opSResult.R1));
+                        TestHelper.Assert(s1.Equals(opSResult.R2));
 
                         var sseq1 = new S[] { s1 };
                         var opSSeqResult = await i.OpSSeqAsync(sseq1);
-                        TestHelper.Assert(opSSeqResult.ReturnValue[0].Equals(s1));
-                        TestHelper.Assert(opSSeqResult.S2[0].Equals(s1));
+                        TestHelper.Assert(opSSeqResult.R1[0].Equals(s1));
+                        TestHelper.Assert(opSSeqResult.R2[0].Equals(s1));
 
                         var smap1 = new Dictionary<string, S>();
                         smap1["a"] = s1;
                         var opSMapResult = await i.OpSMapAsync(smap1);
-                        TestHelper.Assert(opSMapResult.ReturnValue["a"].Equals(s1));
-                        TestHelper.Assert(opSMapResult.S2["a"].Equals(s1));
+                        TestHelper.Assert(opSMapResult.R1["a"].Equals(s1));
+                        TestHelper.Assert(opSMapResult.R2["a"].Equals(s1));
 
                         var c1 = new C(s1);
                         (C? ReturnValue, C? C2) opCResult = await i.OpCAsync(c1);
@@ -151,8 +151,8 @@ namespace ZeroC.Ice.Test.Scope
                     {
                         Inner.Inner2.S s1 = new Inner.Inner2.S(0);
                         var opSResult = await i.OpSAsync(s1);
-                        TestHelper.Assert(s1.Equals(opSResult.ReturnValue));
-                        TestHelper.Assert(s1.Equals(opSResult.S2));
+                        TestHelper.Assert(s1.Equals(opSResult.R1));
+                        TestHelper.Assert(s1.Equals(opSResult.R2));
 
                         var sseq1 = new Inner.Inner2.S[] { s1 };
                         (Inner.Inner2.S[] ReturnValue, Inner.Inner2.S[] S2) opSSeqResult = await i.OpSSeqAsync(sseq1);
@@ -236,23 +236,23 @@ namespace ZeroC.Ice.Test.Scope
 
                         var smap1 = new Dictionary<string, Inner.Inner2.S> { ["a"] = s1 };
                         var opSMapResult = await i.OpSMapAsync(smap1);
-                        TestHelper.Assert(opSMapResult.ReturnValue["a"].Equals(s1));
-                        TestHelper.Assert(opSMapResult.S2["a"].Equals(s1));
+                        TestHelper.Assert(opSMapResult.R1["a"].Equals(s1));
+                        TestHelper.Assert(opSMapResult.R2["a"].Equals(s1));
 
                         Inner.Inner2.C c1 = new Inner.Inner2.C(s1);
                         var opCResult = await i.OpCAsync(c1);
-                        TestHelper.Assert(c1.S.Equals(opCResult.ReturnValue!.S));
-                        TestHelper.Assert(c1.S.Equals(opCResult.C2!.S));
+                        TestHelper.Assert(c1.S.Equals(opCResult.R1!.S));
+                        TestHelper.Assert(c1.S.Equals(opCResult.R2!.S));
 
                         Inner.Inner2.C[] cseq1 = new Inner.Inner2.C[] { c1 };
                         var opCSeqResult = await i.OpCSeqAsync(cseq1);
-                        TestHelper.Assert(opCSeqResult.ReturnValue[0]!.S.Equals(s1));
-                        TestHelper.Assert(opCSeqResult.C2[0]!.S.Equals(s1));
+                        TestHelper.Assert(opCSeqResult.R1[0]!.S.Equals(s1));
+                        TestHelper.Assert(opCSeqResult.R2[0]!.S.Equals(s1));
 
                         var cmap1 = new Dictionary<string, Inner.Inner2.C?> { ["a"] = c1 };
                         var opCMapResult = await i.OpCMapAsync(cmap1);
-                        TestHelper.Assert(opCMapResult.ReturnValue["a"]!.S.Equals(s1));
-                        TestHelper.Assert(opCMapResult.C2["a"]!.S.Equals(s1));
+                        TestHelper.Assert(opCMapResult.R1["a"]!.S.Equals(s1));
+                        TestHelper.Assert(opCMapResult.R2["a"]!.S.Equals(s1));
                     }).Wait();
             }
 

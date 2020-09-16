@@ -58,13 +58,13 @@ module ZeroC::Ice::Test::Optional
 
         void opSingleInInt(int? i1);
         void opSingleInString(string? i1);
-        void opSingleOutInt(out int? o1);
-        void opSingleOutString(out string? o1);
+        int? opSingleOutInt();
+        string? opSingleOutString();
         int? opSingleReturnInt();
         string? opSingleReturnString();
 
         void opBasicIn(int i1, int? i2, string? i3, string i4);
-        int? opBasicInOut(int i1, int? i2, string? i3, out int o1, out int? o2, out string? o3);
+        (int? r1, int r2, int? r3, string? r4) opBasicInOut(int i1, int? i2, string? i3);
 
         Object? opObject(Object i1, Object? i2);
         Test? opTest(Test i1, Test? i2);

@@ -51,7 +51,7 @@ module Outer::Inner
 {
     interface TestIntf
     {
-        int op(int i, out int j);
+        (int r1, int r2) op(int i);
     }
 }
 

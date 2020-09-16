@@ -195,20 +195,20 @@ interface Initial
     [marshaled-result] B getMB();
     [amd] [marshaled-result] B getAMDMB();
 
-    void getAll(out B b1, out B b2, out C theC, out D theD);
+    (B r1, B r2, C r3, D r4) getAll();
 
     K getK();
 
-    AnyClass? opClass(AnyClass? v1, out AnyClass? v2);
-    ClassSeq opClassSeq(ClassSeq v1, out ClassSeq v2);
-    ClassMap opClassMap(ClassMap v1, out ClassMap v2);
+    (AnyClass? r1, AnyClass? r2) opClass(AnyClass? v1);
+    (ClassSeq r1, ClassSeq r2) opClassSeq(ClassSeq v1);
+    (ClassMap r1, ClassMap r2) opClassMap(ClassMap v1);
 
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;
 
     void setG(G theG);
 
-    BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
+    (BaseSeq r1, BaseSeq r2) opBaseSeq(BaseSeq inSeq);
 
     Compact getCompact();
 
@@ -218,11 +218,11 @@ interface Initial
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
 
-    M opM(M v1, out M v2);
+    (M r1, M r2) opM(M v1);
 
-    F1 opF1(F1 f11, out F1 f12);
-    F2* opF2(F2* f21, out F2* f22);
-    F3 opF3(F3 f31, out F3 f32);
+    (F1 r1, F1 r2) opF1(F1 f11);
+    (F2* r1, F2* r2) opF2(F2* f21);
+    (F3 r1, F3 r2) opF3(F3 f31);
     bool hasF3();
 }
 

@@ -145,113 +145,113 @@ interface MyClass
 {
     void shutdown();
 
-    AByteS opAByteS(AByteS i, out AByteS o);
-    LByteS opLByteS(LByteS i, out LByteS o);
-    KByteS opKByteS(KByteS i, out KByteS o);
-    QByteS opQByteS(QByteS i, out QByteS o);
-    SByteS opSByteS(SByteS i, out SByteS o);
-    CByteS opCByteS(CByteS i, out CByteS o);
+    (AByteS r1, AByteS r2) opAByteS(AByteS i);
+    (LByteS r1, LByteS r2) opLByteS(LByteS i);
+    (KByteS r1, KByteS r2) opKByteS(KByteS i);
+    (QByteS r1, QByteS r2) opQByteS(QByteS i);
+    (SByteS r1, SByteS r2) opSByteS(SByteS i);
+    (CByteS r1, CByteS r2) opCByteS(CByteS i);
 
-    ABoolS opABoolS(ABoolS i, out ABoolS o);
-    LBoolS opLBoolS(LBoolS i, out LBoolS o);
-    KBoolS opKBoolS(KBoolS i, out KBoolS o);
-    QBoolS opQBoolS(QBoolS i, out QBoolS o);
-    SBoolS opSBoolS(SBoolS i, out SBoolS o);
-    CBoolS opCBoolS(CBoolS i, out CBoolS o);
+    (ABoolS r1, ABoolS r2) opABoolS(ABoolS i);
+    (LBoolS r1, LBoolS r2) opLBoolS(LBoolS i);
+    (KBoolS r1, KBoolS r2) opKBoolS(KBoolS i);
+    (QBoolS r1, QBoolS r2) opQBoolS(QBoolS i);
+    (SBoolS r1, SBoolS r2) opSBoolS(SBoolS i);
+    (CBoolS r1, CBoolS r2) opCBoolS(CBoolS i);
 
-    AShortS opAShortS(AShortS i, out AShortS o);
-    LShortS opLShortS(LShortS i, out LShortS o);
-    KShortS opKShortS(KShortS i, out KShortS o);
-    QShortS opQShortS(QShortS i, out QShortS o);
-    SShortS opSShortS(SShortS i, out SShortS o);
-    CShortS opCShortS(CShortS i, out CShortS o);
+    (AShortS r1, AShortS r2) opAShortS(AShortS i);
+    (LShortS r1, LShortS r2) opLShortS(LShortS i);
+    (KShortS r1, KShortS r2) opKShortS(KShortS i);
+    (QShortS r1, QShortS r2) opQShortS(QShortS i);
+    (SShortS r1, SShortS r2) opSShortS(SShortS i);
+    (CShortS r1, CShortS r2) opCShortS(CShortS i);
 
-    AIntS opAIntS(AIntS i, out AIntS o);
-    LIntS opLIntS(LIntS i, out LIntS o);
-    KIntS opKIntS(KIntS i, out KIntS o);
-    QIntS opQIntS(QIntS i, out QIntS o);
-    SIntS opSIntS(SIntS i, out SIntS o);
-    CIntS opCIntS(CIntS i, out CIntS o);
+    (AIntS r1, AIntS r2) opAIntS(AIntS i);
+    (LIntS r1, LIntS r2) opLIntS(LIntS i);
+    (KIntS r1, KIntS r2) opKIntS(KIntS i);
+    (QIntS r1, QIntS r2) opQIntS(QIntS i);
+    (SIntS r1, SIntS r2) opSIntS(SIntS i);
+    (CIntS r1, CIntS r2) opCIntS(CIntS i);
 
-    ALongS opALongS(ALongS i, out ALongS o);
-    LLongS opLLongS(LLongS i, out LLongS o);
-    KLongS opKLongS(KLongS i, out KLongS o);
-    QLongS opQLongS(QLongS i, out QLongS o);
-    SLongS opSLongS(SLongS i, out SLongS o);
-    CLongS opCLongS(CLongS i, out CLongS o);
+    (ALongS r1, ALongS r2) opALongS(ALongS i);
+    (LLongS r1, LLongS r2) opLLongS(LLongS i);
+    (KLongS r1, KLongS r2) opKLongS(KLongS i);
+    (QLongS r1, QLongS r2) opQLongS(QLongS i);
+    (SLongS r1, SLongS r2) opSLongS(SLongS i);
+    (CLongS r1, CLongS r2) opCLongS(CLongS i);
 
-    AFloatS opAFloatS(AFloatS i, out AFloatS o);
-    LFloatS opLFloatS(LFloatS i, out LFloatS o);
-    KFloatS opKFloatS(KFloatS i, out KFloatS o);
-    QFloatS opQFloatS(QFloatS i, out QFloatS o);
-    SFloatS opSFloatS(SFloatS i, out SFloatS o);
-    CFloatS opCFloatS(CFloatS i, out CFloatS o);
+    (AFloatS r1, AFloatS r2) opAFloatS(AFloatS i);
+    (LFloatS r1, LFloatS r2) opLFloatS(LFloatS i);
+    (KFloatS r1, KFloatS r2) opKFloatS(KFloatS i);
+    (QFloatS r1, QFloatS r2) opQFloatS(QFloatS i);
+    (SFloatS r1, SFloatS r2) opSFloatS(SFloatS i);
+    (CFloatS r1, CFloatS r2) opCFloatS(CFloatS i);
 
-    ADoubleS opADoubleS(ADoubleS i, out ADoubleS o);
-    LDoubleS opLDoubleS(LDoubleS i, out LDoubleS o);
-    KDoubleS opKDoubleS(KDoubleS i, out KDoubleS o);
-    QDoubleS opQDoubleS(QDoubleS i, out QDoubleS o);
-    SDoubleS opSDoubleS(SDoubleS i, out SDoubleS o);
-    CDoubleS opCDoubleS(CDoubleS i, out CDoubleS o);
+    (ADoubleS r1, ADoubleS r2) opADoubleS(ADoubleS i);
+    (LDoubleS r1, LDoubleS r2) opLDoubleS(LDoubleS i);
+    (KDoubleS r1, KDoubleS r2) opKDoubleS(KDoubleS i);
+    (QDoubleS r1, QDoubleS r2) opQDoubleS(QDoubleS i);
+    (SDoubleS r1, SDoubleS r2) opSDoubleS(SDoubleS i);
+    (CDoubleS r1, CDoubleS r2) opCDoubleS(CDoubleS i);
 
-    AStringS opAStringS(AStringS i, out AStringS o);
-    LStringS opLStringS(LStringS i, out LStringS o);
-    KStringS opKStringS(KStringS i, out KStringS o);
-    QStringS opQStringS(QStringS i, out QStringS o);
-    SStringS opSStringS(SStringS i, out SStringS o);
-    CStringS opCStringS(CStringS i, out CStringS o);
+    (AStringS r1, AStringS r2) opAStringS(AStringS i);
+    (LStringS r1, LStringS r2) opLStringS(LStringS i);
+    (KStringS r1, KStringS r2) opKStringS(KStringS i);
+    (QStringS r1, QStringS r2) opQStringS(QStringS i);
+    (SStringS r1, SStringS r2) opSStringS(SStringS i);
+    (CStringS r1, CStringS r2) opCStringS(CStringS i);
 
-    AObjectS opAObjectS(AObjectS i, out AObjectS o);
-    LObjectS opLObjectS(LObjectS i, out LObjectS o);
-    CObjectS opCObjectS(CObjectS i, out CObjectS o);
+    (AObjectS r1, AObjectS r2) opAObjectS(AObjectS i);
+    (LObjectS r1, LObjectS r2) opLObjectS(LObjectS i);
+    (CObjectS r1, CObjectS r2) opCObjectS(CObjectS i);
 
-    AObjectPrxS opAObjectPrxS(AObjectPrxS i, out AObjectPrxS o);
-    LObjectPrxS opLObjectPrxS(LObjectPrxS i, out LObjectPrxS o);
-    KObjectPrxS opKObjectPrxS(KObjectPrxS i, out KObjectPrxS o);
-    QObjectPrxS opQObjectPrxS(QObjectPrxS i, out QObjectPrxS o);
-    SObjectPrxS opSObjectPrxS(SObjectPrxS i, out SObjectPrxS o);
-    CObjectPrxS opCObjectPrxS(CObjectPrxS i, out CObjectPrxS o);
+    (AObjectPrxS r1, AObjectPrxS r2) opAObjectPrxS(AObjectPrxS i);
+    (LObjectPrxS r1, LObjectPrxS r2) opLObjectPrxS(LObjectPrxS i);
+    (KObjectPrxS r1, KObjectPrxS r2) opKObjectPrxS(KObjectPrxS i);
+    (QObjectPrxS r1, QObjectPrxS r2) opQObjectPrxS(QObjectPrxS i);
+    (SObjectPrxS r1, SObjectPrxS r2) opSObjectPrxS(SObjectPrxS i);
+    (CObjectPrxS r1, CObjectPrxS r2) opCObjectPrxS(CObjectPrxS i);
 
-    AStructS opAStructS(AStructS i, out AStructS o);
-    LStructS opLStructS(LStructS i, out LStructS o);
-    KStructS opKStructS(KStructS i, out KStructS o);
-    QStructS opQStructS(QStructS i, out QStructS o);
-    SStructS opSStructS(SStructS i, out SStructS o);
-    CStructS opCStructS(CStructS i, out CStructS o);
+    (AStructS r1, AStructS r2) opAStructS(AStructS i);
+    (LStructS r1, LStructS r2) opLStructS(LStructS i);
+    (KStructS r1, KStructS r2) opKStructS(KStructS i);
+    (QStructS r1, QStructS r2) opQStructS(QStructS i);
+    (SStructS r1, SStructS r2) opSStructS(SStructS i);
+    (CStructS r1, CStructS r2) opCStructS(CStructS i);
 
-    AStructSD opAStructSD(AStructSD i, out AStructSD o);
-    LStructSD opLStructSD(LStructSD i, out LStructSD o);
-    KStructSD opKStructSD(KStructSD i, out KStructSD o);
-    QStructSD opQStructSD(QStructSD i, out QStructSD o);
-    SStructSD opSStructSD(SStructSD i, out SStructSD o);
-    CStructSD opCStructSD(CStructSD i, out CStructSD o);
+    (AStructSD r1, AStructSD r2) opAStructSD(AStructSD i);
+    (LStructSD r1, LStructSD r2) opLStructSD(LStructSD i);
+    (KStructSD r1, KStructSD r2) opKStructSD(KStructSD i);
+    (QStructSD r1, QStructSD r2) opQStructSD(QStructSD i);
+    (SStructSD r1, SStructSD r2) opSStructSD(SStructSD i);
+    (CStructSD r1, CStructSD r2) opCStructSD(CStructSD i);
 
-    ACVS opACVS(ACVS i, out ACVS o);
-    LCVS opLCVS(LCVS i, out LCVS o);
+    (ACVS r1, ACVS r2) opACVS(ACVS i);
+    (LCVS r1, LCVS r2) opLCVS(LCVS i);
 
-    AIPrxS opAIPrxS(AIPrxS i, out AIPrxS o);
-    LIPrxS opLIPrxS(LIPrxS i, out LIPrxS o);
-    KIPrxS opKIPrxS(KIPrxS i, out KIPrxS o);
-    QIPrxS opQIPrxS(QIPrxS i, out QIPrxS o);
-    SIPrxS opSIPrxS(SIPrxS i, out SIPrxS o);
-    CIPrxS opCIPrxS(CIPrxS i, out CIPrxS o);
+    (AIPrxS r1, AIPrxS r2) opAIPrxS(AIPrxS i);
+    (LIPrxS r1, LIPrxS r2) opLIPrxS(LIPrxS i);
+    (KIPrxS r1, KIPrxS r2) opKIPrxS(KIPrxS i);
+    (QIPrxS r1, QIPrxS r2) opQIPrxS(QIPrxS i);
+    (SIPrxS r1, SIPrxS r2) opSIPrxS(SIPrxS i);
+    (CIPrxS r1, CIPrxS r2) opCIPrxS(CIPrxS i);
 
-    ACRS opACRS(ACRS i, out ACRS o);
-    LCRS opLCRS(LCRS i, out LCRS o);
-    CCRS opCCRS(CCRS i, out CCRS o);
+    (ACRS r1, ACRS r2) opACRS(ACRS i);
+    (LCRS r1, LCRS r2) opLCRS(LCRS i);
+    (CCRS r1, CCRS r2) opCCRS(CCRS i);
 
-    AEnS opAEnS(AEnS i, out AEnS o);
-    LEnS opLEnS(LEnS i, out LEnS o);
-    KEnS opKEnS(KEnS i, out KEnS o);
-    QEnS opQEnS(QEnS i, out QEnS o);
-    SEnS opSEnS(SEnS i, out SEnS o);
-    CEnS opCEnS(CEnS i, out CEnS o);
+    (AEnS r1, AEnS r2) opAEnS(AEnS i);
+    (LEnS r1, LEnS r2) opLEnS(LEnS i);
+    (KEnS r1, KEnS r2) opKEnS(KEnS i);
+    (QEnS r1, QEnS r2) opQEnS(QEnS i);
+    (SEnS r1, SEnS r2) opSEnS(SEnS i);
+    (CEnS r1, CEnS r2) opCEnS(CEnS i);
 
-    CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
-    CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
+    (CustomIntS r1, CustomIntS r2) opCustomIntS(CustomIntS i);
+    (CustomCVS r1, CustomCVS r2) opCustomCVS(CustomCVS i);
 
-    CustomIntSS opCustomIntSS(CustomIntSS i, out CustomIntSS o);
-    CustomCVSS opCustomCVSS(CustomCVSS i, out CustomCVSS o);
+    (CustomIntSS r1, CustomIntSS r2) opCustomIntSS(CustomIntSS i);
+    (CustomCVSS r1, CustomCVSS r2) opCustomCVSS(CustomCVSS i);
 }
 
 }
