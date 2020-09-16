@@ -140,7 +140,9 @@ namespace ZeroC.Ice
 
         private protected MultiStreamTransceiver Transceiver { get; }
 
+        private volatile Task _acceptStreamTask = Task.CompletedTask;
         private ObjectAdapter? _adapter;
+        private Stream? _controlStream;
         private EventHandler? _closed;
         private Task? _closeTask;
         private readonly Communicator _communicator;
@@ -149,7 +151,6 @@ namespace ZeroC.Ice
         private readonly IConnectionManager _manager;
         private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
-        private Task _acceptStreamTask = Task.CompletedTask;
         private ConnectionState _state; // The current state.
 
         /// <summary>Manually closes the connection using the specified closure mode.</summary>
@@ -333,6 +334,39 @@ namespace ZeroC.Ice
 
             async Task PerformCloseAsync(Exception exception)
             {
+                long lastIncomingStreamId = 0;
+                if (Endpoint.Protocol == Protocol.Ice1)
+                {
+                    // Abort outgoing streams and wait for all incoming streams to complete before sending the
+                    // close frame.
+                    foreach (Stream stream in Transceiver.Streams.Values)
+                    {
+                        if (!stream.IsIncoming)
+                        {
+                            stream.Abort(exception);
+                        }
+                    }
+                    await Transceiver.WaitForNoStreamsAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    // Abort outgoing streams and get the largest incoming stream ID. We don't wait for the
+                    // incoming streams to complete before sending the close frame but instead provide the
+                    // ID of the latest incoming stream ID to the peer. The peer will close the connection
+                    // once it received the response for this stream ID.
+                    foreach (Stream stream in Transceiver.Streams.Values)
+                    {
+                        if (!stream.IsIncoming)
+                        {
+                            stream.Abort(exception);
+                        }
+                        else if (stream.Id > lastIncomingStreamId)
+                        {
+                            lastIncomingStreamId = stream.Id;
+                        }
+                    }
+                }
+
                 CancellationTokenSource? source = null;
                 TimeSpan timeout = _communicator.CloseTimeout;
                 if (timeout > TimeSpan.Zero)
@@ -344,29 +378,92 @@ namespace ZeroC.Ice
                 {
                     CancellationToken cancel = source?.Token ?? default;
 
-                    // Gracefully close the connection.
-                    await Transceiver.CloseAsync(exception, cancel);
+                    // TODO: send a better message?
+                    string message = exception.ToString();
 
-                    // Wait the failure of the accept stream task which indicates that the peer closed the connection
-                    // or for the connection closure to be complete once it reaches the close state.
+                    // Write the close frame
+                    await _controlStream!.SendCloseFrameAsync(lastIncomingStreamId,
+                                                              message,
+                                                              cancel).ConfigureAwait(false);
+
+                    // Wait the peer to close the stream.
                     while (true)
                     {
-                        Task task;
-                        lock (_mutex)
-                        {
-                            task = _state == ConnectionState.Closed ? _closeTask! : _acceptStreamTask;
-                        }
-                        await task.WaitAsync(cancel).ConfigureAwait(false);
+                        await _acceptStreamTask.WaitAsync(cancel).ConfigureAwait(false);
                     }
                 }
                 catch (OperationCanceledException)
                 {
                     await AbortAsync(new TimeoutException());
                 }
+                catch (Exception)
+                {
+                    lock (_mutex)
+                    {
+                        Debug.Assert(_state == ConnectionState.Closed);
+                    }
+                }
                 finally
                 {
                     source?.Dispose();
                 }
+            }
+        }
+
+        internal async Task WaitForCloseAsync(Stream peerControlStream)
+        {
+            try
+            {
+                // Wait to receive the close frame on the control stream.
+                (long lastStreamId, string message) =
+                    await peerControlStream.ReceiveCloseFrameAsync().ConfigureAwait(false);
+
+                Task closeTask;
+                lock (_mutex)
+                {
+                    if (_state == ConnectionState.Active)
+                    {
+                        SetState(ConnectionState.Closing, new ConnectionClosedByPeerException(message));
+                        closeTask = PerformCloseAsync(lastStreamId, _exception!);
+                        Debug.Assert(_closeTask == null);
+                        _closeTask = closeTask;
+                    }
+                    else
+                    {
+                        closeTask = _closeTask!;
+                    }
+                }
+
+                await closeTask.ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                await AbortAsync(exception);
+            }
+            finally
+            {
+                peerControlStream.Dispose();
+            }
+
+            async Task PerformCloseAsync(long lastStreamId, Exception exception)
+            {
+                if (Endpoint.Protocol != Protocol.Ice1)
+                {
+                    // Abort non-processed outgoing streams and all incoming streams.
+                    foreach (Stream stream in Transceiver.Streams.Values)
+                    {
+                        if (stream.IsIncoming || stream.Id > lastStreamId)
+                        {
+                            stream.Abort(exception);
+                        }
+                    }
+                }
+
+                // Wait for all the streams to be completed.
+                await Transceiver.WaitForNoStreamsAsync().ConfigureAwait(false);
+
+                // Abort the connection once all the streams have completed.
+                await AbortAsync(exception).ConfigureAwait(false);
             }
         }
 
@@ -471,8 +568,21 @@ namespace ZeroC.Ice
                     cancel = source.Token;
                 }
 
-                // Initialize the transport
+                // Initialize the transport.
                 await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
+
+                // Create the control stream and send the initialize frame
+                _controlStream = Transceiver.CreateStream(false);
+                await _controlStream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
+
+                // Wait for the peer control stream to be accepted and read the initialize frame
+                Stream peerControlStream = await Transceiver.AcceptStreamAsync(cancel);
+                await peerControlStream.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
+
+                // Setup a task to wait for the close frame on the peer's control stream.
+                _ = Task.Run(() => WaitForCloseAsync(peerControlStream));
+
+                Transceiver.Initialized();
 
                 lock (_mutex)
                 {
@@ -536,12 +646,21 @@ namespace ZeroC.Ice
                 // Close the transport
                 try
                 {
-                    await Transceiver.AbortAsync(exception);
+                    await Transceiver.CloseAsync(exception, CancellationToken.None);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
                 }
+
+                // Wait for all all the streams to be completed
+                foreach (Stream stream in Transceiver.Streams.Values)
+                {
+                    stream.Abort(exception);
+                }
+                await Transceiver.WaitForNoStreamsAsync().ConfigureAwait(false);
+
+                Transceiver.Closed(exception);
+                Transceiver.Dispose();
 
                 // Raise the Closed event
                 try
@@ -572,19 +691,24 @@ namespace ZeroC.Ice
                 // requests.
                 _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync());
 
+                var cancelSource = new CancellationTokenSource();
+                CancellationToken cancel = cancelSource.Token;
+
                 // Receive the request from the stream
                 (IncomingRequestFrame request, bool fin)
-                    = await stream.ReceiveRequestFrameAsync(CancellationToken.None).ConfigureAwait(false);
+                    = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
 
-                // Cancel the given cancellation token source if the stream is closed by the peer.
-                stream.CancelIfClosedByPeer();
+                // No additional data is expected at this point other than potentially a stream reset from the
+                // transport. We start a Receive task on the stream to be notified if the stream is closed by
+                // the peer in order to cancel the dispatch.
+                stream.CancelSourceIfClosedByPeer(cancelSource);
 
                 ObjectAdapter? adapter = _adapter;
                 if (adapter == null)
                 {
                     var exception = new ObjectNotExistException(request.Identity, request.Facet, request.Operation);
                     var response = new OutgoingResponseFrame(request, exception);
-                    await stream.SendResponseFrameAsync(response, true, stream.CancellationToken).ConfigureAwait(false);
+                    await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
                     return;
                 }
                 else
@@ -596,7 +720,7 @@ namespace ZeroC.Ice
                     if (adapter.TaskScheduler != null)
                     {
                         (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, stream, current),
-                                                        stream.CancellationToken,
+                                                        cancel,
                                                         adapter.TaskScheduler).ConfigureAwait(false);
                     }
                     else
@@ -605,7 +729,7 @@ namespace ZeroC.Ice
                     }
 
                     // Send the response over the stream
-                    await stream.SendResponseFrameAsync(response, fin, stream.CancellationToken);
+                    await stream.SendResponseFrameAsync(response, fin, cancel);
 
                     if (!fin)
                     {
@@ -616,10 +740,11 @@ namespace ZeroC.Ice
             catch (ObjectDisposedException)
             {
                 // Ignore, the connection is being closed.
+                Debug.Assert(_exception != null);
             }
             catch (OperationCanceledException)
             {
-                // Ignore, the peer closed the stream.
+                // Ignore, the dispatch got canceled
             }
             catch (StreamClosedByPeerException)
             {

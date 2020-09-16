@@ -112,32 +112,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static List<ArraySegment<byte>> GetRequestData(OutgoingRequestFrame frame, int requestId)
-        {
-            byte[] headerData = new byte[HeaderSize + 4];
-            RequestHeader.CopyTo(headerData.AsSpan());
-
-            OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
-            OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
-
-            var data = new List<ArraySegment<byte>>() { headerData };
-            data.AddRange(frame.Data);
-            return data;
-        }
-
-        internal static List<ArraySegment<byte>> GetResponseData(OutgoingResponseFrame frame, int requestId)
-        {
-            byte[] headerData = new byte[HeaderSize + 4];
-            ReplyHeader.CopyTo(headerData.AsSpan());
-
-            OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
-            OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
-
-            var data = new List<ArraySegment<byte>>() { headerData };
-            data.AddRange(frame.Data);
-            return data;
-        }
-
         private static string BytesToString(ReadOnlySpan<byte> bytes) => BitConverter.ToString(bytes.ToArray());
     }
 }

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -14,15 +15,16 @@ namespace ZeroC.Ice
             Communicator communicator,
             long streamId,
             object frame,
+            Protocol? protocol = null,
             byte compress = 0)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 string framePrefix;
                 string frameType;
-                Protocol protocol;
                 Encoding encoding;
                 int frameSize;
+                var data = ArraySegment<byte>.Empty;
 
                 if (frame is OutgoingFrame outgoingFrame)
                 {
@@ -42,8 +44,44 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    Debug.Assert(false);
-                    return;
+                    if (frame is IList<ArraySegment<byte>> sendBuffer)
+                    {
+                        framePrefix = "sending";
+                        data = sendBuffer[0];
+                    }
+                    else if (frame is ArraySegment<byte> readBuffer)
+                    {
+                        framePrefix = "received";
+                        data = readBuffer;
+                    }
+                    else
+                    {
+                        Debug.Assert(false);
+                        return;
+                    }
+
+                    if (protocol == Protocol.Ice2)
+                    {
+                        frameType = (Ice2Definitions.FrameType)data[0] switch
+                        {
+                            Ice2Definitions.FrameType.Initialize => "initialize",
+                            Ice2Definitions.FrameType.Close => "close",
+                            _ => "unknown"
+                        };
+                        encoding = Ice2Definitions.Encoding;
+                        frameSize = 0;
+                    }
+                    else
+                    {
+                        frameType = (Ice1Definitions.FrameType)data[9] switch
+                        {
+                            Ice1Definitions.FrameType.ValidateConnection => "validate",
+                            Ice1Definitions.FrameType.CloseConnection => "close",
+                            _ => "unknown"
+                        };
+                        encoding = Ice1Definitions.Encoding;
+                        frameSize = 0;
+                    }
                 }
 
                 var s = new StringBuilder();
@@ -52,7 +90,7 @@ namespace ZeroC.Ice
                 s.Append(frameType);
 
                 s.Append("\nprotocol = ");
-                s.Append(protocol.GetName());
+                s.Append(protocol!.Value.GetName());
                 s.Append("\nencoding = ");
                 s.Append(encoding.ToString());
 
@@ -84,7 +122,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                if (frame is OutgoingRequestFrame || frame is IncomingRequestFrame)
+                if (frameType == "request")
                 {
                     Identity identity;
                     string facet;
@@ -143,7 +181,7 @@ namespace ZeroC.Ice
                         }
                     }
                 }
-                else
+                else if (frameType == "response")
                 {
                     s.Append("\nresult type = ");
                     if (frame is IncomingResponseFrame incomingResponseFrame)
@@ -154,10 +192,14 @@ namespace ZeroC.Ice
                     {
                         s.Append(outgoingResponseFrame.ResultType);
                     }
-                    else
-                    {
-                        Debug.Assert(false);
-                    }
+                }
+                else if (protocol == Protocol.Ice2 && frameType == "close")
+                {
+                    var istr = new InputStream(data, encoding);
+                    s.Append("\nlast stream ID = ");
+                    s.Append(istr.ReadVarLong());
+                    s.Append("\nreason = ");
+                    s.Append(istr.ReadString());
                 }
 
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());

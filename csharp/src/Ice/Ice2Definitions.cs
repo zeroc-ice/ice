@@ -13,8 +13,10 @@ namespace ZeroC.Ice
         // ice2 frame types:
         internal enum FrameType : byte
         {
-            Request = 0,
+            Setting = 0,
+            Request = 1,
             Response = 2,
+            GoAway = 3
         }
     }
 }

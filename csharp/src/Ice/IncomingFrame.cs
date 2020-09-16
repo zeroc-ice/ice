@@ -140,9 +140,8 @@ namespace ZeroC.Ice
 
                 Data = decompressedData;
                 // Rewrite the encapsulation size
-                OutputStream.WriteEncapsulationSize(decompressedSize,
-                                                    GetEncapsulation().AsSpan(0, sizeLength),
-                                                    Protocol.GetEncoding());
+                GetEncapsulation().AsSpan(0, sizeLength).WriteEncapsulationSize(decompressedSize,
+                                                                                Protocol.GetEncoding());
                 HasCompressedPayload = false;
             }
         }

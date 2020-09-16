@@ -190,15 +190,15 @@ namespace ZeroC.Ice
                 int compressedSize = compressedLen + compressedHeader.Count;
                 // Write the compression status and the size of the compressed stream into the header.
                 compressedHeader[9] = 2;
-                OutputStream.WriteInt(compressedSize, compressedHeader.AsSpan(10, 4));
+                compressedHeader.AsSpan(10, 4).WriteInt(compressedSize);
 
                 // Write the compression status and size of the compressed stream into the header of the decompressed
                 // stream -- we need this to trace requests correctly.
                 headerSegment[9] = 2;
-                OutputStream.WriteInt(compressedSize, headerSegment.AsSpan(10, 4));
+                headerSegment.AsSpan(10, 4).WriteInt(compressedSize);
 
                 // Add the size of the decompressed stream before the frame body.
-                OutputStream.WriteInt(size, compressedHeader.AsSpan(headerSize, 4));
+                compressedHeader.AsSpan(headerSize, 4).WriteInt(size);
 
                 return new List<ArraySegment<byte>>(2)
                     {

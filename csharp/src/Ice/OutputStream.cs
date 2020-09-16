@@ -1472,8 +1472,12 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static int GetSize20Length(long size) => 1 << GetEncodedSize(size);
+        /// <summary>Get the number of bytes required to encode the given value as a varlong</summary>
+        /// <param name="value">The long value to encode</param>
+        /// <return>The number of bytes needed to encode the long value as a varlong</return>
+        internal static int GetVarLongLength(long value) => 1 << GetEncodedSize(value);
 
+        // TODO: Move to ByteBufferExtensions?
         internal static Position WriteEncapsulationHeader(
             IList<ArraySegment<byte>> data,
             Position startAt,
@@ -1485,56 +1489,6 @@ namespace ZeroC.Ice
             ostr.WriteEncapsulationHeader(size, payloadEncoding);
             return ostr.Tail;
         }
-
-        internal static void WriteEncapsulationSize(int size, Span<byte> data, Encoding encoding)
-        {
-            if (encoding == Encoding.V2_0)
-            {
-                WriteFixedLengthSize20(size, data);
-            }
-            else
-            {
-                WriteInt(size + 4, data);
-            }
-        }
-
-        /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
-        /// <param name="size">The size to write.</param>
-        /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
-        internal static void WriteFixedLengthSize20(int size, Span<byte> data)
-        {
-            int sizeLength = data.Length;
-            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
-
-            if (size < 0 || size > 1_073_741_823) // 2^30 -1
-            {
-                throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
-            }
-
-            Span<byte> uintBuf = stackalloc byte[4];
-            uint v = (uint)size;
-            v <<= 2;
-
-            uint encodedSize = sizeLength switch
-            {
-                1 => 0x00,
-                2 => 0x01,
-                _ => 0x02
-            };
-            v |= encodedSize;
-            MemoryMarshal.Write(uintBuf, ref v);
-            for (int i = sizeLength; i < 4; ++i)
-            {
-                if (uintBuf[i] != 0)
-                {
-                    throw new ArgumentOutOfRangeException($"size `{size}' does not fit in {sizeLength} bytes",
-                        nameof(size));
-                }
-            }
-            uintBuf.Slice(0, sizeLength).CopyTo(data);
-        }
-
-        internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
@@ -1629,7 +1583,7 @@ namespace ZeroC.Ice
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
 
             Span<byte> data = stackalloc byte[sizeLength];
-            WriteFixedLengthSize20(size, data);
+            data.WriteFixedLengthSize20(size);
             RewriteByteSpan(data, pos);
         }
 
