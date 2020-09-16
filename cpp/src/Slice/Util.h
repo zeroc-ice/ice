@@ -56,6 +56,9 @@ bool
 checkForRedefinition(const ContainerPtr&, const std::string&, const std::string&);
 
 bool
+checkForTaggableType(const TypePtr& type, const std::string& name = "");
+
+bool
 ciequals(const std::string& a, const std::string& b);
 
  // return a or an <s>

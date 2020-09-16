@@ -273,7 +273,7 @@ class MyClass1
     MyClass* myClass; // Same name as an already defined class
 }
 
-[amd] [cs:tie] interface MyDerivedClass : MyClass
+[amd] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);

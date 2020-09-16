@@ -18,7 +18,7 @@
             return obj;
         }
 
-        opOptionalException(a, b, o, current)
+        opOptionalException(a, b, vs, current)
         {
             const ex = new Test.OptionalException();
             if(a !== undefined)
@@ -33,14 +33,14 @@
             {
                 ex.b = b;
             }
-            if(o !== undefined)
+            if(vs !== undefined)
             {
-                ex.o = o;
+                ex.vs = vs;
             }
             throw ex;
         }
 
-        opDerivedException(a, b, o, current)
+        opDerivedException(a, b, vs, current)
         {
             const ex = new Test.DerivedException();
             if(a !== undefined)
@@ -60,15 +60,15 @@
             {
                 ex.ss = undefined; // The member "ss" has a default value.
             }
-            if(o !== undefined)
+            if(vs !== undefined)
             {
-                ex.o = o;
-                ex.o2 = o;
+                ex.vs = vs;
+                ex.vs2 = vs;
             }
             throw ex;
         }
 
-        opRequiredException(a, b, o, current)
+        opRequiredException(a, b, vs, current)
         {
             const ex = new Test.RequiredException();
             if(a !== undefined)
@@ -84,10 +84,10 @@
                 ex.b = b;
                 ex.ss = b;
             }
-            if(o !== undefined)
+            if(vs !== undefined)
             {
-                ex.o = o;
-                ex.o2 = o;
+                ex.vs = vs;
+                ex.vs2 = vs;
             }
             throw ex;
         }
@@ -148,16 +148,6 @@
         }
 
         opVarStruct(p1, current)
-        {
-            return [p1, p1];
-        }
-
-        opOneOptional(p1, current)
-        {
-            return [p1, p1];
-        }
-
-        opOneOptionalProxy(p1, current)
         {
             return [p1, p1];
         }
@@ -242,22 +232,8 @@
             return [p1, p1];
         }
 
-        opIntOneOptionalDict(p1, current)
-        {
-            return [p1, p1];
-        }
-
         opClassAndUnknownOptional(p, current)
         {
-        }
-
-        sendOptionalClass(req, current)
-        {
-        }
-
-        opG(g, current)
-        {
-            return g;
         }
 
         opVoid()
@@ -292,21 +268,6 @@
         opMDict2(p1, current)
         {
             return [p1, p1];
-        }
-
-        opMG1(current)
-        {
-            return new Test.G();
-        }
-
-        opMG2(p1, current)
-        {
-            return [p1, p1];
-        }
-
-        returnOptionalClass(req, current)
-        {
-            return new Test.OneOptional(53);
         }
 
         supportsRequiredParams(current)

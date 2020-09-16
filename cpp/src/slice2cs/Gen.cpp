@@ -159,7 +159,6 @@ Slice::CsVisitor::~CsVisitor()
 void
 Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 {
-    const string stream = "ostr";
     string ns = getNamespace(operation->interface());
 
     MemberList members = returnType ? operation->returnValues() : operation->parameters();
@@ -170,14 +169,14 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 
     if (bitSequenceSize > 0)
     {
-        _out << nl << "var bitSequence = " << stream << ".WriteBitSequence(" << bitSequenceSize << ");";
+        _out << nl << "var bitSequence = ostr.WriteBitSequence(" << bitSequenceSize << ");";
     }
 
     bool write11ReturnLast = returnType && operation->hasReturnAndOut() && !members.front()->tagged() &&
         requiredMembers.size() > 1;
     if (write11ReturnLast)
     {
-        _out << nl << "if (" << stream << ".Encoding != ZeroC.Ice.Encoding.V1_1)";
+        _out << nl << "if (ostr.Encoding != ZeroC.Ice.Encoding.V1_1)";
         _out << sb;
     }
 
@@ -196,8 +195,7 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
                              bitSequenceIndex,
                              false,
                              ns,
-                             members.size() == 1 ? "value" : "value." + fieldName(member),
-                             stream);
+                             members.size() == 1 ? "value" : "value." + fieldName(member));
         }
         if (bitSequenceSize > 0)
         {
@@ -210,8 +208,7 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
                                    OptionalPtr::dynamicCast(member->type()),
                                    false,
                                    ns,
-                                   members.size() == 1 ? "value" : "value." + fieldName(member), member->tag(),
-                                   stream);
+                                   members.size() == 1 ? "value" : "value." + fieldName(member), member->tag());
         }
 
         if (i == 0 && write11ReturnLast) // only for first loop
@@ -236,7 +233,6 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 void
 Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 {
-    const string stream = "istr";
     string ns = getNamespace(operation->interface());
 
     MemberList members = returnType ? operation->returnValues() : operation->parameters();
@@ -247,7 +243,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 
     if (bitSequenceSize > 0)
     {
-        _out << nl << "var bitSequence = " << stream << ".ReadBitSequence(" << bitSequenceSize << ");";
+        _out << nl << "var bitSequence = istr.ReadBitSequence(" << bitSequenceSize << ");";
     }
 
     bool read11ReturnLast = returnType && operation->hasReturnAndOut() && requiredMembers.size() > 1 &&
@@ -255,7 +251,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 
     if (read11ReturnLast)
     {
-        _out << nl << "if (" << stream << ".Encoding != ZeroC.Ice.Encoding.V1_1)";
+        _out << nl << "if (istr.Encoding != ZeroC.Ice.Encoding.V1_1)";
         _out << sb;
     }
 
@@ -271,7 +267,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
         {
             _out << nl << paramTypeStr(member, false);
             _out << " ";
-            writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"), stream);
+            writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"));
         }
         if (bitSequenceSize > 0)
         {
@@ -286,8 +282,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
                                      ns,
                                      paramName(member, "iceP_"),
                                      member->tag(),
-                                     nullptr,
-                                     stream);
+                                     nullptr);
         }
 
         if (members.size() == 1)
@@ -341,7 +336,7 @@ Slice::CsVisitor::writeMarshalDataMembers(const MemberList& p, const string& ns,
             assert(currentTag == -1);
 #endif
             writeMarshalCode(_out, member->type(), bitSequenceIndex, true, ns,
-                "this." + fixId(fieldName(member), baseTypes), "ostr");
+                "this." + fixId(fieldName(member), baseTypes));
     }
     for (const auto& member : taggedMembers)
     {
@@ -350,7 +345,7 @@ Slice::CsVisitor::writeMarshalDataMembers(const MemberList& p, const string& ns,
             currentTag = member->tag();
 #endif
             writeTaggedMarshalCode(_out, OptionalPtr::dynamicCast(member->type()), true, ns,
-                "this." + fixId(fieldName(member), baseTypes), member->tag(), "ostr");
+                "this." + fixId(fieldName(member), baseTypes), member->tag());
     }
 
     if (bitSequenceSize > 0)
@@ -376,13 +371,13 @@ Slice::CsVisitor::writeUnmarshalDataMembers(const MemberList& p, const string& n
     {
         _out << nl;
         writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns,
-            "this." + fixId(fieldName(member), baseTypes), "istr");
+            "this." + fixId(fieldName(member), baseTypes));
     }
     for (const auto& member : taggedMembers)
     {
         _out << nl;
         writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(member->type()), ns,
-            "this." + fixId(fieldName(member), baseTypes), member->tag(), member, "istr");
+            "this." + fixId(fieldName(member), baseTypes), member->tag(), member);
     }
 
     if (bitSequenceSize > 0)
@@ -1210,43 +1205,46 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (p->hasOnlyClassDecls() || p->hasOnlyInterfaces())
+    if (p->hasClassDefs() || p->hasConsts() || p->hasEnums() || p->hasExceptions() || p->hasStructs())
     {
-        return false; // avoid empty namespace
-    }
+        openNamespace(p);
 
-    openNamespace(p);
-
-    // Write constants if there are any
-    if (!p->consts().empty())
-    {
-        emitCommonAttributes();
-        _out << nl << "public static partial class Constants";
-        _out << sb;
-        bool firstOne = true;
-        for (auto q : p->consts())
+        // Write constants if there are any
+        if (!p->consts().empty())
         {
-            if (firstOne)
+            emitCommonAttributes();
+            _out << nl << "public static partial class Constants";
+            _out << sb;
+            bool firstOne = true;
+            for (auto q : p->consts())
             {
-                firstOne = false;
-            }
-            else
-            {
-                _out << sp;
-            }
+                if (firstOne)
+                {
+                    firstOne = false;
+                }
+                else
+                {
+                    _out << sp;
+                }
 
-            // TODO: doc comments
+                // TODO: doc comments
 
-            string name = fixId(q->name());
-            string ns = getNamespace(q);
-            emitCustomAttributes(q);
-            _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
-            writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
-            _out << ";";
+                string name = fixId(q->name());
+                string ns = getNamespace(q);
+                emitCustomAttributes(q);
+                _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
+                writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
+                _out << ";";
+            }
+            _out << eb;
         }
-        _out << eb;
+        return true;
     }
-    return true;
+    else
+    {
+        // don't generate a file with an empty namespace
+        return false;
+    }
 }
 
 void
@@ -2039,137 +2037,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     }
 }
 
-void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
-{
-    if (!isMappedToReadOnlyMemory(p) || EnumPtr::dynamicCast(p->type()))
-    {
-        string name = p->name();
-        string scope = getNamespace(p);
-        string seqS = typeToString(p, scope);
-        string seqReadOnly = typeToString(p, scope, true);
-
-        _out << sp;
-        emitCommonAttributes();
-        _out << nl << "public static class " << name << "Helper";
-        _out << sb;
-
-        if (isMappedToReadOnlyMemory(p))
-        {
-            assert(EnumPtr::dynamicCast(p->type()));
-
-            // For such enums, we provide 2 writers but no Write method.
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
-                << "> IceWriterFromSequence = (ostr, v) => ostr.WriteSequence(v.Span);";
-
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqS
-                << "> IceWriterFromArray = (ostr, v) => ostr.WriteArray(v);";
-        }
-        else
-        {
-            _out << sp;
-            _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
-            _out.inc();
-            _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
-            _out.dec();
-
-            _out << sp;
-            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
-                << "> IceWriter = Write;";
-        }
-
-        _out << sp;
-        _out << nl << "public static " << seqS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";
-        _out.inc();
-        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
-        _out.dec();
-
-        _out << sp;
-        _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << seqS << "> IceReader = Read"
-            << name << ";";
-
-        _out << eb;
-    }
-}
-
-void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    string ns = getNamespace(p);
-    string name = p->name();
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-
-    bool withBitSequence = false;
-    if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
-    {
-        withBitSequence = true;
-        value = optional->underlying();
-    }
-
-    string dictS = typeToString(p, ns);
-    string readOnlyDictS = typeToString(p, ns, true);
-    string generic = p->findMetaDataWithPrefix("cs:generic:");
-
-    _out << sp;
-    emitCommonAttributes();
-    _out << nl << "public static class " << name << "Helper";
-    _out << sb;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << readOnlyDictS << " dictionary) =>";
-    _out.inc();
-    _out << nl << "ostr.WriteDictionary(dictionary";
-
-    if (withBitSequence && isReferenceType(value))
-    {
-        _out << ", withBitSequence: true";
-    }
-    if (!StructPtr::dynamicCast(key))
-    {
-        _out << ", " << outputStreamWriter(key, ns, true);
-    }
-    if (!StructPtr::dynamicCast(value))
-    {
-        _out << ", " << outputStreamWriter(value, ns, true);
-    }
-    _out << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
-
-    _out << sp;
-    _out << nl << "public static " << dictS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";
-    _out.inc();
-    if(generic == "SortedDictionary")
-    {
-        _out << nl << "istr.ReadSortedDictionary(";
-    }
-    else
-    {
-        _out << nl << "istr.ReadDictionary(";
-    }
-    _out << "minKeySize: " << key->minWireSize() << ", ";
-    if (!withBitSequence)
-    {
-        _out << "minValueSize: " << value->minWireSize() << ", ";
-    }
-    if (withBitSequence && isReferenceType(value))
-    {
-         _out << "withBitSequence: true, ";
-    }
-
-    _out << inputStreamReader(key, ns) << ", " << inputStreamReader(value, ns) << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << dictS << "> IceReader = Read"
-        << name << ";";
-
-    _out << eb;
-}
-
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
     CsVisitor(out)
 {
@@ -2226,6 +2093,108 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
     }
     _out << sb;
+
+    // Generate nested Request and Response classes if this interface has operations.
+
+    if (!p->operations().empty())
+    {
+        bool generateResponseClass = false;
+
+        _out << nl << "public static new class Request";
+        _out << sb;
+        for (auto operation : p->operations())
+        {
+            string propertyName = fixId(operationName(operation));
+            string fieldName = "_" + operation->name();
+            auto params = operation->parameters();
+            size_t paramCount = params.size();
+
+            _out << nl << "public static ";
+            if (paramCount == 0)
+            {
+                _out << "ZeroC.Ice.OutgoingRequestFrame.Factory " << propertyName << " =>";
+                _out.inc();
+                _out << nl << fieldName << " ?\?= ZeroC.Ice.OutgoingRequestFrame.CreateFactory(\""
+                    << operation->name() << "\", "
+                    << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ");";
+                _out.dec();
+            }
+            else
+            {
+                // A single Slice-struct return is treated like a tuple-return. Note this does not apply to an optional
+                // struct return although in theory it could.
+                bool singleParamFactory = paramCount == 1 &&
+                    !StructPtr::dynamicCast(operation->parameters().front()->type());
+
+                string factoryType = singleParamFactory ? "SingleParamFactory" : "Factory";
+
+                _out << "ZeroC.Ice.OutgoingRequestFrame." << factoryType << "<" << toTupleType(params, true) << "> "
+                    << propertyName << " =>";
+                _out.inc();
+                _out << nl << fieldName << " ?\?= ZeroC.Ice.OutgoingRequestFrame.Create" << factoryType
+                    << "<" << toTupleType(params, true) << ">(";
+                _out.inc();
+                _out << nl << "\"" << operation->name() << "\","
+                    << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
+                    << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
+                    << nl << "format: " << opFormatTypeToString(operation) << ","
+                    << nl << "writer: ";
+                writeOutgoingRequestWriter(operation);
+                _out << ");";
+                _out.dec();
+                _out.dec();
+            }
+
+            generateResponseClass = generateResponseClass || !operation->returnValues().empty();
+        }
+        _out << sp;
+
+        for (auto operation : p->operations())
+        {
+            string fieldName = "_" + operation->name();
+            auto params = operation->parameters();
+            size_t paramCount = params.size();
+
+            string factoryType = "Factory";
+            if (paramCount > 0)
+            {
+                if (paramCount == 1 && !StructPtr::dynamicCast(params.front()->type()))
+                {
+                    factoryType = "SingleParamFactory";
+                }
+                factoryType += "<" + toTupleType(params, true) + ">";
+            }
+
+            _out << nl << "private static ZeroC.Ice.OutgoingRequestFrame." << factoryType << "? " << fieldName << ";";
+        }
+        _out << eb;
+
+        if (generateResponseClass)
+        {
+            _out << sp;
+            _out << nl << "public static new class Response";
+            _out << sb;
+            for (auto operation : p->operations())
+            {
+                auto returns = operation->returnValues();
+                if (returns.size() > 0)
+                {
+                    string propertyName = fixId(operationName(operation));
+                    string fieldName = "_" + operation->name();
+
+                    _out << nl << "public static readonly ";
+                    string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(returns, false) + ">";
+                    _out << readerType << " " << propertyName << " =";
+                    _out.inc();
+                    _out << nl;
+                    writeOutgoingRequestReader(operation);
+                    _out << ";";
+                    _out.dec();
+                }
+            }
+            _out << eb;
+        }
+    }
 
     return true;
 }
@@ -2304,44 +2273,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << eb;
 }
 
-namespace
-{
-
-string
-requestType(const MemberList& params, const MemberList& returnValues)
-{
-    ostringstream os;
-    if (params.size() == 0)
-    {
-        os << "ZeroC.Ice.OutgoingRequestWithEmptyParamList";
-        if (returnValues.size() > 0)
-        {
-            os << "<" << toTupleType(returnValues, false) << ">";
-        }
-    }
-    else if (params.size() == 1 && (!StructPtr::dynamicCast(params.front()->type()) || params.front()->tagged()))
-    {
-        os << "ZeroC.Ice.OutgoingRequestWithParam<" << toTupleType(params, true);
-        if (returnValues.size() > 0)
-        {
-            os << ", " << toTupleType(returnValues, false);
-        }
-        os << ">";
-    }
-    else
-    {
-        os << "ZeroC.Ice.OutgoingRequestWithStructParam<" << toTupleType(params, true);
-        if (returnValues.size() > 0)
-        {
-            os << ", " << toTupleType(returnValues, false);
-        }
-        os << ">";
-    }
-    return os.str();
-}
-
-}
-
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
@@ -2355,7 +2286,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string opName = operationName(operation);
     string name = fixId(opName);
     string asyncName = opName + "Async";
-    string internalName = "_iceI_" + opName + "Async";
     bool oneway = operation->hasMetaData("oneway");
 
     TypePtr ret = operation->returnType();
@@ -2365,101 +2295,73 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string cancel = getEscapedParamName(operation, "cancel");
     string progress = getEscapedParamName(operation, "progress");
 
-    string requestProperty = "IceI_" + opName + "Request";
-    string requestObject = "_iceI_" + opName + "Request";
+    bool voidOp = returnValues.empty();
 
+    // Write the synchronous version of the operation.
+    _out << sp;
+    writeOperationDocComment(operation, deprecateReason, false, false);
+    if (!deprecateReason.empty())
     {
-        //
-        // Write the synchronous version of the operation.
-        //
-        _out << sp;
-        writeOperationDocComment(operation, deprecateReason, false, false);
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << returnTypeStr(operation, ns, false)  << " " << name << spar
-             << getInvocationParams(operation, ns)
-             << epar << " =>";
-        _out.inc();
-        _out << nl << requestProperty << ".Invoke(this, ";
-        if(params.size() > 0)
-        {
-            _out << toTuple(params) << ", ";
-        }
-        _out << context << ", " << cancel << ");";
-        _out.dec();
+        _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
+    }
+    _out << nl << returnTypeStr(operation, ns, false) << " " << name << spar << getInvocationParams(operation, ns)
+         << epar << " =>";
+    _out.inc();
+
+    _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "(this, Request." << name << "(this, ";
+    if (params.size() > 0)
+    {
+        _out << toTuple(params) << ", ";
+    }
+    _out << context << "), ";
+    if (voidOp)
+    {
+        _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
+    }
+    else
+    {
+        _out << "Response." << name << ", ";
+    }
+    _out << cancel << ");";
+    _out.dec();
+
+    // Write the async version of the operation
+    _out << sp;
+    writeOperationDocComment(operation, deprecateReason, false, true);
+    if (!deprecateReason.empty())
+    {
+        _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
     }
 
+    _out << nl << returnTaskStr(operation, ns, false) << " " << asyncName << spar
+        << getInvocationParamsAMI(operation, ns, true) << epar << " =>";
+    _out.inc();
+
+    _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "Async(this, Request." << name << "(this, ";
+    if (params.size() > 0)
     {
-        //
-        // Write the async version of the operation
-        //
-        _out << sp;
-        writeOperationDocComment(operation, deprecateReason, false, true);
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-
-        _out << nl << returnTaskStr(operation, ns, false) << " "
-             << asyncName << spar << getInvocationParamsAMI(operation, ns, true) << epar << " =>";
-        _out.inc();
-        _out << nl << requestProperty << ".InvokeAsync(this, ";
-        if(params.size() > 0)
-        {
-            _out << toTuple(params) << ", ";
-        }
-        _out << context << ", " << progress << ", " << cancel << ");";
-        _out.dec();
+        _out << toTuple(params) << ", ";
     }
+    _out << context << "), ";
+    if (voidOp)
+    {
+        _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
+    }
+    else
+    {
+        _out << "Response." << name << ", ";
+    }
+    _out << progress << ", " << cancel << ");";
+    _out.dec();
 
-    string requestT = requestType(params, returnValues);
-
-    if(oneway && (returnValues.size() > 0))
+    // TODO: move this check to the Slice parser.
+    if (oneway && !voidOp)
     {
         const UnitPtr ut = operation->unit();
         const DefinitionContextPtr dc = ut->findDefinitionContext(operation->file());
         assert(dc);
         dc->error(operation->file(), operation->line(), "only void operations can be marked oneway");
     }
-
-    // Write the static outgoing request instance
-    _out << sp;
-    _out << nl << "private static " << requestT << "? " << requestObject << ";";
-
-    _out << sp;
-    _out << nl << "private static " << requestT << " " << requestProperty << " =>";
-    _out.inc();
-    _out << nl << requestObject << " ?\?= new " << requestT << "(";
-    _out.inc();
-    _out << nl << "operationName: \"" << operation->name() << "\",";
-    _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false");
-
-    if(returnValues.size() == 0)
-    {
-        _out << ",";
-        _out << nl << "oneway: " << (oneway ? "true" : "false");
-    }
-
-    if(params.size() > 0)
-    {
-        _out << ",";
-        _out << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ",";
-        _out << nl << "format: " << opFormatTypeToString(operation) << ",";
-        _out << nl << "writer: ";
-        writeOutgoingRequestWriter(operation);
-    }
-
-    if(returnValues.size() > 0)
-    {
-        _out << ",";
-        _out << nl << "reader: ";
-        writeOutgoingRequestReader(operation);
-    }
-    _out << ");";
-    _out.dec();
-    _out.dec();
 }
 
 void
@@ -2500,8 +2402,9 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
 
     auto returnValues = operation->returnValues();
 
-    bool defaultReader =
-        returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 && !returnValues.front()->tagged();
+    bool defaultReader = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
+        !returnValues.front()->tagged();
+
     if (defaultReader)
     {
         _out << inputStreamReader(returnValues.front()->type(), ns);

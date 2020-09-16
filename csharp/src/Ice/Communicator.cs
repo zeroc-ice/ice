@@ -341,7 +341,7 @@ namespace ZeroC.Ice
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             ref string[] args,
-            NameValueCollection? appSettings,
+            NameValueCollection? appSettings = null,
             IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
@@ -367,6 +367,10 @@ namespace ZeroC.Ice
                         if (values == null)
                         {
                             combinedProperties[key] = "";
+                        }
+                        else if (values.Length == 1)
+                        {
+                            combinedProperties[key] = values[0];
                         }
                         else
                         {

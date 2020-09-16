@@ -37,3 +37,17 @@ TaggedParams.ice:66: tag for parameter `o' is already in use
 TaggedParams.ice:68: warning: The `optional' keyword is deprecated, use `tag' instead
 TaggedParams.ice:69: warning: The `optional' keyword is deprecated, use `tag' instead
 TaggedParams.ice:70: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:106: parameter 'p' cannot be tagged, since its type '::Test::C' is a class
+TaggedParams.ice:107: parameter 'p' cannot be tagged, since its type '::Test::Derived' is a class
+TaggedParams.ice:108: parameter 'p' cannot be tagged, since its type '::Test::HasClassMembers' contains classes
+TaggedParams.ice:109: parameter 'p' cannot be tagged, since its type '::Ice::AnyClass' is a class
+TaggedParams.ice:110: parameter 'p' cannot be tagged, since its type '::Test::OnlyDeclared' is a class
+TaggedParams.ice:112: parameter 'p' cannot be tagged, since its type '::Test::cs' contains classes
+TaggedParams.ice:114: return type cannot be tagged, since its type '::Test::C' is a class
+TaggedParams.ice:115: return type cannot be tagged, since its type '::Ice::AnyClass' is a class
+TaggedParams.ice:116: return type cannot be tagged, since its type '::Ice::AnyClass' is a class
+TaggedParams.ice:116: parameter 'p' cannot be tagged, since its type '::Test::C' is a class
+TaggedParams.ice:118: return type 'r1' cannot be tagged, since its type '::Test::C' is a class
+TaggedParams.ice:118: return type 'r2' cannot be tagged, since its type '::Ice::AnyClass' is a class
+TaggedParams.ice:118: parameter 'p1' cannot be tagged, since its type '::Test::cs' contains classes
+TaggedParams.ice:118: parameter 'p3' cannot be tagged, since its type '::Test::C' is a class

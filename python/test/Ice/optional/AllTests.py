@@ -43,8 +43,6 @@ def allTests(helper, communicator):
     test(mo1.g is Ice.Unset)
     test(mo1.h is Ice.Unset)
     test(mo1.i is Ice.Unset)
-    test(mo1.j is Ice.Unset)
-    test(mo1.k is Ice.Unset)
     test(mo1.bs is Ice.Unset)
     test(mo1.ss is Ice.Unset)
     test(mo1.iid is Ice.Unset)
@@ -56,14 +54,11 @@ def allTests(helper, communicator):
     test(mo1.es is Ice.Unset)
     test(mo1.fss is Ice.Unset)
     test(mo1.vss is Ice.Unset)
-    test(mo1.oos is Ice.Unset)
     test(mo1.oops is Ice.Unset)
 
     test(mo1.ied is Ice.Unset)
     test(mo1.ifsd is Ice.Unset)
     test(mo1.ivsd is Ice.Unset)
-    test(mo1.iood is Ice.Unset)
-    test(mo1.ioopd is Ice.Unset)
 
     test(mo1.bos is Ice.Unset)
 
@@ -71,13 +66,10 @@ def allTests(helper, communicator):
     fs = Test.FixedStruct(78)
     vs = Test.VarStruct("hello")
     mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember, \
-                             communicator.stringToProxy("test"), \
-                             None, [5], ["test", "test2"], {4:3}, {"test":10}, fs, vs, [1], \
+                             [5], ["test", "test2"], {4:3}, {"test":10}, fs, vs, [1], \
                              [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember], \
-                             [ fs ], [ vs ], [ oo1 ], \
-                             [ communicator.stringToProxy("test") ], \
-                             {4:Test.MyEnum.MyEnumMember}, {4:fs}, {5:vs}, {5:Test.OneOptional(15)}, \
-                             {5:communicator.stringToProxy("test")}, \
+                             [ fs ], [ vs ], \
+                             {4:Test.MyEnum.MyEnumMember}, {4:fs}, {5:vs}, \
                              [False, True, False])
 
     test(mo1.a == 15)
@@ -89,8 +81,6 @@ def allTests(helper, communicator):
     test(mo1.g == 1.0)
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
-    test(mo1.j == communicator.stringToProxy("test"))
-    test(mo1.k == None)
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
     test(mo1.iid[4] == 3)
@@ -102,14 +92,10 @@ def allTests(helper, communicator):
     test(mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
-    test(mo1.oos[0] == oo1)
-    test(mo1.oops[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo1.ifsd[4] == Test.FixedStruct(78))
     test(mo1.ivsd[5] == Test.VarStruct("hello"))
-    test(mo1.iood[5].a == 15)
-    test(mo1.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [False, True, False])
 
@@ -142,8 +128,6 @@ def allTests(helper, communicator):
     test(mo4.g is Ice.Unset)
     test(mo4.h is Ice.Unset)
     test(mo4.i is Ice.Unset)
-    test(mo4.j is Ice.Unset)
-    test(mo4.k is Ice.Unset)
     test(mo4.bs is Ice.Unset)
     test(mo4.ss is Ice.Unset)
     test(mo4.iid is Ice.Unset)
@@ -155,14 +139,10 @@ def allTests(helper, communicator):
     test(mo4.es is Ice.Unset)
     test(mo4.fss is Ice.Unset)
     test(mo4.vss is Ice.Unset)
-    test(mo4.oos is Ice.Unset)
-    test(mo4.oops is Ice.Unset)
 
     test(mo4.ied is Ice.Unset)
     test(mo4.ifsd is Ice.Unset)
     test(mo4.ivsd is Ice.Unset)
-    test(mo4.iood is Ice.Unset)
-    test(mo4.ioopd is Ice.Unset)
 
     test(mo4.bos is Ice.Unset)
 
@@ -176,12 +156,6 @@ def allTests(helper, communicator):
     test(mo5.g == mo1.g)
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
-    test(mo5.j == mo1.j)
-    #
-    # With Swift mapping you cannot distinguish null from unset
-    # so we test for both here to support cross testing.
-    #
-    test(mo5.k is None or mo5.k is Ice.Unset)
     if sys.version_info[0] == 2:
         test(mo5.bs == "\x05")
     else:
@@ -195,14 +169,10 @@ def allTests(helper, communicator):
     test(mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
-    test(mo5.oos[0].a == 15)
-    test(mo5.oops[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo5.ifsd[4] == Test.FixedStruct(78))
     test(mo5.ivsd[5] == Test.VarStruct("hello"))
-    test(mo5.iood[5].a == 15)
-    test(mo5.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -212,15 +182,12 @@ def allTests(helper, communicator):
     mo6.d = mo5.d
     mo6.f = mo5.f
     mo6.h = mo5.h
-    mo6.j = mo5.j
     mo6.bs = mo5.bs
     mo6.iid = mo5.iid
     mo6.fs = mo5.fs
     mo6.shs = mo5.shs
     mo6.fss = mo5.fss
-    mo6.oos = mo5.oos
     mo6.ifsd = mo5.ifsd
-    mo6.iood = mo5.iood
     mo6.bos = mo5.bos
 
     mo7 = initial.pingPong(mo6)
@@ -233,8 +200,6 @@ def allTests(helper, communicator):
     test(mo7.g is Ice.Unset)
     test(mo7.h == mo1.h)
     test(mo7.i is Ice.Unset)
-    test(mo7.j == mo1.j)
-    test(mo7.k is Ice.Unset)
     if sys.version_info[0] == 2:
         test(mo7.bs == "\x05")
     else:
@@ -249,14 +214,10 @@ def allTests(helper, communicator):
     test(mo7.es is Ice.Unset)
     test(mo7.fss[0] == Test.FixedStruct(78))
     test(mo7.vss is Ice.Unset)
-    test(mo7.oos[0].a == 15)
-    test(mo7.oops is Ice.Unset)
 
     test(mo7.ied is Ice.Unset)
     test(mo7.ifsd[4] == Test.FixedStruct(78))
     test(mo7.ivsd is Ice.Unset)
-    test(mo7.iood[5].a == 15)
-    test(mo7.ioopd is Ice.Unset)
 
     test(mo7.bos == [False, True, False])
 
@@ -267,18 +228,15 @@ def allTests(helper, communicator):
     mo8.e = mo5.e
     mo8.g = mo5.g
     mo8.i = mo5.i
-    mo8.k = mo8
     mo8.ss = mo5.ss
     mo8.sid = mo5.sid
     mo8.vs = mo5.vs
 
     mo8.es = mo5.es
     mo8.vss = mo5.vss
-    mo8.oops = mo5.oops
 
     mo8.ied = mo5.ied
     mo8.ivsd = mo5.ivsd
-    mo8.ioopd = mo5.ioopd
 
     mo9 = initial.pingPong(mo8)
     test(mo9.a == mo1.a)
@@ -290,8 +248,6 @@ def allTests(helper, communicator):
     test(mo9.g == mo1.g)
     test(mo9.h is Ice.Unset)
     test(mo9.i == mo1.i)
-    test(mo9.j is Ice.Unset)
-    test(mo9.k == mo9)
     test(mo9.bs is Ice.Unset)
     test(mo9.ss == mo1.ss)
     test(mo9.iid is Ice.Unset)
@@ -303,46 +259,12 @@ def allTests(helper, communicator):
     test(mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo9.fss is Ice.Unset)
     test(mo9.vss[0] == Test.VarStruct("hello"))
-    test(mo9.oos is Ice.Unset)
-    test(mo9.oops[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo9.ifsd is Ice.Unset)
     test(mo9.ivsd[5] == Test.VarStruct("hello"))
-    test(mo9.iood is Ice.Unset)
-    test(mo9.ioopd[5] == communicator.stringToProxy("test"))
 
     test(mo9.bos is Ice.Unset)
-
-    #
-    # Use the 1.0 encoding with operations whose only class parameters are optional.
-    #
-    initial.sendOptionalClass(True, Test.OneOptional(53))
-    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalClass(True, Test.OneOptional(53))
-
-    r = initial.returnOptionalClass(True)
-    test(r != Ice.Unset)
-    r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalClass(True)
-    test(r is Ice.Unset)
-
-    recursive1 = [ Test.Recursive() ]
-    recursive2 = [ Test.Recursive() ]
-    recursive1[0].value = recursive2;
-
-    outer = Test.Recursive()
-    outer.value = recursive1
-    initial.pingPong(outer)
-
-    g = Test.G()
-    g.gg1Opt = Test.G1("gg1Opt")
-    g.gg2 = Test.G2(10)
-    g.gg2Opt = Test.G2(20)
-    g.gg1 = Test.G1("gg1")
-    r = initial.opG(g)
-    test(r.gg1Opt.a == "gg1Opt")
-    test(r.gg2.a == 10)
-    test(r.gg2Opt.a == 20)
-    test(r.gg1.a == "gg1")
 
     initial2 = Test.Initial2Prx.uncheckedCast(base)
     initial2.opVoid(15, "test")
@@ -399,19 +321,6 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    sys.stdout.write("testing marshalling of objects with optional objects...")
-    sys.stdout.flush()
-
-    f = Test.F()
-
-    f.af = Test.A()
-    f.ae = f.af
-
-    rf = initial.pingPong(f)
-    test(rf.ae == rf.af)
-
-    print("ok")
-
     sys.stdout.write("testing optional with default values... ")
     sys.stdout.flush()
 
@@ -447,13 +356,7 @@ def allTests(helper, communicator):
         sys.stdout.flush()
 
         initial2 = Test.Initial2Prx.uncheckedCast(base)
-        d = Test.D()
-        d.ds = "test"
-        d.seq = ["test1", "test2", "test3", "test4"]
-        d.ao = Test.A(18)
-        d.requiredB = 14;
-        d.requiredA = 14;
-        initial2.opClassAndUnknownOptional(Test.A(), d)
+        initial2.opClassAndUnknownOptional(Test.A())
 
         print("ok")
 
@@ -558,27 +461,6 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opVarStruct(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opVarStructAsync(p1)
-    (p2, p3) = f.result()
-    test(p2 == p1 and p3 == p1)
-
-    (p2, p3) = initial.opOneOptional(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    if initial.supportsNullOptional():
-        (p2, p3) = initial.opOneOptional(None)
-        test(p2 is None and p3 is None)
-    p1 = Test.OneOptional(58)
-    (p2, p3) = initial.opOneOptional(p1)
-    test(p2.a == p1.a and p3.a == p1.a)
-    f = initial.opOneOptionalAsync(p1)
-    (p2, p3) = f.result()
-    test(p2.a == p1.a and p3.a == p1.a)
-
-    (p2, p3) = initial.opOneOptionalProxy(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = communicator.stringToProxy("test")
-    (p2, p3) = initial.opOneOptionalProxy(p1)
-    test(p2 == p1 and p3 == p1)
-    f = initial.opOneOptionalProxyAsync(p1)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
@@ -729,15 +611,6 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
-    (p2, p3) = initial.opIntOneOptionalDict(Ice.Unset)
-    test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = {1:Test.OneOptional(58), 2:Test.OneOptional(59)}
-    (p2, p3) = initial.opIntOneOptionalDict(p1)
-    test(p2[1].a == 58 and p3[1].a == 58);
-    f = initial.opIntOneOptionalDictAsync(p1)
-    (p2, p3) = f.result()
-    test(p2[1].a == 58 and p3[1].a == 58);
-
     print("ok")
 
     sys.stdout.write("testing exception optionals... ")
@@ -748,60 +621,60 @@ def allTests(helper, communicator):
     except Test.OptionalException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
 
     try:
-        initial.opOptionalException(30, "test", Test.OneOptional(53))
+        initial.opOptionalException(30, "test", Test.VarStruct("hello"))
     except Test.OptionalException as ex:
         test(ex.a == 30)
         test(ex.b == "test")
-        test(ex.o.a == 53)
+        test(ex.vs.m == "hello")
 
     try:
         #
         # Use the 1.0 encoding with an exception whose only class members are optional.
         #
-        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test", Test.OneOptional(53))
+        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test", Test.VarStruct("hello"))
     except Test.OptionalException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
 
     try:
         initial.opDerivedException(Ice.Unset, Ice.Unset, Ice.Unset)
     except Test.DerivedException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
         test(ex.ss is Ice.Unset)
-        test(ex.o2 is Ice.Unset)
+        test(ex.vs2 is Ice.Unset)
 
     try:
-        initial.opDerivedException(30, "test2", Test.OneOptional(53))
+        initial.opDerivedException(30, "test2", Test.VarStruct("hello2"))
     except Test.DerivedException as ex:
         test(ex.a == 30)
         test(ex.b == "test2")
-        test(ex.o.a == 53)
+        test(ex.vs.m == "hello2")
         test(ex.ss == "test2")
-        test(ex.o2 == ex.o)
+        test(ex.vs2 == ex.vs)
 
     try:
         initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset)
     except Test.RequiredException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)
-        test(ex.o is Ice.Unset)
+        test(ex.vs is Ice.Unset)
         test(ex.ss == "test")
-        test(ex.o2 == None)
+        test(ex.vs2 == None)
 
     try:
-        initial.opRequiredException(30, "test2", Test.OneOptional(53))
+        initial.opRequiredException(30, "test2", Test.VarStruct("hello2"))
     except Test.RequiredException as ex:
         test(ex.a == 30)
         test(ex.b == "test2")
-        test(ex.o.a == 53)
+        test(ex.vs.m == "hello2")
         test(ex.ss == "test2")
-        test(ex.o2 == ex.o)
+        test(ex.vs2 == ex.vs)
 
     print("ok")
 
@@ -811,7 +684,6 @@ def allTests(helper, communicator):
     test(initial.opMStruct1() != Ice.Unset);
     test(initial.opMDict1() != Ice.Unset);
     test(initial.opMSeq1() != Ice.Unset);
-    test(initial.opMG1() != Ice.Unset);
 
     (p3, p2) = initial.opMStruct2(Ice.Unset);
     test(p2 == Ice.Unset and p3 == Ice.Unset);
@@ -833,13 +705,6 @@ def allTests(helper, communicator):
     p1 = {"test" : 54}
     (p3, p2) = initial.opMDict2(p1)
     test(p2["test"] == 54 and p3["test"] == 54)
-
-    (p3, p2) = initial.opMG2(Ice.Unset)
-    test(p2 == Ice.Unset and p3 == Ice.Unset)
-
-    p1 = Test.G();
-    (p3, p2) = initial.opMG2(p1);
-    test(p2 != Ice.Unset and p3 != Ice.Unset and p3 == p2);
 
     print("ok")
 

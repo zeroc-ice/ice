@@ -19,28 +19,30 @@ class InitialI: Initial {
         return Promise.value(o)
     }
 
-    func opOptionalExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
+    func opOptionalExceptionAsync(a: Int32?, b: String?, vs: VarStruct?, current _: Current) -> Promise<Void> {
         return Promise { seal in
-            seal.reject(OptionalException(req: false, a: a, b: b, o: o))
+            seal.reject(OptionalException(req: false, a: a, b: b, vs: vs))
         }
     }
 
-    func opDerivedExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
+    func opDerivedExceptionAsync(a: Int32?, b: String?, vs: VarStruct?, current _: Current) -> Promise<Void> {
         return Promise { seal in
-            seal.reject(DerivedException(req: false, a: a, b: b, o: o, ss: b, o2: o))
+            seal.reject(DerivedException(req: false, a: a, b: b, vs: vs, ss: b, vs2: vs))
         }
     }
 
-    func opRequiredExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
+    func opRequiredExceptionAsync(a: Int32?, b: String?, vs: VarStruct?, current _: Current) -> Promise<Void> {
         return Promise { seal in
             let e = RequiredException()
             e.a = a
             e.b = b
-            e.o = o
+            e.vs = vs
             if let b = b {
                 e.ss = b
             }
-            e.o2 = o
+            if let vs = vs {
+                e.vs2 = vs
+            }
 
             seal.reject(e)
         }
@@ -93,16 +95,6 @@ class InitialI: Initial {
     }
 
     func opVarStructAsync(p1: VarStruct?, current _: Current) -> Promise<(returnValue: VarStruct?, p3: VarStruct?)> {
-        return Promise.value((p1, p1))
-    }
-
-    func opOneOptionalAsync(p1: OneOptional?,
-                            current _: Current) -> Promise<(returnValue: OneOptional?, p3: OneOptional?)> {
-        return Promise.value((p1, p1))
-    }
-
-    func opOneOptionalProxyAsync(p1: ObjectPrx?,
-                                 current _: Current) -> Promise<(returnValue: ObjectPrx?, p3: ObjectPrx?)> {
         return Promise.value((p1, p1))
     }
 
@@ -178,26 +170,8 @@ class InitialI: Initial {
         return Promise.value((p1, p1))
     }
 
-    func opIntOneOptionalDictAsync(p1: IntOneOptionalDict?,
-                                   current _: Current) -> Promise<(returnValue: IntOneOptionalDict?,
-                                                                   p3: IntOneOptionalDict?)> {
-        return Promise.value((p1, p1))
-    }
-
     func opClassAndUnknownOptionalAsync(p _: A?, current _: Current) -> Promise<Void> {
         return Promise.value(())
-    }
-
-    func sendOptionalClassAsync(req _: Bool, o _: OneOptional?, current _: Current) -> Promise<Void> {
-        return Promise.value(())
-    }
-
-    func returnOptionalClassAsync(req _: Bool, current _: Current) -> Promise<OneOptional?> {
-        return Promise.value(OneOptional(a: 53))
-    }
-
-    func opGAsync(g: G?, current _: Current) -> Promise<G?> {
-        return Promise.value(g)
     }
 
     func opVoidAsync(current _: Current) -> Promise<Void> {
@@ -227,14 +201,6 @@ class InitialI: Initial {
 
     func opMDict2Async(p1: StringIntDict?,
                        current _: Current) -> Promise<(returnValue: StringIntDict?, p2: StringIntDict?)> {
-        return Promise.value((p1, p1))
-    }
-
-    func opMG1Async(current _: Current) -> Promise<G?> {
-        return Promise.value(G())
-    }
-
-    func opMG2Async(p1: G?, current _: Current) -> Promise<(returnValue: G?, p2: G?)> {
         return Promise.value((p1, p1))
     }
 

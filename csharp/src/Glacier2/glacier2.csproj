@@ -7,7 +7,7 @@
         <TargetFramework>net5</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" Exclude="../../../slice/$(AssemblyName)/*F.ice" />
         <Compile Update="generated\Metrics.cs">
           <SliceCompileSource>..\..\..\slice\Glacier2\Metrics.ice</SliceCompileSource>
         </Compile>
@@ -19,9 +19,6 @@
         </Compile>
         <Compile Update="generated\Router.cs">
           <SliceCompileSource>..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
-        </Compile>
-        <Compile Update="generated\RouterF.cs">
-          <SliceCompileSource>..\..\..\slice\Glacier2\RouterF.ice</SliceCompileSource>
         </Compile>
         <Compile Update="generated\Session.cs">
           <SliceCompileSource>..\..\..\slice\Glacier2\Session.ice</SliceCompileSource>

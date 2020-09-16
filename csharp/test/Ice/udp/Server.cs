@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.UDP
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.RcvSize"] = "16K";
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.macOS) &&
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
                 properties.TryGetValue("Ice.IPv6", out string? value) &&
                 int.TryParse(value, out int ipv6) && ipv6 > 0)
             {
@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.UDP
             {
                 endpoint.Append("udp -h \"ff15::1:1\"");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
-                    RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
+                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     endpoint.Append(" --interface \"::1\"");
                 }
@@ -66,7 +66,7 @@ namespace ZeroC.Ice.Test.UDP
             {
                 endpoint.Append("udp -h 239.255.1.1");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
-                    RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
+                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     endpoint.Append(" --interface 127.0.0.1");
                 }

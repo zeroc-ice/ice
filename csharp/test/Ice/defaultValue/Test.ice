@@ -102,7 +102,7 @@ exception DerivedEx : BaseEx
     Nested::Color nc3 = ConstNestedColor3;
 }
 
-[clr:property]
+[cs:property]
 class ClassProperty
 {
     bool boolFalse = false;
@@ -127,7 +127,7 @@ class ClassProperty
 // Exceptions don't support "clr:property" metadata, but
 // we want to ensure that the generated code compiles.
 //
-[clr:property]
+[cs:property]
 exception ExceptionProperty
 {
     bool boolFalse = false;
