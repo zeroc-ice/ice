@@ -183,6 +183,8 @@ interface Initial
 
     void opDerivedException(tag(1) int? a, tag(2) string? b, optional(3) VarStruct? vs);
 
+    void opRequiredException(tag(1) int? a, tag(2) string? b, optional(3) VarStruct? vs);
+
     (tag(1) byte? r1, tag(2) byte? r2) opByte(tag(1) byte? p1);
 
     (tag(1) bool? r1, tag(2) bool? r2) opBool(tag(1) bool? p1);
