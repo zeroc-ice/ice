@@ -198,4 +198,8 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.iOS\controller.iOS.csproj"
                  Properties="Configuration=$(Configuration)"/>
     </Target>
+
+    <Target Name="BuildDoc" DependsOnTargets="BuildDist">
+        <Exec Command="docfx" WorkingDirectory="$(MSBuildThisFileDirectory)..\doc"/>
+    </Target>
 </Project>
