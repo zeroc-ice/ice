@@ -240,16 +240,16 @@ namespace ZeroC.Ice
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
         /// frame should have been created using the same proxy, however some differences are acceptable, for example
         /// proxy can have different endpoints.</param>
-        /// <param name="reader">An <see cref="IncomingResponseFrame"/> reader that converts an IncomingResponseFrame
-        /// into the return value for this operation. Typically {IInterfaceNamePrx}.Response.{OperationName}.</param>
+        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
+        /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The return value.</returns>
         public static T Invoke<T>(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            IncomingResponseFrameReader<T> reader,
+            InputStreamReader<T> reader,
             CancellationToken cancel = default) =>
-            reader.Read(proxy.Invoke(request, oneway: false, cancel), proxy.Communicator);
+            proxy.Invoke(request, oneway: false, cancel).ReadReturnValue(proxy.Communicator, reader);
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -275,15 +275,15 @@ namespace ZeroC.Ice
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
         /// frame should have been created using the same proxy, however some differences are acceptable, for example
         /// proxy can have different endpoints.</param>
-        /// <param name="reader">An <see cref="IncomingResponseFrame"/> reader that converts an IncomingResponseFrame
-        /// into the return value for this operation. Typically {IInterfaceNamePrx}.Response.{OperationName}.</param>
+        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
+        /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The return value.</returns>
         public static Task<T> InvokeAsync<T>(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            IncomingResponseFrameReader<T> reader,
+            InputStreamReader<T> reader,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default)
         {
@@ -292,9 +292,10 @@ namespace ZeroC.Ice
                                      proxy.Communicator);
 
             static async Task<T> ReadResponseAsync(
-                ValueTask<IncomingResponseFrame> response,
-                IncomingResponseFrameReader<T> reader,
-                Communicator communicator) => reader.Read(await response.ConfigureAwait(false), communicator);
+                ValueTask<IncomingResponseFrame> task,
+                InputStreamReader<T> reader,
+                Communicator communicator) =>
+                (await task.ConfigureAwait(false)).ReadReturnValue(communicator, reader);
         }
 
         /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>

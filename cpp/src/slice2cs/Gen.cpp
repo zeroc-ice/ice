@@ -2112,9 +2112,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "public static ";
             if (paramCount == 0)
             {
-                _out << "ZeroC.Ice.OutgoingRequestFrameFactory " << propertyName << " =>";
+                _out << "ZeroC.Ice.OutgoingRequestFrame.Factory " << propertyName << " =>";
                 _out.inc();
-                _out << nl << fieldName << " ?\?= new ZeroC.Ice.OutgoingRequestFrameFactory(\""
+                _out << nl << fieldName << " ?\?= ZeroC.Ice.OutgoingRequestFrame.CreateFactory(\""
                     << operation->name() << "\", "
                     << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ");";
                 _out.dec();
@@ -2123,15 +2123,16 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 // A single Slice-struct return is treated like a tuple-return. Note this does not apply to an optional
                 // struct return although in theory it could.
-                string factoryType =
-                    (paramCount > 1 || StructPtr::dynamicCast(operation->parameters().front()->type())) ?
-                    "ZeroC.Ice.OutgoingRequestFrameFactory" : "ZeroC.Ice.SingleParamOutgoingRequestFrameFactory";
+                bool singleParamFactory = paramCount == 1 &&
+                    !StructPtr::dynamicCast(operation->parameters().front()->type());
 
-                factoryType += "<" + toTupleType(params, true) + ">";
+                string factoryType = singleParamFactory ? "SingleParamFactory" : "Factory";
 
-                _out << factoryType << " " << propertyName << " =>";
+                _out << "ZeroC.Ice.OutgoingRequestFrame." << factoryType << "<" << toTupleType(params, true) << "> "
+                    << propertyName << " =>";
                 _out.inc();
-                _out << nl << fieldName << " ?\?= new " << factoryType << "(";
+                _out << nl << fieldName << " ?\?= ZeroC.Ice.OutgoingRequestFrame.Create" << factoryType
+                    << "<" << toTupleType(params, true) << ">(";
                 _out.inc();
                 _out << nl << "\"" << operation->name() << "\","
                     << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
@@ -2154,15 +2155,17 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             auto params = operation->parameters();
             size_t paramCount = params.size();
 
-            string factoryType = "ZeroC.Ice.OutgoingRequestFrameFactory";
+            string factoryType = "Factory";
             if (paramCount > 0)
             {
-                factoryType = (paramCount > 1 || StructPtr::dynamicCast(operation->parameters().front()->type())) ?
-                    "ZeroC.Ice.OutgoingRequestFrameFactory" : "ZeroC.Ice.SingleParamOutgoingRequestFrameFactory";
+                if (paramCount == 1 && !StructPtr::dynamicCast(params.front()->type()))
+                {
+                    factoryType = "SingleParamFactory";
+                }
                 factoryType += "<" + toTupleType(params, true) + ">";
             }
 
-            _out << nl << "private static " << factoryType << "? " << fieldName << ";";
+            _out << nl << "private static ZeroC.Ice.OutgoingRequestFrame." << factoryType << "? " << fieldName << ";";
         }
         _out << eb;
 
@@ -2179,28 +2182,14 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     string propertyName = fixId(operationName(operation));
                     string fieldName = "_" + operation->name();
 
-                    _out << nl << "public static ";
-                    string readerType = "ZeroC.Ice.IncomingResponseFrameReader<" + toTupleType(returns, false) + ">";
-                    _out << readerType << " " << propertyName << " =>";
-                    _out.inc();
-                    _out << nl << fieldName << " ?\?= new " << readerType << "(";
+                    _out << nl << "public static readonly ";
+                    string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(returns, false) + ">";
+                    _out << readerType << " " << propertyName << " =";
                     _out.inc();
                     _out << nl;
                     writeOutgoingRequestReader(operation);
+                    _out << ";";
                     _out.dec();
-                    _out << ");";
-                    _out.dec();
-                }
-            }
-            _out << sp;
-            for (auto operation : p->operations())
-            {
-                auto returns = operation->returnValues();
-                if (returns.size() > 0)
-                {
-                    string fieldName = "_" + operation->name();
-                    string readerType = "ZeroC.Ice.IncomingResponseFrameReader<" + toTupleType(returns, false) + ">";
-                    _out << nl << "private static " << readerType << "? " << fieldName << ";";
                 }
             }
             _out << eb;
@@ -2311,7 +2300,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     // Write the synchronous version of the operation.
     _out << sp;
     writeOperationDocComment(operation, deprecateReason, false, false);
-    if(!deprecateReason.empty())
+    if (!deprecateReason.empty())
     {
         _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
     }
@@ -2319,13 +2308,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
          << epar << " =>";
     _out.inc();
 
-    _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "(this, Request." << name << ".Create(this, ";
-    if(params.size() > 0)
+    _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "(this, Request." << name << "(this, ";
+    if (params.size() > 0)
     {
         _out << toTuple(params) << ", ";
     }
     _out << context << "), ";
-    if(voidOp)
+    if (voidOp)
     {
         _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
     }
@@ -2339,23 +2328,22 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     // Write the async version of the operation
     _out << sp;
     writeOperationDocComment(operation, deprecateReason, false, true);
-    if(!deprecateReason.empty())
+    if (!deprecateReason.empty())
     {
         _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
     }
 
     _out << nl << returnTaskStr(operation, ns, false) << " " << asyncName << spar
-         << getInvocationParamsAMI(operation, ns, true) << epar << " =>";
+        << getInvocationParamsAMI(operation, ns, true) << epar << " =>";
     _out.inc();
 
-    _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "Async(this, Request." << name
-         << ".Create(this, ";
-    if(params.size() > 0)
+    _out << nl << "ZeroC.Ice.Proxy.Invoke" << (voidOp ? "Void" : "") << "Async(this, Request." << name << "(this, ";
+    if (params.size() > 0)
     {
         _out << toTuple(params) << ", ";
     }
     _out << context << "), ";
-    if(voidOp)
+    if (voidOp)
     {
         _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
     }

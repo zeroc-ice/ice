@@ -222,22 +222,4 @@ namespace ZeroC.Ice
             return exception;
         }
     }
-
-    /// <summary>An IncomingResponseFrame reader for an operation with a non-void return type.</summary>
-    public sealed class IncomingResponseFrameReader<TReturnValue>
-    {
-        private readonly InputStreamReader<TReturnValue> _reader;
-
-        /// <summary>Constructs a response reader.</summary>
-        /// <param name="reader">The <see cref="InputStream"/> reader used to read the return value.</param>
-        public IncomingResponseFrameReader(InputStreamReader<TReturnValue> reader) => _reader = reader;
-
-        /// <summary>Reads an incoming response frame.</summary>
-        /// <param name="response">The response frame.</param>
-        /// <param name="communicator">The communicator used to read the frame.</param>
-        /// <returns>The return value read from the response frame.</returns>
-        /// <exception name="RemoteException">Thrown when the response frame carries a failure.</exception>
-        public TReturnValue Read(IncomingResponseFrame response, Communicator communicator) =>
-            response.ReadReturnValue(communicator, _reader);
-    }
 }
