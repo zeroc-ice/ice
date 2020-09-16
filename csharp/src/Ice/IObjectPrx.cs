@@ -92,6 +92,9 @@ namespace ZeroC.Ice
             public static readonly InputStreamReader<bool> IceIsA = InputStream.IceReaderIntoBool;
         }
 
+        /// <summary>Factory for IObjectPrx proxies.</summary>
+        public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
+
         /// <summary>An InputStream reader used to read non nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
@@ -305,9 +308,6 @@ namespace ZeroC.Ice
 
             return lhs.IceReference.Equals(rhs.IceReference);
         }
-
-        /// <summary>Factory for IObjectPrx proxies.</summary>
-        public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
         /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
         /// <param name="s">The proxy string representation.</param>
