@@ -178,7 +178,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         return props
 
     def getEndpoints(self, current):
-        return current.getTestEndpoint(self.portnum)
+        return current.getTestEndpoint(self.portnum, current.config.transport)
 
     def getLocator(self, current):
         return "TestIceGrid/Locator:{0}".format(self.getEndpoints(current))

@@ -524,6 +524,44 @@ Slice::checkForRedefinition(const ContainerPtr& container, const string& name, c
 }
 
 bool
+Slice::checkForTaggableType(const TypePtr& type, const string& name)
+{
+    std::string message;
+    if (type->isClassType())
+    {
+        message = " cannot be tagged, since its type '" + type->typeId() + "' is a class";
+    }
+    else if (type->usesClasses())
+    {
+        message = " cannot be tagged, since its type '" + type->typeId() + "' contains classes";
+    }
+    else
+    {
+        return true;
+    }
+
+    if (!name.empty())
+    {
+        message = " '" + name + "'" + message;
+    }
+
+    ContainerPtr container = unit->currentContainer();
+    if (OperationPtr::dynamicCast(container))
+    {
+        unit->error("parameter" + message);
+    }
+    else if (InterfaceDefPtr::dynamicCast(container))
+    {
+        unit->error("return type" + message);
+    }
+    else
+    {
+        unit->error("data member" + message);
+    }
+    return false;
+}
+
+bool
 Slice::ciequals(const string& lhs, const string& rhs)
 {
     return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char a, char b)

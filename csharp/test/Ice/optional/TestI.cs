@@ -28,6 +28,7 @@ namespace ZeroC.Ice.Test.Optional
         }
 
         public (int? R1, int R2, int? R3, string? R4) OpBasicInReturnTuple(int i1, int? i2, string? i3,
+        
             Current current) => (i2, i1, i2, i3);
 
         public IObjectPrx? OpObject(IObjectPrx i1, IObjectPrx? i2, Current current)

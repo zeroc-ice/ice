@@ -17,21 +17,21 @@ class InitialI(Test.Initial):
     def pingPong(self, o, current=None):
         return o
 
-    def opOptionalException(self, a, b, o, current=None):
-        raise Test.OptionalException(False, a, b, o)
+    def opOptionalException(self, a, b, vs, current=None):
+        raise Test.OptionalException(False, a, b, vs)
 
-    def opDerivedException(self, a, b, o, current=None):
-        raise Test.DerivedException(False, a, b, o, b, o)
+    def opDerivedException(self, a, b, vs, current=None):
+        raise Test.DerivedException(False, a, b, vs, b, vs)
 
-    def opRequiredException(self, a, b, o, current=None):
+    def opRequiredException(self, a, b, vs, current=None):
         e = Test.RequiredException()
         e.a = a
         e.b = b
-        e.o = o
+        e.vs = vs
         if b is not Ice.Unset:
             e.ss = b
-        if o is not Ice.Unset:
-            e.o2 = o
+        if vs is not Ice.Unset:
+            e.vs2 = vs
         raise e
 
     def opByte(self, p1, current=None):
@@ -68,12 +68,6 @@ class InitialI(Test.Initial):
         return (p1, p1)
 
     def opVarStruct(self, p1, current=None):
-        return (p1, p1)
-
-    def opOneOptional(self, p1, current=None):
-        return (p1, p1)
-
-    def opOneOptionalProxy(self, p1, current=None):
         return (p1, p1)
 
     def opByteSeq(self, p1, current=None):
@@ -124,20 +118,8 @@ class InitialI(Test.Initial):
     def opStringIntDict(self, p1, current=None):
         return (p1, p1)
 
-    def opIntOneOptionalDict(self, p1, current=None):
-        return (p1, p1)
-
     def opClassAndUnknownOptional(self, p, current=None):
         pass
-
-    def sendOptionalClass(self, req, o, current=None):
-        pass
-
-    def returnOptionalClass(self, req, current=None):
-        return Test.OneOptional(53)
-
-    def opG(self, g, current=None):
-        return g
 
     def opVoid(self, current=None):
         pass
@@ -159,12 +141,6 @@ class InitialI(Test.Initial):
 
     def opMDict2(self, p1, current):
         return Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
-
-    def opMG1(self, current):
-        return Test.Initial.OpMG1MarshaledResult(Test.G(), current)
-
-    def opMG2(self, p1, current):
-        return Test.Initial.OpMG2MarshaledResult((p1, p1), current)
 
     def supportsRequiredParams(self, current=None):
         return False

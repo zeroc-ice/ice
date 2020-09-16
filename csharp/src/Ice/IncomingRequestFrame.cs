@@ -37,7 +37,10 @@ namespace ZeroC.Ice
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             if (Protocol == Protocol.Ice1)
             {
-                Context = istr.ReadContext();
+                Context = istr.ReadDictionary(minKeySize: 1,
+                                              minValueSize: 1,
+                                              InputStream.IceReaderIntoString,
+                                              InputStream.IceReaderIntoString);
             }
             else
             {
@@ -51,7 +54,10 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
             {
-                Context = value.Read(ContextHelper.IceReader);
+                Context = value.Read(istr => istr.ReadDictionary(minKeySize: 1,
+                                                                 minValueSize: 1,
+                                                                 InputStream.IceReaderIntoString,
+                                                                 InputStream.IceReaderIntoString));
             }
 
             if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)

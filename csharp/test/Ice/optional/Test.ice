@@ -62,6 +62,7 @@ module ZeroC::Ice::Test::Optional
         string? opSingleReturnString();
 
         void opBasicIn(int i1, int? i2, string? i3, string i4);
+
         (int? r1, int r2, int? r3, string? r4) opBasicInReturnTuple(int i1, int? i2, string? i3);
 
         Object? opObject(Object i1, Object? i2);

@@ -17,7 +17,7 @@ export class InitialI extends Test.Initial
         return obj;
     }
 
-    opOptionalException(a:number, b:string, o:Test.OneOptional, current:Ice.Current):void
+    opOptionalException(a:number, b:string, vs:Test.VarStruct, current:Ice.Current):void
     {
         const ex = new Test.OptionalException();
         if(a !== undefined)
@@ -32,14 +32,14 @@ export class InitialI extends Test.Initial
         {
             ex.b = b;
         }
-        if(o !== undefined)
+        if(vs !== undefined)
         {
-            ex.o = o;
+            ex.vs = vs;
         }
         throw ex;
     }
 
-    opDerivedException(a:number, b:string, o:Test.OneOptional, current:Ice.Current):void
+    opDerivedException(a:number, b:string, vs:Test.VarStruct, current:Ice.Current):void
     {
         const ex = new Test.DerivedException();
         if(a !== undefined)
@@ -59,15 +59,15 @@ export class InitialI extends Test.Initial
         {
             ex.ss = undefined; // The member "ss" has a default value.
         }
-        if(o !== undefined)
+        if(vs !== undefined)
         {
-            ex.o = o;
-            ex.o2 = o;
+            ex.vs = vs;
+            ex.vs2 = vs;
         }
         throw ex;
     }
 
-    opRequiredException(a:number, b:string, o:Test.OneOptional, current:Ice.Current):void
+    opRequiredException(a:number, b:string, vs:Test.VarStruct, current:Ice.Current):void
     {
         const ex = new Test.RequiredException();
         if(a !== undefined)
@@ -83,10 +83,10 @@ export class InitialI extends Test.Initial
             ex.b = b;
             ex.ss = b;
         }
-        if(o !== undefined)
+        if(vs !== undefined)
         {
-            ex.o = o;
-            ex.o2 = o;
+            ex.vs = vs;
+            ex.vs2 = vs;
         }
         throw ex;
     }
@@ -147,11 +147,6 @@ export class InitialI extends Test.Initial
     }
 
     opVarStruct(p1:Test.VarStruct, current:Ice.Current):[Test.VarStruct, Test.VarStruct]
-    {
-        return [p1, p1];
-    }
-
-    opOneOptional(p1:Test.OneOptional, current:Ice.Current):[Test.OneOptional, Test.OneOptional]
     {
         return [p1, p1];
     }
@@ -236,27 +231,8 @@ export class InitialI extends Test.Initial
         return [p1, p1];
     }
 
-    opIntOneOptionalDict(p1:Test.IntOneOptionalDict, current:Ice.Current):[Test.IntOneOptionalDict, Test.IntOneOptionalDict]
-    {
-        return [p1, p1];
-    }
-
     opClassAndUnknownOptional(p:Test.A, current:Ice.Current):void
     {
-    }
-
-    sendOptionalClass(req:boolean, one:Test.OneOptional, current:Ice.Current):void
-    {
-    }
-
-    returnOptionalClass(req:boolean, current:Ice.Current):Test.OneOptional
-    {
-        return new Test.OneOptional(53);
-    }
-
-    opG(g:Test.G, current:Ice.Current):Test.G
-    {
-        return g;
     }
 
     opVoid(current:Ice.Current):void
@@ -289,16 +265,6 @@ export class InitialI extends Test.Initial
     }
 
     opMDict2(p1:Test.StringIntDict, current:Ice.Current):[Test.StringIntDict, Test.StringIntDict]
-    {
-        return [p1, p1];
-    }
-
-    opMG1(current:Ice.Current):Test.G
-    {
-        return new Test.G();
-    }
-
-    opMG2(p1:Test.G, current:Ice.Current):[Test.G, Test.G]
     {
         return [p1, p1];
     }

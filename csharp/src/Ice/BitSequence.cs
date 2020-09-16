@@ -48,6 +48,7 @@ namespace ZeroC.Ice
             SecondSpan = secondSpan;
         }
 
+        /// <inheritdoc/>
         public override string ToString() =>
             new ReadOnlyBitSequence(FirstSpan).ToString() + "\n" + new ReadOnlyBitSequence(SecondSpan).ToString();
 
@@ -83,6 +84,7 @@ namespace ZeroC.Ice
         /// <summary>Constructs a read-only bit sequence over a read-only span of bytes.</summary>
         public ReadOnlyBitSequence(ReadOnlySpan<byte> span) => Span = span;
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var sb = new StringBuilder();

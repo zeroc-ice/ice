@@ -95,8 +95,7 @@ namespace ZeroC.Ice
             {
                 if (!CheckPath(defaultDir, ref certAuthFile))
                 {
-                    throw new FileNotFoundException("CA certificate file not found: `{certAuthFile}'",
-                        certAuthFile);
+                    throw new FileNotFoundException($"CA certificate file not found: `{certAuthFile}'", certAuthFile);
                 }
 
                 try

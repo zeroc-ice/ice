@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(response.ResultType == ResultType.Failure);
                 }
 
-                request = OutgoingRequestFrame.WithParamList(cl,
+                request = OutgoingRequestFrame.WithSingleParam(cl,
                                                              "opString",
                                                              idempotent: false,
                                                              compress: false,
@@ -114,7 +114,7 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(false);
                 }
 
-                request = OutgoingRequestFrame.WithParamList(cl,
+                request = OutgoingRequestFrame.WithSingleParam(cl,
                                                              "opString",
                                                              idempotent: false,
                                                              compress: false,

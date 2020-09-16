@@ -16,12 +16,12 @@
         <WarningLevel>4</WarningLevel>
         <DefineConstants>TRACE</DefineConstants>
         <Nullable>enable</Nullable>
-        <LangVersion>8.0</LangVersion>
+        <LangVersion>9.0</LangVersion>
+        <!-- TODO: Fix Documentation Warnings -->
+        <NoWarn>1591</NoWarn>
         <!-- TODO enable all warnigns as error once we fix analyzer warnings -->
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-        <!-- TODO: Fix Documentation Warnings -->
-        <NoWarn>1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

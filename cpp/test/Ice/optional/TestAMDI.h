@@ -20,15 +20,15 @@ public:
                                ::std::function<void(const ::std::shared_ptr<::Ice::Value>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opOptionalExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opOptionalExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::Test::VarStruct>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opDerivedExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opDerivedExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::Test::VarStruct>,
                                          ::std::function<void()>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opRequiredExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opRequiredExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::Test::VarStruct>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
@@ -83,10 +83,6 @@ public:
     virtual void opVarStructAsync(Ice::optional<::Test::VarStruct>,
                                   ::std::function<void(const Ice::optional<::Test::VarStruct>&, const Ice::optional<::Test::VarStruct>&)>,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
-                                    ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&, const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
-                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
                                 ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)>,
@@ -152,10 +148,6 @@ public:
                                       ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)>,
                                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opIntOneOptionalDictAsync(Ice::optional<::Test::IntOneOptionalDict>,
-                                           ::std::function<void(const Ice::optional<::Test::IntOneOptionalDict>&, const Ice::optional<::Test::IntOneOptionalDict>&)>,
-                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
     virtual void opCustomIntStringDictAsync(Ice::optional<::std::map< int, ::Util::string_view>>,
                                             ::std::function<void(const Ice::optional<::std::map< int, ::Util::string_view>>&, const Ice::optional<::std::map< int, ::Util::string_view>>&)>,
                                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -163,18 +155,6 @@ public:
     virtual void opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
                                                 ::std::function<void()>,
                                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void sendOptionalClassAsync(bool, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
-                                        ::std::function<void()>,
-                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void returnOptionalClassAsync(bool,
-                                          ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
-                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void opGAsync(::std::shared_ptr<::Test::G>,
-                          ::std::function<void(const ::std::shared_ptr<::Test::G>&)>,
-                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -205,15 +185,6 @@ public:
                                ::std::function<void(const OpMDict2MarshaledResult&)>,
                                ::std::function<void(::std::exception_ptr)>,
                                const Ice::Current&) override;
-
-    virtual void opMG1Async(::std::function<void(const OpMG1MarshaledResult&)>,
-                            ::std::function<void(::std::exception_ptr)>,
-                            const Ice::Current&) override;
-
-    virtual void opMG2Async(Ice::optional<Test::GPtr>,
-                            ::std::function<void(const OpMG2MarshaledResult&)>,
-                            ::std::function<void(::std::exception_ptr)>,
-                            const Ice::Current&) override;
 
     virtual void supportsRequiredParamsAsync(::std::function<void(bool)>,
                                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;

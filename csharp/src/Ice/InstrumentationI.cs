@@ -13,6 +13,7 @@ namespace ZeroC.IceMX
     // Extends generated class that requires a public parameterless constructor in the code below.
     public partial class InvocationMetrics
     {
+        /// <summary>Constructs a new InvocationMetrics object.</summary>
         public InvocationMetrics()
             : this(remotes: Array.Empty<Metrics>(), collocated: Array.Empty<Metrics>())
         {

@@ -28,6 +28,13 @@ namespace ZeroC.Ice
         private bool _pluginsInitialized;
         private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
 
+        /// <summary>Manually registers a plug-in factory.</summary>
+        /// <param name="name">The name assigned to the plug-in.</param>
+        /// <param name="factory">The factory.</param>
+        /// <param name="loadOnInit">If true, the plug-in is always loaded (created) during communicator
+        /// initialization, even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during
+        /// communication initialization only if Ice.Plugin.name  is set to a non-empty value
+        /// (e.g.: Ice.Plugin.IceSSL= 1).</param>
         public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
         {
             if (!_pluginFactories.ContainsKey(name))
@@ -40,6 +47,12 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Initializes the configured plug-ins. The communicator automatically initializes the plug-ins by
+        /// default, but an application may need to interact directly with a plug-in prior to initialization. In this
+        /// case, the application must set Ice.InitPlugins=0 and then invoke InitializePlugins() manually. The plug-ins
+        /// are initialized in the order in which they are loaded. If a plug-in raises an exception during
+        /// initialization, the communicator invokes destroy on the plug-ins that have already been initialized.
+        /// </summary>
         public void InitializePlugins()
         {
             if (_pluginsInitialized)
@@ -79,6 +92,9 @@ namespace ZeroC.Ice
             _pluginsInitialized = true;
         }
 
+        /// <summary>Install a new plug-in.</summary>
+        /// <param name="name">The plug-in's name.</param>
+        /// <param name="plugin">The new plug-in.</param>
         public void AddPlugin(string name, IPlugin plugin)
         {
             lock (_mutex)
@@ -97,6 +113,9 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Obtain a plug-in by name.</summary>
+        /// <param name="name">The plug-in's name.</param>
+        /// <returns>The plug-in.</returns>
         public IPlugin? GetPlugin(string name)
         {
             lock (_mutex)
@@ -110,6 +129,8 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Get a list of plugins installed.</summary>
+        /// <returns>The names of the plugins installed.</returns>
         public string[] GetPlugins()
         {
             lock (_mutex)

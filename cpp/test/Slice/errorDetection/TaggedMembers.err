@@ -34,3 +34,10 @@ TaggedMembers.ice:71: tag for data member `m18' is already in use
 TaggedMembers.ice:72: cannot use value of `EBis::e3' as a tag
 TaggedMembers.ice:87: tagged data members are not supported in structs
 TaggedMembers.ice:88: tagged data members are not supported in structs
+TaggedMembers.ice:108: data member 'm3' cannot be tagged, since its type '::Test::C' is a class
+TaggedMembers.ice:109: data member 'm4' cannot be tagged, since its type '::Test::Derived' is a class
+TaggedMembers.ice:110: data member 'm5' cannot be tagged, since its type '::Test::HasClassMembers' contains classes
+TaggedMembers.ice:111: data member 'm6' cannot be tagged, since its type '::Test::TaggedClassMembers' is a class
+TaggedMembers.ice:112: data member 'm7' cannot be tagged, since its type '::Ice::AnyClass' is a class
+TaggedMembers.ice:113: data member 'm8' cannot be tagged, since its type '::Test::OnlyDeclared' is a class
+TaggedMembers.ice:116: data member 'm10' cannot be tagged, since its type '::Test::cs' contains classes

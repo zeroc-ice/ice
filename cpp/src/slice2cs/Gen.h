@@ -38,6 +38,7 @@ protected:
     void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
+    void emitEditorBrowsableNeverAttribute();
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
     void emitTypeIdAttribute(const std::string&); // the Ice type ID attribute
 
@@ -118,8 +119,6 @@ private:
         void visitStructEnd(const StructPtr&) override;
         void visitEnum(const EnumPtr&) override;
         void visitDataMember(const MemberPtr&) override;
-        void visitSequence(const SequencePtr&) override;
-        void visitDictionary(const DictionaryPtr&) override;
 
     private:
 

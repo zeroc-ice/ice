@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public interface INetworkProxy
+    internal interface INetworkProxy
     {
         // Returns the IP address of the network proxy. This method should not block. It's only called on a network
         // proxy object returned by ResolveHostAsync.

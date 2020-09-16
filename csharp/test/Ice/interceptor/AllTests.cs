@@ -225,9 +225,10 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                      Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                    request.AddBinaryContextEntry(2,
-                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                                  Ice.StringSeqHelper.IceWriter);
+                    request.AddBinaryContextEntry(
+                        2,
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                        (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
 
                     // Adding the same key twice throws ArgumentException
                     try
@@ -262,9 +263,10 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                  Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                    request.AddBinaryContextEntry(2,
-                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                                  Ice.StringSeqHelper.IceWriter);
+                    request.AddBinaryContextEntry(
+                        2,
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                        (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
                     TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
                     prx.Invoke(request);
 
@@ -281,9 +283,10 @@ namespace ZeroC.Ice.Test.Interceptor
                     TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                    request.AddBinaryContextEntry(2,
-                                                  Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                                                  Ice.StringSeqHelper.IceWriter);
+                    request.AddBinaryContextEntry(
+                        2,
+                        Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                        (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
                     prx.Invoke(request);
                 }
             }

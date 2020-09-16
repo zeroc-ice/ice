@@ -521,6 +521,7 @@ namespace ZeroC.Ice
         }
     }
 
+    /// <summary>Provides public extension methods to parse command-line args into properties.</summary>
     public static class PropertiesExtensions
     {
         /// <summary>Extract the reserved Ice properties from command-line args.</summary>
