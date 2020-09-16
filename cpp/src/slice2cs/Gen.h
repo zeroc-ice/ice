@@ -38,6 +38,7 @@ protected:
     void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
+    void emitEditorBrowsableNeverAttribute();
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
     void emitTypeIdAttribute(const std::string&); // the Ice type ID attribute
 

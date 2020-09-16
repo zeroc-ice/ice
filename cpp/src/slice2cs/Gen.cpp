@@ -490,6 +490,13 @@ Slice::CsVisitor::emitCommonAttributes()
 }
 
 void
+Slice::CsVisitor::emitEditorBrowsableNeverAttribute()
+{
+    _out << nl << "[global::System.ComponentModel.EditorBrowsable("
+         << "global::System.ComponentModel.EditorBrowsableState.Never)]";
+}
+
+void
 Slice::CsVisitor::emitCustomAttributes(const ContainedPtr& p)
 {
     StringList metaData = p->getMetaData();
@@ -2978,8 +2985,7 @@ Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixId(p->name());
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "[global::System.ComponentModel.EditorBrowsable("
-         << "global::System.ComponentModel.EditorBrowsableState.Never)]";
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static class " << name;
     _out << sb;
     _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
@@ -3022,8 +3028,7 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         emitCommonAttributes();
-        _out << nl << "[global::System.ComponentModel.EditorBrowsable("
-             << "global::System.ComponentModel.EditorBrowsableState.Never)]";
+        emitEditorBrowsableNeverAttribute();
         _out << nl << "public static class CompactId_" << p->compactId();
         _out << sb;
         _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
@@ -3073,8 +3078,7 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     string name = fixId(p->name());
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "[global::System.ComponentModel.EditorBrowsable("
-         << "global::System.ComponentModel.EditorBrowsableState.Never)]";
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static class " << name;
     _out << sb;
     _out << nl << "public static global::ZeroC.Ice.RemoteException Create(string? message) =>";
