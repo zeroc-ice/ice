@@ -105,7 +105,8 @@ namespace ZeroC.Ice
             (IObjectPrx prx, in T paramList, IReadOnlyDictionary<string, string>? context) =>
             WithParamList(prx, operationName, idempotent, compress, format, context, in paramList, writer);
 
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/>for the given single-parameter operation.</summary>
+        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given single-parameter operation.
+        /// </summary>
         /// <param name="operationName">The operation name.</param>
         /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
         /// <param name="compress"><c>True</c> if the request's parameter is compressed during frame creation with
