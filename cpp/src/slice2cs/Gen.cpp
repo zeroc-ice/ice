@@ -988,7 +988,7 @@ Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo
 {
     // Collect the names of the in- or -out parameters to be documented.
     MemberList parameters = (paramType == InParam) ? op->parameters() : op->outParameters();
-    for (const auto param : parameters)
+    for (const auto& param : parameters)
     {
         auto i = comment.params.find(param->name());
         if(i != comment.params.end())
@@ -2490,11 +2490,22 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         _out << nl << "public static new class Request";
         _out << sb;
+        bool outputSeparator = false;
+
         for (auto operation : operationList)
         {
             auto params = operation->parameters();
             if (params.size() > 0)
             {
+                if (outputSeparator)
+                {
+                    _out << sp;
+                }
+                else
+                {
+                    outputSeparator = true;
+                }
+
                 string propertyName = fixId(operationName(operation));
                 _out << nl << "public static readonly ";
                 string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(params, false) + ">";
@@ -2514,6 +2525,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         _out << nl << "public static new class Response";
         _out << sb;
+        bool outputSeparator = false;
 
         for (auto operation : operationList)
         {
@@ -2522,56 +2534,34 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (returnCount > 0)
             {
-                string propertyName = fixId(operationName(operation));
-                string fieldName = "_" + operation->name();
+                bool inValue = returnCount > 1 || StructPtr::dynamicCast(returns.front()->type());
 
-                // A single Slice-struct return is treated like a tuple-return. Note this does not apply to an optional
-                // struct return although in theory it could.
-                bool singleReturnFactory = returnCount == 1 && !StructPtr::dynamicCast(returns.front()->type());
+                if (outputSeparator)
+                {
+                    _out << sp;
+                }
+                else
+                {
+                    outputSeparator = true;
+                }
 
-                string factoryType = singleReturnFactory ? "SingleReturnFactory" : "Factory";
-
-                _out << nl << "public static ZeroC.Ice.OutgoingResponseFrame." << factoryType << "<"
-                    << toTupleType(returns, true) << "> " << propertyName << " =>";
+                _out << nl << "public static ZeroC.Ice.OutgoingResponseFrame "<< fixId(operationName(operation))
+                    << "(ZeroC.Ice.Current current, "
+                    << (inValue ? "in " : "") << toTupleType(returns, true) << " returnValue) =>";
                 _out.inc();
-                _out << nl << fieldName << " ?\?= ZeroC.Ice.OutgoingResponseFrame.Create" << factoryType
-                    << "<" << toTupleType(returns, true) << ">(";
+                _out << nl << "ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(";
                 _out.inc();
-                _out << nl << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ","
+                _out << nl << "current,"
+                    << nl << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ","
                     << nl << "format: " << opFormatTypeToString(operation) << ","
-                    << nl << "writer: ";
+                    << nl << (inValue ? "in " : "") << "returnValue,"
+                    << nl;
                 writeOutgoingResponseWriter(operation);
                 _out << ");";
                 _out.dec();
                 _out.dec();
             }
         }
-        _out << sp;
-
-        // Output private static fields
-        for (auto operation : operationList)
-        {
-            auto returns = operation->returnValues();
-            size_t returnCount = returns.size();
-
-            if (returnCount > 0)
-            {
-                string fieldName = "_" + operation->name();
-
-                _out << nl << "private static ZeroC.Ice.OutgoingResponseFrame.";
-
-                if (returnCount == 1 && !StructPtr::dynamicCast(returns.front()->type()))
-                {
-                    _out << "SingleReturnFactory";
-                }
-                else
-                {
-                    _out << "Factory";
-                }
-                _out << "<" << toTupleType(returns, true) << ">? " << fieldName << ";";
-            }
-        }
-
         _out << eb;
         _out << sp;
     }

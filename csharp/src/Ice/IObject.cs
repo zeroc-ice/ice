@@ -19,27 +19,29 @@ namespace ZeroC.Ice
 
         public static class Response
         {
-            public static OutgoingResponseFrame.SingleReturnFactory<string> IceId =>
-                _ice_id ??= OutgoingResponseFrame.CreateSingleReturnFactory(
+            public static OutgoingResponseFrame IceId(Current current, string returnValue) =>
+                OutgoingResponseFrame.WithReturnValue(
+                    current,
                     compress: false,
                     format: default,
+                    returnValue,
                     OutputStream.IceWriterFromString);
 
-            public static OutgoingResponseFrame.SingleReturnFactory<IEnumerable<string>> IceIds =>
-                _ice_ids ??= OutgoingResponseFrame.CreateSingleReturnFactory<IEnumerable<string>>(
+            public static OutgoingResponseFrame IceIds(Current current, IEnumerable<string> returnValue) =>
+                OutgoingResponseFrame.WithReturnValue(
+                    current,
                     compress: false,
                     format: default,
-                    (ostr, value) => ostr.WriteSequence(value, OutputStream.IceWriterFromString));
+                    returnValue,
+                    (ostr, returnValue) => ostr.WriteSequence(returnValue, OutputStream.IceWriterFromString));
 
-            public static OutgoingResponseFrame.SingleReturnFactory<bool> IceIsA =>
-                _ice_isA ??= OutgoingResponseFrame.CreateSingleReturnFactory(
+            public static OutgoingResponseFrame IceIsA(Current current, bool returnValue) =>
+                OutgoingResponseFrame.WithReturnValue(
+                    current,
                     compress: false,
                     format: default,
+                    returnValue,
                     OutputStream.IceWriterFromBool);
-
-            private static OutgoingResponseFrame.SingleReturnFactory<string>? _ice_id;
-            private static OutgoingResponseFrame.SingleReturnFactory<IEnumerable<string>>? _ice_ids;
-            private static OutgoingResponseFrame.SingleReturnFactory<bool>? _ice_isA;
         }
 
         /// <summary>Dispatches a request on this servant.</summary>
