@@ -37,7 +37,7 @@ namespace ZeroC.Ice
 #pragma warning restore CS0618 // Type or member is obsolete
     }
 
-    /// <summary>Delegate used to create typed proxies.</summary>
+    /// <summary>Factory function that creates a proxy from a reference.</summary>
     /// <typeparam name="T">The proxy type.</typeparam>
     /// <param name="reference">The underlying reference.</param>
     /// <returns>The new proxy.</returns>
@@ -129,27 +129,129 @@ namespace ZeroC.Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
-        /// <summary>The proxy's underlying reference. This is a publicly visible Ice-internal method. Applications
-        /// should not use it directly.</summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Reference IceReference { get; }
-
-        /// <summary>Creates a clone of the current object, IceClone is re-implemented by all generated proxy classes.
-        /// </summary>
-        /// <param name="reference">The proxy's reference for the cloned proxy.</param>
-        /// <returns>The new proxy.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected IObjectPrx IceClone(Reference reference) => new ObjectPrx(reference);
-        internal IObjectPrx Clone(Reference reference) => IceClone(reference);
+        /// <summary>The adapter ID of this proxy, or an empty string if this proxy does not have an adapter ID.
+        /// A proxy with an adapter ID is an indirect proxy. </summary>
+        public string AdapterId => IceReference.AdapterId;
 
         /// <summary>Returns the communicator that created this proxy.</summary>
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;
 
-        /// <summary>Convert a proxy to a set of proxy properties.</summary>
-        /// <param name="property">The base property name.</param>
-        /// <returns>The property set.</returns>
-        public Dictionary<string, string> ToProperty(string property) => IceReference.ToProperty(property);
+        /// <summary>The connection ID of this proxy.</summary>
+        public string ConnectionId => IceReference.ConnectionId;
+
+        /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Context => IceReference.Context;
+
+        /// <summary>The encoding used to marshal request parameters.</summary>
+        public Encoding Encoding => IceReference.Encoding;
+
+        /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
+        public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
+
+        /// <summary>The endpoint selection policy of this proxy, which can be Random or Ordered.</summary>
+        public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
+
+        /// <summary>The facet to use on the target Ice object. The empty string corresponds to the default facet.
+        /// </summary>
+        public string Facet => IceReference.Facet;
+
+        /// <summary>The proxy's underlying reference. This is a publicly visible Ice-internal property. Applications
+        /// should not use it directly.</summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Reference IceReference { get; }
+
+        /// <summary>The identity of the target Ice object.</summary>
+        public Identity Identity => IceReference.Identity;
+
+        /// <summary>The invocation mode of this proxy. </summary>
+        public InvocationMode InvocationMode => IceReference.InvocationMode;
+
+        /// <summary>Indicates whether or not this proxy caches its connection.</summary>
+        /// <value>True when the proxy caches its connection; otherwise, false.</value>
+        public bool IsConnectionCached => IceReference.IsConnectionCached;
+
+        /// <summary>Indicates whether or not this proxy is fixed proxy.</summary>
+        /// <value>When true, the proxy is a fixed proxy; when false, the proxy is a regular proxy, not bound to
+        /// any connection.</value>
+        public bool IsFixed => IceReference.IsFixed;
+
+        /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
+        /// waits for an empty response from the target Ice object.</summary>
+        /// <value>When true, invoking such an operation does not wait for the response from the target object. This
+        /// corresponds to several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. When false,
+        /// invoking such an operation waits for the empty response from the target object, unless this behavior is
+        /// overridden by metadata on the Slice operation's definition.</value>
+        public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
+
+        /// <summary>The locator associated with this proxy. This property is null when no locator is associated with
+        /// this proxy.</summary>
+        public ILocatorPrx? Locator => IceReference.LocatorInfo?.Locator;
+
+        /// <summary>The locator cache timeout of this proxy.</summary>
+        public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
+
+        /// <summary>Indicates whether or not this proxy prefers non-secure connections.</summary>
+        /// <value>When true, the proxy attempts to establish a non-secure connection if such a connection is available;
+        /// when false, the proxy attempts first to establish a secure connection and falls back to a non-secure
+        /// connection. The fallback to a non-secure connection applies only when using the ice1 protocol.</value>
+        public bool PreferNonSecure => IceReference.PreferNonSecure;
+
+        /// <summary>The Ice protocol of this proxy. Requests sent with this proxy use only this Ice protocol.</summary>
+        public Protocol Protocol => IceReference.Protocol;
+
+        /// <summary>The router associated with this proxy. This property is null when no router is associated with this
+        /// proxy.</summary>
+        public IRouterPrx? Router => IceReference.RouterInfo?.Router;
+
+        /// <summary>Indicates whether the two proxy operands are equal.</summary>
+        /// <param name="lhs">The left hand-side operand.</param>
+        /// <param name="rhs">The right hand-side operand.</param>
+        /// <returns><c>True</c> if the tow proxies are equal, <c>False</c> otherwise.</returns>
+        public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (lhs is null || rhs is null)
+            {
+                return false;
+            }
+
+            return lhs.IceReference.Equals(rhs.IceReference);
+        }
+
+        /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
+        /// <param name="s">The proxy string representation.</param>
+        /// <param name="communicator">The communicator for the new proxy</param>
+        /// <returns>The new proxy</returns>
+        /// <exception cref="FormatException"><c>s</c> does not contain a valid string representation of a proxy.
+        /// </exception>
+        public static IObjectPrx Parse(string s, Communicator communicator) =>
+            new ObjectPrx(Reference.Parse(s, communicator));
+
+        /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
+        /// <param name="s">The proxy string representation.</param>
+        /// <param name="communicator">The communicator for the new proxy</param>
+        /// <param name="prx">When this method returns it contains the new proxy, if the conversion succeeded or null
+        /// if the conversion failed.</param>
+        /// <returns><c>true</c> if the s parameter was converted successfully; otherwise, <c>false</c>.</returns>
+        public static bool TryParse(string s, Communicator communicator, out IObjectPrx? prx)
+        {
+            try
+            {
+                prx = new ObjectPrx(Reference.Parse(s, communicator));
+            }
+            catch (Exception)
+            {
+                prx = null;
+                return false;
+            }
+            return true;
+        }
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
         /// proxy.</summary>
@@ -234,125 +336,22 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             IceInvokeAsync(Request.IcePing(this, context), IsOneway, progress, cancel);
 
-        /// <summary>The identity of the target Ice object.</summary>
-        public Identity Identity => IceReference.Identity;
-
-        /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.
-        /// </summary>
-        public IReadOnlyDictionary<string, string> Context => IceReference.Context;
-
-        /// <summary>The facet to use on the target Ice object. The empty string corresponds to the default facet.
-        /// </summary>
-        public string Facet => IceReference.Facet;
-
-        /// <summary>The adapter ID of this proxy, or an empty string if this proxy does not have an adapter ID.
-        /// A proxy with an adapter ID is an indirect proxy. </summary>
-        public string AdapterId => IceReference.AdapterId;
-
-        /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
-        public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
-
-        /// <summary>Indicates whether or not this proxy caches its connection.</summary>
-        /// <value>True when the proxy caches its connection; otherwise, false.</value>
-        public bool IsConnectionCached => IceReference.IsConnectionCached;
-
-        /// <summary>The endpoint selection policy of this proxy, which can be Random or Ordered.</summary>
-        public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
-
-        /// <summary>The encoding used to marshal request parameters.</summary>
-        public Encoding Encoding => IceReference.Encoding;
-
-        /// <summary>The locator cache timeout of this proxy.</summary>
-        public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
-
-        /// <summary>Indicates whether or not this proxy prefers non-secure connections.</summary>
-        /// <value>When true, the proxy attempts to establish a non-secure connection if such a connection is available;
-        /// when false, the proxy attempts first to establish a secure connection and falls back to a non-secure
-        /// connection. The fallback to a non-secure connection applies only when using the ice1 protocol.</value>
-        public bool PreferNonSecure => IceReference.PreferNonSecure;
-
-        /// <summary>The Ice protocol of this proxy. Requests sent with this proxy use only this Ice protocol.</summary>
-        public Protocol Protocol => IceReference.Protocol;
-
-        /// <summary>The router associated with this proxy. This property is null when no router is associated with this
-        /// proxy.</summary>
-        public IRouterPrx? Router => IceReference.RouterInfo?.Router;
-
-        /// <summary>The locator associated with this proxy. This property is null when no locator is associated with
-        /// this proxy.</summary>
-        public ILocatorPrx? Locator => IceReference.LocatorInfo?.Locator;
-
-        /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
-        /// waits for an empty response from the target Ice object.</summary>
-        /// <value>When true, invoking such an operation does not wait for the response from the target object. This
-        /// corresponds to several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. When false,
-        /// invoking such an operation waits for the empty response from the target object, unless this behavior is
-        /// overridden by metadata on the Slice operation's definition.</value>
-        public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
-
-        /// <summary>The invocation mode of this proxy. </summary>
-        public InvocationMode InvocationMode => IceReference.InvocationMode;
-
-        /// <summary>The connection ID of this proxy.</summary>
-        public string ConnectionId => IceReference.ConnectionId;
-
-        /// <summary>Indicates whether or not this proxy is fixed proxy.</summary>
-        /// <value>When true, the proxy is a fixed proxy; when false, the proxy is a regular proxy, not bound to
-        /// any connection.</value>
-        public bool IsFixed => IceReference.IsFixed;
-
         /// <summary>Marshals the proxy into an OutputStream.</summary>
         /// <param name="ostr">The OutputStream used to marshal the proxy.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream ostr) => IceReference.Write(ostr);
 
-        /// <summary>Indicates whether the two proxy operands are equal.</summary>
-        /// <param name="lhs">The left hand-side operand.</param>
-        /// <param name="rhs">The right hand-side operand.</param>
-        /// <returns><c>True</c> if the tow proxies are equal, <c>False</c> otherwise.</returns>
-        public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
-        {
-            if (ReferenceEquals(lhs, rhs))
-            {
-                return true;
-            }
+        /// <summary>Converts a proxy to a set of proxy properties.</summary>
+        /// <param name="property">The base property name.</param>
+        /// <returns>The property set.</returns>
+        public Dictionary<string, string> ToProperty(string property) => IceReference.ToProperty(property);
 
-            if (lhs is null || rhs is null)
-            {
-                return false;
-            }
-
-            return lhs.IceReference.Equals(rhs.IceReference);
-        }
-
-        /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
-        /// <param name="s">The proxy string representation.</param>
-        /// <param name="communicator">The communicator for the new proxy</param>
-        /// <returns>The new proxy</returns>
-        /// <exception cref="FormatException"><c>s</c> does not contain a valid string representation of a proxy.
-        /// </exception>
-        public static IObjectPrx Parse(string s, Communicator communicator) =>
-            new ObjectPrx(Reference.Parse(s, communicator));
-
-        /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
-        /// <param name="s">The proxy string representation.</param>
-        /// <param name="communicator">The communicator for the new proxy</param>
-        /// <param name="prx">When this method returns it contains the new proxy, if the conversion succeeded or null
-        /// if the conversion failed.</param>
-        /// <returns><c>true</c> if the s parameter was converted successfully; otherwise, <c>false</c>.</returns>
-        public static bool TryParse(string s, Communicator communicator, out IObjectPrx? prx)
-        {
-            try
-            {
-                prx = new ObjectPrx(Reference.Parse(s, communicator));
-            }
-            catch (Exception)
-            {
-                prx = null;
-                return false;
-            }
-            return true;
-        }
+        /// <summary>Creates a clone of the current object, IceClone is re-implemented by all generated proxy classes.
+        /// </summary>
+        /// <param name="reference">The proxy's reference for the cloned proxy.</param>
+        /// <returns>The new proxy.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected IObjectPrx IceClone(Reference reference) => new ObjectPrx(reference);
 
         /// <summary>Sends a request that returns a value and returns the result synchronously.</summary>
         /// <typeparam name="T">The operation's return type.</typeparam>
@@ -361,6 +360,7 @@ namespace ZeroC.Ice
         /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The operation's return value.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader, CancellationToken cancel) =>
             this.Invoke(request, oneway: false, cancel).ReadReturnValue(Communicator, reader);
 
@@ -369,6 +369,7 @@ namespace ZeroC.Ice
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// twoway request.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void IceInvoke(OutgoingRequestFrame request, bool oneway, CancellationToken cancel)
         {
             IncomingResponseFrame response = this.Invoke(request, oneway, cancel);
@@ -386,6 +387,7 @@ namespace ZeroC.Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task that provides the return value asynchronously.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected Task<T> IceInvokeAsync<T>(
             OutgoingRequestFrame request,
             InputStreamReader<T> reader,
@@ -408,6 +410,7 @@ namespace ZeroC.Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task that completes when the request completes.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected Task IceInvokeAsync(
             OutgoingRequestFrame request,
             bool oneway,
@@ -421,6 +424,8 @@ namespace ZeroC.Ice
                 ValueTask<IncomingResponseFrame> response,
                 Communicator communicator) => (await response.ConfigureAwait(false)).ReadVoidReturnValue(communicator);
         }
+
+        internal IObjectPrx Clone(Reference reference) => IceClone(reference);
     }
 
     /// <summary>The base class for all proxies. It's a publicly visible Ice-internal class. Applications
@@ -428,17 +433,6 @@ namespace ZeroC.Ice
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ObjectPrx : IObjectPrx
     {
-        /// <summary>The proxy's underlying reference.</summary>
-        public Reference IceReference { get; }
-
-        /// <summary>Returns the stringified form of this proxy.</summary>
-        /// <returns>The stringified proxy.</returns>
-        public override string ToString() => IceReference.ToString();
-
-        /// <summary>Returns a hash code for this proxy.</summary>
-        /// <returns>The hash code.</returns>
-        public override int GetHashCode() => IceReference.GetHashCode();
-
         /// <summary>Returns whether this proxy equals the given object. Two proxies are equal if they are equal in all
         /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.</summary>
         /// <param name="other">The object to compare this proxy with.</param>
@@ -451,6 +445,17 @@ namespace ZeroC.Ice
         /// <param name="other">The proxy to compare this proxy with.</param>
         /// <returns>True if this proxy is equal to other; otherwise, false.</returns>
         public bool Equals(IObjectPrx? other) => other != null && IceReference.Equals(other.IceReference);
+
+        /// <summary>Returns a hash code for this proxy.</summary>
+        /// <returns>The hash code.</returns>
+        public override int GetHashCode() => IceReference.GetHashCode();
+
+        /// <summary>The proxy's underlying reference.</summary>
+        public Reference IceReference { get; }
+
+        /// <summary>Returns the stringified form of this proxy.</summary>
+        /// <returns>The stringified proxy.</returns>
+        public override string ToString() => IceReference.ToString();
 
         /// <summary>Constructs a new proxy.</summary>
         /// <param name="reference">The proxy's underlying reference.</param>
