@@ -53,7 +53,10 @@ namespace ZeroC.IceDiscovery
             return new ValueTask();
         }
 
-        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(
+            string adapterId,
+            string replicaGroupId,
+            IObjectPrx? proxy,
             Current current)
         {
             lock (_mutex)
@@ -63,10 +66,11 @@ namespace ZeroC.IceDiscovery
                 {
                     if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
                     {
-                        if (_adapters.TryGetValue(adapterIds.First(), out IObjectPrx? prx) &&
-                            prx.Protocol != proxy.Protocol)
+                        if (_adapters.TryGetValue(adapterIds.First(), out IObjectPrx? registeredProxy) &&
+                            registeredProxy.Protocol != proxy.Protocol)
                         {
-                            return default; // TODO should we log a warning or throw an exception?
+                            throw new InvalidProxyException(
+                                $"The proxy protocol {proxy.Protocol} doesnt match the replica group protocol");
                         }
                     }
                     else
@@ -120,7 +124,7 @@ namespace ZeroC.IceDiscovery
                         endpoints.AddRange(proxy.Endpoints);
                     }
 
-                    return (result?.Clone(endpoints: endpoints), true);
+                    return (result?.Clone(endpoints: endpoints), result != null);
                 }
 
                 return (null, false);
