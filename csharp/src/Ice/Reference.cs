@@ -1300,6 +1300,11 @@ namespace ZeroC.Ice
                 throw new ArgumentException(
                     $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
             }
+
+            if (Endpoints.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
+            {
+                throw new ArgumentException($"endpoint `{endpoint}' is not compatible with {Protocol} protocol");
+            }
         }
 
         // Constructor for fixed references.
