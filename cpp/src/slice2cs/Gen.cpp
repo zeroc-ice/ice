@@ -988,7 +988,7 @@ Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo
 {
     // Collect the names of the in- or -out parameters to be documented.
     MemberList parameters = (paramType == InParam) ? op->parameters() : op->outParameters();
-    for (const auto param : parameters)
+    for (const auto& param : parameters)
     {
         auto i = comment.params.find(param->name());
         if(i != comment.params.end())
