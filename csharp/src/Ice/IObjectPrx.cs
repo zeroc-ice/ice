@@ -46,39 +46,55 @@ namespace ZeroC.Ice
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
-        /// <summary>Holds an <see cref="OutgoingRequestFrame"/> factory for each remote operation defined in the
-        /// pseudo-interface Object.</summary>
+        /// <summary>Provides an <see cref="OutgoingRequestFrame"/> factory method for each remote operation defined in
+        /// the pseudo-interface Object.</summary>
         public static class Request
         {
-            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_id.</summary>
-            public static OutgoingRequestFrame.Factory IceId =>
-                _ice_id ??= OutgoingRequestFrame.CreateFactory("ice_id", idempotent: true);
+            /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_id.</summary>
+            /// <param name="proxy">Proxy to the target Ice Object.</param>
+            /// <param name="context">The context to write into the request.</param>
+            /// <returns>A new <see cref="OutgoingRequestFrame"/>.</returns>
+            public static OutgoingRequestFrame IceId(IObjectPrx proxy, IReadOnlyDictionary<string, string>? context) =>
+                OutgoingRequestFrame.WithEmptyParamList(proxy, "ice_id", idempotent: true, context);
 
-            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_ids.</summary>
-            public static OutgoingRequestFrame.Factory IceIds =>
-                _ice_ids ??= OutgoingRequestFrame.CreateFactory("ice_ids", idempotent: true);
+            /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_ids.</summary>
+            /// <param name="proxy">Proxy to the target Ice Object.</param>
+            /// <param name="context">The context to write into the request.</param>
+            /// <returns>A new <see cref="OutgoingRequestFrame"/>.</returns>
+            public static OutgoingRequestFrame IceIds(IObjectPrx proxy, IReadOnlyDictionary<string, string>? context) =>
+                OutgoingRequestFrame.WithEmptyParamList(proxy, "ice_ids", idempotent: true, context);
 
-            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_isA.</summary>
-            public static OutgoingRequestFrame.SingleParamFactory<string> IceIsA =>
-                _ice_isA ??= OutgoingRequestFrame.CreateSingleParamFactory<string>(
+            /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_isA.</summary>
+            /// <param name="proxy">Proxy to the target Ice Object.</param>
+            /// <param name="id">The type ID argument to write into the request.</param>
+            /// <param name="context">The context to write into the request.</param>
+            /// <returns>A new <see cref="OutgoingRequestFrame"/>.</returns>
+            public static OutgoingRequestFrame IceIsA(
+                IObjectPrx proxy,
+                string id,
+                IReadOnlyDictionary<string, string>? context) =>
+                OutgoingRequestFrame.WithSingleParam(
+                    proxy,
                     "ice_isA",
                     idempotent: true,
                     compress: false,
                     format: default,
-                    writer: OutputStream.IceWriterFromString);
+                    context,
+                    id,
+                    OutputStream.IceWriterFromString);
 
-            /// <summary>The <see cref="OutgoingRequestFrame"/> factory for operation ice_ping.</summary>
-            public static OutgoingRequestFrame.Factory IcePing =>
-                _ice_ping ??= OutgoingRequestFrame.CreateFactory("ice_ping", idempotent: true);
-
-            private static OutgoingRequestFrame.Factory? _ice_id;
-            private static OutgoingRequestFrame.Factory? _ice_ids;
-            private static OutgoingRequestFrame.SingleParamFactory<string>? _ice_isA;
-            private static OutgoingRequestFrame.Factory? _ice_ping;
+            /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_ping.</summary>
+            /// <param name="proxy">Proxy to the target Ice Object.</param>
+            /// <param name="context">The context to write into the request.</param>
+            /// <returns>A new <see cref="OutgoingRequestFrame"/>.</returns>
+            public static OutgoingRequestFrame IcePing(
+                IObjectPrx proxy,
+                IReadOnlyDictionary<string, string>? context) =>
+                OutgoingRequestFrame.WithEmptyParamList(proxy, "ice_ping", idempotent: true, context);
         }
 
-        /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each non-void remote operation defined in
-        /// the pseudo-interface Object.</summary>
+        /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each non-void remote operation defined in the
+        /// pseudo-interface Object.</summary>
         public static class Response
         {
             /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_id.</summary>
@@ -141,7 +157,7 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         public string IceId(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
-            this.Invoke(Request.IceId(this, context), Response.IceId, cancel);
+            IceInvoke(Request.IceId(this, context), Response.IceId, cancel);
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
         /// proxy.</summary>
@@ -153,7 +169,7 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context = null,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
-            this.InvokeAsync(Request.IceId(this, context), Response.IceId, progress, cancel);
+            IceInvokeAsync(Request.IceId(this, context), Response.IceId, progress, cancel);
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
@@ -163,7 +179,7 @@ namespace ZeroC.Ice
         public string[] IceIds(
             IReadOnlyDictionary<string, string>? context = null,
             CancellationToken cancel = default) =>
-            this.Invoke(Request.IceIds(this, context), Response.IceIds, cancel);
+            IceInvoke(Request.IceIds(this, context), Response.IceIds, cancel);
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
@@ -175,7 +191,7 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context = null,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
-            this.InvokeAsync(Request.IceIds(this, context), Response.IceIds, progress, cancel);
+            IceInvokeAsync(Request.IceIds(this, context), Response.IceIds, progress, cancel);
 
         /// <summary>Tests whether the target object implements a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
@@ -186,7 +202,7 @@ namespace ZeroC.Ice
             string id,
             IReadOnlyDictionary<string, string>? context = null,
             CancellationToken cancel = default) =>
-            this.Invoke(Request.IceIsA(this, id, context), Response.IceIsA, cancel);
+            IceInvoke(Request.IceIsA(this, id, context), Response.IceIsA, cancel);
 
         /// <summary>Tests whether this object supports a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
@@ -199,13 +215,13 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context = null,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
-            this.InvokeAsync(Request.IceIsA(this, id, context), Response.IceIsA, progress, cancel);
+            IceInvokeAsync(Request.IceIsA(this, id, context), Response.IceIsA, progress, cancel);
 
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public void IcePing(IReadOnlyDictionary<string, string>? context = null, CancellationToken cancel = default) =>
-            this.InvokeVoid(Request.IcePing(this, context), IsOneway, cancel);
+            IceInvoke(Request.IcePing(this, context), IsOneway, cancel);
 
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
@@ -216,7 +232,7 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context = null,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
-            this.InvokeVoidAsync(Request.IcePing(this, context), IsOneway, progress, cancel);
+            IceInvokeAsync(Request.IcePing(this, context), IsOneway, progress, cancel);
 
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;
@@ -336,6 +352,74 @@ namespace ZeroC.Ice
                 return false;
             }
             return true;
+        }
+
+        /// <summary>Sends a request that returns a value and returns the result synchronously.</summary>
+        /// <typeparam name="T">The operation's return type.</typeparam>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
+        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
+        /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The operation's return value.</returns>
+        protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader, CancellationToken cancel) =>
+            this.Invoke(request, oneway: false, cancel).ReadReturnValue(Communicator, reader);
+
+        /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// twoway request.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        protected void IceInvoke(OutgoingRequestFrame request, bool oneway, CancellationToken cancel)
+        {
+            IncomingResponseFrame response = this.Invoke(request, oneway, cancel);
+            if (!oneway)
+            {
+                response.ReadVoidReturnValue(Communicator);
+            }
+        }
+
+        /// <summary>Sends a request that returns a value and returns the result asynchronously.</summary>
+        /// <typeparam name="T">The operation's return type.</typeparam>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
+        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
+        /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A task that provides the return value asynchronously.</returns>
+        protected Task<T> IceInvokeAsync<T>(
+            OutgoingRequestFrame request,
+            InputStreamReader<T> reader,
+            IProgress<bool>? progress,
+            CancellationToken cancel)
+        {
+            return ReadResponseAsync(this.InvokeAsync(request, oneway: false, progress, cancel), reader, Communicator);
+
+            static async Task<T> ReadResponseAsync(
+                ValueTask<IncomingResponseFrame> task,
+                InputStreamReader<T> reader,
+                Communicator communicator) =>
+                (await task.ConfigureAwait(false)).ReadReturnValue(communicator, reader);
+        }
+
+        /// <summary>Sends a request that returns void and returns the result asynchronously.</summary>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// twoway request.</param>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A task that completes when the request completes.</returns>
+        protected Task IceInvokeAsync(
+            OutgoingRequestFrame request,
+            bool oneway,
+            IProgress<bool>? progress,
+            CancellationToken cancel)
+        {
+            ValueTask<IncomingResponseFrame> response = this.InvokeAsync(request, oneway, progress, cancel);
+            return oneway ? Task.CompletedTask : ReadResponseAsync(response, Communicator);
+
+            static async Task ReadResponseAsync(
+                ValueTask<IncomingResponseFrame> response,
+                Communicator communicator) => (await response.ConfigureAwait(false)).ReadVoidReturnValue(communicator);
         }
     }
 
