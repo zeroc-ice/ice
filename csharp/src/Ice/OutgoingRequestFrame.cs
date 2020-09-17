@@ -10,34 +10,6 @@ namespace ZeroC.Ice
     /// <summary>Represents an ice1 or ice2 request frame sent by the application.</summary>
     public sealed class OutgoingRequestFrame : OutgoingFrame
     {
-        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>.</summary>
-        /// <param name="prx">The proxy used to send the new request frame.</param>
-        /// <param name="context">The Ice request context.</param>
-        /// <returns>The new <see cref="OutgoingRequestFrame"/>.</returns>
-        public delegate OutgoingRequestFrame Factory(IObjectPrx prx, IReadOnlyDictionary<string, string>? context);
-
-        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>. This factory is used for operations with multiple
-        /// parameters or with a single non-optional struct parameter.</summary>
-        /// <param name="prx">The proxy used to send the new request frame.</param>
-        /// <param name="paramList">The request parameters.</param>
-        /// <param name="context">The Ice request context.</param>
-        /// <returns>The new <see cref="OutgoingRequestFrame"/>.</returns>
-        public delegate OutgoingRequestFrame Factory<T>(
-            IObjectPrx prx,
-            in T paramList,
-            IReadOnlyDictionary<string, string>? context) where T : struct;
-
-        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>. This factory is used for operations with a single
-        /// parameter that is not a non-optional struct.</summary>
-        /// <param name="prx">The proxy used to send the new request frame.</param>
-        /// <param name="param">The parameter.</param>
-        /// <param name="context">The Ice request context.</param>
-        /// <returns>The new <see cref="OutgoingRequestFrame"/>.</returns>
-        public delegate OutgoingRequestFrame SingleParamFactory<T>(
-            IObjectPrx prx,
-            T param,
-            IReadOnlyDictionary<string, string>? context);
-
         /// <summary>The context of this request frame.</summary>
         public IReadOnlyDictionary<string, string> Context => _contextOverride ?? _initialContext;
 
@@ -83,50 +55,6 @@ namespace ZeroC.Ice
         // When true, we always write Context in slot 0 of the binary context. This field is always false when
         // _defaultBinaryContext is empty.
         private readonly bool _writeSlot0;
-
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given parameterless operation.
-        /// </summary>
-        /// <param name="operationName">The operation name.</param>
-        /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
-        /// <returns>The new <see cref="OutgoingRequestFrame"/> factory.</returns>
-        public static Factory CreateFactory(string operationName, bool idempotent) =>
-            (prx, context) => WithEmptyParamList(prx, operationName, idempotent, context);
-
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given operation.</summary>
-        /// <param name="operationName">The operation name.</param>
-        /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
-        /// <param name="compress"><c>True</c> if the request's parameters are compressed during frame creation with
-        /// ice2, or if entire request frame is compressed during sending with ice1; otherwise, <c>False</c>.</param>
-        /// <param name="format">The format for class instances.</param>
-        /// <param name="writer">The <see cref="OutputStream"/> writer used to write the request parameters.</param>
-        /// <returns>The new <see cref="OutgoingRequestFrame"/> factory.</returns>
-        public static Factory<T> CreateFactory<T>(
-            string operationName,
-            bool idempotent,
-            bool compress,
-            FormatType format,
-            OutputStreamValueWriter<T> writer)
-            where T : struct =>
-            (IObjectPrx prx, in T paramList, IReadOnlyDictionary<string, string>? context) =>
-            WithParamList(prx, operationName, idempotent, compress, format, context, in paramList, writer);
-
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given single-parameter operation.
-        /// </summary>
-        /// <param name="operationName">The operation name.</param>
-        /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
-        /// <param name="compress"><c>True</c> if the request's parameter is compressed during frame creation with
-        /// ice2, or if entire request frame is compressed during sending with ice1; otherwise, <c>False</c>.</param>
-        /// <param name="format">The format for class instances.</param>
-        /// <param name="writer">The <see cref="OutputStream"/> writer used to write the request parameter.</param>
-        /// <returns>The new <see cref="OutgoingRequestFrame"/> factory.</returns>
-        public static SingleParamFactory<T> CreateSingleParamFactory<T>(
-            string operationName,
-            bool idempotent,
-            bool compress,
-            FormatType format,
-            OutputStreamWriter<T> writer) =>
-            (prx, param, context) =>
-            WithSingleParam(prx, operationName, idempotent, compress, format, context, param, writer);
 
         /// <summary>Create a new OutgoingRequestFrame for an operation with a single parameter.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
