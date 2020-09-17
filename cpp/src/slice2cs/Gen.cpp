@@ -2730,14 +2730,6 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     auto params = operation->parameters();
     auto returnValues = operation->returnValues();
 
-    bool defaultWriter = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
-        !returnValues.front()->tagged();
-    string writer = defaultWriter ? outputStreamWriter(returnValues.front()->type(), ns, false) :
-        "_iceD_" + opName + "Writer";
-
-    bool defaultReader = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
-    string reader = defaultReader ? inputStreamReader(params.front()->type(), ns) : "_iceD_" + opName + "Reader";
-
     _out << sp;
     _out << nl << "protected ";
     if (amd)
@@ -2759,23 +2751,19 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << nl << "request.ReadEmptyParamList();";
     }
-    else if(params.size() == 1)
-    {
-        _out << nl << "var " << paramName(params.front(), "iceP_")
-             << " = request.ReadParamList(current.Communicator, " << reader << ");";
-    }
     else
     {
-        _out << nl << "var paramList = request.ReadParamList(current.Communicator, " << reader << ");";
+        _out << nl << "var " << (params.size() == 1 ? paramName(params.front(), "iceP_") : "paramList")
+            << " = request.ReadParamList(current.Communicator, Request." << fixId(opName) << ");";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
 
-    if(operation->hasMarshaledResult())
+    if (operation->hasMarshaledResult())
     {
         if (amd)
         {
-            _out << nl << "var result = await this." << name << spar;
+            _out << nl << "var returnValue = await this." << name << spar;
             if (params.size() > 1)
             {
                 _out << getNames(params, [](const MemberPtr& param) { return "paramList." + fieldName(param); });
@@ -2785,7 +2773,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                 _out << paramName(params.front(), "iceP_");
             }
             _out << "current" << epar << ".ConfigureAwait(false);";
-            _out << nl << "return result.Response;";
+            _out << nl << "return returnValue.Response;";
         }
         else
         {
@@ -2806,9 +2794,9 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     else
     {
         _out << nl;
-        if(returnValues.size() >= 1)
+        if (returnValues.size() >= 1)
         {
-            _out << "var result = ";
+            _out << "var returnValue = ";
         }
 
         if (amd)
@@ -2831,9 +2819,9 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         _out << ";";
 
-        if(returnValues.size() == 0)
+        if (returnValues.size() == 0)
         {
-            if(amd)
+            if (amd)
             {
                 _out << nl << "return ZeroC.Ice.OutgoingResponseFrame.WithVoidReturnValue(current);";
             }
@@ -2847,89 +2835,23 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         else
         {
-            _out << nl << "var response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue("
-                 << "current, "
-                 << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
-                 << "format: " << opFormatTypeToString(operation) << ", "
-                 << "result, "
-                 << writer << ");";
-
-            if(amd)
+            _out << nl << "return ";
+            if (!amd)
             {
-                _out << nl << "return response;";
-            }
-            else
-            {
-                _out << nl << "return new global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame>("
-                     << "response);";
-            }
-        }
-        _out << eb;
-    }
-
-    // Write the output stream writer used to fill the request frame
-    if (!operation->hasMarshaledResult())
-    {
-        if (returnValues.size() > 1)
-        {
-            _out << sp;
-            _out << nl << "private static readonly ZeroC.Ice.OutputStreamValueWriter<" << toTupleType(returnValues, true)
-                 << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in " << toTupleType(returnValues, true)
-                 << " value) =>";
-            _out << sb;
-            writeMarshal(operation, true);
-            _out << eb << ";";
-        }
-        else if (returnValues.size() == 1 && !defaultWriter)
-        {
-            auto param = returnValues.front();
-            _out << sp;
-
-            if (operation->returnBitSequenceSize() > 0)
-            {
-                _out << nl << "private static readonly ZeroC.Ice.OutputStreamWriter<" << paramTypeStr(param, true)
-                    << "> " << writer << " = (ostr, value) =>";
-                _out << sb;
-                writeMarshal(operation, true);
-                _out << eb << ";";
-            }
-            else
-            {
-                if (!param->tagged() && StructPtr::dynamicCast(param->type()))
-                {
-                    _out << nl << "private static readonly ZeroC.Ice.OutputStreamValueWriter<" << paramTypeStr(param, true)
-                         << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in " << paramTypeStr(param, true)
-                         << " value) =>";
-                }
-                else
-                {
-                    _out << nl << "private static readonly ZeroC.Ice.OutputStreamWriter<"
-                        << paramTypeStr(param, true) << "> " << writer << " = (ostr, value) =>";
-                }
+                _out << "new global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame>(";
                 _out.inc();
-                writeMarshal(operation, true);
+                _out << nl;
+            }
+            _out << "Response." << fixId(opName) << "(current, returnValue)";
+
+            if (!amd)
+            {
+                _out << ")";
                 _out.dec();
             }
+            _out << ";";
         }
-    }
-
-    if(params.size() > 1)
-    {
-        _out << sp;
-        _out << nl << "private static readonly ZeroC.Ice.InputStreamReader<" << toTupleType(params, false) << "> "
-             << reader << " = istr =>";
-        _out << sb;
-        writeUnmarshal(operation, false);
-        _out << eb << ";";
-    }
-    else if (params.size() == 1 && !defaultReader)
-    {
-        _out << sp;
-        _out << nl << "private static readonly ZeroC.Ice.InputStreamReader<" << paramTypeStr(params.front(), false)
-            << "> " << reader << " = istr =>";
-        _out << sb;
-        writeUnmarshal(operation, false);
-        _out << eb << ";";
+        _out << eb;
     }
 }
 
