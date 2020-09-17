@@ -11,6 +11,20 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame : OutgoingFrame
     {
+        /// <summary>Creates a new <see cref="OutgoingResponseFrame"/>. This factory is used for operations that return
+        /// a tuple or a single non-optional struct.</summary>
+        /// <param name="current">The current object of the request being dispatched.</param>
+        /// <param name="returnValue">The return value.</param>
+        /// <returns>The new <see cref="OutgoingResponseFrame"/>.</returns>
+        public delegate OutgoingResponseFrame Factory<T>(Current current, in T returnValue) where T : struct;
+
+        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>. This factory is used for operations with a single
+        /// return value that is not a non-optional struct.</summary>
+        /// <param name="current">The current object of the request being dispatched.</param>
+        /// <param name="returnValue">The return value.</param>
+        /// <returns>The new <see cref="OutgoingResponseFrame"/>.</returns>
+        public delegate OutgoingResponseFrame SingleReturnFactory<T>(Current current, T returnValue);
+
         /// <summary>The response payload encoding.</summary>
         public override Encoding Encoding { get; }
 
@@ -22,6 +36,29 @@ namespace ZeroC.Ice
         private static readonly OutputStream.Position EncapsulationStart = new OutputStream.Position(0, 1);
 
         private readonly ArraySegment<byte> _defaultBinaryContext;
+
+        /// <summary>Creates an <see cref="OutgoingResponseFrame"/> factory for the given operation.</summary>
+        /// <param name="compress"><c>True</c> if the response return value is compressed during frame creation with
+        /// ice2, or if entire response frame is compressed during sending with ice1; otherwise, <c>False</c>.</param>
+        /// <param name="format">The format for class instances.</param>
+        /// <param name="writer">The <see cref="OutputStream"/> writer used to write the return value.</param>
+        /// <returns>The new <see cref="OutgoingResponseFrame"/> factory.</returns>
+        public static Factory<T> CreateFactory<T>(bool compress, FormatType format, OutputStreamValueWriter<T> writer)
+            where T : struct =>
+            (Current current, in T returnValue) => WithReturnValue(current, compress, format, in returnValue, writer);
+
+        /// <summary>Creates an <see cref="OutgoingResponseFrame"/> factory for the given operation that returns a
+        /// non-struct value.</summary>
+        /// <param name="compress"><c>True</c> if the response return value is compressed during frame creation with
+        /// ice2, or if entire response frame is compressed during sending with ice1; otherwise, <c>False</c>.</param>
+        /// <param name="format">The format for class instances.</param>
+        /// <param name="writer">The <see cref="OutputStream"/> writer used to write the return value.</param>
+        /// <returns>The new <see cref="OutgoingResponseFrame"/> factory.</returns>
+        public static SingleReturnFactory<T> CreateSingleReturnFactory<T>(
+            bool compress,
+            FormatType format,
+            OutputStreamWriter<T> writer) =>
+            (current, returnValue) => WithReturnValue(current, compress, format, returnValue, writer);
 
         /// <summary>Creates a new outgoing response frame with a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>

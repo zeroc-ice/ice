@@ -12,6 +12,36 @@ namespace ZeroC.Ice
     /// <summary>The base interface for all servants.</summary>
     public interface IObject
     {
+        public static class Request
+        {
+            public static readonly InputStreamReader<string> IceIsA = InputStream.IceReaderIntoString;
+        }
+
+        public static class Response
+        {
+            public static OutgoingResponseFrame.SingleReturnFactory<string> IceId =>
+                _ice_id ??= OutgoingResponseFrame.CreateSingleReturnFactory(
+                    compress: false,
+                    format: default,
+                    OutputStream.IceWriterFromString);
+
+            public static OutgoingResponseFrame.SingleReturnFactory<IEnumerable<string>> IceIds =>
+                _ice_ids ??= OutgoingResponseFrame.CreateSingleReturnFactory<IEnumerable<string>>(
+                    compress: false,
+                    format: default,
+                    (ostr, value) => ostr.WriteSequence(value, OutputStream.IceWriterFromString));
+
+            public static OutgoingResponseFrame.SingleReturnFactory<bool> IceIsA =>
+                _ice_isA ??= OutgoingResponseFrame.CreateSingleReturnFactory(
+                    compress: false,
+                    format: default,
+                    OutputStream.IceWriterFromBool);
+
+            private static OutgoingResponseFrame.SingleReturnFactory<string>? _ice_id;
+            private static OutgoingResponseFrame.SingleReturnFactory<IEnumerable<string>>? _ice_ids;
+            private static OutgoingResponseFrame.SingleReturnFactory<bool>? _ice_isA;
+        }
+
         /// <summary>Dispatches a request on this servant.</summary>
         /// <param name="request">The <see cref="IncomingRequestFrame"/> The request being dispatch.</param>
         /// <param name="current">The current parameter holds decoded header data and other information about the
@@ -91,14 +121,9 @@ namespace ZeroC.Ice
         /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(IncomingRequestFrame request, Current current)
         {
-            string id = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
-            bool ret = IceIsA(id, current);
-            return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current,
-                                                      compress: false,
-                                                      format: default,
-                                                      ret,
-                                                      OutputStream.IceWriterFromBool));
+            string id = request.ReadParamList(current.Communicator, Request.IceIsA);
+            bool returnValue = IceIsA(id, current);
+            return new ValueTask<OutgoingResponseFrame>(Response.IceIsA(current, returnValue));
         }
 
         /// <summary>This method is called to dispatch ice_id operation, the method delegates to the servant's IceId
@@ -109,13 +134,8 @@ namespace ZeroC.Ice
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();
-            string ret = IceId(current);
-            return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current,
-                                                      compress: false,
-                                                      format: default,
-                                                      ret,
-                                                      OutputStream.IceWriterFromString));
+            string returnValue = IceId(current);
+            return new ValueTask<OutgoingResponseFrame>(Response.IceId(current, returnValue));
         }
 
         /// <summary>This method is called to dispatch ice_ids operation, the method delegates to the servant's IceIds
@@ -126,14 +146,8 @@ namespace ZeroC.Ice
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();
-            IEnumerable<string> ret = IceIds(current);
-            return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current,
-                                                      compress: false,
-                                                      format: default,
-                                                      ret,
-                                                      (ostr, ret) =>
-                                                          ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
+            IEnumerable<string> returnValue = IceIds(current);
+            return new ValueTask<OutgoingResponseFrame>(Response.IceIds(current, returnValue));
         }
     }
 }

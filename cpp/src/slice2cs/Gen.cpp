@@ -2130,8 +2130,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 // A single Slice-struct return is treated like a tuple-return. Note this does not apply to an optional
                 // struct return although in theory it could.
-                bool singleParamFactory = paramCount == 1 &&
-                    !StructPtr::dynamicCast(operation->parameters().front()->type());
+                bool singleParamFactory = paramCount == 1 && !StructPtr::dynamicCast(params.front()->type());
 
                 string factoryType = singleParamFactory ? "SingleParamFactory" : "Factory";
 
@@ -2187,8 +2186,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 if (returns.size() > 0)
                 {
                     string propertyName = fixId(operationName(operation));
-                    string fieldName = "_" + operation->name();
-
                     _out << nl << "public static readonly ";
                     string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(returns, false) + ">";
                     _out << readerType << " " << propertyName << " =";
@@ -2479,6 +2476,106 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sb;
 
+    // Generate nested Request and Response classes if needed.
+    auto operationList = p->operations();
+    bool generateRequestClass =
+        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->parameters().empty(); })
+            != operationList.end();
+
+    bool generateResponseClass =
+        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->returnValues().empty(); })
+            != operationList.end();
+
+    if (generateRequestClass)
+    {
+        _out << nl << "public static new class Request";
+        _out << sb;
+        for (auto operation : operationList)
+        {
+            auto params = operation->parameters();
+            if (params.size() > 0)
+            {
+                string propertyName = fixId(operationName(operation));
+                _out << nl << "public static readonly ";
+                string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(params, false) + ">";
+                _out << readerType << " " << propertyName << " =";
+                _out.inc();
+                _out << nl;
+                writeIncomingRequestReader(operation);
+                _out << ";";
+                _out.dec();
+            }
+        }
+        _out << eb;
+        _out << sp;
+    }
+
+    if (generateResponseClass)
+    {
+        _out << nl << "public static new class Response";
+        _out << sb;
+
+        for (auto operation : operationList)
+        {
+            auto returns = operation->returnValues();
+            size_t returnCount = returns.size();
+
+            if (returnCount > 0)
+            {
+                string propertyName = fixId(operationName(operation));
+                string fieldName = "_" + operation->name();
+
+                // A single Slice-struct return is treated like a tuple-return. Note this does not apply to an optional
+                // struct return although in theory it could.
+                bool singleReturnFactory = returnCount == 1 && !StructPtr::dynamicCast(returns.front()->type());
+
+                string factoryType = singleReturnFactory ? "SingleReturnFactory" : "Factory";
+
+                _out << nl << "public static ZeroC.Ice.OutgoingResponseFrame." << factoryType << "<"
+                    << toTupleType(returns, true) << "> " << propertyName << " =>";
+                _out.inc();
+                _out << nl << fieldName << " ?\?= ZeroC.Ice.OutgoingResponseFrame.Create" << factoryType
+                    << "<" << toTupleType(returns, true) << ">(";
+                _out.inc();
+                _out << nl << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ","
+                    << nl << "format: " << opFormatTypeToString(operation) << ","
+                    << nl << "writer: ";
+                writeOutgoingResponseWriter(operation);
+                _out << ");";
+                _out.dec();
+                _out.dec();
+            }
+        }
+        _out << sp;
+
+        // Output private static fields
+        for (auto operation : operationList)
+        {
+            auto returns = operation->returnValues();
+            size_t returnCount = returns.size();
+
+            if (returnCount > 0)
+            {
+                string fieldName = "_" + operation->name();
+
+                _out << nl << "private static ZeroC.Ice.OutgoingResponseFrame.";
+
+                if (returnCount == 1 && !StructPtr::dynamicCast(returns.front()->type()))
+                {
+                    _out << "SingleReturnFactory";
+                }
+                else
+                {
+                    _out << "Factory";
+                }
+                _out << "<" << toTupleType(returns, true) << ">? " << fieldName << ";";
+            }
+        }
+
+        _out << eb;
+        _out << sp;
+    }
+
     // The _ice prefix is in case the user "extends" the partial generated interface.
     _out << nl << "private static readonly string _iceTypeId = ZeroC.Ice.TypeExtensions.GetIceTypeId(typeof("
         << name << "))!;";
@@ -2486,7 +2583,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         << "private static readonly string[] _iceAllTypeIds = ZeroC.Ice.TypeExtensions.GetAllIceTypeIds(typeof("
         << name << "));";
 
-    for(const auto& op : p->operations())
+    for (const auto& op : p->operations())
     {
         writeReturnValueStruct(op);
         writeMethodDeclaration(op);
@@ -2840,6 +2937,58 @@ void
 Slice::Gen::DispatcherVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     _out << eb; // interface
+}
+
+void
+Slice::Gen::DispatcherVisitor::writeIncomingRequestReader(const OperationPtr& operation)
+{
+    InterfaceDefPtr interface = operation->interface();
+    string ns = getNamespace(interface);
+
+    auto params = operation->parameters();
+    bool defaultReader = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
+
+    if (defaultReader)
+    {
+        _out << inputStreamReader(params.front()->type(), ns);
+    }
+    else if (params.size() > 0)
+    {
+        _out << "istr =>";
+        _out << sb;
+        writeUnmarshal(operation, false);
+        _out << eb;
+    }
+}
+
+void
+Slice::Gen::DispatcherVisitor::writeOutgoingResponseWriter(const OperationPtr& operation)
+{
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
+    string ns = getNamespace(interface);
+
+    auto returns = operation->returnValues();
+
+    bool defaultWriter = returns.size() == 1 && operation->returnBitSequenceSize() == 0 && !returns.front()->tagged();
+    if (defaultWriter)
+    {
+        _out << outputStreamWriter(returns.front()->type(), ns, false);
+    }
+    else if (returns.size() > 1)
+    {
+        _out << "(ZeroC.Ice.OutputStream ostr, in " << toTupleType(returns, true) << " value) =>";
+        _out << sb;
+        writeMarshal(operation, true);
+        _out << eb;
+    }
+    else
+    {
+        auto p = returns.front();
+        _out << "(ZeroC.Ice.OutputStream ostr, " << paramTypeStr(p, true) << " value) =>";
+        _out << sb;
+        writeMarshal(operation, true);
+        _out << eb;
+    }
 }
 
 Slice::Gen::ImplVisitor::ImplVisitor(IceUtilInternal::Output& out) :
