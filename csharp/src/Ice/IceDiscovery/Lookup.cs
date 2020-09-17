@@ -54,7 +54,7 @@ namespace ZeroC.IceDiscovery
 
         public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
         {
-            if (!domainId.Equals(_domainId))
+            if (domainId != _domainId)
             {
                 return; // Ignore
             }
@@ -62,7 +62,7 @@ namespace ZeroC.IceDiscovery
             IObjectPrx? proxy = _registry.FindObject(id);
             if (proxy != null)
             {
-                // Reply to the mulicast request using the given proxy.
+                // Reply to the multicast request using the given proxy.
                 try
                 {
                     Debug.Assert(reply != null);
