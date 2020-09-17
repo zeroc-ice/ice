@@ -2375,23 +2375,18 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     string ns = getNamespace(interface);
 
     auto params = operation->parameters();
+    assert(!params.empty());
 
     bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
     if (defaultWriter)
     {
+        // This includes operations with a single struct parameter.
         _out << outputStreamWriter(params.front()->type(), ns, false);
-    }
-    else if (params.size() > 1)
-    {
-        _out << "(ZeroC.Ice.OutputStream ostr, in " << toTupleType(params, true) << " value) =>";
-        _out << sb;
-        writeMarshal(operation, false);
-        _out << eb;
     }
     else
     {
-        auto p = params.front();
-        _out << "(ZeroC.Ice.OutputStream ostr, " << paramTypeStr(p, true) << " value) =>";
+        _out << "(ZeroC.Ice.OutputStream ostr, " << (params.size() > 1 ? "in " : "") << toTupleType(params, true)
+            << " value) =>";
         _out << sb;
         writeMarshal(operation, false);
         _out << eb;
@@ -2880,23 +2875,18 @@ Slice::Gen::DispatcherVisitor::writeOutgoingResponseWriter(const OperationPtr& o
     string ns = getNamespace(interface);
 
     auto returns = operation->returnValues();
+    assert(!returns.empty());
 
     bool defaultWriter = returns.size() == 1 && operation->returnBitSequenceSize() == 0 && !returns.front()->tagged();
     if (defaultWriter)
     {
+        // This includes operations with a single struct return value.
         _out << outputStreamWriter(returns.front()->type(), ns, false);
-    }
-    else if (returns.size() > 1)
-    {
-        _out << "(ZeroC.Ice.OutputStream ostr, in " << toTupleType(returns, true) << " value) =>";
-        _out << sb;
-        writeMarshal(operation, true);
-        _out << eb;
     }
     else
     {
-        auto p = returns.front();
-        _out << "(ZeroC.Ice.OutputStream ostr, " << paramTypeStr(p, true) << " value) =>";
+        _out << "(ZeroC.Ice.OutputStream ostr, " << (returns.size() > 1 ? "in " : "") << toTupleType(returns, true)
+            << " value) =>";
         _out << sb;
         writeMarshal(operation, true);
         _out << eb;
