@@ -939,6 +939,11 @@ namespace ZeroC.Ice
                 }
                 else if (endpoints != null)
                 {
+                    if (endpoints.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
+                    {
+                        throw new ArgumentException(@$"endpoint `{endpoint}' is not compatible with {Protocol
+                                                      } protocol");
+                    }
                     adapterId = ""; // make sure the clone's adapterID is empty
                     newEndpoints = endpoints.ToList(); // make a copy
                 }
@@ -1300,11 +1305,7 @@ namespace ZeroC.Ice
                 throw new ArgumentException(
                     $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
             }
-
-            if (Endpoints.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
-            {
-                throw new ArgumentException($"endpoint `{endpoint}' is not compatible with {Protocol} protocol");
-            }
+            Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
         }
 
         // Constructor for fixed references.
