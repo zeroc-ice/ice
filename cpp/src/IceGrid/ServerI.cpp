@@ -1315,7 +1315,7 @@ ServerI::adapterActivated(const string& id)
         }
         command = nextCommand();
     }
-    for(const auto adpt : adpts)
+    for(const auto& adpt : adpts)
     {
         if(adpt.first != id)
         {
