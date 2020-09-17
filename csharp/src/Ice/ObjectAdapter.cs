@@ -1086,8 +1086,7 @@ namespace ZeroC.Ice
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     protocol: adapterId.Length > 0 ?
-                                               Protocol : _publishedEndpoints.FirstOrDefault()?.Protocol ?? Protocol);
+                                     protocol: _publishedEndpoints.FirstOrDefault()?.Protocol ?? Protocol);
             }
         }
 
