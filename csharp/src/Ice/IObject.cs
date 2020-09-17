@@ -12,13 +12,22 @@ namespace ZeroC.Ice
     /// <summary>The base interface for all servants.</summary>
     public interface IObject
     {
+        /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each remote operation with parameter(s) defined in
+        /// the pseudo-interface Object.</summary>
         public static class Request
         {
+            /// <summary>The <see cref="InputStreamReader{T}"/> for the parameter of operation ice_isA.</summary>
             public static readonly InputStreamReader<string> IceIsA = InputStream.IceReaderIntoString;
         }
 
+        /// <summary>Provides an <see cref="OutgoingResponseFrame"/> factory method for each non-void remote operation
+        /// defined in the pseudo-interface Object.</summary>
         public static class Response
         {
+            /// <summary>Creates an <see cref="OutgoingResponseFrame"/> for operation ice_id.</summary>
+            /// <param name="current">Holds decoded header data and other information about the current request.</param>
+            /// <param name="returnValue">The return value to write into the new frame.</param>
+            /// <returns>A new <see cref="OutgoingResponseFrame"/>.</returns>
             public static OutgoingResponseFrame IceId(Current current, string returnValue) =>
                 OutgoingResponseFrame.WithReturnValue(
                     current,
@@ -27,6 +36,10 @@ namespace ZeroC.Ice
                     returnValue,
                     OutputStream.IceWriterFromString);
 
+            /// <summary>Creates an <see cref="OutgoingResponseFrame"/> for operation ice_ids.</summary>
+            /// <param name="current">Holds decoded header data and other information about the current request.</param>
+            /// <param name="returnValue">The return value to write into the new frame.</param>
+            /// <returns>A new <see cref="OutgoingResponseFrame"/>.</returns>
             public static OutgoingResponseFrame IceIds(Current current, IEnumerable<string> returnValue) =>
                 OutgoingResponseFrame.WithReturnValue(
                     current,
@@ -35,6 +48,10 @@ namespace ZeroC.Ice
                     returnValue,
                     (ostr, returnValue) => ostr.WriteSequence(returnValue, OutputStream.IceWriterFromString));
 
+            /// <summary>Creates an <see cref="OutgoingResponseFrame"/> for operation ice_isA.</summary>
+            /// <param name="current">Holds decoded header data and other information about the current request.</param>
+            /// <param name="returnValue">The return value to write into the new frame.</param>
+            /// <returns>A new <see cref="OutgoingResponseFrame"/>.</returns>
             public static OutgoingResponseFrame IceIsA(Current current, bool returnValue) =>
                 OutgoingResponseFrame.WithReturnValue(
                     current,
@@ -45,12 +62,11 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Dispatches a request on this servant.</summary>
-        /// <param name="request">The <see cref="IncomingRequestFrame"/> The request being dispatch.</param>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// current request.</param>
-        /// <returns>A value task that provides the response frame for the request.
-        /// See <see cref="OutgoingResponseFrame"/>.</returns>
-        /// <exception cref="Exception">Any exception thrown by Dispatch will be marshaled into the response
+        /// <param name="request">The <see cref="IncomingRequestFrame"/> to dispatch.</param>
+        /// <param name="current">Holds decoded header data and other information about the current request.</param>
+        /// <returns>A value task that provides the response frame for the request. See
+        /// <see cref="OutgoingResponseFrame"/>.</returns>
+        /// <exception cref="Exception">Any exception thrown by DispatchAsync will be marshaled into the response
         /// frame.</exception>
         public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
@@ -61,9 +77,7 @@ namespace ZeroC.Ice
 
         // The following are helper methods for generated servants.
 
-        /// <summary>
-        /// Tests whether this object can be reached.
-        /// </summary>
+        /// <summary>Tests whether this object can be reached.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
         public void IcePing(Current current)
         {
