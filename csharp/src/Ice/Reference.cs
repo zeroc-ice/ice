@@ -941,7 +941,7 @@ namespace ZeroC.Ice
                 {
                     if (endpoints.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
                     {
-                        throw new ArgumentException(@$"endpoint `{endpoint}' is not compatible with {Protocol
+                        throw new ArgumentException($"the protocol of endpoint `{endpoint}' is not {Protocol}", nameof(endpoints));
                                                       } protocol");
                     }
                     adapterId = ""; // make sure the clone's adapterID is empty
