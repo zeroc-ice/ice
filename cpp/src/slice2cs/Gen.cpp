@@ -2191,7 +2191,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     _out << readerType << " " << propertyName << " =";
                     _out.inc();
                     _out << nl;
-                    writeOutgoingRequestReader(operation);
+                    writeIncomingResponseReader(operation);
                     _out << ";";
                     _out.dec();
                 }
@@ -2399,7 +2399,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
 }
 
 void
-Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operation)
+Slice::Gen::ProxyVisitor::writeIncomingResponseReader(const OperationPtr& operation)
 {
     InterfaceDefPtr interface = operation->interface();
     string ns = getNamespace(interface);

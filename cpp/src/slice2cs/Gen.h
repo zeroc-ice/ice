@@ -137,7 +137,9 @@ private:
         void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
         void visitOperation(const OperationPtr&) override;
 
-        void writeOutgoingRequestReader(const OperationPtr&); // TODO: rename to writeIncomingResponseReader!
+    protected:
+
+        void writeIncomingResponseReader(const OperationPtr&);
         void writeOutgoingRequestWriter(const OperationPtr&);
     };
 
