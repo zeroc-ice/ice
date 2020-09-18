@@ -43,7 +43,7 @@ namespace ZeroC.IceDiscovery
             {
                 if (proxy != null)
                 {
-                    _adapters.Add(adapterId, proxy.Clone(clearLocator: true, clearRouter: true));
+                    _adapters[adapterId] = proxy.Clone(clearLocator: true, clearRouter: true);
                 }
                 else
                 {
@@ -78,7 +78,7 @@ namespace ZeroC.IceDiscovery
                         adapterIds = new HashSet<string>();
                         _replicaGroups.Add(replicaGroupId, adapterIds);
                     }
-                    _adapters.Add(adapterId, proxy.Clone(clearLocator: true, clearRouter: true));
+                    _adapters[adapterId] = proxy.Clone(clearLocator: true, clearRouter: true);
                     adapterIds.Add(adapterId);
                 }
                 else
