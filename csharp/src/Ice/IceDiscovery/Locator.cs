@@ -144,7 +144,7 @@ namespace ZeroC.IceDiscovery
                 {
                     try
                     {
-                        IObjectPrx proxy = _adapters.First().Value;
+                        IObjectPrx proxy = _adapters[ids.First()];
                         proxy = proxy.Clone(IObjectPrx.Factory, adapterId: key, identity: identity);
                         proxy.IcePing();
                         return proxy;
