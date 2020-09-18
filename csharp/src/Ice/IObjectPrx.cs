@@ -397,7 +397,7 @@ namespace ZeroC.Ice
             return ReadResponseAsync(this.InvokeAsync(request, oneway: false, progress, cancel), reader, Communicator);
 
             static async Task<T> ReadResponseAsync(
-                ValueTask<IncomingResponseFrame> task,
+                Task<IncomingResponseFrame> task,
                 InputStreamReader<T> reader,
                 Communicator communicator) =>
                 (await task.ConfigureAwait(false)).ReadReturnValue(communicator, reader);
@@ -417,11 +417,11 @@ namespace ZeroC.Ice
             IProgress<bool>? progress,
             CancellationToken cancel)
         {
-            ValueTask<IncomingResponseFrame> response = this.InvokeAsync(request, oneway, progress, cancel);
+            Task<IncomingResponseFrame> response = this.InvokeAsync(request, oneway, progress, cancel);
             return oneway ? Task.CompletedTask : ReadResponseAsync(response, Communicator);
 
             static async Task ReadResponseAsync(
-                ValueTask<IncomingResponseFrame> response,
+                Task<IncomingResponseFrame> response,
                 Communicator communicator) => (await response.ConfigureAwait(false)).ReadVoidReturnValue(communicator);
         }
 

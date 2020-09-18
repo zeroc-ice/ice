@@ -431,7 +431,7 @@ namespace ZeroC.Ice
             }
         }
 
-        async ValueTask<IncomingResponseFrame> IRequestHandler.SendRequestAsync(
+        async Task<IncomingResponseFrame> IRequestHandler.SendRequestAsync(
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
