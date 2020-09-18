@@ -43,7 +43,8 @@ namespace ZeroC.Ice
         /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
         /// class instances.</param>
         /// <param name="returnValue">The return value to write into the frame.</param>
-        /// <param name="writer">The delegate that writes the return value into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the return value into the frame.
+        /// </param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
@@ -70,7 +71,8 @@ namespace ZeroC.Ice
         /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
         /// class instances.</param>
         /// <param name="returnValue">The return value to write into the frame.</param>
-        /// <param name="writer">The delegate that writes the return value into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the return value into the frame.
+        /// </param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,

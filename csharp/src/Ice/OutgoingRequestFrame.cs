@@ -69,7 +69,8 @@ namespace ZeroC.Ice
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
-        /// <param name="writer">The delegate that writes the arguments into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
+        /// </param>
         /// <returns>A new OutgoingRequestFrame</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
@@ -110,7 +111,8 @@ namespace ZeroC.Ice
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
-        /// <param name="writer">The delegate that writes the arguments into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
+        /// </param>
         /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
