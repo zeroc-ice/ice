@@ -73,6 +73,12 @@ sealed class LoggerAdminLoggerI : LoggerAdminLogger
                 _destroyed = true;
                 Monitor.PulseAll(this);
             }
+
+            Ice.FileLoggerI fileLoger = _localLogger as Ice.FileLoggerI;
+            if (fileLoger != null)
+            {
+                fileLoger.destroy();
+            }
         }
 
         if(thread != null)
