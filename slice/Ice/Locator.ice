@@ -25,6 +25,11 @@ module Ice
     {
     }
 
+    /// This exception is raised if the proxy is invalid for the given replica group.
+    exception InvalidProxyException
+    {
+    }
+
     /// This exception is raised if the replica group provided by the
     /// server is invalid.
     exception InvalidReplicaGroupIdException
