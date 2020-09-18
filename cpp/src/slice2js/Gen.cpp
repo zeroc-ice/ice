@@ -252,7 +252,7 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
     switch (type)
     {
     case OpDocInParams:
-        params = op->parameters();
+        params = op->params();
         break;
     case OpDocOutParams:
         params = op->outParameters();
@@ -267,7 +267,7 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
         writeDocLines(out, preParams, true);
     }
 
-    map<string, StringList> paramDoc = doc->parameters();
+    map<string, StringList> paramDoc = doc->params();
     for (auto p = params.begin(); p != params.end(); ++p)
     {
         map<string, StringList>::iterator q = paramDoc.find((*p)->name());
@@ -1519,8 +1519,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             OperationPtr op = *q;
             const string name = fixId(op->name());
-            const TypePtr ret = op->returnType();
-            const MemberList inParams = op->parameters();
+            const TypePtr ret = op->deprecatedReturnType();
+            const MemberList inParams = op->params();
             const MemberList outParams = op->outParameters();
 
             //
@@ -2293,7 +2293,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
     const OperationList operationList = p->allOperations();
     for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
     {
-        const TypePtr ret = (*i)->returnType();
+        const TypePtr ret = (*i)->deprecatedReturnType();
         if(ret && ret->definitionContext())
         {
             addImport(ret, p);
@@ -2479,7 +2479,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
     const OperationList operationList = p->allOperations();
     for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
     {
-        const TypePtr ret = (*i)->returnType();
+        const TypePtr ret = (*i)->deprecatedReturnType();
         if(ret && ret->definitionContext())
         {
             addAlias(ret, module);
@@ -2664,8 +2664,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         const OperationPtr op = *q;
         const MemberList paramList = op->allMembers();
-        const TypePtr ret = op->returnType();
-        const MemberList inParams = op->parameters();
+        const TypePtr ret = op->deprecatedReturnType();
+        const MemberList inParams = op->params();
         const MemberList outParams = op->outParameters();
 
         const string contextParam = escapeParam(paramList, "context");
@@ -2754,8 +2754,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         const OperationPtr op = *q;
         const MemberList paramList = op->allMembers();
-        const TypePtr ret = op->returnType();
-        const MemberList inParams = op->parameters();
+        const TypePtr ret = op->deprecatedReturnType();
+        const MemberList inParams = op->params();
         const MemberList outParams = op->outParameters();
 
         const string currentParam = escapeParam(inParams, "current");

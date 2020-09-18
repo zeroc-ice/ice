@@ -243,7 +243,7 @@ public:
     StringList seeAlso() const;   // Targets of @see tags.
 
     StringList returns() const;                           // Description of an operation's return value.
-    std::map<std::string, StringList> parameters() const; // Parameter descriptions for an op. Key is parameter name.
+    std::map<std::string, StringList> params() const; // Parameter descriptions for an op. Key is parameter name.
     std::map<std::string, StringList> exceptions() const; // Exception descriptions for an op. Key is exception name.
 
 private:
@@ -257,7 +257,7 @@ private:
     StringList _seeAlso;
 
     StringList _returns;
-    std::map<std::string, StringList> _parameters;
+    std::map<std::string, StringList> _params;
     std::map<std::string, StringList> _exceptions;
 
     friend class Contained;
@@ -698,12 +698,12 @@ public:
     // class/proxy and that are not tagged.
     size_t paramsBitSequenceSize() const;
 
-    // The "return" bit sequence length. It corresponds to the number of return parameters with optional types that are
+    // The "return" bit sequence length. It corresponds to the number of return members with optional types that are
     // not class/proxy and that are not tagged.
     size_t returnBitSequenceSize() const;
 
     void destroy() override;
-    TypePtr returnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    TypePtr deprecatedReturnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
     bool returnIsTagged() const; //TODO remove this once the compilers have been updated to use return-tuples.
     int returnTag() const; //TODO remove this once the compilers have been updated to use return-tuples.
     Mode mode() const; // TODO: remove
@@ -712,9 +712,9 @@ public:
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
     MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int);
-    MemberList parameters() const;
+    MemberList params() const;
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
-    MemberList returnValues() const;
+    MemberList returnType() const;
     MemberList allMembers() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
@@ -736,9 +736,9 @@ protected:
 
     friend class InterfaceDef;
 
-    MemberList _parameters;
-    MemberList _returnValues;
-    bool _usesOutParameters;
+    MemberList _params;
+    MemberList _returnType;
+    bool _usesOutParams;
     bool _hasReturnType;
     std::list<ExceptionPtr> _throws;
     Mode _mode;

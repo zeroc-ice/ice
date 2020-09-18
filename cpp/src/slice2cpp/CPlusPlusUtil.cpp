@@ -171,7 +171,7 @@ writeMarshalUnmarshalParams(Output& out, const MemberList& params, const Operati
     const auto [requiredParams, taggedParams] = getSortedMembers(params);
 
     // Marshal required parameters.
-    if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsTagged()))
+    if(!requiredParams.empty() || (op && op->deprecatedReturnType() && !op->returnIsTagged()))
     {
         out << nl;
         out << stream << streamOp;
@@ -180,14 +180,14 @@ writeMarshalUnmarshalParams(Output& out, const MemberList& params, const Operati
         {
             out << objPrefix + fixKwd(prefix + param->name());
         }
-        if(op && op->returnType() && !op->returnIsTagged())
+        if(op && op->deprecatedReturnType() && !op->returnIsTagged())
         {
             out << objPrefix + returnValueS;
         }
         out << epar << ";";
     }
 
-    if (!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
+    if (!taggedParams.empty() || (op && op->deprecatedReturnType() && op->returnIsTagged()))
     {
         out << nl;
         out << stream << streamOp;
@@ -786,9 +786,9 @@ Slice::writeAllocateCode(Output& out, const MemberList& params, const OperationP
                                param->getMetaData(), typeCtx);
     }
 
-    if(op && op->returnType())
+    if(op && op->deprecatedReturnType())
     {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsTagged(), clScope, returnValueS, op->getMetaData(),
+        writeParamAllocateCode(out, op->deprecatedReturnType(), op->returnIsTagged(), clScope, returnValueS, op->getMetaData(),
                                typeCtx);
     }
 }

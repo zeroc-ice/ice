@@ -181,7 +181,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const OperationList operationList = p->allOperations();
     for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
     {
-        const TypePtr ret = (*i)->returnType();
+        const TypePtr ret = (*i)->deprecatedReturnType();
         if(ret && ret->definitionContext())
         {
             addImport(ret, p);

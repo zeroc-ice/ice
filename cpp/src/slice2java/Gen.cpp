@@ -140,7 +140,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
     }
     else
     {
-        TypePtr type = unwrapIfOptional(op->returnType());
+        TypePtr type = unwrapIfOptional(op->deprecatedReturnType());
         bool returnIsTagged = op->returnIsTagged();
         if(!type)
         {
@@ -190,7 +190,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         }
     }
 
-    const TypePtr ret = op->returnType();
+    const TypePtr ret = op->deprecatedReturnType();
     const InterfaceDefPtr interface = op->interface();
     assert(interface);
 
@@ -219,7 +219,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             out << nl << " * @param " << retval << ' ';
             writeDocCommentLines(out, dc->returns());
         }
-        map<string, StringList> paramDocs = dc->parameters();
+        map<string, StringList> paramDocs = dc->params();
         for(const auto& p : outParams)
         {
             const string name = p->name();
@@ -280,7 +280,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         const string name = p->name();
         if(dc)
         {
-            map<string, StringList> paramDocs = dc->parameters();
+            map<string, StringList> paramDocs = dc->params();
             map<string, StringList>::const_iterator q = paramDocs.find(name);
             if(q != paramDocs.end() && !q->second.empty())
             {
@@ -395,7 +395,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
                                              const CommentPtr& dc)
 {
     string opName = op->name();
-    const TypePtr ret = op->returnType();
+    const TypePtr ret = op->deprecatedReturnType();
     const InterfaceDefPtr interface = op->interface();
     assert(interface);
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
@@ -425,7 +425,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
             out << nl << " * @param " << retval << ' ';
             writeDocCommentLines(out, dc->returns());
         }
-        map<string, StringList> paramDocs = dc->parameters();
+        map<string, StringList> paramDocs = dc->params();
         for(const auto& p : outParams)
         {
             const string name = p->name();
@@ -573,7 +573,7 @@ Slice::JavaVisitor::getPatcher(const TypePtr& constType, const string& package, 
 string
 Slice::JavaVisitor::getFutureType(const OperationPtr& op, const string& package)
 {
-    if(op->returnType() || op->outParameters().size() > 0)
+    if(op->deprecatedReturnType() || op->outParameters().size() > 0)
     {
         return "java.util.concurrent.CompletableFuture<" + getResultType(op, package, true, false) + ">";
     }
@@ -586,7 +586,7 @@ Slice::JavaVisitor::getFutureType(const OperationPtr& op, const string& package)
 string
 Slice::JavaVisitor::getFutureImplType(const OperationPtr& op, const string& package)
 {
-    if(op->returnType() || op->outParameters().size() > 0)
+    if(op->deprecatedReturnType() || op->outParameters().size() > 0)
     {
         return "com.zeroc.IceInternal.OutgoingAsync<" + getResultType(op, package, true, false) + ">";
     }
@@ -603,7 +603,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
     const InterfaceDefPtr interface = op->interface();
     assert(interface);
 
-    for(const auto& q : op->parameters())
+    for(const auto& q : op->params())
     {
         const string type = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
         params.push_back(type + ' ' + fixKwd(q->name()));
@@ -616,7 +616,7 @@ vector<string>
 Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool internal)
 {
     vector<string> params;
-    for(const auto& q : op->parameters())
+    for(const auto& q : op->params())
     {
         const string typeString = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
         params.push_back(typeString + ' ' + (internal ? "iceP_" + q->name() : fixKwd(q->name())));
@@ -641,7 +641,7 @@ vector<string>
 Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
 {
     vector<string> args;
-    for(const auto& q : op->parameters())
+    for(const auto& q : op->params())
     {
         string s = internal ? "iceP_" + q->name() : fixKwd(q->name());
         args.push_back(s);
@@ -653,7 +653,7 @@ Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
 void
 Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, const OperationPtr& op)
 {
-    const auto [requiredParams, taggedParams] = getSortedMembers(op->parameters());
+    const auto [requiredParams, taggedParams] = getSortedMembers(op->params());
 
     int iter = 0;
     for(const auto& pli : requiredParams)
@@ -682,7 +682,7 @@ void
 Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& package, const OperationPtr& op)
 {
     const MemberList outParams = op->outParameters();
-    const TypePtr ret = unwrapIfOptional(op->returnType());
+    const TypePtr ret = unwrapIfOptional(op->deprecatedReturnType());
     const string name = "ret";
 
     if(op->returnsMultipleValues())
@@ -775,9 +775,9 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
         TypePtr type;
         int tag;
         StringList metaData;
-        if(op->returnType())
+        if(op->deprecatedReturnType())
         {
-            type = unwrapIfOptional(op->returnType());
+            type = unwrapIfOptional(op->deprecatedReturnType());
             mode = op->returnIsTagged() ? TaggedReturnParam : NotTagged;
             tag = op->returnTag();
             metaData = op->getMetaData();
@@ -1019,9 +1019,9 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
         const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
 
-        const TypePtr ret = unwrapIfOptional(op->returnType());
+        const TypePtr ret = unwrapIfOptional(op->deprecatedReturnType());
 
-        const MemberList inParams = op->parameters();
+        const MemberList inParams = op->params();
         const MemberList outParams = op->outParameters();
 
         out << nl << getUnqualified("com.zeroc.Ice.Object", package)
@@ -1056,7 +1056,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             //
             // Unmarshal 'in' parameters.
             //
-            const auto [requiredParams, taggedParams] = getSortedMembers(op->parameters());
+            const auto [requiredParams, taggedParams] = getSortedMembers(op->params());
             int iter = 0;
             for(const auto& pli : requiredParams)
             {
@@ -1650,7 +1650,7 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
         return;
     }
 
-    map<string, StringList> paramDocs = dc->parameters();
+    map<string, StringList> paramDocs = dc->params();
 
     out << nl << "/**";
     if(!dc->overview().empty())
@@ -1662,7 +1662,7 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
     //
     // Show in-params in order of declaration, but only those with docs.
     //
-    for(const auto& i : p->parameters())
+    for(const auto& i : p->params())
     {
         const string name = i->name();
         map<string, StringList>::const_iterator j = paramDocs.find(name);
@@ -1692,7 +1692,7 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
             out << nl << " * @return An instance of " << r << '.';
         }
     }
-    else if(p->returnType())
+    else if(p->deprecatedReturnType())
     {
         if(!dc->returns().empty())
         {
@@ -1781,7 +1781,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     //
     // Show in-aration
     //
-    for(const auto& i : p->parameters())
+    for(const auto& i : p->params())
     {
         const string name = i->name();
         out << nl << " * @param " << "iceP_" << name << " -";
@@ -1807,7 +1807,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
         return;
     }
 
-    map<string, StringList> paramDocs = dc->parameters();
+    map<string, StringList> paramDocs = dc->params();
     const string currentParamName = getEscapedParamName(p, "current");
     const string currentParam = " * @param " + currentParamName + " The Current object for the invocation.";
 
@@ -1821,7 +1821,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     //
     // Show in-params in order of declaration, but only those with docs.
     //
-    for(const auto& i : p->parameters())
+    for(const auto& i : p->params())
     {
         const string name = i->name();
         map<string, StringList>::const_iterator j = paramDocs.find(name);
@@ -1849,7 +1849,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
             out << nl << " * @return An instance of " << r << '.';
         }
     }
-    else if(p->returnType())
+    else if(p->deprecatedReturnType())
     {
         if(!dc->returns().empty())
         {
@@ -4362,7 +4362,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     Output& out = output();
 
-    const TypePtr ret = p->returnType();
+    const TypePtr ret = p->deprecatedReturnType();
     const string retS = getResultType(p, package, false, false);
     const bool returnsParams = ret || !p->outParameters().empty();
     const vector<string> params = getParamsProxy(p, package);
@@ -4495,7 +4495,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << nl << "f.invoke(";
     out.useCurrentPosAsIndent();
     out << (p->returnsData() ? "true" : "false") << ", context, " << opFormatTypeToString(p) << ", ";
-    if(!p->parameters().empty())
+    if(!p->params().empty())
     {
         out << "ostr -> {";
         out.inc();
@@ -4647,9 +4647,9 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
     if(op->hasMarshaledResult())
     {
         out << nl << retS << " r = new " << retS << spar;
-        if(op->returnType())
+        if(op->deprecatedReturnType())
         {
-            out << getDefaultValue(package, op->returnType());
+            out << getDefaultValue(package, op->deprecatedReturnType());
         }
         for (const auto& param : op->outParameters())
         {
@@ -4670,15 +4670,15 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
                 retval = "_returnValue";
             }
         }
-        if(op->returnType())
+        if(op->deprecatedReturnType())
         {
             out << nl << "r." << retval << " = "
-                << getDefaultValue(package, op->returnType()) << ';';
+                << getDefaultValue(package, op->deprecatedReturnType()) << ';';
         }
     }
     else
     {
-        TypePtr type = op->returnType();
+        TypePtr type = op->deprecatedReturnType();
         if(!type)
         {
             const MemberList outParams = op->outParameters();

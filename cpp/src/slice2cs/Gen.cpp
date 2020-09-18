@@ -113,7 +113,7 @@ emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const
 string
 getEscapedParamName(const OperationPtr& p, const string& name)
 {
-    for (const auto& param : p->parameters())
+    for (const auto& param : p->params())
     {
         if (param->name() == name)
         {
@@ -161,7 +161,7 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 {
     string ns = getNamespace(operation->interface());
 
-    MemberList members = returnType ? operation->returnValues() : operation->parameters();
+    MemberList members = returnType ? operation->returnType() : operation->params();
     auto [requiredMembers, taggedMembers] = getSortedMembers(members);
 
     int bitSequenceIndex = -1;
@@ -235,7 +235,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 {
     string ns = getNamespace(operation->interface());
 
-    MemberList members = returnType ? operation->returnValues() : operation->parameters();
+    MemberList members = returnType ? operation->returnType() : operation->params();
     auto [requiredMembers, taggedMembers] = getSortedMembers(members);
 
     int bitSequenceIndex = -1;
@@ -405,7 +405,7 @@ vector<string>
 getInvocationParams(const OperationPtr& op, const string& ns)
 {
     vector<string> params;
-    for (const auto& p : op->parameters())
+    for (const auto& p : op->params())
     {
         ostringstream param;
         param << getParamAttributes(p);
@@ -426,7 +426,7 @@ vector<string>
 getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultValues, const string& prefix = "")
 {
     vector<string> params;
-    for (const auto& p : op->parameters())
+    for (const auto& p : op->params())
     {
         ostringstream param;
         param << getParamAttributes(p);
@@ -465,7 +465,7 @@ getInvocationArgsAMI(const OperationPtr& op,
                      const string cancelationToken = "global::System.Threading.CancellationToken.None",
                      const string& async = "true")
 {
-    vector<string> args = getNames(op->parameters());
+    vector<string> args = getNames(op->params());
 
     if(context.empty())
     {
@@ -917,7 +917,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     writeDocCommentLines(_out, comment.summaryLines, "summary");
     writeParamDocComment(p, comment, InParam);
 
-    auto returnValues = p->returnValues();
+    auto returnType = p->returnType();
 
     if(dispatch)
     {
@@ -946,15 +946,15 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     {
         _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
     }
-    else if(returnValues.size() == 1)
+    else if(returnType.size() == 1)
     {
         writeDocCommentLines(_out, comment.returnLines, "returns");
     }
-    else if(returnValues.size() > 1)
+    else if(returnType.size() > 1)
     {
         _out << nl << "/// <returns>Named tuple with the following fields:";
 
-        for(const auto& param : returnValues)
+        for(const auto& param : returnType)
         {
             string name = paramName(param);
             if (name == "ReturnValue" && !comment.returnLines.empty())
@@ -987,7 +987,7 @@ void
 Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo& comment, ParamDir paramType)
 {
     // Collect the names of the in- or -out parameters to be documented.
-    MemberList parameters = (paramType == InParam) ? op->parameters() : op->outParameters();
+    MemberList parameters = (paramType == InParam) ? op->params() : op->outParameters();
     for (const auto& param : parameters)
     {
         auto i = comment.params.find(param->name());
@@ -2123,7 +2123,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "public static ZeroC.Ice.OutgoingRequestFrame " << fixId(operationName(operation))
                 << "(ZeroC.Ice.IObjectPrx proxy, ";
 
-            auto params = operation->parameters();
+            auto params = operation->params();
             size_t paramCount = params.size();
             bool inValue = false;
 
@@ -2162,7 +2162,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out.dec();
 
-            generateResponseClass = generateResponseClass || !operation->returnValues().empty();
+            generateResponseClass = generateResponseClass || !operation->returnType().empty();
         }
         _out << eb;
 
@@ -2174,7 +2174,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             outputSeparator = false;
             for (auto operation : p->operations())
             {
-                auto returns = operation->returnValues();
+                auto returns = operation->returnType();
                 if (returns.size() > 0)
                 {
                     if (outputSeparator)
@@ -2281,8 +2281,8 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
-    auto returnValues = operation->returnValues();
-    auto params = operation->parameters();
+    auto returnType = operation->returnType();
+    auto params = operation->params();
 
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string deprecateReason = getDeprecateReason(operation, interface, "operation");
@@ -2293,14 +2293,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string asyncName = opName + "Async";
     bool oneway = operation->hasMetaData("oneway");
 
-    TypePtr ret = operation->returnType();
-    string retS = typeToString(operation->returnType(), ns);
+    TypePtr ret = operation->deprecatedReturnType();
+    string retS = typeToString(operation->deprecatedReturnType(), ns);
 
     string context = getEscapedParamName(operation, "context");
     string cancel = getEscapedParamName(operation, "cancel");
     string progress = getEscapedParamName(operation, "progress");
 
-    bool voidOp = returnValues.empty();
+    bool voidOp = returnType.empty();
 
     // Write the synchronous version of the operation.
     _out << sp;
@@ -2375,7 +2375,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(interface);
 
-    auto params = operation->parameters();
+    auto params = operation->params();
     assert(!params.empty());
 
     bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
@@ -2400,16 +2400,16 @@ Slice::Gen::ProxyVisitor::writeIncomingResponseReader(const OperationPtr& operat
     InterfaceDefPtr interface = operation->interface();
     string ns = getNamespace(interface);
 
-    auto returnValues = operation->returnValues();
+    auto returnType = operation->returnType();
 
-    bool defaultReader = returnValues.size() == 1 && operation->returnBitSequenceSize() == 0 &&
-        !returnValues.front()->tagged();
+    bool defaultReader = returnType.size() == 1 && operation->returnBitSequenceSize() == 0 &&
+        !returnType.front()->tagged();
 
     if (defaultReader)
     {
-        _out << inputStreamReader(returnValues.front()->type(), ns);
+        _out << inputStreamReader(returnType.front()->type(), ns);
     }
-    else if (returnValues.size() > 0)
+    else if (returnType.size() > 0)
     {
         _out << "istr =>";
         _out << sb;
@@ -2475,11 +2475,11 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Generate nested Request and Response classes if needed.
     auto operationList = p->operations();
     bool generateRequestClass =
-        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->parameters().empty(); })
+        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->params().empty(); })
             != operationList.end();
 
     bool generateResponseClass =
-        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->returnValues().empty(); })
+        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->returnType().empty(); })
             != operationList.end();
 
     if (generateRequestClass)
@@ -2490,7 +2490,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (auto operation : operationList)
         {
-            auto params = operation->parameters();
+            auto params = operation->params();
             if (params.size() > 0)
             {
                 if (outputSeparator)
@@ -2525,7 +2525,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (auto operation : operationList)
         {
-            auto returns = operation->returnValues();
+            auto returns = operation->returnType();
             size_t returnCount = returns.size();
 
             if (returnCount > 0)
@@ -2627,7 +2627,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     string ns = getNamespace(interface);
     const string opName = pascalCase(operation->name());
 
-    auto returnValues = operation->returnValues();
+    auto returnType = operation->returnType();
 
     if (operation->hasMarshaledResult())
     {
@@ -2637,7 +2637,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "public ZeroC.Ice.OutgoingResponseFrame Response { get; }";
 
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
-             << getNames(returnValues, [](const auto& p)
+             << getNames(returnType, [](const auto& p)
                                     {
                                         return paramTypeStr(p) + " " + paramName(p, "iceP_");
                                     })
@@ -2649,10 +2649,10 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "current, "
              << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
              << "format: " << opFormatTypeToString(operation) << ", "
-             << toTuple(returnValues, "iceP_") << ",";
-        if(returnValues.size() > 1)
+             << toTuple(returnType, "iceP_") << ",";
+        if(returnType.size() > 1)
         {
-            _out << nl << "(ZeroC.Ice.OutputStream ostr, " << toTupleType(returnValues, true) << " value) =>";
+            _out << nl << "(ZeroC.Ice.OutputStream ostr, " << toTupleType(returnType, true) << " value) =>";
             _out << sb;
             writeMarshal(operation, true);
             _out << eb;
@@ -2694,7 +2694,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     }
 
     _out << " " << name << spar;
-    _out << getNames(operation->parameters(),
+    _out << getNames(operation->params(),
                      [](const auto& param)
                      {
                         return paramTypeStr(param, false) + " " + paramName(param);
@@ -2713,8 +2713,8 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName + (amd ? "Async" : ""));
     string internalName = "IceD_" + operation->name() + "Async";
 
-    auto params = operation->parameters();
-    auto returnValues = operation->returnValues();
+    auto params = operation->params();
+    auto returnType = operation->returnType();
 
     _out << sp;
     _out << nl << "protected ";
@@ -2780,7 +2780,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     else
     {
         _out << nl;
-        if (returnValues.size() >= 1)
+        if (returnType.size() >= 1)
         {
             _out << "var returnValue = ";
         }
@@ -2805,7 +2805,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         }
         _out << ";";
 
-        if (returnValues.size() == 0)
+        if (returnType.size() == 0)
         {
             if (amd)
             {
@@ -2853,7 +2853,7 @@ Slice::Gen::DispatcherVisitor::writeIncomingRequestReader(const OperationPtr& op
     InterfaceDefPtr interface = operation->interface();
     string ns = getNamespace(interface);
 
-    auto params = operation->parameters();
+    auto params = operation->params();
     bool defaultReader = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
 
     if (defaultReader)
@@ -2875,7 +2875,7 @@ Slice::Gen::DispatcherVisitor::writeOutgoingResponseWriter(const OperationPtr& o
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(interface);
 
-    auto returns = operation->returnValues();
+    auto returns = operation->returnType();
     assert(!returns.empty());
 
     bool defaultWriter = returns.size() == 1 && operation->returnBitSequenceSize() == 0 && !returns.front()->tagged();
@@ -2932,32 +2932,32 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
     string ns = getNamespace(interface);
     string opName = operationName(op);
 
-    auto returnValues = op->returnValues();
+    auto returnType = op->returnType();
 
     _out << sp << nl;
 
     if(interface->hasMetaData("amd") || op->hasMetaData("amd"))
     {
         _out << "public override " << returnTaskStr(op, ns, true) << " " << opName << "Async" << spar
-             << getNames(op->parameters())
+             << getNames(op->params())
              << ("ZeroC.Ice.Current " + getEscapedParamName(op, "current"))
              << epar;
         _out << sb;
 
-        for(const auto& p : returnValues)
+        for(const auto& p : returnType)
         {
             _out << nl << paramTypeStr(p, true) << " " << paramName(p) << " = " << writeValue(p->type(), ns)
                 << ';';
         }
 
-        if(returnValues.size() == 0)
+        if(returnType.size() == 0)
         {
             _out << nl << "global::System.Threading.Tasks.Task.CompletedTask;";
         }
-        else if(op->hasMarshaledResult() || returnValues.size() > 1)
+        else if(op->hasMarshaledResult() || returnType.size() > 1)
         {
             _out << nl << "return new " << opName << (op->hasMarshaledResult() ? "MarshaledResult" : "Result")
-                 << spar << getNames(returnValues);
+                 << spar << getNames(returnType);
 
             if(op->hasMarshaledResult())
             {
@@ -2967,14 +2967,14 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
         }
         else
         {
-            _out << nl << "return " << paramName(returnValues.front()) << ";";
+            _out << nl << "return " << paramName(returnType.front()) << ";";
         }
         _out << eb;
     }
     else
     {
         _out << "public override " << returnTypeStr(op, ns, true) << " " << opName << spar
-             << getNames(op->parameters())
+             << getNames(op->params())
              << ("ZeroC.Ice.Current " + getEscapedParamName(op, "current"))
              << epar;
         _out << sb;
@@ -2982,7 +2982,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
         if(op->hasMarshaledResult())
         {
             _out << nl << "return new " << opName << "MarshaledResult"
-                 << spar << getNames(returnValues)
+                 << spar << getNames(returnType)
                  << ("ZeroC.Ice.Current " + getEscapedParamName(op, "current"))
                  << epar << ";";
         }

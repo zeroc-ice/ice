@@ -693,7 +693,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
             ParamInfo ret = allOutParams.front();
             out << nl << "///";
             out << nl << "/// - returns: `" << ret.typeStr << "`";
-            if(p->returnType())
+            if(p->deprecatedReturnType())
             {
                 if(!doc.returns.empty())
                 {
@@ -715,7 +715,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         {
             out << nl << "///";
             out << nl << "/// - returns: `" << operationReturnType(p) << "`:";
-            if(p->returnType())
+            if(p->deprecatedReturnType())
             {
                 ParamInfo ret = allOutParams.back();
                 out << nl << "///";
@@ -1664,7 +1664,7 @@ bool
 SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 {
     MemberList outParams = op->outParameters();
-    return (op->returnType() && outParams.size() > 0) || outParams.size() > 1;
+    return (op->deprecatedReturnType() && outParams.size() > 0) || outParams.size() > 1;
 }
 
 string
@@ -1678,7 +1678,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
     }
 
     MemberList outParams = op->outParameters();
-    TypePtr returnType = op->returnType();
+    TypePtr returnType = op->deprecatedReturnType();
     if(returnType)
     {
         if(returnIsTuple)
@@ -1716,7 +1716,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 {
     ostringstream os;
     MemberList outParams = op->outParameters();
-    TypePtr returnType = op->returnType();
+    TypePtr returnType = op->deprecatedReturnType();
     bool returnIsTuple = operationReturnIsTuple(op);
 
     if(returnIsTuple)
@@ -1752,7 +1752,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 {
     ostringstream os;
 
-    MemberList inParams = op->parameters();
+    MemberList inParams = op->params();
     const bool isTuple = inParams.size() > 1;
 
     if(!inParams.empty())
@@ -1810,7 +1810,7 @@ ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
     ParamInfoList r;
-    for (const auto& param : op->parameters())
+    for (const auto& param : op->params())
     {
         ParamInfo info;
         info.name = param->name();
@@ -1872,11 +1872,11 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         l.push_back(info);
     }
 
-    if(op->returnType())
+    if(op->deprecatedReturnType())
     {
         ParamInfo info;
         info.name = paramLabel("returnValue", params);
-        info.type = op->returnType();
+        info.type = op->deprecatedReturnType();
         info.typeStr = typeToString(info.type, op, op->getMetaData());
         info.isTagged = op->returnIsTagged();
         info.tag = op->returnTag();
@@ -2016,7 +2016,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const
 void
 SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    TypePtr returnType = op->returnType();
+    TypePtr returnType = op->deprecatedReturnType();
 
     ParamInfoList requiredOutParams, taggedOutParams;
     getOutParams(op, requiredOutParams, taggedOutParams);
