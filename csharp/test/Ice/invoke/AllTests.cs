@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithEmptyParamList(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
 
                 // Whether the proxy is oneway or not does not matter for Invoke's oneway parameter.
 
@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(response.ResultType == ResultType.Failure);
                 }
 
-                request = OutgoingRequestFrame.WithSingleParam(cl,
+                request = OutgoingRequestFrame.WithArgs(cl,
                                                              "opString",
                                                              idempotent: false,
                                                              compress: false,
@@ -81,7 +81,7 @@ namespace ZeroC.Ice.Test.Invoke
                     };
                 }
 
-                var request = OutgoingRequestFrame.WithEmptyParamList(cl, "opException", idempotent: false, context: ctx);
+                var request = OutgoingRequestFrame.WithEmptyArgs(cl, "opException", idempotent: false, context: ctx);
                 IncomingResponseFrame response = cl.Invoke(request);
                 try
                 {
@@ -103,7 +103,7 @@ namespace ZeroC.Ice.Test.Invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithEmptyParamList(oneway, "opOneway", idempotent: false);
+                var request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
                 IncomingResponseFrame response;
                 try
                 {
@@ -114,7 +114,7 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(false);
                 }
 
-                request = OutgoingRequestFrame.WithSingleParam(cl,
+                request = OutgoingRequestFrame.WithArgs(cl,
                                                              "opString",
                                                              idempotent: false,
                                                              compress: false,
@@ -135,7 +135,7 @@ namespace ZeroC.Ice.Test.Invoke
             }
 
             {
-                var request = OutgoingRequestFrame.WithEmptyParamList(cl, "opException", idempotent: false);
+                var request = OutgoingRequestFrame.WithEmptyArgs(cl, "opException", idempotent: false);
                 IncomingResponseFrame response = cl.InvokeAsync(request).AsTask().Result;
 
                 try

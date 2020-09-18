@@ -215,7 +215,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 for (int size = 128; size < 4096; size *= 2)
                 {
                     var token = new Token(1, "mytoken", Enumerable.Range(0, size).Select(i => (byte)2).ToArray());
-                    var request = OutgoingRequestFrame.WithParamList(prx,
+                    var request = OutgoingRequestFrame.WithArgs(prx,
                                                                      "opWithBinaryContext",
                                                                      idempotent: false,
                                                                      compress: false,
@@ -253,7 +253,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
 
                     // repeat with compressed frame
-                    request = OutgoingRequestFrame.WithParamList(prx,
+                    request = OutgoingRequestFrame.WithArgs(prx,
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
@@ -271,7 +271,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     prx.Invoke(request);
 
                     // repeat compressed the frame before writing the context
-                    request = OutgoingRequestFrame.WithParamList(prx,
+                    request = OutgoingRequestFrame.WithArgs(prx,
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,
@@ -293,7 +293,7 @@ namespace ZeroC.Ice.Test.Interceptor
             else
             {
                 var token = new Token(1, "mytoken", Enumerable.Range(0, 256).Select(i => (byte)2).ToArray());
-                var request = OutgoingRequestFrame.WithParamList(prx,
+                var request = OutgoingRequestFrame.WithArgs(prx,
                                                                  "opWithBinaryContext",
                                                                  idempotent: false,
                                                                  compress: false,

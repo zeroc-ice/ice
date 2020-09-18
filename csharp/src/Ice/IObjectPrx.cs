@@ -55,14 +55,14 @@ namespace ZeroC.Ice
             /// <param name="context">The context to write into the request.</param>
             /// <returns>A new <see cref="OutgoingRequestFrame"/>.</returns>
             public static OutgoingRequestFrame IceId(IObjectPrx proxy, IReadOnlyDictionary<string, string>? context) =>
-                OutgoingRequestFrame.WithEmptyParamList(proxy, "ice_id", idempotent: true, context);
+                OutgoingRequestFrame.WithEmptyArgs(proxy, "ice_id", idempotent: true, context);
 
             /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_ids.</summary>
             /// <param name="proxy">Proxy to the target Ice Object.</param>
             /// <param name="context">The context to write into the request.</param>
             /// <returns>A new <see cref="OutgoingRequestFrame"/>.</returns>
             public static OutgoingRequestFrame IceIds(IObjectPrx proxy, IReadOnlyDictionary<string, string>? context) =>
-                OutgoingRequestFrame.WithEmptyParamList(proxy, "ice_ids", idempotent: true, context);
+                OutgoingRequestFrame.WithEmptyArgs(proxy, "ice_ids", idempotent: true, context);
 
             /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_isA.</summary>
             /// <param name="proxy">Proxy to the target Ice Object.</param>
@@ -73,7 +73,7 @@ namespace ZeroC.Ice
                 IObjectPrx proxy,
                 string id,
                 IReadOnlyDictionary<string, string>? context) =>
-                OutgoingRequestFrame.WithSingleParam(
+                OutgoingRequestFrame.WithArgs(
                     proxy,
                     "ice_isA",
                     idempotent: true,
@@ -90,7 +90,7 @@ namespace ZeroC.Ice
             public static OutgoingRequestFrame IcePing(
                 IObjectPrx proxy,
                 IReadOnlyDictionary<string, string>? context) =>
-                OutgoingRequestFrame.WithEmptyParamList(proxy, "ice_ping", idempotent: true, context);
+                OutgoingRequestFrame.WithEmptyArgs(proxy, "ice_ping", idempotent: true, context);
         }
 
         /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each non-void remote operation defined in the
