@@ -2131,21 +2131,20 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 inValue = paramCount > 1 || StructPtr::dynamicCast(params.front()->type());
                 _out << (inValue ? "in " : "") << toTupleType(params, true) << " "
-                    << (paramCount == 1 ? paramName(params.front(), "iceP_") : "paramList") << ", ";
+                    << (paramCount == 1 ? paramName(params.front(), "iceP_") : "args") << ", ";
             }
             _out << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context) =>";
             _out.inc();
 
             if (paramCount == 0)
             {
-                _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithEmptyParamList(proxy, \"";
+                _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithEmptyArgs(proxy, \"";
                 _out << operation->name() << "\", "
                     << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ", context);";
             }
             else
             {
-                _out << nl << "ZeroC.Ice.OutgoingRequestFrame."
-                    << (inValue ? "WithParamList" : "WithSingleParam") << "(";
+                _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithArgs(";
                 _out.inc();
                 _out << nl << "proxy,"
                     << nl << "\"" << operation->name() << "\","
@@ -2154,7 +2153,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     << nl << "format: " << opFormatTypeToString(operation) << ","
                     << nl << "context,"
                     << nl << (inValue ? "in " : "")
-                    << (paramCount == 1 ? paramName(params.front(), "iceP_") : "paramList") << ","
+                    << (paramCount == 1 ? paramName(params.front(), "iceP_") : "args") << ","
                     << nl;
                 writeOutgoingRequestWriter(operation);
                 _out << ");";
@@ -2735,12 +2734,12 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     // that we skip).
     if (params.empty())
     {
-        _out << nl << "request.ReadEmptyParamList();";
+        _out << nl << "request.ReadEmptyArgs();";
     }
     else
     {
-        _out << nl << "var " << (params.size() == 1 ? paramName(params.front(), "iceP_") : "paramList")
-            << " = request.ReadParamList(current.Communicator, Request." << fixId(opName) << ");";
+        _out << nl << "var " << (params.size() == 1 ? paramName(params.front(), "iceP_") : "args")
+            << " = request.ReadArgs(current.Communicator, Request." << fixId(opName) << ");";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
@@ -2752,7 +2751,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             _out << nl << "var returnValue = await this." << name << spar;
             if (params.size() > 1)
             {
-                _out << getNames(params, [](const MemberPtr& param) { return "paramList." + fieldName(param); });
+                _out << getNames(params, [](const MemberPtr& param) { return "args." + fieldName(param); });
             }
             else if (params.size() == 1)
             {
@@ -2767,7 +2766,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
                  << name << spar;
             if (params.size() > 1)
             {
-                _out << getNames(params, [](const MemberPtr& param) { return "paramList." + fieldName(param); });
+                _out << getNames(params, [](const MemberPtr& param) { return "args." + fieldName(param); });
             }
             else if (params.size() == 1)
             {
@@ -2792,7 +2791,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << "this." << name << spar;
         if (params.size() > 1)
         {
-            _out << getNames(params, [](const MemberPtr& param) { return "paramList." + fieldName(param); });
+            _out << getNames(params, [](const MemberPtr& param) { return "args." + fieldName(param); });
         }
         else if (params.size() == 1)
         {

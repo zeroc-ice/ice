@@ -349,7 +349,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             initial.OpVoid();
 
-            var requestFrame = OutgoingRequestFrame.WithParamList(
+            var requestFrame = OutgoingRequestFrame.WithArgs(
                 initial, "opVoid", idempotent: false, compress: false, format: default, context: null, (15, "test"),
                 (OutputStream ostr, in (int n, string s) value) =>
                 {
@@ -487,7 +487,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpByte(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial, "opByte",
                     idempotent: false,
                     compress: false,
@@ -526,7 +526,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpBool(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opBool",
                     idempotent: false,
@@ -566,7 +566,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpShort(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opShort",
                     idempotent: false,
@@ -606,7 +606,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpInt(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opInt",
                     idempotent: false,
@@ -647,7 +647,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpLong(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial, "opLong",
                     idempotent: false,
                     compress: false,
@@ -687,7 +687,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpFloat(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial, "opFloat",
                     idempotent: false,
                     compress: false,
@@ -727,7 +727,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpDouble(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opDouble",
                     idempotent: false,
@@ -770,7 +770,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpString(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opString",
                     idempotent: false,
@@ -811,7 +811,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpMyEnum(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opMyEnum",
                     idempotent: false,
@@ -848,7 +848,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpSmallStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opSmallStruct",
                     idempotent: false,
@@ -887,7 +887,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpFixedStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFixedStruct",
                     idempotent: false,
@@ -930,7 +930,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpVarStruct(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opVarStruct",
                     idempotent: false,
@@ -994,7 +994,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpByteSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opByteSeq",
                     idempotent: false,
@@ -1032,7 +1032,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpBoolSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opBoolSeq",
                     idempotent: false,
@@ -1070,7 +1070,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpShortSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opShortSeq",
                     idempotent: false,
@@ -1107,7 +1107,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpIntSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opIntSeq",
                     idempotent: false,
@@ -1143,7 +1143,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpLongSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opLongSeq",
                     idempotent: false,
@@ -1180,7 +1180,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpFloatSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFloatSeq",
                     idempotent: false,
@@ -1217,7 +1217,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpDoubleSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opDoubleSeq",
                     idempotent: false,
@@ -1255,7 +1255,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpStringSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opStringSeq",
                     idempotent: false,
@@ -1294,7 +1294,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpSmallStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opSmallStructSeq",
                     idempotent: false,
@@ -1338,7 +1338,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpSmallStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opSmallStructList",
                     idempotent: false,
@@ -1387,7 +1387,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpFixedStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFixedStructSeq",
                     idempotent: false,
@@ -1431,7 +1431,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpFixedStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFixedStructList",
                     idempotent: false,
@@ -1479,7 +1479,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpVarStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opVarStructSeq",
                     idempotent: false,
@@ -1522,7 +1522,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpIntIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opIntIntDict",
                     idempotent: false,
@@ -1567,7 +1567,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpStringIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opStringIntDict",
                     idempotent: false,
