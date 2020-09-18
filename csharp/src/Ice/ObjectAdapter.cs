@@ -686,6 +686,16 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
+                if (Name.Length == 0)
+                {
+                    throw new ArgumentException("cannot set published endpoints on a nameless object adapter");
+                }
+
+                if (newEndpoints.Select(endpoint => endpoint.Protocol).Distinct().Count() > 1)
+                {
+                    throw new ArgumentException("all published endpoints must use the same protocol");
+                }
+
                 if (_disposeTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
@@ -1076,7 +1086,7 @@ namespace ZeroC.Ice
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     protocol: Protocol);
+                                     protocol: _publishedEndpoints.FirstOrDefault()?.Protocol ?? Protocol);
             }
         }
 

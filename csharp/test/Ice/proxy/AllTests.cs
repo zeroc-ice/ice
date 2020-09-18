@@ -63,6 +63,16 @@ namespace ZeroC.Ice.Test.Proxy
                 // output.WriteLine($"{str} = {prx}");
                 var prx2 = IObjectPrx.Parse(prx.ToString()!, communicator);
                 TestHelper.Assert(prx.Equals(prx2)); // round-trip works
+
+                try
+                {
+                    // Cannot use Ice2 endpoint with Ice1 proxy
+                    prx2.Clone(endpoints: IObjectPrx.Parse(ice2ProxyArray[0], communicator).Endpoints);
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentException)
+                {
+                }
             }
 
             foreach (string str in ice2ProxyArray)
@@ -72,6 +82,16 @@ namespace ZeroC.Ice.Test.Proxy
                 // output.WriteLine($"{str} = {prx}");
                 var prx2 = IObjectPrx.Parse(prx.ToString()!, communicator);
                 TestHelper.Assert(prx.Equals(prx2)); // round-trip works
+
+                try
+                {
+                    // Cannot use Ice1 endpoint with Ice2 proxy
+                    prx2.Clone(endpoints: IObjectPrx.Parse(ice1ProxyArray[0], communicator).Endpoints);
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentException)
+                {
+                }
             }
 
             foreach (string str in ice3ProxyArray)
