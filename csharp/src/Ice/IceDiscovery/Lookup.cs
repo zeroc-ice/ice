@@ -317,7 +317,17 @@ namespace ZeroC.IceDiscovery
                 IObjectPrx result = _proxies.First();
                 foreach (IObjectPrx prx in _proxies)
                 {
-                    endpoints.AddRange(prx.Endpoints);
+                    if (prx.Protocol != result.Protocol)
+                    {
+                        prx.Communicator.Logger.Trace(
+                            "Lookup",
+                            @$"ignoring replica group reply, the proxy protocol {prx.Protocol
+                               } doesn't match the replica group protocol");
+                    }
+                    else
+                    {
+                        endpoints.AddRange(prx.Endpoints);
+                    }
                 }
                 CompletionSource.SetResult(result.Clone(endpoints: endpoints));
             }
