@@ -2377,6 +2377,8 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     auto params = operation->parameters();
     assert(!params.empty());
 
+    // When the operation's parameter is a T? where T is an interface or a class, there is a built-in writer, so
+    // defaultWriter is true.
     bool defaultWriter = params.size() == 1 && operation->paramsBitSequenceSize() == 0 && !params.front()->tagged();
     if (defaultWriter)
     {
@@ -2877,10 +2879,12 @@ Slice::Gen::DispatcherVisitor::writeOutgoingResponseWriter(const OperationPtr& o
     auto returns = operation->returnValues();
     assert(!returns.empty());
 
+    // When the operation returns a T? where T is an interface or a class, there is a built-in writer, so defaultWriter
+    // is true.
     bool defaultWriter = returns.size() == 1 && operation->returnBitSequenceSize() == 0 && !returns.front()->tagged();
     if (defaultWriter)
     {
-        // This includes operations with a single struct return value.
+        // This includes operations with a single struct return type.
         _out << outputStreamWriter(returns.front()->type(), ns, false);
     }
     else
