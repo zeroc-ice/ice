@@ -53,13 +53,13 @@ namespace ZeroC.Ice.Test.Invoke
                 }
 
                 request = OutgoingRequestFrame.WithArgs(cl,
-                                                             "opString",
-                                                             idempotent: false,
-                                                             compress: false,
-                                                             format: default,
-                                                             context: null,
-                                                             TestString,
-                                                             OutputStream.IceWriterFromString);
+                                                        "opString",
+                                                        idempotent: false,
+                                                        compress: false,
+                                                        format: default,
+                                                        context: null,
+                                                        TestString,
+                                                        OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
@@ -107,7 +107,7 @@ namespace ZeroC.Ice.Test.Invoke
                 IncomingResponseFrame response;
                 try
                 {
-                    response = oneway.InvokeAsync(request, oneway: true).AsTask().Result;
+                    response = oneway.InvokeAsync(request, oneway: true).Result;
                 }
                 catch
                 {
@@ -115,15 +115,15 @@ namespace ZeroC.Ice.Test.Invoke
                 }
 
                 request = OutgoingRequestFrame.WithArgs(cl,
-                                                             "opString",
-                                                             idempotent: false,
-                                                             compress: false,
-                                                             format: default,
-                                                             context: null,
-                                                             TestString,
-                                                             OutputStream.IceWriterFromString);
+                                                        "opString",
+                                                        idempotent: false,
+                                                        compress: false,
+                                                        format: default,
+                                                        context: null,
+                                                        TestString,
+                                                        OutputStream.IceWriterFromString);
 
-                response = cl.InvokeAsync(request).AsTask().Result;
+                response = cl.InvokeAsync(request).Result;
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
                         string s1 = istr.ReadString();
@@ -136,7 +136,7 @@ namespace ZeroC.Ice.Test.Invoke
 
             {
                 var request = OutgoingRequestFrame.WithEmptyArgs(cl, "opException", idempotent: false);
-                IncomingResponseFrame response = cl.InvokeAsync(request).AsTask().Result;
+                IncomingResponseFrame response = cl.InvokeAsync(request).Result;
 
                 try
                 {

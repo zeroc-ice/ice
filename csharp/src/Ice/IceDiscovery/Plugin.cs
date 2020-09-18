@@ -102,7 +102,7 @@ namespace ZeroC.IceDiscovery
             _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
 
             // Setup locator registry.
-            var locatorRegistry = new LocatorRegistry(_communicator);
+            var locatorRegistry = new LocatorRegistry();
             ILocatorRegistryPrx locatorRegistryPrx =
                 _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 
