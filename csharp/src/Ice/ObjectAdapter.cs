@@ -1086,7 +1086,8 @@ namespace ZeroC.Ice
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     protocol: _publishedEndpoints.FirstOrDefault()?.Protocol ?? Protocol);
+                                     protocol: _publishedEndpoints.Count > 0 ?
+                                               _publishedEndpoints[0].Protocol : Protocol);
             }
         }
 
