@@ -64,7 +64,8 @@ namespace ZeroC.Ice
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="format">The format used to marshal classes.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>args</c> contains class
+        /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
@@ -104,12 +105,13 @@ namespace ZeroC.Ice
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="format">The format used to marshal classes.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>args</c> contains class
+        /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The delegate that writes the arguments into the frame.</param>
-        /// <returns>A new OutgoingRequestFrame</returns>
+        /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,

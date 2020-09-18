@@ -40,7 +40,8 @@ namespace ZeroC.Ice
         /// <typeparam name="T">The type of the return value.</typeparam>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="compress">True if the response should be compressed, false otherwise.</param>
-        /// <param name="format">The format type used to marshal classes.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
+        /// class instances.</param>
         /// <param name="returnValue">The return value to write into the frame.</param>
         /// <param name="writer">The delegate that writes the return value into the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
@@ -66,7 +67,8 @@ namespace ZeroC.Ice
         /// <typeparam name="T">The type of the return value.</typeparam>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="compress">True if the response should be compressed, false otherwise.</param>
-        /// <param name="format">The format type used to marshal classes.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
+        /// class instances.</param>
         /// <param name="returnValue">The return value to write into the frame.</param>
         /// <param name="writer">The delegate that writes the return value into the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
