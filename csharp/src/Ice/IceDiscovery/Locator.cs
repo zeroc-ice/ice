@@ -43,7 +43,7 @@ namespace ZeroC.IceDiscovery
             {
                 if (proxy != null)
                 {
-                    _adapters.Add(adapterId, proxy);
+                    _adapters.Add(adapterId, proxy.Clone(clearLocator: true, clearRouter: true));
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace ZeroC.IceDiscovery
                             registeredProxy.Protocol != proxy.Protocol)
                         {
                             throw new InvalidProxyException(
-                                $"The proxy protocol {proxy.Protocol} doesnt match the replica group protocol");
+                                $"The proxy protocol {proxy.Protocol} doesn't match the replica group protocol");
                         }
                     }
                     else
@@ -78,7 +78,7 @@ namespace ZeroC.IceDiscovery
                         adapterIds = new HashSet<string>();
                         _replicaGroups.Add(replicaGroupId, adapterIds);
                     }
-                    _adapters.Add(adapterId, proxy);
+                    _adapters.Add(adapterId, proxy.Clone(clearLocator: true, clearRouter: true));
                     adapterIds.Add(adapterId);
                 }
                 else
@@ -144,15 +144,10 @@ namespace ZeroC.IceDiscovery
                 {
                     try
                     {
-
-                        IObjectPrx prx = _adapters[ids.First()];
-                        prx = prx.Clone(IObjectPrx.Factory,
-                                        adapterId: key,
-                                        clearLocator: true,
-                                        clearRouter: true,
-                                        identity: identity);
-                        prx.IcePing();
-                        return prx;
+                        IObjectPrx proxy = _adapters.First().Value;
+                        proxy = proxy.Clone(IObjectPrx.Factory, adapterId: key, identity: identity);
+                        proxy.IcePing();
+                        return proxy;
                     }
                     catch
                     {
@@ -160,17 +155,15 @@ namespace ZeroC.IceDiscovery
                     }
                 }
 
-                foreach ((string key, IObjectPrx prx) in _adapters)
+                foreach ((string key, IObjectPrx registeredProxy) in _adapters)
                 {
                     try
                     {
-                        IObjectPrx result = prx.Clone(IObjectPrx.Factory,
-                                                      adapterId: key,
-                                                      clearLocator: true,
-                                                      clearRouter: true,
-                                                      identity: identity);
-                        result.IcePing();
-                        return result;
+                        IObjectPrx proxy = registeredProxy.Clone(IObjectPrx.Factory,
+                                                                 adapterId: key,
+                                                                 identity: identity);
+                        proxy.IcePing();
+                        return proxy;
                     }
                     catch
                     {
