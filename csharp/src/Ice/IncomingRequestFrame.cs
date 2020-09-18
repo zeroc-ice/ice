@@ -12,18 +12,23 @@ namespace ZeroC.Ice
     {
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
+
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
+
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
+
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
+
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
+
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        /// <summary>Creates a new IncomingRequestFrame.</summary>
+        /// <summary>Constructs an incoming request frame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
@@ -76,9 +81,9 @@ namespace ZeroC.Ice
         {
         }
 
-        /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
-        /// correspond to the empty parameter list.</summary>
-        public void ReadEmptyParamList()
+        /// <summary>Reads the arguments from the request and makes sure this request carries no argument or only
+        /// unknown tagged arguments.</summary>
+        public void ReadEmptyArgs()
         {
             if (HasCompressedPayload)
             {
@@ -87,13 +92,12 @@ namespace ZeroC.Ice
             Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
         }
 
-        /// <summary>Reads the request frame parameter list.</summary>
+        /// <summary>Reads the arguments from a request.</summary>
+        /// <paramtype name="T">The type of the arguments.</paramtype>
         /// <param name="communicator">The communicator.</param>
-        /// <param name="reader">An InputStreamReader delegate used to read the request frame
-        /// parameters.</param>
-        /// <returns>The request parameters, when the frame parameter list contains multiple parameters
-        /// they must be return as a tuple.</returns>
-        public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader)
+        /// <param name="reader">The delegate used to read the arguments.</param>
+        /// <returns>The request arguments.</returns>
+        public T ReadArgs<T>(Communicator communicator, InputStreamReader<T> reader)
         {
             if (HasCompressedPayload)
             {

@@ -17,13 +17,13 @@ namespace ZeroC.Ice
         /// <summary>The result type; see <see cref="Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
 
-        // When a response frame contains an encapsulation, it always start at position 1 of the first segment,
+        // When a response frame contains an encapsulation, it always starts at position 1 of the first segment,
         // and the first segment has always at least 2 bytes.
         private static readonly OutputStream.Position EncapsulationStart = new OutputStream.Position(0, 1);
 
         private readonly ArraySegment<byte> _defaultBinaryContext;
 
-        /// <summary>Creates a new outgoing response frame with a void return value.</summary>
+        /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation that returns void.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current)
@@ -35,23 +35,26 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, ostr.Tail);
         }
 
-        /// <summary>Creates a new outgoing response frame with a return value.</summary>
+        /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a non-tuple non-struct
+        /// return type.</summary>
+        /// <typeparam name="T">The type of the return value.</typeparam>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="compress">True if the response should be compressed, false otherwise.</param>
-        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
-        /// the communicator's default format is used.</param>
-        /// <param name="value">The return value to marshal.</param>
-        /// <param name="writer">A delegate that must write the value to the frame.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
+        /// class instances.</param>
+        /// <param name="returnValue">The return value to write into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the return value into the frame.
+        /// </param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
             bool compress,
             FormatType format,
-            T value,
+            T returnValue,
             OutputStreamWriter<T> writer)
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
-            writer(ostr, value);
+            writer(ostr, returnValue);
             response.PayloadEnd = ostr.Finish();
             if (compress && current.Encoding == Encoding.V2_0)
             {
@@ -60,25 +63,27 @@ namespace ZeroC.Ice
             return response;
         }
 
-        /// <summary>Creates a new outgoing response frame with a return value.</summary>
+        /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a tuple or struct return
+        /// type.</summary>
+        /// <typeparam name="T">The type of the return value.</typeparam>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <param name="compress">True if the response should be compressed, false otherwise.</param>
-        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
-        /// the communicator's default format is used.</param>
-        /// <param name="value">The return value to marshal, when the response frame contains multiple return
-        /// values they must be passed in a tuple.</param>
-        /// <param name="writer">A delegate that must write the value to the frame.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
+        /// class instances.</param>
+        /// <param name="returnValue">The return value to write into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the return value into the frame.
+        /// </param>
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
             bool compress,
             FormatType format,
-            in T value,
+            in T returnValue,
             OutputStreamValueWriter<T> writer)
             where T : struct
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
-            writer(ostr, value);
+            writer(ostr, returnValue);
             response.PayloadEnd = ostr.Finish();
             if (compress && current.Encoding == Encoding.V2_0)
             {
@@ -87,11 +92,9 @@ namespace ZeroC.Ice
             return response;
         }
 
-        /// <summary>Creates a new outgoing response frame from the given incoming response frame.</summary>
-        /// <param name="request">The incoming request for which this constructor creates an outgoing response frame.
-        /// </param>
-        /// <param name="response">The incoming response for which this constructor creates an outgoing response frame.
-        /// </param>
+        /// <summary>Constructs an outgoing response frame from the given incoming response frame.</summary>
+        /// <param name="request">The request for which this constructor creates a response.</param>
+        /// <param name="response">The incoming response used to construct the new outgoing response frame.</param>
         /// <param name="forwardBinaryContext">When true (the default), the new frame uses the incoming response frame's
         /// binary context as a fallback - all the entries in this binary context are added before the frame is sent,
         /// except for entries previously added by dispatch interceptors.</param>
@@ -229,7 +232,7 @@ namespace ZeroC.Ice
             IsSealed = Protocol == Protocol.Ice1;
         }
 
-        /// <summary>Creates a response frame that represents a failure and contains an exception.</summary>
+        /// <summary>Constructs a response frame that represents a failure and contains an exception.</summary>
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
