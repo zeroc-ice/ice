@@ -81,8 +81,8 @@ namespace ZeroC.Ice
         {
         }
 
-        /// <summary>Reads the arguments from the request and make sure this request carries no argument or only unknown
-        /// tagged arguments.</summary>
+        /// <summary>Reads the arguments from the request and makes sure this request carries no argument or only
+        /// unknown tagged arguments.</summary>
         public void ReadEmptyArgs()
         {
             if (HasCompressedPayload)
@@ -96,8 +96,7 @@ namespace ZeroC.Ice
         /// <paramtype name="T">The type of the arguments.</paramtype>
         /// <param name="communicator">The communicator.</param>
         /// <param name="reader">The delegate used to read the arguments.</param>
-        /// <returns>The request parameters, when the frame parameter list contains multiple parameters
-        /// they must be return as a tuple.</returns>
+        /// <returns>The request arguments.</returns>
         public T ReadArgs<T>(Communicator communicator, InputStreamReader<T> reader)
         {
             if (HasCompressedPayload)
