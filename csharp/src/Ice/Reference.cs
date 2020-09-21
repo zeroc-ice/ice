@@ -566,7 +566,10 @@ namespace ZeroC.Ice
 
             string facet = istr.ReadFacet();
             int mode = istr.ReadByte();
-            if (mode < 0 || mode > (int)InvocationMode.Last)
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (mode < 0 || mode > (int)InvocationMode.BatchDatagram)
+#pragma warning restore CS0618
             {
                 throw new InvalidDataException($"invalid invocation mode: {mode}");
             }

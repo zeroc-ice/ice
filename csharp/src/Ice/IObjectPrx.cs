@@ -8,39 +8,6 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The proxy's invocation mode.</summary>
-    public enum InvocationMode : byte
-    {
-        /// <summary>This is the default invocation mode, a request using twoway mode always expects a response.
-        /// </summary>
-        Twoway,
-        /// <summary>A request using oneway mode returns control to the application code as soon as it has been
-        /// accepted by the local transport.</summary>
-        Oneway,
-        /// <summary>The batch-oneway invocation mode is no longer supported, it was supported with version up to 3.7.
-        /// </summary>
-        [Obsolete("The batch-oneway invocation mode is no longer supported, it was supported with version up to 3.7")]
-        BatchOneway,
-        /// <summary>Invocation mode use by datagram based transports.</summary>
-        Datagram,
-        /// <summary>
-        /// The batch-datagram invocation mode is no longer supported, it was supported with version up to 3.7
-        /// </summary>
-        [Obsolete("The batch-datagram invocation mode is no longer supported, it was supported with version up to 3.7")]
-        BatchDatagram,
-
-        /// <summary>Marker for the last value.</summary>
-#pragma warning disable CS0618 // Type or member is obsolete
-        Last = BatchDatagram
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-
-    /// <summary>Factory function that creates a proxy from a reference.</summary>
-    /// <typeparam name="T">The proxy type.</typeparam>
-    /// <param name="reference">The underlying reference.</param>
-    /// <returns>The new proxy.</returns>
-    public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
-
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
