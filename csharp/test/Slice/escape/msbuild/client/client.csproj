@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <UseAppHost>true</UseAppHost>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
