@@ -703,19 +703,26 @@ namespace ZeroC.Ice
                 // No additional data is expected at this point other than potentially a stream reset from the
                 // transport. We start a task on the stream to eventually be notified when the stream is reset
                 // by the peer in order to cancel the dispatch.
-                async void CancelSourceIfStreamReset()
+                // TODO: support for reading streamable data.
+                if (!fin)
                 {
-                    try
+                    async void CancelSourceIfStreamReset()
                     {
-                        await stream.WaitForStreamResetAsync(CancellationToken.None).ConfigureAwait(false);
-                        cancelSource.Cancel();
+                        try
+                        {
+                            await stream.WaitForStreamResetAsync(CancellationToken.None).ConfigureAwait(false);
+                        }
+                        catch (StreamResetByPeerException)
+                        {
+                            cancelSource.Cancel();
+                        }
+                        catch (NotImplementedException)
+                        {
+                            // Not supported
+                        }
                     }
-                    catch
-                    {
-                        // Ignore
-                    }
+                    CancelSourceIfStreamReset();
                 }
-                CancelSourceIfStreamReset();
 
                 ObjectAdapter? adapter = _adapter;
                 if (adapter == null)
@@ -755,7 +762,7 @@ namespace ZeroC.Ice
             {
                 // Ignore, the dispatch got canceled
             }
-            catch (StreamClosedByPeerException)
+            catch (StreamResetByPeerException)
             {
                 // Ignore, the peer closed the stream.
             }

@@ -202,12 +202,12 @@ namespace ZeroC.Ice
     }
 
     /// <summary>This exception indicates that the stream was closed by the peer.</summary>
-    public class StreamClosedByPeerException : TransportException
+    public class StreamResetByPeerException : TransportException
     {
-        /// <summary>Constructs a new instance of the <see cref="StreamClosedByPeerException"/> class with a specified
+        /// <summary>Constructs a new instance of the <see cref="StreamResetByPeerException"/> class with a specified
         /// error message.</summary>
         /// <param name="message">The message that describes the error.</param>
-        public StreamClosedByPeerException(string message)
+        public StreamResetByPeerException(string message)
             : base(message)
         {
         }
