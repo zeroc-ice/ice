@@ -304,7 +304,7 @@ namespace ZeroC.Ice
                             {
                                 str.Append((char)buffer[i]);
                             }
-                            _headerName = str.ToString().ToLower();
+                            _headerName = str.ToString().ToLowerInvariant();
                             // Add a placeholder entry if necessary.
                             if (!_headers.ContainsKey(_headerName))
                             {
@@ -653,9 +653,9 @@ namespace ZeroC.Ice
 
         internal string? GetHeader(string name, bool toLower)
         {
-            if (_headers.TryGetValue(name.ToLower(), out string? s))
+            if (_headers.TryGetValue(name.ToLowerInvariant(), out string? s))
             {
-                return toLower ? s.Trim().ToLower() : s.Trim();
+                return toLower ? s.Trim().ToLowerInvariant() : s.Trim();
             }
 
             return null;
