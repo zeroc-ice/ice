@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -157,9 +155,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             var factory = new SessionFactoryHelper(new SessionCallback1(this), properties);
             Glacier2.SessionHelper? session = null;
 
-            //
             // Test to create a session with wrong userid/password
-            //
             lock (_mutex)
             {
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");

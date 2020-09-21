@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using ZeroC.Ice;
@@ -29,9 +27,7 @@ namespace ZeroC.Glacier2.Test.Router
             // The test rejects "c3" as category.
             adapter.Add("c3/callback", new Callback());
 
-            //
             // The test allows the prefixed userid.
-            //
             adapter.Add("_userid/callback", new Callback());
             await adapter.ActivateAsync();
             await communicator.WaitForShutdownAsync();

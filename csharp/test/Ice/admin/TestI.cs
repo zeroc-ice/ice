@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using Test;
@@ -59,7 +57,6 @@ namespace ZeroC.Ice.Test.Admin
 
             props.Add("Test.Protocol", TestHelper.GetTestProtocol(current.Communicator.GetProperties()).GetName());
 
-            //
             // Initialize a new communicator.
             var communicator = new Communicator(props, logger: logger);
 

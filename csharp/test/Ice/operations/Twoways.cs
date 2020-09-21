@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -330,9 +328,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(so.S.S.Equals("a new string"));
                 so.P.OpVoid();
 
-                //
                 // Test marshalling of null structs and structs with null members.
-                //
                 si1 = new Structure();
                 si1.S = new AnotherStruct("");
                 si2 = new Structure();

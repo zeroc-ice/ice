@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -15,12 +13,9 @@ namespace ZeroC.Glacier2.Test.Router
         public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
-            //
-            // We must disable connection warnings, because we attempt to
-            // ping the router before session establishment, as well as
-            // after session destruction. Both will cause a
-            // ConnectionLostException.
-            //
+
+            // We must disable connection warnings, because we attempt to ping the router before session establishment,
+            // as well as after session destruction. Both will cause a ConnectionLostException.
             properties["Ice.Warn.Connections"] = "0";
             properties["Test.Protocol"] = "ice1";
             await using Communicator communicator = Initialize(properties);

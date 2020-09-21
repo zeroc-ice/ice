@@ -1163,12 +1163,7 @@ Slice::Gen::closeOutput()
 void
 Slice::Gen::printHeader()
 {
-    static const char* header =
-        "//\n"
-        "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
-        "//\n";
-
-    _out << header;
+    _out << "// Copyright (c) ZeroC, Inc. All rights reserved.\n";
     _out << "// Ice version " << ICE_STRING_VERSION << "\n";
 }
 

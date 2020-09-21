@@ -1,10 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-//
-// See RFC 2253 and RFC 1779.
-//
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +7,7 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
+    // See RFC 2253 and RFC 1779.
     internal class RFC2253
     {
         internal struct RDNPair
@@ -102,15 +97,12 @@ namespace ZeroC.Ice
                 {
                     throw new FormatException("unescape: missing \"");
                 }
-                //
+
                 // Return the string without quotes.
-                //
                 return data[1..^1];
             }
 
-            //
             // Unescape the entire string.
-            //
             var result = new StringBuilder();
             if (data[0] == '#')
             {
@@ -233,7 +225,6 @@ namespace ZeroC.Ice
 
             string result = "";
 
-            //
             // RFC 1779.
             // <key> ::= 1*( <keychar> ) | "OID." <oid> | "oid." <oid>
             // <oid> ::= <digitstring> | <digitstring> "." <oid>
@@ -242,15 +233,12 @@ namespace ZeroC.Ice
             // keychar    = ALPHA | DIGIT | "-"
             // oid        = 1*DIGIT *("." 1*DIGIT)
             //
-            // In section 4 of RFC 2253 the document says:
-            // Implementations MUST allow an oid in the attribute type to be
-            // prefixed by one of the character strings "oid." or "OID.".
+            // In section 4 of RFC 2253 the document says: Implementations MUST allow an oid in the attribute type to
+            // be prefixed by one of the character strings "oid." or "OID.".
             //
-            // Here we must also check for "oid." and "OID." before parsing
-            // according to the ALPHA KEYCHAR* rule.
+            // Here we must also check for "oid." and "OID." before parsing according to the ALPHA KEYCHAR* rule.
             //
             // First the OID case.
-            //
             if (char.IsDigit(data[pos]) ||
                (data.Length - pos >= 4 && (data.Substring(pos, 4).Equals("oid.") ||
                                                        data.Substring(pos, 4).Equals("OID."))))
@@ -288,11 +276,8 @@ namespace ZeroC.Ice
             }
             else if (char.IsUpper(data[pos]) || char.IsLower(data[pos]))
             {
-                //
-                // The grammar is wrong in this case. It should be ALPHA
-                // KEYCHAR* otherwise it will not accept "O" as a valid
-                // attribute type.
-                //
+                // The grammar is wrong in this case. It should be ALPHA KEYCHAR* otherwise it will not accept "O" as a
+                // valid attribute type.
                 result += data[pos];
                 ++pos;
                 // 1* KEYCHAR
@@ -321,10 +306,7 @@ namespace ZeroC.Ice
                 return "";
             }
 
-            //
-            // RFC 2253
-            // # hexstring
-            //
+            // RFC 2253 # hexstring
             var result = new StringBuilder();
             if (data[pos] == '#')
             {
@@ -340,11 +322,10 @@ namespace ZeroC.Ice
                     result.Append(h);
                 }
             }
-            //
+
             // RFC 2253
             // QUOTATION *( quotechar | pair ) QUOTATION ; only from v2
             // quotechar     = <any character except "\" or QUOTATION >
-            //
             else if (data[pos] == '"')
             {
                 result.Append(data[pos]);
@@ -375,11 +356,9 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            //
             // RFC 2253
             // * (stringchar | pair)
             // stringchar = <any character except one of special, "\" or QUOTATION >
-            //
             else
             {
                 while (pos < data.Length)
@@ -402,10 +381,8 @@ namespace ZeroC.Ice
             return result.ToString();
         }
 
-        //
         // RFC2253:
         // pair       = "\" ( special | "\" | QUOTATION | hexpair )
-        //
         private static string ParsePair(string data, ref int pos)
         {
             string result = "";
@@ -429,10 +406,7 @@ namespace ZeroC.Ice
             return ParseHexPair(data, ref pos, false);
         }
 
-        //
-        // RFC 2253
-        // hexpair    = hexchar hexchar
-        //
+        // RFC 2253, hexpair = hexchar hexchar
         private static string ParseHexPair(string data, ref int pos, bool allowEmpty)
         {
             string result = "";
@@ -457,14 +431,11 @@ namespace ZeroC.Ice
             return result;
         }
 
-        //
         // RFC 2253:
         //
-        // Implementations MUST allow for space (' ' ASCII 32) characters to be
-        // present between name-component and ',', between attributeTypeAndValue
-        // and '+', between attributeType and '=', and between '=' and
-        // attributeValue.  These space characters are ignored when parsing.
-        //
+        // Implementations MUST allow for space (' ' ASCII 32) characters to be present between name-component and ',',
+        // between attributeTypeAndValue and '+', between attributeType and '=', and between '=' and attributeValue.
+        // These space characters are ignored when parsing.
         private static void EatWhite(string data, ref int pos)
         {
             while (pos < data.Length && data[pos] == ' ')

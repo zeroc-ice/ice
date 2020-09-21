@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -451,10 +449,8 @@ namespace ZeroC.Ice
             long streamId;
             lock (_mutex)
             {
-                //
                 // If the exception is thrown before we even have a chance to send our request, we always try to
                 // send the request again.
-                //
                 if (_exception != null)
                 {
                     throw new RetryException(_exception);

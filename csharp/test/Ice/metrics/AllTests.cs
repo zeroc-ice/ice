@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -958,9 +956,7 @@ namespace ZeroC.Ice.Test.Metrics
             output.Write("testing invocation metrics... ");
             output.Flush();
 
-            //
             // Tests for twoway
-            //
             props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
             props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "id";
             props["IceMX.Metrics.View.Map.Invocation.Map.Collocated.GroupBy"] = "id";
@@ -1188,9 +1184,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, output);
 
-            //
             // Oneway tests
-            //
             ClearView(clientProps, serverProps, update);
             props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
             props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";

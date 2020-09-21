@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -668,9 +666,7 @@ namespace ZeroC.Ice
                         continue; // The view is disabled
                     }
 
-                    //
                     // Create the view or update it.
-                    //
                     if (!_views.TryGetValue(viewName, out MetricsView? v))
                     {
                         v = new MetricsView(viewName);

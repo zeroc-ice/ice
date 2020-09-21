@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.IO;
@@ -37,9 +35,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 }
                 adapter.Dispose();
 
-                //
                 // Use a different port than the first adapter to avoid an "address already in use" error.
-                //
                 adapter = communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", helper.GetTestEndpoint(2));
                 adapter.Dispose();
                 output.WriteLine("ok");

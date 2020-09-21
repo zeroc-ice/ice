@@ -1,6 +1,4 @@
-//
 // Copyright(c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections;
 using System.Collections.Generic;
@@ -12,11 +10,7 @@ namespace ZeroC.Ice.Test.Stream
 {
     public class AllTests
     {
-        //
-        // There does not appear to be any way to compare collections
-        // in either C# or with the .NET framework. Something like
-        // C++ STL EqualRange would be n..
-        //
+        // TODO remove this method
         private static bool Compare(ICollection c1, ICollection c2)
         {
             if (c1 == null)
