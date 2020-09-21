@@ -417,10 +417,10 @@ namespace ZeroC.Ice
                             {
                                 // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
-                                CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(
+                                using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                                     cancel,
-                                    proxy.Communicator.CancellationToken).Token;
-                                await Task.Delay(delay, token).ConfigureAwait(false);
+                                    proxy.Communicator.CancellationToken);
+                                await Task.Delay(delay, tokenSource.Token).ConfigureAwait(false);
                             }
 
                             observer?.Retried();

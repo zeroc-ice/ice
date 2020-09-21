@@ -181,7 +181,8 @@ namespace ZeroC.Ice
                             sb.Append("Sec-WebSocket-Accept: ");
                             string input = key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-                            byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+                            using var sha1 = SHA1.Create();
+                            byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
                             sb.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
 
@@ -632,7 +633,8 @@ namespace ZeroC.Ice
 
             string input = _key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-            byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+            using var sha1 = SHA1.Create();
+            byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
             if (!value.Equals(Convert.ToBase64String(hash)))
             {
