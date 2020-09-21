@@ -341,12 +341,12 @@ namespace ZeroC.Ice
                     // close frame.
                     foreach (Stream stream in Transceiver.Streams.Values)
                     {
-                        if (!stream.IsIncoming)
+                        if (!stream.IsIncoming && stream != _controlStream)
                         {
                             stream.Abort(exception);
                         }
                     }
-                    await Transceiver.WaitForNoStreamsAsync().ConfigureAwait(false);
+                    await Transceiver.WaitForNoAppStreamsAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -356,7 +356,7 @@ namespace ZeroC.Ice
                     // once it received the response for this stream ID.
                     foreach (Stream stream in Transceiver.Streams.Values)
                     {
-                        if (!stream.IsIncoming)
+                        if (!stream.IsIncoming && stream != _controlStream)
                         {
                             stream.Abort(exception);
                         }
@@ -396,7 +396,7 @@ namespace ZeroC.Ice
                 {
                     await AbortAsync(new TimeoutException());
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     lock (_mutex)
                     {
@@ -425,8 +425,10 @@ namespace ZeroC.Ice
                     {
                         SetState(ConnectionState.Closing, new ConnectionClosedByPeerException(message));
                         closeTask = PerformCloseAsync(lastStreamId, _exception!);
-                        Debug.Assert(_closeTask == null);
-                        _closeTask = closeTask;
+                        if (_closeTask == null)
+                        {
+                            _closeTask = closeTask;
+                        }
                     }
                     else
                     {
@@ -447,6 +449,8 @@ namespace ZeroC.Ice
 
             async Task PerformCloseAsync(long lastStreamId, Exception exception)
             {
+                _controlStream!.Dispose();
+
                 if (Endpoint.Protocol != Protocol.Ice1)
                 {
                     // Abort non-processed outgoing streams and all incoming streams.
@@ -460,7 +464,7 @@ namespace ZeroC.Ice
                 }
 
                 // Wait for all the streams to be completed.
-                await Transceiver.WaitForNoStreamsAsync().ConfigureAwait(false);
+                await Transceiver.WaitForNoAppStreamsAsync().ConfigureAwait(false);
 
                 // Abort the connection once all the streams have completed.
                 await AbortAsync(exception).ConfigureAwait(false);
@@ -572,12 +576,10 @@ namespace ZeroC.Ice
                 await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
                 // Create the control stream and send the initialize frame
-                _controlStream = Transceiver.CreateStream(false);
-                await _controlStream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
+                _controlStream = await Transceiver.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
 
                 // Wait for the peer control stream to be accepted and read the initialize frame
-                Stream peerControlStream = await Transceiver.AcceptStreamAsync(cancel);
-                await peerControlStream.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
+                Stream peerControlStream = await Transceiver.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
 
                 // Setup a task to wait for the close frame on the peer's control stream.
                 _ = Task.Run(() => WaitForCloseAsync(peerControlStream));
@@ -657,7 +659,7 @@ namespace ZeroC.Ice
                 {
                     stream.Abort(exception);
                 }
-                await Transceiver.WaitForNoStreamsAsync().ConfigureAwait(false);
+                await Transceiver.WaitForNoAppStreamsAsync().ConfigureAwait(false);
 
                 Transceiver.Closed(exception);
                 Transceiver.Dispose();
@@ -699,9 +701,21 @@ namespace ZeroC.Ice
                     = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
 
                 // No additional data is expected at this point other than potentially a stream reset from the
-                // transport. We start a Receive task on the stream to be notified if the stream is closed by
-                // the peer in order to cancel the dispatch.
-                stream.CancelSourceIfClosedByPeer(cancelSource);
+                // transport. We start a task on the stream to eventually be notified when the stream is reset
+                // by the peer in order to cancel the dispatch.
+                async void CancelSourceIfStreamReset()
+                {
+                    try
+                    {
+                        await stream.WaitForStreamResetAsync(CancellationToken.None).ConfigureAwait(false);
+                        cancelSource.Cancel();
+                    }
+                    catch
+                    {
+                        // Ignore
+                    }
+                }
+                CancelSourceIfStreamReset();
 
                 ObjectAdapter? adapter = _adapter;
                 if (adapter == null)
@@ -713,7 +727,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    var current = new Current(adapter, request, stream, this);
+                    var current = new Current(adapter, request, stream, cancel, this);
 
                     // Dispatch the request and get the response
                     OutgoingResponseFrame response;
@@ -736,11 +750,6 @@ namespace ZeroC.Ice
                         // TODO: send streamable data.
                     }
                 }
-            }
-            catch (ObjectDisposedException)
-            {
-                // Ignore, the connection is being closed.
-                Debug.Assert(_exception != null);
             }
             catch (OperationCanceledException)
             {

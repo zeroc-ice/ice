@@ -43,10 +43,11 @@ namespace ZeroC.Ice
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
             Stream stream,
+            CancellationToken token,
             Connection? connection = null)
         {
             Adapter = adapter;
-            CancellationToken = stream.CancellationToken;
+            CancellationToken = token;
             Connection = connection;
             IsOneway = !stream.IsBidirectional;
             IncomingRequestFrame = incomingRequestFrame;

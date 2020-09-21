@@ -12,24 +12,25 @@ namespace ZeroC.Ice
     internal static class ProtocolTrace
     {
         internal static void TraceFrame(
-            Communicator communicator,
+            Endpoint endpoint,
             long streamId,
             object frame,
-            Protocol? protocol = null,
+            byte type = 0,
             byte compress = 0)
         {
+            Communicator communicator = endpoint.Communicator;
+            Protocol protocol = endpoint.Protocol;
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 string framePrefix;
                 string frameType;
                 Encoding encoding;
                 int frameSize;
-                var data = ArraySegment<byte>.Empty;
+                ArraySegment<byte> data = ArraySegment<byte>.Empty;
 
                 if (frame is OutgoingFrame outgoingFrame)
                 {
                     framePrefix = "sending";
-                    protocol = outgoingFrame.Protocol;
                     encoding = outgoingFrame.Encoding;
                     frameType = frame is OutgoingRequestFrame ? "request" : "response";
                     frameSize = outgoingFrame.Size;
@@ -37,7 +38,6 @@ namespace ZeroC.Ice
                 else if (frame is IncomingFrame incomingFrame)
                 {
                     framePrefix = "received";
-                    protocol = incomingFrame.Protocol;
                     encoding = incomingFrame.Encoding;
                     frameType = frame is IncomingRequestFrame ? "request" : "response";
                     frameSize = incomingFrame.Size;
@@ -47,7 +47,7 @@ namespace ZeroC.Ice
                     if (frame is IList<ArraySegment<byte>> sendBuffer)
                     {
                         framePrefix = "sending";
-                        data = sendBuffer[0];
+                        data = sendBuffer.Count > 0 ? sendBuffer[0] : ArraySegment<byte>.Empty;
                     }
                     else if (frame is ArraySegment<byte> readBuffer)
                     {
@@ -62,7 +62,7 @@ namespace ZeroC.Ice
 
                     if (protocol == Protocol.Ice2)
                     {
-                        frameType = (Ice2Definitions.FrameType)data[0] switch
+                        frameType = (Ice2Definitions.FrameType)type switch
                         {
                             Ice2Definitions.FrameType.Initialize => "initialize",
                             Ice2Definitions.FrameType.Close => "close",
@@ -73,7 +73,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        frameType = (Ice1Definitions.FrameType)data[9] switch
+                        frameType = (Ice1Definitions.FrameType)type switch
                         {
                             Ice1Definitions.FrameType.ValidateConnection => "validate",
                             Ice1Definitions.FrameType.CloseConnection => "close",
@@ -90,7 +90,7 @@ namespace ZeroC.Ice
                 s.Append(frameType);
 
                 s.Append("\nprotocol = ");
-                s.Append(protocol!.Value.GetName());
+                s.Append(protocol.GetName());
                 s.Append("\nencoding = ");
                 s.Append(encoding.ToString());
 
@@ -102,7 +102,7 @@ namespace ZeroC.Ice
                     s.Append("\nstream ID = ");
                     s.Append(streamId);
                 }
-                else
+                else if (frameType == "request" || frameType == "response")
                 {
                     s.Append("\ncompression status = ");
                     s.Append(compress);
@@ -115,8 +115,9 @@ namespace ZeroC.Ice
                     });
 
                     s.Append("\nrequest ID = ");
-                    s.Append((int)streamId);
-                    if (streamId == 0)
+                    int requestId = streamId % 4 < 2 ? (int)(streamId >> 2) + 1 : 0;
+                    s.Append((int)requestId);
+                    if (requestId == 0)
                     {
                         s.Append(" (oneway)");
                     }

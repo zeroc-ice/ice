@@ -886,8 +886,6 @@ namespace ZeroC.Ice
             Stream stream,
             Current current)
         {
-            stream.Observer = Communicator.Observer?.GetDispatchObserver(current, stream.Id, request.Size);
-
             try
             {
                 Debug.Assert(current.Adapter == this);
