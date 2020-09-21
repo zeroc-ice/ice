@@ -126,7 +126,7 @@ namespace ZeroC.Ice
                     s.Append(operation);
 
                     s.Append($"\nidempotent = ");
-                    s.Append(isIdempotent.ToString().ToLower());
+                    s.Append(isIdempotent.ToString().ToLowerInvariant());
 
                     int sz = context.Count;
                     s.Append("\ncontext = ");
