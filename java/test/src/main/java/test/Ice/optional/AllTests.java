@@ -73,7 +73,6 @@ public class AllTests
         mo1.setG(1.0);
         mo1.setH("test");
         mo1.setI(MyEnum.MyEnumMember);
-        mo1.setK(mo1);
         mo1.setBs(new byte[] { 5 });
         mo1.setSs(new String[] { "test", "test2" });
         mo1.setIid(new java.util.HashMap<>());
@@ -83,24 +82,21 @@ public class AllTests
         FixedStruct fs = new FixedStruct();
         fs.m = 78;
         mo1.setFs(fs);
-        VarStruct vs = new VarStruct();
-        vs.m = "hello";
-        mo1.setVs(vs);
+        VarStruct vs1 = new VarStruct();
+        vs1.m = "hello";
+        mo1.setVs(vs1);
 
         mo1.setShs(new short[] { 1 });
         mo1.setEs(new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember });
         mo1.setFss(new FixedStruct[] { fs });
-        mo1.setVss(new VarStruct[] { vs });
-        mo1.setOos(new OneOptional[] { oo1 });
+        mo1.setVss(new VarStruct[] { vs1 });
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
         mo1.setIfsd(new java.util.HashMap<>());
         mo1.getIfsd().put(4, fs);
         mo1.setIvsd(new java.util.HashMap<>());
-        mo1.getIvsd().put(5, vs);
-        mo1.setIood(new java.util.HashMap<>());
-        mo1.getIood().put(5, new OneOptional(15));
+        mo1.getIvsd().put(5, vs1);
 
         mo1.setBos(new boolean[] { false, true, false });
 
@@ -116,7 +112,6 @@ public class AllTests
         test(mo1.getG() == 1.0);
         test(mo1.getH().equals("test"));
         test(mo1.getI() == MyEnum.MyEnumMember);
-        test(mo1.getK() == mo1);
         test(java.util.Arrays.equals(mo1.getBs(), new byte[] { 5 }));
         test(java.util.Arrays.equals(mo1.getSs(), new String[] { "test", "test2" }));
         test(mo1.getIid().get(4) == 3);
@@ -128,12 +123,10 @@ public class AllTests
         test(mo1.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
         test(mo1.getFss()[0].equals(new FixedStruct(78)));
         test(mo1.getVss()[0].equals(new VarStruct("hello")));
-        test(mo1.getOos()[0] == oo1);
 
         test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
-        test(mo1.getIood().get(5).getA() == 15);
 
         test(java.util.Arrays.equals(mo1.getBos(), new boolean[] { false, true, false }));
 
@@ -160,7 +153,6 @@ public class AllTests
         test(!mo4.hasG());
         test(!mo4.hasH());
         test(!mo4.hasI());
-        test(!mo4.hasK());
         test(!mo4.hasBs());
         test(!mo4.hasSs());
         test(!mo4.hasIid());
@@ -172,12 +164,10 @@ public class AllTests
         test(!mo4.hasEs());
         test(!mo4.hasFss());
         test(!mo4.hasVss());
-        test(!mo4.hasOos());
 
         test(!mo4.hasIed());
         test(!mo4.hasIfsd());
         test(!mo4.hasIvsd());
-        test(!mo4.hasIood());
 
         test(!mo4.hasBos());
 
@@ -199,7 +189,6 @@ public class AllTests
         test(mo5.getG() == mo1.getG());
         test(mo5.getH().equals(mo1.getH()));
         test(mo5.getI() == mo1.getI());
-        test(mo5.getK() == mo5);
         test(java.util.Arrays.equals(mo5.getBs(), mo1.getBs()));
         test(java.util.Arrays.equals(mo5.getSs(), mo1.getSs()));
         test(mo5.getIid().get(4) == 3);
@@ -210,12 +199,10 @@ public class AllTests
         test(mo5.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
         test(mo5.getFss()[0].equals(new FixedStruct(78)));
         test(mo5.getVss()[0].equals(new VarStruct("hello")));
-        test(mo5.getOos()[0].getA() == 15);
 
         test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
-        test(mo5.getIood().get(5).getA() == 15);
 
         test(java.util.Arrays.equals(mo5.getBos(), new boolean[] { false, true, false }));
 
@@ -235,9 +222,7 @@ public class AllTests
         mo6.setFs(mo5.getFs());
         mo6.setShs(mo5.getShs());
         mo6.setFss(mo5.getFss());
-        mo6.setOos(mo5.getOos());
         mo6.setIfsd(mo5.getIfsd());
-        mo6.setIood(mo5.getIood());
         mo6.setBos(mo5.getBos());
 
         MultiOptional mo7 = (MultiOptional)initial.pingPong(mo6);
@@ -250,7 +235,6 @@ public class AllTests
         test(!mo7.hasG());
         test(mo7.getH().equals(mo1.getH()));
         test(!mo7.hasI());
-        test(!mo7.hasK());
         test(java.util.Arrays.equals(mo7.getBs(), mo1.getBs()));
         test(!mo7.hasSs());
         test(mo7.getIid().get(4) == 3);
@@ -262,12 +246,10 @@ public class AllTests
         test(!mo7.hasEs());
         test(mo7.getFss()[0].equals(new FixedStruct(78)));
         test(!mo7.hasVss());
-        test(mo7.getOos()[0].getA() == 15);
 
         test(!mo7.hasIed());
         test(mo7.getIfsd().get(4).equals(new FixedStruct(78)));
         test(!mo7.hasIvsd());
-        test(mo7.getIood().get(5).getA() == 15);
 
         test(java.util.Arrays.equals(mo7.getBos(), new boolean[] { false, true, false }));
 
@@ -278,7 +260,6 @@ public class AllTests
         mo8.setE(mo5.getE());
         mo8.setG(mo5.getG());
         mo8.setI(mo5.getI());
-        mo8.setK(mo8);
         mo8.setSs(mo5.getSs());
         mo8.setSid(mo5.getSid());
         mo8.setVs(mo5.getVs());
@@ -299,7 +280,6 @@ public class AllTests
         test(mo9.getG() == mo1.getG());
         test(!mo9.hasH());
         test(mo9.getI() == mo1.getI());
-        test(mo9.getK() == mo9);
         test(!mo9.hasBs());
         test(java.util.Arrays.equals(mo9.getSs(), mo1.getSs()));
         test(!mo9.hasIid());
@@ -311,12 +291,10 @@ public class AllTests
         test(mo9.getEs()[0] == MyEnum.MyEnumMember && mo1.getEs()[1] == MyEnum.MyEnumMember);
         test(!mo9.hasFss());
         test(mo9.getVss()[0].equals(new VarStruct("hello")));
-        test(!mo9.hasOos());
 
         test(mo9.getIed().get(4) == MyEnum.MyEnumMember);
         test(!mo9.hasIfsd());
         test(mo9.getIvsd().get(5).equals(new VarStruct("hello")));
-        test(!mo9.hasIood());
 
         test(!mo9.hasBos());
 
@@ -368,39 +346,6 @@ public class AllTests
         in.endEncapsulation();
         test(cb.value != null);
         factory.setEnabled(false);
-
-        //
-        // Use the 1.0 encoding with operations whose only class parameters are tagged.
-        //
-        @Nullable OneOptional oo = new OneOptional(53);
-        initial.sendOptionalClass(true, oo);
-        InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
-        initial2.sendOptionalClass(true, oo);
-
-        oo = initial.returnOptionalClass(true);
-        test(oo != null);
-        oo = initial2.returnOptionalClass(true);
-        test(oo == null);
-
-        Recursive[] recursive1 = new Recursive[1];
-        recursive1[0] = new Recursive();
-        Recursive[] recursive2 = new Recursive[1];
-        recursive2[0] = new Recursive();
-        recursive1[0].setValue(recursive2);
-        Recursive outer = new Recursive();
-        outer.setValue(recursive1);
-        initial.pingPong(outer);
-
-        G g = new G();
-        g.setGg1Opt(new G1("gg1Opt"));
-        g.gg2 = new G2(10);
-        g.setGg2Opt(new G2(20));
-        g.gg1 = new G1("gg1");
-        g = initial.opG(g);
-        test("gg1Opt".equals(g.getGg1Opt().a));
-        test(10 == g.gg2.a);
-        test(20 == g.getGg2Opt().a);
-        test("gg1".equals(g.gg1.a));
 
         initial.opVoid();
 
@@ -494,33 +439,6 @@ public class AllTests
             in.endEncapsulation();
             test(cbv.value != null);
             factory.setEnabled(false);
-        }
-        out.println("ok");
-
-        out.print("testing marshalling of objects with tagged objects...");
-        out.flush();
-        {
-            F f = new F();
-
-            f.setAf(new A());
-            f.ae = f.getAf();
-
-            F rf = (F)initial.pingPong(f);
-            test(rf.ae == rf.getAf());
-
-            factory.setEnabled(true);
-            os = new OutputStream(communicator);
-            os.startEncapsulation();
-            os.writeValue(f);
-            os.endEncapsulation();
-            inEncaps = os.finished();
-            in = new InputStream(communicator, inEncaps);
-            in.startEncapsulation();
-            final Wrapper<F> w = new Wrapper<>();
-            in.readValue(v -> w.value = v.getF(), FObjectReader.class);
-            in.endEncapsulation();
-            factory.setEnabled(false);
-            test(w.value.ae != null && !w.value.hasAf());
         }
         out.println("ok");
 
@@ -1071,46 +989,6 @@ public class AllTests
                 v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
                 in.endEncapsulation();
-
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                in.endEncapsulation();
-            }
-        }
-
-        {
-            @Nullable OneOptional p1 = null;
-            Initial.OpOneOptionalResult r = initial.opOneOptional(p1);
-            test(r.returnValue == null && r.p3 == null);
-
-            p1 = new OneOptional(58);
-            r = initial.opOneOptional(p1);
-            test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
-            r = initial.opOneOptionalAsync(p1).join();
-            test(r.returnValue.getA() == 58 && r.p3.getA() == 58);
-
-            if(reqParams)
-            {
-                Initial.OpOneOptionalReqResult rr = initial.opOneOptionalReq(p1);
-                test(rr.returnValue.getA() == 58 && rr.p3.getA() == 58);
-                rr = initial.opOneOptionalReqAsync(p1).join();
-                test(rr.returnValue.getA() == 58 && rr.p3.getA() == 58);
-
-                os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeTag(2, TagFormat.Class);
-                os.writeValue(p1);
-                os.endEncapsulation();
-                inEncaps = os.finished();
-                inv = initial.ice_invoke("opOneOptionalReq", OperationMode.Normal, inEncaps);
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                Wrapper<@Nullable OneOptional> p2cb = new Wrapper<>();
-                in.readValue(1, v -> p2cb.value = v, OneOptional.class);
-                Wrapper<@Nullable OneOptional> p3cb = new Wrapper<>();
-                in.readValue(3, v -> p3cb.value = v, OneOptional.class);
-                in.endEncapsulation();
-                test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
 
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
@@ -1863,81 +1741,6 @@ public class AllTests
                 in.endEncapsulation();
             }
         }
-
-        {
-            java.util.@Nullable Map<Integer, OneOptional> p1 = null;
-            java.util.@Nullable Map<Integer, OneOptional> p3 = null;
-            Initial.OpIntOneOptionalDictResult r = initial.opIntOneOptionalDict(p1);
-            test(r.returnValue == null && r.p3 == null);
-
-            p1 = new java.util.HashMap<>();
-            p1.put(1, new OneOptional(15));
-            p1.put(2, new OneOptional(12));
-            r = initial.opIntOneOptionalDict(p1);
-            test(r.returnValue.get(1).getA() == 15 && r.p3.get(1).getA() == 15);
-            test(r.returnValue.get(2).getA() == 12 && r.p3.get(2).getA() == 12);
-            r = initial.opIntOneOptionalDictAsync(p1).join();
-            test(r.returnValue.get(1).getA() == 15 && r.p3.get(1).getA() == 15);
-            test(r.returnValue.get(2).getA() == 12 && r.p3.get(2).getA() == 12);
-
-            if(reqParams)
-            {
-                Initial.OpIntOneOptionalDictReqResult rr = initial.opIntOneOptionalDictReq(p1);
-                test(rr.returnValue.get(1).getA() == 15 && rr.p3.get(1).getA() == 15);
-                test(rr.returnValue.get(2).getA() == 12 && rr.p3.get(2).getA() == 12);
-                rr = initial.opIntOneOptionalDictReqAsync(p1).join();
-                test(rr.returnValue.get(1).getA() == 15 && rr.p3.get(1).getA() == 15);
-                test(rr.returnValue.get(2).getA() == 12 && rr.p3.get(2).getA() == 12);
-
-                os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeTag(2, TagFormat.FSize);
-                int pos = os.startSize();
-                IntOneOptionalDictHelper.write(os, p1);
-                os.endSize(pos);
-                os.endEncapsulation();
-                inEncaps = os.finished();
-                inv = initial.ice_invoke("opIntOneOptionalDictReq", OperationMode.Normal, inEncaps);
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                test(in.readTag(1, TagFormat.FSize));
-                in.skip(4);
-                java.util.Map<Integer, OneOptional> m = IntOneOptionalDictHelper.read(in);
-                test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-                test(in.readTag(3, TagFormat.FSize));
-                in.skip(4);
-                m = IntOneOptionalDictHelper.read(in);
-                test(m.get(1).getA() == 15 && m.get(2).getA() == 12);
-                in.endEncapsulation();
-
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                in.endEncapsulation();
-            }
-        }
-
-        {
-            F f = new F();
-            f.setAf(new A());
-            f.getAf().requiredA = 56;
-            f.ae = f.getAf();
-
-            os = new OutputStream(communicator);
-            os.startEncapsulation();
-            os.writeTag(1, TagFormat.Class);
-            os.writeValue(f);
-            os.writeTag(2, TagFormat.Class);
-            os.writeValue(f.ae);
-            os.endEncapsulation();
-            inEncaps = os.finished();
-
-            in = new InputStream(communicator, inEncaps);
-            in.startEncapsulation();
-            final Wrapper<@Nullable A> w = new Wrapper<>();
-            in.readValue(2, v -> w.value = v, A.class);
-            in.endEncapsulation();
-            test(w.value != null && w.value.requiredA == 56);
-        }
         out.println("ok");
 
         out.print("testing exceptions with tagged members... ");
@@ -1947,28 +1750,28 @@ public class AllTests
             {
                 @Nullable Integer a = null;
                 @Nullable String b = null;
-                @Nullable OneOptional o = null;
-                initial.opOptionalException(a, b, o);
+                @Nullable VarStruct sv = null;
+                initial.opOptionalException(a, b, sv);
             }
             catch(OptionalException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
             }
 
             try
             {
                 int a = 30;
                 String b = "test";
-                OneOptional o = new OneOptional(53);
-                initial.opOptionalException(a, b, o);
+                VarStruct vs = new VarStruct("hello");
+                initial.opOptionalException(a, b, vs);
             }
             catch(OptionalException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test"));
-                test(ex.getO().getA() == 53);
+                test(ex.getVs().m.equals("hello"));
             }
 
             try
@@ -1976,32 +1779,34 @@ public class AllTests
                 //
                 // Use the 1.0 encoding with an exception whose only class members are tagged.
                 //
+                InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
+
                 int a = 30;
                 String b = "test";
-                OneOptional o = new OneOptional(53);
-                initial2.opOptionalException(a, b, o);
+                VarStruct vs = new VarStruct("hello");
+                initial2.opOptionalException(a, b, vs);
             }
             catch(OptionalException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
             }
 
             try
             {
                 @Nullable Integer a = null;
                 @Nullable String b = null;
-                @Nullable OneOptional o = null;
-                initial.opDerivedException(a, b, o);
+                @Nullable VarStruct vs = null;
+                initial.opDerivedException(a, b, vs);
             }
             catch(DerivedException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
                 test(!ex.hasSs());
-                test(!ex.hasO2());
+                test(!ex.hasVs2());
             }
             catch(OptionalException ex)
             {
@@ -2012,16 +1817,16 @@ public class AllTests
             {
                 int a = 30;
                 String b = "test2";
-                OneOptional o = new OneOptional(53);
-                initial.opDerivedException(a, b, o);
+                VarStruct vs = new VarStruct("hello2");
+                initial.opDerivedException(a, b, vs);
             }
             catch(DerivedException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
-                test(ex.getO().getA() == 53);
+                test(ex.getVs().m.equals("hello2"));
                 test(ex.getSs().equals("test2"));
-                test(ex.getO2().getA() == 53);
+                test(ex.getVs2().m.equals("hello2"));
             }
             catch(OptionalException ex)
             {
@@ -2032,16 +1837,16 @@ public class AllTests
             {
                 @Nullable Integer a = null;
                 @Nullable String b = null;
-                @Nullable OneOptional o = null;
-                initial.opRequiredException(a, b, o);
+                @Nullable VarStruct vs = null;
+                initial.opRequiredException(a, b, vs);
             }
             catch(RequiredException ex)
             {
                 test(!ex.hasA());
                 test(!ex.hasB());
-                test(!ex.hasO());
+                test(!ex.hasVs());
                 test(ex.ss.equals("test"));
-                test(ex.o2 == null);
+                test(ex.vs2.m.equals(""));
             }
             catch(OptionalException ex)
             {
@@ -2052,16 +1857,16 @@ public class AllTests
             {
                 int a = 30;
                 String b = "test2";
-                OneOptional o = new OneOptional(53);
-                initial.opRequiredException(a, b, o);
+                VarStruct vs = new VarStruct("hello2");
+                initial.opRequiredException(a, b, vs);
             }
             catch(RequiredException ex)
             {
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test2"));
-                test(ex.getO().getA() == 53);
+                test(ex.getVs().m.equals("hello2"));
                 test(ex.ss.equals("test2"));
-                test(ex.o2.getA() == 53);
+                test(ex.vs2.m.equals("hello2"));
             }
             catch(OptionalException ex)
             {
@@ -2076,7 +1881,6 @@ public class AllTests
             test(initial.opMStruct1() != null);
             test(initial.opMDict1() != null);
             test(initial.opMSeq1() != null);
-            test(initial.opMG1() != null);
 
             {
                 Initial.OpMStruct2Result result = initial.opMStruct2(null);
@@ -2103,14 +1907,6 @@ public class AllTests
                 p1.put("test", 54);
                 result = initial.opMDict2(p1);
                 test(result.p2.equals(p1) && result.returnValue.equals(p1));
-            }
-            {
-                Initial.OpMG2Result result = initial.opMG2(null);
-                test(result.p2 == null && result.returnValue == null);
-
-                G p1 = new G();
-                result = initial.opMG2(p1);
-                test(result.p2 == result.returnValue);
             }
         }
         out.println("ok");
@@ -2235,31 +2031,6 @@ public class AllTests
         private Wrapper<@Nullable A> a = new Wrapper<>();
     }
 
-    private static class FObjectReader extends com.zeroc.Ice.ValueReader
-    {
-        @Override
-        public void read(InputStream in)
-        {
-            _f = new F();
-            in.startValue();
-            in.startSlice();
-            // Don't read af on purpose
-            //in.read(1, _f.af);
-            in.endSlice();
-            in.startSlice();
-            in.readValue(v -> _f.ae = v, A.class);
-            in.endSlice();
-            in.endValue(false);
-        }
-
-        F getF()
-        {
-            return _f;
-        }
-
-        private F _f;
-    }
-
     private static class FactoryI implements com.zeroc.Ice.ValueFactory
     {
         @Override
@@ -2289,10 +2060,6 @@ public class AllTests
             else if(typeId.equals("::Test::D"))
             {
                 return new DObjectReader();
-            }
-            else if(typeId.equals("::Test::F"))
-            {
-                return new FObjectReader();
             }
 
             return null;

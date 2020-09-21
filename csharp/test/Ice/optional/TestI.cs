@@ -28,7 +28,7 @@ namespace ZeroC.Ice.Test.Optional
             TestHelper.Assert(i3 == null || i3 == i4);
         }
 
-        public (int? ReturnValue, int O1, int? O2, string? O3) OpBasicInOut(int i1, int? i2, string? i3,
+        public (int? R1, int R2, int? R3, string? R4) OpBasicInOut(int i1, int? i2, string? i3,
             Current current) => (i2, i1, i2, i3);
 
         public IObjectPrx? OpObject(IObjectPrx i1, IObjectPrx? i2, Current current)

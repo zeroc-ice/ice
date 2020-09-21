@@ -9,7 +9,7 @@ namespace ZeroC.Ice
     /// <param name="target">The proxy for the invocation.</param>
     /// <param name="request">The outgoing request being sent.</param>
     /// <returns>The incoming response frame.</returns>
-    public delegate ValueTask<IncomingResponseFrame> Invoker(IObjectPrx target, OutgoingRequestFrame request);
+    public delegate Task<IncomingResponseFrame> Invoker(IObjectPrx target, OutgoingRequestFrame request);
 
     /// <summary>An invocation interceptor can be registered with a Communicator to intercept proxy invocations.
     /// </summary>
@@ -17,7 +17,7 @@ namespace ZeroC.Ice
     /// <param name="request">The outgoing request being sent.</param>
     /// <param name="next">The next invoker in the invocation chain.</param>
     /// <returns>The incoming response frame.</returns>
-    public delegate ValueTask<IncomingResponseFrame> InvocationInterceptor(
+    public delegate Task<IncomingResponseFrame> InvocationInterceptor(
         IObjectPrx target,
         OutgoingRequestFrame request,
         Invoker next);

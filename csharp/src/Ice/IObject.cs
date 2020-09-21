@@ -13,30 +13,78 @@ namespace ZeroC.Ice
     public interface IObject
     {
         /// <summary>Dispatches a request on this servant.</summary>
-        /// <param name="request">The <see cref="IncomingRequestFrame"/> The request being dispatch.</param>
-        /// <param name="current">The current parameter holds decoded header data and other information about the
-        /// current request.</param>
-        /// <returns>A value task that provides the response frame for the request.
-        /// See <see cref="OutgoingResponseFrame"/>.</returns>
-        /// <exception cref="Exception">Any exception thrown by Dispatch will be marshaled into the response
+        /// <param name="request">The <see cref="IncomingRequestFrame"/> to dispatch.</param>
+        /// <param name="current">Holds decoded header data and other information about the current request.</param>
+        /// <returns>A value task that provides the <see cref="OutgoingResponseFrame"/> for the request.</returns>
+        /// <exception cref="Exception">Any exception thrown by DispatchAsync will be marshaled into the response
         /// frame.</exception>
         public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
-            // TODO: switch to abstract method
+            // TODO: switch to abstract method (but doesn't work as of .NET 5 preview 8).
             Debug.Assert(false);
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
 
-        // The following are helper methods for generated servants.
+        // The following are helper classes and methods for generated servants.
 
-        /// <summary>
-        /// Tests whether this object can be reached.
-        /// </summary>
-        /// <param name="current">The Current object for the dispatch.</param>
-        public void IcePing(Current current)
+        /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each remote operation with parameter(s) defined in
+        /// the pseudo-interface Object.</summary>
+        public static class Request
         {
-            // Does nothing
+            /// <summary>The <see cref="InputStreamReader{T}"/> for the parameter of operation ice_isA.</summary>
+            public static readonly InputStreamReader<string> IceIsA = InputStream.IceReaderIntoString;
         }
+
+        /// <summary>Provides an <see cref="OutgoingResponseFrame"/> factory method for each non-void remote operation
+        /// defined in the pseudo-interface Object.</summary>
+        public static class Response
+        {
+            /// <summary>Creates an <see cref="OutgoingResponseFrame"/> for operation ice_id.</summary>
+            /// <param name="current">Holds decoded header data and other information about the current request.</param>
+            /// <param name="returnValue">The return value to write into the new frame.</param>
+            /// <returns>A new <see cref="OutgoingResponseFrame"/>.</returns>
+            public static OutgoingResponseFrame IceId(Current current, string returnValue) =>
+                OutgoingResponseFrame.WithReturnValue(
+                    current,
+                    compress: false,
+                    format: default,
+                    returnValue,
+                    OutputStream.IceWriterFromString);
+
+            /// <summary>Creates an <see cref="OutgoingResponseFrame"/> for operation ice_ids.</summary>
+            /// <param name="current">Holds decoded header data and other information about the current request.</param>
+            /// <param name="returnValue">The return value to write into the new frame.</param>
+            /// <returns>A new <see cref="OutgoingResponseFrame"/>.</returns>
+            public static OutgoingResponseFrame IceIds(Current current, IEnumerable<string> returnValue) =>
+                OutgoingResponseFrame.WithReturnValue(
+                    current,
+                    compress: false,
+                    format: default,
+                    returnValue,
+                    (ostr, returnValue) => ostr.WriteSequence(returnValue, OutputStream.IceWriterFromString));
+
+            /// <summary>Creates an <see cref="OutgoingResponseFrame"/> for operation ice_isA.</summary>
+            /// <param name="current">Holds decoded header data and other information about the current request.</param>
+            /// <param name="returnValue">The return value to write into the new frame.</param>
+            /// <returns>A new <see cref="OutgoingResponseFrame"/>.</returns>
+            public static OutgoingResponseFrame IceIsA(Current current, bool returnValue) =>
+                OutgoingResponseFrame.WithReturnValue(
+                    current,
+                    compress: false,
+                    format: default,
+                    returnValue,
+                    OutputStream.IceWriterFromBool);
+        }
+
+        /// <summary>Returns the Slice type ID of the most-derived interface supported by this object.</summary>
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <returns>The Slice type ID of the most-derived interface.</returns>
+        public string IceId(Current current) => "::Ice::Object";
+
+        /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
+        public IEnumerable<string> IceIds(Current current) => new string[] { "::Ice::Object" };
 
         /// <summary>Tests whether this object supports the specified Slice interface.</summary>
         /// <param name="typeId">The type ID of the Slice interface to test against.</param>
@@ -45,22 +93,16 @@ namespace ZeroC.Ice
         public bool IceIsA(string typeId, Current current) =>
             Array.BinarySearch((string[])IceIds(current), typeId, StringComparer.Ordinal) >= 0;
 
-        /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
+        /// <summary>Tests whether this object can be reached.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
-        public IEnumerable<string> IceIds(Current current) => new string[] { "::Ice::Object" };
-
-        /// <summary>Returns the Slice type ID of the most-derived interface supported by this object.</summary>
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(Current current) => "::Ice::Object";
-
-        // The following protected static methods with Ice-prefixes are Ice-internal helper methods used by
-        // generated servants.
+        public void IcePing(Current current)
+        {
+            // Does nothing
+        }
 
         /// <summary>The generated code calls this method to ensure that when an operation is _not_ declared
-        /// idempotent, the request is not marked idempotent (which would mean the caller incorrectly believes this
-        /// operation is idempotent).</summary>
+        /// idempotent, the request is not marked idempotent. If the request is marked idempotent, it means the caller
+        /// incorrectly believes this operation is idempotent.</summary>
         /// <param name="current">The current object for the dispatch.</param>
         protected static void IceCheckNonIdempotent(Current current)
         {
@@ -72,68 +114,48 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>This method is called to dispatch ice_ping operation, the method delegates to the servant's IcePing
-        /// implementation.</summary>
-        /// <param name="request">The request frame.</param>
-        /// <param name="current">The current object for the dispatch.</param>
-        /// <returns>The response frame</returns>
-        protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
-        {
-            request.ReadEmptyParamList();
-            IcePing(current);
-            return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
-        }
-
-        /// <summary>This method is called to dispatch ice_isA operation, the method delegates to the servant's IceIsA
-        /// implementation.</summary>
-        /// <param name="request">The request frame.</param>
-        /// <param name="current">The current object for the dispatch.</param>
-        /// <returns>The response frame</returns>
-        protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(IncomingRequestFrame request, Current current)
-        {
-            string id = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
-            bool ret = IceIsA(id, current);
-            return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current,
-                                                      compress: false,
-                                                      format: default,
-                                                      ret,
-                                                      OutputStream.IceWriterFromBool));
-        }
-
-        /// <summary>This method is called to dispatch ice_id operation, the method delegates to the servant's IceId
-        /// implementation.</summary>
+        /// <summary>Dispatches an ice_id request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
         /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList();
-            string ret = IceId(current);
-            return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current,
-                                                      compress: false,
-                                                      format: default,
-                                                      ret,
-                                                      OutputStream.IceWriterFromString));
+            request.ReadEmptyArgs();
+            string returnValue = IceId(current);
+            return new ValueTask<OutgoingResponseFrame>(Response.IceId(current, returnValue));
         }
 
-        /// <summary>This method is called to dispatch ice_ids operation, the method delegates to the servant's IceIds
-        /// implementation.</summary>
+        /// <summary>Dispatches an ice_ids request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
         /// <returns>The response frame</returns>
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList();
-            IEnumerable<string> ret = IceIds(current);
-            return new ValueTask<OutgoingResponseFrame>(
-                OutgoingResponseFrame.WithReturnValue(current,
-                                                      compress: false,
-                                                      format: default,
-                                                      ret,
-                                                      (ostr, ret) =>
-                                                          ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
+            request.ReadEmptyArgs();
+            IEnumerable<string> returnValue = IceIds(current);
+            return new ValueTask<OutgoingResponseFrame>(Response.IceIds(current, returnValue));
+        }
+
+        /// <summary>Dispatches an ice_isA request.</summary>
+        /// <param name="request">The request frame.</param>
+        /// <param name="current">The current object for the dispatch.</param>
+        /// <returns>The response frame</returns>
+        protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(IncomingRequestFrame request, Current current)
+        {
+            string id = request.ReadArgs(current.Communicator, Request.IceIsA);
+            bool returnValue = IceIsA(id, current);
+            return new ValueTask<OutgoingResponseFrame>(Response.IceIsA(current, returnValue));
+        }
+
+        /// <summary>Dispatches an ice_ping request.</summary>
+        /// <param name="request">The request frame.</param>
+        /// <param name="current">The current object for the dispatch.</param>
+        /// <returns>The response frame</returns>
+        protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
+        {
+            request.ReadEmptyArgs();
+            IcePing(current);
+            return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
     }
 }

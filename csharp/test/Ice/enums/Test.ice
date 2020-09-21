@@ -198,40 +198,40 @@ sequence<MyFlags> MyFlagsSeq;
 
 interface TestIntf
 {
-    ByteEnum opByte(ByteEnum b1, out ByteEnum b2);
-    ShortEnum opShort(ShortEnum s1, out ShortEnum s2);
-    IntEnum opInt(IntEnum i1, out IntEnum i2);
-    SimpleEnum opSimple(SimpleEnum s1, out SimpleEnum s2);
+    (ByteEnum r1, ByteEnum r2) opByte(ByteEnum b1);
+    (ShortEnum r1, ShortEnum r2) opShort(ShortEnum s1);
+    (IntEnum r1, IntEnum r2) opInt(IntEnum i1);
+    (SimpleEnum r1, SimpleEnum r2) opSimple(SimpleEnum s1);
 
-    ByteEnumSeq opByteSeq(ByteEnumSeq b1, out ByteEnumSeq b2);
-    ShortEnumSeq opShortSeq(ShortEnumSeq s1, out ShortEnumSeq s2);
-    IntEnumSeq opIntSeq(IntEnumSeq i1, out IntEnumSeq i2);
-    SimpleEnumSeq opSimpleSeq(SimpleEnumSeq s1, out SimpleEnumSeq s2);
+    (ByteEnumSeq r1, ByteEnumSeq r2) opByteSeq(ByteEnumSeq b1);
+    (ShortEnumSeq r1, ShortEnumSeq r2) opShortSeq(ShortEnumSeq s1);
+    (IntEnumSeq r1, IntEnumSeq r2) opIntSeq(IntEnumSeq i1);
+    (SimpleEnumSeq r1, SimpleEnumSeq r2) opSimpleSeq(SimpleEnumSeq s1);
 
-    FLByteEnum opFLByte(FLByteEnum b1, out FLByteEnum b2);
-    FLShortEnum opFLShort(FLShortEnum s1, out FLShortEnum s2);
-    FLUShortEnum opFLUShort(FLUShortEnum s1, out FLUShortEnum s2);
-    FLIntEnum opFLInt(FLIntEnum i1, out FLIntEnum i2);
-    FLUIntEnum opFLUInt(FLUIntEnum i1, out FLUIntEnum i2);
-    FLSimpleEnum opFLSimple(FLSimpleEnum s1, out FLSimpleEnum s2);
+    (FLByteEnum r1, FLByteEnum r2) opFLByte(FLByteEnum b1);
+    (FLShortEnum r1, FLShortEnum r2) opFLShort(FLShortEnum s1);
+    (FLUShortEnum r1, FLUShortEnum r2) opFLUShort(FLUShortEnum s1);
+    (FLIntEnum r1, FLIntEnum r2) opFLInt(FLIntEnum i1);
+    (FLUIntEnum r1, FLUIntEnum r2) opFLUInt(FLUIntEnum i1);
+    (FLSimpleEnum r1, FLSimpleEnum r2) opFLSimple(FLSimpleEnum s1);
 
-    FLByteEnumSeq opFLByteSeq(FLByteEnumSeq b1, out FLByteEnumSeq b2);
-    FLShortEnumSeq opFLShortSeq(FLShortEnumSeq s1, out FLShortEnumSeq s2);
-    FLUShortEnumSeq opFLUShortSeq(FLUShortEnumSeq s1, out FLUShortEnumSeq s2);
-    FLIntEnumSeq opFLIntSeq(FLIntEnumSeq i1, out FLIntEnumSeq i2);
-    FLUIntEnumSeq opFLUIntSeq(FLUIntEnumSeq i1, out FLUIntEnumSeq i2);
-    FLSimpleEnumSeq opFLSimpleSeq(FLSimpleEnumSeq s1, out FLSimpleEnumSeq s2);
+    (FLByteEnumSeq r1, FLByteEnumSeq r2) opFLByteSeq(FLByteEnumSeq b1);
+    (FLShortEnumSeq r1, FLShortEnumSeq r2) opFLShortSeq(FLShortEnumSeq s1);
+    (FLUShortEnumSeq r1, FLUShortEnumSeq r2) opFLUShortSeq(FLUShortEnumSeq s1);
+    (FLIntEnumSeq r1, FLIntEnumSeq r2) opFLIntSeq(FLIntEnumSeq i1);
+    (FLUIntEnumSeq r1, FLUIntEnumSeq r2) opFLUIntSeq(FLUIntEnumSeq i1);
+    (FLSimpleEnumSeq r1, FLSimpleEnumSeq r2) opFLSimpleSeq(FLSimpleEnumSeq s1);
 
-    tag(1) ByteEnum? opTaggedByte(tag(2) ByteEnum? b1, out tag(3) ByteEnum? b2);
-    tag(1) FLByteEnum? opTaggedFLByte(tag(2) FLByteEnum? b1, out tag(3) FLByteEnum? b2);
-    tag(1) ByteEnumSeq? opTaggedByteSeq(tag(2) ByteEnumSeq? b1, out tag(3) ByteEnumSeq? b2);
-    tag(1) FLByteEnumSeq? opTaggedFLByteSeq(tag(2) FLByteEnumSeq? b1, out tag(3) FLByteEnumSeq? b2);
-    tag(1) FLIntEnumSeq? opTaggedFLIntSeq(tag(2) FLIntEnumSeq? i1, out tag(3) FLIntEnumSeq? i2);
+    (tag(1) ByteEnum? r1, tag(3) ByteEnum? r2) opTaggedByte(tag(2) ByteEnum? b1);
+    (tag(1) FLByteEnum? r1, tag(3) FLByteEnum? r2) opTaggedFLByte(tag(2) FLByteEnum? b1);
+    (tag(1) ByteEnumSeq? r1, tag(3) ByteEnumSeq? r2) opTaggedByteSeq(tag(2) ByteEnumSeq? b1);
+    (tag(1) FLByteEnumSeq? r1, tag(3) FLByteEnumSeq? r2) opTaggedFLByteSeq(tag(2) FLByteEnumSeq? b1);
+    (tag(1) FLIntEnumSeq? r1, tag(3) FLIntEnumSeq? r2) opTaggedFLIntSeq(tag(2) FLIntEnumSeq? i1);
 
-    MyFlags opMyFlags(MyFlags f1, out MyFlags f2);
-    MyFlagsSeq opMyFlagsSeq(MyFlagsSeq f1, out MyFlagsSeq f2);
-    tag(1) MyFlags? opTaggedMyFlags(tag(2) MyFlags? f1, out tag(3) MyFlags? f2);
-    tag(1) MyFlagsSeq? opTaggedMyFlagsSeq(tag(2) MyFlagsSeq? f1, out tag(3) MyFlagsSeq? f2);
+    (MyFlags r1, MyFlags r2) opMyFlags(MyFlags f1);
+    (MyFlagsSeq r1, MyFlagsSeq r2) opMyFlagsSeq(MyFlagsSeq f1);
+    (tag(1) MyFlags? r1, tag(3) MyFlags? r2) opTaggedMyFlags(tag(2) MyFlags? f1);
+    (tag(1) MyFlagsSeq? r1, tag(3) MyFlagsSeq? r2) opTaggedMyFlagsSeq(tag(2) MyFlagsSeq? f1);
 
     void shutdown();
 }

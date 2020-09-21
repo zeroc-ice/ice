@@ -518,7 +518,7 @@ namespace ZeroC.Ice
             }
         }
 
-        async ValueTask<Stream> IRequestHandler.SendRequestAsync(
+        async Task<Stream> IRequestHandler.SendRequestAsync(
             OutgoingRequestFrame request,
             bool bidirectional,
             IInvocationObserver? observer,

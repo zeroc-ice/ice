@@ -170,7 +170,7 @@ namespace ZeroC.Ice.Test.UDP
             }
             sb.Append(" -p ");
             sb.Append(helper.BasePort + 10);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.macOS))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
                 {

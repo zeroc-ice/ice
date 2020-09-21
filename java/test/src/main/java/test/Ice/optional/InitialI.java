@@ -25,7 +25,7 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public void opOptionalException(@Nullable Integer a, @Nullable String b, @Nullable OneOptional o, Current current)
+    public void opOptionalException(@Nullable Integer a, @Nullable String b, @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         OptionalException ex = new OptionalException();
@@ -41,15 +41,15 @@ public final class InitialI implements Initial
         {
             ex.setB(b);
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
+            ex.setVs(vs);
         }
         throw ex;
     }
 
     @Override
-    public void opDerivedException(@Nullable Integer a, @Nullable String b, @Nullable OneOptional o, Current current)
+    public void opDerivedException(@Nullable Integer a, @Nullable String b, @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         DerivedException ex = new DerivedException();
@@ -70,16 +70,16 @@ public final class InitialI implements Initial
         {
             ex.clearSs(); // The member "ss" has a default value.
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
-            ex.setO2(o);
+            ex.setVs(vs);
+            ex.setVs2(vs);
         }
         throw ex;
     }
 
     @Override
-    public void opRequiredException(@Nullable Integer a, @Nullable String b, @Nullable OneOptional o, Current current)
+    public void opRequiredException(@Nullable Integer a, @Nullable String b, @Nullable VarStruct vs, Current current)
         throws OptionalException
     {
         RequiredException ex = new RequiredException();
@@ -96,10 +96,10 @@ public final class InitialI implements Initial
             ex.setB(b);
             ex.ss = b;
         }
-        if(o != null)
+        if(vs != null)
         {
-            ex.setO(o);
-            ex.o2 = o;
+            ex.setVs(vs);
+            ex.vs2 = vs;
         }
         throw ex;
     }
@@ -246,18 +246,6 @@ public final class InitialI implements Initial
     public Initial.OpVarStructReqResult opVarStructReq(@Nullable VarStruct p1, Current current)
     {
         return new Initial.OpVarStructReqResult(p1, p1);
-    }
-
-    @Override
-    public Initial.OpOneOptionalResult opOneOptional(@Nullable OneOptional p1, Current current)
-    {
-        return new Initial.OpOneOptionalResult(p1, p1);
-    }
-
-    @Override
-    public Initial.OpOneOptionalReqResult opOneOptionalReq(@Nullable OneOptional p1, Current current)
-    {
-        return new Initial.OpOneOptionalReqResult(p1, p1);
     }
 
     @Override
@@ -456,40 +444,8 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public Initial.OpIntOneOptionalDictResult opIntOneOptionalDict(java.util.@Nullable Map<Integer, OneOptional> p1,
-                                                                   Current current)
-    {
-        return new Initial.OpIntOneOptionalDictResult(p1, p1);
-    }
-
-    @Override
-    public Initial.OpIntOneOptionalDictReqResult opIntOneOptionalDictReq(
-        java.util.@Nullable Map<Integer, OneOptional> p1,
-        Current current)
-    {
-        return new Initial.OpIntOneOptionalDictReqResult(p1, p1);
-    }
-
-    @Override
     public void opClassAndUnknownOptional(A p, Current current)
     {
-    }
-
-    @Override
-    public void sendOptionalClass(boolean req, @Nullable OneOptional o, Current current)
-    {
-    }
-
-    @Override
-    public @Nullable OneOptional returnOptionalClass(boolean req, Current current)
-    {
-        return new OneOptional(53);
-    }
-
-    @Override
-    public G opG(G g, Current current)
-    {
-        return g;
     }
 
     @Override
@@ -531,18 +487,6 @@ public final class InitialI implements Initial
     public OpMDict2MarshaledResult opMDict2(java.util.@Nullable Map<String, Integer> p1, Current current)
     {
         return new OpMDict2MarshaledResult(p1, p1, current);
-    }
-
-    @Override
-    public OpMG1MarshaledResult opMG1(Current current)
-    {
-        return new OpMG1MarshaledResult(new G(), current);
-    }
-
-    @Override
-    public OpMG2MarshaledResult opMG2(@Nullable G p1, Current current)
-    {
-        return new OpMG2MarshaledResult(p1, p1, current);
     }
 
     @Override

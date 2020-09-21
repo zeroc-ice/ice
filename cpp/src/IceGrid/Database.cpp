@@ -2202,7 +2202,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const stri
         }
     }
 
-    for(const auto server : app.getServerInfos(uuid, revision))
+    for(const auto& server : app.getServerInfos(uuid, revision))
     {
         entries.push_back(_serverCache.add(server.second));
     }

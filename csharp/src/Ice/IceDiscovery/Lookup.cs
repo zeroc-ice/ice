@@ -54,7 +54,7 @@ namespace ZeroC.IceDiscovery
 
         public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
         {
-            if (!domainId.Equals(_domainId))
+            if (domainId != _domainId)
             {
                 return; // Ignore
             }
@@ -62,7 +62,7 @@ namespace ZeroC.IceDiscovery
             IObjectPrx? proxy = _registry.FindObject(id);
             if (proxy != null)
             {
-                // Reply to the mulicast request using the given proxy.
+                // Reply to the multicast request using the given proxy.
                 try
                 {
                     Debug.Assert(reply != null);
@@ -317,7 +317,17 @@ namespace ZeroC.IceDiscovery
                 IObjectPrx result = _proxies.First();
                 foreach (IObjectPrx prx in _proxies)
                 {
-                    endpoints.AddRange(prx.Endpoints);
+                    if (prx.Protocol != result.Protocol)
+                    {
+                        prx.Communicator.Logger.Trace(
+                            "Lookup",
+                            @$"ignoring replica group reply, the proxy protocol {prx.Protocol
+                               } doesn't match the replica group protocol");
+                    }
+                    else
+                    {
+                        endpoints.AddRange(prx.Endpoints);
+                    }
                 }
                 CompletionSource.SetResult(result.Clone(endpoints: endpoints));
             }

@@ -122,32 +122,6 @@ class DValueReader: Ice.Value {
     }
 }
 
-class FValueReader: Ice.Value {
-    public required init() {
-        _f = F()
-        super.init()
-    }
-
-    public override func _iceRead(from istr: Ice.InputStream) throws {
-        _f = F()
-        _ = istr.startValue()
-        _ = try istr.startSlice()
-        // Don't read af on purpose
-        // in.read(1, _f.af);
-        try istr.endSlice()
-        _ = try istr.startSlice()
-        try istr.read(A.self) { self._f.ae = $0 }
-        try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
-    }
-
-    public func getF() -> F? {
-        return _f
-    }
-
-    var _f: F
-}
-
 class FactoryI {
     init(helper: TestHelper) {
         _enabled = false
@@ -169,8 +143,6 @@ class FactoryI {
             return CValueReader()
         case "::Test::D":
             return DValueReader(helper: _helper!)
-        case "::Test::F":
-            return FValueReader()
         default:
             return nil
         }
@@ -228,7 +200,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo1.g = 1.0
     mo1.h = "test"
     mo1.i = .MyEnumMember
-    // mo1.k = mo1
     mo1.bs = ByteSeq([5])
     mo1.ss = ["test", "test2"]
     mo1.iid = [4: 3]
@@ -244,12 +215,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo1.es = [.MyEnumMember, .MyEnumMember]
     mo1.fss = [fs]
     mo1.vss = [vs]
-    mo1.oos = [oo1]
 
     mo1.ied = [4: .MyEnumMember]
     mo1.ifsd = [4: fs]
     mo1.ivsd = [5: vs]
-    mo1.iood = [5: OneOptional(a: 15)]
 
     mo1.bos = [false, true, false]
 
@@ -262,7 +231,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo1.g! == 1.0)
     try test(mo1.h! == "test")
     try test(mo1.i! == .MyEnumMember)
-    //try test(mo1.k! === mo1)
     try test(mo1.bs! == ByteSeq([5]))
     try test(mo1.ss! == ["test", "test2"])
     try test(mo1.iid![4]! == 3)
@@ -276,12 +244,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     try test(mo1.fss![0] == FixedStruct(m: 78))
     try test(mo1.vss![0] == VarStruct(m: "hello"))
-    try test(mo1.oos![0] === oo1)
 
     try test(mo1.ied![4] == .MyEnumMember)
     try test(mo1.ifsd![4] == FixedStruct(m: 78))
     try test(mo1.ivsd![5] == VarStruct(m: "hello"))
-    try test(mo1.iood![5]!!.a! == 15)
 
     try test(mo1.bos == [false, true, false])
 
@@ -311,7 +277,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo4.g == nil)
         try test(mo4.h == nil)
         try test(mo4.i == nil)
-        try test(mo4.k == nil)
         try test(mo4.bs == nil)
         try test(mo4.ss == nil)
         try test(mo4.iid == nil)
@@ -323,12 +288,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo4.es == nil)
         try test(mo4.fss == nil)
         try test(mo4.vss == nil)
-        try test(mo4.oos == nil)
 
         try test(mo4.ied == nil)
         try test(mo4.ifsd == nil)
         try test(mo4.ivsd == nil)
-        try test(mo4.iood == nil)
 
         try test(mo4.bos == nil)
 
@@ -350,7 +313,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo5.g == mo1.g)
         try test(mo5.h == mo1.h)
         try test(mo5.i == mo1.i)
-        //try test(mo5.k === mo5)
         try test(mo5.bs == mo1.bs)
         try test(mo5.ss == mo1.ss)
         try test(mo5.iid![4] == 3)
@@ -362,12 +324,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
             mo1.es![1] == .MyEnumMember)
         try test(mo5.fss![0] == FixedStruct(m: 78))
         try test(mo5.vss![0] == VarStruct(m: "hello"))
-        try test(mo5.oos![0]!.a! == 15)
 
         try test(mo5.ied![4] == .MyEnumMember)
         try test(mo5.ifsd![4] == FixedStruct(m: 78))
         try test(mo5.ivsd![5] == VarStruct(m: "hello"))
-        try test(mo5.iood![5]!!.a == 15)
 
         try test(mo5.bos == [false, true, false])
 
@@ -381,9 +341,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         mo6.fs = mo5.fs
         mo6.shs = mo5.shs
         mo6.fss = mo5.fss
-        mo6.oos = mo5.oos
         mo6.ifsd = mo5.ifsd
-        mo6.iood = mo5.iood
         mo6.bos = mo5.bos
 
         // Clear the second half of the optional members
@@ -392,7 +350,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         mo8.e = mo5.e
         mo8.g = mo5.g
         mo8.i = mo5.i
-        // mo8.k = mo8
         mo8.ss = mo5.ss
         mo8.sid = mo5.sid
         mo8.vs = mo5.vs
@@ -416,7 +373,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo7.g == nil)
         try test(mo7.h == mo1.h)
         try test(mo7.i == nil)
-        try test(mo7.k == nil)
         try test(mo7.bs == mo1.bs)
         try test(mo7.ss == nil)
         try test(mo7.iid![4] == 3)
@@ -428,12 +384,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo7.es == nil)
         try test(mo7.fss![0] == FixedStruct(m: 78))
         try test(mo7.vss == nil)
-        try test(mo7.oos![0]!.a == 15)
 
         try test(mo7.ied == nil)
         try test(mo7.ifsd![4] == FixedStruct(m: 78))
         try test(mo7.ivsd == nil)
-        try test(mo7.iood![5]!!.a == 15)
 
         try test(mo7.bos == [false, true, false])
         try test(mo7.ser == nil)
@@ -451,7 +405,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo9.g == mo1.g)
         try test(mo9.h == nil)
         try test(mo9.i == mo1.i)
-        //try test(mo9.k === mo9)
         try test(mo9.bs == nil)
         try test(mo9.ss == mo1.ss)
         try test(mo9.iid == nil)
@@ -464,12 +417,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
             mo9.es![1] == .MyEnumMember)
         try test(mo9.fss == nil)
         try test(mo9.vss![0] == VarStruct(m: "hello"))
-        try test(mo9.oos == nil)
 
         try test(mo9.ied![4] == .MyEnumMember)
         try test(mo9.ifsd == nil)
         try test(mo9.ivsd![5] == VarStruct(m: "hello"))
-        try test(mo9.iood == nil)
 
         try test(mo9.bos == nil)
     } else {
@@ -539,34 +490,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     // Use the 1.0 encoding with operations whose only class parameters are optional.
     //
     do {
-        var oo: OneOptional? = OneOptional(a: 53)
-        try initial.sendOptionalClass(req: true, o: oo)
-        let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-        try initial2.sendOptionalClass(req: true, o: oo)
-
-        oo = try initial.returnOptionalClass(true)
-        try test(oo != nil && oo!.a == 53)
-        oo = try initial2.returnOptionalClass(true)
-        try test(oo == nil)
-
-        let recursive1 = [Recursive()]
-        let recursive2 = [Recursive()]
-        recursive1[0].value = recursive2
-        let outer = Recursive()
-        outer.value = recursive1
-        _ = try initial.pingPong(outer)
-
-        var g: G! = G()
-        g.gg1Opt = G1(a: "gg1Opt")
-        g.gg2 = G2(a: 10)
-        g.gg2Opt = G2(a: 20)
-        g.gg1 = G1(a: "gg1")
-        g = try initial.opG(g)
-        try test(g.gg1Opt!.a == "gg1Opt")
-        try test(g.gg2!.a == 10)
-        try test(g.gg2Opt!.a == 20)
-        try test(g.gg1!.a == "gg1")
-
         try initial.opVoid()
 
         let ostr = OutputStream(communicator: communicator)
@@ -653,33 +576,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try istr.endEncapsulation()
         try test(v != nil)
         factory.setEnabled(enabled: false)
-    }
-    output.writeLine("ok")
-
-    output.write("testing marshalling of objects with optional objects...")
-    do {
-        let f = F()
-
-        f.af = A()
-        f.ae = f.af
-
-        var rf = try initial.pingPong(f) as! F
-        try test(rf.ae === rf.af)
-
-        factory.setEnabled(enabled: true)
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(f)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        var v: Value?
-        try istr.read { v = $0 }
-        try istr.endEncapsulation()
-        factory.setEnabled(enabled: false)
-        rf = (v as! FValueReader).getF()!
-        try test(rf.ae != nil && rf.af == nil)
     }
     output.writeLine("ok")
 
@@ -1809,96 +1705,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     }
 
     do {
-        var p1: OneOptional?
-        var p2: OneOptional?
-        var p3: OneOptional?
-
-        (p2, p3) = try initial.opOneOptional(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try initial.opOneOptional(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try initial.opOneOptional()
-        try test(p2 == nil && p3 == nil)
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opOneOptionalAsync(nil)
-            }.done { p2, p3 in
-                try test(p2 == nil && p3 == nil)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opOneOptionalAsync()
-            }.done { p2, p3 in
-                try test(p2 == nil && p3 == nil)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        p1 = OneOptional(a: 58)
-        (p2, p3) = try initial.opOneOptional(p1)
-        try test(p2!.a! == 58 && p3!.a! == 58)
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opOneOptionalAsync(p1)
-            }.done { p2, p3 in
-                try test(p2!.a! == 58 && p3!.a! == 58)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        (p2, p3) = try initial.opOneOptional(OneOptional(a: 58))
-        try test(p2!.a! == 58 && p3!.a! == 58)
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opOneOptionalAsync(OneOptional(a: 58))
-            }.done { p2, p3 in
-                try test(p2!.a! == 58 && p3!.a! == 58)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        (p2, p3) = try initial.opOneOptional(nil)
-        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try test(istr.readOptional(tag: 1, expectedFormat: .Class))
-        var v1: Ice.Value?
-        try istr.read { v1 = $0 }
-        try test(istr.readOptional(tag: 3, expectedFormat: .Class))
-        var v2: Ice.Value?
-        try istr.read { v2 = $0 }
-        try istr.endEncapsulation()
-        try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
-    }
-
-    do {
         var p1: ByteSeq?
         var p2: ByteSeq?
         var p3: ByteSeq?
@@ -2990,130 +2796,24 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try istr.endEncapsulation()
-
-        let f = F()
-        f.af = A()
-        f.af!.requiredA = 56
-        f.ae = f.af
-
-        ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        ostr.write(tag: 1, value: f)
-        ostr.write(tag: 2, value: f.ae)
-        ostr.endEncapsulation()
-        inEncaps = ostr.finished()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
-        _ = try istr.startEncapsulation()
-        var a: Value?
-        try istr.read(tag: 2) { a = $0 }
-        try istr.endEncapsulation()
-        try test(a != nil && (a as! A).requiredA == 56)
-    }
-
-    do {
-        var p1: [Int32: OneOptional?]?
-        var p2: [Int32: OneOptional?]?
-        var p3: [Int32: OneOptional?]?
-
-        (p2, p3) = try initial.opIntOneOptionalDict(p1)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try initial.opIntOneOptionalDict(nil)
-        try test(p2 == nil && p3 == nil)
-
-        (p2, p3) = try initial.opIntOneOptionalDict()
-        try test(p2 == nil && p3 == nil)
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opIntOneOptionalDictAsync(nil)
-            }.done { p2, p3 in
-                try test(p2 == nil && p3 == nil)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opIntOneOptionalDictAsync(nil)
-            }.done { p2, p3 in
-                try test(p2 == nil && p3 == nil)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        p1 = [1: OneOptional(a: 58), 2: OneOptional(a: 59)]
-        (p2, p3) = try initial.opIntOneOptionalDict(p1)
-        try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opIntOneOptionalDictAsync(p1)
-            }.done { p2, p3 in
-                try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        (p2, p3) = try initial.opIntOneOptionalDict([1: OneOptional(a: 58), 2: OneOptional(a: 59)])
-        try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-
-        try Promise<Void> { seal in
-            firstly {
-                initial.opIntOneOptionalDictAsync([1: OneOptional(a: 58), 2: OneOptional(a: 59)])
-            }.done { p2, p3 in
-                try test(p2![1]!!.a == 58 && p3![1]!!.a == 58)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
-            }
-        }.wait()
-
-        (p2, p3) = try initial.opIntOneOptionalDict(nil)
-        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
-
-        let ostr = Ice.OutputStream(communicator: communicator)
-        ostr.startEncapsulation()
-        IntOneOptionalDictHelper.write(to: ostr, tag: 2, value: p1)
-        ostr.endEncapsulation()
-        let inEncaps = ostr.finished()
-        let result = try initial.ice_invoke(operation: "opIntOneOptionalDict", mode: .Normal, inEncaps: inEncaps)
-        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        p2 = try IntOneOptionalDictHelper.read(from: istr, tag: 1)
-        try test(p2![1]!!.a == 58)
-        p3 = try IntOneOptionalDictHelper.read(from: istr, tag: 3)
-        try test(p3![1]!!.a == 58)
-        try istr.endEncapsulation()
-
-        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-        _ = try istr.startEncapsulation()
-        try istr.endEncapsulation()
     }
     output.writeLine("ok")
 
     output.write("testing exception optionals... ")
     do {
-        try initial.opOptionalException(a: nil, b: nil, o: nil)
+        try initial.opOptionalException(a: nil, b: nil, vs: nil)
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
-        try initial.opOptionalException(o: nil)
+        try initial.opOptionalException(vs: nil)
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
@@ -3121,7 +2821,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
@@ -3129,15 +2829,15 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
-        try initial.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
+        try initial.opOptionalException(a: 30, b: "test", vs: VarStruct(m: "hello"))
     } catch let ex as OptionalException {
         try test(ex.a == 30)
         try test(ex.b == "test")
-        try test(ex.o!.a == 53)
+        try test(ex.vs!.m == "hello")
     }
 
     do {
@@ -3145,41 +2845,41 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         // Use the 1.0 encoding with an exception whose only class members are optional.
         //
         let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
-        try initial2.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
+        try initial2.opOptionalException(a: 30, b: "test", vs: VarStruct(m: "hello"))
     } catch let ex as OptionalException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
     }
 
     do {
-        try initial.opDerivedException(a: nil, b: nil, o: nil)
+        try initial.opDerivedException(a: nil, b: nil, vs: nil)
     } catch let ex as DerivedException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == nil)
-        try test(ex.o2 == nil)
+        try test(ex.vs2 == nil)
     }
 
     do {
-        try initial.opDerivedException(a: 30, b: "test2", o: OneOptional(a: 53))
+        try initial.opDerivedException(a: 30, b: "test2", vs: VarStruct(m: "hello2"))
     } catch let ex as DerivedException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
-        try test(ex.o!.a == 53)
+        try test(ex.vs!.m == "hello2")
         try test(ex.ss == "test2")
-        try test(ex.o2!.a == 53)
+        try test(ex.vs2!.m == "hello2")
     }
 
     do {
-        try initial.opRequiredException(a: nil, b: nil, o: nil)
+        try initial.opRequiredException(a: nil, b: nil, vs: nil)
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
@@ -3187,19 +2887,19 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
-        try initial.opRequiredException(o: nil)
+        try initial.opRequiredException(vs: nil)
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
@@ -3207,19 +2907,19 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)
-        try test(ex.o == nil)
+        try test(ex.vs == nil)
         try test(ex.ss == "test")
-        try test(ex.o2 == nil)
+        try test(ex.vs2.m == "")
     }
 
     do {
-        try initial.opRequiredException(a: 30, b: "test2", o: OneOptional(a: 53))
+        try initial.opRequiredException(a: 30, b: "test2", vs: VarStruct(m: "hello2"))
     } catch let ex as RequiredException {
         try test(ex.a == 30)
         try test(ex.b == "test2")
-        try test(ex.o!.a == 53)
+        try test(ex.vs!.m == "hello2")
         try test(ex.ss == "test2")
-        try test(ex.o2!.a == 53)
+        try test(ex.vs2.m == "hello2")
     }
     output.writeLine("ok")
 

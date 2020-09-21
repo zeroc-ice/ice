@@ -302,7 +302,7 @@ class Type : public virtual SyntaxTreeBase
 public:
 
     virtual std::string typeId() const = 0;
-    virtual bool usesClasses() const = 0; // TODO: can we remove this method?
+    virtual bool usesClasses() const = 0;
     virtual bool isClassType() const { return false; }
     virtual bool isInterfaceType() const { return false; }
     virtual size_t minWireSize() const = 0;
@@ -684,6 +684,7 @@ public:
 
     // Note: The order of definitions here *must* match the order of
     // definitions of ::Ice::OperationMode in Ice/Current.h
+    // TODO: remove from parser
     enum Mode
     {
         Normal,
@@ -705,8 +706,9 @@ public:
     TypePtr returnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
     bool returnIsTagged() const; //TODO remove this once the compilers have been updated to use return-tuples.
     int returnTag() const; //TODO remove this once the compilers have been updated to use return-tuples.
-    Mode mode() const;
-    Mode sendMode() const;
+    Mode mode() const; // TODO: remove
+    Mode sendMode() const; // TODO: remove
+    bool isIdempotent() const { return _mode == Idempotent; }
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
     MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int);

@@ -205,11 +205,11 @@ namespace ZeroC.Ice
 
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
-        /// different endpoints.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// two-way request.</param>
+        /// twoway request.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(
@@ -220,12 +220,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IncomingResponseFrame> task = InvokeWithInterceptorsAsync(proxy,
-                                                                                    request,
-                                                                                    oneway,
-                                                                                    synchronous: true,
-                                                                                    cancel: cancel);
-                return task.IsCompleted ? task.Result : task.AsTask().Result;
+                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true, cancel: cancel).Result;
             }
             catch (AggregateException ex)
             {
@@ -236,15 +231,15 @@ namespace ZeroC.Ice
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
-        /// different endpoints.</param>
+        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
+        /// frame should have been created using the same proxy, however some differences are acceptable, for example
+        /// proxy can have different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static ValueTask<IncomingResponseFrame> InvokeAsync(
+        public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway = false,
@@ -288,7 +283,7 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
@@ -298,7 +293,7 @@ namespace ZeroC.Ice
         {
             return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
 
-            static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,
                 OutgoingRequestFrame request,
                 bool oneway,
@@ -323,7 +318,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private static ValueTask<IncomingResponseFrame> InvokeAsync(
+        private static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
@@ -347,7 +342,7 @@ namespace ZeroC.Ice
                     return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
             }
 
-            static async ValueTask<IncomingResponseFrame> InvokeAsync(
+            static async Task<IncomingResponseFrame> InvokeAsync(
                 IObjectPrx proxy,
                 OutgoingRequestFrame request,
                 bool oneway,

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using ZeroC.Ice.Instrumentation;
 
+
 namespace ZeroC.Ice
 {
     /// <summary>The request handler interface is used by the proxy code to send requests and get a response task in
@@ -24,9 +25,10 @@ namespace ZeroC.Ice
         /// <param name="bidirectional">Indicates if the request should create a bi-directional stream.</param>
         /// <param name="observer">The invocation observer.</param>
         /// <param name="cancel">The cancellation token to cancel the sending of the request</param>
-        /// <returns>The stream to receive the response or stream additional data.</returns>
-        ValueTask<Stream> SendRequestAsync(
-            OutgoingRequestFrame frame,
+        /// <returns>A task if the request is a twoway request or null if it's a oneway request. The returned task can
+        /// be used to wait for the receipt of the response.</returns>
+        Task<Stream> SendRequestAsync(
+        OutgoingRequestFrame frame,
             bool bidirectional,
             IInvocationObserver? observer,
             CancellationToken cancel);

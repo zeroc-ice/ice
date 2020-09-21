@@ -368,6 +368,10 @@ namespace ZeroC.Ice
                         {
                             combinedProperties[key] = "";
                         }
+                        else if (values.Length == 1)
+                        {
+                            combinedProperties[key] = values[0];
+                        }
                         else
                         {
                             combinedProperties[key] = StringUtil.ToPropertyValue(values);

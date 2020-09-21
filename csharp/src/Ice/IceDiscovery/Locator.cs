@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,10 +36,6 @@ namespace ZeroC.IceDiscovery
         private readonly object _mutex = new object();
         private readonly Dictionary<string, HashSet<string>> _replicaGroups =
             new Dictionary<string, HashSet<string>>();
-        private readonly IObjectPrx _wellKnownProxy;
-
-        public LocatorRegistry(Communicator com) =>
-            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(clearLocator: true, clearRouter: true);
 
         public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
         {
@@ -46,7 +43,7 @@ namespace ZeroC.IceDiscovery
             {
                 if (proxy != null)
                 {
-                    _adapters.Add(adapterId, proxy);
+                    _adapters[adapterId] = proxy.Clone(clearLocator: true, clearRouter: true);
                 }
                 else
                 {
@@ -56,7 +53,10 @@ namespace ZeroC.IceDiscovery
             return new ValueTask();
         }
 
-        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(
+            string adapterId,
+            string replicaGroupId,
+            IObjectPrx? proxy,
             Current current)
         {
             lock (_mutex)
@@ -64,12 +64,21 @@ namespace ZeroC.IceDiscovery
                 HashSet<string>? adapterIds;
                 if (proxy != null)
                 {
-                    _adapters.Add(adapterId, proxy);
-                    if (!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                    if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                    {
+                        if (_adapters.TryGetValue(adapterIds.First(), out IObjectPrx? registeredProxy) &&
+                            registeredProxy.Protocol != proxy.Protocol)
+                        {
+                            throw new InvalidProxyException(
+                                $"The proxy protocol {proxy.Protocol} doesn't match the replica group protocol");
+                        }
+                    }
+                    else
                     {
                         adapterIds = new HashSet<string>();
                         _replicaGroups.Add(replicaGroupId, adapterIds);
                     }
+                    _adapters[adapterId] = proxy.Clone(clearLocator: true, clearRouter: true);
                     adapterIds.Add(adapterId);
                 }
                 else
@@ -85,7 +94,7 @@ namespace ZeroC.IceDiscovery
                     }
                 }
             }
-            return new ValueTask();
+            return default;
         }
 
         public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>
@@ -103,25 +112,19 @@ namespace ZeroC.IceDiscovery
                 if (_replicaGroups.TryGetValue(adapterId, out HashSet<string>? adapterIds))
                 {
                     var endpoints = new List<Endpoint>();
-                    foreach (string a in adapterIds)
+                    Debug.Assert(adapterIds.Count > 0);
+                    foreach (string id in adapterIds)
                     {
-                        if (!_adapters.TryGetValue(a, out IObjectPrx? proxy))
+                        if (!_adapters.TryGetValue(id, out IObjectPrx? proxy))
                         {
                             continue; // TODO: Inconsistency
                         }
-
-                        if (result == null)
-                        {
-                            result = proxy;
-                        }
+                        result ??= proxy;
 
                         endpoints.AddRange(proxy.Endpoints);
                     }
 
-                    if (result != null)
-                    {
-                        return (result.Clone(endpoints: endpoints), true);
-                    }
+                    return (result?.Clone(endpoints: endpoints), result != null);
                 }
 
                 return (null, false);
@@ -137,43 +140,37 @@ namespace ZeroC.IceDiscovery
                     return null;
                 }
 
-                IObjectPrx prx = _wellKnownProxy.Clone(IObjectPrx.Factory, identity: identity);
-
-                var adapterIds = new List<string>();
-                foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
+                foreach ((string key, HashSet<string> ids) in _replicaGroups)
                 {
                     try
                     {
-                        prx.Clone(adapterId: entry.Key).IcePing();
-                        adapterIds.Add(entry.Key);
+                        IObjectPrx proxy = _adapters[ids.First()];
+                        proxy = proxy.Clone(IObjectPrx.Factory, adapterId: key, identity: identity);
+                        proxy.IcePing();
+                        return proxy;
                     }
                     catch
                     {
                         // Ignore.
                     }
                 }
-                if (adapterIds.Count == 0)
+
+                foreach ((string key, IObjectPrx registeredProxy) in _adapters)
                 {
-                    foreach (KeyValuePair<string, IObjectPrx> entry in _adapters)
+                    try
                     {
-                        try
-                        {
-                            prx.Clone(adapterId: entry.Key).IcePing();
-                            adapterIds.Add(entry.Key);
-                        }
-                        catch
-                        {
-                            // Ignore.
-                        }
+                        IObjectPrx proxy = registeredProxy.Clone(IObjectPrx.Factory,
+                                                                 adapterId: key,
+                                                                 identity: identity);
+                        proxy.IcePing();
+                        return proxy;
+                    }
+                    catch
+                    {
+                        // Ignore.
                     }
                 }
-
-                if (adapterIds.Count == 0)
-                {
-                    return null;
-                }
-
-                return prx.Clone(adapterId: adapterIds.Shuffle().First());
+                return null;
             }
         }
     }

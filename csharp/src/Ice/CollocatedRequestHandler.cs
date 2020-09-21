@@ -18,7 +18,7 @@ namespace ZeroC.Ice
         private readonly Reference _reference;
         private int _requestId;
 
-        public ValueTask<Stream> SendRequestAsync(
+        public Task<Stream> SendRequestAsync(
             OutgoingRequestFrame frame,
             bool bidirectional,
             IInvocationObserver? observer,

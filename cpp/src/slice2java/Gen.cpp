@@ -656,7 +656,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, 
     const auto [requiredParams, taggedParams] = getSortedMembers(op->parameters());
 
     int iter = 0;
-    for(const auto pli : requiredParams)
+    for(const auto& pli : requiredParams)
     {
         string paramName = "iceP_" + pli->name();
         writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, true,
@@ -2170,7 +2170,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 out << sp << nl << "public " << fixKwd(name) << spar;
                 vector<string> dataMember;
-                for(const auto d : allRequiredMembers)
+                for(const auto& d : allRequiredMembers)
                 {
                     string memberName = fixKwd(d->name());
                     string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);

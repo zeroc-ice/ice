@@ -18,22 +18,15 @@ namespace ZeroC.Ice.Test.Tagged
 
         public ValueTask<AnyClass?> PingPongAsync(AnyClass? obj, Current current) => MakeValueTask(obj);
 
-        public ValueTask OpTaggedExceptionAsync(int? a, string? b, Current c) =>
-            throw new TaggedException(false, a, b);
+        public ValueTask OpTaggedExceptionAsync(int? a, string? b, VarStruct? vs, Current c) =>
+            throw new TaggedException(false, a, b, vs);
 
-        public ValueTask OpDerivedExceptionAsync(int? a, string? b, Current c) =>
-            throw new DerivedException(false, a, b, b);
+        public ValueTask OpDerivedExceptionAsync(int? a, string? b, VarStruct? vs, Current c) =>
+            throw new DerivedException(false, a, b, vs, b, vs);
 
-        public ValueTask OpRequiredExceptionAsync(int? a, string? b, Current c)
+        public ValueTask OpRequiredExceptionAsync(int? a, string? b, VarStruct? vs, Current c)
         {
-            var e = new RequiredException();
-            e.A = a;
-            e.B = b;
-            if (b != null)
-            {
-                e.Ss = b;
-            }
-            throw e;
+            throw new RequiredException(false, a, b, vs, b ?? "test", vs ?? new VarStruct(""));
         }
 
         public ValueTask<(byte?, byte?)> OpByteAsync(byte? p1, Current current) => MakeValueTask((p1, p1));
@@ -126,9 +119,6 @@ namespace ZeroC.Ice.Test.Tagged
 
         public ValueTask<(IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)>
         OpStringIntDictAsync(Dictionary<string, int>? p1, Current current) => ToReturnValue(p1);
-
-        public ValueTask<(IReadOnlyDictionary<int, OneTagged?>?, IReadOnlyDictionary<int, OneTagged?>?)>
-        OpIntOneTaggedDictAsync(Dictionary<int, OneTagged?>? p1, Current current) => ToReturnValue(p1);
 
         public ValueTask OpClassAndUnknownTaggedAsync(A? p, Current current) => new ValueTask(Task.CompletedTask);
 

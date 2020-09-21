@@ -38,6 +38,7 @@ protected:
     void writeUnmarshalDataMembers(const MemberList&, const std::string&, unsigned int);
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
+    void emitEditorBrowsableNeverAttribute();
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
     void emitTypeIdAttribute(const std::string&); // the Ice type ID attribute
 
@@ -136,7 +137,9 @@ private:
         void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
         void visitOperation(const OperationPtr&) override;
 
-        void writeOutgoingRequestReader(const OperationPtr&);
+    protected:
+
+        void writeIncomingResponseReader(const OperationPtr&);
         void writeOutgoingRequestWriter(const OperationPtr&);
     };
 
@@ -156,6 +159,9 @@ private:
 
         void writeReturnValueStruct(const OperationPtr&);
         void writeMethodDeclaration(const OperationPtr&);
+
+        void writeIncomingRequestReader(const OperationPtr&);
+        void writeOutgoingResponseWriter(const OperationPtr&);
 
     private:
 

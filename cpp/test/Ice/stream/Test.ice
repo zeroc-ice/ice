@@ -18,8 +18,8 @@ enum MyEnum
     enum3
 }
 
-interface MyInterface;
 class MyClass;
+interface MyInterface;
 
 struct SmallStruct
 {
@@ -83,13 +83,13 @@ class MyClass
     StringMyClassD d;
 }
 
-interface MyInterface
-{
-}
-
 exception MyException
 {
     MyClass c;
+}
+
+interface MyInterface
+{
 }
 
 module Sub

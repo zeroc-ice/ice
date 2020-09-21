@@ -15,10 +15,10 @@ dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
 
 sequence<int> AIS;
-[clr:generic:List] sequence<int> GIS;
+[cs:generic:List] sequence<int> GIS;
 
 sequence<string> ASS;
-[clr:generic:List] sequence<string> GSS;
+[cs:generic:List] sequence<string> GSS;
 
 dictionary<string, AIS> NDAIS;
 dictionary<string, GIS> NDGIS;
@@ -30,16 +30,16 @@ interface MyClass
 {
     void shutdown();
 
-    NV opNV(NV i, out NV o);
-    NR opNR(NR i, out NR o);
-    NDV opNDV(NDV i, out NDV o);
-    NDR opNDR(NDR i, out NDR o);
+    (NV r1, NV r2) opNV(NV i);
+    (NR r1, NR r2) opNR(NR i);
+    (NDV r1, NDV r2) opNDV(NDV i);
+    (NDR r1, NDR r2) opNDR(NDR i);
 
-    NDAIS opNDAIS(NDAIS i, out NDAIS o);
-    NDGIS opNDGIS(NDGIS i, out NDGIS o);
+    (NDAIS r1, NDAIS r2) opNDAIS(NDAIS i);
+    (NDGIS r1, NDGIS r2) opNDGIS(NDGIS i);
 
-    NDASS opNDASS(NDASS i, out NDASS o);
-    NDGSS opNDGSS(NDGSS i, out NDGSS o);
+    (NDASS r1, NDASS r2) opNDASS(NDASS i);
+    (NDGSS r1, NDGSS r2) opNDGSS(NDGSS i);
 }
 
 }

@@ -17,7 +17,7 @@ interface MyClass
 {
     void opOneway();
 
-    string opString(string s1, out string s2);
+    (string r1, string r2) opString(string s1);
 
     void opException() throws MyException;
 
