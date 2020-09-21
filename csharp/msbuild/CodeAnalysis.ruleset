@@ -7,7 +7,6 @@
       <Rule Id="CA1034" Action="None" /> <!-- Nested types should not be visible -->
       <Rule Id="CA1051" Action="None" /> <!-- Do not declare visible instance fields -->
       <Rule Id="CA1062" Action="None" /> <!-- Validate arguments of public methods -->
-      <Rule Id="CA1067" Action="None" /> <!-- TODO enable - Override Equals when implementing IEquatable -->
       <Rule Id="CA1303" Action="None" /> <!-- Do not pass literals as localized parameters -->
       <Rule Id="CA1304" Action="None" /> <!-- TODO enable -  The behavior of 'string.ToUpper()' could vary based on the current user's locale settings. -->
       <Rule Id="CA1305" Action="None" /> <!-- TODO enable - The behavior of 'string.Format(string, object)' could vary based on the current user's locale settings. -->
