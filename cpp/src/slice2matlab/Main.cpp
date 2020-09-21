@@ -1282,7 +1282,7 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
     out << nl << "% Parameters:";
     string ctxName = "context";
     string resultName = "result";
-    for (const auto& param : p->parameters())
+    for (const auto& param : p->params())
     {
         if (param->name() == "context")
         {
@@ -1311,7 +1311,7 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
     else
     {
         const MemberList outParams = p->outParameters();
-        if(p->returnType() || !outParams.empty())
+        if(p->deprecatedReturnType() || !outParams.empty())
         {
             for (const auto& param : outParams)
             {
@@ -1322,16 +1322,16 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
             }
 
             out << nl << "%";
-            if(p->returnType() && outParams.empty())
+            if(p->deprecatedReturnType() && outParams.empty())
             {
-                out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
+                out << nl << "% Returns (" << typeToString(p->deprecatedReturnType()) << ")";
                 if(!doc.returns.empty())
                 {
                     out << " - ";
                     writeDocLines(out, doc.returns, false);
                 }
             }
-            else if(!p->returnType() && outParams.size() == 1)
+            else if(!p->deprecatedReturnType() && outParams.size() == 1)
             {
                 out << nl << "% Returns (" << typeToString(outParams.front()->type()) << ")";
                 map<string, StringList>::const_iterator q = doc.params.find(outParams.front()->name());
@@ -1344,9 +1344,9 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
             else
             {
                 out << nl << "% Returns:";
-                if(p->returnType())
+                if(p->deprecatedReturnType())
                 {
-                    out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
+                    out << nl << "%   " << resultName << " (" << typeToString(p->deprecatedReturnType()) << ")";
                     if(!doc.returns.empty())
                     {
                         out << " - ";
@@ -3663,7 +3663,7 @@ CodeVisitor::ParamInfoList
 CodeVisitor::getAllInParams(const OperationPtr& op)
 {
     ParamInfoList r;
-    for (const auto& param : op->parameters())
+    for (const auto& param : op->params())
     {
         ParamInfo info;
         info.fixedName = fixIdent(param->name());
@@ -3713,7 +3713,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
     ParamInfoList l;
     int pos = 1;
 
-    if(op->returnType())
+    if(op->deprecatedReturnType())
     {
         ParamInfo info;
         info.fixedName = "result";
@@ -3727,7 +3727,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
                 break;
             }
         }
-        info.type = op->returnType();
+        info.type = op->deprecatedReturnType();
         info.isTagged = op->returnIsTagged();
         info.tag = op->returnTag();
         l.push_back(info);

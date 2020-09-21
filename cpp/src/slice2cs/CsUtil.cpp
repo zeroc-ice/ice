@@ -432,7 +432,7 @@ string
 Slice::returnTypeStr(const OperationPtr& op, const string& scope, bool dispatch)
 {
     InterfaceDefPtr interface = op->interface();
-    auto returnValues = op->returnValues();
+    auto returnValues = op->returnType();
 
     if (returnValues.size() == 0)
     {

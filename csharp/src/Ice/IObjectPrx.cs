@@ -97,14 +97,17 @@ namespace ZeroC.Ice
         /// pseudo-interface Object.</summary>
         public static class Response
         {
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_id.</summary>
+            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_id.
+            /// </summary>
             public static readonly InputStreamReader<string> IceId = InputStream.IceReaderIntoString;
 
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_ids.</summary>
+            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_ids.
+            /// </summary>
             public static readonly InputStreamReader<string[]> IceIds =
                 istr => istr.ReadArray(minElementSize: 1, InputStream.IceReaderIntoString);
 
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_isA.</summary>
+            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_isA.
+            /// </summary>
             public static readonly InputStreamReader<bool> IceIsA = InputStream.IceReaderIntoBool;
         }
 
