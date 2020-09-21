@@ -179,7 +179,8 @@ namespace ZeroC.Ice
                                                     compressedData.AsSpan(offset, sizeLength));
                 offset += sizeLength;
                 using var memoryStream = new MemoryStream(compressedData, offset, compressedData.Length - offset);
-                var gzipStream = new GZipStream(memoryStream,
+                using var gzipStream = new GZipStream(
+                    memoryStream,
                     _compressionLevel == CompressionLevel.Fastest ? System.IO.Compression.CompressionLevel.Fastest :
                                                                     System.IO.Compression.CompressionLevel.Optimal);
                 try

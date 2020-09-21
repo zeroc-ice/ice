@@ -74,11 +74,17 @@ namespace ZeroC.Ice
     internal sealed class FileLogger : Logger, IDisposable
     {
         private readonly string _file;
-        private readonly TextWriter _writer;
+        private readonly StreamWriter _streamWriter;
+        private readonly TextWriter _synchronizedWriter;
 
-        public override ILogger CloneWithPrefix(string prefix) => new FileLogger(prefix, _file, _writer);
+        public override ILogger CloneWithPrefix(string prefix) =>
+            new FileLogger(prefix, _file, _streamWriter, _synchronizedWriter);
 
-        public void Dispose() => _writer.Close();
+        public void Dispose()
+        {
+            _streamWriter.Dispose();
+            _synchronizedWriter.Dispose();
+        }
 
         /// <summary>Creates a new file logger.</summary>
         /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
@@ -87,22 +93,26 @@ namespace ZeroC.Ice
             : base(prefix)
         {
             _file = file;
-            _writer = TextWriter.Synchronized(
-                new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)));
+            _streamWriter = new StreamWriter(new FileStream(file,
+                                                            FileMode.Append,
+                                                            FileAccess.Write,
+                                                            FileShare.ReadWrite));
+            _synchronizedWriter = TextWriter.Synchronized(_streamWriter);
         }
 
         protected override void Write(string message)
         {
-            _writer.WriteLine(message);
-            _writer.Flush();
+            _synchronizedWriter.WriteLine(message);
+            _synchronizedWriter.Flush();
         }
 
         // only to use by clone with prefix and avoid reopening the file in write mode
-        private FileLogger(string prefix, string file, TextWriter writer)
+        private FileLogger(string prefix, string file, StreamWriter streamWriter, TextWriter textWriter)
             : base(prefix)
         {
             _file = file;
-            _writer = writer;
+            _streamWriter = streamWriter;
+            _synchronizedWriter = textWriter;
         }
     }
 

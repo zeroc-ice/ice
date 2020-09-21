@@ -411,7 +411,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                using var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 socket.CloseNoThrow();
                 return true;
             }
