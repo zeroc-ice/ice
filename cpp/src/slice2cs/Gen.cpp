@@ -1660,7 +1660,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
             << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
     }
-    _out << nl << "protected internal " << name << "(global::ZeroC.Ice.InputStream? istr, string? message)";
+    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr, string? message)";
     // We call the base class constructor to initialize the base class fields.
     _out.inc();
     if (p->base())
@@ -3038,9 +3038,14 @@ Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitEditorBrowsableNeverAttribute();
     _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
+
+    // If the enclosing namespace starts with ::ZeroC::, add global:: prefix to ZeroC type references.
+    string ns = getNamespace(p);
+    string prefix = ns.rfind("ZeroC.", 0) == 0 ? "global::" : "";
+
+    _out << nl << "public static " << prefix << "ZeroC.Ice.AnyClass Create() =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "((global::ZeroC.Ice.InputStream?)null);";
+    _out << nl << "new global::" << ns << "." << name << "((" << prefix << "ZeroC.Ice.InputStream?)null);";
     _out.dec();
     _out << eb;
 
@@ -3079,12 +3084,17 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp;
         emitCommonAttributes();
         emitEditorBrowsableNeverAttribute();
+
+        // If the enclosing namespace starts with ::ZeroC::, add global:: prefix to ZeroC type references.
+        string ns = getNamespace(p);
+        string prefix = ns.rfind("ZeroC.", 0) == 0 ? "global::" : "";
+
         _out << nl << "public static class CompactId_" << p->compactId();
         _out << sb;
-        _out << nl << "public static global::ZeroC.Ice.AnyClass Create() =>";
+        _out << nl << "public static " << prefix << "ZeroC.Ice.AnyClass Create() =>";
         _out.inc();
-        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name())
-             << "((global::ZeroC.Ice.InputStream?)null);";
+        _out << nl << "new global::" << ns << "." << fixId(p->name()) << "((" << prefix
+            << "ZeroC.Ice.InputStream?)null);";
         _out.dec();
         _out << eb;
     }
@@ -3129,12 +3139,16 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     _out << sp;
     emitCommonAttributes();
     emitEditorBrowsableNeverAttribute();
+
+    // If the enclosing namespace starts with ::ZeroC::, add global:: prefix to ZeroC type references.
+    string ns = getNamespace(p);
+    string prefix = ns.rfind("ZeroC.", 0) == 0 ? "global::" : "";
+
     _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public static global::ZeroC.Ice.RemoteException Create(string? message) =>";
+    _out << nl << "public static " << prefix << "ZeroC.Ice.RemoteException Create(string? message) =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name
-         << "((global::ZeroC.Ice.InputStream?)null, message);";
+    _out << nl << "new global::" << ns << "." << name << "((" << prefix << "ZeroC.Ice.InputStream?)null, message);";
     _out.dec();
     _out << eb;
     return false;

@@ -238,13 +238,13 @@ Slice::getNamespace(const ContainedPtr& cont)
 string
 Slice::getUnqualified(const string& type, const string& scope, bool builtin)
 {
-    if(type.find(".") != string::npos && type.find(scope) == 0 && type.find(".", scope.size() + 1) == string::npos)
+    if (type.find(".") != string::npos && type.find(scope) == 0 && type.find(".", scope.size() + 1) == string::npos)
     {
         return type.substr(scope.size() + 1);
     }
-    else if(builtin)
+    else if (builtin || type.rfind("ZeroC", 0) == 0)
     {
-        return type.find(".") == string::npos ? type : "global::" + type;
+        return type;
     }
     else
     {
@@ -257,9 +257,13 @@ Slice::getUnqualified(const ContainedPtr& p, const string& package, const string
 {
     string name = fixId(prefix + p->name() + suffix);
     string contPkg = getNamespace(p);
-    if(contPkg == package || contPkg.empty())
+    if (contPkg == package || contPkg.empty())
     {
         return name;
+    }
+    else if (contPkg.rfind("ZeroC", 0) == 0)
+    {
+        return contPkg + "." + name;
     }
     else
     {
@@ -390,10 +394,9 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         else
         {
             ostringstream out;
-            out << "global::";
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
-                out << "System.Collections.Generic.";
+                out << "global::System.Collections.Generic.";
             }
             out << customType << "<" << typeToString(seq->type(), package) << ">";
             return out.str();
