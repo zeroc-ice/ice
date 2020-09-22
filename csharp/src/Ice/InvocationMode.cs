@@ -2,6 +2,8 @@
 
 using System;
 
+// TODO: should we simply generate this code from a Slice enum?
+
 namespace ZeroC.Ice
 {
     /// <summary>The proxy's invocation mode.</summary>
@@ -22,5 +24,16 @@ namespace ZeroC.Ice
         /// 3.7.</summary>
         [Obsolete("The batch datagram invocation mode is no longer supported")]
         BatchDatagram,
+    }
+
+    public static class InvocationModeHelper
+    {
+        public static InvocationMode AsInvocationMode(this byte value) =>
+            0 <= value && value <= 4 ? (InvocationMode)value :
+                throw new InvalidDataException($"invalid enumerator value `{value}' for Ice.InvocationMode");
+
+        public static InvocationMode ReadInvocationMode(this InputStream istr) =>
+            AsInvocationMode(istr.ReadByte());
+
     }
 }

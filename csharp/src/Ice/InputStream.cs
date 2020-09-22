@@ -1042,7 +1042,7 @@ namespace ZeroC.Ice
 
         /// <summary>Reads an endpoint from the stream.</summary>
         /// <param name="protocol">The Ice protocol of this endpoint.</param>
-        /// <param name="communicator">The communicator.</param>
+        /// <param name="communicator">The communicator.</param> // TODO: remove
         /// <returns>The endpoint read from the stream.</returns>
         internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
         {
@@ -1116,6 +1116,15 @@ namespace ZeroC.Ice
             }
             return endpoint;
         }
+
+        /// <summary>Reads an array of endpoints from the stream.</summary>
+        /// <param name="protocol">The Ice protocol of these endpoints.</param>
+        /// <returns>The endpoint sequence read from the stream, as an array.</returns>
+        // The min seq size with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation header (6 bytes).
+        // With the 2.0 encoding, it's transport (2 bytes) + host (non-empty string, 2 bytes) +
+        // port (short, 2 bytes) + option sequence (1 byte for empty sequence).
+        internal Endpoint[] ReadEndpointArray(Protocol protocol) =>
+            ReadArray(OldEncoding ? 8 : 7, istr => ReadEndpoint(protocol, _communicator!));
 
         /// <summary>Reads a facet from the stream.</summary>
         /// <returns>The facet read from the stream.</returns>
