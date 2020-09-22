@@ -3203,7 +3203,7 @@ yyreduce:
         // metadata only relevant to the return type would only be set on the return type.
         if (operation->hasSingleReturnType())
         {
-            operation->returnValues().front()->setMetaData(metaData->v);
+            operation->returnType().front()->setMetaData(metaData->v);
         }
     }
 }

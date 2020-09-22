@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -91,14 +89,10 @@ namespace ZeroC.Ice
 
             try
             {
-                //
                 // The server waits for the client's upgrade request, the client sends the upgrade request.
-                //
                 if (!_incoming)
                 {
-                    //
                     // Compose the upgrade request.
-                    //
                     var sb = new StringBuilder();
                     sb.Append("GET " + _resource + " HTTP/1.1\r\n");
                     sb.Append("Host: " + _host + "\r\n");
@@ -108,10 +102,7 @@ namespace ZeroC.Ice
                     sb.Append("Sec-WebSocket-Version: 13\r\n");
                     sb.Append("Sec-WebSocket-Key: ");
 
-                    //
-                    // The value for Sec-WebSocket-Key is a 16-byte random number,
-                    // encoded with Base64.
-                    //
+                    // The value for Sec-WebSocket-Key is a 16-byte random number, encoded with Base64.
                     byte[] key = new byte[16];
                     _rand.NextBytes(key);
                     _key = Convert.ToBase64String(key);
@@ -181,7 +172,8 @@ namespace ZeroC.Ice
                             sb.Append("Sec-WebSocket-Accept: ");
                             string input = key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-                            byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+                            using var sha1 = SHA1.Create();
+                            byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
                             sb.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
 
@@ -301,18 +293,14 @@ namespace ZeroC.Ice
             // Set the opcode - this is the one and only data frame.
             buffer[i++] = (byte)((byte)opCode | FlagFinal);
 
-            //
             // Set the payload length.
-            //
             if (payloadLength <= 125)
             {
                 buffer[i++] = (byte)payloadLength;
             }
             else if (payloadLength > 125 && payloadLength <= 65535)
             {
-                //
                 // Use an extra 16 bits to encode the payload length.
-                //
                 buffer[i++] = 126;
                 short length = System.Net.IPAddress.HostToNetworkOrder((short)payloadLength);
                 MemoryMarshal.Write(buffer.AsSpan(i, 2), ref length);
@@ -320,9 +308,7 @@ namespace ZeroC.Ice
             }
             else if (payloadLength > 65535)
             {
-                //
                 // Use an extra 64 bits to encode the payload length.
-                //
                 buffer[i++] = 127;
                 long length = System.Net.IPAddress.HostToNetworkOrder((long)payloadLength);
                 MemoryMarshal.Write(buffer.AsSpan(i, 8), ref length);
@@ -331,10 +317,7 @@ namespace ZeroC.Ice
 
             if (!_incoming)
             {
-                //
-                // Add a random 32-bit mask to every outgoing frame, copy the payload data,
-                // and apply the mask.
-                //
+                // Add a random 32-bit mask to every outgoing frame, copy the payload data, and apply the mask.
                 buffer[1] = (byte)(buffer[1] | FlagMasked);
                 _rand.NextBytes(_sendMask);
                 Buffer.BlockCopy(_sendMask, 0, buffer, i, _sendMask.Length);
@@ -632,7 +615,8 @@ namespace ZeroC.Ice
 
             string input = _key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-            byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+            using var sha1 = SHA1.Create();
+            byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
             if (!value.Equals(Convert.ToBase64String(hash)))
             {

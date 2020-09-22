@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Threading;
@@ -31,7 +29,7 @@ namespace ZeroC.Ice
         /// <param name="cancel">The cancellation token to cancel the sending of the request</param>
         /// <returns>A task if the request is a twoway request or null if it's a oneway request. The returned task can
         /// be used to wait for the receipt of the response.</returns>
-        ValueTask<IncomingResponseFrame> SendRequestAsync(
+        Task<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame frame,
             bool oneway,
             bool synchronous,

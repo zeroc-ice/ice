@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Concurrent;
@@ -524,9 +522,7 @@ namespace ZeroC.Ice
                     for (int i = 0; i < arr.Length; i++)
                     {
                         int v = int.Parse(arr[i], CultureInfo.InvariantCulture);
-                        //
                         // If -1 is the first value, no retry and wait intervals.
-                        //
                         if (i == 0 && v == -1)
                         {
                             RetryIntervals = Array.Empty<int>();
@@ -589,12 +585,10 @@ namespace ZeroC.Ice
                 // Load plug-ins.
                 LoadPlugins(ref args);
 
-                //
                 // Create Admin facets, if enabled.
                 //
                 // Note that any logger-dependent admin facet must be created after we load all plugins,
                 // since one of these plugins can be a Logger plugin that sets a new logger during loading
-                //
 
                 if (GetProperty("Ice.Admin.Enabled") == null)
                 {
@@ -610,18 +604,14 @@ namespace ZeroC.Ice
 
                 if (_adminEnabled)
                 {
-                    //
                     // Process facet
-                    //
                     string processFacetName = "Process";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
                         _adminFacets.Add(processFacetName, new Process(this));
                     }
 
-                    //
                     // Logger facet
-                    //
                     string loggerFacetName = "Logger";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                     {
@@ -630,9 +620,7 @@ namespace ZeroC.Ice
                         _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
                     }
 
-                    //
                     // Properties facet
-                    //
                     string propertiesFacetName = "Properties";
                     PropertiesAdmin? propsAdmin = null;
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
@@ -641,9 +629,7 @@ namespace ZeroC.Ice
                         _adminFacets.Add(propertiesFacetName, propsAdmin);
                     }
 
-                    //
                     // Metrics facet
-                    //
                     string metricsFacetName = "Metrics";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
                     {
@@ -681,9 +667,7 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
 
-                //
                 // Show process id if requested (but only once).
-                //
                 lock (_mutex)
                 {
                     if (!_printProcessIdDone && (GetPropertyAsBool("Ice.PrintProcessId") ?? false))

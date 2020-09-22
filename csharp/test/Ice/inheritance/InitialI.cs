@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using ZeroC.Ice.Test.Inheritance.MA;
 using ZeroC.Ice.Test.Inheritance.MB;

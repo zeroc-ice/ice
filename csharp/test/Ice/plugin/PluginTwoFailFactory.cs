@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Threading.Tasks;
@@ -34,9 +32,8 @@ namespace ZeroC.Ice.Test.Plugin
             public override ValueTask DisposeAsync()
             {
                 TestHelper.Assert(_one != null && !_one.isDestroyed());
-                //
+
                 // Not destroyed because initialize fails.
-                //
                 TestHelper.Assert(_three != null && !_three.isDestroyed());
                 _destroyed = true;
                 return new ValueTask(Task.CompletedTask);

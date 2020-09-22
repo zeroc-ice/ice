@@ -1,0 +1,8 @@
+﻿<RuleSet Name="Microsoft.Analyzers.ManagedCodeAnalysis" Description="Microsoft.Analyzers.ManagedCodeAnalysis" ToolsVersion="14.0">
+    <Include Path="..\..\..\..\..\msbuild\CodeAnalysis.ruleset" Action="Default" />
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+        <!-- We disable the following analyzer rules because this test doesn't use the C# normalized case -->
+        <Rule Id="SA1304" Action="None" /> <!-- Non-private readonly fields should begin with upper-case letter -->
+        <Rule Id="SA1311" Action="None" /> <!-- Static readonly fields should begin with upper-case letter -->
+    </Rules>
+</RuleSet>

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Threading.Tasks;
 
@@ -21,7 +19,7 @@ namespace ZeroC.Ice.Test.Invoke
             }
             else if (current.Operation.Equals("opString"))
             {
-                string s = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
+                string s = request.ReadArgs(current.Communicator, InputStream.IceReaderIntoString);
                 var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
                                                                           compress: false,
                                                                           format: default,
@@ -49,7 +47,7 @@ namespace ZeroC.Ice.Test.Invoke
             }
             else if (current.Operation.Equals("ice_isA"))
             {
-                string s = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
+                string s = request.ReadArgs(current.Communicator, InputStream.IceReaderIntoString);
                 var responseFrame = OutgoingResponseFrame.WithReturnValue(current,
                                                                           compress: false,
                                                                           format: default,

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -10,31 +8,6 @@ namespace ZeroC.Ice
     /// <summary>Represents an ice1 or ice2 request frame sent by the application.</summary>
     public sealed class OutgoingRequestFrame : OutgoingFrame
     {
-        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>.</summary>
-        /// <param name="prx">The proxy used to send the new request frame.</param>
-        /// <param name="context">The Ice request context.</param>
-        public delegate OutgoingRequestFrame Factory(IObjectPrx prx, IReadOnlyDictionary<string, string>? context);
-
-        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>. This factory is used for operations with multiple
-        /// parameters or with a single non-optional struct parameter.</summary>
-        /// <param name="prx">The proxy used to send the new request frame.</param>
-        /// <param name="paramList">The request parameters.</param>
-        /// <param name="context">The Ice request context.</param>
-        public delegate OutgoingRequestFrame Factory<T>(
-            IObjectPrx prx,
-            in T paramList,
-            IReadOnlyDictionary<string, string>? context) where T : struct;
-
-        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/>. This factory is used for operations with a single
-        /// parameter that is not a non-optional struct.</summary>
-        /// <param name="prx">The proxy used to send the new request frame.</param>
-        /// <param name="param">The parameter.</param>
-        /// <param name="context">The Ice request context.</param>
-        public delegate OutgoingRequestFrame SingleParamFactory<T>(
-            IObjectPrx prx,
-            T param,
-            IReadOnlyDictionary<string, string>? context);
-
         /// <summary>The context of this request frame.</summary>
         public IReadOnlyDictionary<string, string> Context => _contextOverride ?? _initialContext;
 
@@ -81,67 +54,30 @@ namespace ZeroC.Ice
         // _defaultBinaryContext is empty.
         private readonly bool _writeSlot0;
 
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given parameterless operation.
-        /// </summary>
-        /// <param name="operationName">The operation name.</param>
-        /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
-        public static Factory CreateFactory(string operationName, bool idempotent) =>
-            (prx, context) => WithEmptyParamList(prx, operationName, idempotent, context);
-
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given operation.</summary>
-        /// <param name="operationName">The operation name.</param>
-        /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
-        /// <param name="compress"><c>True</c> if the request's parameters are compressed during frame creation with
-        /// ice2, or if entire request frame is compressed during sending with ice1; otherwise, <c>False</c>.</param>
-        /// <param name="format">The format for class instances.</param>
-        /// <param name="writer">The <see cref="OutputStream"/> writer used to write the request parameters.</param>
-        public static Factory<T> CreateFactory<T>(
-            string operationName,
-            bool idempotent,
-            bool compress,
-            FormatType format,
-            OutputStreamValueWriter<T> writer)
-            where T : struct =>
-            (IObjectPrx prx, in T paramList, IReadOnlyDictionary<string, string>? context) =>
-            WithParamList(prx, operationName, idempotent, compress, format, context, in paramList, writer);
-
-        /// <summary>Creates an <see cref="OutgoingRequestFrame"/> factory for the given single-parameter operation.
-        /// </summary>
-        /// <param name="operationName">The operation name.</param>
-        /// <param name="idempotent"><c>True</c> if the requests are idempotent, <c>False</c> otherwise.</param>
-        /// <param name="compress"><c>True</c> if the request's parameter is compressed during frame creation with
-        /// ice2, or if entire request frame is compressed during sending with ice1; otherwise, <c>False</c>.</param>
-        /// <param name="format">The format for class instances.</param>
-        /// <param name="writer">The <see cref="OutputStream"/> writer used to write the request parameter.</param>
-        public static SingleParamFactory<T> CreateSingleParamFactory<T>(
-            string operationName,
-            bool idempotent,
-            bool compress,
-            FormatType format,
-            OutputStreamWriter<T> writer) =>
-            (prx, param, context) =>
-            WithSingleParam(prx, operationName, idempotent, compress, format, context, param, writer);
-
-        /// <summary>Create a new OutgoingRequestFrame for an operation with a single parameter.</summary>
+        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with a single non-struct
+        /// parameter.</summary>
+        /// <typeparam name="T">The type of the operation's parameter.</typeparam>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="format">The format used to marshal classes.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>args</c> contains class
+        /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="value">The parameter to marshal in the frame.</param>
-        /// <param name="writer">The delegate into marshal the parameter to the frame.</param>
+        /// <param name="args">The argument(s) to write into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
+        /// </param>
         /// <returns>A new OutgoingRequestFrame</returns>
-        public static OutgoingRequestFrame WithSingleParam<T>(
+        public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
             bool compress,
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
-            T value,
+            T args,
             OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
@@ -150,7 +86,7 @@ namespace ZeroC.Ice
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
-            writer(ostr, value);
+            writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
@@ -159,27 +95,31 @@ namespace ZeroC.Ice
             return request;
         }
 
-        /// <summary>Create a new OutgoingRequestFrame for an operation with multiple parameters or a single struct
-        /// parameter.</summary>
+        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with multiple parameters or a
+        /// single struct parameter.</summary>
+        /// <typeparam name="T">The type of the operation's parameters; it's a tuple type for an operation with multiple
+        /// parameters.</typeparam>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="compress">True if the request should be compressed, false otherwise.</param>
-        /// <param name="format">The format used to marshal classes.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>args</c> contains class
+        /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="value">The parameters to marshal in the frame.</param>
-        /// <param name="writer">The delegate to marshal the parameters into the frame.</param>
-        /// <returns>A new OutgoingRequestFrame</returns>
-        public static OutgoingRequestFrame WithParamList<T>(
+        /// <param name="args">The argument(s) to write into the frame.</param>
+        /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
+        /// </param>
+        /// <returns>A new OutgoingRequestFrame.</returns>
+        public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
             bool compress,
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
-            in T value,
+            in T args,
             OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
@@ -188,7 +128,7 @@ namespace ZeroC.Ice
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
-            writer(ostr, value);
+            writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V2_0)
             {
@@ -197,14 +137,14 @@ namespace ZeroC.Ice
             return request;
         }
 
-        /// <summary>Creates a new outgoing request frame with no parameter.</summary>
+        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with no parameter.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        public static OutgoingRequestFrame WithEmptyParamList(
+        public static OutgoingRequestFrame WithEmptyArgs(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
@@ -214,9 +154,9 @@ namespace ZeroC.Ice
                                      idempotent,
                                      compress: false,
                                      context,
-                                     writeEmptyParamList: true);
+                                     writeEmptyArgs: true);
 
-        /// <summary>Creates a new outgoing request frame from the given incoming request frame.</summary>
+        /// <summary>Constructs an outgoing request frame from the given incoming request frame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
         /// and context of this proxy to create the request frame.</param>
         /// <param name="request">The incoming request from which to create an outgoing request.</param>
@@ -318,7 +258,7 @@ namespace ZeroC.Ice
             bool idempotent,
             bool compress,
             IReadOnlyDictionary<string, string>? context,
-            bool writeEmptyParamList = false)
+            bool writeEmptyArgs = false)
             : base(proxy.Protocol,
                    compress,
                    proxy.Communicator.CompressionLevel,
@@ -370,7 +310,7 @@ namespace ZeroC.Ice
             }
             PayloadStart = ostr.Tail;
 
-            if (writeEmptyParamList)
+            if (writeEmptyArgs)
             {
                 PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
             }

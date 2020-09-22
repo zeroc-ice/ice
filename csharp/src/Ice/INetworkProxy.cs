@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Buffers.Binary;
@@ -56,9 +54,7 @@ namespace ZeroC.Ice
                 throw new TransportException("SOCKS4 only supports IPv4 addresses");
             }
 
-            //
             // SOCKS connect request
-            //
             var addr = (IPEndPoint)endpoint;
             byte[] data = new byte[9];
             data[0] = 0x04; // SOCKS version 4.
@@ -136,9 +132,7 @@ namespace ZeroC.Ice
             {
                 received += await socket.ReceiveAsync(buffer.AsMemory(received), SocketFlags.None, cancel);
 
-                //
                 // Check if we received the full HTTP response, if not, continue reading otherwise we're done.
-                //
                 int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, received));
                 if (end < 0 && received == buffer.Length)
                 {

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -55,9 +53,7 @@ namespace ZeroC.Ice
             internal int Offset;
         }
 
-        //
         // Cached OutputStreamWriter static objects used by the generated code
-        //
 
         /// <summary>A <see cref="OutputStreamWriter{T}"/> used to write <c>bool</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -195,9 +191,7 @@ namespace ZeroC.Ice
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
 
-        //
         // Write methods for basic types
-        //
 
         /// <summary>Writes a boolean to the stream.</summary>
         /// <param name="v">The boolean to write to the stream.</param>
@@ -324,9 +318,7 @@ namespace ZeroC.Ice
             WriteByteSpan(data.Slice(0, 1 << encodedSize));
         }
 
-        //
         // Write methods for constructed types except class and exception
-        //
 
         /// <summary>Writes an array of fixed-size numeric values, such as int and long, to the stream.</summary>
         /// <param name="v">The array of numeric values.</param>
@@ -727,9 +719,7 @@ namespace ZeroC.Ice
         /// <param name="v">The struct instance to write.</param>
         public void WriteStruct<T>(in T v) where T : struct, IStreamableStruct => v.IceWrite(this);
 
-        //
         // Write methods for tagged basic types
-        //
 
         /// <summary>Writes a tagged boolean to the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -911,9 +901,7 @@ namespace ZeroC.Ice
             }
         }
 
-        //
         // Write methods for tagged constructed types except class
-        //
 
         /// <summary>Writes a tagged array of fixed-size numeric values to the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -1433,9 +1421,7 @@ namespace ZeroC.Ice
             }
         }
 
-        //
         // Other methods
-        //
 
         /// <summary>Writes a sequence of bits to the stream, and returns this sequence backed by the stream's buffer.
         /// </summary>

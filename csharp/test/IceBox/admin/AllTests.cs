@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -23,9 +21,7 @@ namespace ZeroC.IceBox.Test.Admin
             Console.Out.Write("testing custom facet... ");
             Console.Out.Flush();
             {
-                //
                 // Test: Verify that the custom facet is present.
-                //
                 facet = admin.Clone(IObjectPrx.Factory, facet: "TestFacet").Clone(ITestFacetPrx.Factory);
                 TestHelper.Assert(facet != null);
                 facet.IcePing();

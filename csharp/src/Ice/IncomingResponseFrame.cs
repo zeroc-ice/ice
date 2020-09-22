@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Concurrent;
@@ -12,20 +10,17 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame : IncomingFrame
     {
-        /// <summary>The response context. Always null with Ice1.</summary>
-        public Dictionary<string, string>? Context { get; }
-
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
 
-        /// <summary>The result type; see <see cref="ZeroC.Ice.ResultType"/>.</summary>
+        /// <summary>The <see cref="ZeroC.Ice.ResultType"/> of this response frame.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
 
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
-        // Oneway pseudo-response
+        /// <summary>Returns an <see cref="IncomingResponseFrame"/> that represents a oneway pseudo response.</summary>
         internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
             _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
             {
@@ -37,8 +32,9 @@ namespace ZeroC.Ice
                 return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
             });
 
-        /// <summary>Reads the return value carried by this response frame. If the response frame carries
-        /// a failure, reads and throws this exception.</summary>
+        /// <summary>Reads the return value. If this response frame carries a failure, reads and throws this exception.
+        /// </summary>
+        /// <paramtype name="T">The type of the return value.</paramtype>
         /// <param name="communicator">The communicator.</param>
         /// <param name="reader">An input stream reader used to read the frame return value, when the frame
         /// return value contain multiple values the reader must use a tuple to return the values.</param>
@@ -60,8 +56,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads an empty return value from the response frame. If the response frame carries a failure, reads
-        /// and throws this exception.</summary>
+        /// <summary>Reads the return value and makes sure this return value is empty (void) or has only unknown tagged
+        /// members. If this response frame carries a failure, reads and throws this exception.</summary>
         /// <param name="communicator">The communicator.</param>
         public void ReadVoidReturnValue(Communicator communicator)
         {
@@ -80,7 +76,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Creates a new IncomingResponse Frame</summary>
+        /// <summary>Constructs an incoming response frame.</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="data">The frame data as an array segment.</param>
         /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>

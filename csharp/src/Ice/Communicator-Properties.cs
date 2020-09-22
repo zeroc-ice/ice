@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -470,7 +468,7 @@ namespace ZeroC.Ice
                     string propPrefix = pattern.Substring(1, dotPos - 2);
                     bool mismatchCase = false;
                     string otherKey = "";
-                    if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
+                    if (!propPrefix.Equals(prefix, StringComparison.InvariantCultureIgnoreCase))
                     {
                         continue;
                     }
@@ -497,8 +495,8 @@ namespace ZeroC.Ice
 
                         if (!found)
                         {
-                            r = new Regex(prop.Pattern.ToUpper());
-                            m = r.Match(name.ToUpper());
+                            r = new Regex(prop.Pattern.ToUpperInvariant());
+                            m = r.Match(name.ToUpperInvariant());
                             if (m.Success)
                             {
                                 found = true;

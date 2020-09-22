@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -62,10 +60,7 @@ namespace ZeroC.Ice.Test.Location
             base1 = IObjectPrx.Parse(ice1 ? "test @ TestAdapter" : "ice:TestAdapter//test", communicator);
             TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, communicator.DefaultLocator!));
 
-            //
-            // We also test ice_router/ice_getRouter(perhaps we should add a
-            // test/Ice/router test?)
-            //
+            // TODO: We also test ice_router/ice_getRouter(perhaps we should add a test/Ice/router test?)
             TestHelper.Assert(base1.Router == null);
             var anotherRouter = IRouterPrx.Parse(ice1 ? "anotherRouter" : "ice:anotherRouter", communicator);
             base1 = base1.Clone(router: anotherRouter);

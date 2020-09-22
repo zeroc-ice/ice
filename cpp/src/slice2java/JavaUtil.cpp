@@ -189,7 +189,7 @@ public:
 
     void visitOperation(const OperationPtr& p) override
     {
-        TypePtr returnType = p->returnType();
+        TypePtr returnType = p->deprecatedReturnType();
         StringList metaData = getMetaData(p);
 
         UnitPtr unt = p->unit();

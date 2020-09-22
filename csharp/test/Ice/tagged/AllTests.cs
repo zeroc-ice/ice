@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Linq;
 using System.Collections.Generic;
@@ -349,7 +347,7 @@ namespace ZeroC.Ice.Test.Tagged
 
             initial.OpVoid();
 
-            var requestFrame = OutgoingRequestFrame.WithParamList(
+            var requestFrame = OutgoingRequestFrame.WithArgs(
                 initial, "opVoid", idempotent: false, compress: false, format: default, context: null, (15, "test"),
                 (OutputStream ostr, in (int n, string s) value) =>
                 {
@@ -487,19 +485,19 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpByte(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial, "opByte",
                     idempotent: false,
                     compress: false,
                     format: default,
                     context: null, p1,
-                    (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(2, p1));
+                    (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         byte? b1 = istr.ReadTaggedByte(1);
-                        byte? b2 = istr.ReadTaggedByte(3);
+                        byte? b2 = istr.ReadTaggedByte(2);
                         return (b1, b2);
                     });
                 TestHelper.Assert(p1 == 56);
@@ -526,20 +524,20 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpBool(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opBool",
                     idempotent: false,
                     compress: false,
                     format: default,
                     context: null, p1,
-                    (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(2, p1));
+                    (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     bool? b1 = istr.ReadTaggedBool(1);
-                    bool? b2 = istr.ReadTaggedBool(3);
+                    bool? b2 = istr.ReadTaggedBool(2);
                     return (b1, b2);
                 });
                 TestHelper.Assert(r1 == true);
@@ -566,20 +564,20 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpShort(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opShort",
                     idempotent: false,
                     compress: false,
                     format: default,
                     context: null, p1,
-                    (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(2, p1));
+                    (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         short? s1 = istr.ReadTaggedShort(1);
-                        short? s2 = istr.ReadTaggedShort(3);
+                        short? s2 = istr.ReadTaggedShort(2);
                         return (s1, s2);
                     });
                 TestHelper.Assert(r1 == 56);
@@ -606,7 +604,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpInt(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opInt",
                     idempotent: false,
@@ -614,13 +612,13 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(2, p1));
+                    (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p1, r1) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     int? i1 = istr.ReadTaggedInt(1);
-                    int? i2 = istr.ReadTaggedInt(3);
+                    int? i2 = istr.ReadTaggedInt(2);
                     return (i1, i2);
                 });
                 TestHelper.Assert(p1 == 56);
@@ -647,7 +645,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpLong(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial, "opLong",
                     idempotent: false,
                     compress: false,
@@ -659,8 +657,8 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
-                    long? l1 = istr.ReadTaggedLong(2);
-                    long? l2 = istr.ReadTaggedLong(3);
+                    long? l1 = istr.ReadTaggedLong(1);
+                    long? l2 = istr.ReadTaggedLong(2);
                     return (l1, l2);
                 });
                 TestHelper.Assert(r1 == 56);
@@ -687,20 +685,20 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpFloat(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial, "opFloat",
                     idempotent: false,
                     compress: false,
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(2, p1));
+                    (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         float? f1 = istr.ReadTaggedFloat(1);
-                        float? f2 = istr.ReadTaggedFloat(3);
+                        float? f2 = istr.ReadTaggedFloat(2);
                         return (f1, f2);
                     });
                 TestHelper.Assert(r1 == 1.0f);
@@ -727,7 +725,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpDouble(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opDouble",
                     idempotent: false,
@@ -735,13 +733,13 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(2, p1));
+                    (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         double? d1 = istr.ReadTaggedDouble(1);
-                        double? d2 = istr.ReadTaggedDouble(3);
+                        double? d2 = istr.ReadTaggedDouble(2);
                         return (d1, d2);
                     });
                 TestHelper.Assert(r1 == 1.0);
@@ -770,7 +768,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpString(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opString",
                     idempotent: false,
@@ -778,13 +776,13 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, string? p1) => ostr.WriteTaggedString(2, p1));
+                    (OutputStream ostr, string? p1) => ostr.WriteTaggedString(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     string? s1 = istr.ReadTaggedString(1);
-                    string? s2 = istr.ReadTaggedString(3);
+                    string? s2 = istr.ReadTaggedString(2);
                     return (s1, s2);
                 });
                 TestHelper.Assert(r1 == "test");
@@ -811,7 +809,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpMyEnum(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opMyEnum",
                     idempotent: false,
@@ -819,7 +817,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(2, (int?) p1));
+                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(1, (int?) p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -848,7 +846,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpSmallStruct(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opSmallStruct",
                     idempotent: false,
@@ -856,12 +854,12 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(2, p1, 1));
+                    (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(1, p1, 1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: true, istr => new SmallStruct(istr)),
-                        istr.ReadTaggedStruct(3, fixedSize: true, istr => new SmallStruct(istr))));
+                        istr.ReadTaggedStruct(2, fixedSize: true, istr => new SmallStruct(istr))));
 
                 TestHelper.Assert(r1!.Value.M == 56);
                 TestHelper.Assert(r2!.Value.M == 56);
@@ -887,7 +885,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpFixedStruct(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFixedStruct",
                     idempotent: false,
@@ -895,7 +893,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(2, p1, 4));
+                    (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(1, p1, 4));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -930,7 +928,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpVarStruct(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opVarStruct",
                     idempotent: false,
@@ -941,7 +939,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, VarStruct? p1) =>
                     {
                         TestHelper.Assert(p1 != null);
-                        ostr.WriteTaggedStruct(2, p1);
+                        ostr.WriteTaggedStruct(1, p1);
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -994,7 +992,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpByteSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opByteSeq",
                     idempotent: false,
@@ -1002,7 +1000,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1032,7 +1030,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpBoolSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opBoolSeq",
                     idempotent: false,
@@ -1040,7 +1038,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1070,7 +1068,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpShortSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opShortSeq",
                     idempotent: false,
@@ -1078,7 +1076,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1107,14 +1105,14 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpIntSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opIntSeq",
                     idempotent: false,
                     compress: false,
                     format: default,
                     context: null, p1,
-                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1143,7 +1141,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpLongSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opLongSeq",
                     idempotent: false,
@@ -1151,7 +1149,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1180,7 +1178,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpFloatSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFloatSeq",
                     idempotent: false,
@@ -1188,7 +1186,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1217,7 +1215,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpDoubleSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opDoubleSeq",
                     idempotent: false,
@@ -1225,7 +1223,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedArray(2, p1));
+                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1255,7 +1253,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpStringSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opStringSeq",
                     idempotent: false,
@@ -1264,7 +1262,7 @@ namespace ZeroC.Ice.Test.Tagged
                     context: null,
                     p1,
                     (OutputStream ostr, string[]? p1) =>
-                        ostr.WriteTaggedSequence(2, p1, (ost, s) => ostr.WriteString(s)));
+                        ostr.WriteTaggedSequence(1, p1, (ost, s) => ostr.WriteString(s)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1294,7 +1292,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpSmallStructSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opSmallStructSeq",
                     idempotent: false,
@@ -1302,13 +1300,13 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, SmallStruct[]? p1) => ostr.WriteTaggedSequence(2, p1, 1,
+                    (OutputStream ostr, SmallStruct[]? p1) => ostr.WriteTaggedSequence(1, p1, 1,
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 1, fixedSize: true, istr => new SmallStruct(istr)),
-                        istr.ReadTaggedArray(3, 1, fixedSize: true, istr => new SmallStruct(istr))));
+                        istr.ReadTaggedArray(2, 1, fixedSize: true, istr => new SmallStruct(istr))));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
@@ -1338,7 +1336,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpSmallStructList(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opSmallStructList",
                     idempotent: false,
@@ -1346,7 +1344,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, List<SmallStruct>? p1) => ostr.WriteTaggedSequence(2, p1, 1,
+                    (OutputStream ostr, List<SmallStruct>? p1) => ostr.WriteTaggedSequence(1, p1, 1,
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1357,7 +1355,7 @@ namespace ZeroC.Ice.Test.Tagged
                                 ICollection<SmallStruct> collection1 ? new List<SmallStruct>(collection1) : null;
 
                         List<SmallStruct>? list2 =
-                            istr.ReadTaggedSequence(3, 1, fixedSize: true, istr => new SmallStruct(istr)) is
+                            istr.ReadTaggedSequence(2, 1, fixedSize: true, istr => new SmallStruct(istr)) is
                                 ICollection<SmallStruct> collection2 ? new List<SmallStruct>(collection2) : null;
 
                         return (list1, list2);
@@ -1387,7 +1385,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpFixedStructSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFixedStructSeq",
                     idempotent: false,
@@ -1395,13 +1393,13 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, FixedStruct[]? p1) => ostr.WriteTaggedSequence(2, p1, 4,
+                    (OutputStream ostr, FixedStruct[]? p1) => ostr.WriteTaggedSequence(1, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 4, fixedSize: true, istr => new FixedStruct(istr)),
-                        istr.ReadTaggedArray(3, 4, fixedSize: true, istr => new FixedStruct(istr))));
+                        istr.ReadTaggedArray(2, 4, fixedSize: true, istr => new FixedStruct(istr))));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
@@ -1431,7 +1429,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpFixedStructList(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opFixedStructList",
                     idempotent: false,
@@ -1439,7 +1437,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, LinkedList<FixedStruct>? p1) => ostr.WriteTaggedSequence(2, p1, 4,
+                    (OutputStream ostr, LinkedList<FixedStruct>? p1) => ostr.WriteTaggedSequence(1, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1450,7 +1448,7 @@ namespace ZeroC.Ice.Test.Tagged
                                 ICollection<FixedStruct> collection1 ? new LinkedList<FixedStruct>(collection1) : null;
 
                         LinkedList<FixedStruct>? list2 =
-                            istr.ReadTaggedSequence(3, 4, fixedSize: true, istr => new FixedStruct(istr)) is
+                            istr.ReadTaggedSequence(2, 4, fixedSize: true, istr => new FixedStruct(istr)) is
                                 ICollection<FixedStruct> collection2 ? new LinkedList<FixedStruct>(collection2) : null;
 
                         return (list1, list2);
@@ -1479,7 +1477,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpVarStructSeq(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opVarStructSeq",
                     idempotent: false,
@@ -1488,7 +1486,7 @@ namespace ZeroC.Ice.Test.Tagged
                     context: null,
                     p1,
                     (OutputStream ostr, VarStruct[]? p1) =>
-                        ostr.WriteTaggedSequence(2, p1, (ostr, vs) => ostr.WriteStruct(vs)));
+                        ostr.WriteTaggedSequence(1, p1, (ostr, vs) => ostr.WriteStruct(vs)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
@@ -1522,21 +1520,21 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpIntIntDict(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opIntIntDict",
                     idempotent: false,
                     compress: false,
                     format: default,
                     context: null, p1,
-                    (OutputStream ostr, Dictionary<int, int>? p1) => ostr.WriteTaggedDictionary(2, p1, 8,
+                    (OutputStream ostr, Dictionary<int, int>? p1) => ostr.WriteTaggedDictionary(1, p1, 8,
                         (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteInt(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedDictionary(1, 4, 4, fixedSize: true,
                         istr => istr.ReadInt(), istr => istr.ReadInt()),
-                     istr.ReadTaggedDictionary(3, 4, 4, fixedSize: true,
+                     istr.ReadTaggedDictionary(2, 4, 4, fixedSize: true,
                          istr => istr.ReadInt(), istr => istr.ReadInt())));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
@@ -1567,7 +1565,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpStringIntDict(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithSingleParam(
+                requestFrame = OutgoingRequestFrame.WithArgs(
                     initial,
                     "opStringIntDict",
                     idempotent: false,
@@ -1578,7 +1576,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, Dictionary<string, int>? p1) =>
                     {
                         TestHelper.Assert(p1 != null);
-                        ostr.WriteTaggedDictionary(2, p1,
+                        ostr.WriteTaggedDictionary(1, p1,
                             (ostr, k) => ostr.WriteString(k), (ostr, v) => ostr.WriteInt(v));
                     });
 
@@ -1586,7 +1584,7 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                       (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadString(),
                                                                             istr => istr.ReadInt()),
-                       istr.ReadTaggedDictionary(3, 1, 4, fixedSize: false, istr => istr.ReadString(),
+                       istr.ReadTaggedDictionary(2, 1, 4, fixedSize: false, istr => istr.ReadString(),
                                                                             istr => istr.ReadInt())));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));

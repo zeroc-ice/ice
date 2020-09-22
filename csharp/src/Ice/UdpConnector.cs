@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Net;
 
@@ -18,9 +16,7 @@ namespace ZeroC.Ice
                                                             _endpoint.MulticastInterface,
                                                             _endpoint.MulticastTtl);
 
-        //
         // Only for use by UdpEndpointI
-        //
         internal UdpConnector(UdpEndpoint endpoint, EndPoint addr)
         {
             _endpoint = endpoint;

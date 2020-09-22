@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using Test;
@@ -24,14 +22,10 @@ namespace ZeroC.Ice.Test.Location
             }
             _communicators.Clear();
 
-            //
-            // Simulate a server: create a new communicator and object
-            // adapter. The object adapter is started on a system allocated
-            // port. The configuration used here contains the Ice.Locator
-            // configuration variable. The new object adapter will register
-            // its endpoints with the locator and create references containing
+            // Simulate a server: create a new communicator and object adapter. The object adapter is started on a
+            // system allocated port. The configuration used here contains the Ice.Locator configuration variable.
+            // The new object adapter will register its endpoints with the locator and create references containing
             // the adapter id instead of the endpoints.
-            //
             Dictionary<string, string> properties = _helper.Communicator!.GetProperties();
             properties["TestAdapter.AdapterId"] = "TestAdapter";
             properties["TestAdapter.ReplicaGroupId"] = "ReplicatedAdapter";
@@ -40,10 +34,8 @@ namespace ZeroC.Ice.Test.Location
             Communicator serverCommunicator = _helper.Initialize(properties);
             _communicators.Add(serverCommunicator);
 
-            //
             // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
             // another OA(e.g.: TestAdapter2 is re-activated using port of TestAdapter).
-            //
             int nRetry = 10;
             while (--nRetry > 0)
             {

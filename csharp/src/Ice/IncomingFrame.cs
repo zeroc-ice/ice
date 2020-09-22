@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -119,7 +117,7 @@ namespace ZeroC.Ice
                                                                 gzipIndex,
                                                                 decompressedData.Length - gzipIndex);
                 Debug.Assert(encapsulation.Array != null);
-                var compressed = new GZipStream(
+                using var compressed = new GZipStream(
                     new MemoryStream(encapsulation.Array,
                                      encapsulation.Offset + sizeLength + 3 + decompressedSizeLength,
                                      encapsulation.Count - sizeLength - 3 - decompressedSizeLength),

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -686,6 +684,16 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
+                if (Name.Length == 0)
+                {
+                    throw new ArgumentException("cannot set published endpoints on a nameless object adapter");
+                }
+
+                if (newEndpoints.Select(endpoint => endpoint.Protocol).Distinct().Count() > 1)
+                {
+                    throw new ArgumentException("all published endpoints must use the same protocol");
+                }
+
                 if (_disposeTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
@@ -1076,7 +1084,8 @@ namespace ZeroC.Ice
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     protocol: Protocol);
+                                     protocol: _publishedEndpoints.Count > 0 ?
+                                               _publishedEndpoints[0].Protocol : Protocol);
             }
         }
 
@@ -1260,6 +1269,8 @@ namespace ZeroC.Ice
             public bool Equals(IdentityPlusFacet other) =>
                 Identity.Equals(other.Identity) && Facet.Equals(other.Facet);
 
+            public override bool Equals(object? obj) => obj is IdentityPlusFacet value && Equals(value);
+
             // Since facet is often empty, we don't want the empty facet to contribute to the hash value.
             public override int GetHashCode() =>
                 Facet.Length == 0 ? Identity.GetHashCode() : HashCode.Combine(Identity, Facet);
@@ -1278,6 +1289,8 @@ namespace ZeroC.Ice
 
             public bool Equals(CategoryPlusFacet other) =>
                 Category.Equals(other.Category) && Facet.Equals(other.Facet);
+
+            public override bool Equals(object? obj) => obj is CategoryPlusFacet value && Equals(value);
 
             public override int GetHashCode() =>
                 Facet.Length == 0 ? Category.GetHashCode() : HashCode.Combine(Category, Facet);

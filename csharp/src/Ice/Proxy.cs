@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +10,12 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Factory function that creates a proxy from a reference.</summary>
+    /// <typeparam name="T">The proxy type.</typeparam>
+    /// <param name="reference">The underlying reference.</param>
+    /// <returns>The new proxy.</returns>
+    public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
+
     /// <summary>Proxy provides extension methods for IObjectPrx</summary>
     public static class Proxy
     {
@@ -169,6 +173,12 @@ namespace ZeroC.Ice
             return ReferenceEquals(clone, prx.IceReference) ? prx : (T)prx.Clone(clone);
         }
 
+        /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
+        /// connection, it does not attempt to create a connection.</summary>
+        /// <returns>The cached Connection for this proxy (null if the proxy does not have
+        /// an established connection).</returns>
+        public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
+
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
@@ -197,12 +207,6 @@ namespace ZeroC.Ice
             return handler as Connection;
         }
 
-        /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
-        /// connection, it does not attempt to create a connection.</summary>
-        /// <returns>The cached Connection for this proxy (null if the proxy does not have
-        /// an established connection).</returns>
-        public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
-
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
@@ -220,12 +224,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IncomingResponseFrame> task = InvokeWithInterceptorsAsync(proxy,
-                                                                                    request,
-                                                                                    oneway,
-                                                                                    synchronous: true,
-                                                                                    cancel: cancel);
-                return task.IsCompleted ? task.Result : task.AsTask().Result;
+                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true, cancel: cancel).Result;
             }
             catch (AggregateException ex)
             {
@@ -233,23 +232,6 @@ namespace ZeroC.Ice
                 throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
-
-        /// <summary>Sends a request that returns a value and waits synchronously for the result.</summary>
-        /// <typeparam name="T">The operation's return type.</typeparam>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
-        /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The return value.</returns>
-        public static T Invoke<T>(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            InputStreamReader<T> reader,
-            CancellationToken cancel = default) =>
-            proxy.Invoke(request, oneway: false, cancel).ReadReturnValue(proxy.Communicator, reader);
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -261,87 +243,13 @@ namespace ZeroC.Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static ValueTask<IncomingResponseFrame> InvokeAsync(
+        public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway = false,
             IProgress<bool>? progress = null,
             CancellationToken cancel = default) =>
             InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress, cancel);
-
-        /// <summary>Sends a request that returns a value and returns the result asynchronously.</summary>
-        /// <typeparam name="T">The operation's return type.</typeparam>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
-        /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The return value.</returns>
-        public static Task<T> InvokeAsync<T>(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            InputStreamReader<T> reader,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default)
-        {
-            return ReadResponseAsync(proxy.InvokeAsync(request, oneway: false, progress, cancel),
-                                     reader,
-                                     proxy.Communicator);
-
-            static async Task<T> ReadResponseAsync(
-                ValueTask<IncomingResponseFrame> task,
-                InputStreamReader<T> reader,
-                Communicator communicator) =>
-                (await task.ConfigureAwait(false)).ReadReturnValue(communicator, reader);
-        }
-
-        /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The outgoing request frame for this invocation. Usually this request frame should have
-        /// been created using the same proxy, however some differences are acceptable, for example proxy can have
-        /// different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// twoway request.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public static void InvokeVoid(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            CancellationToken cancel = default)
-        {
-            IncomingResponseFrame response = proxy.Invoke(request, oneway, cancel);
-            if (!oneway)
-            {
-                response.ReadVoidReturnValue(proxy.Communicator);
-            }
-        }
-
-        /// <summary>Sends a request that returns void and returns the result asynchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// twoway request.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public static Task InvokeVoidAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default)
-        {
-            ValueTask<IncomingResponseFrame> response = proxy.InvokeAsync(request, oneway, progress, cancel);
-            return oneway ? Task.CompletedTask : ReadResponseAsync(response, proxy.Communicator);
-
-            static async Task ReadResponseAsync(
-                ValueTask<IncomingResponseFrame> response,
-                Communicator communicator) => (await response.ConfigureAwait(false)).ReadVoidReturnValue(communicator);
-        }
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
@@ -379,42 +287,7 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default)
-        {
-            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
-
-            static ValueTask<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                int i,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
-            {
-                if (i < proxy.Communicator.InvocationInterceptors.Count)
-                {
-                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                    return interceptor(
-                        proxy,
-                        request,
-                        (target, request) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
-                }
-                else
-                {
-                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                }
-            }
-        }
-
-        private static ValueTask<IncomingResponseFrame> InvokeAsync(
+        private static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
@@ -438,7 +311,7 @@ namespace ZeroC.Ice
                     return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
             }
 
-            static async ValueTask<IncomingResponseFrame> InvokeAsync(
+            static async Task<IncomingResponseFrame> InvokeAsync(
                 IObjectPrx proxy,
                 OutgoingRequestFrame request,
                 bool oneway,
@@ -513,10 +386,10 @@ namespace ZeroC.Ice
                             {
                                 // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
-                                CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(
+                                using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                                     cancel,
-                                    proxy.Communicator.CancellationToken).Token;
-                                await Task.Delay(delay, token).ConfigureAwait(false);
+                                    proxy.Communicator.CancellationToken);
+                                await Task.Delay(delay, tokenSource.Token).ConfigureAwait(false);
                             }
 
                             observer?.Retried();
@@ -536,11 +409,45 @@ namespace ZeroC.Ice
             }
         }
 
+        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            bool synchronous,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
+        {
+            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
+
+            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                bool synchronous,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+            {
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
+                {
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
+                }
+                else
+                {
+                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
+                }
+            }
+        }
+
         private class ProgressWrapper : IProgress<bool>
         {
-            private readonly IProgress<bool>? _progress;
-
             internal bool IsSent { get; private set; }
+            private readonly IProgress<bool>? _progress;
 
             public void Report(bool sentSynchronously)
             {

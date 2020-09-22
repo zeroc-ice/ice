@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.IO;
@@ -1598,9 +1596,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
                 // Server knows the most-derived class PDerived.
-                //
                 var pd = new PDerived();
                 pd.Pi = 3;
                 pd.Ps = "preserved";
@@ -1619,9 +1615,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
                 // Server only knows the base (non-preserved) type, so the object is sliced.
-                //
                 var pu = new PCUnknown();
                 pu.Pi = 3;
                 pu.Pu = "preserved";
@@ -1637,10 +1631,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
-                // Server only knows the intermediate type Preserved. The object will be sliced to
-                // Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                //
+                // Server only knows the intermediate type Preserved. The object will be sliced to Preserved for the
+                // 1.0 encoding; otherwise it should be returned intact.
                 var pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
@@ -1656,10 +1648,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
-                // Server only knows the intermediate type Preserved. The object will be sliced to
-                // Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                //
+                // Server only knows the intermediate type Preserved. The object will be sliced to Preserved for the
+                // 1.0 encoding; otherwise it should be returned intact.
                 var pcd = new CompactPCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
@@ -1712,11 +1702,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
-                // Obtain an object with preserved slices and send it back to the server.
-                // The preserved slices should be excluded for the 1.0 encoding, otherwise
-                // they should be included.
-                //
+                // Obtain an object with preserved slices and send it back to the server. The preserved slices should
+                // be excluded for the 1.0 encoding, otherwise they should be included.
                 Preserved? p = testPrx.PBSUnknownAsPreserved();
                 TestHelper.Assert(p != null);
                 testPrx.CheckPBSUnknown(p);
@@ -1733,9 +1720,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Write("preserved classes (AMI)... ");
             output.Flush();
             {
-                //
                 // Server knows the most-derived class PDerived.
-                //
                 var pd = new PDerived();
                 pd.Pi = 3;
                 pd.Ps = "preserved";
@@ -1749,9 +1734,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             }
 
             {
-                //
                 // Server only knows the base (non-preserved) type, so the object is sliced.
-                //
                 var pu = new PCUnknown();
                 pu.Pi = 3;
                 pu.Pu = "preserved";
@@ -1763,10 +1746,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             }
 
             {
-                //
-                // Server only knows the intermediate type Preserved. The object will be sliced to
-                // Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                //
+                // Server only knows the intermediate type Preserved. The object will be sliced to Preserved for the
+                // 1.0 encoding; otherwise it should be returned intact.
                 var pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
@@ -1778,10 +1759,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             }
 
             {
-                //
-                // Server only knows the intermediate type Preserved. The object will be sliced to
-                // Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                //
+                // Server only knows the intermediate type Preserved. The object will be sliced to Preserved for the
+                // 1.0 encoding; otherwise it should be returned intact.
                 var pcd = new CompactPCDerived(3, "", null, Array.Empty<PBase>());
                 pcd.Pbs = new PBase[] { pcd };
 
@@ -1793,15 +1772,11 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             }
 
             {
-                //
-                // Send an object that will have multiple preserved slices in the server.
-                // The object will be sliced to Preserved for the 1.0 encoding.
-                //
+                // Send an object that will have multiple preserved slices in the server. The object will be sliced to
+                // Preserved for the 1.0 encoding.
                 var pcd = new PCDerived3(3, "", null, Array.Empty<PBase>(), 0, null);
 
-                //
                 // Sending more than 254 objects exercises the encoding for object ids.
-                //
                 pcd.Pbs = new PBase[300];
                 for (int i = 0; i < 300; ++i)
                 {
@@ -1831,11 +1806,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
             try
             {
-                //
-                // Obtain an object with preserved slices and send it back to the server.
-                // The preserved slices should be excluded for the 1.0 encoding, otherwise
-                // they should be included.
-                //
+                // Obtain an object with preserved slices and send it back to the server. The preserved slices should
+                // be excluded for the 1.0 encoding, otherwise they should be included.
                 Preserved? p = testPrx.PBSUnknownAsPreserved();
                 testPrx.CheckPBSUnknown(p);
             }
@@ -1849,9 +1821,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             output.Flush();
             try
             {
-                //
                 // Relay a graph through the server.
-                //
                 {
                     var c = new PNode();
                     c.Next = new PNode();
@@ -1866,11 +1836,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     n.Next = null;
                 }
 
-                //
-                // Obtain a preserved object from the server where the most-derived
-                // type is unknown. The preserved slice refers to a graph of PNode
-                // objects.
-                //
+                // Obtain a preserved object from the server where the most-derived type is unknown. The preserved
+                // slice refers to a graph of PNode objects.
                 {
                     TestHelper.Assert(PNode.Counter == 0);
                     Preserved? p = testPrx.PBSUnknownAsPreservedWithGraph();
@@ -1879,13 +1846,10 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     PNode.Counter = 0;
                 }
 
-                //
-                // Obtain a preserved object from the server where the most-derived
-                // type is unknown. A data member in the preserved slice refers to the
-                // outer object, so the chain of references looks like this:
+                // Obtain a preserved object from the server where the most-derived type is unknown. A data member in
+                // the preserved slice refers to the outer object, so the chain of references looks like this:
                 //
                 // outer.iceSlicedData_.outer
-                //
                 {
                     Preserved.Counter = 0;
                     Preserved? p = testPrx.PBSUnknown2AsPreservedWithGraph();
@@ -1893,18 +1857,13 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     TestHelper.Assert(Preserved.Counter == 1);
                     Preserved.Counter = 0;
                 }
-
-                //
-                // Throw a preserved exception where the most-derived type is unknown.
-                // The preserved exception slice contains a class data member. This
-                // object is also preserved, and its most-derived type is also unknown.
-                // The preserved slice of the object contains a class data member that
-                // refers to itself.
+                // Throw a preserved exception where the most-derived type is unknown. The preserved exception slice
+                // contains a class data member. This object is also preserved, and its most-derived type is also
+                // unknown. The preserved slice of the object contains a class data member that refers to itself.
                 //
                 // The chain of references looks like this:
                 //
                 // ex.slicedData_.obj.iceSlicedData_.obj
-                //
                 try
                 {
                     TestHelper.Assert(Preserved.Counter == 0);

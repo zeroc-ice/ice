@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -42,7 +40,6 @@ namespace ZeroC.IceLocatorDiscovery
         private readonly TimeSpan _timeout;
         private readonly int _traceLevel;
         private readonly ILocatorPrx _voidLocator;
-        private bool _warned;
 
         internal Locator(
             string name,
@@ -62,7 +59,6 @@ namespace ZeroC.IceLocatorDiscovery
             _retryDelay = communicator.GetPropertyAsTimeSpan($"{name}.RetryDelay") ?? TimeSpan.FromMilliseconds(2000);
             _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
-            _warned = false;
             _locator = lookup.Communicator.DefaultLocator;
             _voidLocator = voidLocator;
 
@@ -172,14 +168,12 @@ namespace ZeroC.IceLocatorDiscovery
                     return;
                 }
 
-                // If we already have a locator assigned, ensure the given locator has the same identity, otherwise
-                // ignore it.
-                if (_locator != null && !locator.Identity.Category.Equals(_locator.Identity.Category))
+                // If we already have a locator assigned, ensure the given locator has the same identity and protocol,
+                // otherwise ignore it.
+                if (_locator != null)
                 {
-                    if (!_warned)
+                    if (locator.Identity.Category != _locator.Identity.Category)
                     {
-                        _warned = true; // Only warn once
-
                         var s = new StringBuilder();
                         s.Append("received Ice locator with different instance name:\n")
                          .Append("using = `").Append(_locator.Identity.Category).Append("'\n")
@@ -188,8 +182,18 @@ namespace ZeroC.IceLocatorDiscovery
                          .Append("instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ")
                          .Append("is not set.");
                         locator.Communicator.Logger.Warning(s.ToString());
+                        return;
                     }
-                    return;
+
+                    if (locator.Protocol != _locator.Protocol)
+                    {
+                        var s = new StringBuilder();
+                        s.Append("ignoring Ice locator with different protocol:\n")
+                         .Append("using = `").Append(_locator.Protocol).Append("'\n")
+                         .Append("received = `").Append(locator.Protocol).Append("'\n");
+                        locator.Communicator.Logger.Warning(s.ToString());
+                        return;
+                    }
                 }
 
                 if (_traceLevel > 0)

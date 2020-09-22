@@ -468,7 +468,7 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
     switch(type)
     {
         case OpDocInParams:
-            params = op->parameters();
+            params = op->params();
             break;
         case OpDocOutParams:
             params = op->outParameters();
@@ -483,7 +483,7 @@ writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpD
         writeDocLines(out, preParams, true);
     }
 
-    map<string, StringList> paramDoc = doc->parameters();
+    map<string, StringList> paramDoc = doc->params();
     for (const auto& param : params)
     {
         map<string, StringList>::iterator q = paramDoc.find(param->name());
@@ -579,7 +579,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(container);
     string clScope = fixKwd(interface->scope());
 
-    TypePtr ret = p->returnType();
+    TypePtr ret = p->deprecatedReturnType();
     string retS = returnTypeToString(ret, p->returnIsTagged(), clScope, p->getMetaData(), useWstring);
 
     MemberList outParams = p->outParameters();
@@ -609,7 +609,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
         map<string, StringList> paramComments;
         if(comment)
         {
-            paramComments = comment->parameters();
+            paramComments = comment->params();
         }
         if(ret)
         {
@@ -1242,7 +1242,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
 
-    TypePtr returnType = p->returnType();
+    TypePtr returnType = p->deprecatedReturnType();
     if(!returnType)
     {
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end();)
@@ -2133,7 +2133,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(container);
     string clScope = fixKwd(interface->scope());
 
-    TypePtr ret = p->returnType();
+    TypePtr ret = p->deprecatedReturnType();
 
     bool retIsTagged = p->returnIsTagged();
     string retS = returnTypeToString(ret, retIsTagged, clScope, p->getMetaData(), _useWstring);
@@ -2149,7 +2149,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> lambdaOutParams;
 
     MemberList paramList = p->allMembers();
-    MemberList inParams = p->parameters();
+    MemberList inParams = p->params();
     MemberList outParams = p->outParameters();
 
     string returnValueS = "returnValue";
@@ -2948,7 +2948,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
 
-    TypePtr ret = p->returnType();
+    TypePtr ret = p->deprecatedReturnType();
 
     vector<string> params;
     vector<string> args;
@@ -2964,7 +2964,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(interface->scope() + interface->name() + "::");
     string scoped = fixKwd(interface->scope() + interface->name() + "::" + p->name());
 
-    MemberList inParams = p->parameters();
+    MemberList inParams = p->params();
     MemberList outParams = p->outParameters();
     MemberList paramList = p->allMembers();
 
@@ -3071,7 +3071,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         map<string, StringList> paramComments;
         if(comment)
         {
-            paramComments = comment->parameters();
+            paramComments = comment->params();
         }
         const string mrcurrent = escapeParam(outParams, "current");
         for (const auto& param : outParams)
@@ -3892,12 +3892,12 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         OperationPtr op = (*r);
         string opName = op->name();
 
-        TypePtr ret = op->returnType();
+        TypePtr ret = op->deprecatedReturnType();
         string retS = op->hasMarshaledResult() ?
             scoped + "::" + resultStructName(opName, "", true) :
             returnTypeToString(ret, op->returnIsTagged(), "", op->getMetaData(), _useWstring);
 
-        MemberList inParams = op->parameters();
+        MemberList inParams = op->params();
         MemberList outParams = op->outParameters();
 
         if(p->hasMetaData("amd") || op->hasMetaData("amd"))

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -44,10 +42,8 @@ namespace ZeroC.IceGrid.Test.Simple
                 session.GetAdmin()!.AddObjectWithType(obj, "::Test");
                 session.Destroy();
 
-                //
-                // Ensure the IceGrid discovery locator can discover the
-                // registries and make sure locator requests are forwarded.
-                //
+                // Ensure the IceGrid discovery locator can discover the registries and make sure locator requests are
+                // forwarded.
                 Dictionary<string, string>? properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
                 properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
@@ -74,10 +70,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
                     adapter.Activate();
                 }
-                //
-                // Now, ensure that the IceGrid discovery locator correctly
-                // handles failure to find a locator.
-                //
+                // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator.
                 {
                     properties["IceLocatorDiscovery.InstanceName"] = "unknown";
                     properties["IceLocatorDiscovery.RetryCount"] = "1";
@@ -125,9 +118,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     multicast = "239.255.0.1";
                 }
 
-                //
                 // Test invalid lookup endpoints
-                //
                 {
                     properties = communicator.GetProperties();
                     properties.Remove("Ice.Default.Locator");

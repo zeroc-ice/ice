@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Threading;
@@ -61,9 +59,7 @@ namespace ZeroC.Ice.Test.Timeout
                 timeout.Op(); // Ensure adapter is active.
             }
             {
-                //
                 // Expect success.
-                //
                 controller.HoldAdapter(100);
                 timeout.Op();
             }
@@ -75,9 +71,7 @@ namespace ZeroC.Ice.Test.Timeout
             output.Write("testing connection timeout... ");
             output.Flush();
             {
-                //
                 // Expect TimeoutException.
-                //
                 controller.HoldAdapter(-1);
                 timeout.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
                                                        AcmClose.OnInvocationAndIdle,
@@ -95,9 +89,7 @@ namespace ZeroC.Ice.Test.Timeout
                 timeout.Op(); // Ensure adapter is active.
             }
             {
-                //
                 // Expect success.
-                //
                 controller.HoldAdapter(100);
                 try
                 {

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -568,7 +566,10 @@ namespace ZeroC.Ice
 
             string facet = istr.ReadFacet();
             int mode = istr.ReadByte();
-            if (mode < 0 || mode > (int)InvocationMode.Last)
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (mode < 0 || mode > (int)InvocationMode.BatchDatagram)
+#pragma warning restore CS0618
             {
                 throw new InvalidDataException($"invalid invocation mode: {mode}");
             }
@@ -664,19 +665,15 @@ namespace ZeroC.Ice
         {
             // TODO: revisit retry logic
 
-            //
             // If the request was sent and is not idempotent, the operation might be retried only if the exception
             // is an ObjectNotExistException or ConnectionClosedByPeerException. Otherwise, it can't be retried.
-            //
             if (sent && !idempotent && !(ex is ObjectNotExistException) && !(ex is ConnectionClosedByPeerException))
             {
                 throw ExceptionUtil.Throw(ex);
             }
 
-            //
-            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
-            // the connection and the request will fail with the exception.
-            //
+            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to the connection and the request will
+            // fail with the exception.
             if (IsFixed)
             {
                 throw ExceptionUtil.Throw(ex);
@@ -687,14 +684,10 @@ namespace ZeroC.Ice
                 RouterInfo? ri = RouterInfo;
                 if (ri != null && one.Operation.Equals("ice_add_proxy"))
                 {
-                    //
-                    // If we have a router, an ObjectNotExistException with an
-                    // operation name "ice_add_proxy" indicates to the client
-                    // that the router isn't aware of the proxy (for example,
-                    // because it was evicted by the router). In this case, we
-                    // must *always* retry, so that the missing proxy is added
-                    // to the router.
-                    //
+                    // If we have a router, an ObjectNotExistException with an operation name "ice_add_proxy" indicates
+                    // to the client that the router isn't aware of the proxy (for example, because it was evicted by
+                    // the router). In this case, we must *always* retry, so that the missing proxy is added to the
+                    // router.
 
                     ri.ClearCache(this);
 
@@ -707,11 +700,7 @@ namespace ZeroC.Ice
                 }
                 else if (IsIndirect)
                 {
-                    //
-                    // We retry ObjectNotExistException if the reference is
-                    // indirect.
-                    //
-
+                    // We retry ObjectNotExistException if the reference is indirect.
                     if (IsWellKnown)
                     {
                         LocatorInfo?.ClearCache(this);
@@ -719,17 +708,12 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    //
                     // For all other cases, we don't retry ObjectNotExistException.
-                    //
                     throw ExceptionUtil.Throw(ex);
                 }
             }
 
-            //
-            // Don't retry if the communicator or object adapter are disposed,
-            // or the connection is manually closed.
-            //
+            // Don't retry if the communicator or object adapter are disposed, or the connection is manually closed.
             if (ex is ObjectDisposedException || ex is ConnectionClosedLocallyException)
             {
                 throw ExceptionUtil.Throw(ex);
@@ -741,10 +725,7 @@ namespace ZeroC.Ice
             int interval;
             if (cnt == (Communicator.RetryIntervals.Length + 1) && ex is ConnectionClosedByPeerException)
             {
-                //
-                // A connection closed exception is always retried at least once, even if the retry
-                // limit is reached.
-                //
+                // A connection closed exception is always retried at least once, even if the retry limit is reached.
                 interval = 0;
             }
             else if (cnt > Communicator.RetryIntervals.Length)
@@ -939,6 +920,11 @@ namespace ZeroC.Ice
                 }
                 else if (endpoints != null)
                 {
+                    if (endpoints.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
+                    {
+                        throw new ArgumentException($"the protocol of endpoint `{endpoint}' is not {Protocol}",
+                                                    nameof(endpoints));
+                    }
                     adapterId = ""; // make sure the clone's adapterID is empty
                     newEndpoints = endpoints.ToList(); // make a copy
                 }
@@ -1078,17 +1064,15 @@ namespace ZeroC.Ice
                 throw new NoEndpointException(ToString());
             }
 
-            //
             // Finally, create the connection.
-            //
             try
             {
                 OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
                 Connection? connection = null;
                 if (IsConnectionCached)
                 {
-                    // Get an existing connection or create one if there's no existing connection to one of
-                    // the given endpoints.
+                    // Get an existing connection or create one if there's no existing connection to one of the given
+                    // endpoints.
                     connection = await factory.CreateAsync(endpoints,
                                                            false,
                                                            EndpointSelection,
@@ -1127,10 +1111,8 @@ namespace ZeroC.Ice
                 {
                     await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this));
 
-                    //
                     // Set the object adapter for this router (if any) on the new connection, so that callbacks from
                     // the router can be received over this new connection.
-                    //
                     if (RouterInfo.Adapter != null)
                     {
                         connection.Adapter = RouterInfo.Adapter;
@@ -1300,6 +1282,7 @@ namespace ZeroC.Ice
                 throw new ArgumentException(
                     $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
             }
+            Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
         }
 
         // Constructor for fixed references.

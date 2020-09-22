@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -107,17 +105,13 @@ namespace ZeroC.Ice
                 }
             }
 
-            //
             // If there is nothing to match against, then we accept the cert.
-            //
             if (reject.Count == 0 && accept.Count == 0)
             {
                 return true;
             }
 
-            //
             // If there is no certificate then we match false.
-            //
             if (certificate != null)
             {
                 X500DistinguishedName subjectDN = certificate.SubjectName;
@@ -125,9 +119,7 @@ namespace ZeroC.Ice
                 Debug.Assert(subjectName != null);
                 try
                 {
-                    //
                     // Decompose the subject DN into the RDNs.
-                    //
                     if (_traceLevel > 0)
                     {
                         if (incoming)
@@ -144,11 +136,8 @@ namespace ZeroC.Ice
 
                     List<RFC2253.RDNPair> dn = RFC2253.ParseStrict(subjectName);
 
-                    //
-                    // Unescape the DN. Note that this isn't done in
-                    // the parser in order to keep the various RFC2253
+                    // Unescape the DN. Note that this isn't done in the parser in order to keep the various RFC2253
                     // implementations as close as possible.
-                    //
                     for (int i = 0; i < dn.Count; ++i)
                     {
                         RFC2253.RDNPair p = dn[i];
@@ -156,9 +145,7 @@ namespace ZeroC.Ice
                         dn[i] = p;
                     }
 
-                    //
                     // Fail if we match anything in the reject set.
-                    //
                     foreach (List<List<RFC2253.RDNPair>> matchSet in reject)
                     {
                         if (_traceLevel > 0)
@@ -173,9 +160,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    //
                     // Succeed if we match anything in the accept set.
-                    //
                     foreach (List<List<RFC2253.RDNPair>> matchSet in accept)
                     {
                         if (_traceLevel > 0)
@@ -196,9 +181,7 @@ namespace ZeroC.Ice
                         $"unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
                 }
 
-                //
                 // At this point we accept the connection if there are no explicit accept rules.
-                //
                 return accept.Count == 0;
             }
 
@@ -244,12 +227,8 @@ namespace ZeroC.Ice
         // Note that unlike the C++ & Java implementation this returns unescaped data.
         private void Parse(string value, List<List<RFC2253.RDNPair>> reject, List<List<RFC2253.RDNPair>> accept)
         {
-            //
-            // As with the Java implementation, the DN that comes from
-            // the X500DistinguishedName does not necessarily match
-            // the user's input form. Therefore we need to normalize the
-            // data to match the C# forms.
-            //
+            // As with the Java implementation, the DN that comes from the X500DistinguishedName does not necessarily
+            // match the user's input form. Therefore we need to normalize the data to match the C# forms.
             List<RFC2253.RDNEntry> l = RFC2253.Parse(value);
             for (int i = 0; i < l.Count; ++i)
             {

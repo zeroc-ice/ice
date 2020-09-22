@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections;
@@ -21,9 +19,7 @@ namespace ZeroC.Ice
     /// <summary>Reads a byte buffer encoded using the Ice encoding.</summary>
     public sealed partial class InputStream
     {
-        //
         // Cached InputStreamReader static objects used by the generated code
-        //
 
         /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>bool</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -163,9 +159,7 @@ namespace ZeroC.Ice
         private List<string>? _typeIdMap11;
         private List<string[]>? _typeIdMap20;
 
-        //
         // Read methods for basic types
-        //
 
         /// <summary>Reads a bool from the stream.</summary>
         /// <returns>The bool read from the stream.</returns>
@@ -328,9 +322,7 @@ namespace ZeroC.Ice
                 _ => ReadULong() >> 2
             };
 
-        //
         // Read methods for constructed types except class and exception
-        //
 
         /// <summary>Reads a sequence of fixed-size numeric values from the stream and returns an array.</summary>
         /// <returns>The sequence read from the stream, as an array.</returns>
@@ -545,9 +537,7 @@ namespace ZeroC.Ice
             ReadDictionary(new SortedDictionary<TKey, TValue?>(), ReadAndCheckSeqSize(minKeySize), keyReader,
                 valueReader);
 
-        //
         // Read methods for tagged basic types
-        //
 
         /// <summary>Reads a tagged bool from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -645,9 +635,7 @@ namespace ZeroC.Ice
         public ulong? ReadTaggedVarULong(int tag) =>
             ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VInt) ? ReadVarULong() : (ulong?)null;
 
-        //
         // Read methods for tagged constructed types except class
-        //
 
         /// <summary>Reads a tagged array of a fixed-size numeric type from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -965,9 +953,7 @@ namespace ZeroC.Ice
             return null;
         }
 
-        //
         // Other methods
-        //
 
         /// <summary>Reads a bit sequence from the stream.</summary>
         /// <param name="bitSequenceSize">The minimum number of bits in the sequence.</param>

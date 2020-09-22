@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Threading.Tasks;
 using Test;
@@ -13,20 +11,14 @@ namespace ZeroC.Ice.Test.AMI
         {
             System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
 
-            //
             // Disable collocation optimization to test async/await dispatch.
-            //
             properties["Ice.Default.CollocationOptimized"] = "0";
 
-            //
             // This test kills connections, so we don't want warnings.
-            //
             properties["Ice.Warn.Connections"] = "0";
 
-            //
-            // Limit the recv buffer size, this test relies on the socket
-            // send() blocking after sending a given amount of data.
-            //
+            // Limit the recv buffer size, this test relies on the socket send() blocking after sending a given amount
+            // of data.
             properties["Ice.TCP.RcvSize"] = "50K";
 
             await using Communicator communicator = Initialize(properties);
