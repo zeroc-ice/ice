@@ -817,7 +817,7 @@ namespace ZeroC.Ice.Test.Tagged
                     format: default,
                     context: null,
                     p1,
-                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(1, (int?) p1));
+                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(1, (int?)p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(communicator, istr =>

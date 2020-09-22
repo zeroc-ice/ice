@@ -851,8 +851,8 @@ namespace ZeroC.Ice
                         // incoming connection for multiple TCP based ice2 transports such as tcp/ws.
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
-                                expanded.IsDatagram ? (IncomingConnectionFactory)
-                                    new DatagramIncomingConnectionFactory(this, expanded, publishedEndpoint) :
+                                expanded.IsDatagram ?
+                                    (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(this, expanded, publishedEndpoint) :
                                     new TcpIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
                     }
                     else

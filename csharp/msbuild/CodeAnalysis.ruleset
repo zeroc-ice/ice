@@ -34,7 +34,6 @@
       <Rule Id="CA1822" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Member CreateTestProperties does not access instance data and can be marked as static -->
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
-      <Rule Id="SA1003" Action="None" /> <!-- TODO enable - Operator ':' should not appear at the end of a line -->
       <Rule Id="SA1005" Action="None" /> <!-- TODO enable - Single line comment should begin with a space. -->
       <Rule Id="SA1009" Action="None" /> <!-- Closing parenthesis should not be followed by a spac -->
       <Rule Id="SA1013" Action="None" /> <!-- Closing brace should not be preceded by a space -->

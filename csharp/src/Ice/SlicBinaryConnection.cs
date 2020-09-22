@@ -40,8 +40,8 @@ namespace ZeroC.Ice
 
         public override string ToString() => _transceiver.ToString()!;
 
-        internal SlicBinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
-            base(endpoint, adapter) => _transceiver = new BufferedReadTransceiver(transceiver);
+        internal SlicBinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
+            : base(endpoint, adapter) => _transceiver = new BufferedReadTransceiver(transceiver);
 
         internal override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {

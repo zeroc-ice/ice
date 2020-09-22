@@ -42,7 +42,7 @@ namespace ZeroC.Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) FrameType.Request,
+            (byte)FrameType.Request,
             0, // Compression status.
             0, 0, 0, 0, // Frame size (placeholder).
             0, 0, 0, 0 // Request ID (placeholder).
@@ -95,7 +95,7 @@ namespace ZeroC.Ice
                     $"received incorrect magic bytes in header of ice1 frame: {BytesToString(header.Slice(0, 4))}");
             }
 
-            header = header.Slice(4);
+            header = header[4..];
 
             if (header[0] != ProtocolBytes[0] || header[1] != ProtocolBytes[1])
             {
