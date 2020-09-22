@@ -76,11 +76,6 @@ namespace ZeroC.Ice
             HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[sizeLength + 2] != 0;
         }
 
-        internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)
-            : this(frame.Protocol, frame.Data.AsArraySegment(), sizeMax)
-        {
-        }
-
         /// <summary>Reads the arguments from the request and makes sure this request carries no argument or only
         /// unknown tagged arguments.</summary>
         public void ReadEmptyArgs()

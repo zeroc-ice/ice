@@ -3,6 +3,7 @@
 //
 
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -12,11 +13,21 @@ namespace ZeroC.Ice
         private readonly EndPoint _addr;
         private readonly int _hashCode;
 
-        public ITransceiver Connect() => new UdpTransceiver(_endpoint.Communicator,
-                                                            _addr,
-                                                            _endpoint.SourceAddress,
-                                                            _endpoint.MulticastInterface,
-                                                            _endpoint.MulticastTtl);
+        public Connection Connect(string connectionId)
+        {
+            var transceiver = new UdpTransceiver(_endpoint.Communicator,
+                                                 _addr,
+                                                 _endpoint.SourceAddress,
+                                                 _endpoint.MulticastInterface,
+                                                 _endpoint.MulticastTtl);
+
+            return new UdpConnection(_endpoint.Communicator.OutgoingConnectionFactory,
+                                     _endpoint,
+                                     new LegacyTransceiver(transceiver, _endpoint, null),
+                                     this,
+                                     connectionId,
+                                     null);
+        }
 
         //
         // Only for use by UdpEndpointI

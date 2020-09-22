@@ -165,6 +165,12 @@ namespace ZeroC.Ice
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
 
+        /// <summary>Returns an acceptor for this endpoint.</summary>
+        /// <param name="manager">The connection manager to manage connections created by the acceptor.</param>
+        /// <param name="adapter">The object adapter associated to the acceptor.</param>
+        /// <returns>An acceptor for this endpoint.</returns>
+        public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
+
         /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
         /// <param name="endpointSelection">The endpoint selection type used when expanding the endpoint address.
         /// </param>
@@ -174,22 +180,9 @@ namespace ZeroC.Ice
             EndpointSelectionType endpointSelection,
             CancellationToken cancel);
 
-        /// <summary>Creates a new connection to the given endpoint.</summary>
-        /// <param name="manager">The connection manager which owns the connection.</param>
-        /// <param name="transceiver">The transceiver to use for the connection.</param>
-        /// <param name="connector">The connector associated with the new connection, this is always null for incoming
-        /// connections.</param>
-        /// <param name="connectionId">The connection ID associated with the new connection. This is always an empty
-        /// string for incoming connections.</param>
-        /// <param name="adapter">The adapter associated with the new connection, this is always null for outgoing
-        /// connections.</param>
-        /// <returns>A new connection to the given endpoint.</returns>
-        public abstract Connection CreateConnection(
-            IConnectionManager manager,
-            ITransceiver transceiver,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter);
+        /// <summary>Creates a datagram server side connection for this endpoint.</summary>
+        /// <returns>The server side transceiver and the bound endpoint</returns>
+        public abstract Connection CreateDatagramServerConnection(ObjectAdapter adapter);
 
         /// <summary>Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on
         /// server side or if no host was specified on client side.</summary>
@@ -204,10 +197,6 @@ namespace ZeroC.Ice
         /// <param name="publishedEndpoint">TODO???</param>
         /// <returns>The collection containing the expanded endpoints.</returns>
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
-
-        /// <summary>Return a server side transceiver for this endpoint and the transceiver bound endpoint.</summary>
-        /// <returns>The server side transceiver and the bound endpoint</returns>
-        public abstract (ITransceiver, Endpoint) GetTransceiver();
 
         /// <summary>Constructs a new endpoint</summary>
         /// <param name="communicator">The endpoint's communicator.</param>

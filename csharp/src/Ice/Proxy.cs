@@ -172,12 +172,12 @@ namespace ZeroC.Ice
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
-        public static Connection? GetConnection(this IObjectPrx prx)
+        public static Connection GetConnection(this IObjectPrx prx)
         {
             try
             {
-                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync(cancel: default);
-                return (task.IsCompleted ? task.Result : task.AsTask().Result) as Connection;
+                ValueTask<Connection> task = prx.IceReference.GetConnectionAsync(cancel: default);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
             {
@@ -189,13 +189,9 @@ namespace ZeroC.Ice
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
-        public static async ValueTask<Connection?> GetConnectionAsync(
+        public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx prx,
-            CancellationToken cancel = default)
-        {
-            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
-            return handler as Connection;
-        }
+            CancellationToken cancel = default) => prx.IceReference.GetConnectionAsync(cancel);
 
         /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
         /// connection, it does not attempt to create a connection.</summary>
@@ -361,18 +357,18 @@ namespace ZeroC.Ice
                     while (true)
                     {
                         bool sent = false;
-                        IRequestHandler? handler = null;
+                        Connection? connection = null;
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
-                            handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
+                            connection = await reference.GetConnectionAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and get the stream created for sending the request
                             using Stream stream =
-                                await handler.SendRequestAsync(request,
-                                                               !oneway,
-                                                               observer,
-                                                               cancel).ConfigureAwait(false);
+                                await connection.SendRequestAsync(request,
+                                                                  !oneway,
+                                                                  observer,
+                                                                  cancel).ConfigureAwait(false);
 
                             // The request is sent
                             if (progress != null)
@@ -410,7 +406,7 @@ namespace ZeroC.Ice
                             // Clear the proxy's cached request handler if connection caching is enabled
                             if (reference.IsConnectionCached)
                             {
-                                proxy.IceReference.ClearRequestHandler(handler!);
+                                proxy.IceReference.ClearConnection(connection!);
                             }
                         }
                         catch (OperationCanceledException)
@@ -420,9 +416,9 @@ namespace ZeroC.Ice
                         catch (Exception ex)
                         {
                             // Clear the proxy's cached request handler if connection caching is enabled
-                            if (reference.IsConnectionCached && handler != null)
+                            if (reference.IsConnectionCached && connection != null)
                             {
-                                proxy.IceReference.ClearRequestHandler(handler);
+                                proxy.IceReference.ClearConnection(connection);
                             }
 
                             // TODO: revisit retry logic

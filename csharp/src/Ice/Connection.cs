@@ -43,7 +43,7 @@ namespace ZeroC.Ice
     }
 
     /// <summary>Represents a connection used to send and receive Ice frames.</summary>
-    public abstract class Connection : IRequestHandler
+    public abstract class Connection
     {
         /// <summary>Gets or set the connection Acm (Active Connection Management) configuration.</summary>
         public Acm Acm
@@ -52,29 +52,32 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _monitor.Acm;
+                    return _monitor?.Acm ?? new Acm();
                 }
             }
             set
             {
-                lock (_mutex)
+                if (_manager != null)
                 {
-                    if (_state >= ConnectionState.Closing)
+                    lock (_mutex)
                     {
-                        return;
-                    }
+                        if (_state >= ConnectionState.Closing)
+                        {
+                            return;
+                        }
 
-                    if (_state == ConnectionState.Active)
-                    {
-                        _monitor.Remove(this);
-                    }
+                        if (_state == ConnectionState.Active)
+                        {
+                            _monitor?.Remove(this);
+                        }
 
-                    _monitor = value == _manager.AcmMonitor.Acm ?
-                        _manager.AcmMonitor : new ConnectionAcmMonitor(value, _communicator.Logger);
+                        _monitor = value == _manager.AcmMonitor.Acm ?
+                            _manager.AcmMonitor : new ConnectionAcmMonitor(value, _communicator.Logger);
 
-                    if (_state == ConnectionState.Active)
-                    {
-                        _monitor.Add(this);
+                        if (_state == ConnectionState.Active)
+                        {
+                            _monitor?.Add(this);
+                        }
                     }
                 }
             }
@@ -117,6 +120,9 @@ namespace ZeroC.Ice
         /// <summary>True for incoming connections false otherwise.</summary>
         public bool IsIncoming => _connector == null;
 
+        /// <summary>The protocol used by the connection.</summary>
+        public Protocol Protocol => Endpoint.Protocol;
+
         internal bool Active
         {
             get
@@ -148,8 +154,8 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
         private Exception? _exception;
-        private readonly IConnectionManager _manager;
-        private IAcmMonitor _monitor;
+        private readonly IConnectionManager? _manager;
+        private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
         private ConnectionState _state; // The current state.
 
@@ -276,21 +282,21 @@ namespace ZeroC.Ice
         public override string ToString() => Transceiver.ToString()!;
 
         internal Connection(
-            IConnectionManager manager,
+            IConnectionManager? manager,
             Endpoint endpoint,
-            MultiStreamTransceiver connection,
+            MultiStreamTransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
         {
             _communicator = endpoint.Communicator;
             _manager = manager;
-            _monitor = manager.AcmMonitor;
-            Transceiver = connection;
+            _monitor = manager?.AcmMonitor;
+            Transceiver = transceiver;
             _connector = connector;
             ConnectionId = connectionId;
             Endpoint = endpoint;
-            Endpoints = new List<Endpoint>() { endpoint };
+            Endpoints = endpoint == null ? new List<Endpoint>() : new List<Endpoint>() { endpoint };
             _adapter = adapter;
             _state = ConnectionState.Validating;
         }
@@ -316,14 +322,14 @@ namespace ZeroC.Ice
                     if (_state == ConnectionState.Active)
                     {
                         SetState(ConnectionState.Closing, exception);
-                        closeTask = PerformCloseAsync(exception);
-                        Debug.Assert(_closeTask == null);
-                        _closeTask = closeTask;
+                        _closeTask ??= PerformCloseAsync(exception);
+                        Debug.Assert(_closeTask != null);
                     }
-                    else
+                    else if (_closeTask == null)
                     {
-                        closeTask = _closeTask!;
+                        _ = AbortAsync(exception);
                     }
+                    closeTask = _closeTask!;
                 }
 
                 await closeTask.ConfigureAwait(false);
@@ -398,10 +404,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    lock (_mutex)
-                    {
-                        Debug.Assert(_state == ConnectionState.Closed);
-                    }
+                    await AbortAsync(ex);
                 }
                 finally
                 {
@@ -438,9 +441,9 @@ namespace ZeroC.Ice
 
                 await closeTask.ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                await AbortAsync(exception);
+                await AbortAsync(ex);
             }
             finally
             {
@@ -518,7 +521,7 @@ namespace ZeroC.Ice
             }
         }
 
-        async Task<Stream> IRequestHandler.SendRequestAsync(
+        internal async Task<Stream> SendRequestAsync(
             OutgoingRequestFrame request,
             bool bidirectional,
             IInvocationObserver? observer,
@@ -675,7 +678,7 @@ namespace ZeroC.Ice
                 }
 
                 // Remove the connection from the factory, must be called without the connection mutex locked
-                _manager.Remove(this);
+                _manager?.Remove(this);
             }
         }
 
@@ -706,22 +709,7 @@ namespace ZeroC.Ice
                 // TODO: support for reading streamable data.
                 if (!fin)
                 {
-                    async void CancelSourceIfStreamReset()
-                    {
-                        try
-                        {
-                            await stream.WaitForStreamResetAsync(CancellationToken.None).ConfigureAwait(false);
-                        }
-                        catch (StreamResetByPeerException)
-                        {
-                            cancelSource.Cancel();
-                        }
-                        catch (NotImplementedException)
-                        {
-                            // Not supported
-                        }
-                    }
-                    CancelSourceIfStreamReset();
+                    stream.CancelSourceIfStreamReset(cancelSource);
                 }
 
                 ObjectAdapter? adapter = _adapter;
@@ -854,12 +842,12 @@ namespace ZeroC.Ice
             // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (state == ConnectionState.Active)
             {
-                _monitor.Add(this);
+                _monitor?.Add(this);
             }
             else if (_state == ConnectionState.Active)
             {
                 Debug.Assert(state > ConnectionState.Active);
-                _monitor.Remove(this);
+                _monitor?.Remove(this);
             }
 
             if (_communicator.Observer != null)
@@ -882,6 +870,21 @@ namespace ZeroC.Ice
                 }
             }
             _state = state;
+        }
+    }
+
+    /// <summary>Represents a colocated connection to an object adapter</summary>
+    public class ColocatedConnection : Connection
+    {
+        internal ColocatedConnection(
+            IConnectionManager? manager,
+            Endpoint endpoint,
+            ColocatedTransceiver transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
+        {
         }
     }
 
@@ -923,7 +926,7 @@ namespace ZeroC.Ice
         }
 
         protected IPConnection(
-            IConnectionManager manager,
+            IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
             IConnector? connector,
@@ -986,7 +989,7 @@ namespace ZeroC.Ice
         private readonly UdpTransceiver _udpTransceiver;
 
         protected internal UdpConnection(
-            IConnectionManager manager,
+            IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
             IConnector? connector,

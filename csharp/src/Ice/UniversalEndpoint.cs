@@ -42,6 +42,9 @@ namespace ZeroC.Ice
 
         private readonly IReadOnlyList<string> _options = Array.Empty<string>();
 
+        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
+
         public override bool Equals(Endpoint? other)
         {
             if (ReferenceEquals(this, other))
@@ -86,12 +89,8 @@ namespace ZeroC.Ice
             CancellationToken cancel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
-        public override Connection CreateConnection(
-            IConnectionManager manager,
-            ITransceiver? transceiver,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) => null!;
+        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {
@@ -100,8 +99,6 @@ namespace ZeroC.Ice
         }
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
-
-        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {

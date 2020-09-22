@@ -200,7 +200,7 @@ namespace ZeroC.Ice
             TaskScheduler? taskScheduler = null) =>
             CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
 
-        internal ObjectAdapter? FindObjectAdapter(Reference reference)
+        internal Endpoint? GetColocatedEndpoint(Reference reference)
         {
             List<ObjectAdapter> adapters;
             lock (_mutex)
@@ -218,7 +218,7 @@ namespace ZeroC.Ice
                 {
                     if (adapter.IsLocal(reference))
                     {
-                        return adapter;
+                        return adapter.GetColocatedEndpoint();
                     }
                 }
                 catch (ObjectDisposedException)

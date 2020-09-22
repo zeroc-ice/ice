@@ -42,6 +42,8 @@ namespace ZeroC.Ice
             }
             await _disposeTask.ConfigureAwait(false);
 
+            // TODO: We need to check for _pending and cancel pending connection establishment.
+
             async Task PerformDisposeAsync()
             {
                 // Wait for connections to be closed.
@@ -362,17 +364,10 @@ namespace ZeroC.Ice
                             {
                                 throw new CommunicatorDisposedException();
                             }
-
-                            connection = endpoint.CreateConnection(this,
-                                                                   connector.Connect(),
-                                                                   connector,
-                                                                   connectionId,
-                                                                   null);
-
+                            connection = connector.Connect(connectionId);
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                         }
-
                         await connection.StartAsync().ConfigureAwait(false);
                         return connection;
                     }
@@ -475,7 +470,7 @@ namespace ZeroC.Ice
     }
 
     // IncomingConnectionFactory for TCP based transports
-    internal sealed class TcpIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
+    internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
     {
         public IAcmMonitor AcmMonitor { get; }
 
@@ -524,16 +519,14 @@ namespace ZeroC.Ice
 
         public override string ToString() => _acceptor.ToString()!;
 
-        internal TcpIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish, Acm acm)
+        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish, Acm acm)
             : base(endpoint, publish)
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
             AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
 
-            // TODO: for ice2, support for multiple endpoints for the same acceptor and not one acceptor per endpoint
-            // if we want to provide port sharing for multiple listening endpoints.
-            _acceptor = new TcpAcceptor((TcpEndpoint)Endpoint, _adapter);
+            _acceptor = Endpoint.Acceptor(this, _adapter);
 
             Endpoint = _acceptor.Endpoint;
 
@@ -575,12 +568,12 @@ namespace ZeroC.Ice
         {
             while (true)
             {
-                ITransceiver transceiver;
+                Connection connection;
                 try
                 {
                     // We don't use ConfigureAwait(false) on purpose. We want to ensure continuations execute on the
                     // object adapter scheduler if an adapter scheduler is set.
-                    transceiver = await _acceptor.AcceptAsync();
+                    connection = await _acceptor.AcceptAsync();
                 }
                 catch (Exception ex)
                 {
@@ -600,43 +593,25 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Transport >= 2)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                        $"trying to accept {Endpoint.TransportName} connection\n{transceiver}");
+                        $"trying to accept {Endpoint.TransportName} connection\n{connection}");
                 }
 
-                Connection connection = Endpoint.CreateConnection(this, transceiver, null, "", _adapter);
-                try
+                lock (_mutex)
                 {
-                    lock (_mutex)
-                    {
-                        _connections.Add(connection);
-                    }
+                    _connections.Add(connection);
 
                     // We don't wait for the connection to be activated. This could take a while for some transports
                     // such as TLS based transports where the handshake requires few round trips between the client
                     // and server.
                     _ = connection.StartAsync();
                 }
-                catch (ObjectDisposedException)
-                {
-                    // Ignore
-                }
-                catch (Exception ex)
-                {
-                    if (_communicator.TraceLevels.Transport >= 2)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                            $"failed to accept {Endpoint.TransportName} connection\n{connection}\n{ex}");
-                    }
-                }
             }
         }
     }
 
     // IncomingConnectionFactory for ice1 datagram based transports
-    internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
+    internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory
     {
-        public IAcmMonitor AcmMonitor { get; }
-
         private readonly Connection _connection;
 
         public override async ValueTask DisposeAsync()
@@ -645,22 +620,12 @@ namespace ZeroC.Ice
             await _connection.CloseAsync(exception).ConfigureAwait(false);
         }
 
-        public void Remove(Connection connection)
-        {
-            // Ignore
-        }
-
         public override string ToString() => _connection.ToString()!;
 
         internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish)
             : base(endpoint, publish)
         {
-            Communicator communicator = adapter.Communicator;
-            AcmMonitor = new ConnectionAcmMonitor(Acm.Disabled, communicator.Logger);
-
-            ITransceiver transceiver;
-            (transceiver, Endpoint) = Endpoint.GetTransceiver();
-            _connection = Endpoint.CreateConnection(this, transceiver, null, "", adapter);
+            _connection = endpoint.CreateDatagramServerConnection(adapter);
             _ = _connection.StartAsync();
         }
 

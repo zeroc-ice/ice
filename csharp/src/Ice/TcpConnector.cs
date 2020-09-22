@@ -3,12 +3,28 @@
 //
 
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
     internal sealed class TcpConnector : IConnector
     {
-        public ITransceiver Connect() => _endpoint.CreateTransceiver(_addr, _proxy);
+        public Connection Connect(string connectionId)
+        {
+            ITransceiver transceiver = _endpoint.CreateTransceiver(_addr, _proxy);
+
+            MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = _endpoint.Protocol switch
+            {
+                Protocol.Ice1 => new LegacyTransceiver(transceiver, _endpoint, null),
+                _ => new SlicTransceiver(transceiver, _endpoint, null)
+            };
+
+            return _endpoint.CreateConnection(_endpoint.Communicator.OutgoingConnectionFactory,
+                                              multiStreamTranceiver,
+                                              this,
+                                              connectionId,
+                                              null);
+        }
 
         internal TcpConnector(TcpEndpoint endpoint, EndPoint addr, INetworkProxy? proxy)
         {

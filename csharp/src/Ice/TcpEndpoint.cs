@@ -35,6 +35,12 @@ namespace ZeroC.Ice
 
         private int _hashCode;
 
+        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+            new TcpAcceptor(this, manager, adapter);
+
+        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
+
         public override bool Equals(Endpoint? other)
         {
             if (ReferenceEquals(this, other))
@@ -112,22 +118,6 @@ namespace ZeroC.Ice
                 ostr.WriteSize(0); // empty sequence of options
             }
         }
-
-        public override Connection CreateConnection(
-             IConnectionManager manager,
-             ITransceiver transceiver,
-             IConnector? connector,
-             string connectionId,
-             ObjectAdapter? adapter) =>
-             new TcpConnection(manager,
-                               this,
-                               Protocol == Protocol.Ice1 ? (MultiStreamTransceiverWithUnderlyingTransceiver)
-                                 new LegacyTransceiver(transceiver!, this, adapter) :
-                                 new SlicTransceiver(transceiver!, this, adapter),
-                               connector,
-                               connectionId,
-                               adapter);
-        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         // Constructor for unmarshaling
         internal TcpEndpoint(
@@ -211,6 +201,14 @@ namespace ZeroC.Ice
                 options.Remove("-z");
             }
         }
+
+        internal virtual Connection CreateConnection(
+             IConnectionManager manager,
+             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+             IConnector? connector,
+             string connectionId,
+             ObjectAdapter? adapter) =>
+             new TcpConnection(manager, this, transceiver, connector, connectionId, adapter);
 
         // Clone constructor
         private protected TcpEndpoint(TcpEndpoint endpoint, string host, ushort port)

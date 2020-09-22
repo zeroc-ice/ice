@@ -42,6 +42,9 @@ namespace ZeroC.Ice
 
         private int _hashCode; // 0 is a special value that means not initialized.
 
+        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
+
         public override bool Equals(Endpoint? other)
         {
             if (ReferenceEquals(this, other))
@@ -85,6 +88,9 @@ namespace ZeroC.Ice
             CancellationToken cancel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
+        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
+
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {
             publishedEndpoint = null;
@@ -92,13 +98,6 @@ namespace ZeroC.Ice
         }
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
-
-        public override Connection CreateConnection(IConnectionManager manager,
-                                                    ITransceiver? transceiver,
-                                                    IConnector? connector,
-                                                    string connectionId,
-                                                    ObjectAdapter? adapter) => null!;
-        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {

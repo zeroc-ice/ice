@@ -27,6 +27,8 @@ namespace ZeroC.Ice
         /// <summary>Apple iAP transport.</summary>
         iAP = 8,
         /// <summary>Secure Apple iAP transport.</summary>
-        iAPS = 9
+        iAPS = 9,
+        /// <summary>Colocated transport.</summary>
+        Colocated = 10
     }
 }

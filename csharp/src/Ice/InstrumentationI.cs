@@ -280,8 +280,8 @@ namespace ZeroC.Ice
                 Add("endpointTransport", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsSecure);
-                Add("endpointHost", obj => (obj as ConnectionHelper)?._connection.Endpoint.Host);
-                Add("endpointPort", obj => (obj as ConnectionHelper)?._connection.Endpoint.Port);
+                Add("endpointHost", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Host);
+                Add("endpointPort", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Port);
             }
         }
     }
@@ -369,11 +369,11 @@ namespace ZeroC.Ice
                     ((obj as DispatchHelper)?.Connection as UdpConnection)?.MulticastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as DispatchHelper)?.Connection.Endpoint);
-                Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint.Transport);
-                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsSecure);
-                Add("endpointHost", obj => (obj as DispatchHelper)?.Connection.Endpoint.Host);
-                Add("endpointPort", obj => (obj as DispatchHelper)?.Connection.Endpoint.Port);
+                Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint?.Transport);
+                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Connection.Endpoint?.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint?.IsSecure);
+                Add("endpointHost", obj => (obj as DispatchHelper)?.Connection.Endpoint?.Host);
+                Add("endpointPort", obj => (obj as DispatchHelper)?.Connection.Endpoint?.Port);
 
                 Add("operation", obj => (obj as DispatchHelper)?._current.Operation);
                 Add("identity", obj =>
@@ -618,7 +618,7 @@ namespace ZeroC.Ice
             get
             {
                 _id ??= string.IsNullOrEmpty(_connection.ConnectionId) ?
-                    _connection.Endpoint.ToString() : $"{_connection.Endpoint} [{_connection.ConnectionId}]";
+                    _connection.Endpoint!.ToString() : $"{_connection.Endpoint} [{_connection.ConnectionId}]";
                 return _id;
             }
         }
@@ -674,11 +674,11 @@ namespace ZeroC.Ice
                     ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint);
-                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Transport);
-                Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.IsSecure);
-                Add("endpointHost", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Host);
-                Add("endpointPort", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Port);
+                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.Transport);
+                Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.IsSecure);
+                Add("endpointHost", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.Host);
+                Add("endpointPort", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.Port);
             }
         }
     }
