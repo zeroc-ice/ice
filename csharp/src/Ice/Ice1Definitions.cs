@@ -11,7 +11,7 @@ namespace ZeroC.Ice
     {
         // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
         // for the subset of the encoding used by the ice1 headers.
-        internal static readonly Encoding Encoding = Encoding.Version11;
+        internal static readonly Encoding Encoding = Encoding.V11;
 
         // Size of an ice1 frame header:
         // Magic number (4 bytes)

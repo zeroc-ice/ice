@@ -176,7 +176,7 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
         requiredMembers.size() > 1;
     if (write11ReturnLast)
     {
-        _out << nl << "if (ostr.Encoding != ZeroC.Ice.Encoding.Version11)";
+        _out << nl << "if (ostr.Encoding != ZeroC.Ice.Encoding.V11)";
         _out << sb;
     }
 
@@ -251,7 +251,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 
     if (read11ReturnLast)
     {
-        _out << nl << "if (istr.Encoding != ZeroC.Ice.Encoding.Version11)";
+        _out << nl << "if (istr.Encoding != ZeroC.Ice.Encoding.V11)";
         _out << sb;
     }
 

@@ -6,7 +6,7 @@ namespace ZeroC.Ice
 
     internal static class Ice2Definitions
     {
-        internal static readonly Encoding Encoding = Encoding.Version20;
+        internal static readonly Encoding Encoding = Encoding.V20;
 
         // ice2 frame types:
         internal enum FrameType : byte

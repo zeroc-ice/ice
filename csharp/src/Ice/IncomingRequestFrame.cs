@@ -71,7 +71,7 @@ namespace ZeroC.Ice
             }
 
             Encoding = encoding;
-            HasCompressedPayload = Encoding == Encoding.Version20 && Payload[sizeLength + 2] != 0;
+            HasCompressedPayload = Encoding == Encoding.V20 && Payload[sizeLength + 2] != 0;
         }
 
         internal IncomingRequestFrame(OutgoingRequestFrame frame, int sizeMax)

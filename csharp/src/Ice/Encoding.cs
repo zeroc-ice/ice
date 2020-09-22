@@ -12,13 +12,13 @@ namespace ZeroC.Ice
         // The encodings known to the Ice runtime.
 
         /// <summary>Version 1.0 of the Ice encoding, supported by Ice 1.0 to Ice 3.7.</summary>
-        public static readonly Encoding Version10 = new Encoding(1, 0);
+        public static readonly Encoding V10 = new Encoding(1, 0);
 
         /// <summary>Version 1.1 of the Ice encoding, supported since Ice 3.5.</summary>
-        public static readonly Encoding Version11 = new Encoding(1, 1);
+        public static readonly Encoding V11 = new Encoding(1, 1);
 
         /// <summary>Version 2.0 of the Ice encoding, supported since Ice 4.0.</summary>
-        public static readonly Encoding Version20 = new Encoding(2, 0);
+        public static readonly Encoding V20 = new Encoding(2, 0);
 
         /// <summary>The major version number of this version of the Ice encoding.</summary>
         public readonly byte Major;
@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         /// <summary>The minor version number of this version of the Ice encoding.</summary>
         public readonly byte Minor;
 
-        internal bool IsSupported => this == Version11 || this == Version20;
+        internal bool IsSupported => this == V11 || this == V20;
 
         /// <summary>Parses a string into an Encoding.</summary>
         /// <param name="str">The string to parse.</param>

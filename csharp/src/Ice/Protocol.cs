@@ -24,8 +24,8 @@ namespace ZeroC.Ice
         public static Encoding GetEncoding(this Protocol protocol) =>
             protocol switch
             {
-                Protocol.Ice1 => Encoding.Version11,
-                Protocol.Ice2 => Encoding.Version20,
+                Protocol.Ice1 => Encoding.V11,
+                Protocol.Ice2 => Encoding.V20,
                 _ => throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
                     }' is not supported by this Ice runtime ({Runtime.StringVersion})")
             };

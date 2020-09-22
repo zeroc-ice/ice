@@ -135,7 +135,7 @@ namespace ZeroC.Ice
                 throw new InvalidOperationException("cannot modify a sealed frame");
             }
 
-            if (Encoding != Encoding.Version20)
+            if (Encoding != Encoding.V20)
             {
                 throw new NotSupportedException("payload compression is only supported with 2.0 encoding");
             }
@@ -295,7 +295,7 @@ namespace ZeroC.Ice
 
             if (_binaryContextOstr == null)
             {
-                _binaryContextOstr = new OutputStream(Encoding.Version20, Data, PayloadEnd);
+                _binaryContextOstr = new OutputStream(Encoding.V20, Data, PayloadEnd);
                 _binaryContextOstr.WriteByteSpan(stackalloc byte[2]); // 2-bytes size place holder
             }
             return _binaryContextOstr;
@@ -317,7 +317,7 @@ namespace ZeroC.Ice
                     if (defaultBinaryContext.Count > 0)
                     {
                         // Add segment for each slot that was not written yet.
-                        var istr = new InputStream(defaultBinaryContext, Encoding.Version20);
+                        var istr = new InputStream(defaultBinaryContext, Encoding.V20);
                         int dictionarySize = istr.ReadSize();
                         for (int i = 0; i < dictionarySize; ++i)
                         {

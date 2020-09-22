@@ -88,7 +88,7 @@ namespace ZeroC.Ice
                                         format);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
-            if (compress && proxy.Encoding == Encoding.Version20)
+            if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
             }
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
                                         format);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
-            if (compress && proxy.Encoding == Encoding.Version20)
+            if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
             }

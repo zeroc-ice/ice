@@ -151,7 +151,7 @@ namespace ZeroC.Ice
 
         private bool InEncapsulation => _startPos != null;
 
-        private bool OldEncoding => Encoding == Encoding.Version11;
+        private bool OldEncoding => Encoding == Encoding.V11;
 
         // The number of bytes that the stream can hold.
         private int _capacity;
@@ -1472,7 +1472,7 @@ namespace ZeroC.Ice
 
         internal static void WriteEncapsulationSize(int size, Span<byte> data, Encoding encoding)
         {
-            if (encoding == Encoding.Version20)
+            if (encoding == Encoding.V20)
             {
                 WriteFixedLengthSize20(size, data);
             }
@@ -1528,7 +1528,7 @@ namespace ZeroC.Ice
             _format = format;
             _startPos = _tail;
             WriteEncapsulationHeader(payloadEncoding); // with placeholder for size
-            if (payloadEncoding == Encoding.Version20)
+            if (payloadEncoding == Encoding.V20)
             {
                 WriteByte(0); // Placeholder for the compression status
             }
@@ -1554,8 +1554,8 @@ namespace ZeroC.Ice
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
             encoding.CheckSupported();
-            WriteEncapsulationHeader(size: encoding == Encoding.Version20 ? 3 : 2, encoding);
-            if (encoding == Encoding.Version20)
+            WriteEncapsulationHeader(size: encoding == Encoding.V20 ? 3 : 2, encoding);
+            if (encoding == Encoding.V20)
             {
                 WriteByte(0); // The compression status, 0 not-compressed
             }
@@ -1579,7 +1579,7 @@ namespace ZeroC.Ice
                 {
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
-                        Ice1Definitions.Encoding : Encoding.Version20;
+                        Ice1Definitions.Encoding : Encoding.V20;
 
                     WriteEncapsulationHeader(payloadEncoding, sizeLength); // with placeholder for size
                     Encoding previousEncoding = Encoding;

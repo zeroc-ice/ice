@@ -54,7 +54,7 @@ namespace ZeroC.Ice
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, returnValue);
             response.PayloadEnd = ostr.Finish();
-            if (compress && current.Encoding == Encoding.Version20)
+            if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
             }
@@ -83,7 +83,7 @@ namespace ZeroC.Ice
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, returnValue);
             response.PayloadEnd = ostr.Finish();
-            if (compress && current.Encoding == Encoding.Version20)
+            if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
             }
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
                 byte[] buffer = new byte[8];
                 Data.Add(buffer);
 
-                if (response.ResultType == ResultType.Failure && Encoding == Encoding.Version11)
+                if (response.ResultType == ResultType.Failure && Encoding == Encoding.V11)
                 {
                     // When the response carries a failure encoded with 1.1, we need to perform a small adjustment
                     // between ice1 and ice2 response frames.
@@ -237,7 +237,7 @@ namespace ZeroC.Ice
             : this(request.Protocol, request.Encoding)
         {
             ReplyStatus replyStatus = ReplyStatus.UserException;
-            if (Encoding == Encoding.Version11)
+            if (Encoding == Encoding.V11)
             {
                 replyStatus = exception switch
                 {
@@ -264,7 +264,7 @@ namespace ZeroC.Ice
                                         Encoding,
                                         FormatType.Sliced);
 
-                if (Protocol == Protocol.Ice2 && Encoding == Encoding.Version11)
+                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
                 {
                     // The first byte of the encapsulation data is the actual ReplyStatus
                     ostr.WriteByte((byte)replyStatus);
@@ -279,7 +279,7 @@ namespace ZeroC.Ice
                 hasEncapsulation = false;
             }
 
-            if (Encoding == Encoding.Version11)
+            if (Encoding == Encoding.V11)
             {
                 switch (replyStatus)
                 {

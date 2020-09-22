@@ -89,7 +89,7 @@ namespace ZeroC.Ice
                 (endpoints, path, proxyOptions, facet) = UriParser.ParseProxy(proxyString, communicator);
 
                 protocol = proxyOptions.Protocol ?? Protocol.Ice2;
-                encoding = proxyOptions.Encoding ?? Encoding.Version20;
+                encoding = proxyOptions.Encoding ?? Encoding.V20;
 
                 adapterId = "";
 
