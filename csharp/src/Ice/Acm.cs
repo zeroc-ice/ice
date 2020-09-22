@@ -254,7 +254,10 @@ namespace ZeroC.Ice
                     {
                         _logger.Error($"exception in connection monitor:\n{ex}");
                     }
-                }, null, Acm.Timeout, Acm.Timeout);
+                },
+                null,
+                Acm.Timeout,
+                Acm.Timeout);
             }
         }
 

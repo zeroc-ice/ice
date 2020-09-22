@@ -518,8 +518,12 @@ namespace ZeroC.Ice
             InputStreamReader<TValue> valueReader)
             where TKey : notnull
             where TValue : class =>
-            ReadDictionary(new SortedDictionary<TKey, TValue?>(), ReadAndCheckSeqSize(minKeySize), withBitSequence,
-                keyReader, valueReader);
+            ReadDictionary(
+                new SortedDictionary<TKey, TValue?>(),
+                ReadAndCheckSeqSize(minKeySize),
+                withBitSequence,
+                keyReader,
+                valueReader);
 
         /// <summary>Reads a sorted dictionary from the stream. The dictionary's value type is a nullable value type.
         /// </summary>
@@ -534,7 +538,10 @@ namespace ZeroC.Ice
             InputStreamReader<TValue> valueReader)
             where TKey : notnull
             where TValue : struct =>
-            ReadDictionary(new SortedDictionary<TKey, TValue?>(), ReadAndCheckSeqSize(minKeySize), keyReader,
+            ReadDictionary(
+                new SortedDictionary<TKey, TValue?>(),
+                ReadAndCheckSeqSize(minKeySize),
+                keyReader,
                 valueReader);
 
         // Read methods for tagged basic types

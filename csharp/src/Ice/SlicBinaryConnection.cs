@@ -46,15 +46,18 @@ namespace ZeroC.Ice
         internal override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             // Write the close connection frame.
-            await PrepareAndSendFrameAsync(FrameType.Close, ostr =>
-            {
-                ostr.WriteVarLong(0);
+            await PrepareAndSendFrameAsync(
+                FrameType.Close,
+                ostr =>
+                {
+                    ostr.WriteVarLong(0);
 #if DEBUG
-                ostr.WriteString(exception.ToString());
+                    ostr.WriteString(exception.ToString());
 #else
-                ostr.WriteString(exception.Message);
+                    ostr.WriteString(exception.Message);
 #endif
-            }, cancel);
+                },
+                cancel);
 
             // Notify the transport of the graceful connection closure.
             await _transceiver.CloseAsync(exception, cancel).ConfigureAwait(false);
@@ -84,10 +87,10 @@ namespace ZeroC.Ice
                 {
                     // If unsupported Slic version, we stop reading there and reply with a VERSION frame to provide
                     // the client the supported Slic versions.
-                    await PrepareAndSendFrameAsync(FrameType.Version, ostr =>
-                    {
-                        ostr.WriteSequence(new ArraySegment<short>(new short[] { 1 }).AsReadOnlySpan());
-                    }, cancel).ConfigureAwait(false);
+                    await PrepareAndSendFrameAsync(
+                        FrameType.Version,
+                        ostr => ostr.WriteSequence(new ArraySegment<short>(new short[] { 1 }).AsReadOnlySpan()),
+                        cancel).ConfigureAwait(false);
 
                     (type, data) = await ReceiveFrameAsync(cancel);
                     if (type != FrameType.Initialize)
@@ -112,20 +115,26 @@ namespace ZeroC.Ice
                 // TODO: transport parameters
 
                 // Send back an INITIALIZE_ACK frame.
-                await PrepareAndSendFrameAsync(FrameType.InitializeAck, istr =>
-                {
-                    // TODO: transport parameters
-                }, cancel).ConfigureAwait(false);
+                await PrepareAndSendFrameAsync(
+                    FrameType.InitializeAck,
+                    istr =>
+                    {
+                        // TODO: transport parameters
+                    },
+                    cancel).ConfigureAwait(false);
             }
             else
             {
                 // Send the INITIALIZE frame.
-                await PrepareAndSendFrameAsync(FrameType.Initialize, ostr =>
-                {
-                    ostr.WriteUShort(1); // Slic V1
-                    ostr.WriteString(Protocol.Ice2.GetName()); // Ice protocol name
-                    // TODO: transport parameters
-                }, cancel).ConfigureAwait(false);
+                await PrepareAndSendFrameAsync(
+                    FrameType.Initialize,
+                    ostr =>
+                    {
+                        ostr.WriteUShort(1); // Slic V1
+                        ostr.WriteString(Protocol.Ice2.GetName()); // Ice protocol name
+                        // TODO: transport parameters
+                    },
+                    cancel).ConfigureAwait(false);
 
                 // Read the INITIALIZE_ACK or VERSION frame from the server
                 (FrameType type, ArraySegment<byte> data) = await ReceiveFrameAsync(cancel);
@@ -218,11 +227,15 @@ namespace ZeroC.Ice
         }
 
         // TODO: check that the stream is active. If it's not active, there's no need to send this frame.
-        internal override ValueTask ResetAsync(long streamId) => PrepareAndSendFrameAsync(FrameType.ResetStream, ostr =>
-            {
-                ostr.WriteVarLong(streamId);
-                ostr.WriteVarLong(0);
-            }, CancellationToken.None);
+        internal override ValueTask ResetAsync(long streamId) =>
+            PrepareAndSendFrameAsync(
+                FrameType.ResetStream,
+                ostr =>
+                {
+                    ostr.WriteVarLong(streamId);
+                    ostr.WriteVarLong(0);
+                },
+                CancellationToken.None);
 
         internal override async ValueTask SendAsync(
             long streamId,

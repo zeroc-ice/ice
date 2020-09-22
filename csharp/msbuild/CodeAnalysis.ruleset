@@ -41,9 +41,8 @@
       <Rule Id="SA1106" Action="None" /> <!-- TODO enable - Code should not contain empty statements -->
       <Rule Id="SA1108" Action="None" /> <!-- TODO enable - Block statements should not contain embedded comments -->
       <Rule Id="SA1116" Action="None" /> <!-- TODO enable - The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines -->
-      <Rule Id="SA1117" Action="None" /> <!-- TODO enable - The parameters should all be placed on the same line or each parameter should be placed on its own line. -->
       <Rule Id="SA1118" Action="None" /> <!-- The parameter spans multiple lines -->
-      <Rule Id="SA1120" Action="None" /> <!-- TODO enable - Comments should contain text -->
+
       <Rule Id="SA1122" Action="None" /> <!-- Use string.Empty for empty strings -->
       <Rule Id="SA1127" Action="None" /> <!-- Generic type constraints should be on their own line -->
       <Rule Id="SA1128" Action="None" /> <!-- TODO enable - Put constructor initializers on their own line -->
@@ -91,6 +90,7 @@
       <Rule Id="SA1012" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Opening brace should be preceded by a space -->
       <Rule Id="SA1015" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Closing generic bracket should not be preceded by a space -->
       <Rule Id="SA1107" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Code should not contain multiple statements on one line -->
+      <Rule Id="SA1117" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- The parameters should all be placed on the same line or each parameter should be placed on its own line. -->
       <Rule Id="SA1119" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Statement should not use unnecessary parenthesis -->
       <Rule Id="SA1137" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Elements should have the same indentation -->
       <Rule Id="SA1139" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Use literal suffix notation instead of casting -->
