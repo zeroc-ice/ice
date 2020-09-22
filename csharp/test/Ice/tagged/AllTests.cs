@@ -469,23 +469,23 @@ namespace ZeroC.Ice.Test.Tagged
             output.Flush();
             {
                 byte? p1 = null;
-                (byte? R1, byte? R2) = initial.OpByte(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpByte(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (byte? r1, byte? r2) = initial.OpByte(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpByte(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = 56;
-                (R1, R2) = initial.OpByte(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
-                (byte? ReturnValue, byte? R2) r = initial.OpByteAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
-                (R1, R2) = initial.OpByte(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
+                (r1, r2) = initial.OpByte(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
+                (byte? ReturnValue, byte? r2) r = initial.OpByteAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
+                (r1, r2) = initial.OpByte(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
                 r = initial.OpByteAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
 
-                (R1, R2) = initial.OpByte(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpByte(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial, "opByte",
@@ -496,35 +496,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         byte? b1 = istr.ReadTaggedByte(1);
                         byte? b2 = istr.ReadTaggedByte(3);
                         return (b1, b2);
                     });
                 TestHelper.Assert(p1 == 56);
-                TestHelper.Assert(R1 == 56);
+                TestHelper.Assert(r1 == 56);
             }
 
             {
                 bool? p1 = null;
-                (bool? R1, bool? R2) = initial.OpBool(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpBool(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (bool? r1, bool? r2) = initial.OpBool(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpBool(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = true;
-                (R1, R2) = initial.OpBool(p1);
-                TestHelper.Assert(R1 == true && R2 == true);
-                (bool? ReturnValue, bool? R2) r = initial.OpBoolAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == true && r.R2 == true);
-                (R1, R2) = initial.OpBool(true);
-                TestHelper.Assert(R1 == true && R2 == true);
+                (r1, r2) = initial.OpBool(p1);
+                TestHelper.Assert(r1 == true && r2 == true);
+                (bool? ReturnValue, bool? r2) r = initial.OpBoolAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == true && r.r2 == true);
+                (r1, r2) = initial.OpBool(true);
+                TestHelper.Assert(r1 == true && r2 == true);
                 r = initial.OpBoolAsync(true).Result;
-                TestHelper.Assert(r.ReturnValue == true && r.R2 == true);
+                TestHelper.Assert(r.ReturnValue == true && r.r2 == true);
 
-                (R1, R2) = initial.OpBool(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpBool(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -536,35 +536,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     bool? b1 = istr.ReadTaggedBool(1);
                     bool? b2 = istr.ReadTaggedBool(3);
                     return (b1, b2);
                 });
-                TestHelper.Assert(R1 == true);
-                TestHelper.Assert(R2 == true);
+                TestHelper.Assert(r1 == true);
+                TestHelper.Assert(r2 == true);
             }
 
             {
                 short? p1 = null;
-                (short? R1, short? R2) = initial.OpShort(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpShort(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (short? r1, short? r2) = initial.OpShort(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpShort(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = 56;
-                (R1, R2) = initial.OpShort(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
-                (short? ReturnValue, short? R2) r = initial.OpShortAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
-                (R1, R2) = initial.OpShort(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
+                (r1, r2) = initial.OpShort(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
+                (short? ReturnValue, short? r2) r = initial.OpShortAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
+                (r1, r2) = initial.OpShort(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
                 r = initial.OpShortAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
 
-                (R1, R2) = initial.OpShort(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpShort(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -576,35 +576,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         short? s1 = istr.ReadTaggedShort(1);
                         short? s2 = istr.ReadTaggedShort(3);
                         return (s1, s2);
                     });
-                TestHelper.Assert(R1 == 56);
-                TestHelper.Assert(R2 == 56);
+                TestHelper.Assert(r1 == 56);
+                TestHelper.Assert(r2 == 56);
             }
 
             {
                 int? p1 = null;
-                (int? R1, int? R2) = initial.OpInt(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpInt(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (int? r1, int? r2) = initial.OpInt(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpInt(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = 56;
-                (R1, R2) = initial.OpInt(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
-                (int? ReturnValue, int? R2) r = initial.OpIntAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
-                (R1, R2) = initial.OpInt(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
+                (r1, r2) = initial.OpInt(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
+                (int? ReturnValue, int? r2) r = initial.OpIntAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
+                (r1, r2) = initial.OpInt(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
                 r = initial.OpIntAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
 
-                (R1, R2) = initial.OpInt(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpInt(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -617,35 +617,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (p1, R1) = responseFrame.ReadReturnValue(communicator, istr =>
+                (p1, r1) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     int? i1 = istr.ReadTaggedInt(1);
                     int? i2 = istr.ReadTaggedInt(3);
                     return (i1, i2);
                 });
                 TestHelper.Assert(p1 == 56);
-                TestHelper.Assert(R1 == 56);
+                TestHelper.Assert(r1 == 56);
             }
 
             {
                 long? p1 = null;
-                (long? R1, long? R2) = initial.OpLong(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpLong(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (long? r1, long? r2) = initial.OpLong(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpLong(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = 56;
-                (R1, R2) = initial.OpLong(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
-                (long? ReturnValue, long? R2) r = initial.OpLongAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
-                (R1, R2) = initial.OpLong(p1);
-                TestHelper.Assert(R1 == 56 && R2 == 56);
+                (r1, r2) = initial.OpLong(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
+                (long? ReturnValue, long? r2) r = initial.OpLongAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
+                (r1, r2) = initial.OpLong(p1);
+                TestHelper.Assert(r1 == 56 && r2 == 56);
                 r = initial.OpLongAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 56 && r.R2 == 56);
+                TestHelper.Assert(r.ReturnValue == 56 && r.r2 == 56);
 
-                (R1, R2) = initial.OpLong(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpLong(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial, "opLong",
@@ -657,35 +657,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, long? p1) => ostr.WriteTaggedLong(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     long? l1 = istr.ReadTaggedLong(2);
                     long? l2 = istr.ReadTaggedLong(3);
                     return (l1, l2);
                 });
-                TestHelper.Assert(R1 == 56);
-                TestHelper.Assert(R2 == 56);
+                TestHelper.Assert(r1 == 56);
+                TestHelper.Assert(r2 == 56);
             }
 
             {
                 float? p1 = null;
-                (float? R1, float? R2) = initial.OpFloat(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpFloat(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (float? r1, float? r2) = initial.OpFloat(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpFloat(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = 1.0f;
-                (R1, R2) = initial.OpFloat(p1);
-                TestHelper.Assert(R1 == 1.0f && R2 == 1.0f);
-                (float? ReturnValue, float? R2) r = initial.OpFloatAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 1.0f && r.R2 == 1.0f);
-                (R1, R2) = initial.OpFloat(p1);
-                TestHelper.Assert(R1 == 1.0f && R2 == 1.0f);
+                (r1, r2) = initial.OpFloat(p1);
+                TestHelper.Assert(r1 == 1.0f && r2 == 1.0f);
+                (float? ReturnValue, float? r2) r = initial.OpFloatAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == 1.0f && r.r2 == 1.0f);
+                (r1, r2) = initial.OpFloat(p1);
+                TestHelper.Assert(r1 == 1.0f && r2 == 1.0f);
                 r = initial.OpFloatAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 1.0f && r.R2 == 1.0f);
+                TestHelper.Assert(r.ReturnValue == 1.0f && r.r2 == 1.0f);
 
-                (R1, R2) = initial.OpFloat(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpFloat(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial, "opFloat",
@@ -697,35 +697,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         float? f1 = istr.ReadTaggedFloat(1);
                         float? f2 = istr.ReadTaggedFloat(3);
                         return (f1, f2);
                     });
-                TestHelper.Assert(R1 == 1.0f);
-                TestHelper.Assert(R2 == 1.0f);
+                TestHelper.Assert(r1 == 1.0f);
+                TestHelper.Assert(r2 == 1.0f);
             }
 
             {
                 double? p1 = null;
-                (double? R1, double? R2) = initial.OpDouble(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpDouble(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (double? r1, double? r2) = initial.OpDouble(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpDouble(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = 1.0;
-                (R1, R2) = initial.OpDouble(p1);
-                TestHelper.Assert(R1 == 1.0 && R2 == 1.0);
-                (double? ReturnValue, double? R2) r = initial.OpDoubleAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 1.0 && r.R2 == 1.0);
-                (R1, R2) = initial.OpDouble(p1);
-                TestHelper.Assert(R1 == 1.0 && R2 == 1.0);
+                (r1, r2) = initial.OpDouble(p1);
+                TestHelper.Assert(r1 == 1.0 && r2 == 1.0);
+                (double? ReturnValue, double? r2) r = initial.OpDoubleAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == 1.0 && r.r2 == 1.0);
+                (r1, r2) = initial.OpDouble(p1);
+                TestHelper.Assert(r1 == 1.0 && r2 == 1.0);
                 r = initial.OpDoubleAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == 1.0 && r.R2 == 1.0);
+                TestHelper.Assert(r.ReturnValue == 1.0 && r.r2 == 1.0);
 
-                (R1, R2) = initial.OpDouble(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpDouble(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -738,37 +738,37 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         double? d1 = istr.ReadTaggedDouble(1);
                         double? d2 = istr.ReadTaggedDouble(3);
                         return (d1, d2);
                     });
-                TestHelper.Assert(R1 == 1.0);
-                TestHelper.Assert(R2 == 1.0);
+                TestHelper.Assert(r1 == 1.0);
+                TestHelper.Assert(r2 == 1.0);
             }
 
             {
                 string? p1 = null;
-                (string? R1, string? R2) = initial.OpString(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpString(null);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpString(null); // Implicitly converts to string>(null)
-                TestHelper.Assert(R1 == null && R2 == null);
+                (string? r1, string? r2) = initial.OpString(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpString(null);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpString(null); // Implicitly converts to string>(null)
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = "test";
-                (R1, R2) = initial.OpString(p1);
-                TestHelper.Assert(R1 == "test" && R2 == "test");
-                (string? ReturnValue, string? R2) r = initial.OpStringAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == "test" && r.R2 == "test");
-                (R1, R2) = initial.OpString(p1);
-                TestHelper.Assert(R1 == "test" && R2 == "test");
+                (r1, r2) = initial.OpString(p1);
+                TestHelper.Assert(r1 == "test" && r2 == "test");
+                (string? ReturnValue, string? r2) r = initial.OpStringAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == "test" && r.r2 == "test");
+                (r1, r2) = initial.OpString(p1);
+                TestHelper.Assert(r1 == "test" && r2 == "test");
                 r = initial.OpStringAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == "test" && r.R2 == "test");
+                TestHelper.Assert(r.ReturnValue == "test" && r.r2 == "test");
 
-                (R1, R2) = initial.OpString(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpString(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -781,35 +781,35 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, string? p1) => ostr.WriteTaggedString(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     string? s1 = istr.ReadTaggedString(1);
                     string? s2 = istr.ReadTaggedString(3);
                     return (s1, s2);
                 });
-                TestHelper.Assert(R1 == "test");
-                TestHelper.Assert(R2 == "test");
+                TestHelper.Assert(r1 == "test");
+                TestHelper.Assert(r2 == "test");
             }
 
             {
                 MyEnum? p1 = null;
-                (MyEnum? R1, MyEnum? R2) = initial.OpMyEnum(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpMyEnum(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (MyEnum? r1, MyEnum? r2) = initial.OpMyEnum(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpMyEnum(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = MyEnum.MyEnumMember;
-                (R1, R2) = initial.OpMyEnum(p1);
-                TestHelper.Assert(R1 == MyEnum.MyEnumMember && R2 == MyEnum.MyEnumMember);
-                (MyEnum? ReturnValue, MyEnum? R2) r = initial.OpMyEnumAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.R2 == MyEnum.MyEnumMember);
-                (R1, R2) = initial.OpMyEnum(p1);
-                TestHelper.Assert(R1 == MyEnum.MyEnumMember && R2 == MyEnum.MyEnumMember);
+                (r1, r2) = initial.OpMyEnum(p1);
+                TestHelper.Assert(r1 == MyEnum.MyEnumMember && r2 == MyEnum.MyEnumMember);
+                (MyEnum? ReturnValue, MyEnum? r2) r = initial.OpMyEnumAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.r2 == MyEnum.MyEnumMember);
+                (r1, r2) = initial.OpMyEnum(p1);
+                TestHelper.Assert(r1 == MyEnum.MyEnumMember && r2 == MyEnum.MyEnumMember);
                 r = initial.OpMyEnumAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.R2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.r2 == MyEnum.MyEnumMember);
 
-                (R1, R2) = initial.OpMyEnum(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpMyEnum(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -822,31 +822,31 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(2, (int?) p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(3)?.AsMyEnum()));
-                TestHelper.Assert(R1 == MyEnum.MyEnumMember);
-                TestHelper.Assert(R2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r1 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r2 == MyEnum.MyEnumMember);
             }
 
             {
                 SmallStruct? p1 = null;
-                (SmallStruct? R1, SmallStruct? R2) = initial.OpSmallStruct(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpSmallStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (SmallStruct? r1, SmallStruct? r2) = initial.OpSmallStruct(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpSmallStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new SmallStruct(56);
-                (R1, R2) = initial.OpSmallStruct(p1);
-                TestHelper.Assert(R1!.Value.M == 56 && R2!.Value.M == 56);
-                (SmallStruct? ReturnValue, SmallStruct? R2) r = initial.OpSmallStructAsync(p1).Result;
-                TestHelper.Assert(R1!.Value.M == 56 && R2!.Value.M == 56);
-                (R1, R2) = initial.OpSmallStruct(p1);
-                TestHelper.Assert(R1!.Value.M == 56 && R2!.Value.M == 56);
+                (r1, r2) = initial.OpSmallStruct(p1);
+                TestHelper.Assert(r1!.Value.M == 56 && r2!.Value.M == 56);
+                (SmallStruct? ReturnValue, SmallStruct? r2) r = initial.OpSmallStructAsync(p1).Result;
+                TestHelper.Assert(r1!.Value.M == 56 && r2!.Value.M == 56);
+                (r1, r2) = initial.OpSmallStruct(p1);
+                TestHelper.Assert(r1!.Value.M == 56 && r2!.Value.M == 56);
                 r = initial.OpSmallStructAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.R2!.Value.M == 56);
+                TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.r2!.Value.M == 56);
 
-                (R1, R2) = initial.OpSmallStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpSmallStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -859,33 +859,33 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(2, p1, 1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: true, istr => new SmallStruct(istr)),
                         istr.ReadTaggedStruct(3, fixedSize: true, istr => new SmallStruct(istr))));
 
-                TestHelper.Assert(R1!.Value.M == 56);
-                TestHelper.Assert(R2!.Value.M == 56);
+                TestHelper.Assert(r1!.Value.M == 56);
+                TestHelper.Assert(r2!.Value.M == 56);
             }
 
             {
                 FixedStruct? p1 = null;
-                (FixedStruct? R1, FixedStruct? R2) = initial.OpFixedStruct(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpFixedStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (FixedStruct? r1, FixedStruct? r2) = initial.OpFixedStruct(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpFixedStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new FixedStruct(56);
-                (R1, R2) = initial.OpFixedStruct(p1);
-                TestHelper.Assert(R1!.Value.M == 56 && R2!.Value.M == 56);
-                (FixedStruct? ReturnValue, FixedStruct? R2) r = initial.OpFixedStructAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.R2!.Value.M == 56);
-                (R1, R2) = initial.OpFixedStruct(p1);
-                TestHelper.Assert(R1!.Value.M == 56 && R2!.Value.M == 56);
+                (r1, r2) = initial.OpFixedStruct(p1);
+                TestHelper.Assert(r1!.Value.M == 56 && r2!.Value.M == 56);
+                (FixedStruct? ReturnValue, FixedStruct? r2) r = initial.OpFixedStructAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.r2!.Value.M == 56);
+                (r1, r2) = initial.OpFixedStruct(p1);
+                TestHelper.Assert(r1!.Value.M == 56 && r2!.Value.M == 56);
                 r = initial.OpFixedStructAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.R2!.Value.M == 56);
+                TestHelper.Assert(r.ReturnValue!.Value.M == 56 && r.r2!.Value.M == 56);
 
-                (R1, R2) = initial.OpFixedStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpFixedStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -898,37 +898,37 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(2, p1, 4));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: true, istr => new FixedStruct(istr)),
                         istr.ReadTaggedStruct(3, fixedSize: true, istr => new FixedStruct(istr))));
-                TestHelper.Assert(R1!.Value.M == 56);
-                TestHelper.Assert(R2!.Value.M == 56);
+                TestHelper.Assert(r1!.Value.M == 56);
+                TestHelper.Assert(r2!.Value.M == 56);
             }
 
             {
                 VarStruct? p1 = null;
-                (VarStruct? R1, VarStruct? R2) = initial.OpVarStruct(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpVarStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (VarStruct? r1, VarStruct? r2) = initial.OpVarStruct(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpVarStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new VarStruct("test");
-                (R1, R2) = initial.OpVarStruct(p1);
-                TestHelper.Assert(R1!.Value.M.Equals("test") && R2!.Value.M.Equals("test"));
+                (r1, r2) = initial.OpVarStruct(p1);
+                TestHelper.Assert(r1!.Value.M.Equals("test") && r2!.Value.M.Equals("test"));
 
                 // Test null struct
-                (R1, R2) = initial.OpVarStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (r1, r2) = initial.OpVarStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
-                (VarStruct? ReturnValue, VarStruct? R2) r = initial.OpVarStructAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Value.M.Equals("test") && r.R2!.Value.M.Equals("test"));
-                (R1, R2) = initial.OpVarStruct(p1);
-                TestHelper.Assert(R1!.Value.M.Equals("test") && R2!.Value.M.Equals("test"));
+                (VarStruct? ReturnValue, VarStruct? r2) r = initial.OpVarStructAsync(p1).Result;
+                TestHelper.Assert(r.ReturnValue!.Value.M.Equals("test") && r.r2!.Value.M.Equals("test"));
+                (r1, r2) = initial.OpVarStruct(p1);
+                TestHelper.Assert(r1!.Value.M.Equals("test") && r2!.Value.M.Equals("test"));
                 r = initial.OpVarStructAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue!.Value.M.Equals("test") && r.R2!.Value.M.Equals("test"));
+                TestHelper.Assert(r.ReturnValue!.Value.M.Equals("test") && r.r2!.Value.M.Equals("test"));
 
-                (R1, R2) = initial.OpVarStruct(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpVarStruct(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -945,11 +945,11 @@ namespace ZeroC.Ice.Test.Tagged
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: false, istr => new VarStruct(istr)),
                         istr.ReadTaggedStruct(3, fixedSize: false, istr => new VarStruct(istr))));
-                TestHelper.Assert(R1!.Value.M.Equals("test"));
-                TestHelper.Assert(R2!.Value.M.Equals("test"));
+                TestHelper.Assert(r1!.Value.M.Equals("test"));
+                TestHelper.Assert(r2!.Value.M.Equals("test"));
 
                 // TODO: why are we testing this here?
                 /* F f = new F();
@@ -976,23 +976,23 @@ namespace ZeroC.Ice.Test.Tagged
 
             {
                 byte[]? p1 = null;
-                (byte[]? R1, byte[]? R2) = initial.OpByteSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpByteSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (byte[]? r1, byte[]? r2) = initial.OpByteSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpByteSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToArray();
-                (R1, R2) = initial.OpByteSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpByteSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpByteSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpByteSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpByteSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpByteSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpByteSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpByteSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpByteSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpByteSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1005,32 +1005,32 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<byte>(1), istr.ReadTaggedArray<byte>(3)));
 
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 bool[]? p1 = null;
-                (bool[]? R1, bool[]? R2) = initial.OpBoolSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpBoolSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (bool[]? r1, bool[]? r2) = initial.OpBoolSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpBoolSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(_ => true).ToArray();
-                (R1, R2) = initial.OpBoolSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpBoolSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpBoolSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpBoolSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpBoolSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpBoolSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpBoolSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpBoolSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpBoolSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpBoolSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1043,32 +1043,32 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<bool>(1), istr.ReadTaggedArray<bool>(3)));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 short[]? p1 = null;
-                (short[]? R1, short[]? R2) = initial.OpShortSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpShortSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (short[]? r1, short[]? r2) = initial.OpShortSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpShortSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToArray();
-                (R1, R2) = initial.OpShortSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpShortSeqAsync(p1).Result;
+                (r1, r2) = initial.OpShortSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpShortSeqAsync(p1).Result;
 
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpShortSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpShortSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpShortSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpShortSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpShortSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpShortSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1081,31 +1081,31 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, short[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<short>(1), istr.ReadTaggedArray<short>(3)));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 int[]? p1 = null;
-                (int[]? R1, int[]? R2) = initial.OpIntSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpIntSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (int[]? r1, int[]? r2) = initial.OpIntSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpIntSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 56).ToArray();
-                (R1, R2) = initial.OpIntSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpIntSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpIntSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpIntSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpIntSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpIntSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpIntSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpIntSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpIntSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpIntSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1117,31 +1117,31 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<int>(1), istr.ReadTaggedArray<int>(3)));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 long[]? p1 = null;
-                (long[]? R1, long[]? R2) = initial.OpLongSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpLongSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (long[]? r1, long[]? r2) = initial.OpLongSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpLongSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 56L).ToArray();
-                (R1, R2) = initial.OpLongSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpLongSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpLongSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpLongSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpLongSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpLongSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpLongSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpLongSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpLongSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpLongSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1154,31 +1154,31 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, long[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<long>(1), istr.ReadTaggedArray<long>(3)));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 float[]? p1 = null;
-                (float[]? R1, float[]? R2) = initial.OpFloatSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpFloatSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (float[]? r1, float[]? r2) = initial.OpFloatSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpFloatSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToArray();
-                (R1, R2) = initial.OpFloatSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFloatSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFloatSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFloatSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpFloatSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFloatSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFloatSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFloatSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpFloatSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpFloatSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1191,31 +1191,31 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, float[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<float>(1), istr.ReadTaggedArray<float>(3)));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 double[]? p1 = null;
-                (double[]? R1, double[]? R2) = initial.OpDoubleSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpDoubleSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (double[]? r1, double[]? r2) = initial.OpDoubleSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpDoubleSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToArray();
-                (R1, R2) = initial.OpDoubleSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpDoubleSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpDoubleSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpDoubleSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpDoubleSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpDoubleSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpDoubleSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpDoubleSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpDoubleSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpDoubleSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1228,32 +1228,32 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, double[]? p1) => ostr.WriteTaggedArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<double>(1), istr.ReadTaggedArray<double>(3)));
 
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 string[]? p1 = null;
-                (string[]? R1, string[]? R2) = initial.OpStringSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpStringSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (string[]? r1, string[]? r2) = initial.OpStringSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpStringSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
-                (R1, R2) = initial.OpStringSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpStringSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpStringSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpStringSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpStringSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpStringSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpStringSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpStringSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpStringSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpStringSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1267,32 +1267,32 @@ namespace ZeroC.Ice.Test.Tagged
                         ostr.WriteTaggedSequence(2, p1, (ost, s) => ostr.WriteString(s)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 1, fixedSize: false, istr => istr.ReadString()),
                        istr.ReadTaggedArray(3, 1, fixedSize: false, istr => istr.ReadString())));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 SmallStruct[]? p1 = null;
-                (SmallStruct[]? R1, SmallStruct[]? R2) = initial.OpSmallStructSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpSmallStructSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (SmallStruct[]? r1, SmallStruct[]? r2) = initial.OpSmallStructSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpSmallStructSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new SmallStruct()).ToArray();
-                (R1, R2) = initial.OpSmallStructSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpSmallStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpSmallStructSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpSmallStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpSmallStructSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpSmallStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpSmallStructSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpSmallStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpSmallStructSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpSmallStructSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1306,37 +1306,37 @@ namespace ZeroC.Ice.Test.Tagged
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 1, fixedSize: true, istr => new SmallStruct(istr)),
                         istr.ReadTaggedArray(3, 1, fixedSize: true, istr => new SmallStruct(istr))));
 
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 List<SmallStruct>? p1 = null;
-                (List<SmallStruct>? R1, List<SmallStruct>? R2) = initial.OpSmallStructList(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpSmallStructList(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (List<SmallStruct>? r1, List<SmallStruct>? r2) = initial.OpSmallStructList(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpSmallStructList(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new List<SmallStruct>();
                 for (int i = 0; i < 10; ++i)
                 {
                     p1.Add(new SmallStruct());
                 }
-                (R1, R2) = initial.OpSmallStructList(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1));
-                (R1, R2) = initial.OpSmallStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1));
-                (R1, R2) = initial.OpSmallStructList(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1));
-                (R1, R2) = initial.OpSmallStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1));
+                (r1, r2) = initial.OpSmallStructList(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1));
+                (r1, r2) = initial.OpSmallStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1));
+                (r1, r2) = initial.OpSmallStructList(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1));
+                (r1, r2) = initial.OpSmallStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1));
 
-                (R1, R2) = initial.OpSmallStructList(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpSmallStructList(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1350,7 +1350,7 @@ namespace ZeroC.Ice.Test.Tagged
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         List<SmallStruct>? list1 =
                             istr.ReadTaggedSequence(1, 1, fixedSize: true, istr => new SmallStruct(istr)) is
@@ -1362,30 +1362,30 @@ namespace ZeroC.Ice.Test.Tagged
 
                         return (list1, list2);
                     });
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
 
             }
 
             {
                 FixedStruct[]? p1 = null;
-                (FixedStruct[]? R1, FixedStruct[]? R2) = initial.OpFixedStructSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpFixedStructSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (FixedStruct[]? r1, FixedStruct[]? r2) = initial.OpFixedStructSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpFixedStructSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new FixedStruct()).ToArray();
-                (R1, R2) = initial.OpFixedStructSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFixedStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFixedStructSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFixedStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpFixedStructSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFixedStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFixedStructSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFixedStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpFixedStructSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpFixedStructSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1399,37 +1399,37 @@ namespace ZeroC.Ice.Test.Tagged
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 4, fixedSize: true, istr => new FixedStruct(istr)),
                         istr.ReadTaggedArray(3, 4, fixedSize: true, istr => new FixedStruct(istr))));
 
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 LinkedList<FixedStruct>? p1 = null;
-                (LinkedList<FixedStruct>? R1, LinkedList<FixedStruct>? R2) = initial.OpFixedStructList(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpFixedStructList(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (LinkedList<FixedStruct>? r1, LinkedList<FixedStruct>? r2) = initial.OpFixedStructList(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpFixedStructList(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new LinkedList<FixedStruct>();
                 for (int i = 0; i < 10; ++i)
                 {
                     p1.AddLast(new FixedStruct());
                 }
-                (R1, R2) = initial.OpFixedStructList(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFixedStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFixedStructList(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpFixedStructListAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpFixedStructList(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFixedStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFixedStructList(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpFixedStructListAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpFixedStructList(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpFixedStructList(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1443,7 +1443,7 @@ namespace ZeroC.Ice.Test.Tagged
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         LinkedList<FixedStruct>? list1 =
                             istr.ReadTaggedSequence(1, 4, fixedSize: true, istr => new FixedStruct(istr)) is
@@ -1455,29 +1455,29 @@ namespace ZeroC.Ice.Test.Tagged
 
                         return (list1, list2);
                     });
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 VarStruct[]? p1 = null;
-                (VarStruct[]? R1, VarStruct[]? R2) = initial.OpVarStructSeq(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpVarStructSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (VarStruct[]? r1, VarStruct[]? r2) = initial.OpVarStructSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpVarStructSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new VarStruct("")).ToArray();
-                (R1, R2) = initial.OpVarStructSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpVarStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpVarStructSeq(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpVarStructSeqAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpVarStructSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpVarStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpVarStructSeq(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpVarStructSeqAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpVarStructSeq(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpVarStructSeq(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1491,36 +1491,36 @@ namespace ZeroC.Ice.Test.Tagged
                         ostr.WriteTaggedSequence(2, p1, (ostr, vs) => ostr.WriteStruct(vs)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                       (istr.ReadTaggedArray(1, 1, fixedSize: false, istr => new VarStruct(istr)),
                         istr.ReadTaggedArray(3, 1, fixedSize: false, istr => new VarStruct(istr))));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 Dictionary<int, int>? p1 = null;
-                (Dictionary<int, int>? R1, Dictionary<int, int>? R2) = initial.OpIntIntDict(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpIntIntDict(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (Dictionary<int, int>? r1, Dictionary<int, int>? r2) = initial.OpIntIntDict(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpIntIntDict(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new Dictionary<int, int>
                 {
                     { 1, 2 },
                     { 2, 3 }
                 };
-                (R1, R2) = initial.OpIntIntDict(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpIntIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpIntIntDict(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpIntIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpIntIntDict(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpIntIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpIntIntDict(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpIntIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpIntIntDict(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpIntIntDict(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1533,39 +1533,39 @@ namespace ZeroC.Ice.Test.Tagged
                         (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteInt(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedDictionary(1, 4, 4, fixedSize: true,
                         istr => istr.ReadInt(), istr => istr.ReadInt()),
                      istr.ReadTaggedDictionary(3, 4, 4, fixedSize: true,
                          istr => istr.ReadInt(), istr => istr.ReadInt())));
 
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
 
             {
                 Dictionary<string, int>? p1 = null;
-                (Dictionary<string, int>? R1, Dictionary<string, int>? R2) = initial.OpStringIntDict(p1);
-                TestHelper.Assert(R1 == null && R2 == null);
-                (R1, R2) = initial.OpStringIntDict(null);
-                TestHelper.Assert(R1 == null && R2 == null);
+                (Dictionary<string, int>? r1, Dictionary<string, int>? r2) = initial.OpStringIntDict(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+                (r1, r2) = initial.OpStringIntDict(null);
+                TestHelper.Assert(r1 == null && r2 == null);
 
                 p1 = new Dictionary<string, int>
                 {
                     { "1", 1 },
                     { "2", 2 }
                 };
-                (R1, R2) = initial.OpStringIntDict(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpStringIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpStringIntDict(p1);
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
-                (R1, R2) = initial.OpStringIntDictAsync(p1).Result;
-                TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                (r1, r2) = initial.OpStringIntDict(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpStringIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpStringIntDict(p1);
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
+                (r1, r2) = initial.OpStringIntDictAsync(p1).Result;
+                TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
 
-                (R1, R2) = initial.OpStringIntDict(null);
-                TestHelper.Assert(R1 == null && R2 == null); // Ensure out parameter is cleared.
+                (r1, r2) = initial.OpStringIntDict(null);
+                TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
 
                 requestFrame = OutgoingRequestFrame.WithSingleParam(
                     initial,
@@ -1583,13 +1583,13 @@ namespace ZeroC.Ice.Test.Tagged
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-                (R1, R2) = responseFrame.ReadReturnValue(communicator, istr =>
+                (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                       (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadString(),
                                                                             istr => istr.ReadInt()),
                        istr.ReadTaggedDictionary(3, 1, 4, fixedSize: false, istr => istr.ReadString(),
                                                                             istr => istr.ReadInt())));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R1!));
-                TestHelper.Assert(Enumerable.SequenceEqual(p1, R2!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
             output.WriteLine("ok");
 
@@ -1700,34 +1700,34 @@ namespace ZeroC.Ice.Test.Tagged
                 TestHelper.Assert(initial.OpMSeq1() != null);
 
                 {
-                    SmallStruct? p1, R1, R2;
-                    (R2, R1) = initial.OpMStruct2(null);
-                    TestHelper.Assert(R1 == null && R2 == null);
+                    SmallStruct? p1, r1, r2;
+                    (r2, r1) = initial.OpMStruct2(null);
+                    TestHelper.Assert(r1 == null && r2 == null);
 
                     p1 = new SmallStruct();
-                    (R2, R1) = initial.OpMStruct2(p1);
-                    TestHelper.Assert(R1.Equals(p1) && R2.Equals(p1));
+                    (r2, r1) = initial.OpMStruct2(p1);
+                    TestHelper.Assert(r1.Equals(p1) && r2.Equals(p1));
                 }
                 {
-                    string[]? p1, R1, R2;
-                    (R2, R1) = initial.OpMSeq2(null);
-                    TestHelper.Assert(R1 == null && R2 == null);
+                    string[]? p1, r1, r2;
+                    (r2, r1) = initial.OpMSeq2(null);
+                    TestHelper.Assert(r1 == null && r2 == null);
 
                     p1 = new string[1] { "hello" };
-                    (R2, R1) = initial.OpMSeq2(p1);
-                    TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                    (r2, r1) = initial.OpMSeq2(p1);
+                    TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
                 }
                 {
-                    Dictionary<string, int>? p1, R1, R2;
-                    (R2, R1) = initial.OpMDict2(null);
-                    TestHelper.Assert(R1 == null && R2 == null);
+                    Dictionary<string, int>? p1, r1, r2;
+                    (r2, r1) = initial.OpMDict2(null);
+                    TestHelper.Assert(r1 == null && r2 == null);
 
                     p1 = new Dictionary<string, int>
                     {
                         ["test"] = 54
                     };
-                    (R2, R1) = initial.OpMDict2(p1);
-                    TestHelper.Assert(Enumerable.SequenceEqual(R1!, p1) && Enumerable.SequenceEqual(R2!, p1));
+                    (r2, r1) = initial.OpMDict2(p1);
+                    TestHelper.Assert(Enumerable.SequenceEqual(r1!, p1) && Enumerable.SequenceEqual(r2!, p1));
                 }
             }
             output.WriteLine("ok");

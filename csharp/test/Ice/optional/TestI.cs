@@ -11,24 +11,24 @@ namespace ZeroC.Ice.Test.Optional
     {
         public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
-        public void OpSingleInInt(int? i1, Current current) => TestHelper.Assert(i1 == null || i1.Value == 42);
+        public void OpInt(int? i1, Current current) => TestHelper.Assert(i1 == null || i1.Value == 42);
 
-        public void OpSingleInString(string? i1, Current current) => TestHelper.Assert(i1 == null || i1 == "42");
+        public void OpString(string? i1, Current current) => TestHelper.Assert(i1 == null || i1 == "42");
 
         public string? OpSingleOutString(Current current) => "42";
 
-        public int? OpSingleReturnInt(Current current) => 42;
+        public int? OpReturnInt(Current current) => 42;
 
-        public string? OpSingleReturnString(Current current) => "42";
+        public string? OpReturnString(Current current) => "42";
 
-        public void OpBasicIn(int i1, int? i2, string? i3, string i4, Current current)
+        public void OpBasic(int i1, int? i2, string? i3, string i4, Current current)
         {
             TestHelper.Assert(i2 == null || i2.Value == i1);
             TestHelper.Assert(i3 == null || i3 == i4);
         }
 
-        public (int? R1, int R2, int? R3, string? R4) OpBasicInReturnTuple(int i1, int? i2, string? i3,
-        
+        public (int? R1, int R2, int? R3, string? R4) OpBasicReturnTuple(int i1, int? i2, string? i3,
+
             Current current) => (i2, i1, i2, i3);
 
         public IObjectPrx? OpObject(IObjectPrx i1, IObjectPrx? i2, Current current)

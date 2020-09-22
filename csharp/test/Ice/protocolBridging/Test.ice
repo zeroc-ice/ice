@@ -20,7 +20,7 @@ module ZeroC::Ice::Test::ProtocolBridging
         void opVoid();
 
         // Operation with both return and out
-        (int r1, string r2) opReturnOut(int x);
+        int opReturnOut(int x, out string y);
 
         // Oneway operation
         [oneway] void opOneway(int x);

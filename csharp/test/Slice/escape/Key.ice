@@ -24,7 +24,7 @@ struct break
 
 interface case
 {
-    [amd] int catch(int checked);
+    [amd] void catch(int checked, out int continue);
 }
 
 interface decimal
@@ -58,28 +58,28 @@ class taggedMembers
 interface taggedParams
 {
     tag(1) break? for(tag(2) as? goto,
+                      tag(3) explicit* if,
+                      tag(5) while? internal,
+                      tag(7) string? namespace,
+                      tag(8) explicit* null);
+
+    [amd]
+    tag(1) break? catch(tag(2) as? goto,
                         tag(3) explicit* if,
                         tag(5) while? internal,
                         tag(7) string? namespace,
                         tag(8) explicit* null);
 
-    [amd]
-    tag(1) break? catch(tag(2) as? goto,
-                                tag(3) explicit* if,
-                                tag(5) while? internal,
-                                tag(7) string? namespace,
-                                tag(8) explicit* null);
-
-    (tag(1) break? r1, tag(2) as? goto, tag(3) explicit* if, 
-                        tag(5) while? internal,
-                        tag(7) string? namespace,
-                        tag(8) explicit* null) in();
+    (tag(1) break? r1, tag(2) as? goto, tag(3) explicit* if,
+                       tag(5) while? internal,
+                       tag(7) string? namespace,
+                       tag(8) explicit* null) in();
 
     [amd]
-    (tag(1) break? r1, tag(2) as? goto, tag(3) explicit* if, 
-                                tag(5) while? internal,
-                                tag(7) string? namespace,
-                                tag(8) explicit* null) foreach();
+    (tag(1) break? r1, tag(2) as? goto, tag(3) explicit* if,
+                       tag(5) while? internal,
+                       tag(7) string? namespace,
+                       tag(8) explicit* null) foreach();
 }
 
 exception fixed

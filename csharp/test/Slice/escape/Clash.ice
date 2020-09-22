@@ -24,10 +24,10 @@ interface Intf
 
     void op(string context, string current, string response, string ex, string sent, string cookie,
             string sync, string result, string istr, string ostr, tag(1) string? proxy, tag(2) int? obj);
-    (string context, string current, string response, 
-            string ex, string sent, string cookie, 
+    (string context, string current, string response,
+            string ex, string sent, string cookie,
             string sync, string result, string istr,
-            string ostr, tag(1) string? proxy, tag(2) int? obj) opOut();
+            string ostr, tag(1) string? proxy, tag(2) int? obj) opReturn();
 }
 
 class Cls

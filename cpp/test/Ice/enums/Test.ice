@@ -76,15 +76,15 @@ sequence<SimpleEnum> SimpleEnumSeq;
 
 interface TestIntf
 {
-    (ByteEnum r1, ByteEnum r2) opByte(ByteEnum b1);
-    (ShortEnum r1, ShortEnum r2) opShort(ShortEnum s1);
-    (IntEnum r1, IntEnum r2) opInt(IntEnum i1);
-    (SimpleEnum r1, SimpleEnum r2) opSimple(SimpleEnum s1);
+    ByteEnum opByte(ByteEnum b1, out ByteEnum s2);
+    ShortEnum opShort(ShortEnum s1, out ShortEnum s2);
+    IntEnum opInt(IntEnum i1, out IntEnum s2);
+    SimpleEnum opSimple(SimpleEnum s1, out SimpleEnum s2);
 
-    (ByteEnumSeq r1, ByteEnumSeq r2) opByteSeq(ByteEnumSeq b1);
-    (ShortEnumSeq r1, ShortEnumSeq s2) opShortSeq(ShortEnumSeq s1);
-    (IntEnumSeq r1, IntEnumSeq r2) opIntSeq(IntEnumSeq i1);
-    (SimpleEnumSeq r1, SimpleEnumSeq r2) opSimpleSeq(SimpleEnumSeq s1);
+    ByteEnumSeq opByteSeq(ByteEnumSeq b1, out ByteEnumSeq s2);
+    ShortEnumSeq opShortSeq(ShortEnumSeq s1, out ShortEnumSeq s2);
+    IntEnumSeq opIntSeq(IntEnumSeq i1, out IntEnumSeq s2);
+    SimpleEnumSeq opSimpleSeq(SimpleEnumSeq s1, out SimpleEnumSeq s2);
 
     void shutdown();
 }

@@ -222,16 +222,16 @@ interface TestIntf
     (FLUIntEnumSeq r1, FLUIntEnumSeq r2) opFLUIntSeq(FLUIntEnumSeq i1);
     (FLSimpleEnumSeq r1, FLSimpleEnumSeq r2) opFLSimpleSeq(FLSimpleEnumSeq s1);
 
-    (tag(1) ByteEnum? r1, tag(2) ByteEnum? r2) opTaggedByte(tag(2) ByteEnum? b1);
-    (tag(1) FLByteEnum? r1, tag(3) FLByteEnum? r2) opTaggedFLByte(tag(2) FLByteEnum? b1);
-    (tag(1) ByteEnumSeq? r1, tag(3) ByteEnumSeq? r2) opTaggedByteSeq(tag(2) ByteEnumSeq? b1);
-    (tag(1) FLByteEnumSeq? r1, tag(3) FLByteEnumSeq? r2) opTaggedFLByteSeq(tag(2) FLByteEnumSeq? b1);
-    (tag(1) FLIntEnumSeq? r1, tag(3) FLIntEnumSeq? r2) opTaggedFLIntSeq(tag(2) FLIntEnumSeq? i1);
+    (tag(1) ByteEnum? r1, tag(2) ByteEnum? r2) opTaggedByte(tag(1) ByteEnum? b1);
+    (tag(1) FLByteEnum? r1, tag(2) FLByteEnum? r2) opTaggedFLByte(tag(1) FLByteEnum? b1);
+    (tag(1) ByteEnumSeq? r1, tag(2) ByteEnumSeq? r2) opTaggedByteSeq(tag(1) ByteEnumSeq? b1);
+    (tag(1) FLByteEnumSeq? r1, tag(2) FLByteEnumSeq? r2) opTaggedFLByteSeq(tag(1) FLByteEnumSeq? b1);
+    (tag(1) FLIntEnumSeq? r1, tag(2) FLIntEnumSeq? r2) opTaggedFLIntSeq(tag(1) FLIntEnumSeq? i1);
 
     (MyFlags r1, MyFlags r2) opMyFlags(MyFlags f1);
     (MyFlagsSeq r1, MyFlagsSeq r2) opMyFlagsSeq(MyFlagsSeq f1);
-    (tag(1) MyFlags? r1, tag(3) MyFlags? r2) opTaggedMyFlags(tag(2) MyFlags? f1);
-    (tag(1) MyFlagsSeq? r1, tag(3) MyFlagsSeq? r2) opTaggedMyFlagsSeq(tag(2) MyFlagsSeq? f1);
+    (tag(1) MyFlags? r1, tag(2) MyFlags? r2) opTaggedMyFlags(tag(1) MyFlags? f1);
+    (tag(1) MyFlagsSeq? r1, tag(2) MyFlagsSeq? r2) opTaggedMyFlagsSeq(tag(1) MyFlagsSeq? f1);
 
     void shutdown();
 }
