@@ -123,7 +123,7 @@ namespace ZeroC.Ice
         // The communicator must be set when reading a proxy, class, or exception.
         private readonly Communicator? _communicator;
 
-        private bool OldEncoding => Encoding == Encoding.V1_1;
+        private bool OldEncoding => Encoding == Encoding.V11;
 
         // The byte buffer we are reading.
         private readonly ReadOnlyMemory<byte> _buffer;
@@ -1009,7 +1009,7 @@ namespace ZeroC.Ice
                 Encoding = encapsEncoding;
                 Encoding.CheckSupported();
 
-                if (encapsEncoding == Encoding.V2_0)
+                if (encapsEncoding == Encoding.V20)
                 {
                     byte compressionStatus = ReadByte();
                     if (compressionStatus != 0)

@@ -61,7 +61,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     // 2.0-encoded requests to IceGrid until IceGrid supports such requests.
 
                     ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(ILocatorPrx.Factory,
-                                                                           encoding: Encoding.V1_1);
+                                                                           encoding: Encoding.V11);
 
                     TestHelper.Assert(defaultLocator.GetRegistry() != null);
                     TestHelper.Assert(defaultLocator.GetLocalRegistry() != null);
@@ -92,7 +92,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     {
                     }
 
-                    Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V1_1);
+                    Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V11);
 
                     TestHelper.Assert(defaultLocator.GetRegistry() == null);
                     TestHelper.Assert(defaultLocator.CheckedCast(ILocatorPrx.Factory) == null);

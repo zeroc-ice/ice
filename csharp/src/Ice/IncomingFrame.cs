@@ -28,7 +28,7 @@ namespace ZeroC.Ice
                     ArraySegment<byte> buffer = Data.Slice(Payload.Offset + Payload.Count - Data.Offset);
                     if (buffer.Count > 0)
                     {
-                        var istr = new InputStream(buffer, Encoding.V2_0);
+                        var istr = new InputStream(buffer, Encoding.V20);
                         int dictionarySize = istr.ReadSize();
                         var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
                         for (int i = 0; i < dictionarySize; ++i)

@@ -176,7 +176,7 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
         requiredMembers.size() > 1;
     if (write11ReturnLast)
     {
-        _out << nl << "if (ostr.Encoding != ZeroC.Ice.Encoding.V1_1)";
+        _out << nl << "if (ostr.Encoding != ZeroC.Ice.Encoding.V11)";
         _out << sb;
     }
 
@@ -251,7 +251,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 
     if (read11ReturnLast)
     {
-        _out << nl << "if (istr.Encoding != ZeroC.Ice.Encoding.V1_1)";
+        _out << nl << "if (istr.Encoding != ZeroC.Ice.Encoding.V11)";
         _out << sb;
     }
 
@@ -1080,6 +1080,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     _out << nl << "#pragma warning disable SA1309 // Field names must not begin with underscore";
     _out << nl << "#pragma warning disable SA1312 // Variable names must begin with lower case letter";
     _out << nl << "#pragma warning disable SA1313 // Parameter names must begin with lower case letter";
+    _out << nl << "#pragma warning disable CA1707 // Remove the underscores from member name";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
     if(impl)
@@ -2593,19 +2594,19 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.inc();
     _out << nl << "current.Operation switch";
     _out << sb;
-    StringList allOpNames;
+    vector<pair<string, string>> allOpNames;
     for(const auto& op : p->allOperations())
     {
-        allOpNames.push_back(op->name());
+        allOpNames.push_back(make_pair(op->name(), operationName(op)));
     }
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
+    allOpNames.push_back(make_pair("ice_id", "IceId"));
+    allOpNames.push_back(make_pair("ice_ids", "IceIds"));
+    allOpNames.push_back(make_pair("ice_isA", "IceIsA"));
+    allOpNames.push_back(make_pair("ice_ping", "IcePing"));
 
     for(const auto& opName : allOpNames)
     {
-        _out << nl << "\"" << opName << "\" => " << "servant.IceD_" << opName << "Async(request, current),";
+        _out << nl << "\"" << opName.first << "\" => " << "servant.IceD" << opName.second << "Async(request, current),";
     }
 
     _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException(current.Identity, current.Facet, "
@@ -2707,7 +2708,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string ns = getNamespace(interface);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
-    string internalName = "IceD_" + operation->name() + "Async";
+    string internalName = "IceD" + opName + "Async";
 
     auto params = operation->params();
     auto returnType = operation->returnType();

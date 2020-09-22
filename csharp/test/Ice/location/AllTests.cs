@@ -564,7 +564,8 @@ namespace ZeroC.Ice.Test.Location
             output.Flush();
             hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
             count = locator.GetRequestCount();
-            IObjectPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator).Clone(encoding: Encoding.V1_1).IcePing();
+            IObjectPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator).Clone(
+                encoding: Encoding.V11).IcePing();
 
             // TODO: the count is apparently tied to whether or not we skip the if (ice1) block above. Would be nice to
             // add a comment.
