@@ -1163,7 +1163,7 @@ Slice::Gen::closeOutput()
 void
 Slice::Gen::printHeader()
 {
-    _out << "// Copyright (c) ZeroC, Inc. All rights reserved.\n";
+    _out << "// Copyright (c) ZeroC, Inc. All rights reserved.\n\n";
     _out << "// Ice version " << ICE_STRING_VERSION << "\n";
 }
 

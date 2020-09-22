@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
+
 namespace ZeroC.Ice
 {
     /// <summary>The Ice logger. Applications can provide their own logger by implementing this interface and

@@ -82,7 +82,7 @@
       <Rule Id="SA1618" Action="None" /> <!-- TODO enable - The documentation for type parameter 'T' is missing -->
       <Rule Id="SA1623" Action="None" /> <!-- TODO enable - The property's documentation summary text should begin with: 'Gets' -->
       <Rule Id="SA1629" Action="None" /> <!-- TODO enable - Documentation text should end with a period -->
-      <Rule Id="SA1633" Action="None" /> <!-- TODO configure the header and enable - The file header XML is invalid -->
+
       <Rule Id="SA1642" Action="None" /> <!-- TODO review -  Constructor summary documentation should begin with standard text -->
       <Rule Id="SA1649" Action="None" /> <!-- File name should match first type name -->
 
