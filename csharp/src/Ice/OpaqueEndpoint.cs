@@ -169,7 +169,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                ValueEncoding = Encoding.V1_1;
+                ValueEncoding = Encoding.Version11;
             }
 
             if (options.TryGetValue("-v", out argument))

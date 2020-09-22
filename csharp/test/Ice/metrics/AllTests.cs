@@ -548,7 +548,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
                 // 2 additional bytes with ice2 and Encoding2: one for the sequence size and one for the frame size
-                int sizeLengthIncrease = helper.Encoding == Encoding.V1_1 ? 4 : 2;
+                int sizeLengthIncrease = helper.Encoding == Encoding.Version11 ? 4 : 2;
 
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
@@ -565,7 +565,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
                 // 6 additional bytes with ice2 and Encoding2: 3 for the sequence size and 3 for the frame size
-                sizeLengthIncrease = helper.Encoding == Encoding.V1_1 ? 4 : 6;
+                sizeLengthIncrease = helper.Encoding == Encoding.Version11 ? 4 : 6;
 
                 TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + sizeLengthIncrease));
                 TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
@@ -881,7 +881,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
             TestHelper.Assert(dm1.Size == (38 + protocolRequestSizeAdjustment) &&
-                dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 51 + userExErrorMessageSize));
+                dm1.ReplySize == (metrics.Encoding == Encoding.Version11 ? 48 : 51 + userExErrorMessageSize));
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);

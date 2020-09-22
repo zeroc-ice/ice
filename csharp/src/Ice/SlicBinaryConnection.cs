@@ -24,7 +24,7 @@ namespace ZeroC.Ice
             Close = 0x09
         }
 
-        internal static readonly Encoding Encoding = Encoding.V2_0;
+        internal static readonly Encoding Encoding = Encoding.Version20;
 
         // The mutex provides thread-safety for the _sendTask data member.
         private readonly object _mutex = new object();

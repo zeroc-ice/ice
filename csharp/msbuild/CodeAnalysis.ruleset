@@ -11,7 +11,6 @@
       <Rule Id="CA1305" Action="None" /> <!-- TODO enable - The behavior of 'string.Format(string, object)' could vary based on the current user's locale settings. -->
       <Rule Id="CA1307" Action="None" /> <!-- TODO enable - Specify StringComparison -->
       <Rule Id="CA1308" Action="None" /> <!-- Normalize strings to uppercase -->
-      <Rule Id="CA1707" Action="None" /> <!-- TODO enable - Remove the underscores from member name -->
       <Rule Id="CA1710" Action="None" /> <!-- TODO disable on generated code - Identifiers should have correct suffix -->
       <Rule Id="CA1712" Action="None" /> <!-- TODO disable on generated code -  Do not prefix enum values with the name of the enum type 'ThreadState'. -->
       <Rule Id="CA1715" Action="None" /> <!-- TODO enable - Prefix generic type parameter with 'T' -->
