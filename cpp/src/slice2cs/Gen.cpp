@@ -1757,7 +1757,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "/// <summary>An <see cref=\"ZeroC.Ice.OutputStreamWriter{T}\"/> used to write <see cref=\""
+    _out << nl << "/// <summary>A <see cref=\"ZeroC.Ice.OutputStreamWriter{T}\"/> used to write <see cref=\""
          << name << "\"/> instances.</summary>";
     _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =";
     _out.inc();
