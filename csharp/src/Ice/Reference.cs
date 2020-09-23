@@ -641,7 +641,7 @@ namespace ZeroC.Ice
                 // TODO: switch to real Location in reference
                 return new Reference(adapterId: proxyData.Location?.Length > 0 ? proxyData.Location[0] : "",
                                      istr.Communicator!,
-                                     proxyData.Encoding ?? Encoding.V20, // TODO: hold Encoding? in Reference
+                                     proxyData.Encoding ?? Encoding.V20,
                                      endpoints,
                                      proxyData.Facet ?? "",
                                      proxyData.Identity,
@@ -1282,11 +1282,16 @@ namespace ZeroC.Ice
                 Debug.Assert(ostr.Encoding == Encoding.V20);
 
                 ostr.Write(Endpoints.Count > 0 ? ProxyKind.Direct : ProxyKind.Indirect);
+
+                // For non ice1 proxies, invocation mode is not marshaled so we "adjust" it to Twoway which gets
+                // converted to null below.
+                InvocationMode adjustedMode = Protocol == Protocol.Ice1 ? InvocationMode : InvocationMode.Twoway;
+
                 var proxyData = new ProxyData20(Identity,
                                                 Protocol == Protocol.Ice2 ? null : Protocol,
-                                                Encoding,
+                                                Encoding == Encoding.V20 ? null : Encoding,
                                                 AdapterId.Length > 0 ? new string[] { AdapterId } : null,
-                                                Protocol == Protocol.Ice1 ? InvocationMode : null, // TODO: fix
+                                                adjustedMode != InvocationMode.Twoway ? adjustedMode : null,
                                                 Facet.Length > 0 ? Facet : null);
 
                 proxyData.IceWrite(ostr);
