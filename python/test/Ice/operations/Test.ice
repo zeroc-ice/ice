@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Context.ice>
+#include <Ice/RequestEncoding.ice>
 
 [[suppress-warning:deprecated]] // For classes with operations
 

@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-#include <Ice/Context.ice>
+#include <Ice/RequestEncoding.ice>
 
 module Test
 {

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#ifdef __SLICE2CS__
+
 #pragma once
 
 [[cpp:dll-export:ICE_API]]
@@ -92,3 +94,5 @@ module Ice
         string? facet;                       // null equivalent to ""
     }
 }
+
+#endif

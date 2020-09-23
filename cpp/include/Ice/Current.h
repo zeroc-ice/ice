@@ -18,8 +18,7 @@
 #include <Ice/ConnectionF.h>
 #include <Ice/Identity.h>
 #include <Ice/Version.h>
-#include <Ice/Context.h>
-#include <Ice/OperationMode.h>
+#include <Ice/RequestEncoding.h>
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
