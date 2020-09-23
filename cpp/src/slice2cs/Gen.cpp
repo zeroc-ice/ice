@@ -1785,7 +1785,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
 
     _out << sp;
-    _out << nl << "/// <summary>Constructs a new instance of the <see cref=\"" << name << "\"/> struct type.</summary>";
+    _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/> .</summary>";
     for (const auto& member : dataMembers)
     {
         CommentInfo comment = processComment(member, "");
