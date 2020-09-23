@@ -54,11 +54,11 @@ module Ice
     [cs:readonly]
     struct ProxyData11
     {
-        StringSeq facetPath;
+        StringSeq facetPath;           // has 0 or 1 element
         InvocationMode invocationMode;
-        bool secure;        // ignored
+        bool secure = false;           // ignored
         Protocol protocol;
-        byte protocolMinor; // always 0
+        byte protocolMinor = 0;        // always 0
         Encoding encoding;
     }
 
@@ -85,10 +85,10 @@ module Ice
     struct ProxyData20
     {
         Identity identity;
-        Protocol? protocol;
-        Encoding? encoding;
-        StringSeq? location;
-        InvocationMode? invocationMode;
-        string? facet;
+        Protocol? protocol;                  // null is equivalent to Protocol::Ice2
+        Encoding? encoding;                  // null is equivalent to Encoding 2.0
+        StringSeq? location;                 // null is equivalent to an empty sequence
+        InvocationMode? invocationMode;      // always null when protocol != Protocol.Ice1
+        string? facet;                       // null equivalent to ""
     }
 }
