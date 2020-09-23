@@ -133,7 +133,7 @@ namespace ZeroC.Ice
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;
 
-        /// <summary>The invocation mode of this proxy. </summary>
+        /// <summary>The invocation mode of this proxy. Only useful for ice1 proxies.</summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
 
         /// <summary>Indicates whether or not this proxy caches its connection.</summary>
@@ -147,10 +147,9 @@ namespace ZeroC.Ice
 
         /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
         /// waits for an empty response from the target Ice object.</summary>
-        /// <value>When true, invoking such an operation does not wait for the response from the target object. This
-        /// corresponds to several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. When false,
-        /// invoking such an operation waits for the empty response from the target object, unless this behavior is
-        /// overridden by metadata on the Slice operation's definition.</value>
+        /// <value>When true, invoking such an operation does not wait for the response from the target object. When
+        /// false, invoking such an operation waits for the empty response from the target object, unless this behavior
+        /// is overridden by metadata on the Slice operation's definition.</value>
         public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
 
         /// <summary>The locator associated with this proxy. This property is null when no locator is associated with

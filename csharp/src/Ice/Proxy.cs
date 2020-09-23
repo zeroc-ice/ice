@@ -53,11 +53,11 @@ namespace ZeroC.Ice
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="identity">The identity of the clone.</param>
         /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
-        /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
+        /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
+        /// </param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
-        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
-        /// version of the invocationMode parameter.</param>
+        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
@@ -121,11 +121,11 @@ namespace ZeroC.Ice
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
-        /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
+        /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
+        /// </param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
-        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
-        /// version of the invocationMode parameter.</param>
+        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>

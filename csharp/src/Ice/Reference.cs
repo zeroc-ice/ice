@@ -26,6 +26,9 @@ namespace ZeroC.Ice
         internal IReadOnlyList<Endpoint> Endpoints { get; }
         internal string Facet { get; }
         internal Identity Identity { get; }
+
+        // For ice1 proxies, all the enumerators are meaningful. For other proxies, only the Twoway and Oneway
+        // enumerators are used.
         internal InvocationMode InvocationMode { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed => _fixedConnection != null;
@@ -578,6 +581,12 @@ namespace ZeroC.Ice
                     throw new InvalidDataException("received proxy with protocol set to 0");
                 }
 
+                if (proxyData.Protocol != Protocol.Ice1 && proxyData.InvocationMode != InvocationMode.Twoway)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy for protocol {proxyData.Protocol.GetName()} with invocation mode set");
+                }
+
                 if (proxyData.ProtocolMinor != 0)
                 {
                     throw new InvalidDataException(
@@ -636,7 +645,7 @@ namespace ZeroC.Ice
                                      endpoints,
                                      proxyData.Facet ?? "",
                                      proxyData.Identity,
-                                     proxyData.InvocationMode ?? default, // TODO: hold InvocationMode? in Reference
+                                     proxyData.InvocationMode ?? InvocationMode.Twoway,
                                      protocol);
             }
         }
@@ -813,9 +822,16 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
-            if (oneway != null && invocationMode != null)
+            if (invocationMode != null)
             {
-                throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                if (oneway != null)
+                {
+                    throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                }
+                if (Protocol != Protocol.Ice1)
+                {
+                    throw new ArgumentException($"{nameof(invocationMode)} applies only to ice1 proxies");
+                }
             }
 
             if (identityAndFacet != null && facet != null)
@@ -1355,10 +1371,9 @@ namespace ZeroC.Ice
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
             _requestHandler = _fixedConnection;
 
-            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            if (Protocol != Protocol.Ice1)
             {
-                throw new ArgumentException(
-                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
+                Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
 
             if (InvocationMode == InvocationMode.Datagram)
