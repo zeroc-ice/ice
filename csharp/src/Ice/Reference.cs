@@ -554,9 +554,8 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a reference from the input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <returns>The reference read from the stream (can be null).</returns>
-        internal static Reference? Read(InputStream istr, Communicator communicator)
+        internal static Reference? Read(InputStream istr)
         {
             if (istr.Encoding == Encoding.V1_1 || istr.Encoding == Encoding.V2_0)
             {
@@ -588,12 +587,12 @@ namespace ZeroC.Ice
                 // The min seq size with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation header
                 // (6 bytes).
                 Endpoint[] endpoints =
-                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol, communicator));
+                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol));
 
                 string adapterId = endpoints.Length == 0 ? istr.ReadString() : "";
 
                 return new Reference(adapterId,
-                                     communicator,
+                                     istr.Communicator!,
                                      proxyData.Encoding,
                                      endpoints,
                                      proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
