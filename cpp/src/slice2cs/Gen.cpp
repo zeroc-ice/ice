@@ -1779,8 +1779,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     if(partialInitialize)
     {
         _out << sp;
-        _out << nl << "/// <summary>The generated constructor calls the Initialize partial method after initializing "
-             << "the struct data members.</summary>";
+        _out << nl << "/// <summary>The constructor calls the Initialize partial method after initializing "
+             << "the data members.</summary>";
         _out << nl << "partial void Initialize();";
     }
 
