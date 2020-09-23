@@ -56,60 +56,6 @@ namespace ZeroC.Ice
             /// </summary>
             VInt = 8
         }
-
-        internal enum ProxyType : byte
-        {
-            Null,
-            Direct,
-            Indirect,
-            // TODO: more proxy types like fixed and relative
-        }
-
-        internal ref struct DirectProxyData
-        {
-            internal Identity Identity;
-
-            internal Protocol Protocol; // Protocol is marshaled like an optional data member.
-
-            internal Endpoint[] Endpoints;
-
-            internal string[]? Location;
-            internal Encoding? Encoding;
-
-            internal InvocationMode? Ice1InvocationMode;
-
-            internal string? Facet;
-
-            internal DirectProxyData(InputStream istr)
-            {
-                var bitSequence = istr.ReadBitSequence(5);
-
-                Identity = new Identity(istr);
-                if (Identity.Name.Length == 0)
-                {
-                    throw new InvalidDataException("received proxy with empty name");
-                }
-
-                Protocol = bitSequence[0] ? (Protocol)istr.ReadByte() : Protocol.Ice2;
-                Endpoints = istr.ReadEndpointArray(Protocol);
-
-                Location = bitSequence[1] ? istr.ReadArray(1, InputStream.IceReaderIntoString) : null;
-                Encoding = bitSequence[2] ? new Encoding(istr) : null;
-                Ice1InvocationMode = bitSequence[3] ? istr.ReadByte().AsInvocationMode() : null;
-
-                if (Protocol != Protocol.Ice1 && Ice1InvocationMode != null)
-                {
-                    throw new InvalidDataException(
-                        $"received endpoint with protocol {Protocol.GetName()} and ice1 invocation mode");
-                }
-
-                Facet = bitSequence[4] ? istr.ReadString() : null;
-            }
-        }
-
-        internal ref struct IndirectProxyData
-        {
-        }
     }
 
     internal static class SliceFlagsExtensions

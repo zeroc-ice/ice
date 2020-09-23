@@ -558,66 +558,54 @@ namespace ZeroC.Ice
         /// <returns>The reference read from the stream (can be null).</returns>
         internal static Reference? Read(InputStream istr, Communicator communicator)
         {
-            var identity = new Identity(istr);
-            if (identity.Name.Length == 0)
+            if (istr.Encoding == Encoding.V1_1 || istr.Encoding == Encoding.V2_0)
             {
-                return null;
-            }
-
-            string facet = istr.ReadFacet();
-            int mode = istr.ReadByte();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (mode < 0 || mode > (int)InvocationMode.BatchDatagram)
-#pragma warning restore CS0618
-            {
-                throw new InvalidDataException($"invalid invocation mode: {mode}");
-            }
-
-            istr.ReadBool(); // secure option, ignored
-
-            byte major = istr.ReadByte();
-            byte minor = istr.ReadByte();
-            if (minor != 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
-            }
-            var protocol = (Protocol)major;
-            if (protocol == 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to 0");
-            }
-
-            major = istr.ReadByte();
-            minor = istr.ReadByte();
-            var encoding = new Encoding(major, minor);
-
-            Endpoint[] endpoints;
-            string adapterId = "";
-
-            int sz = istr.ReadSize();
-            if (sz > 0)
-            {
-                endpoints = new Endpoint[sz];
-                for (int i = 0; i < sz; i++)
+                var identity = new Identity(istr);
+                if (identity.Name.Length == 0)
                 {
-                    endpoints[i] = istr.ReadEndpoint(protocol, communicator);
+                    return null;
                 }
+
+                var proxyData = new ProxyData11(istr);
+
+                if (proxyData.FacetPath.Length > 1)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy with {proxyData.FacetPath.Length} elements in its facet path");
+                }
+
+                if ((byte)proxyData.Protocol == 0)
+                {
+                    throw new InvalidDataException("received proxy with protocol set to 0");
+                }
+
+                if (proxyData.ProtocolMinor != 0)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy with invalid protocolMinor value: {proxyData.ProtocolMinor}");
+                }
+
+                // The min seq size with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation header
+                // (6 bytes).
+                Endpoint[] endpoints =
+                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol, communicator));
+
+                string adapterId = endpoints.Length == 0 ? istr.ReadString() : "";
+
+                return new Reference(adapterId,
+                                     communicator,
+                                     proxyData.Encoding,
+                                     endpoints,
+                                     proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
+                                     identity,
+                                     proxyData.InvocationMode,
+                                     proxyData.Protocol);
             }
             else
             {
-                endpoints = Array.Empty<Endpoint>();
-                adapterId = istr.ReadString();
+                Debug.Assert(false);
+                return null;
             }
-
-            return new Reference(adapterId,
-                                 communicator,
-                                 encoding,
-                                 endpoints,
-                                 facet,
-                                 identity,
-                                 invocationMode: (InvocationMode)mode,
-                                 protocol);
         }
 
         // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
