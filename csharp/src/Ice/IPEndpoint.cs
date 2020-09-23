@@ -271,7 +271,7 @@ namespace ZeroC.Ice
 
                 if (Host == "*")
                 {
-                    Host = oaEndpoint ? "" :
+                    Host = oaEndpoint ? (communicator.IPVersion == Network.EnableIPv4 ? "0.0.0.0" : "::0") :
                         throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
                 }
                 options.Remove("-h");
