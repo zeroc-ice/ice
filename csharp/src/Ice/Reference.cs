@@ -557,7 +557,7 @@ namespace ZeroC.Ice
         /// <returns>The reference read from the stream (can be null).</returns>
         internal static Reference? Read(InputStream istr)
         {
-            if (istr.Encoding == Encoding.V11 || istr.Encoding == Encoding.V20)
+            if (istr.Encoding == Encoding.V11)
             {
                 var identity = new Identity(istr);
                 if (identity.Name.Length == 0)
@@ -602,8 +602,42 @@ namespace ZeroC.Ice
             }
             else
             {
-                Debug.Assert(false);
-                return null;
+                Debug.Assert(istr.Encoding == Encoding.V20);
+
+                ProxyKind proxyKind = istr.ReadProxyKind();
+                if (proxyKind == ProxyKind.@Null)
+                {
+                    return null;
+                }
+
+                var proxyData = new ProxyData20(istr);
+
+                if (proxyData.Identity.Name.Length == 0)
+                {
+                    throw new InvalidDataException(
+                        $"received non-null proxy with empty identity name");
+                }
+
+                Protocol protocol = proxyData.Protocol ?? Protocol.Ice2;
+
+                if (proxyData.InvocationMode != null && protocol != Protocol.Ice1)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy for protocol {protocol.GetName()} with invocation mode set");
+                }
+
+                Endpoint[] endpoints = proxyKind == ProxyKind.Direct ?
+                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(protocol)) : Array.Empty<Endpoint>();
+
+                // TODO: switch to real Location in reference
+                return new Reference(adapterId: proxyData.Location?.Length > 0 ? proxyData.Location[0] : "",
+                                     istr.Communicator!,
+                                     proxyData.Encoding ?? Encoding.V20, // TODO: hold Encoding? in Reference
+                                     endpoints,
+                                     proxyData.Facet ?? "",
+                                     proxyData.Identity,
+                                     proxyData.InvocationMode ?? default, // TODO: hold InvocationMode? in Reference
+                                     protocol);
             }
         }
 
@@ -1197,31 +1231,54 @@ namespace ZeroC.Ice
             return properties;
         }
 
-        // Marshal the reference.
+        // Marshal the non-null reference.
         internal void Write(OutputStream ostr)
         {
             if (IsFixed)
             {
+                // TODO: should be true only for the 1.1 encoding once we add Fixed support in the 2.0 encoding
                 throw new NotSupportedException("cannot marshal a fixed proxy");
             }
 
-            Identity.IceWrite(ostr);
-            var proxyData = new ProxyData11(Facet.Length > 0 ? new string[] { Facet } : Array.Empty<string>(),
-                                            InvocationMode,
-                                            secure: false,
-                                            Protocol,
-                                            protocolMinor: 0,
-                                            Encoding);
-            proxyData.IceWrite(ostr);
-            ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
-
-            if (Endpoints.Count == 0)
+            if (ostr.Encoding == Encoding.V11)
             {
-                ostr.WriteString(AdapterId);
+                Identity.IceWrite(ostr);
+                var proxyData = new ProxyData11(Facet.Length > 0 ? new string[] { Facet } : Array.Empty<string>(),
+                                                InvocationMode,
+                                                secure: false,
+                                                Protocol,
+                                                protocolMinor: 0,
+                                                Encoding);
+                proxyData.IceWrite(ostr);
+                ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
+
+                if (Endpoints.Count == 0)
+                {
+                    ostr.WriteString(AdapterId);
+                }
+                else
+                {
+                    Debug.Assert(AdapterId.Length == 0);
+                }
             }
             else
             {
-                Debug.Assert(AdapterId.Length == 0);
+                Debug.Assert(ostr.Encoding == Encoding.V20);
+
+                ostr.Write(Endpoints.Count > 0 ? ProxyKind.Direct : ProxyKind.Indirect);
+                var proxyData = new ProxyData20(Identity,
+                                                Protocol == Protocol.Ice2 ? null : Protocol,
+                                                Encoding,
+                                                AdapterId.Length > 0 ? new string[] { AdapterId } : null,
+                                                Protocol == Protocol.Ice1 ? InvocationMode : null, // TODO: fix
+                                                Facet.Length > 0 ? Facet : null);
+
+                proxyData.IceWrite(ostr);
+
+                if (Endpoints.Count > 0)
+                {
+                    ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
+                }
             }
         }
 

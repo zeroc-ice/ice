@@ -51,6 +51,7 @@ module Ice
     ///     - ProxyData11
     ///     - a sequence of endpoints that can be empty
     ///     - an adapter ID string (renamed location in Ice 4.0) present only when the sequence of endpoints is empty
+    [cs:readonly]
     struct ProxyData11
     {
         StringSeq facetPath;
@@ -64,7 +65,7 @@ module Ice
     /// The kind of proxy being marshaled/unmarshaled (2.0 encoding only)
     enum ProxyKind : byte
     {
-        /// A null proxy.
+        /// This optional proxy is null.
         Null,
 
         /// A proxy with one or more endpoints; its URI scheme is ice+transport, where transport corresponds to the
@@ -80,6 +81,7 @@ module Ice
     /// - if ProxyKind is not Null:
     ///    - ProxyData20
     ///    - If ProxyKind is Direct, a sequence of one or more endpoints
+    [cs:readonly]
     struct ProxyData20
     {
         Identity identity;
