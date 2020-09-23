@@ -121,11 +121,6 @@ namespace ZeroC.Ice
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
         {
             publish = null;
-            // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
-            if (Host.Length == 0)
-            {
-                return new Endpoint[] { this };
-            }
 
             // If using a fixed port, this endpoint can be used as the published endpoint to access the returned
             // endpoints. Otherwise, we'll publish each individual expanded endpoint.
@@ -164,7 +159,8 @@ namespace ZeroC.Ice
         {
             if (Protocol == Protocol.Ice1)
             {
-                if (Host.Length > 0)
+                Debug.Assert(Host.Length > 0);
+
                 {
                     sb.Append(" -h ");
                     bool addQuote = Host.IndexOf(':') != -1;
@@ -241,6 +237,11 @@ namespace ZeroC.Ice
         {
             Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = istr.ReadString();
+
+            if (Host.Length == 0)
+            {
+                throw new InvalidDataException("endpoint host is empty");
+            }
 
             if (protocol == Protocol.Ice1)
             {
