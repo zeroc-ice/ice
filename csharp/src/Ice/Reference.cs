@@ -1207,26 +1207,22 @@ namespace ZeroC.Ice
             }
 
             Identity.IceWrite(ostr);
-            ostr.WriteFacet(Facet);
-            ostr.WriteByte((byte)InvocationMode);
-            ostr.WriteBool(false); // secure option, always false (not used)
-            ostr.WriteByte((byte)Protocol);
-            ostr.WriteByte(0);
-            ostr.WriteByte(Encoding.Major);
-            ostr.WriteByte(Encoding.Minor);
+            var proxyData = new ProxyData11(Facet.Length > 0 ? new string[] { Facet } : Array.Empty<string>(),
+                                            InvocationMode,
+                                            secure: false,
+                                            Protocol,
+                                            protocolMinor: 0,
+                                            Encoding);
+            proxyData.IceWrite(ostr);
+            ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
 
-            ostr.WriteSize(Endpoints.Count);
-            if (Endpoints.Count > 0)
+            if (Endpoints.Count == 0)
             {
-                Debug.Assert(AdapterId.Length == 0);
-                foreach (Endpoint endpoint in Endpoints)
-                {
-                    ostr.WriteEndpoint(endpoint);
-                }
+                ostr.WriteString(AdapterId);
             }
             else
             {
-                ostr.WriteString(AdapterId);
+                Debug.Assert(AdapterId.Length == 0);
             }
         }
 
