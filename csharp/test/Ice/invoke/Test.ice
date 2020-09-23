@@ -19,7 +19,7 @@ interface MyClass
 
     (string r1, string r2) opString(string s1);
 
-    void opException() throws MyException;
+    void opException();
 
     void shutdown();
 }

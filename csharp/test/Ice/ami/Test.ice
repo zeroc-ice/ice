@@ -28,8 +28,7 @@ interface TestIntf
     void op();
     void opWithPayload(Ice::ByteSeq seq);
     int opWithResult();
-    void opWithUE()
-        throws TestIntfException;
+    void opWithUE();
     void close(CloseMode mode);
     void sleep(int ms);
     [amd] void startDispatch();
@@ -41,8 +40,7 @@ interface TestIntf
 
     [amd] void opAsyncDispatch();
     [amd] int opWithResultAsyncDispatch();
-    [amd] void opWithUEAsyncDispatch()
-        throws TestIntfException;
+    [amd] void opWithUEAsyncDispatch();
 
     int set(int value);
 }
