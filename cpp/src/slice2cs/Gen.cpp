@@ -1955,7 +1955,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitCommonAttributes();
-    _out << nl << "/// <summary>Helper class for marshal and unmarshal <see cref=\"" << name << "\"/>.</summary>";
+    _out << nl << "/// <summary>Helper class for marshaling and unmarshaling <see cref=\"" << name << "\"/>.</summary>";
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
     if (useSet)
