@@ -821,7 +821,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(3)?.AsMyEnum()));
+                    (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(2)?.AsMyEnum()));
                 TestHelper.Assert(r1 == MyEnum.MyEnumMember);
                 TestHelper.Assert(r2 == MyEnum.MyEnumMember);
             }
@@ -898,7 +898,7 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: true, istr => new FixedStruct(istr)),
-                        istr.ReadTaggedStruct(3, fixedSize: true, istr => new FixedStruct(istr))));
+                        istr.ReadTaggedStruct(2, fixedSize: true, istr => new FixedStruct(istr))));
                 TestHelper.Assert(r1!.Value.M == 56);
                 TestHelper.Assert(r2!.Value.M == 56);
             }
@@ -945,7 +945,7 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: false, istr => new VarStruct(istr)),
-                        istr.ReadTaggedStruct(3, fixedSize: false, istr => new VarStruct(istr))));
+                        istr.ReadTaggedStruct(2, fixedSize: false, istr => new VarStruct(istr))));
                 TestHelper.Assert(r1!.Value.M.Equals("test"));
                 TestHelper.Assert(r2!.Value.M.Equals("test"));
 
@@ -1004,7 +1004,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<byte>(1), istr.ReadTaggedArray<byte>(3)));
+                    (istr.ReadTaggedArray<byte>(1), istr.ReadTaggedArray<byte>(2)));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
@@ -1042,7 +1042,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<bool>(1), istr.ReadTaggedArray<bool>(3)));
+                    (istr.ReadTaggedArray<bool>(1), istr.ReadTaggedArray<bool>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
@@ -1080,7 +1080,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<short>(1), istr.ReadTaggedArray<short>(3)));
+                    (istr.ReadTaggedArray<short>(1), istr.ReadTaggedArray<short>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
@@ -1116,7 +1116,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<int>(1), istr.ReadTaggedArray<int>(3)));
+                    (istr.ReadTaggedArray<int>(1), istr.ReadTaggedArray<int>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
@@ -1153,7 +1153,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<long>(1), istr.ReadTaggedArray<long>(3)));
+                    (istr.ReadTaggedArray<long>(1), istr.ReadTaggedArray<long>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
@@ -1190,7 +1190,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<float>(1), istr.ReadTaggedArray<float>(3)));
+                    (istr.ReadTaggedArray<float>(1), istr.ReadTaggedArray<float>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
@@ -1227,7 +1227,7 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
-                    (istr.ReadTaggedArray<double>(1), istr.ReadTaggedArray<double>(3)));
+                    (istr.ReadTaggedArray<double>(1), istr.ReadTaggedArray<double>(2)));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
@@ -1267,7 +1267,7 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 1, fixedSize: false, istr => istr.ReadString()),
-                       istr.ReadTaggedArray(3, 1, fixedSize: false, istr => istr.ReadString())));
+                       istr.ReadTaggedArray(2, 1, fixedSize: false, istr => istr.ReadString())));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
@@ -1491,7 +1491,7 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                       (istr.ReadTaggedArray(1, 1, fixedSize: false, istr => new VarStruct(istr)),
-                        istr.ReadTaggedArray(3, 1, fixedSize: false, istr => new VarStruct(istr))));
+                        istr.ReadTaggedArray(2, 1, fixedSize: false, istr => new VarStruct(istr))));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r2!));
             }
