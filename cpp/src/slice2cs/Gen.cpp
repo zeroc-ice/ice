@@ -882,8 +882,7 @@ void writeDocCommentLines(IceUtilInternal::Output& out,
 }
 
 void
-Slice::CsVisitor::writeTypeDocComment(const ContainedPtr& p,
-                                      const string& deprecateReason)
+Slice::CsVisitor::writeTypeDocComment(const ContainedPtr& p, const string& deprecateReason)
 {
     CommentInfo comment = processComment(p, deprecateReason);
     writeDocCommentLines(_out, comment.summaryLines, "summary");
@@ -1750,12 +1749,16 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sb;
 
     _out << sp;
+    _out << nl << "/// <summary>A <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> used to read <see cref=\""
+         << name << "\"/> instances.</summary>";
     _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "istr => new " << name << "(istr);";
     _out.dec();
 
     _out << sp;
+    _out << nl << "/// <summary>A <see cref=\"ZeroC.Ice.OutputStreamWriter{T}\"/> used to write <see cref=\""
+         << name << "\"/> instances.</summary>";
     _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =";
     _out.inc();
     _out << nl << "(ZeroC.Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
@@ -1775,10 +1778,19 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(partialInitialize)
     {
-        _out << sp << nl << "partial void Initialize();";
+        _out << sp;
+        _out << nl << "/// <summary>The constructor calls the Initialize partial method after initializing "
+             << "the data members.</summary>";
+        _out << nl << "partial void Initialize();";
     }
 
     _out << sp;
+    _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/> .</summary>";
+    for (const auto& member : dataMembers)
+    {
+        CommentInfo comment = processComment(member, "");
+        writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
+    }
     _out << nl << "public ";
     _out << name
          << spar
@@ -1802,6 +1814,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
+    _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
+    _out << nl << "/// <param name=\"istr\">The <see cref=\"ZeroC.Ice.InputStream\"/> being used to unmarshal the "
+         << "endpoint.</param>";
     _out << nl << "public " << name << "(ZeroC.Ice.InputStream istr)";
     _out << sb;
 
@@ -1815,6 +1830,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp;
+    _out << nl << "/// <inheritdoc/>";
     _out << nl << "public override int GetHashCode()";
     _out << sb;
     _out << nl << "var hash = new global::System.HashCode();";
@@ -1829,6 +1845,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     // Equals implementation
     //
     _out << sp;
+    _out << nl << "/// <inheritdoc/>";
     _out << nl << "public bool Equals(" << fixId(p->name()) << " other)";
 
     _out << " =>";
@@ -1860,17 +1877,31 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out.dec();
 
     _out << sp;
+    _out << nl << "/// <inheritdoc/>";
     _out << nl << "public override bool Equals(object? other) => other is " << name << " value && this.Equals(value);";
 
     _out << sp;
+    _out << nl << "/// <summary>The equality operator == returns true if its operands are equal, false otherwise."
+         << "</summary>";
+    _out << nl << "/// <param name=\"lhs\">The left hand side operand.</param>";
+    _out << nl << "/// <param name=\"rhs\">The right hand side operand.</param>";
+    _out << nl << "/// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>";
     _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";
     _out << " => lhs.Equals(rhs);";
 
     _out << sp;
+    _out << nl << "/// <summary>The inequality operator != returns true if its operands are not equal, false otherwise."
+         << "</summary>";
+    _out << nl << "/// <param name=\"lhs\">The left hand side operand.</param>";
+    _out << nl << "/// <param name=\"rhs\">The right hand side operand.</param>";
+    _out << nl << "/// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>";
     _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs)";
     _out << " => !lhs.Equals(rhs);";
 
     _out << sp;
+    _out << nl << "/// <summary>Marshals the struct by writing its data to the <see cref=\"ZeroC.Ice.OutputStream\"/>."
+         << "</summary>";
+    _out << nl << "/// <param name=\"ostr\">The stream to write to.</param>";
     _out << nl << "public readonly void IceWrite(ZeroC.Ice.OutputStream ostr)";
     _out << sb;
 
@@ -1900,6 +1931,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitDeprecate(p, 0, _out, "type");
     emitCommonAttributes();
     emitCustomAttributes(p);
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     _out << nl << "public enum " << name << " : " << underlying;
     _out << sb;
     bool firstEn = true;
@@ -1923,6 +1955,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitCommonAttributes();
+    _out << nl << "/// <summary>Helper class for marshaling and unmarshaling <see cref=\"" << name << "\"/>.</summary>";
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
     if (useSet)
