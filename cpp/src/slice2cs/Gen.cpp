@@ -1749,7 +1749,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sb;
 
     _out << sp;
-    _out << nl << "/// <summary>An <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> used to read <see cref=\""
+    _out << nl << "/// <summary>A <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> used to read <see cref=\""
          << name << "\"/> instances.</summary>";
     _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
