@@ -259,8 +259,8 @@ namespace ZeroC.Ice
         public override string ToString() => _underlying.ToString()!;
 
         internal
-        WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource) :
-            this(communicator, del)
+        WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource)
+            : this(communicator, del)
         {
             _host = host;
             _resource = resource;

@@ -120,8 +120,8 @@ namespace ZeroC.Ice
              new TcpConnection(manager,
                                this,
                                transceiver,
-                               Protocol == Protocol.Ice1 ? (BinaryConnection)
-                                 new Ice1BinaryConnection(transceiver!, this, adapter) :
+                               Protocol == Protocol.Ice1 ?
+                                 (BinaryConnection)new Ice1BinaryConnection(transceiver!, this, adapter) :
                                  new SlicBinaryConnection(transceiver!, this, adapter),
                                connector,
                                connectionId,

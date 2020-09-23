@@ -89,7 +89,7 @@ namespace ZeroC.Ice
                 (endpoints, path, proxyOptions, facet) = UriParser.ParseProxy(proxyString, communicator);
 
                 protocol = proxyOptions.Protocol ?? Protocol.Ice2;
-                encoding = proxyOptions.Encoding ?? Encoding.V2_0;
+                encoding = proxyOptions.Encoding ?? Encoding.V20;
 
                 adapterId = "";
 
@@ -557,7 +557,7 @@ namespace ZeroC.Ice
         /// <returns>The reference read from the stream (can be null).</returns>
         internal static Reference? Read(InputStream istr)
         {
-            if (istr.Encoding == Encoding.V1_1 || istr.Encoding == Encoding.V2_0)
+            if (istr.Encoding == Encoding.V11 || istr.Encoding == Encoding.V20)
             {
                 var identity = new Identity(istr);
                 if (identity.Name.Length == 0)

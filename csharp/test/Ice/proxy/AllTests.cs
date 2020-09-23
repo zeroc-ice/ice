@@ -372,9 +372,9 @@ namespace ZeroC.Ice.Test.Proxy
 #pragma warning restore CS0618 // Type or member is obsolete
 
             b1 = IObjectPrx.Parse("ice:test", communicator);
-            TestHelper.Assert(b1.Protocol == Protocol.Ice2 && b1.Encoding == Encoding.V2_0);
+            TestHelper.Assert(b1.Protocol == Protocol.Ice2 && b1.Encoding == Encoding.V20);
             b1 = IObjectPrx.Parse("test", communicator);
-            TestHelper.Assert(b1.Protocol == Protocol.Ice1 && b1.Encoding == Encoding.V1_1);
+            TestHelper.Assert(b1.Protocol == Protocol.Ice1 && b1.Encoding == Encoding.V11);
 
             b1 = IObjectPrx.Parse("ice:test?encoding=6.5", communicator);
             TestHelper.Assert(b1.Encoding.Major == 6 && b1.Encoding.Minor == 5);

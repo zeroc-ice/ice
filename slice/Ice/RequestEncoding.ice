@@ -17,7 +17,7 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-    // These definitions help with the encoding of proxies.
+    // These definitions help with the encoding of requests.
 
     /// A request context. Each operation has a <code>Context</code> as its implicit final parameter.
     dictionary<string, string> Context;

@@ -73,7 +73,10 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal Lookup(LocatorRegistry registry, ILookupPrx lookup, Communicator communicator,
+        internal Lookup(
+            LocatorRegistry registry,
+            ILookupPrx lookup,
+            Communicator communicator,
             ObjectAdapter replyAdapter)
         {
             _replyAdapter = replyAdapter;

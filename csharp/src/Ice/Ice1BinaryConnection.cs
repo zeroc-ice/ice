@@ -31,8 +31,8 @@ namespace ZeroC.Ice
 
         public override string ToString() => _transceiver.ToString()!;
 
-        internal Ice1BinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
-            base(endpoint, adapter) => _transceiver = transceiver;
+        internal Ice1BinaryConnection(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
+            : base(endpoint, adapter) => _transceiver = transceiver;
 
         internal override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {

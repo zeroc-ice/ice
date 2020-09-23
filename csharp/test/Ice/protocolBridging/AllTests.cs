@@ -41,7 +41,8 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
             output.Write("testing forwarding with other protocol and other encoding... ");
             output.Flush();
-            Encoding encoding = forwardOtherPrx.Encoding == Encoding.V1_1 ? Encoding.V2_0 : Encoding.V1_1;
+            Encoding encoding =
+                forwardOtherPrx.Encoding == Encoding.V11 ? Encoding.V20 : Encoding.V11;
             newPrx = TestProxy(forwardOtherPrx.Clone(encoding: encoding));
             TestHelper.Assert(newPrx.Protocol != forwardOtherPrx.Protocol);
             TestHelper.Assert(newPrx.Encoding == encoding);

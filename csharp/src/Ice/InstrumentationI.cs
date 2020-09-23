@@ -122,8 +122,11 @@ namespace ZeroC.Ice
                 try
                 {
                     return _connections.GetObserver(
-                        new ConnectionHelper(connection, connectionState), observer,
-                        _delegate?.GetConnectionObserver(connection, connectionState,
+                        new ConnectionHelper(connection, connectionState),
+                        observer,
+                        _delegate?.GetConnectionObserver(
+                            connection,
+                            connectionState,
                             (observer as ConnectionObserver)?.Delegate ?? observer));
                 }
                 catch (Exception ex)
