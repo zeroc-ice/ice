@@ -18,14 +18,17 @@ namespace ZeroC.Ice
     internal class ColocatedConnector : IConnector
     {
         private readonly ColocatedEndpoint _endpoint;
-        private readonly ChannelWriter<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> _writer;
+        private readonly ChannelWriter<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> _writer;
 
         public Connection Connect(string connectionId)
         {
-            Channel<(long, object)> reader = Channel.CreateUnbounded<(long, object)>();
-            Channel<(long, object)> writer = Channel.CreateUnbounded<(long, object)>();
+            var reader = Channel.CreateUnbounded<(long, object, bool)>();
+            var writer = Channel.CreateUnbounded<(long, object, bool)>();
 
-            _writer.TryWrite((writer.Writer, reader.Reader));
+            if (!_writer.TryWrite((writer.Writer, reader.Reader)))
+            {
+                throw new ConnectionRefusedException();
+            }
 
             return new ColocatedConnection(_endpoint.Communicator.OutgoingConnectionFactory,
                                            _endpoint,
@@ -39,7 +42,7 @@ namespace ZeroC.Ice
 
         internal ColocatedConnector(
             ColocatedEndpoint endpoint,
-            ChannelWriter<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> writer)
+            ChannelWriter<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> writer)
         {
             _endpoint = endpoint;
             _writer = writer;
@@ -53,12 +56,12 @@ namespace ZeroC.Ice
         private readonly ColocatedEndpoint _endpoint;
         private readonly IConnectionManager _manager;
         private readonly ObjectAdapter _adapter;
-        private readonly ChannelReader<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> _reader;
-        private readonly ChannelWriter<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> _writer;
+        private readonly ChannelReader<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> _reader;
+        private readonly ChannelWriter<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> _writer;
 
         public async ValueTask<Connection> AcceptAsync()
         {
-            (ChannelWriter<(long, object)> writer, ChannelReader<(long, object)> reader) =
+            (ChannelWriter<(long, object, bool)> writer, ChannelReader<(long, object, bool)> reader) =
                 await _reader.ReadAsync().ConfigureAwait(false);
 
             return new ColocatedConnection(_manager,
@@ -79,8 +82,8 @@ namespace ZeroC.Ice
             ColocatedEndpoint endpoint,
             IConnectionManager manager,
             ObjectAdapter adapter,
-            ChannelWriter<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> writer,
-            ChannelReader<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> reader)
+            ChannelWriter<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> writer,
+            ChannelReader<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> reader)
         {
             _endpoint = endpoint;
             _manager = manager;
@@ -103,7 +106,7 @@ namespace ZeroC.Ice
 
         internal ObjectAdapter Adapter { get; }
 
-        private readonly Channel<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)> _channel;
+        private readonly Channel<(ChannelWriter<(long, object, bool)>, ChannelReader<(long, object, bool)>)> _channel;
         private readonly IEnumerable<IConnector> _connectors;
 
         public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
@@ -134,7 +137,8 @@ namespace ZeroC.Ice
         internal ColocatedEndpoint(ObjectAdapter adapter) : base(adapter.Communicator, adapter.Protocol)
         {
             Adapter = adapter;
-            _channel = Channel.CreateUnbounded<(ChannelWriter<(long, object)>, ChannelReader<(long, object)>)>();
+            _channel = Channel.CreateUnbounded<(ChannelWriter<(long, object, bool)>,
+                                                ChannelReader<(long, object, bool)>)>();
             _connectors = new IConnector[] { new ColocatedConnector(this, _channel.Writer) };
         }
     }

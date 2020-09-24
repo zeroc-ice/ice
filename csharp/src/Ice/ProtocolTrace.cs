@@ -77,6 +77,7 @@ namespace ZeroC.Ice
                         {
                             Ice1Definitions.FrameType.ValidateConnection => "validate",
                             Ice1Definitions.FrameType.CloseConnection => "close",
+                            Ice1Definitions.FrameType.RequestBatch => "batch request",
                             _ => "unknown"
                         };
                         encoding = Ice1Definitions.Encoding;
@@ -193,6 +194,11 @@ namespace ZeroC.Ice
                     {
                         s.Append(outgoingResponseFrame.ResultType);
                     }
+                }
+                else if (frameType == "batch request")
+                {
+                    s.Append("\nnumber of requests = ");
+                    s.Append(data.AsReadOnlySpan().ReadInt());
                 }
                 else if (protocol == Protocol.Ice2 && frameType == "close")
                 {

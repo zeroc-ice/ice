@@ -40,6 +40,17 @@ namespace ZeroC.Ice
             CloseConnection = 4
         }
 
+        internal static readonly List<ArraySegment<byte>> CloseConnectionFrame =
+            new List<ArraySegment<byte>> { new byte[]
+            {
+                Magic[0], Magic[1], Magic[2], Magic[3],
+                ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+                (byte)FrameType.CloseConnection,
+                0, // Compression status.
+                HeaderSize, 0, 0, 0 // Frame size.
+            }
+        };
+
         internal static readonly byte[] RequestHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
@@ -69,22 +80,15 @@ namespace ZeroC.Ice
             0, 0, 0, 0 // Frame size (placeholder).
         };
 
-        internal static readonly byte[] ValidateConnectionFrame = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.ValidateConnection,
-            0, // Compression status.
-            HeaderSize, 0, 0, 0 // Frame size.
-        };
-
-        internal static readonly byte[] CloseConnectionFrame = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.CloseConnection,
-            0, // Compression status.
-            HeaderSize, 0, 0, 0 // Frame size.
+        internal static readonly List<ArraySegment<byte>> ValidateConnectionFrame =
+            new List<ArraySegment<byte>> { new byte[]
+            {
+                Magic[0], Magic[1], Magic[2], Magic[3],
+                ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+                (byte)FrameType.ValidateConnection,
+                0, // Compression status.
+                HeaderSize, 0, 0, 0 // Frame size.
+            }
         };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes

@@ -319,7 +319,7 @@ namespace ZeroC.Ice
                 Task closeTask;
                 lock (_mutex)
                 {
-                    if (_state == ConnectionState.Active)
+                    if (_state == ConnectionState.Active && _controlStream != null)
                     {
                         SetState(ConnectionState.Closing, exception);
                         _closeTask ??= PerformCloseAsync(exception);
@@ -340,37 +340,16 @@ namespace ZeroC.Ice
 
             async Task PerformCloseAsync(Exception exception)
             {
-                long lastIncomingStreamId = 0;
+                // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for the
+                // incoming streams to complete before sending the close frame but instead provide the ID of the
+                // latest incoming stream ID to the peer. The peer will close the connection once it received the
+                // response for this stream ID.
+                long lastIncomingStreamId = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
+
                 if (Endpoint.Protocol == Protocol.Ice1)
                 {
-                    // Abort outgoing streams and wait for all incoming streams to complete before sending the
-                    // close frame.
-                    foreach (Stream stream in Transceiver.Streams.Values)
-                    {
-                        if (!stream.IsIncoming && stream != _controlStream)
-                        {
-                            stream.Abort(exception);
-                        }
-                    }
-                    await Transceiver.WaitForNoAppStreamsAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    // Abort outgoing streams and get the largest incoming stream ID. We don't wait for the
-                    // incoming streams to complete before sending the close frame but instead provide the
-                    // ID of the latest incoming stream ID to the peer. The peer will close the connection
-                    // once it received the response for this stream ID.
-                    foreach (Stream stream in Transceiver.Streams.Values)
-                    {
-                        if (!stream.IsIncoming && stream != _controlStream)
-                        {
-                            stream.Abort(exception);
-                        }
-                        else if (stream.Id > lastIncomingStreamId)
-                        {
-                            lastIncomingStreamId = stream.Id;
-                        }
-                    }
+                    // With Ice1, we first wait for all incoming streams to complete before sending the close frame.
+                    await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
                 }
 
                 CancellationTokenSource? source = null;
@@ -445,29 +424,17 @@ namespace ZeroC.Ice
             {
                 await AbortAsync(ex);
             }
-            finally
-            {
-                peerControlStream.Dispose();
-            }
 
             async Task PerformCloseAsync(long lastStreamId, Exception exception)
             {
-                _controlStream!.Dispose();
-
                 if (Endpoint.Protocol != Protocol.Ice1)
                 {
                     // Abort non-processed outgoing streams and all incoming streams.
-                    foreach (Stream stream in Transceiver.Streams.Values)
-                    {
-                        if (stream.IsIncoming || stream.Id > lastStreamId)
-                        {
-                            stream.Abort(exception);
-                        }
-                    }
+                    Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
                 }
 
-                // Wait for all the streams to be completed.
-                await Transceiver.WaitForNoAppStreamsAsync().ConfigureAwait(false);
+                // Wait for all the streams to complete.
+                await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
                 // Abort the connection once all the streams have completed.
                 await AbortAsync(exception).ConfigureAwait(false);
@@ -552,7 +519,18 @@ namespace ZeroC.Ice
 
                 stream = Transceiver.CreateStream(bidirectional);
 
-                stream.Observer = observer?.GetRemoteObserver(this, stream.Id, request.Size);
+                if (observer != null)
+                {
+                    if (this is ColocatedConnection)
+                    {
+                        // TODO: Get rid of the colocated observer?
+                        stream.Observer = observer?.GetCollocatedObserver(_adapter!, stream.Id, request.Size);
+                    }
+                    else
+                    {
+                        stream.Observer = observer?.GetRemoteObserver(this, stream.Id, request.Size);
+                    }
+                }
 
                 // It's important to call SendAsync from the synchronization here to ensure the requests are queued
                 // for sending in the same order as the stream IDs are allocated.
@@ -578,14 +556,18 @@ namespace ZeroC.Ice
                 // Initialize the transport.
                 await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
-                // Create the control stream and send the initialize frame
-                _controlStream = await Transceiver.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
+                if (!Endpoint.IsDatagram)
+                {
+                    // Create the control stream and send the initialize frame
+                    _controlStream = await Transceiver.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
 
-                // Wait for the peer control stream to be accepted and read the initialize frame
-                Stream peerControlStream = await Transceiver.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
+                    // Wait for the peer control stream to be accepted and read the initialize frame
+                    Stream peerControlStream =
+                        await Transceiver.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
 
-                // Setup a task to wait for the close frame on the peer's control stream.
-                _ = Task.Run(() => WaitForCloseAsync(peerControlStream));
+                    // Setup a task to wait for the close frame on the peer's control stream.
+                    _ = Task.Run(async () => await WaitForCloseAsync(peerControlStream).ConfigureAwait(false));
+                }
 
                 Transceiver.Initialized();
 
@@ -658,11 +640,8 @@ namespace ZeroC.Ice
                 }
 
                 // Wait for all all the streams to be completed
-                foreach (Stream stream in Transceiver.Streams.Values)
-                {
-                    stream.Abort(exception);
-                }
-                await Transceiver.WaitForNoAppStreamsAsync().ConfigureAwait(false);
+                Transceiver.AbortStreams(exception);
+                await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
                 Transceiver.Closed(exception);
                 Transceiver.Dispose();
@@ -694,7 +673,7 @@ namespace ZeroC.Ice
                 // TODO: as long as the .NET thread pool schedules this, we'll continue to accept new streams. This
                 // can be problematic if the OA task scheduler can't keep up with the dispatching of the incoming
                 // requests.
-                _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync());
+                _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
 
                 var cancelSource = new CancellationTokenSource();
                 CancellationToken cancel = cancelSource.Token;
@@ -703,40 +682,46 @@ namespace ZeroC.Ice
                 (IncomingRequestFrame request, bool fin)
                     = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
 
-                // No additional data is expected at this point other than potentially a stream reset from the
-                // transport. We start a task on the stream to eventually be notified when the stream is reset
-                // by the peer in order to cancel the dispatch.
-                // TODO: support for reading streamable data.
                 if (!fin)
                 {
+                    // TODO: support for reading streamable data.
+                }
+
+                if (stream.IsBidirectional)
+                {
+                    // Be notified if the peer aborts the stream and cancel the given source.
                     stream.CancelSourceIfStreamReset(cancelSource);
                 }
 
                 ObjectAdapter? adapter = _adapter;
+                OutgoingResponseFrame response;
                 if (adapter == null)
                 {
-                    var exception = new ObjectNotExistException(request.Identity, request.Facet, request.Operation);
-                    var response = new OutgoingResponseFrame(request, exception);
-                    await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
+                    if (stream.IsBidirectional)
+                    {
+                        var exception = new ObjectNotExistException(request.Identity, request.Facet, request.Operation);
+                        response = new OutgoingResponseFrame(request, exception);
+                        await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
+                    }
                     return;
+                }
+
+                var current = new Current(adapter, request, stream, cancel, this);
+
+                // Dispatch the request and get the response
+                if (adapter.TaskScheduler != null)
+                {
+                    (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, stream, current),
+                                                    cancel,
+                                                    adapter.TaskScheduler).ConfigureAwait(false);
                 }
                 else
                 {
-                    var current = new Current(adapter, request, stream, cancel, this);
+                    (response, fin) = await adapter.DispatchAsync(request, stream, current).ConfigureAwait(false);
+                }
 
-                    // Dispatch the request and get the response
-                    OutgoingResponseFrame response;
-                    if (adapter.TaskScheduler != null)
-                    {
-                        (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, stream, current),
-                                                        cancel,
-                                                        adapter.TaskScheduler).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        (response, fin) = await adapter.DispatchAsync(request, stream, current).ConfigureAwait(false);
-                    }
-
+                if (stream.IsBidirectional)
+                {
                     // Send the response over the stream
                     await stream.SendResponseFrameAsync(response, fin, cancel);
 
@@ -820,7 +805,7 @@ namespace ZeroC.Ice
                     Debug.Assert(_state == ConnectionState.Validating);
                     // Start the asynchronous operation from the thread pool to prevent eventually reading
                     // synchronously new frames from this thread.
-                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync());
+                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
                     break;
                 }
 

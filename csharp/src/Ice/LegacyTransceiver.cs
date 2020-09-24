@@ -14,9 +14,6 @@ namespace ZeroC.Ice
 {
     internal class LegacyStream : Stream, IValueTaskSource<(Ice1Definitions.FrameType, ArraySegment<byte>)>
     {
-        private static readonly List<ArraySegment<byte>> _closeConnectionFrame =
-           new List<ArraySegment<byte>> { Ice1Definitions.CloseConnectionFrame };
-
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         private int RequestId => IsBidirectional ? (int)(Id >> 2) + 1 : 0;
         private ManualResetValueTaskSourceCore<(Ice1Definitions.FrameType, ArraySegment<byte>)> _source;
@@ -40,8 +37,7 @@ namespace ZeroC.Ice
         protected override ValueTask ResetAsync() => new ValueTask();
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
-            // This is never called because we override the default Async implementation
-            throw new NotImplementedException();
+            _transceiver.SendFrameAsync(buffer, cancel);
 
         (Ice1Definitions.FrameType, ArraySegment<byte>) IValueTaskSource<(Ice1Definitions.FrameType, ArraySegment<byte>)>.GetResult(
             short token)
@@ -72,35 +68,6 @@ namespace ZeroC.Ice
         internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =>
             _source.SetResult((frameType, frame));
 
-        internal override async ValueTask<(long, string message)> ReceiveCloseFrameAsync()
-        {
-            // Wait to be signaled for the reception of a new frame for this stream
-            (ArraySegment<byte> frame, bool _) = await ReceiveFrameAsync((byte)Ice1Definitions.FrameType.CloseConnection,
-                                                                         CancellationToken.None).ConfigureAwait(false);
-
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-            {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                         Id,
-                                         frame,
-                                         (byte)Ice1Definitions.FrameType.CloseConnection);
-            }
-
-            return (0, "connection gracefully closed by peer");
-        }
-
-        internal override ValueTask SendCloseFrameAsync(long streamId, string reason, CancellationToken cancel)
-        {
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-            {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                         Id,
-                                         _closeConnectionFrame,
-                                         (byte)Ice1Definitions.FrameType.CloseConnection);
-            }
-            return _transceiver.SendFrameAsync(_closeConnectionFrame, cancel);
-        }
-
         private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
             byte expectedFrameType,
             CancellationToken cancel)
@@ -114,7 +81,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
             }
-            return (frame, true);
+            return (frame, frameType != Ice1Definitions.FrameType.ValidateConnection);
         }
 
         private protected override ValueTask SendFrameAsync(OutgoingFrame frame, bool fin, CancellationToken cancel)
@@ -175,9 +142,6 @@ namespace ZeroC.Ice
 
     internal class LegacyTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
-        private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
-            new List<ArraySegment<byte>> { Ice1Definitions.ValidateConnectionFrame };
-
         private readonly object _mutex = new object();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
@@ -195,15 +159,16 @@ namespace ZeroC.Ice
                     (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
                     if (streamId >= 0)
                     {
-                        if (frameType == Ice1Definitions.FrameType.Request)
+                        if (TryGetStream(streamId, out LegacyStream? stream))
                         {
-                            var stream = new LegacyStream(streamId, this);
+                            stream.ReceivedFrame(frameType, frame);
+                        }
+                        else if (frameType == Ice1Definitions.FrameType.Request ||
+                                 frameType == Ice1Definitions.FrameType.ValidateConnection)
+                        {
+                            stream = new LegacyStream(streamId, this);
                             stream.ReceivedFrame(frameType, frame);
                             return stream;
-                        }
-                        else if (TryGetStream(streamId, out LegacyStream? stream))
-                        {
-                            stream.ReceivedFrame(frameType, frame);
                         }
                         else
                         {
@@ -236,64 +201,26 @@ namespace ZeroC.Ice
             }
         }
 
-        public override async ValueTask InitializeAsync(CancellationToken cancel)
-        {
-            // Initialize the transport
-            await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
-
-            if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
-            {
-                if (IsIncoming) // The server side has the active role for connection validation.
-                {
-                    await SendAsync(_validateConnectionFrame, cancel).ConfigureAwait(false);
-                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                    {
-                        TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
-                    }
-                }
-                else // The client side has the passive role for connection validation.
-                {
-                    var readBuffer = new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]);
-                    await ReceiveAsync(readBuffer, cancel).ConfigureAwait(false);
-
-                    Ice1Definitions.CheckHeader(readBuffer);
-                    var frameType = (Ice1Definitions.FrameType)readBuffer[8];
-                    if (frameType != Ice1Definitions.FrameType.ValidateConnection)
-                    {
-                        throw new InvalidDataException(@$"received ice1 frame with frame type `{frameType
-                            }' before receiving the validate connection frame");
-                    }
-
-                    int size = readBuffer.AsReadOnlySpan(10, 4).ReadInt();
-                    if (size != Ice1Definitions.HeaderSize)
-                    {
-                        throw new InvalidDataException(
-                            @$"received an ice1 frame with validate connection type and a size of `{size
-                            }' bytes");
-                    }
-
-                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                    {
-                        TraceReceivedProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
-                    }
-                }
-            }
-        }
+        public override ValueTask InitializeAsync(CancellationToken cancel) => _transceiver.InitializeAsync(cancel);
 
         public override async ValueTask PingAsync(CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceSendProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
+                ProtocolTrace.TraceFrame(Endpoint,
+                                         0,
+                                         new List<ArraySegment<byte>>(),
+                                         (byte)Ice1Definitions.FrameType.ValidateConnection);
             }
-            await SendFrameAsync(_validateConnectionFrame, CancellationToken.None).ConfigureAwait(false);
+            await SendFrameAsync(Ice1Definitions.ValidateConnectionFrame, CancellationToken.None).ConfigureAwait(false);
         }
 
         public override string ToString() => _transceiver.ToString()!;
 
         protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
             if (disposing)
             {
                 _transceiver.Dispose();
@@ -309,20 +236,28 @@ namespace ZeroC.Ice
             if (IsIncoming)
             {
                 _nextBidirectionalId = 1;
-                _nextUnidirectionalId = 7;
+                _nextUnidirectionalId = 3;
                 _nextPeerUnidirectionalId = 2;
             }
             else
             {
                 _nextBidirectionalId = 0;
-                _nextUnidirectionalId = 6;
+                _nextUnidirectionalId = 2;
                 _nextPeerUnidirectionalId = 3;
             }
         }
 
-        internal override ValueTask<Stream> ReceiveInitializeFrameAsync(CancellationToken cancel) =>
-            // Ice1 doesn't have initialize frames
-            new ValueTask<Stream>(new LegacyStream(IsIncoming ? 2 : 3, this));
+        internal override ValueTask<Stream> ReceiveInitializeFrameAsync(CancellationToken cancel)
+        {
+            if (IsIncoming)
+            {
+                return new ValueTask<Stream>(new LegacyStream(2, this));
+            }
+            else
+            {
+                return base.ReceiveInitializeFrameAsync(cancel);
+            }
+        }
 
         internal async ValueTask SendFrameAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
@@ -367,9 +302,17 @@ namespace ZeroC.Ice
             }
         }
 
-        internal override ValueTask<Stream> SendInitializeFrameAsync(CancellationToken cancel) =>
-            // Ice1 doesn't have initialize frames
-            new ValueTask<Stream>(new LegacyStream(IsIncoming ? 3 : 2, this));
+        internal override ValueTask<Stream> SendInitializeFrameAsync(CancellationToken cancel)
+        {
+            if (IsIncoming)
+            {
+                return base.SendInitializeFrameAsync(cancel);
+            }
+            else
+            {
+                return new ValueTask<Stream>(CreateStream(false));
+            }
+        }
 
         private (long, Ice1Definitions.FrameType, ArraySegment<byte>) ParseFrame(ArraySegment<byte> readBuffer)
         {
@@ -414,7 +357,10 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceReceivedProtocolFrame(frameType);
+                        ProtocolTrace.TraceFrame(Endpoint,
+                                                 0,
+                                                 readBuffer.Slice(Ice1Definitions.HeaderSize),
+                                                 (byte)Ice1Definitions.FrameType.RequestBatch);
                     }
                     int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
@@ -437,10 +383,13 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        TraceReceivedProtocolFrame(Ice1Definitions.FrameType.ValidateConnection);
+                        ProtocolTrace.TraceFrame(Endpoint,
+                                                 0,
+                                                 ArraySegment<byte>.Empty,
+                                                 (byte)Ice1Definitions.FrameType.ValidateConnection);
                     }
                     PingReceived();
-                    return (-1, frameType, default);
+                    return (IsIncoming ? 2 : 3, frameType, default);
                 }
 
                 default:
@@ -531,31 +480,6 @@ namespace ZeroC.Ice
             int sent = await _transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
             Debug.Assert(sent == buffers.GetByteCount());
             Sent(sent);
-        }
-
-        private void TraceSendProtocolFrame(Ice1Definitions.FrameType type) => TraceFrame("sending ", type);
-
-        private void TraceReceivedProtocolFrame(Ice1Definitions.FrameType type) => TraceFrame("received ", type);
-
-        private void TraceFrame(string prefix, Ice1Definitions.FrameType type)
-        {
-            string? frameType = type switch
-            {
-                Ice1Definitions.FrameType.RequestBatch => "batch request",
-                Ice1Definitions.FrameType.ValidateConnection => "validate connection",
-                Ice1Definitions.FrameType.CloseConnection => "close connection",
-                _ => null,
-            };
-            Debug.Assert(frameType != null);
-
-            // Validation and close connection frames are Ice1 protocol frame so we continue to trace them with
-            // the protocol tracing.
-            var s = new StringBuilder();
-            s.Append(prefix);
-            s.Append(frameType);
-            s.Append("\nprotocol = ");
-            s.Append(Endpoint.Protocol.GetName());
-            Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.ProtocolCategory, s.ToString());
         }
     }
 }
