@@ -79,11 +79,11 @@ namespace ZeroC.Ice
         /// <summary>Factory for IObjectPrx proxies.</summary>
         public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
-        /// <summary>An InputStream reader used to read non nullable proxies.</summary>
+        /// <summary>An <see cref="InputStreamReader{T}"/> used to read non nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
 
-        /// <summary>An InputStream reader used to read nullable proxies.</summary>
+        /// <summary>An <see cref="InputStreamReader{T}"/> used to read nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoNullable =
             (istr) => istr.ReadNullableProxy(Factory);

@@ -26,8 +26,11 @@ module Ice
     /// It is usually thrown by Ice but can also be thrown by application code.
     exception DispatchException
     {
+        /// The Ice object Identity.
         Identity identity;
+        /// The Ice object facet.
         string facet;
+        /// The operation name.
         string operation;
     }
 
