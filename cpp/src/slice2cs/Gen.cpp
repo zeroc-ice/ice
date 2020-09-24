@@ -2168,7 +2168,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         bool generateResponseClass = false;
 
-        _out << nl << "/// <summary>Provides an <see cref=\"ZeroC.Ice.OutgoingRequestFrame\"/> factory method for each "
+        _out << nl << "/// <summary>Provides a <see cref=\"ZeroC.Ice.OutgoingRequestFrame\"/> factory method for each "
              << "remote operation defined in <see cref=\"" << interfaceName(p) << "Prx\"/>.</summary>";
         _out << nl << "public static new class Request";
         _out << sb;
@@ -2229,7 +2229,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (generateResponseClass)
         {
             _out << sp;
-            _out << nl << "/// <summary>Holds an <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for each non-void "
+            _out << nl << "/// <summary>Holds a <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for each non-void "
                  << "remote operation defined in <see cref=\"" << interfaceName(p) << "Prx\"/>.</summary>";
             _out << nl << "public static new class Response";
             _out << sb;
@@ -2561,7 +2561,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     if (generateRequestClass)
     {
-        _out << nl << "/// <summary>Holds an <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for each remote operation "
+        _out << nl << "/// <summary>Holds a <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for each remote operation "
              << "with parameter(s)";
         _out << nl << "/// defined in <see cref=\"" << name << "\"/>.</summary>";
         _out << nl << "public static new class Request";
@@ -2593,7 +2593,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     if (generateResponseClass)
     {
-        _out << nl << "/// <summary>Provides an <see cref=\"ZeroC.Ice.OutgoingResponseFrame\"/> factory method "
+        _out << nl << "/// <summary>Provides a <see cref=\"ZeroC.Ice.OutgoingResponseFrame\"/> factory method "
              << "for each non-void remote operation";
         _out << nl << "/// defined in the <see cref=\"" << name << "\"/>.</summary>";
         _out << nl << "public static new class Response";
