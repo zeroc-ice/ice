@@ -1816,7 +1816,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp;
     _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
     _out << nl << "/// <param name=\"istr\">The <see cref=\"ZeroC.Ice.InputStream\"/> being used to unmarshal the "
-         << "endpoint.</param>";
+         << "instance.</param>";
     _out << nl << "public " << name << "(ZeroC.Ice.InputStream istr)";
     _out << sb;
 
