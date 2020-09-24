@@ -973,7 +973,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
                 }
             }
         }
-        _out << nl << "/// </returns>";
+        _out << "</returns>";
     }
 
     for(const auto& e : comment.exceptions)
@@ -1283,27 +1283,32 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool hasBaseClass = p->base();
 
     _out << sp;
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "istr => istr.ReadClass<" << name << ">(IceTypeId);";
     _out.dec();
 
     _out << sp;
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
     _out.inc();
     _out << nl << "istr => istr.ReadNullableClass<" << name << ">(IceTypeId);";
     _out.dec();
 
     _out << sp;
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static " << (hasBaseClass ? "new " : "") << "string IceTypeId => _iceAllTypeIds[0];";
 
     _out << sp;
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "> IceWriter =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteClass(value, IceTypeId);";
     _out.dec();
 
     _out << sp;
+    emitEditorBrowsableNeverAttribute();
     _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
     _out.inc();
     _out << nl << "(ostr, value) => ostr.WriteNullableClass(value, IceTypeId);";
@@ -1323,18 +1328,23 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         // There is always at least another constructor, so we need to generate the parameterless constructor.
         _out << sp;
+        _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
         _out << nl << "public " << name << spar << epar;
-        _out << sb;
         if (partialInitialize)
         {
-            _out << nl << "Initialize();";
+            _out << " => Initialize();";
         }
-        _out << eb;
     }
     else
     {
         // "One-shot" constructor
         _out << sp;
+        _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
+        for (const auto& member : allDataMembers)
+        {
+            CommentInfo comment = processComment(member, "");
+            writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
+        }
         _out << nl << "public " << name
              << spar
              << mapfn<MemberPtr>(allDataMembers,
@@ -1381,6 +1391,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if (allMandatoryDataMembers.size() < allDataMembers.size()) // else, it's identical to the first ctor.
         {
             _out << sp;
+            _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
+            for (const auto& member : allMandatoryDataMembers)
+            {
+                CommentInfo comment = processComment(member, "");
+                writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
+            }
             _out << nl << "public " << name
                 << spar
                 << mapfn<MemberPtr>(allMandatoryDataMembers,
@@ -1610,7 +1626,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (allParameters.size() > 0)
         {
             _out << sp;
-            _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/> .</summary>";
+            _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
             if (i > 0)
             {
                 _out << nl << "/// <param name=\"message\">Message that describes the exception.</param>";
@@ -1660,7 +1676,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if (hasPublicParameterlessCtor)
     {
         _out << sp;
-        _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/> .</summary>";
+        _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
         _out << nl << "public " << name << "()";
         _out << sb;
         writeDataMemberDefaultValues(dataMembers, ns, Slice::ExceptionType);
@@ -1801,7 +1817,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
 
     _out << sp;
-    _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/> .</summary>";
+    _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
     for (const auto& member : dataMembers)
     {
         CommentInfo comment = processComment(member, "");
@@ -2556,8 +2572,8 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             auto params = operation->params();
             if (params.size() > 0)
             {
-                _out << sp;
                 string propertyName = fixId(operationName(operation));
+                _out << sp;
                 _out << nl << "/// <summary>The <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for the parameter"
                      << (params.size() > 1 ? "s " : " ")
                      << "of operation " << propertyName << ".</summary>";
@@ -2582,8 +2598,6 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << "/// defined in the <see cref=\"" << name << "\"/>.</summary>";
         _out << nl << "public static new class Response";
         _out << sb;
-        bool outputSeparator = false;
-
         for (auto operation : operationList)
         {
             auto returns = operation->returnType();
@@ -2591,17 +2605,14 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (returnCount > 0)
             {
+                _out << sp;
                 bool inValue = returnCount > 1 || StructPtr::dynamicCast(returns.front()->type());
-
-                if (outputSeparator)
-                {
-                    _out << sp;
-                }
-                else
-                {
-                    outputSeparator = true;
-                }
-
+                _out << nl << "/// <summary>Creates an <see cref=\"ZeroC.Ice.OutgoingResponseFrame\"/> for operation "
+                     << fixId(operationName(operation)) << ".</summary>";
+                _out << nl << "/// <param name=\"current\">Holds decoded header data and other information about the "
+                     << "current request.</param>";
+                _out << nl << "/// <param name=\"returnValue\">The return value to write into the new frame.</param>";
+                _out << nl << "/// <returns>A new <see cref=\"ZeroC.Ice.OutgoingResponseFrame\"/>.</returns>";
                 _out << nl << "public static ZeroC.Ice.OutgoingResponseFrame "<< fixId(operationName(operation))
                     << "(ZeroC.Ice.Current current, "
                     << (inValue ? "in " : "") << toTupleType(returns, true) << " returnValue) =>";
@@ -2693,24 +2704,29 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     if (operation->hasMarshaledResult())
     {
         _out << sp;
+        _out << nl << "/// <summary>Helper struct used to marshal the return value of " << opName << " operation."
+             << "</summary>";
         _out << nl << "public struct " << opName << "MarshaledReturnValue";
         _out << sb;
+        _out << nl << "/// <summary>The frame holding the marshaled response.</summary>";
         _out << nl << "public ZeroC.Ice.OutgoingResponseFrame Response { get; }";
 
+        _out << nl << "/// <summary>Construct a new <see cref=\"" << opName << "MarshaledReturnValue\"/> instance that";
+        _out << nl << "/// immediately marshals the response for the " << opName << "operation.</summary>";
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(returnType, [](const auto& p)
                                     {
-                                        return paramTypeStr(p) + " " + paramName(p, "iceP_");
+                                        return paramTypeStr(p) + " " + paramName(p);
                                     })
-             << "ZeroC.Ice.Current current"
+             << ("ZeroC.Ice.Current " + getEscapedParamName(operation, "current"))
              << epar;
         _out << sb;
         _out << nl << "Response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(";
         _out.inc();
-        _out << nl << "current, "
+        _out << nl << getEscapedParamName(operation, "current") << ", "
              << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ", "
              << "format: " << opFormatTypeToString(operation) << ", "
-             << toTuple(returnType, "iceP_") << ",";
+             << toTuple(returnType) << ",";
         if(returnType.size() > 1)
         {
             _out << nl << "(ZeroC.Ice.OutputStream ostr, " << toTupleType(returnType, true) << " value) =>";
