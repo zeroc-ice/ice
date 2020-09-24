@@ -81,12 +81,6 @@ namespace ZeroC.Ice
                 {
                     socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-                    // TODO: FIX: the fast path loopback appears to cause issues with
-                    // connection closure when it's enabled. Sometime, a peer
-                    // doesn't receive the TCP/IP connection closure (RST) from
-                    // the other peer and it ends up hanging. See bug #6093.
-                    //
-                    //setTcpLoopbackFastPath(socket);
                 }
                 catch (SocketException ex)
                 {
