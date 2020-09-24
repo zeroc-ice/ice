@@ -33,25 +33,22 @@
       <Rule Id="CA1822" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Member CreateTestProperties does not access instance data and can be marked as static -->
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
-      <Rule Id="SA1005" Action="None" /> <!-- TODO enable - Single line comment should begin with a space. -->
       <Rule Id="SA1009" Action="None" /> <!-- Closing parenthesis should not be followed by a spac -->
       <Rule Id="SA1013" Action="None" /> <!-- Closing brace should not be preceded by a space -->
       <Rule Id="SA1101" Action="None" /> <!-- Prefix local calls with this -->
-      <Rule Id="SA1106" Action="None" /> <!-- TODO enable - Code should not contain empty statements -->
-      <Rule Id="SA1108" Action="None" /> <!-- TODO enable - Block statements should not contain embedded comments -->
+      <Rule Id="SA1108" Action="None" /> <!-- Block statements should not contain embedded comments -->
       <Rule Id="SA1116" Action="None" /> <!-- TODO enable - The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines -->
       <Rule Id="SA1118" Action="None" /> <!-- The parameter spans multiple lines -->
-
       <Rule Id="SA1122" Action="None" /> <!-- Use string.Empty for empty strings -->
       <Rule Id="SA1127" Action="None" /> <!-- Generic type constraints should be on their own line -->
       <Rule Id="SA1129" Action="None" /> <!-- Do not use default value type constructor -->
       <Rule Id="SA1131" Action="None" /> <!-- Constant values should appear on the right-hand side of comparisons -->
       <Rule Id="SA1200" Action="None" /> <!-- Using directive should appear within a namespace declaration -->
       <Rule Id="SA1201" Action="None" /> <!-- Elements must appear in the correct order -->
-      <Rule Id="SA1202" Action="None" /> <!-- TODO enable - 'internal' members should come before 'private' members -->
+      <Rule Id="SA1202" Action="None" /> <!-- 'internal' members should come before 'private' members -->
       <Rule Id="SA1203" Action="None" /> <!-- Constant fields should appear before non-constant fields  -->
       <Rule Id="SA1204" Action="None" /> <!-- Static members should appear before non-static members -->
-      <Rule Id="SA1208" Action="None" /> <!-- TODO enable - System using directives must be placed before other using directives -->
+      <Rule Id="SA1208" Action="None" /> <!-- System using directives must be placed before other using directives -->
       <Rule Id="SA1214" Action="None" /> <!-- Readonly fields should appear before non-readonly fields -->
       <Rule Id="SA1306" Action="None" /> <!-- Field names must begin with lower case letter -->
       <Rule Id="SA1309" Action="None" /> <!-- Field names must not begin with underscore -->
@@ -84,7 +81,6 @@
 
       <!-- TODO temporary disable for test projects -->
       <Rule Id="SA0001" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- XML comment analysis is disabled due to project configuration -->
-      <Rule Id="SA1002" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Semicolons should not be preceded by a space -->
       <Rule Id="SA1012" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Opening brace should be preceded by a space -->
       <Rule Id="SA1015" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Closing generic bracket should not be preceded by a space -->
       <Rule Id="SA1107" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Code should not contain multiple statements on one line -->

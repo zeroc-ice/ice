@@ -27,13 +27,13 @@ namespace ZeroC.Ice
             Close = 0x8,
             Ping = 0x9,
             Pong = 0xA
-        };
+        }
 
         private enum ClosureStatusCode : short
         {
             Normal = 1000,
             Shutdown = 1001
-        };
+        }
 
         private const byte FlagFinal = 0x80;   // Last frame
         private const byte FlagMasked = 0x80;   // Payload is masked

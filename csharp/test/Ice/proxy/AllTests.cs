@@ -565,14 +565,6 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(b1.LocatorCacheTimeout == TimeSpan.FromSeconds(1));
             communicator.SetProperty(property, "");
 
-            // This cannot be tested so easily because the property is cached
-            // on communicator initialization.
-            //
-            //communicator.SetProperty("Default.LocatorCacheTimeout", "60");
-            //b1 = communicator.propertyToProxy(propertyPrefix);
-            //TestHelper.Assert(b1.LocatorCacheTimeout == 60);
-            //communicator.SetProperty("Default.LocatorCacheTimeout", "");
-
             communicator.SetProperty(propertyPrefix, helper.GetTestProxy("test", 0));
 
             property = propertyPrefix + ".Router";

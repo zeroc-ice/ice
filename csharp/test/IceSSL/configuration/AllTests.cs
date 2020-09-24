@@ -56,7 +56,6 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
 
             properties["Ice.RetryIntervals"] = "-1";
-            //properties["IceSSL.Trace.Security"] = "1";
 
             if (cert != null)
             {

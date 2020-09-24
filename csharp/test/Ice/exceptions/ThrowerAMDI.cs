@@ -37,7 +37,6 @@ namespace ZeroC.Ice.Test.Exceptions
 
         public ValueTask ThrowBasAAsync(int a, int b, Current current)
         {
-            //throw new B(a, b);
             var s = new TaskCompletionSource<object>();
             s.SetException(new B(a, b));
             return new ValueTask(s.Task);
@@ -71,12 +70,12 @@ namespace ZeroC.Ice.Test.Exceptions
         public ValueTask ThrowLocalExceptionIdempotentAsync(Current current) =>
             throw new ConnectionTimeoutException();
 
-        // Only supported with callback based AMD API
+        // Not supported with C# AMD API
         public ValueTask ThrowAfterResponseAsync(Current current) =>
-            new ValueTask(Task.CompletedTask); //throw new Exception();
+            new ValueTask(Task.CompletedTask);
 
-        // Only supported with callback based AMD API
-        public ValueTask ThrowAfterExceptionAsync(Current current) => throw new A(); //throw new Exception();
+        // Not supported with C# AMD API
+        public ValueTask ThrowAfterExceptionAsync(Current current) => throw new A();
 
         public ValueTask ThrowAConvertedToUnhandledAsync(Current current) =>
             throw new A() { ConvertToUnhandled = true };

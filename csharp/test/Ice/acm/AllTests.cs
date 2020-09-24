@@ -371,7 +371,7 @@ namespace ZeroC.Ice.Test.ACM
                     }
                     catch (Exception ex)
                     {
-                        TestHelper.Assert(ex is ConnectionIdleException);;
+                        TestHelper.Assert(ex is ConnectionIdleException);
                     }
                 }
             }
@@ -415,7 +415,7 @@ namespace ZeroC.Ice.Test.ACM
                 }
                 catch (Exception ex)
                 {
-                    TestHelper.Assert(ex is ConnectionIdleException);;
+                    TestHelper.Assert(ex is ConnectionIdleException);
                 }
             }
         }
