@@ -4,7 +4,8 @@ namespace ZeroC.Ice.Test.Plugin
 {
     public class PluginInitializeFailException : System.Exception
     {
-        public PluginInitializeFailException() : base("PluginInitializeFailException")
+        public PluginInitializeFailException()
+            : base("PluginInitializeFailException")
         {
         }
     }

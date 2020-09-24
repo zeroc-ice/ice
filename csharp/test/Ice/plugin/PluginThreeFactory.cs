@@ -10,7 +10,8 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginThree : BasePlugin
         {
-            public PluginThree(Communicator communicator) : base(communicator)
+            public PluginThree(Communicator communicator)
+                : base(communicator)
             {
             }
 

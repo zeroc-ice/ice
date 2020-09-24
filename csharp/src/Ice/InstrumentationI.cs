@@ -411,13 +411,15 @@ namespace ZeroC.Ice
         private readonly Endpoint _endpoint;
         private string? _id;
 
-        internal EndpointHelper(Endpoint endpoint, string id) : base(_attributeResolver)
+        internal EndpointHelper(Endpoint endpoint, string id)
+            : base(_attributeResolver)
         {
             _endpoint = endpoint;
             _id = id;
         }
 
-        internal EndpointHelper(Endpoint endpoint) : base(_attributeResolver) => _endpoint = endpoint;
+        internal EndpointHelper(Endpoint endpoint)
+            : base(_attributeResolver) => _endpoint = endpoint;
 
         private class AttributeResolverI : AttributeResolver
         {

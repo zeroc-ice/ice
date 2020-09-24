@@ -44,7 +44,6 @@
 
       <Rule Id="SA1122" Action="None" /> <!-- Use string.Empty for empty strings -->
       <Rule Id="SA1127" Action="None" /> <!-- Generic type constraints should be on their own line -->
-      <Rule Id="SA1128" Action="None" /> <!-- TODO enable - Put constructor initializers on their own line -->
       <Rule Id="SA1129" Action="None" /> <!-- Do not use default value type constructor -->
       <Rule Id="SA1131" Action="None" /> <!-- Constant values should appear on the right-hand side of comparisons -->
       <Rule Id="SA1200" Action="None" /> <!-- Using directive should appear within a namespace declaration -->
