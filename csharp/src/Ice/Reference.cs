@@ -614,7 +614,7 @@ namespace ZeroC.Ice
                 Debug.Assert(istr.Encoding == Encoding.V20);
 
                 ProxyKind proxyKind = istr.ReadProxyKind();
-                if (proxyKind == ProxyKind.@Null)
+                if (proxyKind == ProxyKind.Null)
                 {
                     return null;
                 }
@@ -1379,10 +1379,7 @@ namespace ZeroC.Ice
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
             _requestHandler = _fixedConnection;
 
-            if (Protocol != Protocol.Ice1)
-            {
-                Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
-            }
+            Debug.Assert(Protocol == Protocol.Ice1 || (byte)InvocationMode <= (byte)InvocationMode.Oneway);
 
             if (InvocationMode == InvocationMode.Datagram)
             {
