@@ -593,8 +593,8 @@ namespace ZeroC.Ice
                         $"received proxy with invalid protocolMinor value: {proxyData.ProtocolMinor}");
                 }
 
-                // The min seq size with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation header
-                // (6 bytes).
+                // The min size for an Endpoint with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation
+                // header (6 bytes), for a total of 8 bytes.
                 Endpoint[] endpoints =
                     istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol));
 
@@ -635,8 +635,11 @@ namespace ZeroC.Ice
                         $"received proxy for protocol {protocol.GetName()} with invocation mode set");
                 }
 
+                // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
+                // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
+                // sequence), for a total of 7 bytes.
                 Endpoint[] endpoints = proxyKind == ProxyKind.Direct ?
-                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(protocol)) : Array.Empty<Endpoint>();
+                    istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) : Array.Empty<Endpoint>();
 
                 // TODO: switch to real Location in reference
                 return new Reference(adapterId: proxyData.Location?.Length > 0 ? proxyData.Location[0] : "",
