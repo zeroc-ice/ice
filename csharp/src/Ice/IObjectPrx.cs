@@ -76,23 +76,23 @@ namespace ZeroC.Ice
             public static readonly InputStreamReader<bool> IceIsA = InputStream.IceReaderIntoBool;
         }
 
-        /// <summary>Factory for IObjectPrx proxies.</summary>
+        /// <summary>Factory for <see cref="IObjectPrx"/> proxies.</summary>
         public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
-        /// <summary>An InputStream reader used to read non nullable proxies.</summary>
+        /// <summary>An <see cref="InputStreamReader{T}"/> used to read <see cref="IObjectPrx"/> proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
 
-        /// <summary>An InputStream reader used to read nullable proxies.</summary>
+        /// <summary>An <see cref="InputStreamReader{T}"/> used to read <see cref="IObjectPrx"/> nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoNullable =
             (istr) => istr.ReadNullableProxy(Factory);
 
-        /// <summary>An OutputStream writer used to write non nullable proxies.</summary>
+        /// <summary>An OutputStream writer used to write <see cref="IObjectPrx"/> proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
 
-        /// <summary>An OutputStream writer used to write nullable proxies.</summary>
+        /// <summary>An OutputStream writer used to write <see cref="IObjectPrx"/> nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
