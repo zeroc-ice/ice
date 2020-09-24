@@ -203,12 +203,12 @@ module IceMX
 
         /// The remote invocation metrics map.
         ///
-        /// @see RemoteMetrics
+        /// @see RemoteMetrics.
         MetricsMap remotes;
 
         /// The collocated invocation metrics map.
         ///
-        /// @see CollocatedMetrics
+        /// @see CollocatedMetrics.
         MetricsMap collocated;
     }
 

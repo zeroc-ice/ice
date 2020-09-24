@@ -61,10 +61,10 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The frame byte count</summary>
+        /// <summary>The frame byte count.</summary>
         public int Size => Data.Count;
 
-        /// <summary>The frame data</summary>
+        /// <summary>The frame data.</summary>
         internal ArraySegment<byte> Data { get; set; }
 
         private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;

@@ -36,7 +36,7 @@ namespace ZeroC.Glacier2
         }
 
         /// <summary>Gets or sets the Glacier2 router port to connect to. If 0, then the default port (4063 for TCP or
-        /// 4064 for SSL) is used</summary>
+        /// 4064 for SSL) is used.</summary>
         public int Port
         {
             get

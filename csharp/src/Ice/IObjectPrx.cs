@@ -193,8 +193,8 @@ namespace ZeroC.Ice
 
         /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
         /// <param name="s">The proxy string representation.</param>
-        /// <param name="communicator">The communicator for the new proxy</param>
-        /// <returns>The new proxy</returns>
+        /// <param name="communicator">The communicator for the new proxy.</param>
+        /// <returns>The new proxy.</returns>
         /// <exception cref="FormatException"><c>s</c> does not contain a valid string representation of a proxy.
         /// </exception>
         public static IObjectPrx Parse(string s, Communicator communicator) =>
@@ -202,7 +202,7 @@ namespace ZeroC.Ice
 
         /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
         /// <param name="s">The proxy string representation.</param>
-        /// <param name="communicator">The communicator for the new proxy</param>
+        /// <param name="communicator">The communicator for the new proxy.</param>
         /// <param name="prx">When this method returns it contains the new proxy, if the conversion succeeded or null
         /// if the conversion failed.</param>
         /// <returns><c>true</c> if the s parameter was converted successfully; otherwise, <c>false</c>.</returns>
@@ -266,7 +266,8 @@ namespace ZeroC.Ice
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>True if the target object implements the Slice interface identified by id</returns>.
+        /// <returns>True if the target object implements the Slice interface identified by id, false otherwise.
+        /// </returns>
         public bool IceIsA(
             string id,
             IReadOnlyDictionary<string, string>? context = null,

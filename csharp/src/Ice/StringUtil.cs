@@ -491,7 +491,7 @@ namespace ZeroC.Ice
         /// <param name="start">Index to start escaping the string.</param>
         /// <param name="end">Index to end escaping the string.</param>
         /// <param name="special">String containing special characters that must be escape.</param>
-        /// <returns>The escaped stirng</returns>
+        /// <returns>The escaped string.</returns>
         public static string UnescapeString(string s, int start, int end, string special)
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);

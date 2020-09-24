@@ -205,7 +205,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Writes a class instance to the stream, or null.</summary>
-        /// <param name="v">The class instance to write, or null</param>
+        /// <param name="v">The class instance to write, or null.</param>
         /// <param name="formalTypeId">The type ID of the formal type of the parameter or data member being written.
         /// Use null when the type of the parameter/data member is AnyClass.</param>
         public void WriteNullableClass(AnyClass? v, string? formalTypeId)

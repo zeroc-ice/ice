@@ -25,7 +25,7 @@ namespace ZeroC.Ice
         GracefullyWithWait
     }
 
-    /// <summary>The state of an Ice connection</summary>
+    /// <summary>The state of an Ice connection.</summary>
     public enum ConnectionState : byte
     {
         /// <summary>The connection is being validated.</summary>

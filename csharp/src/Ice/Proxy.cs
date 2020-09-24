@@ -16,7 +16,7 @@ namespace ZeroC.Ice
     /// <returns>The new proxy.</returns>
     public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
 
-    /// <summary>Proxy provides extension methods for IObjectPrx</summary>
+    /// <summary>Proxy provides extension methods for IObjectPrx.</summary>
     public static class Proxy
     {
         /// <summary>Tests whether this proxy points to a remote object derived from T. If so it returns a proxy of

@@ -112,7 +112,7 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This interface represents a monitor for the Acm (Active Connection Management)</summary>
+    /// <summary>This interface represents a monitor for the Acm (Active Connection Management).</summary>
     public interface IAcmMonitor
     {
         /// <summary>Gets the Acm configuration for this monitor.</summary>
