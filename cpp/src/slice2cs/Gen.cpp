@@ -2184,7 +2184,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "/// <param name=\"proxy\">Proxy to the target Ice Object.</param>";
             if (paramCount > 0)
             {
-                _out << nl << "/// <param name=\"args\">The remote operation args.</param>";
+                _out << nl << "/// <param name=\"args\">The remote operation arguments.</param>";
             }
             _out << nl << "/// <param name=\"context\">The context to write into the request.</param>";
             _out << nl << "public static ZeroC.Ice.OutgoingRequestFrame " << fixId(operationName(operation))
@@ -2278,7 +2278,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "/// <summary>An <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> used to read "
-         << "<see cref=\"" << name << "\"/>non nullable proxies.</summary>";
+         << "<see cref=\"" << name << "\"/> proxies.</summary>";
     _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "istr => istr.ReadProxy(Factory);";
@@ -2711,8 +2711,9 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "/// <summary>The frame holding the marshaled response.</summary>";
         _out << nl << "public ZeroC.Ice.OutgoingResponseFrame Response { get; }";
 
-        _out << nl << "/// <summary>Construct a new <see cref=\"" << opName << "MarshaledReturnValue\"/> instance that";
-        _out << nl << "/// immediately marshals the response for the " << opName << "operation.</summary>";
+        _out << nl << "/// <summary>Constructs a new <see cref=\"" << opName
+             << "MarshaledReturnValue\"/> instance that";
+        _out << nl << "/// immediately marshals the return value of operation " << opName << ".</summary>";
         _out << nl << "public " << opName << "MarshaledReturnValue" << spar
              << getNames(returnType, [](const auto& p)
                                     {
