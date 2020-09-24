@@ -127,10 +127,9 @@ namespace ZeroC.Ice
         // Constructor for unmarshaling.
         internal UniversalEndpoint(
             InputStream istr,
-            Communicator communicator,
             Transport transport,
             Protocol protocol)
-            : base(communicator, protocol)
+            : base(istr.Communicator!, protocol)
         {
             Debug.Assert(Protocol != Protocol.Ice1);
             Transport = transport;

@@ -232,8 +232,8 @@ namespace ZeroC.Ice
         }
 
         // Constructor for unmarshaling.
-        private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
-            : base(communicator, protocol)
+        private protected IPEndpoint(InputStream istr, Protocol protocol)
+            : base(istr.Communicator!, protocol)
         {
             Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = istr.ReadString();
@@ -254,7 +254,7 @@ namespace ZeroC.Ice
             {
                 Port = istr.ReadUShort();
             }
-            SourceAddress = communicator.DefaultSourceAddress;
+            SourceAddress = istr.Communicator!.DefaultSourceAddress;
         }
 
         // Constructor for ice1 endpoint parsing.

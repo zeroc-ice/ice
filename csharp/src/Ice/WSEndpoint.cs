@@ -124,8 +124,8 @@ namespace ZeroC.Ice
         }
 
         // Constructor for unmarshaling.
-        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
-            : base(istr, communicator, transport, protocol, mostDerived: false)
+        internal WSEndpoint(InputStream istr, Transport transport, Protocol protocol)
+            : base(istr, transport, protocol, mostDerived: false)
         {
             if (protocol == Protocol.Ice1)
             {

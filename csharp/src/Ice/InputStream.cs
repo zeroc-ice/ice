@@ -98,7 +98,7 @@ namespace ZeroC.Ice
 
         /// <summary>The Communicator associated with this stream. It cannot be null when reading a proxy, class, or
         /// exception.</summary>
-        public readonly Communicator? Communicator;
+        public Communicator? Communicator { get; }
 
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
         /// <value>The encoding.</value>
@@ -1091,10 +1091,10 @@ namespace ZeroC.Ice
                     // need to create a new InputStream). A less common situation is an ice1 proxy in 2.0 encapsulation
                     // with 1.1-encoded endpoints (we need a new InputStream in this case).
                     InputStream istr = encoding == Encoding ?
-                        this : new InputStream(_buffer.Slice(Pos, size), encoding);
+                        this : new InputStream(_buffer.Slice(Pos, size), encoding, Communicator);
 
                     endpoint = factory?.Read(istr, transport, protocol) ??
-                        new UniversalEndpoint(istr, Communicator, transport, protocol); // protocol is ice2 or greater
+                        new UniversalEndpoint(istr, transport, protocol); // protocol is ice2 or greater
 
                     if (ReferenceEquals(istr, this))
                     {
@@ -1121,8 +1121,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                endpoint = factory?.Read(this, transport, protocol) ??
-                    new UniversalEndpoint(this, Communicator, transport, protocol);
+                endpoint = factory?.Read(this, transport, protocol) ?? new UniversalEndpoint(this, transport, protocol);
             }
             return endpoint;
         }
