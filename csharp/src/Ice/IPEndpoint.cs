@@ -242,6 +242,11 @@ namespace ZeroC.Ice
             Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = istr.ReadString();
 
+            if (Host.Length == 0)
+            {
+                throw new InvalidDataException("received endpoint with an empty host");
+            }
+
             if (protocol == Protocol.Ice1)
             {
                 checked
