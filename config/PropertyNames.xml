@@ -400,11 +400,13 @@ generated from the section label.
         <property name="Trace.Admin.Properties" />
         <property name="Trace.Admin.Logger" />
         <property name="Trace.Locator" />
+        <!-- TODO remove Trace.Network once all mappings implement Trace.Transport -->
         <property name="Trace.Network" />
         <property name="Trace.Protocol" />
         <property name="Trace.Retry" />
         <property name="Trace.Slicing" />
         <property name="Trace.ThreadPool" />
+        <property name="Trace.Transport" />
         <property name="UDP.RcvSize" />
         <property name="UDP.SndSize" />
         <property name="TCP.Backlog" />

@@ -1247,6 +1247,11 @@ class Process(Runnable):
         traceProps = {}
         traceProps.update(current.testcase.getTraceProps(self, current))
         traceProps.update(self.traceProps(self, current) if callable(self.traceProps) else self.traceProps)
+        # TODO remove once all mappings are using Ice.Trace.Transport
+        if isinstance(self.getMapping(current), CSharpMapping):
+            if "Ice.Trace.Network" in traceProps:
+                traceProps["Ice.Trace.Transport"] = traceProps["Ice.Trace.Network"]
+                traceProps.pop("Ice.Trace.Network")
         return traceProps
 
     def start(self, current, args=[], props={}, watchDog=None):
