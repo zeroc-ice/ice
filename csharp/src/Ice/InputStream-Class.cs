@@ -63,7 +63,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidOperationException("cannot read an exception outside an encapsulation");
             }
-            if (_communicator == null)
+            if (Communicator == null)
             {
                 throw new InvalidOperationException(
                     "cannot read an exception from an InputStream with a null communicator");
@@ -91,7 +91,7 @@ namespace ZeroC.Ice
 
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (_communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
+                    if (Communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
                     {
                         // The 1.1 encoding does not carry the error message so it's always null.
                         remoteEx = factory(errorMessage);
@@ -123,7 +123,7 @@ namespace ZeroC.Ice
                     }
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (_communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
+                    if (Communicator.FindRemoteExceptionFactory(typeId) is Func<string?, RemoteException> factory)
                     {
                         remoteEx = factory(errorMessage);
                         break; // foreach
@@ -176,7 +176,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidOperationException("cannot read a class outside an encapsulation");
             }
-            if (_communicator == null)
+            if (Communicator == null)
             {
                 throw new InvalidOperationException(
                     "cannot read a class from an InputStream with a null communicator");
@@ -347,7 +347,7 @@ namespace ZeroC.Ice
         /// </param>
         private AnyClass ReadInstance(int index, string? formalTypeId)
         {
-            Debug.Assert(_communicator != null);
+            Debug.Assert(Communicator != null);
             Debug.Assert(index > 0);
 
             if (index > 1)
@@ -359,7 +359,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"could not find index {index} in {nameof(_instanceMap)}");
             }
 
-            if (++_classGraphDepth > _communicator.ClassGraphDepthMax)
+            if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
             {
                 throw new InvalidDataException("maximum class graph depth reached");
             }
@@ -386,11 +386,11 @@ namespace ZeroC.Ice
                     Func<AnyClass>? factory = null;
                     if (typeId != null)
                     {
-                        factory = _communicator.FindClassFactory(typeId);
+                        factory = Communicator.FindClassFactory(typeId);
                     }
                     else if (compactId is int compactIdValue)
                     {
-                        factory = _communicator.FindClassFactory(compactIdValue);
+                        factory = Communicator.FindClassFactory(compactIdValue);
                     }
 
                     if (factory != null)
@@ -446,7 +446,7 @@ namespace ZeroC.Ice
                     int skipCount = 0;
                     foreach (string typeId in allTypeIds)
                     {
-                        if (_communicator.FindClassFactory(typeId) is Func<AnyClass> factory)
+                        if (Communicator.FindClassFactory(typeId) is Func<AnyClass> factory)
                         {
                             instance = factory();
                             break; // foreach
@@ -484,7 +484,7 @@ namespace ZeroC.Ice
                 else if (formalTypeId != null)
                 {
                     // received null and formalTypeId is not null, apply formal type optimization.
-                    if (_communicator.FindClassFactory(formalTypeId) is Func<AnyClass> factory)
+                    if (Communicator.FindClassFactory(formalTypeId) is Func<AnyClass> factory)
                     {
                         instance = factory();
                         _instanceMap.Add(instance);
@@ -650,7 +650,7 @@ namespace ZeroC.Ice
         /// SkipIndirectionTable11 itself.</summary>
         private void SkipIndirectionTable11()
         {
-            Debug.Assert(_communicator != null);
+            Debug.Assert(Communicator != null);
             // We should never skip an exception's indirection table
             Debug.Assert(_current.InstanceType == InstanceType.Class);
 
@@ -667,7 +667,7 @@ namespace ZeroC.Ice
                 }
                 if (index == 1)
                 {
-                    if (++_classGraphDepth > _communicator.ClassGraphDepthMax)
+                    if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
                     {
                         throw new InvalidDataException("maximum class graph depth reached");
                     }
@@ -708,7 +708,7 @@ namespace ZeroC.Ice
         /// <returns>True when the current slice is the last slice; otherwise, false.</returns>
         private bool SkipSlice(string? typeId, int? compactId = null)
         {
-            Debug.Assert(_communicator != null);
+            Debug.Assert(Communicator != null);
 
             // With the 2.0 encoding, typeId is not null and compactId is always null.
             // With the 1.1 encoding, they are potentially both null (but this will result in an exception below).
@@ -727,11 +727,11 @@ namespace ZeroC.Ice
                         }' and compact format prevents slicing (the sender should use the sliced format instead)");
             }
 
-            if (_communicator.TraceLevels.Slicing > 0)
+            if (Communicator.TraceLevels.Slicing > 0)
             {
                 string printableId = typeId ?? compactId?.ToString() ?? "(none)";
                 string kind = _current.InstanceType.ToString().ToLowerInvariant();
-                _communicator.Logger.Trace(_communicator.TraceLevels.SlicingCategory,
+                Communicator.Logger.Trace(Communicator.TraceLevels.SlicingCategory,
                     $"slicing unknown {kind} type `{printableId}'");
             }
 

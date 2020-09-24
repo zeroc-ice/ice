@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Context.ice>
+#include <Ice/RequestEncoding.ice>
 
 [[js:es6-module]]
 

@@ -613,7 +613,8 @@ namespace ZeroC.Ice
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Value.Length);
 
                     return new InputStream(bufferList[0].Slice(0, tail.Offset),
-                                           Ice1Definitions.Encoding).ReadEndpoint(Protocol.Ice1, communicator);
+                                           Ice1Definitions.Encoding,
+                                           communicator).ReadEndpoint(Protocol.Ice1);
                 }
                 else
                 {

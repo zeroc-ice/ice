@@ -26,6 +26,9 @@ namespace ZeroC.Ice
         internal IReadOnlyList<Endpoint> Endpoints { get; }
         internal string Facet { get; }
         internal Identity Identity { get; }
+
+        // For ice1 proxies, all the enumerators are meaningful. For other proxies, only the Twoway and Oneway
+        // enumerators are used.
         internal InvocationMode InvocationMode { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed => _fixedConnection != null;
@@ -554,70 +557,100 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a reference from the input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <returns>The reference read from the stream (can be null).</returns>
-        internal static Reference? Read(InputStream istr, Communicator communicator)
+        internal static Reference? Read(InputStream istr)
         {
-            var identity = new Identity(istr);
-            if (identity.Name.Length == 0)
+            if (istr.Encoding == Encoding.V11)
             {
-                return null;
-            }
-
-            string facet = istr.ReadFacet();
-            int mode = istr.ReadByte();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (mode < 0 || mode > (int)InvocationMode.BatchDatagram)
-#pragma warning restore CS0618
-            {
-                throw new InvalidDataException($"invalid invocation mode: {mode}");
-            }
-
-            istr.ReadBool(); // secure option, ignored
-
-            byte major = istr.ReadByte();
-            byte minor = istr.ReadByte();
-            if (minor != 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
-            }
-            var protocol = (Protocol)major;
-            if (protocol == 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to 0");
-            }
-
-            major = istr.ReadByte();
-            minor = istr.ReadByte();
-            var encoding = new Encoding(major, minor);
-
-            Endpoint[] endpoints;
-            string adapterId = "";
-
-            int sz = istr.ReadSize();
-            if (sz > 0)
-            {
-                endpoints = new Endpoint[sz];
-                for (int i = 0; i < sz; i++)
+                var identity = new Identity(istr);
+                if (identity.Name.Length == 0)
                 {
-                    endpoints[i] = istr.ReadEndpoint(protocol, communicator);
+                    return null;
                 }
+
+                var proxyData = new ProxyData11(istr);
+
+                if (proxyData.FacetPath.Length > 1)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy with {proxyData.FacetPath.Length} elements in its facet path");
+                }
+
+                if ((byte)proxyData.Protocol == 0)
+                {
+                    throw new InvalidDataException("received proxy with protocol set to 0");
+                }
+
+                if (proxyData.Protocol != Protocol.Ice1 && proxyData.InvocationMode != InvocationMode.Twoway)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy for protocol {proxyData.Protocol.GetName()} with invocation mode set");
+                }
+
+                if (proxyData.ProtocolMinor != 0)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy with invalid protocolMinor value: {proxyData.ProtocolMinor}");
+                }
+
+                // The min size for an Endpoint with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation
+                // header (6 bytes), for a total of 8 bytes.
+                Endpoint[] endpoints =
+                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol));
+
+                string adapterId = endpoints.Length == 0 ? istr.ReadString() : "";
+
+                return new Reference(adapterId,
+                                     istr.Communicator!,
+                                     proxyData.Encoding,
+                                     endpoints,
+                                     proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
+                                     identity,
+                                     proxyData.InvocationMode,
+                                     proxyData.Protocol);
             }
             else
             {
-                endpoints = Array.Empty<Endpoint>();
-                adapterId = istr.ReadString();
-            }
+                Debug.Assert(istr.Encoding == Encoding.V20);
 
-            return new Reference(adapterId,
-                                 communicator,
-                                 encoding,
-                                 endpoints,
-                                 facet,
-                                 identity,
-                                 invocationMode: (InvocationMode)mode,
-                                 protocol);
+                ProxyKind proxyKind = istr.ReadProxyKind();
+                if (proxyKind == ProxyKind.Null)
+                {
+                    return null;
+                }
+
+                var proxyData = new ProxyData20(istr);
+
+                if (proxyData.Identity.Name.Length == 0)
+                {
+                    throw new InvalidDataException(
+                        $"received non-null proxy with empty identity name");
+                }
+
+                Protocol protocol = proxyData.Protocol ?? Protocol.Ice2;
+
+                if (proxyData.InvocationMode != null && protocol != Protocol.Ice1)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy for protocol {protocol.GetName()} with invocation mode set");
+                }
+
+                // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
+                // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
+                // sequence), for a total of 7 bytes.
+                Endpoint[] endpoints = proxyKind == ProxyKind.Direct ?
+                    istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) : Array.Empty<Endpoint>();
+
+                // TODO: switch to real Location in reference
+                return new Reference(adapterId: proxyData.Location?.Length > 0 ? proxyData.Location[0] : "",
+                                     istr.Communicator!,
+                                     proxyData.Encoding ?? Encoding.V20,
+                                     endpoints,
+                                     proxyData.Facet ?? "",
+                                     proxyData.Identity,
+                                     proxyData.InvocationMode ?? InvocationMode.Twoway,
+                                     protocol);
+            }
         }
 
         // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
@@ -792,9 +825,16 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
-            if (oneway != null && invocationMode != null)
+            if (invocationMode != null)
             {
-                throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                if (oneway != null)
+                {
+                    throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                }
+                if (Protocol != Protocol.Ice1)
+                {
+                    throw new ArgumentException($"{nameof(invocationMode)} applies only to ice1 proxies");
+                }
             }
 
             if (identityAndFacet != null && facet != null)
@@ -1210,35 +1250,59 @@ namespace ZeroC.Ice
             return properties;
         }
 
-        // Marshal the reference.
+        // Marshal the non-null reference.
         internal void Write(OutputStream ostr)
         {
             if (IsFixed)
             {
+                // TODO: should be true only for the 1.1 encoding once we add Fixed support in the 2.0 encoding
                 throw new NotSupportedException("cannot marshal a fixed proxy");
             }
 
-            Identity.IceWrite(ostr);
-            ostr.WriteFacet(Facet);
-            ostr.WriteByte((byte)InvocationMode);
-            ostr.WriteBool(false); // secure option, always false (not used)
-            ostr.WriteByte((byte)Protocol);
-            ostr.WriteByte(0);
-            ostr.WriteByte(Encoding.Major);
-            ostr.WriteByte(Encoding.Minor);
-
-            ostr.WriteSize(Endpoints.Count);
-            if (Endpoints.Count > 0)
+            if (ostr.Encoding == Encoding.V11)
             {
-                Debug.Assert(AdapterId.Length == 0);
-                foreach (Endpoint endpoint in Endpoints)
+                Identity.IceWrite(ostr);
+                var proxyData = new ProxyData11(Facet.Length > 0 ? new string[] { Facet } : Array.Empty<string>(),
+                                                InvocationMode,
+                                                secure: false,
+                                                Protocol,
+                                                protocolMinor: 0,
+                                                Encoding);
+                proxyData.IceWrite(ostr);
+                ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
+
+                if (Endpoints.Count == 0)
                 {
-                    ostr.WriteEndpoint(endpoint);
+                    ostr.WriteString(AdapterId);
+                }
+                else
+                {
+                    Debug.Assert(AdapterId.Length == 0);
                 }
             }
             else
             {
-                ostr.WriteString(AdapterId);
+                Debug.Assert(ostr.Encoding == Encoding.V20);
+
+                ostr.Write(Endpoints.Count > 0 ? ProxyKind.Direct : ProxyKind.Indirect);
+
+                // For non ice1 proxies, invocation mode is not marshaled so we "adjust" it to Twoway which gets
+                // converted to null below.
+                InvocationMode adjustedMode = Protocol == Protocol.Ice1 ? InvocationMode : InvocationMode.Twoway;
+
+                var proxyData = new ProxyData20(Identity,
+                                                Protocol == Protocol.Ice2 ? null : Protocol,
+                                                Encoding == Encoding.V20 ? null : Encoding,
+                                                AdapterId.Length > 0 ? new string[] { AdapterId } : null,
+                                                adjustedMode != InvocationMode.Twoway ? adjustedMode : null,
+                                                Facet.Length > 0 ? Facet : null);
+
+                proxyData.IceWrite(ostr);
+
+                if (Endpoints.Count > 0)
+                {
+                    ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
+                }
             }
         }
 
@@ -1315,11 +1379,7 @@ namespace ZeroC.Ice
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
             _requestHandler = _fixedConnection;
 
-            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
-            {
-                throw new ArgumentException(
-                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
-            }
+            Debug.Assert(Protocol == Protocol.Ice1 || (byte)InvocationMode <= (byte)InvocationMode.Oneway);
 
             if (InvocationMode == InvocationMode.Datagram)
             {

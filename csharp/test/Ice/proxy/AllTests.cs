@@ -678,8 +678,15 @@ namespace ZeroC.Ice.Test.Proxy
 
             TestHelper.Assert(baseProxy.Clone(IObjectPrx.Factory, facet: "facet").Facet == "facet");
             TestHelper.Assert(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
-            TestHelper.Assert(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
-            TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
+
+            TestHelper.Assert(!baseProxy.Clone(oneway: false).IsOneway);
+            TestHelper.Assert(baseProxy.Clone(oneway: true).IsOneway);
+
+            if (ice1)
+            {
+                TestHelper.Assert(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
+                TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
+            }
 
             IObjectPrx other = baseProxy.Clone(IObjectPrx.Factory, identityAndFacet: "test#facet");
             TestHelper.Assert(other.Facet == "facet");
@@ -759,10 +766,8 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(!compObj.Clone(IObjectPrx.Factory, facet: "facet").Equals(
                               compObj.Clone(IObjectPrx.Factory, facet: "facet1")));
 
-            TestHelper.Assert(compObj.Clone(invocationMode: InvocationMode.Oneway).Equals(
-                              compObj.Clone(invocationMode: InvocationMode.Oneway)));
-            TestHelper.Assert(!compObj.Clone(invocationMode: InvocationMode.Oneway).Equals(
-                              compObj.Clone(invocationMode: InvocationMode.Twoway)));
+            TestHelper.Assert(compObj.Clone(oneway: true).Equals(compObj.Clone(oneway: true)));
+            TestHelper.Assert(!compObj.Clone(oneway: true).Equals(compObj.Clone(oneway: false)));
 
             TestHelper.Assert(compObj.Clone(cacheConnection: true).Equals(compObj.Clone(cacheConnection: true)));
             TestHelper.Assert(!compObj.Clone(cacheConnection: false).Equals(compObj.Clone(cacheConnection: true)));
@@ -915,8 +920,7 @@ namespace ZeroC.Ice.Test.Proxy
                     TestHelper.Assert(cl.Clone(IObjectPrx.Factory,
                                                facet: "facet",
                                                fixedConnection: connection2).Facet == "facet");
-                    TestHelper.Assert(cl.Clone(invocationMode: InvocationMode.Oneway,
-                                               fixedConnection: connection2).IsOneway);
+                    TestHelper.Assert(cl.Clone(oneway: true, fixedConnection: connection2).IsOneway);
                     var ctx = new Dictionary<string, string>
                     {
                         ["one"] = "hello",

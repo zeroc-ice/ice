@@ -96,6 +96,10 @@ namespace ZeroC.Ice
         public static readonly InputStreamReader<ulong> IceReaderIntoVarULong =
             istr => istr.ReadVarULong();
 
+        /// <summary>The Communicator associated with this stream. It cannot be null when reading a proxy, class, or
+        /// exception.</summary>
+        public readonly Communicator? Communicator;
+
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
         /// <value>The encoding.</value>
         public Encoding Encoding { get; }
@@ -119,9 +123,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        // The communicator must be set when reading a proxy, class, or exception.
-        private readonly Communicator? _communicator;
 
         private bool OldEncoding => Encoding == Encoding.V11;
 
@@ -434,12 +435,12 @@ namespace ZeroC.Ice
         /// <returns>The proxy read from the stream, or null.</returns>
         public T? ReadNullableProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            if (_communicator == null)
+            if (Communicator == null)
             {
                 throw new InvalidOperationException(
                     "cannot read a proxy from an InputStream with a null communicator");
             }
-            return Reference.Read(this, _communicator) is Reference reference ? factory(reference) : null;
+            return Reference.Read(this) is Reference reference ? factory(reference) : null;
         }
 
         /// <summary>Reads a proxy from the stream.</summary>
@@ -985,7 +986,7 @@ namespace ZeroC.Ice
             Communicator? communicator = null,
             bool startEncapsulation = false)
         {
-            _communicator = communicator;
+            Communicator = communicator;
             Pos = 0;
             _buffer = buffer;
             Encoding = encoding;
@@ -1049,13 +1050,14 @@ namespace ZeroC.Ice
 
         /// <summary>Reads an endpoint from the stream.</summary>
         /// <param name="protocol">The Ice protocol of this endpoint.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <returns>The endpoint read from the stream.</returns>
-        internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
+        internal Endpoint ReadEndpoint(Protocol protocol)
         {
+            Debug.Assert(Communicator != null);
+
             var transport = (Transport)ReadShort();
             // We only look up the factory for the transport if the protocol is supported.
-            IEndpointFactory? factory = protocol.IsSupported() ? communicator.IceFindEndpointFactory(transport) : null;
+            IEndpointFactory? factory = protocol.IsSupported() ? Communicator.IceFindEndpointFactory(transport) : null;
 
             Endpoint endpoint;
 
@@ -1075,7 +1077,7 @@ namespace ZeroC.Ice
                 // We need to read the encapsulation except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {
-                    endpoint = new OpaqueEndpoint(communicator,
+                    endpoint = new OpaqueEndpoint(Communicator,
                                                   transport,
                                                   encoding,
                                                   _buffer.Slice(Pos, size).ToArray());
@@ -1092,14 +1094,15 @@ namespace ZeroC.Ice
                         this : new InputStream(_buffer.Slice(Pos, size), encoding);
 
                     endpoint = factory?.Read(istr, transport, protocol) ??
-                        new UniversalEndpoint(istr, communicator, transport, protocol); // protocol is ice2 or greater
+                        new UniversalEndpoint(istr, Communicator, transport, protocol); // protocol is ice2 or greater
 
                     if (ReferenceEquals(istr, this))
                     {
                         // Make sure we read the full encapsulation
                         if (Pos != oldPos + size)
                         {
-                            throw new InvalidDataException($"{oldPos + size - Pos} bytes left in endpoint encapsulation");
+                            throw new InvalidDataException(
+                                $"{oldPos + size - Pos} bytes left in endpoint encapsulation");
                         }
                     }
                     else
@@ -1119,7 +1122,7 @@ namespace ZeroC.Ice
             else
             {
                 endpoint = factory?.Read(this, transport, protocol) ??
-                    new UniversalEndpoint(this, communicator, transport, protocol);
+                    new UniversalEndpoint(this, Communicator, transport, protocol);
             }
             return endpoint;
         }

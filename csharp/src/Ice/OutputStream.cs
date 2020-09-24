@@ -594,7 +594,14 @@ namespace ZeroC.Ice
             }
             else
             {
-                Identity.Empty.IceWrite(this);
+                if (OldEncoding)
+                {
+                    Identity.Empty.IceWrite(this);
+                }
+                else
+                {
+                    this.Write(ProxyKind.@Null);
+                }
             }
         }
 
