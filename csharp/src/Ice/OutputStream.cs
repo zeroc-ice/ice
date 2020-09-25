@@ -1577,7 +1577,7 @@ namespace ZeroC.Ice
             {
                 Position startPos = _tail;
                 int sizeLength = OldEncoding ? 4 : 2;
-                if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
+                if (endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
                     WriteEncapsulationHeader(opaqueEndpoint.ValueEncoding, sizeLength); // with placeholder for size
                     WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive

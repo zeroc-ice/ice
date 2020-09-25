@@ -98,7 +98,7 @@ namespace ZeroC.Ice
 
         /// <summary>The Communicator associated with this stream. It cannot be null when reading a proxy, class, or
         /// exception.</summary>
-        public readonly Communicator? Communicator;
+        public Communicator? Communicator { get; }
 
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
         /// <value>The encoding.</value>
@@ -1066,7 +1066,7 @@ namespace ZeroC.Ice
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
                 if (!encoding.IsSupported)
                 {
-                    // If we can't read the encapsulation, it's like we didn't find a factory.
+                    // If we can't read the encapsulation (very unlikely), it's like we didn't find a factory.
                     factory = null;
                 }
 
@@ -1091,14 +1091,16 @@ namespace ZeroC.Ice
                     // need to create a new InputStream). A less common situation is an ice1 proxy in 2.0 encapsulation
                     // with 1.1-encoded endpoints (we need a new InputStream in this case).
                     InputStream istr = encoding == Encoding ?
-                        this : new InputStream(_buffer.Slice(Pos, size), encoding);
+                        this : new InputStream(_buffer.Slice(Pos, size), encoding, Communicator);
 
-                    endpoint = factory?.Read(istr, transport, protocol) ??
-                        new UniversalEndpoint(istr, Communicator, transport, protocol); // protocol is ice2 or greater
+                    // When factory is null, protocol is necessarily > ice1 (see first if block), and as a result we
+                    // never create a UniversalEndpoint for ice1.
+                    endpoint =
+                        factory?.Read(istr, transport, protocol) ?? new UniversalEndpoint(istr, transport, protocol);
 
                     if (ReferenceEquals(istr, this))
                     {
-                        // Make sure we read the full encapsulation
+                        // Make sure we read the full encapsulation.
                         if (Pos != oldPos + size)
                         {
                             throw new InvalidDataException(
@@ -1116,13 +1118,12 @@ namespace ZeroC.Ice
                     string transportName = transport.ToString().ToLowerInvariant();
                     throw new InvalidDataException(@$"cannot read endpoint for protocol `{
                         protocol.GetName()}' and transport `{
-                            transportName}' in encapsulation encoded with encoding `{encoding}'");
+                            transportName}' with endpoint encapsulation encoded with encoding `{encoding}'");
                 }
             }
             else
             {
-                endpoint = factory?.Read(this, transport, protocol) ??
-                    new UniversalEndpoint(this, Communicator, transport, protocol);
+                endpoint = factory?.Read(this, transport, protocol) ?? new UniversalEndpoint(this, transport, protocol);
             }
             return endpoint;
         }
