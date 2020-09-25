@@ -123,7 +123,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "id -f \'facet x",
                 "test -f facet@test @test",
                 "test -p 2.0",
-                "test:tcp@adapterId",
+                "test:tcp@location",
                 "test: :tcp",
                 "id:opaque -t 99 -v abcd -x abc", // invalid x option
                 "id:opaque", // missing -t and -v

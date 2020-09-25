@@ -97,10 +97,6 @@ namespace ZeroC.Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
-        /// <summary>The adapter ID of this proxy, or an empty string if this proxy does not have an adapter ID.
-        /// A proxy with an adapter ID is an indirect proxy. </summary>
-        public string AdapterId => IceReference.AdapterId;
-
         /// <summary>Returns the communicator that created this proxy.</summary>
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;

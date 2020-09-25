@@ -139,13 +139,13 @@ namespace ZeroC.Ice
             else
             {
                 protocol = Protocol.Ice1;
-                string adapterId;
+                string location0;
 
-                (identity, facet, invocationMode, encoding, adapterId, endpoints) =
+                (identity, facet, invocationMode, encoding, location0, endpoints) =
                     Ice1Parser.ParseProxy(proxyString, communicator);
 
                 // 0 or 1 segment
-                location = adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty;
+                location = location0.Length > 0 ? ImmutableArray.Create(location0) : ImmutableArray<string>.Empty;
             }
 
             bool? cacheConnection = null;
@@ -452,13 +452,15 @@ namespace ZeroC.Ice
                 sb.Append(" -e ");
                 sb.Append(Encoding.ToString());
 
-                if (AdapterId.Length > 0)
+                if (Location.Count > 0)
                 {
+                    Debug.Assert(Location.Count == 1); // at most 1 segment with ice1
+
                     sb.Append(" @ ");
 
                     // If the encoded adapter id string contains characters which the reference parser uses as
                     // separators, then we enclose the adapter id string in quotes.
-                    string a = StringUtil.EscapeString(AdapterId, Communicator.ToStringMode);
+                    string a = StringUtil.EscapeString(Location[0], Communicator.ToStringMode);
                     if (StringUtil.FindFirstOf(a, " :@") != -1)
                     {
                         sb.Append('"');
@@ -614,7 +616,7 @@ namespace ZeroC.Ice
                 Endpoint[] endpoints =
                     istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol));
 
-                string adapterId = endpoints.Length == 0 ? istr.ReadString() : "";
+                string location0 = endpoints.Length == 0 ? istr.ReadString() : "";
 
                 return new Reference(istr.Communicator!,
                                      proxyData.Encoding,
@@ -622,8 +624,8 @@ namespace ZeroC.Ice
                                      proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
                                      identity,
                                      proxyData.InvocationMode,
-                                     location: adapterId.Length > 0 ?
-                                        ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty,
+                                     location: location0.Length > 0 ?
+                                        ImmutableArray.Create(location0) : ImmutableArray<string>.Empty,
                                      proxyData.Protocol);
             }
             else
@@ -850,7 +852,10 @@ namespace ZeroC.Ice
                 }
                 if (Protocol != Protocol.Ice1)
                 {
-                    throw new ArgumentException($"{nameof(invocationMode)} applies only to ice1 proxies");
+                    // This way, we won't get an invalid invocationMode when protocol > ice1.
+                    throw new ArgumentException(
+                        $"{nameof(invocationMode)} applies only to ice1 proxies",
+                        nameof(invocationMode));
                 }
             }
 
@@ -1295,7 +1300,15 @@ namespace ZeroC.Ice
 
                 if (Endpoints.Count == 0)
                 {
-                    ostr.WriteString(AdapterId);
+                    if (Location.Count == 0)
+                    {
+                        ostr.WriteSize(0); // empty string
+                    }
+                    else
+                    {
+                        ostr.WriteString(Location[0]);
+                        // don't write/ignore additional segments, if any.
+                    }
                 }
             }
             else
@@ -1365,16 +1378,12 @@ namespace ZeroC.Ice
                 Debug.Assert(location.Count <= 1);
                 Debug.Assert(location.Count == 0 || endpoints.Count == 0);
             }
-
-            Debug.Assert(location.Count == 0 || location[0].Length > 0);
-
-            // TODO: replace by assert?
-            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            else
             {
-                throw new ArgumentException(
-                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol",
-                    nameof(invocationMode));
+                Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
+
+            Debug.Assert(location.Count == 0 || location[0].Length > 0); // first segment cannot be empty
             Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
         }
 
@@ -1409,20 +1418,25 @@ namespace ZeroC.Ice
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
             _requestHandler = _fixedConnection;
 
-            Debug.Assert(Protocol == Protocol.Ice1 || (byte)InvocationMode <= (byte)InvocationMode.Oneway);
-
-            if (InvocationMode == InvocationMode.Datagram)
+            if (Protocol == Protocol.Ice1)
             {
-                if (!(_fixedConnection.Endpoint as Endpoint)!.IsDatagram)
+                if (InvocationMode == InvocationMode.Datagram)
                 {
-                    throw new ArgumentException(
-                        "a fixed datagram proxy requires a datagram connection",
-                        nameof(fixedConnection));
+                    if (!(_fixedConnection.Endpoint as Endpoint)!.IsDatagram)
+                    {
+                        throw new ArgumentException(
+                            "a fixed datagram proxy requires a datagram connection",
+                            nameof(fixedConnection));
+                    }
+                }
+                else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
+                {
+                    throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
                 }
             }
-            else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
+            else
             {
-                throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
+                Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
         }
     }

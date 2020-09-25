@@ -1004,8 +1004,8 @@ namespace ZeroC.Ice
             }
             else if (r.IsIndirect)
             {
-                // Proxy is local if the reference adapter id matches this adapter id or replica group id.
-                return r.AdapterId.Equals(_id) || r.AdapterId.Equals(_replicaGroupId);
+                // Proxy is local if the reference's location matches this adapter id or replica group id.
+                return r.Location.Count == 1 && (r.Location[0] == _id || r.Location[0] == _replicaGroupId);
             }
             else
             {
@@ -1068,7 +1068,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private Reference CreateReference(Identity identity, string facet, string adapterId)
+        private Reference CreateReference(Identity identity, string facet, string location0)
         {
             CheckIdentity(identity);
             lock (_mutex)
@@ -1080,12 +1080,12 @@ namespace ZeroC.Ice
 
                 return new Reference(communicator: Communicator,
                                      encoding: Protocol.GetEncoding(),
-                                     endpoints: adapterId.Length == 0 ? _publishedEndpoints : Array.Empty<Endpoint>(),
+                                     endpoints: location0.Length == 0 ? _publishedEndpoints : Array.Empty<Endpoint>(),
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     location: adapterId.Length > 0 ?
-                                        ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty,
+                                     location: location0.Length > 0 ?
+                                        ImmutableArray.Create(location0) : ImmutableArray<string>.Empty,
                                      protocol: _publishedEndpoints.Count > 0 ?
                                                _publishedEndpoints[0].Protocol : Protocol);
             }
