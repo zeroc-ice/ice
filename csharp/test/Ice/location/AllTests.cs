@@ -271,11 +271,11 @@ namespace ZeroC.Ice.Test.Location
             obj1 = ITestIntfPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator);
             IHelloPrx? hello = obj1.GetHello();
             TestHelper.Assert(hello != null);
-            TestHelper.Assert(hello.AdapterId.Equals("TestAdapter"));
+            TestHelper.Assert(hello.Location.Count == 1 && hello.Location[0] == "TestAdapter");
             hello.SayHello();
             hello = obj1.GetReplicatedHello();
             TestHelper.Assert(hello != null);
-            TestHelper.Assert(hello.AdapterId.Equals("ReplicatedAdapter"));
+            TestHelper.Assert(hello.Location.Count == 1 && hello.Location[0] == "ReplicatedAdapter");
             hello.SayHello();
             output.WriteLine("ok");
 

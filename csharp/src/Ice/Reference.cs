@@ -614,8 +614,7 @@ namespace ZeroC.Ice
                 Endpoint[] endpoints =
                     istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol));
 
-                IReadOnlyList<string> location = endpoints.Length == 0 ?
-                    new List<string> { istr.ReadString() } : ImmutableArray<string>.Empty;
+                string adapterId = endpoints.Length == 0 ? istr.ReadString() : "";
 
                 return new Reference(istr.Communicator!,
                                      proxyData.Encoding,
@@ -623,7 +622,8 @@ namespace ZeroC.Ice
                                      proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
                                      identity,
                                      proxyData.InvocationMode,
-                                     location,
+                                     location: adapterId.Length > 0 ?
+                                        ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty,
                                      proxyData.Protocol);
             }
             else
@@ -670,14 +670,15 @@ namespace ZeroC.Ice
         }
 
         // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
-        internal Reference(Communicator communicator,
-                           Encoding encoding,
-                           IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
-                           string facet,
-                           Identity identity,
-                           InvocationMode invocationMode,
-                           IReadOnlyList<string> location, // already a copy provided by Ice
-                           Protocol protocol)
+        internal Reference(
+            Communicator communicator,
+            Encoding encoding,
+            IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
+            string facet,
+            Identity identity,
+            InvocationMode invocationMode,
+            IReadOnlyList<string> location, // already a copy provided by Ice
+            Protocol protocol)
             : this(cacheConnection: true,
                    communicator: communicator,
                    connectionId: "",
@@ -1324,22 +1325,23 @@ namespace ZeroC.Ice
         }
 
         // Constructor for routable references, not bound to a connection
-        private Reference(bool cacheConnection,
-                          Communicator communicator,
-                          string connectionId,
-                          IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
-                          Encoding encoding,
-                          EndpointSelectionType endpointSelection,
-                          IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
-                          string facet,
-                          Identity identity,
-                          InvocationMode invocationMode,
-                          IReadOnlyList<string> location, // already a copy provided by Ice
-                          TimeSpan locatorCacheTimeout,
-                          LocatorInfo? locatorInfo,
-                          bool preferNonSecure,
-                          Protocol protocol,
-                          RouterInfo? routerInfo)
+        private Reference(
+            bool cacheConnection,
+            Communicator communicator,
+            string connectionId,
+            IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
+            Encoding encoding,
+            EndpointSelectionType endpointSelection,
+            IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
+            string facet,
+            Identity identity,
+            InvocationMode invocationMode,
+            IReadOnlyList<string> location, // already a copy provided by Ice
+            TimeSpan locatorCacheTimeout,
+            LocatorInfo? locatorInfo,
+            bool preferNonSecure,
+            Protocol protocol,
+            RouterInfo? routerInfo)
         {
             Communicator = communicator;
             ConnectionId = connectionId;
@@ -1364,6 +1366,8 @@ namespace ZeroC.Ice
                 Debug.Assert(location.Count == 0 || endpoints.Count == 0);
             }
 
+            Debug.Assert(location.Count == 0 || location[0].Length > 0);
+
             // TODO: replace by assert?
             if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
             {
@@ -1375,13 +1379,14 @@ namespace ZeroC.Ice
         }
 
         // Constructor for fixed references.
-        private Reference(Communicator communicator,
-                          IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
-                          Encoding encoding,
-                          string facet,
-                          Connection fixedConnection,
-                          Identity identity,
-                          InvocationMode invocationMode)
+        private Reference(
+            Communicator communicator,
+            IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
+            Encoding encoding,
+            string facet,
+            Connection fixedConnection,
+            Identity identity,
+            InvocationMode invocationMode)
         {
             Communicator = communicator;
             ConnectionId = "";
