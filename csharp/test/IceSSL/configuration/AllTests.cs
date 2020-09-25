@@ -544,7 +544,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
 
                 {
-
                     // Test Hostname verification only when Test.Host is 127.0.0.1 as that is the IP address used
                     // in the test certificates.
                     if (host.Equals("127.0.0.1"))
@@ -562,10 +561,16 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
-                            IServerPrx? server = fact.CreateServer(serverProperties, true);
+                            IServerPrx server = fact.CreateServer(serverProperties, true)!;
+
+                            foreach (var endpoint in server.Endpoints)
+                            {
+                                TestHelper.Assert(endpoint.Host == "localhost");
+                            }
+
                             try
                             {
-                                server!.IcePing();
+                                server.IcePing();
                             }
                             catch (Exception ex)
                             {
