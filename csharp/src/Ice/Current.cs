@@ -42,7 +42,7 @@ namespace ZeroC.Ice
         internal Current(
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
-            Stream stream,
+            TransceiverStream stream,
             CancellationToken token,
             Connection? connection = null)
         {

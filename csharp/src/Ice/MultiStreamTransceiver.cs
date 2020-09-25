@@ -16,55 +16,7 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    internal class ManualResetValueTaskCompletionSource<T> : IValueTaskSource<T>
-    {
-        internal ValueTask<T> ValueTask => new ValueTask<T>(this, _source.Version);
-
-        internal void SetResult(T value) => _source.SetResult(value);
-
-        internal void SetException(Exception exception) => _source.SetException(exception);
-
-        internal bool TrySetException(Exception exception)
-        {
-            try
-            {
-                _source.SetException(exception);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private ManualResetValueTaskSourceCore<T> _source;
-
-        T IValueTaskSource<T>.GetResult(short token)
-        {
-            bool isValid = token == _source.Version;
-            try
-            {
-                return _source.GetResult(token);
-            }
-            finally
-            {
-                if (isValid)
-                {
-                    _source.Reset();
-                }
-            }
-        }
-
-        ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token) => _source.GetStatus(token);
-
-        void IValueTaskSource<T>.OnCompleted(
-            Action<object?> continuation,
-            object? state,
-            short token,
-            ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
-    }
-
-    public abstract class Stream : IDisposable
+    public abstract class TransceiverStream : IDisposable
     {
         public long Id { get; }
         public bool IsIncoming => Id % 2 == (_transceiver.IsIncoming ? 0 : 1);
@@ -98,7 +50,7 @@ namespace ZeroC.Ice
         protected abstract ValueTask ResetAsync();
         protected abstract ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel);
 
-        protected Stream(long streamId, MultiStreamTransceiver transceiver)
+        protected TransceiverStream(long streamId, MultiStreamTransceiver transceiver)
         {
             Id = streamId;
             _transceiver = transceiver;
@@ -108,7 +60,7 @@ namespace ZeroC.Ice
         protected virtual void Dispose(bool disposing)
         {
             _observer?.Detach();
-            if (_transceiver.Streams.Remove(Id, out Stream? _) && _transceiver.Streams.Count == 2)
+            if (_transceiver.Streams.Remove(Id, out TransceiverStream? _))
             {
                 _transceiver.CheckStreamsEmpty();
             }
@@ -189,7 +141,6 @@ namespace ZeroC.Ice
             {
                 // TODO: read initialize settings?
             }
-
         }
 
         internal async ValueTask<(IncomingRequestFrame, bool)> ReceiveRequestFrameAsync(CancellationToken cancel)
@@ -393,12 +344,77 @@ namespace ZeroC.Ice
         }
     }
 
+    // The signaled transceiver stream class provide signaling functionality using the IValueTaskSource interface.
+    // It useful to implement streams that depend on the transceiver for receiving data: the transceiver signals
+    // the stream when new data is available.
+    internal abstract class SignaledTransceiverStream<T> : TransceiverStream, IValueTaskSource<T>
+    {
+        private ManualResetValueTaskSourceCore<T> _source;
+
+        public override void Abort(Exception ex)
+        {
+            try
+            {
+                _source.RunContinuationsAsynchronously = true;
+                _source.SetException(ex);
+            }
+            catch
+            {
+            }
+        }
+
+        protected SignaledTransceiverStream(long streamId, MultiStreamTransceiver transceiver) :
+            base(streamId, transceiver)
+        {
+        }
+
+        protected void SignalCompletion(T result, bool runContinuationAsynchronously)
+        {
+            _source.RunContinuationsAsynchronously = runContinuationAsynchronously;
+            _source.SetResult(result);
+        }
+
+        protected ValueTask<T> WaitSignalAsync(CancellationToken cancel = default)
+        {
+            if (cancel.CanBeCanceled)
+            {
+                return new ValueTask<T>(this, _source.Version).WaitAsync(cancel);
+            }
+            else
+            {
+                return new ValueTask<T>(this, _source.Version);
+            }
+        }
+
+        T IValueTaskSource<T>.GetResult(short token)
+        {
+            Debug.Assert(token == _source.Version);
+            try
+            {
+                return _source.GetResult(token);
+            }
+            finally
+            {
+                _source.Reset();
+            }
+        }
+
+        ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token) => _source.GetStatus(token);
+
+        void IValueTaskSource<T>.OnCompleted(
+            Action<object?> continuation,
+            object? state,
+            short token,
+            ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
+    }
+
     public abstract class MultiStreamTransceiver : IDisposable
     {
         public Endpoint Endpoint { get; }
         public bool IsIncoming { get; }
 
-        internal TimeSpan LastActivity;
+        internal int IncomingFrameSizeMax { get; }
+        internal TimeSpan LastActivity { get; set; }
         internal IConnectionObserver? Observer
         {
             get
@@ -417,18 +433,20 @@ namespace ZeroC.Ice
                 }
             }
         }
-
         internal event EventHandler? Ping;
-        internal int IncomingFrameSizeMax { get; }
-        internal readonly ConcurrentDictionary<long, Stream> Streams = new ConcurrentDictionary<long, Stream>();
+        internal readonly ConcurrentDictionary<long, TransceiverStream> Streams =
+            new ConcurrentDictionary<long, TransceiverStream>();
 
         private IConnectionObserver? _observer;
         // The mutex provides thread-safety for the _observer and LastActivity data members.
         private readonly object _mutex = new object();
         private volatile TaskCompletionSource? _streamsEmptySource;
 
+        /// <summary>Abort the transport.</summary>
+        public abstract void Abort();
+
         /// <summary>Receives a new frame.</summary>
-        public abstract ValueTask<Stream> AcceptStreamAsync(CancellationToken cancel);
+        public abstract ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel);
 
         public abstract ValueTask CloseAsync(Exception ex, CancellationToken cancel);
 
@@ -445,7 +463,7 @@ namespace ZeroC.Ice
         public abstract ValueTask InitializeAsync(CancellationToken cancel);
 
         /// <summary>Creates a new stream.</summary>
-        public abstract Stream CreateStream(bool bidirectional);
+        public abstract TransceiverStream CreateStream(bool bidirectional);
 
         protected MultiStreamTransceiver(Endpoint endpoint, ObjectAdapter? adapter)
         {
@@ -458,8 +476,7 @@ namespace ZeroC.Ice
 
         protected virtual void Dispose(bool disposing)
         {
-            Debug.Assert(Streams.Count == 2); // We're supported to close the control streams
-            foreach (Stream stream in Streams.Values)
+            foreach (TransceiverStream stream in Streams.Values)
             {
                 Debug.Assert(stream.IsControl);
                 stream.Dispose();
@@ -520,9 +537,10 @@ namespace ZeroC.Ice
             }
         }
 
-        protected bool TryGetStream<T>(long streamId, [NotNullWhen(returnValue: true)] out T? value) where T : Stream
+        protected bool TryGetStream<T>(long streamId, [NotNullWhen(returnValue: true)] out T? value)
+            where T : TransceiverStream
         {
-            if (Streams.TryGetValue(streamId, out Stream? stream))
+            if (Streams.TryGetValue(streamId, out TransceiverStream? stream))
             {
                 value = (T)stream;
                 return true;
@@ -531,8 +549,16 @@ namespace ZeroC.Ice
             return false;
         }
 
-        internal void Closed(Exception exception)
+        internal async ValueTask AbortAsync(Exception exception)
         {
+            // Abort the transport
+            Abort();
+
+            // Abort the streams and Wait for all all the streams to be completed
+            AbortStreams(exception);
+
+            await WaitForEmptyStreamsAsync().ConfigureAwait(false);
+
             lock (_mutex)
             {
                 _observer?.Detach();
@@ -593,30 +619,30 @@ namespace ZeroC.Ice
 
         internal void CheckStreamsEmpty()
         {
-            if (Streams.Count == 2)
+            if (Streams.Count <= 2)
             {
-                _streamsEmptySource?.SetResult();
+                _streamsEmptySource?.TrySetResult();
             }
         }
 
-        internal virtual async ValueTask<Stream> ReceiveInitializeFrameAsync(CancellationToken cancel)
+        internal virtual async ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
-            Stream stream = await AcceptStreamAsync(cancel).ConfigureAwait(false);
+            TransceiverStream stream = await AcceptStreamAsync(cancel).ConfigureAwait(false);
             await stream.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
 
-        internal virtual async ValueTask<Stream> SendInitializeFrameAsync(CancellationToken cancel)
+        internal virtual async ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            Stream stream = CreateStream(false);
+            TransceiverStream stream = CreateStream(false);
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
 
-        internal long AbortStreams(Exception exception, Func<Stream, bool>? predicate = null)
+        internal long AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
             long largestStreamId = 0;
-            foreach (Stream stream in Streams.Values)
+            foreach (TransceiverStream stream in Streams.Values)
             {
                 if (!stream.IsControl && (predicate?.Invoke(stream) ?? true))
                 {
@@ -646,6 +672,19 @@ namespace ZeroC.Ice
     public abstract class MultiStreamTransceiverWithUnderlyingTransceiver : MultiStreamTransceiver
     {
         public ITransceiver Underlying { get; }
+
+        public override string ToString() => Underlying.ToString()!;
+
+        public override void Abort() => Underlying.Dispose();
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                Underlying.Dispose();
+            }
+        }
 
         protected MultiStreamTransceiverWithUnderlyingTransceiver(
             Endpoint endpoint,

@@ -38,7 +38,7 @@ namespace ZeroC.Ice.Test.AMI
                                   current.Context["cancel"] == "mightSucceed" ||
                                   current.Protocol == Protocol.Ice1);
             }
-            catch (TaskCanceledException)
+            catch (System.AggregateException ex) when (ex.InnerException is TaskCanceledException)
             {
                 // Expected if the request is canceled.
                 TestHelper.Assert(current.Context.ContainsKey("cancel"));

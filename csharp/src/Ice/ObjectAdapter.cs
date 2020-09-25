@@ -879,7 +879,7 @@ namespace ZeroC.Ice
 
         internal async ValueTask<(OutgoingResponseFrame, bool)> DispatchAsync(
             IncomingRequestFrame request,
-            Stream stream,
+            TransceiverStream stream,
             Current current)
         {
             try

@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -13,23 +12,11 @@ using System.Threading.Channels;
 
 namespace ZeroC.Ice
 {
-    internal class ColocatedStream : Stream, IValueTaskSource<(object, bool)>
+    internal class ColocatedStream : SignaledTransceiverStream<(object, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
-        private ManualResetValueTaskSourceCore<(object, bool)> _source;
         private CancellationTokenSource? _cancelSource;
         private readonly ColocatedTransceiver _transceiver;
-
-        public override void Abort(Exception ex)
-        {
-            try
-            {
-                _source.SetException(ex);
-            }
-            catch
-            {
-            }
-        }
 
         protected override ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
             // This is never called because we override the default ReceiveFrameAsync implementation
@@ -44,39 +31,19 @@ namespace ZeroC.Ice
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
             _transceiver.SendFrameAsync(Id, buffer, fin, cancel);
 
-        (object, bool) IValueTaskSource<(object, bool)>.GetResult(short token)
-        {
-            Debug.Assert(token == _source.Version);
-            try
-            {
-                return _source.GetResult(token);
-            }
-            finally
-            {
-                _source.Reset();
-            }
-        }
-
-        ValueTaskSourceStatus IValueTaskSource<(object, bool)>.GetStatus(short token) => _source.GetStatus(token);
-
-        void IValueTaskSource<(object, bool)>.OnCompleted(
-            Action<object?> continuation,
-            object? state,
-            short token,
-            ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
-
         internal ColocatedStream(long streamId, ColocatedTransceiver transceiver) : base(streamId, transceiver) =>
             _transceiver = transceiver;
 
         internal override void CancelSourceIfStreamReset(CancellationTokenSource source) => _cancelSource = source;
 
-        internal void ReceivedFrame(object frame, bool fin) => _source.SetResult((frame, fin));
+        internal void ReceivedFrame(object frame, bool fin, bool runContinuationAsynchronously) =>
+            SignalCompletion((frame, fin), runContinuationAsynchronously);
 
         private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
             byte expectedFrameType,
             CancellationToken cancel)
         {
-            (object frame, bool fin) = await new ValueTask<(object, bool)>(this, _source.Version).ConfigureAwait(false);
+            (object frame, bool fin) = await WaitSignalAsync().ConfigureAwait(false);
             if (frame is OutgoingRequestFrame request)
             {
                 return (request.Data.AsArraySegment(), fin);
@@ -118,13 +85,16 @@ namespace ZeroC.Ice
 
     internal class ColocatedTransceiver : MultiStreamTransceiver
     {
+        private long _id;
         private readonly object _mutex = new object();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private readonly ChannelReader<(long, object, bool)> _reader;
         private readonly ChannelWriter<(long, object, bool)> _writer;
 
-        public override async ValueTask<Stream> AcceptStreamAsync(CancellationToken cancel)
+        public override void Abort() => _writer.TryComplete();
+
+        public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
         {
             while (true)
             {
@@ -133,12 +103,12 @@ namespace ZeroC.Ice
                     (long streamId, object frame, bool fin) = await _reader.ReadAsync(cancel).ConfigureAwait(false);
                     if (TryGetStream(streamId, out ColocatedStream? stream))
                     {
-                        stream.ReceivedFrame(frame, fin);
+                        stream.ReceivedFrame(frame, fin, true);
                     }
                     else if (frame is OutgoingRequestFrame || streamId == (IsIncoming ? 2 : 3))
                     {
                         stream = new ColocatedStream(streamId, this);
-                        stream.ReceivedFrame(frame, fin);
+                        stream.ReceivedFrame(frame, fin, false);
                         return stream;
                     }
                     else
@@ -159,11 +129,11 @@ namespace ZeroC.Ice
             await _reader.Completion.ConfigureAwait(false);
         }
 
-        public override Stream CreateStream(bool bidirectional)
+        public override TransceiverStream CreateStream(bool bidirectional)
         {
             lock (_mutex)
             {
-                Stream stream;
+                TransceiverStream stream;
                 if (bidirectional)
                 {
                     stream = new ColocatedStream(_nextBidirectionalId, this);
@@ -183,13 +153,14 @@ namespace ZeroC.Ice
         public override ValueTask PingAsync(CancellationToken cancel) => default;
 
         public override string ToString() =>
-            $"object adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
+            $"ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
 
-        internal ColocatedTransceiver(ColocatedEndpoint endpoint,
-                                      ChannelWriter<(long, object, bool)> writer,
-                                      ChannelReader<(long, object, bool)> reader,
-                                      bool isIncoming) :
-            base(endpoint, isIncoming ? endpoint.Adapter : null)
+        internal ColocatedTransceiver(
+            ColocatedEndpoint endpoint,
+            long id,
+            ChannelWriter<(long, object, bool)> writer,
+            ChannelReader<(long, object, bool)> reader,
+            bool isIncoming) : base(endpoint, isIncoming ? endpoint.Adapter : null)
         {
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)
@@ -202,6 +173,7 @@ namespace ZeroC.Ice
                 _nextBidirectionalId = 0;
                 _nextUnidirectionalId = 2;
             }
+            _id = id;
             _writer = writer;
             _reader = reader;
         }

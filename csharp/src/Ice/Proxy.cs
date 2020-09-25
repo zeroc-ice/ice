@@ -364,7 +364,7 @@ namespace ZeroC.Ice
                             connection = await reference.GetConnectionAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and get the stream created for sending the request
-                            using Stream stream =
+                            using TransceiverStream stream =
                                 await connection.SendRequestAsync(request,
                                                                   !oneway,
                                                                   observer,

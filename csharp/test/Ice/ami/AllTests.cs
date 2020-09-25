@@ -113,7 +113,7 @@ namespace ZeroC.Ice.Test.AMI
             private readonly Thread _thread;
         }
 
-        public static void Run(TestHelper helper, bool collocated)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -140,10 +140,7 @@ namespace ZeroC.Ice.Test.AMI
                 TestHelper.Assert(p.IceIdsAsync().Result.Length == 2);
                 TestHelper.Assert(p.IceIdsAsync(ctx).Result.Length == 2);
 
-                if (!collocated)
-                {
-                    TestHelper.Assert(p.GetConnectionAsync().AsTask().Result != null);
-                }
+                TestHelper.Assert(p.GetConnectionAsync().AsTask().Result != null);
 
                 p.OpAsync().Wait();
                 p.OpAsync(ctx).Wait();
@@ -196,11 +193,8 @@ namespace ZeroC.Ice.Test.AMI
                         ids = await p.IceIdsAsync(ctx);
                         TestHelper.Assert(ids.Length == 2);
 
-                        if (!collocated)
-                        {
-                            Connection? conn = await p.GetConnectionAsync();
-                            TestHelper.Assert(conn != null);
-                        }
+                        Connection? conn = await p.GetConnectionAsync();
+                        TestHelper.Assert(conn != null);
 
                         await p.OpAsync();
                         await p.OpAsync(ctx);
@@ -262,11 +256,8 @@ namespace ZeroC.Ice.Test.AMI
                 p.IceIdsAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2),
                                                 TaskScheduler.Default).Wait();
 
-                if (!collocated)
-                {
-                    p.GetConnectionAsync().AsTask().ContinueWith(
-                        previous => TestHelper.Assert(previous.Result != null), TaskScheduler.Default).Wait();
-                }
+                p.GetConnectionAsync().AsTask().ContinueWith(
+                    previous => TestHelper.Assert(previous.Result != null), TaskScheduler.Default).Wait();
 
                 p.OpAsync().ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
                 p.OpAsync(ctx).ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
@@ -526,11 +517,6 @@ namespace ZeroC.Ice.Test.AMI
 
             Task.Run(async () =>
             {
-                if (serialized.GetConnection() == null)
-                {
-                    return; // Serialization not supported with collocation
-                }
-
                 output.Write("testing async serialization... ");
                 output.Flush();
                 try

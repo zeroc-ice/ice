@@ -33,7 +33,7 @@ namespace ZeroC.Ice.Test.AMI
             adapter2.Add("serialized", new TestIntf());
             //adapter2.Activate();
 
-            AllTests.Run(this, true);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

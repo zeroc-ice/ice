@@ -40,27 +40,18 @@ namespace ZeroC.Ice
 
     // The stream implementation for Slic. It implements IValueTaskSource<> directly instead of using
     // ManualResetValueTaskCompletionSource<T> to minimize the number of heap allocations.
-    internal class SlicStream : Stream, IValueTaskSource<(int, bool)>
+    internal class SlicStream : SignaledTransceiverStream<(int, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
         private volatile Exception? _exception;
-        private ManualResetValueTaskSourceCore<(int, bool)> _source;
         private readonly SlicTransceiver _transceiver;
         private int _receivedSize;
         private bool _receivedEndOfStream;
 
         public override void Abort(Exception ex)
         {
+            base.Abort(ex);
             _exception = ex;
-
-            // Cancel waiting ReceiveAsync
-            try
-            {
-                _source.SetException(ex);
-            }
-            catch
-            {
-            }
         }
 
         protected override async ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
@@ -73,8 +64,7 @@ namespace ZeroC.Ice
                     if (_receivedSize == 0)
                     {
                         // Wait to be signaled for the reception of a new stream frame for this stream.
-                        var task = new ValueTask<(int, bool)>(this, _source.Version);
-                        (_receivedSize, _receivedEndOfStream) = await task.WaitAsync(cancel).ConfigureAwait(false);
+                        (_receivedSize, _receivedEndOfStream) = await WaitSignalAsync(cancel).ConfigureAwait(false);
                         if (_receivedSize == 0)
                         {
                             _exception ??= new StreamResetByPeerException("received reset frame");
@@ -103,7 +93,7 @@ namespace ZeroC.Ice
                     // a new frame.
                     if (_receivedSize == 0)
                     {
-                        _transceiver.FinishedReceivedData();
+                        _transceiver.FinishedReceivedStreamData();
                     }
                 }
             }
@@ -115,8 +105,7 @@ namespace ZeroC.Ice
                 {
                     ArraySegment<byte> data = new byte[_receivedSize];
                     await _transceiver.ReceiveDataAsync(data, CancellationToken.None).ConfigureAwait(false);
-                    _receivedSize = 0;
-                    _transceiver.FinishedReceivedData();
+                    _transceiver.FinishedReceivedStreamData();
                 }
                 throw;
             }
@@ -128,7 +117,7 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteVarLong(Id);
                     ostr.WriteVarLong(0); // TODO: reason code?
-                            return 0;
+                    return Id;
                 }, CancellationToken.None).ConfigureAwait(false);
 
         protected override async ValueTask SendAsync(
@@ -139,9 +128,9 @@ namespace ZeroC.Ice
             // Ensure the caller reserved space for the Slic header by checking for sentinel header.
             Debug.Assert(Header.Span.SequenceEqual(buffer[0].Slice(0, Header.Length)));
 
-            // The given buffer is supposed to include space for the Slic header in the first segment.
-            int size = buffer.GetByteCount() - Header.Length;
+            int size = buffer.GetByteCount();
 
+            // TODO: Make the Slic frame size a configuration property? We use 10KB here.
             int maxFrameSize = 10 * 1024;
             if (size > maxFrameSize)
             {
@@ -155,29 +144,29 @@ namespace ZeroC.Ice
 
                     if (offset > 0)
                     {
-                        sendBuffer[0] = buffer[0].Slice(0, Header.Length);
+                        sendBuffer.Add(buffer[0].Slice(0, Header.Length));
                         sendSize += sendBuffer[0].Count;
                     }
 
                     for (int i = start.Segment; i < buffer.Count; ++i)
                     {
                         int segmentOffset = i == start.Segment ? start.Offset : 0;
-                        if (sendSize + buffer[i].Count > maxFrameSize)
+                        if (sendSize + buffer[i].Slice(segmentOffset).Count > maxFrameSize)
                         {
                             sendBuffer.Add(buffer[i].Slice(segmentOffset, maxFrameSize - sendSize));
                             start = new OutputStream.Position(i, segmentOffset + sendBuffer[^1].Count);
-                            offset += sendBuffer[^1].Count;
+                            sendSize += sendBuffer[^1].Count;
                             break;
                         }
                         else
                         {
-                            sendBuffer.Add(buffer[i]);
-                            sendSize += buffer[i].Count;
+                            sendBuffer.Add(buffer[i].Slice(segmentOffset));
+                            sendSize += sendBuffer[^1].Count;
                         }
                     }
 
                     offset += sendSize;
-                    await SendFrameAsync(size, sendBuffer).ConfigureAwait(false);
+                    await SendFrameAsync(sendSize, sendBuffer).ConfigureAwait(false);
                 }
             }
             else
@@ -192,8 +181,14 @@ namespace ZeroC.Ice
                     throw _exception;
                 }
 
+                // The given buffer includes space for the Slic header, we substract the header size from the given
+                // frame size.
+                Debug.Assert(frameSize > Header.Length);
+                frameSize -= Header.Length;
+
                 int sizeLength = OutputStream.GetVarLongLength(frameSize);
                 int streamIdLength = OutputStream.GetVarLongLength(Id);
+                frameSize += streamIdLength;
 
                 SlicDefinitions.FrameType frameType =
                     fin ? SlicDefinitions.FrameType.StreamLast : SlicDefinitions.FrameType.Stream;
@@ -214,37 +209,20 @@ namespace ZeroC.Ice
             }
         }
 
-        (int, bool) IValueTaskSource<(int, bool)>.GetResult(short token)
-        {
-            Debug.Assert(token == _source.Version);
-            try
-            {
-                return _source.GetResult(token);
-            }
-            finally
-            {
-                _source.Reset();
-            }
-        }
-
-        ValueTaskSourceStatus IValueTaskSource<(int, bool)>.GetStatus(short token) => _source.GetStatus(token);
-
-        void IValueTaskSource<(int, bool)>.OnCompleted(
-            Action<object?> continuation,
-            object? state,
-            short token,
-            ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
-
         internal SlicStream(long streamId, SlicTransceiver transceiver) : base(streamId, transceiver) =>
             _transceiver = transceiver;
 
-        internal void ReceivedFrame(int size, bool fin) => _source.SetResult((size, fin));
+        internal void ReceivedFrame(int size, bool fin, bool runContinuationAsynchronously) =>
+            SignalCompletion((size, fin), runContinuationAsynchronously);
     }
 
     internal class SlicTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
-        private readonly ManualResetValueTaskCompletionSource<bool> _acceptStreamTaskSource =
+        private readonly ManualResetValueTaskCompletionSource<TransceiverStream> _acceptStreamTaskSource =
+            new ManualResetValueTaskCompletionSource<TransceiverStream>();
+        private readonly ManualResetValueTaskCompletionSource<bool> _receiveStreamCompletionTaskSource =
             new ManualResetValueTaskCompletionSource<bool>();
+
         private readonly object _mutex = new object();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
@@ -253,114 +231,17 @@ namespace ZeroC.Ice
         private Task _sendTask = Task.CompletedTask;
         private readonly BufferedReadTransceiver _transceiver;
 
-        public override async ValueTask<Stream> AcceptStreamAsync(CancellationToken cancel)
-        {
-            while (true)
-            {
-                // If a frame is being read, wait for it to be read before starting reading a new frame,
-                // _acceptStreamTaskSource is signaled once the stream frame is fully read.
-                await _acceptStreamTaskSource.ValueTask.ConfigureAwait(false);
-
-                // Read the Slic frame header
-                (SlicDefinitions.FrameType type, int size, long? streamId) =
-                    await ReceiveHeaderAsync(cancel).ConfigureAwait(false);
-
-                switch (type)
-                {
-                    case SlicDefinitions.FrameType.Ping:
-                    {
-                        if (size != 0)
-                        {
-                            throw new InvalidDataException("unexpected data for Slic Ping fame");
-                        }
-                        ValueTask _ = PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Pong,
-                                                               null,
-                                                               CancellationToken.None);
-                        PingReceived();
-                        _acceptStreamTaskSource.SetResult(false);
-                        break;
-                    }
-                    case SlicDefinitions.FrameType.Pong:
-                    {
-                        // TODO: setup a timer to expect pong frame response?
-                        if (size != 0)
-                        {
-                            throw new InvalidDataException("unexpected data for Slic Pong fame");
-                        }
-                        _acceptStreamTaskSource.SetResult(false);
-                        break;
-                    }
-                    case SlicDefinitions.FrameType.Stream:
-                    case SlicDefinitions.FrameType.StreamLast:
-                    {
-                        Debug.Assert(streamId != null);
-                        bool isIncoming = streamId.Value % 2 == (IsIncoming ? 0 : 1);
-                        bool isBidirectional = streamId.Value % 4 < 2;
-                        if (size == 0 && type == SlicDefinitions.FrameType.Stream)
-                        {
-                            throw new InvalidDataException("received empty stream frame");
-                        }
-
-                        if (TryGetStream(streamId.Value, out SlicStream? stream))
-                        {
-                            // Existing stream, notify the stream that data is available for read.
-                            stream.ReceivedFrame(size, type == SlicDefinitions.FrameType.StreamLast);
-                        }
-                        else if (isIncoming &&
-                                 streamId.Value > (isBidirectional ? _lastBidirectionalId : _lastUnidirectionalId))
-                        {
-                            if (isBidirectional)
-                            {
-                                _lastBidirectionalId = streamId.Value;
-                            }
-                            else
-                            {
-                                _lastUnidirectionalId = streamId.Value;
-                            }
-
-                            // Accept the new incoming stream and notify that data is available for read.
-                            stream = new SlicStream(streamId.Value, this);
-                            stream.ReceivedFrame(size, type == SlicDefinitions.FrameType.StreamLast);
-                            return stream;
-                        }
-                        else
-                        {
-                            // The stream has probably been disposed, read and ignore the data.
-                            ArraySegment<byte> data = new byte[size];
-                            await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                            _acceptStreamTaskSource.SetResult(false);
-                        }
-                        break;
-                    }
-                    case SlicDefinitions.FrameType.ResetStream:
-                    {
-                        Debug.Assert(streamId != null);
-                        ArraySegment<byte> data = new byte[size];
-                        await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                        long reason = data.AsReadOnlySpan().ReadVarLong().Value; // TODO: reason code?
-                        if (TryGetStream(streamId.Value, out SlicStream? stream))
-                        {
-                            stream.ReceivedFrame(0, true);
-                        }
-                        _acceptStreamTaskSource.SetResult(false);
-                        break;
-                    }
-                    default:
-                    {
-                        throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
-                    }
-                }
-            }
-        }
+        public override ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel) =>
+            _acceptStreamTaskSource.ValueTask.WaitAsync(cancel);
 
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _transceiver.CloseAsync(exception, cancel);
 
-        public override Stream CreateStream(bool bidirectional)
+        public override TransceiverStream CreateStream(bool bidirectional)
         {
             lock (_mutex)
             {
-                Stream stream;
+                TransceiverStream stream;
                 if (bidirectional)
                 {
                     stream = new SlicStream(_nextBidirectionalId, this);
@@ -377,7 +258,7 @@ namespace ZeroC.Ice
 
         public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
-            // Initialize the transport
+            // Initialize the underlying transport
             await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
             if (IsIncoming)
@@ -459,26 +340,28 @@ namespace ZeroC.Ice
 
                 // TODO: transport parameters
             }
+
+            // Start the receiving frames over the connection until an exception and until an exception is raised.
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await ReceiveAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _acceptStreamTaskSource.SetException(ex);
+                }
+            }, CancellationToken.None);
         }
 
         public override ValueTask PingAsync(CancellationToken cancel) =>
             PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Ping, null, cancel);
 
-        public override string ToString() => _transceiver.ToString()!;
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _transceiver.Dispose();
-            }
-        }
-
         internal SlicTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
             base(endpoint, adapter, transceiver)
         {
             _transceiver = new BufferedReadTransceiver(transceiver);
-            _acceptStreamTaskSource.SetResult(false);
 
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)
@@ -495,10 +378,7 @@ namespace ZeroC.Ice
             _lastUnidirectionalId = -1;
         }
 
-        internal void FinishedReceivedData() =>
-            // AcceptStreamAsync is blocked on _readTaskSource, unblock it to allow to read a new Slic frame now that
-            // we are done reading the stream data.
-            _acceptStreamTaskSource.SetResult(false);
+        internal void FinishedReceivedStreamData() => _receiveStreamCompletionTaskSource.SetResult(false);
 
         internal async ValueTask PrepareAndSendFrameAsync(
             SlicDefinitions.FrameType type,
@@ -509,7 +389,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(SlicDefinitions.Encoding, data);
             ostr.WriteByte((byte)type);
             OutputStream.Position sizePos = ostr.StartFixedLengthSize(4);
-            long? streamId = writer?.Invoke(ostr) ?? null;
+            long? streamId = writer?.Invoke(ostr);
             int frameSize = ostr.Tail.Offset - sizePos.Offset - 4;
             ostr.EndFixedLengthSize(sizePos, 4);
             data[^1] = data[^1].Slice(0, ostr.Tail.Offset); // TODO: Shouldn't this be the job of ostr.Finish()?
@@ -618,10 +498,118 @@ namespace ZeroC.Ice
             Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
         }
 
+        private async ValueTask<TransceiverStream> ReceiveAsync(CancellationToken cancel)
+        {
+            while (true)
+            {
+                // Read the Slic frame header
+                (SlicDefinitions.FrameType type, int size, long? streamId) =
+                    await ReceiveHeaderAsync(cancel).ConfigureAwait(false);
+
+                switch (type)
+                {
+                    case SlicDefinitions.FrameType.Ping:
+                    {
+                        if (size != 0)
+                        {
+                            throw new InvalidDataException("unexpected data for Slic Ping fame");
+                        }
+                        ValueTask _ = PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Pong,
+                                                               null,
+                                                               CancellationToken.None);
+                        PingReceived();
+                        break;
+                    }
+                    case SlicDefinitions.FrameType.Pong:
+                    {
+                        // TODO: setup a timer to expect pong frame response?
+                        if (size != 0)
+                        {
+                            throw new InvalidDataException("unexpected data for Slic Pong fame");
+                        }
+                        break;
+                    }
+                    case SlicDefinitions.FrameType.Stream:
+                    case SlicDefinitions.FrameType.StreamLast:
+                    {
+                        Debug.Assert(streamId != null);
+                        bool isIncoming = streamId.Value % 2 == (IsIncoming ? 0 : 1);
+                        bool isBidirectional = streamId.Value % 4 < 2;
+                        if (size == 0 && type == SlicDefinitions.FrameType.Stream)
+                        {
+                            throw new InvalidDataException("received empty stream frame");
+                        }
+
+                        if (TryGetStream(streamId.Value, out SlicStream? stream))
+                        {
+                            // Existing stream, notify the stream that data is available for read. We ensure that the
+                            // continuation is ran asynchronously as otherwise this could end up blocking and it would
+                            // prevent receiving further data.
+                            stream.ReceivedFrame(size, type == SlicDefinitions.FrameType.StreamLast, true);
+
+                            // Wait for the stream data receive to complete.
+                            await _receiveStreamCompletionTaskSource.ValueTask.ConfigureAwait(false);
+                        }
+                        else if (isIncoming &&
+                                 streamId.Value > (isBidirectional ? _lastBidirectionalId : _lastUnidirectionalId))
+                        {
+                            // Create a new stream if it's an incoming stream ID and if it's larger than the last
+                            // known stream ID (the client could be sending frames for old canceled incoming streams).
+                            if (isBidirectional)
+                            {
+                                _lastBidirectionalId = streamId.Value;
+                            }
+                            else
+                            {
+                                _lastUnidirectionalId = streamId.Value;
+                            }
+
+                            // Accept the new incoming stream and notify that data is available for read.
+                            stream = new SlicStream(streamId.Value, this);
+                            stream.ReceivedFrame(size, type == SlicDefinitions.FrameType.StreamLast, false);
+                            _acceptStreamTaskSource.SetResult(stream);
+
+                            // Wait for the stream data receive to complete.
+                            await _receiveStreamCompletionTaskSource.ValueTask.ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            // The stream has probably been disposed, read and ignore the data.
+                            ArraySegment<byte> data = new byte[size];
+                            await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
+                        }
+                        break;
+                    }
+                    case SlicDefinitions.FrameType.ResetStream:
+                    {
+                        Debug.Assert(streamId != null);
+                        ArraySegment<byte> data = new byte[size];
+                        await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
+                        long reason = data.AsReadOnlySpan().ReadVarLong().Value; // TODO: do something with the reason code?
+                        if (TryGetStream(streamId.Value, out SlicStream? stream))
+                        {
+                            stream.ReceivedFrame(0, true, true);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
+                    }
+                }
+
+                if (_acceptStreamTaskSource.IsCompleted)
+                {
+                    TraceTransportFrame("received ", type, size, streamId);
+                }
+            }
+        }
+
         private async ValueTask<(SlicDefinitions.FrameType, ArraySegment<byte>)> ReceiveFrameAsync(
             CancellationToken cancel)
         {
-            (SlicDefinitions.FrameType type, int size, long? _) = await ReceiveHeaderAsync(cancel).ConfigureAwait(false);
+            (SlicDefinitions.FrameType type, int size, long? streamId) =
+                await ReceiveHeaderAsync(cancel).ConfigureAwait(false);
             ArraySegment<byte> data;
             if (size > 0)
             {
@@ -631,6 +619,10 @@ namespace ZeroC.Ice
             else
             {
                 data = ArraySegment<byte>.Empty;
+            }
+            if (Endpoint.Communicator.TraceLevels.Transport > 2)
+            {
+                TraceTransportFrame("received ", type, size, streamId);
             }
             return (type, data);
         }
@@ -642,36 +634,33 @@ namespace ZeroC.Ice
             ReadOnlyMemory<byte> buffer = await _transceiver.ReceiveAsync(2, cancel).ConfigureAwait(false);
             var type = (SlicDefinitions.FrameType)buffer.Span[0];
             int sizeLength = buffer.Span[1].ReadSizeLength20();
-            _transceiver.Rewind(1);
-
-            bool hasStreamId = type == SlicDefinitions.FrameType.Stream ||
-                               type == SlicDefinitions.FrameType.StreamLast ||
-                               type == SlicDefinitions.FrameType.ResetStream;
-
-            // Read the varuint Slic frame size and if the frame contains a stream ID, we also read the first byte
-            // of the stream ID varlong.
-            buffer = await _transceiver.ReceiveAsync(sizeLength + (hasStreamId ? 1 : 0), cancel).ConfigureAwait(false);
-            int size = buffer.Span.ReadSize20().Size;
-
-            // If the frame contains a stream ID, now read the var long stream ID.
-            (long? streamId, int streamIdLength) = (null, 0);
-            if (hasStreamId)
+            int size;
+            if (sizeLength > 1)
             {
-                streamIdLength = buffer.Span[sizeLength].ReadVarLongLength();
                 _transceiver.Rewind(1);
+                buffer = await _transceiver.ReceiveAsync(sizeLength, cancel).ConfigureAwait(false);
+                size = buffer.Span.ReadSize20().Size;
+            }
+            else
+            {
+                size = buffer.Span[1..2].ReadSize20().Size;
+            }
 
-                // Read the varlong stream ID
-                buffer = await _transceiver.ReceiveAsync(streamIdLength, cancel).ConfigureAwait(false);
-                streamId = buffer.Span.ReadVarLong().Value;
+            // Receive the stream ID if the frame includes a stream ID. We receive at most 8 or size bytes and rewind
+            // the transceiver buffered position if we read too much data.
+            (long? streamId, int streamIdLength) = (null, 0);
+            if (type == SlicDefinitions.FrameType.Stream ||
+               type == SlicDefinitions.FrameType.StreamLast ||
+               type == SlicDefinitions.FrameType.ResetStream)
+            {
+                int receiveSize = Math.Min(size, 8);
+                buffer = await _transceiver.ReceiveAsync(receiveSize, cancel).ConfigureAwait(false);
+                (streamId, streamIdLength) = buffer.Span.ReadVarLong();
+                _transceiver.Rewind(receiveSize - streamIdLength);
             }
 
             Received(1 + sizeLength + streamIdLength);
-
-            if (Endpoint.Communicator.TraceLevels.Transport > 2)
-            {
-                TraceTransportFrame("received ", type, size, streamId);
-            }
-            return (type, size, streamId);
+            return (type, size - streamIdLength, streamId);
         }
     }
 }

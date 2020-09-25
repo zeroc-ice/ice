@@ -12,61 +12,29 @@ using System.Threading.Tasks.Sources;
 
 namespace ZeroC.Ice
 {
-    internal class LegacyStream : Stream, IValueTaskSource<(Ice1Definitions.FrameType, ArraySegment<byte>)>
+    internal class LegacyStream : SignaledTransceiverStream<(Ice1Definitions.FrameType, ArraySegment<byte>)>
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         private int RequestId => IsBidirectional ? (int)(Id >> 2) + 1 : 0;
-        private ManualResetValueTaskSourceCore<(Ice1Definitions.FrameType, ArraySegment<byte>)> _source;
         private readonly LegacyTransceiver _transceiver;
-
-        public override void Abort(Exception ex)
-        {
-            // Cancel waiting ReceiveAsync
-            try
-            {
-                _source.SetException(ex);
-            }
-            catch
-            {
-            }
-        }
 
         protected override ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
             // This is never called because we override the default ReceiveFrameAsync implementation
             throw new NotImplementedException();
+
         protected override ValueTask ResetAsync() => new ValueTask();
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
             _transceiver.SendFrameAsync(buffer, cancel);
 
-        (Ice1Definitions.FrameType, ArraySegment<byte>) IValueTaskSource<(Ice1Definitions.FrameType, ArraySegment<byte>)>.GetResult(
-            short token)
-        {
-            Debug.Assert(token == _source.Version);
-            try
-            {
-                return _source.GetResult(token);
-            }
-            finally
-            {
-                _source.Reset();
-            }
-        }
-
-        ValueTaskSourceStatus IValueTaskSource<(Ice1Definitions.FrameType, ArraySegment<byte>)>.GetStatus(
-            short token) => _source.GetStatus(token);
-
-        void IValueTaskSource<(Ice1Definitions.FrameType, ArraySegment<byte>)>.OnCompleted(
-            Action<object?> continuation,
-            object? state,
-            short token,
-            ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
-
         internal LegacyStream(long streamId, LegacyTransceiver transceiver) : base(streamId, transceiver) =>
             _transceiver = transceiver;
 
         internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =>
-            _source.SetResult((frameType, frame));
+            // If we received a response, we make sure to run the continuation asynchronously since this might end
+            // up calling user code and could therefore prevent receiving further data since AcceptStreamAsync
+            // would be blocked calling user code through this method.
+            SignalCompletion((frameType, frame), frameType == Ice1Definitions.FrameType.Reply);
 
         private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
             byte expectedFrameType,
@@ -74,13 +42,12 @@ namespace ZeroC.Ice
         {
             // Wait to be signaled for the reception of a new frame for this stream
             (Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =
-                await new ValueTask<(Ice1Definitions.FrameType, ArraySegment<byte>)>(
-                    this,
-                    _source.Version).ConfigureAwait(false);
+                await WaitSignalAsync(CancellationToken.None).ConfigureAwait(false);
             if ((byte)frameType != expectedFrameType)
             {
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
             }
+            // fin = true unless it's the validation conneciton frame.
             return (frame, frameType != Ice1Definitions.FrameType.ValidateConnection);
         }
 
@@ -149,7 +116,7 @@ namespace ZeroC.Ice
         private Task _sendTask = Task.CompletedTask;
         private readonly ITransceiver _transceiver;
 
-        public override async ValueTask<Stream> AcceptStreamAsync(CancellationToken cancel)
+        public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
         {
             while (true)
             {
@@ -182,11 +149,11 @@ namespace ZeroC.Ice
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _transceiver.CloseAsync(exception, cancel);
 
-        public override Stream CreateStream(bool bidirectional)
+        public override TransceiverStream CreateStream(bool bidirectional)
         {
             lock (_mutex)
             {
-                Stream stream;
+                TransceiverStream stream;
                 if (bidirectional)
                 {
                     stream = new LegacyStream(_nextBidirectionalId, this);
@@ -216,17 +183,6 @@ namespace ZeroC.Ice
             await SendFrameAsync(Ice1Definitions.ValidateConnectionFrame, CancellationToken.None).ConfigureAwait(false);
         }
 
-        public override string ToString() => _transceiver.ToString()!;
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                _transceiver.Dispose();
-            }
-        }
-
         internal LegacyTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
             base(endpoint, adapter, transceiver)
         {
@@ -247,11 +203,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal override ValueTask<Stream> ReceiveInitializeFrameAsync(CancellationToken cancel)
+        internal override ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
             if (IsIncoming)
             {
-                return new ValueTask<Stream>(new LegacyStream(2, this));
+                return new ValueTask<TransceiverStream>(new LegacyStream(2, this));
             }
             else
             {
@@ -302,7 +258,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal override ValueTask<Stream> SendInitializeFrameAsync(CancellationToken cancel)
+        internal override ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
             if (IsIncoming)
             {
@@ -310,7 +266,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new ValueTask<Stream>(CreateStream(false));
+                return new ValueTask<TransceiverStream>(CreateStream(false));
             }
         }
 
