@@ -2761,7 +2761,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
 
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
-        _out << nl << "public override int GetHashCode() => global::System.HashCode.Combine(Response);";
+        _out << nl << "public override int GetHashCode() => Response.GetHashCode();";
 
         emitEqualityOperators(name);
 
