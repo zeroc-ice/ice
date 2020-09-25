@@ -36,7 +36,7 @@ namespace ZeroC.Ice
             else if (ex is System.ComponentModel.Win32Exception)
             {
                 // "Authentication failed because the remote party has closed the transport stream"
-                // "An authentication error has occured"
+                // "An authentication error has occurred"
                 return ex.HResult == -2146232800 || ex.HResult == -2147467259;
             }
             return false;
