@@ -30,10 +30,10 @@ namespace ZeroC.Ice
             HashCode.Combine(Encoding, Slices);
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
-        public static bool operator ==(SlicedData left, SlicedData right) => left.Equals(right);
+        public static bool operator ==(SlicedData lhs, SlicedData rhs) => lhs.Equals(rhs);
 
         /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
-        public static bool operator !=(SlicedData left, SlicedData right) => !(left == right);
+        public static bool operator !=(SlicedData lhs, SlicedData rhs) => !(lhs == rhs);
 
         internal SlicedData(Encoding encoding, IReadOnlyList<SliceInfo> slices)
         {
