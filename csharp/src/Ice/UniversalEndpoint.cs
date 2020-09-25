@@ -125,10 +125,7 @@ namespace ZeroC.Ice
             ostr.WriteSequence(_options, OutputStream.IceWriterFromString);
 
         // Constructor for unmarshaling.
-        internal UniversalEndpoint(
-            InputStream istr,
-            Transport transport,
-            Protocol protocol)
+        internal UniversalEndpoint(InputStream istr, Transport transport, Protocol protocol)
             : base(istr.Communicator!, protocol)
         {
             Debug.Assert(Protocol != Protocol.Ice1);

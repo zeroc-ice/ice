@@ -1066,7 +1066,7 @@ namespace ZeroC.Ice
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
                 if (!encoding.IsSupported)
                 {
-                    // If we can't read the encapsulation, it's like we didn't find a factory.
+                    // If we can't read the encapsulation (very unlikely), it's like we didn't find a factory.
                     factory = null;
                 }
 
@@ -1093,12 +1093,14 @@ namespace ZeroC.Ice
                     InputStream istr = encoding == Encoding ?
                         this : new InputStream(_buffer.Slice(Pos, size), encoding, Communicator);
 
-                    endpoint = factory?.Read(istr, transport, protocol) ??
-                        new UniversalEndpoint(istr, transport, protocol); // protocol is ice2 or greater
+                    // When factory is null, protocol is necessarily > ice1 (see first if block), and as a result we
+                    // never create a UniversalEndpoint for ice1.
+                    endpoint =
+                        factory?.Read(istr, transport, protocol) ?? new UniversalEndpoint(istr, transport, protocol);
 
                     if (ReferenceEquals(istr, this))
                     {
-                        // Make sure we read the full encapsulation
+                        // Make sure we read the full encapsulation.
                         if (Pos != oldPos + size)
                         {
                             throw new InvalidDataException(
@@ -1116,7 +1118,7 @@ namespace ZeroC.Ice
                     string transportName = transport.ToString().ToLowerInvariant();
                     throw new InvalidDataException(@$"cannot read endpoint for protocol `{
                         protocol.GetName()}' and transport `{
-                            transportName}' in encapsulation encoded with encoding `{encoding}'");
+                            transportName}' with endpoint encapsulation encoded with encoding `{encoding}'");
                 }
             }
             else
