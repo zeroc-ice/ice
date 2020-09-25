@@ -143,7 +143,9 @@ namespace ZeroC.IceDiscovery
                     try
                     {
                         IObjectPrx proxy = _adapters[ids.First()];
-                        proxy = proxy.Clone(IObjectPrx.Factory, adapterId: key, identity: identity);
+                        proxy = proxy.Clone(IObjectPrx.Factory,
+                                            identity: identity,
+                                            location: new string[] { key });
                         proxy.IcePing();
                         return proxy;
                     }
@@ -158,8 +160,8 @@ namespace ZeroC.IceDiscovery
                     try
                     {
                         IObjectPrx proxy = registeredProxy.Clone(IObjectPrx.Factory,
-                                                                 adapterId: key,
-                                                                 identity: identity);
+                                                                 identity: identity,
+                                                                 location: new string[] { key });
                         proxy.IcePing();
                         return proxy;
                     }

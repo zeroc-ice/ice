@@ -299,7 +299,7 @@ namespace ZeroC.Ice.Test.Location
             }
             TestHelper.Assert(locator.GetRequestCount() > count && locator.GetRequestCount() < count + 999);
             count = locator.GetRequestCount();
-            hello = hello.Clone(adapterId: "unknown");
+            hello = hello.Clone(location: new string[] { "unknown" });
             for (int i = 0; i < 1000; i++)
             {
                 results.Add(hello.SayHelloAsync().ContinueWith(

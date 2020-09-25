@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -1077,13 +1078,14 @@ namespace ZeroC.Ice
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
-                return new Reference(adapterId: adapterId,
-                                     communicator: Communicator,
+                return new Reference(communicator: Communicator,
                                      encoding: Protocol.GetEncoding(),
                                      endpoints: adapterId.Length == 0 ? _publishedEndpoints : Array.Empty<Endpoint>(),
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
+                                     location: adapterId.Length > 0 ?
+                                        ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty,
                                      protocol: _publishedEndpoints.Count > 0 ?
                                                _publishedEndpoints[0].Protocol : Protocol);
             }

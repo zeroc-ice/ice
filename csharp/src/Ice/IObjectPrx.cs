@@ -150,7 +150,10 @@ namespace ZeroC.Ice
         /// <value>When true, invoking such an operation does not wait for the response from the target object. When
         /// false, invoking such an operation waits for the empty response from the target object, unless this behavior
         /// is overridden by metadata on the Slice operation's definition.</value>
-        public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
+        public bool IsOneway => IceReference.IsOneway;
+
+        /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
+        public IReadOnlyList<string> Location => IceReference.Location;
 
         /// <summary>The locator associated with this proxy. This property is null when no locator is associated with
         /// this proxy.</summary>
