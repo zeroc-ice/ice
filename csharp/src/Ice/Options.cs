@@ -110,7 +110,6 @@ namespace ZeroC.Ice
                                     // Move to start of next argument.
                                     while (++i < l.Length && inputFieldSeparator.IndexOf(l[i]) != -1)
                                     {
-                                        ;
                                     }
                                     --i;
                                 }
