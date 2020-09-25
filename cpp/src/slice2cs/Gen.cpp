@@ -497,6 +497,28 @@ Slice::CsVisitor::emitEditorBrowsableNeverAttribute()
 }
 
 void
+Slice::CsVisitor::emitEqualityOperators(const string& name)
+{
+    _out << sp;
+    _out << nl << "/// <summary>The equality operator == returns true if its operands are equal, false otherwise."
+         << "</summary>";
+    _out << nl << "/// <param name=\"lhs\">The left hand side operand.</param>";
+    _out << nl << "/// <param name=\"rhs\">The right hand side operand.</param>";
+    _out << nl << "/// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>";
+    _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";
+    _out << " => lhs.Equals(rhs);";
+
+    _out << sp;
+    _out << nl << "/// <summary>The inequality operator != returns true if its operands are not equal, false otherwise."
+         << "</summary>";
+    _out << nl << "/// <param name=\"lhs\">The left hand side operand.</param>";
+    _out << nl << "/// <param name=\"rhs\">The right hand side operand.</param>";
+    _out << nl << "/// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>";
+    _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs)";
+    _out << " => !lhs.Equals(rhs);";
+}
+
+void
 Slice::CsVisitor::emitCustomAttributes(const ContainedPtr& p)
 {
     StringList metaData = p->getMetaData();
@@ -1912,23 +1934,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "/// <inheritdoc/>";
     _out << nl << "public override bool Equals(object? other) => other is " << name << " value && this.Equals(value);";
 
-    _out << sp;
-    _out << nl << "/// <summary>The equality operator == returns true if its operands are equal, false otherwise."
-         << "</summary>";
-    _out << nl << "/// <param name=\"lhs\">The left hand side operand.</param>";
-    _out << nl << "/// <param name=\"rhs\">The right hand side operand.</param>";
-    _out << nl << "/// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>";
-    _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";
-    _out << " => lhs.Equals(rhs);";
-
-    _out << sp;
-    _out << nl << "/// <summary>The inequality operator != returns true if its operands are not equal, false otherwise."
-         << "</summary>";
-    _out << nl << "/// <param name=\"lhs\">The left hand side operand.</param>";
-    _out << nl << "/// <param name=\"rhs\">The right hand side operand.</param>";
-    _out << nl << "/// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>";
-    _out << nl << "public static bool operator !=(" << name << " lhs, " << name << " rhs)";
-    _out << " => !lhs.Equals(rhs);";
+    emitEqualityOperators(name);
 
     _out << sp;
     _out << nl << "/// <summary>Marshals the struct by writing its data to the <see cref=\"ZeroC.Ice.OutputStream\"/>."
@@ -2698,7 +2704,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(interface);
     const string opName = pascalCase(operation->name());
-
+    const string name = opName + "MarshaledReturnValue";
     auto returnType = operation->returnType();
 
     if (operation->hasMarshaledResult())
@@ -2706,15 +2712,14 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sp;
         _out << nl << "/// <summary>Helper struct used to marshal the return value of " << opName << " operation."
              << "</summary>";
-        _out << nl << "public struct " << opName << "MarshaledReturnValue";
+        _out << nl << "public struct " << name << " : global::System.IEquatable<" << name << ">";
         _out << sb;
         _out << nl << "/// <summary>The frame holding the marshaled response.</summary>";
         _out << nl << "public ZeroC.Ice.OutgoingResponseFrame Response { get; }";
 
-        _out << nl << "/// <summary>Constructs a new <see cref=\"" << opName
-             << "MarshaledReturnValue\"/> instance that";
+        _out << nl << "/// <summary>Constructs a new <see cref=\"" << name  << "\"/> instance that";
         _out << nl << "/// immediately marshals the return value of operation " << opName << ".</summary>";
-        _out << nl << "public " << opName << "MarshaledReturnValue" << spar
+        _out << nl << "public " << name << spar
              << getNames(returnType, [](const auto& p)
                                     {
                                         return paramTypeStr(p) + " " + paramName(p);
@@ -2745,6 +2750,21 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << ");";
         _out.dec();
         _out << eb;
+
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public bool Equals(" << name << " other) => Response == other.Response;";
+
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public override bool Equals(object? other) => other is " << name << " value && Equals(value);";
+
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public override int GetHashCode() => global::System.HashCode.Combine(Response);";
+
+        emitEqualityOperators(name);
+
         _out << eb;
     }
 }
