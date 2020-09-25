@@ -21,8 +21,6 @@ namespace ZeroC.Ice
         internal int SecurityTraceLevel { get; }
         internal string SecurityTraceCategory => "Security";
 
-        internal SslTrustManager SslTrustManager { get; }
-
         private readonly ILogger _logger;
 
         internal SslEngine(
@@ -32,7 +30,6 @@ namespace ZeroC.Ice
         {
             _logger = communicator.Logger;
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
-            SslTrustManager = new SslTrustManager(communicator);
 
             TlsClientOptions = new TlsClientOptions();
             TlsServerOptions = new TlsServerOptions();
