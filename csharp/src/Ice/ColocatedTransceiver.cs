@@ -73,13 +73,16 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override ValueTask SendFrameAsync(OutgoingFrame frame, bool fin, CancellationToken cancel)
+        private protected override async ValueTask SendFrameAsync(
+            OutgoingFrame frame,
+            bool fin, CancellationToken cancel)
         {
+            await _transceiver.SendFrameAsync(Id, frame, fin, cancel).ConfigureAwait(false);
+
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, frame);
             }
-            return _transceiver.SendFrameAsync(Id, frame, fin, cancel);
         }
     }
 

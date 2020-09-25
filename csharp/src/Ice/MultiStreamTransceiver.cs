@@ -18,11 +18,29 @@ namespace ZeroC.Ice
 {
     public abstract class TransceiverStream : IDisposable
     {
-        public long Id { get; }
-        public bool IsIncoming => Id % 2 == (_transceiver.IsIncoming ? 0 : 1);
-        public bool IsBidirectional => Id % 4 < 2;
-        public bool IsControl => Id == 2 || Id == 3;
+        public long Id
+        {
+            get
+            {
+                if (_id == -1)
+                {
+                    throw new InvalidOperationException("stream ID isn't allocated yet");
+                }
+                return _id;
+            }
+            set
+            {
+                Debug.Assert(_id == -1);
+                _id = value;
+                _transceiver.Streams.TryAdd(_id, this);
+            }
+        }
+        public bool IsIncoming => _id % 2 == (_transceiver.IsIncoming ? 0 : 1);
+        public bool IsBidirectional { get; }
+        public bool IsControl => _id == 2 || _id == 3;
         protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
+        private protected bool IsStarted => _id != -1;
+        private long _id = -1;
 
         internal IObserver? Observer
         {
@@ -52,9 +70,16 @@ namespace ZeroC.Ice
 
         protected TransceiverStream(long streamId, MultiStreamTransceiver transceiver)
         {
-            Id = streamId;
             _transceiver = transceiver;
-            _transceiver.Streams.TryAdd(Id, this);
+            _id = streamId;
+            _transceiver.Streams.TryAdd(_id, this);
+            IsBidirectional = _id % 4 < 2;
+        }
+
+        protected TransceiverStream(bool bidirectional, MultiStreamTransceiver transceiver)
+        {
+            IsBidirectional = bidirectional;
+            _transceiver = transceiver;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -190,18 +215,19 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual ValueTask SendCloseFrameAsync(long streamId, string reason, CancellationToken cancel)
+        internal virtual async ValueTask SendCloseFrameAsync(long streamId, string reason, CancellationToken cancel)
         {
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
             {
+                await SendAsync(Ice1Definitions.CloseConnectionFrame, true, cancel).ConfigureAwait(false);
+
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                            Id,
-                                            new List<ArraySegment<byte>>(),
-                                            (byte)Ice1Definitions.FrameType.CloseConnection);
+                                             Id,
+                                             new List<ArraySegment<byte>>(),
+                                             (byte)Ice1Definitions.FrameType.CloseConnection);
                 }
-                return SendAsync(Ice1Definitions.CloseConnectionFrame, true, cancel);
             }
             else
             {
@@ -219,21 +245,25 @@ namespace ZeroC.Ice
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
                 data[0] = new ArraySegment<byte>(data[0].Array!, 0, data[0].Count);
+
+                await SendAsync(data, true, cancel).ConfigureAwait(false);
+
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                            Id,
-                                            data.Slice(pos, ostr.Tail),
-                                            (byte)Ice2Definitions.FrameType.Close);
+                                             Id,
+                                             data.Slice(pos, ostr.Tail),
+                                             (byte)Ice2Definitions.FrameType.Close);
                 }
-                return SendAsync(data, true, cancel);
             }
         }
 
-        internal virtual ValueTask SendInitializeFrameAsync(CancellationToken cancel)
+        internal virtual async ValueTask SendInitializeFrameAsync(CancellationToken cancel)
         {
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
             {
+                await SendAsync(Ice1Definitions.ValidateConnectionFrame, false, cancel).ConfigureAwait(false);
+
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     ProtocolTrace.TraceFrame(_transceiver.Endpoint,
@@ -241,7 +271,6 @@ namespace ZeroC.Ice
                                              new List<ArraySegment<byte>>(),
                                              (byte)Ice1Definitions.FrameType.ValidateConnection);
                 }
-                return SendAsync(Ice1Definitions.ValidateConnectionFrame, false, cancel);
             }
             else
             {
@@ -252,6 +281,8 @@ namespace ZeroC.Ice
 
                 // TODO: send protocol specific settings from the frame?
 
+                await SendAsync(data, false, cancel).ConfigureAwait(false);
+
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     ProtocolTrace.TraceFrame(_transceiver.Endpoint,
@@ -259,7 +290,6 @@ namespace ZeroC.Ice
                                              new List<ArraySegment<byte>>(),
                                              (byte)Ice2Definitions.FrameType.Initialize);
                 }
-                return SendAsync(data, false, cancel);
             }
         }
 
@@ -314,7 +344,10 @@ namespace ZeroC.Ice
             return (buffer, fin);
         }
 
-        private protected virtual ValueTask SendFrameAsync(OutgoingFrame frame, bool fin, CancellationToken cancel)
+        private protected virtual async ValueTask SendFrameAsync(
+            OutgoingFrame frame,
+            bool fin,
+            CancellationToken cancel)
         {
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_transceiver.Endpoint.Protocol == Protocol.Ice2);
@@ -335,12 +368,12 @@ namespace ZeroC.Ice
             data.Add(headerData);
             data.AddRange(frame.Data);
 
+            await SendAsync(data, fin, cancel).ConfigureAwait(false);
+
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, frame);
             }
-
-            return SendAsync(data, fin, cancel);
         }
     }
 
@@ -365,6 +398,11 @@ namespace ZeroC.Ice
 
         protected SignaledTransceiverStream(long streamId, MultiStreamTransceiver transceiver) :
             base(streamId, transceiver)
+        {
+        }
+
+        protected SignaledTransceiverStream(bool bidirectional, MultiStreamTransceiver transceiver) :
+            base(bidirectional, transceiver)
         {
         }
 
@@ -419,14 +457,14 @@ namespace ZeroC.Ice
         {
             get
             {
-                lock (_mutex)
+                lock (Mutex)
                 {
                     return _observer;
                 }
             }
             set
             {
-                lock (_mutex)
+                lock (Mutex)
                 {
                     _observer = value;
                     _observer?.Attach();
@@ -439,7 +477,7 @@ namespace ZeroC.Ice
 
         private IConnectionObserver? _observer;
         // The mutex provides thread-safety for the _observer and LastActivity data members.
-        private readonly object _mutex = new object();
+        private readonly object Mutex = new object();
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Abort the transport.</summary>
@@ -471,7 +509,7 @@ namespace ZeroC.Ice
             IsIncoming = adapter != null;
             IncomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             LastActivity = Time.Elapsed;
-            _mutex = new object();
+            Mutex = new object();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -505,7 +543,7 @@ namespace ZeroC.Ice
 
         protected void Received(int length)
         {
-            lock (_mutex)
+            lock (Mutex)
             {
                 Debug.Assert(length > 0);
                 _observer?.ReceivedBytes(length);
@@ -522,7 +560,7 @@ namespace ZeroC.Ice
 
         protected void Sent(int length)
         {
-            lock (_mutex)
+            lock (Mutex)
             {
                 Debug.Assert(length > 0);
                 _observer?.SentBytes(length);
@@ -559,7 +597,7 @@ namespace ZeroC.Ice
 
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
-            lock (_mutex)
+            lock (Mutex)
             {
                 _observer?.Detach();
             }
@@ -589,7 +627,7 @@ namespace ZeroC.Ice
 
         internal void Initialized()
         {
-            lock (_mutex)
+            lock (Mutex)
             {
                 LastActivity = Time.Elapsed;
             }

@@ -51,7 +51,10 @@ namespace ZeroC.Ice
             return (frame, frameType != Ice1Definitions.FrameType.ValidateConnection);
         }
 
-        private protected override ValueTask SendFrameAsync(OutgoingFrame frame, bool fin, CancellationToken cancel)
+        private protected override async ValueTask SendFrameAsync(
+            OutgoingFrame frame,
+            bool fin,
+            CancellationToken cancel)
         {
             var buffer = new List<ArraySegment<byte>>(frame.Data.Count + 1);
             byte[] headerData = new byte[Ice1Definitions.HeaderSize + 4];
@@ -99,11 +102,12 @@ namespace ZeroC.Ice
             // Ensure the frame isn't bigger than what we can send with the transport.
             _transceiver.Underlying.CheckSendSize(size);
 
+            await _transceiver.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, frame, 0, compressionStatus);
             }
-            return _transceiver.SendFrameAsync(buffer, CancellationToken.None);
         }
     }
 
@@ -173,6 +177,9 @@ namespace ZeroC.Ice
         public override async ValueTask PingAsync(CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
+
+            await SendFrameAsync(Ice1Definitions.ValidateConnectionFrame, CancellationToken.None).ConfigureAwait(false);
+
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 ProtocolTrace.TraceFrame(Endpoint,
@@ -180,7 +187,6 @@ namespace ZeroC.Ice
                                          new List<ArraySegment<byte>>(),
                                          (byte)Ice1Definitions.FrameType.ValidateConnection);
             }
-            await SendFrameAsync(Ice1Definitions.ValidateConnectionFrame, CancellationToken.None).ConfigureAwait(false);
         }
 
         internal LegacyTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :

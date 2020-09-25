@@ -993,6 +993,14 @@ namespace ZeroC.Ice
         internal async ValueTask<Connection> GetConnectionAsync(CancellationToken cancel)
         {
             Connection? connection = _connection;
+
+            // If the cached connection is no longer active, clear it and get a new connection.
+            if (!IsFixed && (connection?.Active ?? false))
+            {
+                ClearConnection(connection);
+                connection = null;
+            }
+
             if (connection == null)
             {
                 Debug.Assert(!IsFixed);

@@ -153,7 +153,7 @@ namespace ZeroC.Ice
         private Task? _closeTask;
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
-        private Exception? _exception;
+        private volatile Exception? _exception;
         private readonly IConnectionManager? _manager;
         private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
@@ -266,13 +266,10 @@ namespace ZeroC.Ice
         /// operation does nothing if the connection is not yet closed.</summary>
         public void ThrowException()
         {
-            lock (_mutex)
+            if (_exception != null)
             {
-                if (_exception != null)
-                {
-                    Debug.Assert(_state >= ConnectionState.Closing);
-                    throw _exception;
-                }
+                Debug.Assert(_state >= ConnectionState.Closing);
+                throw _exception;
             }
         }
 
@@ -392,6 +389,21 @@ namespace ZeroC.Ice
             }
         }
 
+        internal TransceiverStream CreateStream(bool bidirectional)
+        {
+            // Ensure the stream is created in the active state only, no new streams should be created if the
+            // connection is closing or closed.
+            lock (_mutex)
+            {
+                if (_exception != null)
+                {
+                    throw _exception;
+                }
+                Debug.Assert(_state == ConnectionState.Active);
+                return Transceiver.CreateStream(bidirectional);
+            }
+        }
+
         internal async Task WaitForCloseAsync(TransceiverStream peerControlStream)
         {
             try
@@ -427,11 +439,8 @@ namespace ZeroC.Ice
 
             async Task PerformCloseAsync(long lastStreamId, Exception exception)
             {
-                if (Endpoint.Protocol != Protocol.Ice1)
-                {
-                    // Abort non-processed outgoing streams and all incoming streams.
-                    Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
-                }
+                // Abort non-processed outgoing streams and all incoming streams.
+                Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
 
                 // Wait for all the streams to complete.
                 await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
@@ -489,58 +498,6 @@ namespace ZeroC.Ice
                 //     }
                 // }
             }
-        }
-
-        internal async Task<TransceiverStream> SendRequestAsync(
-            OutgoingRequestFrame request,
-            bool bidirectional,
-            IInvocationObserver? observer,
-            CancellationToken cancel)
-        {
-            if (request.Protocol != Endpoint.Protocol)
-            {
-                throw new ArgumentException(
-                    $"the frame protocol `{request.Protocol}' doesn't match the connection protocol `{Endpoint.Protocol}'");
-            }
-
-            ValueTask writeTask;
-            TransceiverStream stream;
-            lock (_mutex)
-            {
-                //
-                // If the exception is thrown before we even have a chance to send our request, we always try to
-                // send the request again.
-                //
-                if (_exception != null)
-                {
-                    throw new RetryException(_exception);
-                }
-                cancel.ThrowIfCancellationRequested();
-
-                Debug.Assert(_state > ConnectionState.Validating);
-                Debug.Assert(_state < ConnectionState.Closing);
-
-                stream = Transceiver.CreateStream(bidirectional);
-
-                if (observer != null)
-                {
-                    if (this is ColocatedConnection)
-                    {
-                        // TODO: Get rid of the colocated observer?
-                        stream.Observer = observer?.GetCollocatedObserver(_adapter!, stream.Id, request.Size);
-                    }
-                    else
-                    {
-                        stream.Observer = observer?.GetRemoteObserver(this, stream.Id, request.Size);
-                    }
-                }
-
-                // It's important to call SendAsync from the synchronization here to ensure the requests are queued
-                // for sending in the same order as the stream IDs are allocated.
-                writeTask = stream.SendRequestFrameAsync(request, !bidirectional, cancel);
-            }
-            await writeTask.ConfigureAwait(false);
-            return stream;
         }
 
         internal async Task StartAsync()
@@ -658,7 +615,17 @@ namespace ZeroC.Ice
             try
             {
                 // Accept a new stream
-                stream = await Transceiver.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
+                while (true)
+                {
+                    stream = await Transceiver.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
+                    if (_exception == null)
+                    {
+                        break;
+                    }
+                    // Ignore the stream if the connection is being closed. The loop will eventually end when
+                    // the peer closes the connection when it gets the close connection frame.
+                    stream.Dispose();
+                }
 
                 ObjectAdapter? adapter = _adapter;
 

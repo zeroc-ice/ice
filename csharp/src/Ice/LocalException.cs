@@ -305,16 +305,4 @@ namespace ZeroC.Ice
         {
         }
     }
-
-    /// <summary>This is a purely Ice-internal exception used for retries.</summary>
-    public class RetryException : Exception
-    {
-        /// <summary>Constructs a new instance of the <see cref="RetryException"/> class with a reference to the inner
-        /// exception that is the cause of this exception.</summary>
-        /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        internal RetryException(Exception innerException)
-            : base("", innerException)
-        {
-        }
-    }
 }

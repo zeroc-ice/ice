@@ -335,16 +335,10 @@ namespace ZeroC.Ice
                 case InvocationMode.Datagram when !oneway:
                     throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
                 default:
-                    return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
+                    return InvokeAsync();
             }
 
-            static async Task<IncomingResponseFrame> InvokeAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
+            async Task<IncomingResponseFrame> InvokeAsync()
             {
                 Reference reference = proxy.IceReference;
 
@@ -360,15 +354,33 @@ namespace ZeroC.Ice
                         Connection? connection = null;
                         try
                         {
-                            // Get the request handler, this will eventually establish a connection if needed.
+                            // Get the connection, this will eventually establish a connection if needed.
                             connection = await reference.GetConnectionAsync(cancel).ConfigureAwait(false);
 
-                            // Send the request and get the stream created for sending the request
-                            using TransceiverStream stream =
-                                await connection.SendRequestAsync(request,
-                                                                  !oneway,
-                                                                  observer,
-                                                                  cancel).ConfigureAwait(false);
+                            cancel.ThrowIfCancellationRequested();
+
+                            // Create the stream and send the request
+                            using TransceiverStream stream = connection.CreateStream(!oneway);
+                            if (observer != null)
+                            {
+                                if (connection is ColocatedConnection)
+                                {
+                                    // TODO: Get rid of the colocated observer?
+                                    stream.Observer = observer.GetCollocatedObserver(connection.Adapter!,
+                                                                                      stream.Id,
+                                                                                      request.Size);
+                                }
+                                else
+                                {
+                                    stream.Observer = observer.GetRemoteObserver(connection, stream.Id, request.Size);
+                                }
+                            }
+
+                            // TODO: support for streaming data, fin should be false if there's data to stream.
+                            bool fin = true;
+
+                            // Send the request and wait for the sending.
+                            await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
 
                             // The request is sent
                             if (progress != null)
@@ -385,9 +397,10 @@ namespace ZeroC.Ice
                             {
                                 // TODO: Is the synchronous boolean still useful there?
 
+                                IncomingResponseFrame response;
+
                                 // Wait for the reception of the response.
-                                (IncomingResponseFrame response, bool fin) =
-                                    await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+                                (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
                                 if (response.ResultType == ResultType.Failure)
                                 {
@@ -398,15 +411,12 @@ namespace ZeroC.Ice
                                     response.ThrowIfSystemException(proxy.Communicator);
                                 }
 
+                                if (!fin)
+                                {
+                                    // TODO: handle stream data.
+                                }
+
                                 return response;
-                            }
-                        }
-                        catch (RetryException)
-                        {
-                            // Clear the proxy's cached request handler if connection caching is enabled
-                            if (reference.IsConnectionCached)
-                            {
-                                proxy.IceReference.ClearConnection(connection!);
                             }
                         }
                         catch (OperationCanceledException)

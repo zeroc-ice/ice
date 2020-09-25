@@ -30,7 +30,7 @@ namespace ZeroC.Ice
 
                 if (frame is OutgoingFrame outgoingFrame)
                 {
-                    framePrefix = "sending";
+                    framePrefix = "sent";
                     encoding = outgoingFrame.Encoding;
                     frameType = frame is OutgoingRequestFrame ? "request" : "response";
                     frameSize = outgoingFrame.Size;

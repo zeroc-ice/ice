@@ -138,7 +138,11 @@ namespace ZeroC.Ice
         internal ColocatedEndpoint(ObjectAdapter adapter) : base(adapter.Communicator, adapter.Protocol)
         {
             Adapter = adapter;
-            _channel = Channel.CreateUnbounded<(long, ColocatedChannelWriter, ColocatedChannelReader)>();
+            var options = new UnboundedChannelOptions();
+            options.SingleReader = true;
+            options.SingleWriter = true;
+            options.AllowSynchronousContinuations = true;
+            _channel = Channel.CreateUnbounded<(long, ColocatedChannelWriter, ColocatedChannelReader)>(options);
             _connectors = new IConnector[] { new ColocatedConnector(this, _channel.Writer) };
         }
     }
