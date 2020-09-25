@@ -321,9 +321,8 @@ namespace ZeroC.Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -O option in `{s}'");
                         }
-#pragma warning disable CS0618 // Type or member is obsolete
+
                         invocationMode = InvocationMode.BatchOneway;
-#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     case 'd':
@@ -341,9 +340,7 @@ namespace ZeroC.Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -D option in `{s}'");
                         }
-#pragma warning disable CS0618 // Type or member is obsolete
                         invocationMode = InvocationMode.BatchDatagram;
-#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     case 's':

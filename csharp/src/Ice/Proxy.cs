@@ -299,10 +299,8 @@ namespace ZeroC.Ice
             InvocationMode mode = proxy.IceReference.InvocationMode;
             switch (mode)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 case InvocationMode.BatchOneway:
                 case InvocationMode.BatchDatagram:
-#pragma warning restore CS0618 // Type or member is obsolete
                     Debug.Assert(false); // not implemented
                     return default;
                 case InvocationMode.Datagram when !oneway:

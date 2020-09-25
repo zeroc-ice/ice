@@ -419,17 +419,13 @@ namespace ZeroC.Ice
                     case InvocationMode.Oneway:
                         sb.Append(" -o");
                         break;
-#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchOneway:
-#pragma warning restore CS0618 // Type or member is obsolete
                         sb.Append(" -O");
                         break;
                     case InvocationMode.Datagram:
                         sb.Append(" -d");
                         break;
-#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchDatagram:
-#pragma warning restore CS0618 // Type or member is obsolete
                         sb.Append(" -D");
                         break;
                 }
@@ -1058,9 +1054,7 @@ namespace ZeroC.Ice
                 {
                     case InvocationMode.Twoway:
                     case InvocationMode.Oneway:
-#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchOneway:
-#pragma warning restore CS0618 // Type or member is obsolete
                         if (endpoint.IsDatagram)
                         {
                             return false;
@@ -1068,9 +1062,7 @@ namespace ZeroC.Ice
                         break;
 
                     case InvocationMode.Datagram:
-#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchDatagram:
-#pragma warning restore CS0618 // Type or member is obsolete
                         if (!endpoint.IsDatagram)
                         {
                             return false;
@@ -1389,9 +1381,7 @@ namespace ZeroC.Ice
                         nameof(fixedConnection));
                 }
             }
-#pragma warning disable CS0618 // Type or member is obsolete
             else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
-#pragma warning restore CS0618 // Type or member is obsolete
             {
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }
