@@ -497,7 +497,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return factory(CreateReference(identity, facet, _replicaGroupId));
+                return factory(CreateReference(identity, facet, ImmutableArray.Create(_replicaGroupId)));
             }
         }
 
@@ -534,7 +534,7 @@ namespace ZeroC.Ice
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
         public T CreateDirectProxy<T>(Identity identity, string facet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx => factory(CreateReference(identity, facet, ""));
+            where T : class, IObjectPrx => factory(CreateReference(identity, facet, ImmutableArray<string>.Empty));
 
         /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
         /// object adapter's published endpoints.</summary>
@@ -565,7 +565,7 @@ namespace ZeroC.Ice
         /// desired proxy type.</param>
         /// <returns>A proxy for the object with the given identity and facet.</returns>
         public T CreateIndirectProxy<T>(Identity identity, string facet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx => factory(CreateReference(identity, facet, _id));
+            where T : class, IObjectPrx => factory(CreateReference(identity, facet, ImmutableArray.Create(_id)));
 
         /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
         /// <param name="identity">The object's identity.</param>
@@ -1068,7 +1068,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private Reference CreateReference(Identity identity, string facet, string location0)
+        private Reference CreateReference(Identity identity, string facet, IReadOnlyList<string> location)
         {
             CheckIdentity(identity);
             lock (_mutex)
@@ -1078,14 +1078,15 @@ namespace ZeroC.Ice
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
+                // TODO: revisit location/endpoints logic with ice2.
                 return new Reference(communicator: Communicator,
                                      encoding: Protocol.GetEncoding(),
-                                     endpoints: location0.Length == 0 ? _publishedEndpoints : Array.Empty<Endpoint>(),
+                                     endpoints: location.Count == 0 ?
+                                        _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     location: location0.Length > 0 ?
-                                        ImmutableArray.Create(location0) : ImmutableArray<string>.Empty,
+                                     location: location,
                                      protocol: _publishedEndpoints.Count > 0 ?
                                                _publishedEndpoints[0].Protocol : Protocol);
             }
