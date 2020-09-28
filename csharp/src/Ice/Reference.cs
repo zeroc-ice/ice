@@ -17,15 +17,7 @@ namespace ZeroC.Ice
     /// types.</summary>
     public sealed class Reference : IEquatable<Reference>
     {
-        internal string AdapterId
-        {
-            get
-            {
-                Debug.Assert(Location.Count <= 1);
-                return Location.Count == 1 ? Location[0] : "";
-            }
-        }
-
+        internal string AdapterId => Location.Count == 0 ? "" : Location[0];
         internal Communicator Communicator { get; }
         internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
