@@ -438,7 +438,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
                     IServerPrx? server = fact.CreateServer(serverProperties, true);
                     try
                     {
