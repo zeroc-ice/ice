@@ -59,8 +59,8 @@ namespace Test
         }
         public abstract Task RunAsync(string[] args);
 
-        public string GetTestEndpoint(int num = 0, string transport = "") =>
-            GetTestEndpoint(Communicator!.GetProperties(), num, transport);
+        public string GetTestEndpoint(int num = 0, string transport = "", bool ephemeral = false) =>
+            GetTestEndpoint(Communicator!.GetProperties(), num, transport, ephemeral);
 
         public static string GetTestEndpoint(
             Dictionary<string, string> properties, int num = 0, string transport = "", bool ephemeral = false)
