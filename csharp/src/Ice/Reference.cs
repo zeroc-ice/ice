@@ -652,8 +652,9 @@ namespace ZeroC.Ice
                 // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
                 // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
                 // sequence), for a total of 7 bytes.
-                Endpoint[] endpoints = proxyKind == ProxyKind.Direct ?
-                    istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) : Array.Empty<Endpoint>();
+                IReadOnlyList<Endpoint> endpoints = proxyKind == ProxyKind.Direct ?
+                    istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) :
+                    ImmutableArray<Endpoint>.Empty;
 
                 return new Reference(istr.Communicator!,
                                      proxyData.Encoding ?? Encoding.V20,
@@ -1151,7 +1152,7 @@ namespace ZeroC.Ice
                     {
                         try
                         {
-                            connection = await factory.CreateAsync(new Endpoint[] { endpoint },
+                            connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
                                                                    endpoint != lastEndpoint,
                                                                    EndpointSelection,
                                                                    ConnectionId,
