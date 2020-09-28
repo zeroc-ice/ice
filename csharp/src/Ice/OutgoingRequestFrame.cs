@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -41,6 +42,9 @@ namespace ZeroC.Ice
 
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
+
+        /// <summary>The location of the target Ice object. With ice1, it is always empty.</summary>
+        public IReadOnlyList<string> Location { get; }
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
@@ -268,13 +272,10 @@ namespace ZeroC.Ice
             Encoding = proxy.Encoding;
             Identity = proxy.Identity;
             Facet = proxy.Facet;
+            Location = proxy.Location;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
-            Identity.IceWrite(ostr);
-            ostr.WriteFacet(Facet);
-            ostr.WriteString(operation);
-            ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
+
             if (context != null)
             {
                 _initialContext = context;
@@ -302,11 +303,37 @@ namespace ZeroC.Ice
                 }
             }
 
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
+
             if (Protocol == Protocol.Ice1)
             {
+                // Marshaled "by hand" to avoid allocating a string[] for the facet and a new dictionary for the
+                // context.
+                Identity.IceWrite(ostr);
+                ostr.WriteFacet11(Facet);
+                ostr.WriteString(Operation);
+                ostr.Write(IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal);
                 ostr.WriteDictionary(_initialContext,
                                      OutputStream.IceWriterFromString,
                                      OutputStream.IceWriterFromString);
+            }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice2);
+
+                // Marshaled "by hand" to avoid allocating a string[] for the location.
+                BitSequence bitSequence = ostr.WriteBitSequence(2);
+                Identity.IceWrite(ostr);
+                if (bitSequence[0] = (Facet.Length > 0))
+                {
+                    ostr.WriteString(Facet);
+                }
+                if (bitSequence[1] = (Location.Count > 0))
+                {
+                    ostr.WriteSequence(Location, OutputStream.IceWriterFromString);
+                }
+                ostr.WriteString(operation);
+                ostr.WriteBool(IsIdempotent);
             }
             PayloadStart = ostr.Tail;
 

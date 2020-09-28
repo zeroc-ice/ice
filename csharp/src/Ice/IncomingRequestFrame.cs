@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ZeroC.Ice
 {
@@ -23,23 +24,28 @@ namespace ZeroC.Ice
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
 
+        /// <summary>The location of the target Ice object. With ice1, it is always empty.</summary>
+        public string[] Location { get; }
+
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
         /// <summary>Constructs an incoming request frame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
-        /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
+        /// <param name="sizeMax">The maximum payload size, checked during decompression.</param>
         public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
             : base(data, protocol, sizeMax)
         {
             var istr = new InputStream(Data, Protocol.GetEncoding());
-            Identity = new Identity(istr);
-            Facet = istr.ReadFacet();
-            Operation = istr.ReadString();
-            IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
+
             if (Protocol == Protocol.Ice1)
             {
+                Identity = new Identity(istr);
+                Facet = istr.ReadFacet11();
+                Location = Array.Empty<string>();
+                Operation = istr.ReadString();
+                IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
                 Context = istr.ReadDictionary(minKeySize: 1,
                                               minValueSize: 1,
                                               InputStream.IceReaderIntoString,
@@ -47,7 +53,28 @@ namespace ZeroC.Ice
             }
             else
             {
+                var requestHeader = new Ice2RequestHeader(istr);
+                Identity = requestHeader.Identity;
+                Facet = requestHeader.Facet ?? "";
+                Location = requestHeader.Location ?? Array.Empty<string>();
+                Operation = requestHeader.Operation;
+                IsIdempotent = requestHeader.Idempotent;
                 Context = new Dictionary<string, string>();
+
+                if (Location.Any(segment => segment.Length == 0))
+                {
+                   throw new InvalidDataException("received request with empty location segment");
+                }
+            }
+
+            if (Identity.Name.Length == 0)
+            {
+                throw new InvalidDataException("received request with null identity");
+            }
+
+            if (Operation.Length == 0)
+            {
+                throw new InvalidDataException("received request with empty operation name");
             }
 
             (int size, int sizeLength, Encoding encoding) =

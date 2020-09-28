@@ -13,6 +13,9 @@
 
 [[python:pkgdir:Ice]]
 
+#include <Ice/BuiltinSequences.ice>
+#include <Ice/Identity.ice>
+
 [[java:package:com.zeroc]]
 [cs:namespace:ZeroC]
 module Ice
@@ -39,5 +42,17 @@ module Ice
         /// <code>x = 1</code> is an idempotent statement, whereas <code>x += 1</code> is not. For idempotent
         /// operations, the Ice run-time does not guarantee at-most-once semantics.
         \Idempotent
+    }
+
+    /// The header for ice2 requests. All the data members are encoded using the 2.0 encoding.
+    [cs:readonly]
+    struct Ice2RequestHeader
+    {
+        Identity identity;
+        string? facet = "";   // null equivalent to empty string
+        StringSeq? location; // null equivalent to empty sequence
+        string operation;
+        bool \idempotent;
+        // byte? priority = 0;  // null equivalent to 0
     }
 }
