@@ -677,7 +677,7 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing proxy Clone... ");
 
             TestHelper.Assert(baseProxy.Clone(IObjectPrx.Factory, facet: "facet").Facet == "facet");
-            TestHelper.Assert(baseProxy.Clone(location: new string[] { "id" }).Location[0] == "id");
+            TestHelper.Assert(baseProxy.Clone(location: ImmutableArray.Create("id")).Location[0] == "id");
 
             TestHelper.Assert(!baseProxy.Clone(oneway: false).IsOneway);
             TestHelper.Assert(baseProxy.Clone(oneway: true).IsOneway);

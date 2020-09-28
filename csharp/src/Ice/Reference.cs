@@ -123,9 +123,12 @@ namespace ZeroC.Ice
                 {
                     throw new FormatException($"invalid identity with empty name in proxy `{proxyString}'");
                 }
-                if (location.Count > 0 && location[0].Length == 0)
+                foreach (string segment in location)
                 {
-                    throw new FormatException("invalid location with empty initial segment");
+                    if (segment.Length == 0)
+                    {
+                        throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
+                    }
                 }
             }
             else
@@ -977,19 +980,19 @@ namespace ZeroC.Ice
                     if (location != null)
                     {
                         newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
-                        newLocation = location.ToList(); // make a copy
+                        newLocation = location.ToImmutableArray();
 
                     }
                     else if (endpoints != null)
                     {
                         newLocation = ImmutableArray<string>.Empty; // make sure the clone's location is empty
-                        newEndpoints = endpoints.ToList(); // make a copy
+                        newEndpoints = endpoints.ToImmutableArray();
                     }
                 }
                 else
                 {
-                    newEndpoints = endpoints?.ToList();
-                    newLocation = location?.ToList();
+                    newEndpoints = endpoints?.ToImmutableArray();
+                    newLocation = location?.ToImmutableArray();
                 }
 
                 LocatorInfo? locatorInfo = LocatorInfo;

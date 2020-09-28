@@ -311,8 +311,8 @@ namespace ZeroC.Ice.Test.AMI
             output.Flush();
             {
                 ITestIntfPrx indirect = ice1 ?
-                    p.Clone(location: new string[] { "dummy" }) :
-                    p.Clone(endpoints: ImmutableArray<Endpoint>.Empty, location: new string[] { "dummy" });
+                    p.Clone(location: ImmutableArray.Create("dummy")) :
+                    p.Clone(endpoints: ImmutableArray<Endpoint>.Empty, location: ImmutableArray.Create("dummy"));
 
                 try
                 {
@@ -347,8 +347,8 @@ namespace ZeroC.Ice.Test.AMI
             output.Flush();
             {
                 ITestIntfPrx i = ice1 ?
-                    p.Clone(location: new string[] { "dummy" }) :
-                    p.Clone(endpoints: ImmutableArray<Endpoint>.Empty, location: new string[] { "dummy" });
+                    p.Clone(location: ImmutableArray.Create("dummy")) :
+                    p.Clone(endpoints: ImmutableArray<Endpoint>.Empty, location: ImmutableArray.Create("dummy"));
 
                 try
                 {

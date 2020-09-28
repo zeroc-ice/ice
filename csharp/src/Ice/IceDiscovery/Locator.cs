@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -145,7 +146,7 @@ namespace ZeroC.IceDiscovery
                         IObjectPrx proxy = _adapters[ids.First()];
                         proxy = proxy.Clone(IObjectPrx.Factory,
                                             identity: identity,
-                                            location: new string[] { key });
+                                            location: ImmutableArray.Create(key));
                         proxy.IcePing();
                         return proxy;
                     }
@@ -161,7 +162,7 @@ namespace ZeroC.IceDiscovery
                     {
                         IObjectPrx proxy = registeredProxy.Clone(IObjectPrx.Factory,
                                                                  identity: identity,
-                                                                 location: new string[] { key });
+                                                                 location: ImmutableArray.Create(key));
                         proxy.IcePing();
                         return proxy;
                     }
