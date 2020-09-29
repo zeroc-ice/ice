@@ -96,20 +96,19 @@ namespace ZeroC.Ice.Test.Optional
 
             output.Write("testing basic operations with optional parameters... ");
 
-            test.OpSingleInInt(null);
-            test.OpSingleInInt(test.OpSingleOutInt());
-            test.OpSingleInInt(test.OpSingleReturnInt());
-            test.OpSingleInString(null);
-            test.OpSingleInString(test.OpSingleReturnString());
+            test.OpInt(null);
+            test.OpInt(test.OpReturnInt());
+            test.OpString(null);
+            test.OpString(test.OpReturnString());
 
-            test.OpBasicIn(17, 17, "test", "test");
-            test.OpBasicIn(17, 17, null, "test");
-            test.OpBasicIn(17, null, null, "test");
+            test.OpBasic(17, 17, "test", "test");
+            test.OpBasic(17, 17, null, "test");
+            test.OpBasic(17, null, null, "test");
 
-            (int? r, int o1, int? o2, string? o3) = test.OpBasicInOut(5, 15, "test");
+            (int? r, int o1, int? o2, string? o3) = test.OpBasicReturnTuple(5, 15, "test");
             TestHelper.Assert(r!.Value == 15 && o1 == 5 && o2!.Value == 15 && o3! == "test");
 
-            (r, o1, o2, o3) = test.OpBasicInOut(6, null, null);
+            (r, o1, o2, o3) = test.OpBasicReturnTuple(6, null, null);
             TestHelper.Assert(r == null && o1 == 6 && o2 == null && o3 == null);
             output.WriteLine("ok");
 

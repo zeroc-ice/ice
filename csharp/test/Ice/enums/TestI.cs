@@ -26,17 +26,17 @@ namespace ZeroC.Ice.Test.Enums
         public (IEnumerable<SimpleEnum>, IEnumerable<SimpleEnum>) OpSimpleSeq(SimpleEnum[] s1, Current current) =>
             (s1, s1);
 
-        public (FLByteEnum R1, FLByteEnum R2) OpFLByte(FLByteEnum b1, Current current) => (b1, b1);
+        public (FLByteEnum, FLByteEnum) OpFLByte(FLByteEnum b1, Current current) => (b1, b1);
 
-        public (FLShortEnum R1, FLShortEnum R2) OpFLShort(FLShortEnum s1, Current current) => (s1, s1);
+        public (FLShortEnum, FLShortEnum) OpFLShort(FLShortEnum s1, Current current) => (s1, s1);
 
-        public (FLUShortEnum R1, FLUShortEnum R2) OpFLUShort(FLUShortEnum s1, Current current) => (s1, s1);
+        public (FLUShortEnum, FLUShortEnum) OpFLUShort(FLUShortEnum s1, Current current) => (s1, s1);
 
-        public (FLIntEnum R1, FLIntEnum R2) OpFLInt(FLIntEnum i1, Current current) => (i1, i1);
+        public (FLIntEnum, FLIntEnum) OpFLInt(FLIntEnum i1, Current current) => (i1, i1);
 
-        public (FLUIntEnum R1, FLUIntEnum R2) OpFLUInt(FLUIntEnum i1, Current current) => (i1, i1);
+        public (FLUIntEnum, FLUIntEnum) OpFLUInt(FLUIntEnum i1, Current current) => (i1, i1);
 
-        public (FLSimpleEnum R1, FLSimpleEnum R2) OpFLSimple(FLSimpleEnum s1, Current current) => (s1, s1);
+        public (FLSimpleEnum, FLSimpleEnum) OpFLSimple(FLSimpleEnum s1, Current current) => (s1, s1);
 
         public (ReadOnlyMemory<FLByteEnum> R1, ReadOnlyMemory<FLByteEnum> R2) OpFLByteSeq(
             FLByteEnum[] b1,
