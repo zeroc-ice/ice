@@ -123,12 +123,9 @@ namespace ZeroC.Ice
                 {
                     throw new FormatException($"invalid identity with empty name in proxy `{proxyString}'");
                 }
-                foreach (string segment in location)
+                if (location.Any(segment => segment.Length == 0))
                 {
-                    if (segment.Length == 0)
-                    {
-                        throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
-                    }
+                    throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
                 }
             }
             else
@@ -896,8 +893,7 @@ namespace ZeroC.Ice
                 }
                 if (endpoints != null)
                 {
-                    throw new ArgumentException("cannot change the endpoints of a fixed proxy",
-                        nameof(endpoints));
+                    throw new ArgumentException("cannot change the endpoints of a fixed proxy", nameof(endpoints));
                 }
                 if (location != null)
                 {
@@ -905,13 +901,11 @@ namespace ZeroC.Ice
                 }
                 if (locator != null)
                 {
-                    throw new ArgumentException("cannot change the locator of a fixed proxy",
-                        nameof(locator));
+                    throw new ArgumentException("cannot change the locator of a fixed proxy", nameof(locator));
                 }
                 else if (clearLocator)
                 {
-                    throw new ArgumentException("cannot change the locator of a fixed proxy",
-                        nameof(clearLocator));
+                    throw new ArgumentException("cannot change the locator of a fixed proxy", nameof(clearLocator));
                 }
                 if (locatorCacheTimeout != null)
                 {
@@ -950,6 +944,12 @@ namespace ZeroC.Ice
                                                 nameof(endpoints));
                 }
 
+                if (location != null && location.Any(segment => segment.Length == 0))
+                {
+                    throw new ArgumentException($"invalid location `{location}' with an empty segment",
+                                                nameof(location));
+                }
+
                 if (locator != null && clearLocator)
                 {
                     throw new ArgumentException($"cannot set both {nameof(locator)} and {nameof(clearLocator)}");
@@ -966,34 +966,27 @@ namespace ZeroC.Ice
                         $"invalid {nameof(locatorCacheTimeout)}: {locatorCacheTimeout}", nameof(locatorCacheTimeout));
                 }
 
-                IReadOnlyList<Endpoint>? newEndpoints = null;
-                IReadOnlyList<string>? newLocation = null;
+                IReadOnlyList<Endpoint>? newEndpoints = endpoints?.ToImmutableArray();
+                IReadOnlyList<string>? newLocation = location?.ToImmutableArray();
 
                 if (Protocol == Protocol.Ice1)
                 {
-                    if (location != null && endpoints != null)
+                    if (newLocation?.Count > 0 && newEndpoints?.Count > 0)
                     {
                         throw new ArgumentException(
-                            $"cannot set both {nameof(endpoints)} and {nameof(location)} on an ice1 proxy",
+                            @$"cannot set both a non-empty {nameof(location)} and a non-empty {
+                                nameof(endpoints)} on an ice1 proxy",
                             nameof(location));
                     }
 
-                    if (location != null)
+                    if (newLocation?.Count > 0)
                     {
                         newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
-                        newLocation = location.ToImmutableArray();
-
                     }
-                    else if (endpoints != null)
+                    else if (newEndpoints?.Count > 0)
                     {
                         newLocation = ImmutableArray<string>.Empty; // make sure the clone's location is empty
-                        newEndpoints = endpoints.ToImmutableArray();
                     }
-                }
-                else
-                {
-                    newEndpoints = endpoints?.ToImmutableArray();
-                    newLocation = location?.ToImmutableArray();
                 }
 
                 LocatorInfo? locatorInfo = LocatorInfo;
@@ -1296,15 +1289,8 @@ namespace ZeroC.Ice
 
                 if (Endpoints.Count == 0)
                 {
-                    if (Location.Count == 0)
-                    {
-                        ostr.WriteSize(0); // empty string
-                    }
-                    else
-                    {
-                        ostr.WriteString(Location[0]);
-                        // don't write/ignore additional segments, if any.
-                    }
+                    // If Location holds more than 1 segment, the extra segments are not marshaled.
+                    ostr.WriteString(Location.Count == 0 ? "" : Location[0]);
                 }
             }
             else

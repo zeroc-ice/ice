@@ -24,6 +24,8 @@
 module IceGrid
 {
     /// Determines which load sampling interval to use.
+    [cs:attribute:System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1712:Do not prefix enum values with type name",
+     Justification = "Cannot rename for backwards compatibility")]
     enum LoadSample
     {
         /// Sample every minute.

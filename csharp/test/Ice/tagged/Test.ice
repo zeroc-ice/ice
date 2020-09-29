@@ -17,7 +17,7 @@ class OneTagged
 
 enum MyEnum
 {
-    MyEnumMember
+    M1
 }
 
 struct SmallStruct

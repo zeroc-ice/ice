@@ -240,7 +240,13 @@ namespace Test
             Dictionary<string, string> properties,
             ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null)
         {
-            var communicator = new Communicator(properties, observer: observer);
+            var tlsServerOptions = new TlsServerOptions();
+            if (properties.TryGetValue("Test.Transport", out string? value) && value == "wss")
+            {
+                // When running test with WSS disable client authentication for browser compatibility
+                tlsServerOptions.RequireClientCertificate = false;
+            }
+            var communicator = new Communicator(properties, tlsServerOptions: tlsServerOptions, observer: observer);
 
             Communicator ??= communicator;
             ControllerHelper?.CommunicatorInitialized(communicator);

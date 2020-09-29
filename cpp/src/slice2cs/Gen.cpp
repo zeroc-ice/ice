@@ -1967,9 +1967,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitDeprecate(p, 0, _out, "type");
+    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitCommonAttributes();
     emitCustomAttributes(p);
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
     _out << nl << "public enum " << name << " : " << underlying;
     _out << sb;
     bool firstEn = true;
