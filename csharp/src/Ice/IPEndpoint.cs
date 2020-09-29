@@ -272,6 +272,8 @@ namespace ZeroC.Ice
 
                 if (Host == "*")
                 {
+                    // TODO: Should we check that IPv6 is enabled first and use 0.0.0.0 otherwise, or will
+                    // ::0 just bind to the IPv4 addresses in this case?
                     Host = oaEndpoint ? "::0" :
                         throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
                 }
