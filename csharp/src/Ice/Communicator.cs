@@ -160,7 +160,6 @@ namespace ZeroC.Ice
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal int IncomingFrameSizeMax { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
-        internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
@@ -533,10 +532,9 @@ namespace ZeroC.Ice
                     }
                 }
 
-                IPVersion = Network.EnableBoth;
                 PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
-                NetworkProxy = CreateNetworkProxy(IPVersion);
+                NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
 
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 

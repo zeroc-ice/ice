@@ -92,7 +92,7 @@ namespace ZeroC.Ice
             try
             {
                 INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                int ipVersion = networkProxy?.IPVersion ?? Communicator.IPVersion;
+                int ipVersion = networkProxy?.IPVersion ?? Network.EnableBoth;
                 if (networkProxy != null)
                 {
                     networkProxy = await networkProxy.ResolveHostAsync(ipVersion, cancel).ConfigureAwait(false);
@@ -128,7 +128,7 @@ namespace ZeroC.Ice
 
             IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host,
                                                                      Port,
-                                                                     Communicator.IPVersion,
+                                                                     Network.EnableBoth,
                                                                      EndpointSelectionType.Ordered,
                                                                      Communicator.PreferIPv6);
 
@@ -144,7 +144,7 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard()
         {
-            List<string> hosts = Network.GetHostsForEndpointExpand(Host, Communicator.IPVersion, false);
+            List<string> hosts = Network.GetHostsForEndpointExpand(Host, Network.EnableBoth, false);
             if (hosts.Count == 0)
             {
                 return new Endpoint[] { this };
@@ -272,7 +272,7 @@ namespace ZeroC.Ice
 
                 if (Host == "*")
                 {
-                    Host = oaEndpoint ? (communicator.IPVersion == Network.EnableIPv4 ? "0.0.0.0" : "::0") :
+                    Host = oaEndpoint ? "::0" :
                         throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
                 }
                 options.Remove("-h");
