@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Test;
 
 namespace ZeroC.Ice.Test.Proxy
@@ -877,6 +878,35 @@ namespace ZeroC.Ice.Test.Proxy
             cl = baseProxy.CheckedCast(IMyClassPrx.Factory, c);
             Dictionary<string, string> c2 = cl!.GetContext();
             TestHelper.Assert(c.DictionaryEquals(c2));
+            output.WriteLine("ok");
+
+            output.Write("testing location... ");
+            var shortLocation = ImmutableArray.Create("loc0");
+            var longLocation = ImmutableArray.Create("locA", "locB", "locC", "locD");
+            if (ice1)
+            {
+                var prx = baseProxy.Clone(factory: IMyDerivedClassPrx.Factory);
+
+                prx = prx.Clone(location: shortLocation);
+                TestHelper.Assert(prx.Endpoints.Count == 0); // and can't call it
+
+                try
+                {
+                    prx = prx.Clone(location: longLocation);
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentException)
+                {
+                    // too many segments
+                }
+            }
+            else
+            {
+                var prx = baseProxy.Clone(factory: IMyDerivedClassPrx.Factory, location: shortLocation);
+                TestHelper.Assert(prx.GetLocation().SequenceEqual(shortLocation));
+
+                TestHelper.Assert(prx.Clone(location: longLocation).GetLocation().SequenceEqual(longLocation));
+            }
             output.WriteLine("ok");
 
             if (ice1)

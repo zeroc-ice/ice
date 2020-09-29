@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -278,7 +279,8 @@ namespace ZeroC.Ice
 
             if (context != null)
             {
-                _initialContext = context;
+                // This makes a copy if context is not immutable.
+                _initialContext = context.ToImmutableDictionary();
             }
             else
             {
@@ -334,6 +336,7 @@ namespace ZeroC.Ice
                 }
                 ostr.WriteString(operation);
                 ostr.WriteBool(IsIdempotent);
+                ostr.Write((Priority)default); // TODO: what is the source for priority?
             }
             PayloadStart = ostr.Tail;
 

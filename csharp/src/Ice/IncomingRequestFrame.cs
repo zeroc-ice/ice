@@ -30,6 +30,9 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
+        /// <summary>The priority of this request.</summary>
+        public Priority Priority { get; }
+
         /// <summary>Constructs an incoming request frame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
@@ -50,6 +53,7 @@ namespace ZeroC.Ice
                                               minValueSize: 1,
                                               InputStream.IceReaderIntoString,
                                               InputStream.IceReaderIntoString);
+                Priority = default;
             }
             else
             {
@@ -59,6 +63,7 @@ namespace ZeroC.Ice
                 Location = requestHeader.Location ?? Array.Empty<string>();
                 Operation = requestHeader.Operation;
                 IsIdempotent = requestHeader.Idempotent;
+                Priority = requestHeader.Priority ?? default;
                 Context = new Dictionary<string, string>();
 
                 if (Location.Any(segment => segment.Length == 0))

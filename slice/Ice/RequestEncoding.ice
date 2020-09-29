@@ -44,15 +44,20 @@ module Ice
         \Idempotent
     }
 
+    unchecked enum Priority : byte
+    {
+        Default // TODO: remove once empty unchecked enums are permitted.
+    }
+
     /// The header for ice2 requests. All the data members are encoded using the 2.0 encoding.
     [cs:readonly]
     struct Ice2RequestHeader
     {
         Identity identity;
-        string? facet = "";   // null equivalent to empty string
-        StringSeq? location; // null equivalent to empty sequence
+        string? facet = "";      // null equivalent to empty string
+        StringSeq? location;     // null equivalent to empty sequence
         string operation;
         bool \idempotent;
-        // byte? priority = 0;  // null equivalent to 0
+        Priority? priority = Default;  // null equivalent to 0
     }
 }
