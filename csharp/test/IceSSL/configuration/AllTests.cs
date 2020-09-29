@@ -563,10 +563,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
                             IServerPrx server = fact.CreateServer(serverProperties, true)!;
 
-                            foreach (var endpoint in server.Endpoints)
-                            {
-                                TestHelper.Assert(endpoint.Host == "localhost");
-                            }
+                            TestHelper.Assert(server.Endpoints.All(endpoint => endpoint.Host == "localhost"));
 
                             try
                             {

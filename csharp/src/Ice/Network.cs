@@ -20,15 +20,15 @@ namespace ZeroC.Ice
         internal const int EnableIPv6 = 1;
         internal const int EnableBoth = 2;
 
-        internal static Socket CreateServerSocket(bool udp, AddressFamily family, int ipVersion)
+        internal static Socket CreateServerSocket(bool udp, AddressFamily family)
         {
             Socket socket = CreateSocket(udp, family);
-            if (family == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4)
+            if (family == AddressFamily.InterNetworkV6)
             {
                 try
                 {
-                    int flag = ipVersion == EnableIPv6 ? 1 : 0;
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
+                    // TODO: this should configured by an "ipv6only" option on the OA's endpoint
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0);
                 }
                 catch (SocketException ex)
                 {
@@ -367,20 +367,6 @@ namespace ZeroC.Ice
                 addresses.Add(IPAddress.Loopback);
             }
             return addresses;
-        }
-
-        internal static bool IsIPv6Supported()
-        {
-            try
-            {
-                using var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                socket.CloseNoThrow();
-                return true;
-            }
-            catch (SocketException)
-            {
-                return false;
-            }
         }
 
         internal static bool IsLinklocal(IPAddress addr)

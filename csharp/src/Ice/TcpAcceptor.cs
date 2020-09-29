@@ -54,7 +54,7 @@ namespace ZeroC.Ice
                                                         Network.EnableBoth,
                                                         endpoint.Communicator.PreferIPv6);
 
-            _socket = Network.CreateServerSocket(false, _addr.AddressFamily, Network.EnableBoth);
+            _socket = Network.CreateServerSocket(false, _addr.AddressFamily);
 
             try
             {

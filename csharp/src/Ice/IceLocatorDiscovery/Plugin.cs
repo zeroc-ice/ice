@@ -385,24 +385,16 @@ namespace ZeroC.IceLocatorDiscovery
 
         public void Initialize(PluginInitializationContext context)
         {
-            bool preferIPv6 = _communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
+            string address = _communicator.GetProperty($"{_name}.Address") ??
+                (_communicator.PreferIPv6 ? "ff15::1" : "239.255.0.1");
 
-            string address;
-            if (preferIPv6)
-            {
-                address = _communicator.GetProperty($"{_name}.Address") ?? "ff15::1";
-            }
-            else
-            {
-                address = _communicator.GetProperty($"{_name}.Address") ?? "239.255.0.1";
-            }
             int port = _communicator.GetPropertyAsInt($"{_name}.Port") ?? 4061;
             string intf = _communicator.GetProperty($"{_name}.Interface") ?? "";
 
             string lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
-                int ipVersion = preferIPv6 ? Network.EnableIPv6 : Network.EnableIPv4;
+                int ipVersion = _communicator.PreferIPv6 ? Network.EnableIPv6 : Network.EnableIPv4;
                 List<string> interfaces = Network.GetInterfacesForMulticast(intf, ipVersion);
                 lookupEndpoints = string.Join(":", interfaces.Select(
                     intf => $"udp -h \"{address}\" -p {port} --interface \"{intf}\""));

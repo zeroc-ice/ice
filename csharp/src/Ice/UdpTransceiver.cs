@@ -320,7 +320,7 @@ namespace ZeroC.Ice
             _multicastInterface = multicastInterface;
             _incoming = true;
 
-            Socket = Network.CreateServerSocket(true, _addr.AddressFamily, Network.EnableBoth);
+            Socket = Network.CreateServerSocket(true, _addr.AddressFamily);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);

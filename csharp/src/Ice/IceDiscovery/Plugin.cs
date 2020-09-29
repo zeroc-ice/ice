@@ -42,16 +42,9 @@ namespace ZeroC.IceDiscovery
 
         public void Initialize(PluginInitializationContext context)
         {
-            bool preferIPv6 = _communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
-            string address;
-            if (preferIPv6)
-            {
-                address = _communicator.GetProperty("IceDiscovery.Address") ?? "ff15::1";
-            }
-            else
-            {
-                address = _communicator.GetProperty("IceDiscovery.Address") ?? "239.255.0.1";
-            }
+            string address = _communicator.GetProperty("IceDiscovery.Address") ??
+                (_communicator.PreferIPv6 ? "ff15::1" : "239.255.0.1");
+
             int port = _communicator.GetPropertyAsInt("IceDiscovery.Port") ?? 4061;
             string intf = _communicator.GetProperty("IceDiscovery.Interface") ?? "";
 
@@ -71,7 +64,7 @@ namespace ZeroC.IceDiscovery
             string lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
-                int ipVersion = preferIPv6 ? Network.EnableIPv6 : Network.EnableIPv4;
+                int ipVersion = _communicator.PreferIPv6 ? Network.EnableIPv6 : Network.EnableIPv4;
                 List<string> interfaces = Network.GetInterfacesForMulticast(intf, ipVersion);
                 foreach (string p in interfaces)
                 {

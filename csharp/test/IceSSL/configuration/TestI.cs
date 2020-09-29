@@ -80,7 +80,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             string host = TestHelper.GetTestHost(communicator.GetProperties());
 
-            string serverEndpoint = serverEndpoint = TestHelper.GetTestEndpoint(
+            string serverEndpoint = TestHelper.GetTestEndpoint(
                 properties: communicator.GetProperties(),
                 num: 1,
                 transport: "ssl",
