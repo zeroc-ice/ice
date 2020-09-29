@@ -151,7 +151,7 @@ namespace ZeroC.Ice
 
         private bool InEncapsulation => _startPos != null;
 
-        private bool OldEncoding => Encoding == Encoding.V1_1;
+        private bool OldEncoding => Encoding == Encoding.V11;
 
         // The number of bytes that the stream can hold.
         private int _capacity;
@@ -594,7 +594,14 @@ namespace ZeroC.Ice
             }
             else
             {
-                Identity.Empty.IceWrite(this);
+                if (OldEncoding)
+                {
+                    Identity.Empty.IceWrite(this);
+                }
+                else
+                {
+                    this.Write(ProxyKind.@Null);
+                }
             }
         }
 
@@ -1472,7 +1479,7 @@ namespace ZeroC.Ice
 
         internal static void WriteEncapsulationSize(int size, Span<byte> data, Encoding encoding)
         {
-            if (encoding == Encoding.V2_0)
+            if (encoding == Encoding.V20)
             {
                 WriteFixedLengthSize20(size, data);
             }
@@ -1528,7 +1535,7 @@ namespace ZeroC.Ice
             _format = format;
             _startPos = _tail;
             WriteEncapsulationHeader(payloadEncoding); // with placeholder for size
-            if (payloadEncoding == Encoding.V2_0)
+            if (payloadEncoding == Encoding.V20)
             {
                 WriteByte(0); // Placeholder for the compression status
             }
@@ -1554,8 +1561,8 @@ namespace ZeroC.Ice
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
             encoding.CheckSupported();
-            WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding);
-            if (encoding == Encoding.V2_0)
+            WriteEncapsulationHeader(size: encoding == Encoding.V20 ? 3 : 2, encoding);
+            if (encoding == Encoding.V20)
             {
                 WriteByte(0); // The compression status, 0 not-compressed
             }
@@ -1570,7 +1577,7 @@ namespace ZeroC.Ice
             {
                 Position startPos = _tail;
                 int sizeLength = OldEncoding ? 4 : 2;
-                if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
+                if (endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
                     WriteEncapsulationHeader(opaqueEndpoint.ValueEncoding, sizeLength); // with placeholder for size
                     WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive
@@ -1579,7 +1586,7 @@ namespace ZeroC.Ice
                 {
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
-                        Ice1Definitions.Encoding : Encoding.V2_0;
+                        Ice1Definitions.Encoding : Encoding.V20;
 
                     WriteEncapsulationHeader(payloadEncoding, sizeLength); // with placeholder for size
                     Encoding previousEncoding = Encoding;

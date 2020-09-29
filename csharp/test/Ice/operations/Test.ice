@@ -7,7 +7,7 @@
 [[3.7]]
 [[suppress-warning:reserved-identifier]]
 
-#include <Ice/Context.ice>
+#include <Ice/RequestEncoding.ice>
 
 module ZeroC::Ice::Test::Operations
 {

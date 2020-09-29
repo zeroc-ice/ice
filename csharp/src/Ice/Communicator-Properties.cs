@@ -136,7 +136,7 @@ namespace ZeroC.Ice
         /// comparison of the property value with the enumerators and returns the matching enumerator or throws and
         /// exception if none matches the property value. If the property is not set, returns null.</summary>
         /// <typeparam name="TEnum">An enumeration type.</typeparam>
-        /// <param name="name">The property name</param>
+        /// <param name="name">The property name.</param>
         /// <exception cref="InvalidConfigurationException">If the property value cannot be converted to one of the
         /// enumeration values.</exception>
         /// <returns>The enumerator value or null if the property was not set.</returns>
@@ -263,7 +263,7 @@ namespace ZeroC.Ice
         /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', 'h', or 'd'.
         /// These correspond to milliseconds, seconds, minutes, hours, and days, respectively.
         /// A value of "infinite" can be used to specify an infinite duration.
-        /// e.g. 50ms, 3m</summary>
+        /// e.g. 50ms, 3m.</summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into a TimeSpan or null.</returns>
         public TimeSpan? GetPropertyAsTimeSpan(string name)

@@ -115,8 +115,8 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_id request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <returns>The response frame</returns>
-        protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
+        /// <returns>The response frame.</returns>
+        protected ValueTask<OutgoingResponseFrame> IceDIceIdAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyArgs();
             string returnValue = IceId(current);
@@ -126,8 +126,8 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_ids request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <returns>The response frame</returns>
-        protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
+        /// <returns>The response frame.</returns>
+        protected ValueTask<OutgoingResponseFrame> IceDIceIdsAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyArgs();
             IEnumerable<string> returnValue = IceIds(current);
@@ -137,8 +137,8 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_isA request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <returns>The response frame</returns>
-        protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(IncomingRequestFrame request, Current current)
+        /// <returns>The response frame.</returns>
+        protected ValueTask<OutgoingResponseFrame> IceDIceIsAAsync(IncomingRequestFrame request, Current current)
         {
             string id = request.ReadArgs(current.Communicator, Request.IceIsA);
             bool returnValue = IceIsA(id, current);
@@ -148,8 +148,8 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_ping request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <returns>The response frame</returns>
-        protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
+        /// <returns>The response frame.</returns>
+        protected ValueTask<OutgoingResponseFrame> IceDIcePingAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyArgs();
             IcePing(current);

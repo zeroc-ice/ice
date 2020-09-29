@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -271,11 +272,11 @@ namespace ZeroC.Ice.Test.Location
             obj1 = ITestIntfPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator);
             IHelloPrx? hello = obj1.GetHello();
             TestHelper.Assert(hello != null);
-            TestHelper.Assert(hello.AdapterId.Equals("TestAdapter"));
+            TestHelper.Assert(hello.Location.Count == 1 && hello.Location[0] == "TestAdapter");
             hello.SayHello();
             hello = obj1.GetReplicatedHello();
             TestHelper.Assert(hello != null);
-            TestHelper.Assert(hello.AdapterId.Equals("ReplicatedAdapter"));
+            TestHelper.Assert(hello.Location.Count == 1 && hello.Location[0] == "ReplicatedAdapter");
             hello.SayHello();
             output.WriteLine("ok");
 
@@ -299,7 +300,7 @@ namespace ZeroC.Ice.Test.Location
             }
             TestHelper.Assert(locator.GetRequestCount() > count && locator.GetRequestCount() < count + 999);
             count = locator.GetRequestCount();
-            hello = hello.Clone(adapterId: "unknown");
+            hello = hello.Clone(location: ImmutableArray.Create("unknown"));
             for (int i = 0; i < 1000; i++)
             {
                 results.Add(hello.SayHelloAsync().ContinueWith(
@@ -564,7 +565,8 @@ namespace ZeroC.Ice.Test.Location
             output.Flush();
             hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
             count = locator.GetRequestCount();
-            IObjectPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator).Clone(encoding: Encoding.V1_1).IcePing();
+            IObjectPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator).Clone(
+                encoding: Encoding.V11).IcePing();
 
             // TODO: the count is apparently tied to whether or not we skip the if (ice1) block above. Would be nice to
             // add a comment.

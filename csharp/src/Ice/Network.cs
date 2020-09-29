@@ -81,12 +81,6 @@ namespace ZeroC.Ice
                 {
                     socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-                    // TODO: FIX: the fast path loopback appears to cause issues with
-                    // connection closure when it's enabled. Sometime, a peer
-                    // doesn't receive the TCP/IP connection closure (RST) from
-                    // the other peer and it ends up hanging. See bug #6093.
-                    //
-                    //setTcpLoopbackFastPath(socket);
                 }
                 catch (SocketException ex)
                 {
@@ -217,28 +211,7 @@ namespace ZeroC.Ice
             bool preferIPv6,
             CancellationToken cancel)
         {
-            // For client endpoints, an empty host is the same as the loopback address
-            if (host.Length == 0)
-            {
-                var addresses = new List<IPEndPoint>();
-                foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
-                {
-                    addresses.Add(new IPEndPoint(a, port));
-                }
-
-                if (ipVersion == EnableBoth)
-                {
-                    if (preferIPv6)
-                    {
-                        return addresses.OrderByDescending(addr => addr.AddressFamily);
-                    }
-                    else
-                    {
-                        return addresses.OrderBy(addr => addr.AddressFamily);
-                    }
-                }
-                return addresses;
-            }
+            Debug.Assert(host.Length > 0);
 
             return await GetAddressesAsync(host, port, ipVersion, selType, preferIPv6, cancel).ConfigureAwait(false);
         }
@@ -247,18 +220,7 @@ namespace ZeroC.Ice
         {
             // TODO: Fix this method to be asynchronous.
 
-            // For server endpoints, an empty host is the same as the "any" address
-            if (host.Length == 0)
-            {
-                if (ipVersion != EnableIPv4)
-                {
-                    return new IPEndPoint(IPAddress.IPv6Any, port);
-                }
-                else
-                {
-                    return new IPEndPoint(IPAddress.Any, port);
-                }
-            }
+            Debug.Assert(host.Length > 0);
 
             try
             {
@@ -753,10 +715,7 @@ namespace ZeroC.Ice
 
         private static bool IsWildcard(string address, int ipVersion)
         {
-            if (address.Length == 0)
-            {
-                return true;
-            }
+            Debug.Assert(address.Length > 0);
 
             try
             {

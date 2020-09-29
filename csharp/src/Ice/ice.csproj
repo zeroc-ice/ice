@@ -10,9 +10,6 @@
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" Exclude="../../../slice/$(AssemblyName)/*F.ice; ../../../slice/$(AssemblyName)/BuiltinSequences.ice"/>
         <SliceCompile Include="../../../slice/IceDiscovery/*.ice" />
         <SliceCompile Include="../../../slice/IceLocatorDiscovery/*.ice" />
-        <Compile Update="generated\Context.cs">
-          <SliceCompileSource>..\..\..\slice\Ice\Context.ice</SliceCompileSource>
-        </Compile>
         <Compile Update="generated\Identity.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
         </Compile>
@@ -21,9 +18,6 @@
         </Compile>
         <Compile Update="generated\Metrics.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
-        </Compile>
-        <Compile Update="generated\OperationMode.cs">
-          <SliceCompileSource>..\..\..\slice\Ice\OperationMode.ice</SliceCompileSource>
         </Compile>
         <Compile Update="generated\Process.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Process.ice</SliceCompileSource>

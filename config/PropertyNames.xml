@@ -400,11 +400,13 @@ generated from the section label.
         <property name="Trace.Admin.Properties" />
         <property name="Trace.Admin.Logger" />
         <property name="Trace.Locator" />
+        <!-- TODO remove Trace.Network once all mappings implement Trace.Transport -->
         <property name="Trace.Network" />
         <property name="Trace.Protocol" />
         <property name="Trace.Retry" />
         <property name="Trace.Slicing" />
         <property name="Trace.ThreadPool" />
+        <property name="Trace.Transport" />
         <property name="UDP.RcvSize" />
         <property name="UDP.SndSize" />
         <property name="TCP.Backlog" />
@@ -575,15 +577,15 @@ generated from the section label.
         <property name="CertStore" />
         <property name="CertStoreLocation" />
         <property name="CertFile" />
-        <property name="CertVerifier" />
-        <property name="CheckCertName" />
-        <property name="CheckCRL" />
-        <property name="Ciphers" />
+        <property name="CertVerifier" />  <!-- TODO Remove this property, already removed in C# 4.0-->
+        <property name="CheckCertName" /> <!-- TODO Remove this property, already removed in C# 4.0-->
+        <property name="CheckCRL" />      <!-- TODO Remove this property, already removed in C# 4.0-->
+        <property name="Ciphers" />       <!-- TODO Remove this property, already removed in C# 4.0-->
         <property name="DefaultDir" />
         <property name="DH.[any]" />
         <property name="DHParams" />
         <property name="EntropyDaemon" />
-        <property name="FindCert" />
+        <property name="FindCert" />      <!-- TODO Remove this property, already removed in C# 4.0-->
         <property name="InitOpenSSL" />
         <property name="KeyFile" deprecated="true"/>
         <property name="Keychain"/>
@@ -592,14 +594,15 @@ generated from the section label.
         <property name="KeystorePassword" />
         <property name="KeystoreType" />
         <property name="Password" />
-        <property name="PasswordCallback" />
-        <property name="PasswordRetryMax" />
+        <property name="PasswordCallback" /> <!-- TODO Remove this property, already removed in C# 4.0-->
+        <property name="PasswordRetryMax" /> <!-- TODO Remove this property, already removed in C# 4.0-->
         <property name="Protocols" />
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
         <property name="Random" />
         <property name="SchannelStrongCrypto" />
         <property name="Trace.Security" />
+        <!-- TODO remove TrustOnly properties once TrustManager is removed from all mappings -->
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />
         <property name="TrustOnly.Server" />
@@ -607,9 +610,9 @@ generated from the section label.
         <property name="Truststore" />
         <property name="TruststorePassword" />
         <property name="TruststoreType" />
-        <property name="UsePlatformCAs" />
-        <property name="VerifyDepthMax" />
-        <property name="VerifyPeer" />
+        <property name="UsePlatformCAs" />     <!-- TODO Remove this property, already removed in C# 4.0-->
+        <property name="VerifyDepthMax" />     <!-- TODO Remove this property, already removed in C# 4.0-->
+        <property name="VerifyPeer" />         <!-- TODO Remove this property, already removed in C# 4.0-->
     </section>
 
     <section name="IceStormAdmin">

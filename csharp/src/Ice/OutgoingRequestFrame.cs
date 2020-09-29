@@ -69,7 +69,7 @@ namespace ZeroC.Ice
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
-        /// <returns>A new OutgoingRequestFrame</returns>
+        /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -88,7 +88,7 @@ namespace ZeroC.Ice
                                         format);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
-            if (compress && proxy.Encoding == Encoding.V2_0)
+            if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
             }
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
                                         format);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
-            if (compress && proxy.Encoding == Encoding.V2_0)
+            if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
             }

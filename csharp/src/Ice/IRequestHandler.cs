@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         /// invoked on the user thread or not.</param>
         /// <param name="observer">The invocation observer.</param>
         /// <param name="progress">The progress callback.</param>
-        /// <param name="cancel">The cancellation token to cancel the sending of the request</param>
+        /// <param name="cancel">The cancellation token to cancel the sending of the request.</param>
         /// <returns>A task if the request is a twoway request or null if it's a oneway request. The returned task can
         /// be used to wait for the receipt of the response.</returns>
         Task<IncomingResponseFrame> SendRequestAsync(

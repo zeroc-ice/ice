@@ -98,8 +98,8 @@ namespace ZeroC.Ice
             new WSConnection(manager,
                 this,
                 transceiver,
-                Protocol == Protocol.Ice1 ? (BinaryConnection)
-                    new Ice1BinaryConnection(transceiver, this, adapter) :
+                Protocol == Protocol.Ice1 ?
+                    (BinaryConnection)new Ice1BinaryConnection(transceiver, this, adapter) :
                     new SlicBinaryConnection(transceiver, this, adapter),
                 connector,
                 connectionId,
@@ -124,8 +124,8 @@ namespace ZeroC.Ice
         }
 
         // Constructor for unmarshaling.
-        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
-            : base(istr, communicator, transport, protocol, mostDerived: false)
+        internal WSEndpoint(InputStream istr, Transport transport, Protocol protocol)
+            : base(istr, transport, protocol, mostDerived: false)
         {
             if (protocol == Protocol.Ice1)
             {

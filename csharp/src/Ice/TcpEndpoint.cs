@@ -120,8 +120,8 @@ namespace ZeroC.Ice
              new TcpConnection(manager,
                                this,
                                transceiver,
-                               Protocol == Protocol.Ice1 ? (BinaryConnection)
-                                 new Ice1BinaryConnection(transceiver!, this, adapter) :
+                               Protocol == Protocol.Ice1 ?
+                                 (BinaryConnection)new Ice1BinaryConnection(transceiver!, this, adapter) :
                                  new SlicBinaryConnection(transceiver!, this, adapter),
                                connector,
                                connectionId,
@@ -131,11 +131,10 @@ namespace ZeroC.Ice
         // Constructor for unmarshaling
         internal TcpEndpoint(
             InputStream istr,
-            Communicator communicator,
             Transport transport,
             Protocol protocol,
             bool mostDerived = true)
-            : base(istr, communicator, protocol)
+            : base(istr, protocol)
         {
             Transport = transport;
             if (protocol == Protocol.Ice1)

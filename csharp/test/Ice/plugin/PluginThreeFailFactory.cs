@@ -12,7 +12,8 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginThreeFail : BasePluginFail
         {
-            public PluginThreeFail(Communicator communicator) : base(communicator)
+            public PluginThreeFail(Communicator communicator)
+                : base(communicator)
             {
             }
 

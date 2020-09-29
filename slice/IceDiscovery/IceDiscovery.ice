@@ -45,7 +45,7 @@ module IceDiscovery
     /// and adapters using UDP multicast.
     interface Lookup
     {
-        /// Request to find an Ice object
+        /// Request to find an Ice object.
         ///
         /// @param domainId The IceDiscovery domain identifier. An IceDiscovery client only
         /// replies to requests with a matching domain identifier.
@@ -56,7 +56,7 @@ module IceDiscovery
         /// the reply if a matching object is found.
         idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply* reply);
 
-        /// Request to find an object adapter
+        /// Request to find an object adapter.
         ///
         /// @param domainId The IceDiscovery domain identifier. An IceDiscovery client only
         /// replies to requests with a matching domain identifier.

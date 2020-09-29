@@ -5,31 +5,21 @@ using System.Globalization;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The Ice encoding defines how Slice constructs are marshaled to and later unmarshaled from sequences
-    /// of bytes. An Encoding struct holds a version of the Ice encoding.</summary>
-    public readonly struct Encoding : IEquatable<Encoding>
+    // Extends the Slice-defined Encoding struct
+    public readonly partial struct Encoding
     {
         // The encodings known to the Ice runtime.
 
         /// <summary>Version 1.0 of the Ice encoding, supported by Ice 1.0 to Ice 3.7.</summary>
-        public static readonly Encoding V1_0 = new Encoding(1, 0);
+        public static readonly Encoding V10 = new Encoding(1, 0);
 
         /// <summary>Version 1.1 of the Ice encoding, supported since Ice 3.5.</summary>
-        public static readonly Encoding V1_1 = new Encoding(1, 1);
+        public static readonly Encoding V11 = new Encoding(1, 1);
 
         /// <summary>Version 2.0 of the Ice encoding, supported since Ice 4.0.</summary>
-        public static readonly Encoding V2_0 = new Encoding(2, 0);
+        public static readonly Encoding V20 = new Encoding(2, 0);
 
-        /// <summary>The most recent version of the Ice encoding.</summary>
-        public static readonly Encoding Latest = V2_0;
-
-        /// <summary>The major version number of this version of the Ice encoding.</summary>
-        public readonly byte Major;
-
-        /// <summary>The minor version number of this version of the Ice encoding.</summary>
-        public readonly byte Minor;
-
-        internal bool IsSupported => this == V1_1 || this == V2_0;
+        internal bool IsSupported => this == V11 || this == V20;
 
         /// <summary>Parses a string into an Encoding.</summary>
         /// <param name="str">The string to parse.</param>
@@ -73,36 +63,6 @@ namespace ZeroC.Ice
                 return false;
             }
         }
-
-        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
-        /// <param name="lhs">The left hand side operand.</param>
-        /// <param name="rhs">The right hand side operand.</param>
-        /// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>
-        public static bool operator ==(Encoding lhs, Encoding rhs) => Equals(lhs, rhs);
-
-        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
-        /// <param name="lhs">The left hand side operand.</param>
-        /// <param name="rhs">The right hand side operand.</param>
-        /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
-        public static bool operator !=(Encoding lhs, Encoding rhs) => !Equals(lhs, rhs);
-
-        /// <summary>Constructs a new Encoding.</summary>
-        /// <param name="major">The major version number.</param>
-        /// <param name="minor">The minor version number.</param>
-        public Encoding(byte major, byte minor)
-        {
-            Major = major;
-            Minor = minor;
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode() => HashCode.Combine(Major, Minor);
-
-        /// <inheritdoc/>
-        public bool Equals(Encoding other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
-
-        /// <inheritdoc/>
-        public override bool Equals(object? other) => other is Encoding value && Equals(value);
 
         /// <inheritdoc/>
         public override string ToString() => $"{Major}.{Minor}";

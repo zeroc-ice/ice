@@ -325,7 +325,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs a new communicator.</summary>
-        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties</param>
+        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
         /// param has precedence over the properties param.</param>
         /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be

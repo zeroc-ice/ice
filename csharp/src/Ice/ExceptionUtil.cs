@@ -8,9 +8,9 @@ namespace ZeroC.Ice
 {
     internal static class ExceptionUtil
     {
-        /// <summary>Helper function to re throw an exception preserving the stack trace, use as
-        /// <code>throw ExceptionUtil.Throw(ex.AggregateException);</code>, this prevent the compiler error
-        /// of not all code path returning a value.</summary>
+        /// <summary>Helper function to re throw an exception preserving the stack trace, use as:
+        /// <code>throw ExceptionUtil.Throw(ex.AggregateException);</code>
+        /// This prevent the compiler error of not all code path returning a value.</summary>
         internal static Exception Throw(Exception ex)
         {
             ExceptionDispatchInfo.Throw(ex);

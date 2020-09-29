@@ -28,8 +28,6 @@ module Ice
     interface Process
     {
         /// Initiate a graceful shut-down.
-        ///
-        /// @see Communicator#shutdown
         void shutdown();
 
         /// Write a message on the process' stdout or stderr.

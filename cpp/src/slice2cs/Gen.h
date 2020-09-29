@@ -39,6 +39,7 @@ protected:
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
     void emitEditorBrowsableNeverAttribute();
+    void emitEqualityOperators(const std::string&);
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
     void emitTypeIdAttribute(const std::string&); // the Ice type ID attribute
 

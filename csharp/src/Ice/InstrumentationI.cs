@@ -122,8 +122,11 @@ namespace ZeroC.Ice
                 try
                 {
                     return _connections.GetObserver(
-                        new ConnectionHelper(connection, connectionState), observer,
-                        _delegate?.GetConnectionObserver(connection, connectionState,
+                        new ConnectionHelper(connection, connectionState),
+                        observer,
+                        _delegate?.GetConnectionObserver(
+                            connection,
+                            connectionState,
                             (observer as ConnectionObserver)?.Delegate ?? observer));
                 }
                 catch (Exception ex)
@@ -408,13 +411,15 @@ namespace ZeroC.Ice
         private readonly Endpoint _endpoint;
         private string? _id;
 
-        internal EndpointHelper(Endpoint endpoint, string id) : base(_attributeResolver)
+        internal EndpointHelper(Endpoint endpoint, string id)
+            : base(_attributeResolver)
         {
             _endpoint = endpoint;
             _id = id;
         }
 
-        internal EndpointHelper(Endpoint endpoint) : base(_attributeResolver) => _endpoint = endpoint;
+        internal EndpointHelper(Endpoint endpoint)
+            : base(_attributeResolver) => _endpoint = endpoint;
 
         private class AttributeResolverI : AttributeResolver
         {

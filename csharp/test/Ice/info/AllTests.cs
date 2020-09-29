@@ -191,8 +191,7 @@ namespace ZeroC.Ice.Test.Info
                 if (connection.Endpoint.IsSecure)
                 {
                     TestHelper.Assert(((TcpConnection)connection).IsEncrypted);
-                    // WSS tests run with IceSSL.VerifyPeer set to 0 so the connection is no mutually
-                    // authenticated for compatibility with web browser testing.
+                    // WSS tests run client authentication disabled for compatibility with web browser testing.
                     if (connection.Endpoint.Transport == Transport.SSL)
                     {
                         TestHelper.Assert(((TcpConnection)connection).IsMutuallyAuthenticated);

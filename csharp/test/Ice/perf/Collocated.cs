@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Perf
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter? adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("perf", new PerformanceI());
-            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+            // Don't activate OA to ensure collocation is used.
             AllTests.Run(this);
         }
 

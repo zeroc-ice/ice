@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -142,8 +143,14 @@ namespace ZeroC.IceDiscovery
                 {
                     try
                     {
+                        // We retrieve and clone this proxy _only_ for its protocol and encoding. All the other
+                        // information in the proxy is wiped out or replaced.
+
                         IObjectPrx proxy = _adapters[ids.First()];
-                        proxy = proxy.Clone(IObjectPrx.Factory, adapterId: key, identity: identity);
+                        proxy = proxy.Clone(IObjectPrx.Factory,
+                                            endpoints: ImmutableArray<Endpoint>.Empty,
+                                            identity: identity,
+                                            location: ImmutableArray.Create(key));
                         proxy.IcePing();
                         return proxy;
                     }
@@ -158,8 +165,9 @@ namespace ZeroC.IceDiscovery
                     try
                     {
                         IObjectPrx proxy = registeredProxy.Clone(IObjectPrx.Factory,
-                                                                 adapterId: key,
-                                                                 identity: identity);
+                                                                 endpoints: ImmutableArray<Endpoint>.Empty,
+                                                                 identity: identity,
+                                                                 location: ImmutableArray.Create(key));
                         proxy.IcePing();
                         return proxy;
                     }

@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Metrics
 {
-    public class AllTests
+    public static class AllTests
     {
         public static ConnectionMetrics? GetServerConnectionMetrics(IMetricsAdminPrx metrics, long expected)
         {
@@ -379,22 +379,17 @@ namespace ZeroC.Ice.Test.Metrics
 
             bool collocated = metrics.GetConnection() == null;
             TextWriter output = helper.Output;
-            output.Write("testing metrics admin facet checkedCast... ");
-            output.Flush();
+
             IObjectPrx? admin = communicator.GetAdmin();
             TestHelper.Assert(admin != null);
-            var clientProps =
-                admin.Clone(IObjectPrx.Factory, facet: "Properties").CheckedCast(IPropertiesAdminPrx.Factory);
-            var clientMetrics =
-                admin.Clone(IObjectPrx.Factory, facet: "Metrics").CheckedCast(IMetricsAdminPrx.Factory);
+            var clientProps = admin.Clone(IPropertiesAdminPrx.Factory, facet: "Properties");
+            var clientMetrics = admin.Clone(IMetricsAdminPrx.Factory, facet: "Metrics");
             TestHelper.Assert(clientProps != null && clientMetrics != null);
 
             admin = metrics.GetAdmin();
             TestHelper.Assert(admin != null);
-            var serverProps =
-                admin.Clone(IObjectPrx.Factory, facet: "Properties").CheckedCast(IPropertiesAdminPrx.Factory);
-            var serverMetrics =
-                admin.Clone(IObjectPrx.Factory, facet: "Metrics").CheckedCast(IMetricsAdminPrx.Factory);
+            var serverProps = admin.Clone(IPropertiesAdminPrx.Factory, facet: "Properties");
+            var serverMetrics = admin.Clone(IMetricsAdminPrx.Factory, facet: "Metrics");
             TestHelper.Assert(serverProps != null && serverMetrics != null);
 
             var update = new UpdateCallbackI(serverProps);
@@ -548,7 +543,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
                 // 2 additional bytes with ice2 and Encoding2: one for the sequence size and one for the frame size
-                int sizeLengthIncrease = helper.Encoding == Encoding.V1_1 ? 4 : 2;
+                int sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 2;
 
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
@@ -565,7 +560,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
                 // 6 additional bytes with ice2 and Encoding2: 3 for the sequence size and 3 for the frame size
-                sizeLengthIncrease = helper.Encoding == Encoding.V1_1 ? 4 : 6;
+                sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 6;
 
                 TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + sizeLengthIncrease));
                 TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
@@ -627,7 +622,6 @@ namespace ZeroC.Ice.Test.Metrics
                 m.IcePing();
 
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
-                //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
                 if (ice1)
                 {
                     TestAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
@@ -649,7 +643,6 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "adapterName", "", output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "localHost", host, output);
-                //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "", output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", host, output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", port, output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
@@ -881,7 +874,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
             TestHelper.Assert(dm1.Size == (38 + protocolRequestSizeAdjustment) &&
-                dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 51 + userExErrorMessageSize));
+                dm1.ReplySize == (metrics.Encoding == Encoding.V11 ? 48 : 51 + userExErrorMessageSize));
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
@@ -923,7 +916,6 @@ namespace ZeroC.Ice.Test.Metrics
                     TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
                                 endpoint, op, output);
                 }
-                //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTransport", transportName, op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
@@ -937,7 +929,6 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", port, op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", host, op, output);
-                //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", port, op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op, output);
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op, output);
             }
@@ -1089,7 +1080,7 @@ namespace ZeroC.Ice.Test.Metrics
                 TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
                 rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
                 TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-                //TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize == 60);
+                TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize == 96);
 
                 TestHelper.Assert(im1.UserException == 2);
                 im1 = (InvocationMetrics)map["opWithLocalException"];
@@ -1297,7 +1288,10 @@ namespace ZeroC.Ice.Test.Metrics
                 TestHelper.Assert(obsv.EndpointLookupObserver!.GetFailedCount() > 0);
                 TestHelper.Assert(obsv.InvocationObserver!.RemoteObserver!.GetFailedCount() > 0);
             }
-            //TestHelper.Assert(obsv.dispatchObserver.getFailedCount() > 0);
+            else
+            {
+                TestHelper.Assert(obsv.DispatchObserver.GetFailedCount() > 0);
+            }
 
             if (ice1) // TODO: ice2
             {
@@ -1313,8 +1307,8 @@ namespace ZeroC.Ice.Test.Metrics
             else
             {
                 TestHelper.Assert(obsv.InvocationObserver!.CollocatedObserver!.ReplySize > 0);
+                TestHelper.Assert(obsv.DispatchObserver.UserExceptionCount > 0);
             }
-            //TestHelper.Assert(obsv.dispatchObserver.userExceptionCount > 0);
 
             if (ice1) // TODO: ice2
             {
