@@ -19,16 +19,14 @@ interface CallbackReceiver
 {
     void callback();
 
-    void callbackEx()
-        throws CallbackException;
+    void callbackEx();
 }
 
 interface Callback
 {
     void initiateCallback(CallbackReceiver* proxy);
 
-    void initiateCallbackEx(CallbackReceiver* proxy)
-        throws CallbackException;
+    void initiateCallbackEx(CallbackReceiver* proxy);
 
     void shutdown();
 }
