@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.Tagged
             mo1.F = (float)5.5;
             mo1.G = 1.0;
             mo1.H = "test";
-            mo1.I = MyEnum.MyEnumMember;
+            mo1.I = MyEnum.M1;
             mo1.Bs = new byte[] { 5 };
             mo1.Ss = new string[] { "test", "test2" };
             mo1.Iid = new Dictionary<int, int>
@@ -56,13 +56,13 @@ namespace ZeroC.Ice.Test.Tagged
             mo1.Vs = vs1;
 
             mo1.Shs = new short[] { 1 };
-            mo1.Es = new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember };
+            mo1.Es = new MyEnum[] { MyEnum.M1, MyEnum.M1 };
             mo1.Fss = new FixedStruct[] { fs };
             mo1.Vss = new VarStruct[] { vs1 };
 
             mo1.Ied = new Dictionary<int, MyEnum>
             {
-                { 4, MyEnum.MyEnumMember }
+                { 4, MyEnum.M1 }
             };
             mo1.Ifsd = new Dictionary<int, FixedStruct>
             {
@@ -95,7 +95,7 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo1.F == (float)5.5);
             TestHelper.Assert(mo1.G == 1.0);
             TestHelper.Assert(mo1.H.Equals("test"));
-            TestHelper.Assert(mo1.I == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo1.I == MyEnum.M1);
             TestHelper.Assert(Enumerable.SequenceEqual(mo1.Bs, new byte[] { 5 }));
             TestHelper.Assert(Enumerable.SequenceEqual(mo1.Ss, new string[] { "test", "test2" }));
             TestHelper.Assert(mo1.Iid[4] == 3);
@@ -104,11 +104,11 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo1.Vs.Equals(new VarStruct("hello")));
 
             TestHelper.Assert(mo1.Shs[0] == 1);
-            TestHelper.Assert(mo1.Es[0] == MyEnum.MyEnumMember && mo1.Es[1] == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo1.Es[0] == MyEnum.M1 && mo1.Es[1] == MyEnum.M1);
             TestHelper.Assert(mo1.Fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo1.Vss[0].Equals(new VarStruct("hello")));
 
-            TestHelper.Assert(mo1.Ied[4] == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo1.Ied[4] == MyEnum.M1);
             TestHelper.Assert(mo1.Ifsd[4].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo1.Ivsd[5].Equals(new VarStruct("hello")));
 
@@ -184,11 +184,11 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo5.Fs.Equals(mo1.Fs));
             TestHelper.Assert(mo5.Vs.Equals(mo1.Vs));
             TestHelper.Assert(Enumerable.SequenceEqual(mo5.Shs!, mo1.Shs));
-            TestHelper.Assert(mo5.Es != null && mo5.Es[0] == MyEnum.MyEnumMember && mo1.Es[1] == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo5.Es != null && mo5.Es[0] == MyEnum.M1 && mo1.Es[1] == MyEnum.M1);
             TestHelper.Assert(mo5.Fss != null && mo5.Fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo5.Vss != null && mo5.Vss[0].Equals(new VarStruct("hello")));
 
-            TestHelper.Assert(mo5.Ied != null && mo5.Ied[4] == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo5.Ied != null && mo5.Ied[4] == MyEnum.M1);
             TestHelper.Assert(mo5.Ifsd != null && mo5.Ifsd[4].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo5.Ivsd != null && mo5.Ivsd[5].Equals(new VarStruct("hello")));
 
@@ -283,11 +283,11 @@ namespace ZeroC.Ice.Test.Tagged
             TestHelper.Assert(mo9.Vs.Equals(mo1.Vs));
 
             TestHelper.Assert(mo9.Shs == null);
-            TestHelper.Assert(mo9.Es != null && mo9.Es[0] == MyEnum.MyEnumMember && mo9.Es[1] == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo9.Es != null && mo9.Es[0] == MyEnum.M1 && mo9.Es[1] == MyEnum.M1);
             TestHelper.Assert(mo9.Fss == null);
             TestHelper.Assert(mo9.Vss != null && mo9.Vss[0].Equals(new VarStruct("hello")));
 
-            TestHelper.Assert(mo9.Ied != null && mo9.Ied[4] == MyEnum.MyEnumMember);
+            TestHelper.Assert(mo9.Ied != null && mo9.Ied[4] == MyEnum.M1);
             TestHelper.Assert(mo9.Ifsd == null);
             TestHelper.Assert(mo9.Ivsd != null && mo9.Ivsd[5].Equals(new VarStruct("hello")));
 
@@ -796,15 +796,15 @@ namespace ZeroC.Ice.Test.Tagged
                 (p2, p3) = initial.OpMyEnum(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                p1 = MyEnum.MyEnumMember;
+                p1 = MyEnum.M1;
                 (p2, p3) = initial.OpMyEnum(p1);
-                TestHelper.Assert(p2 == MyEnum.MyEnumMember && p3 == MyEnum.MyEnumMember);
+                TestHelper.Assert(p2 == MyEnum.M1 && p3 == MyEnum.M1);
                 (MyEnum? ReturnValue, MyEnum? p3) r = initial.OpMyEnumAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.p3 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r.ReturnValue == MyEnum.M1 && r.p3 == MyEnum.M1);
                 (p2, p3) = initial.OpMyEnum(p1);
-                TestHelper.Assert(p2 == MyEnum.MyEnumMember && p3 == MyEnum.MyEnumMember);
+                TestHelper.Assert(p2 == MyEnum.M1 && p3 == MyEnum.M1);
                 r = initial.OpMyEnumAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.p3 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r.ReturnValue == MyEnum.M1 && r.p3 == MyEnum.M1);
 
                 (p2, p3) = initial.OpMyEnum(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -822,8 +822,8 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(2)?.AsMyEnum()));
-                TestHelper.Assert(p2 == MyEnum.MyEnumMember);
-                TestHelper.Assert(p3 == MyEnum.MyEnumMember);
+                TestHelper.Assert(p2 == MyEnum.M1);
+                TestHelper.Assert(p3 == MyEnum.M1);
             }
 
             {
