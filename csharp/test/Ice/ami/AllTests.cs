@@ -636,6 +636,10 @@ namespace ZeroC.Ice.Test.AMI
                         p.Clone().SleepAsync(50, cancel: source.Token, context: cancelCtx).Wait();
                         TestHelper.Assert(false);
                     }
+                    catch (OperationCanceledException)
+                    {
+                        // expected
+                    }
                     catch (AggregateException ae)
                     {
                         ae.Handle(ex => ex is OperationCanceledException);
