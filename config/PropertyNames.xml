@@ -602,6 +602,7 @@ generated from the section label.
         <property name="Random" />
         <property name="SchannelStrongCrypto" />
         <property name="Trace.Security" />
+        <!-- TODO remove TrustOnly properties once TrustManager is removed from all mappings -->
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />
         <property name="TrustOnly.Server" />

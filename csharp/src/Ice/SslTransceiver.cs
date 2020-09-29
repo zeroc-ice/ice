@@ -76,27 +76,9 @@ namespace ZeroC.Ice
                 throw new TransportException(ex);
             }
 
-            string description = ToString();
-            if (!_engine.SslTrustManager.Verify(_incoming,
-                                                SslStream.RemoteCertificate as X509Certificate2,
-                                                _adapterName ?? "",
-                                                description))
-            {
-                var s = new StringBuilder();
-                s.Append(_incoming ? "incoming " : "outgoing");
-                s.Append("connection rejected by trust manager\n");
-                s.Append(description);
-                if (_engine.SecurityTraceLevel >= 1)
-                {
-                    _communicator.Logger.Trace(_engine.SecurityTraceCategory, s.ToString());
-                }
-
-                throw new TransportException(s.ToString());
-            }
-
             if (_engine.SecurityTraceLevel >= 1)
             {
-                _engine.TraceStream(SslStream, description);
+                _engine.TraceStream(SslStream, ToString());
             }
 
             // Use a buffered stream for writes. This ensures that small requests which are composed of multiple
