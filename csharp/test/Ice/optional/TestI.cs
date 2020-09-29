@@ -13,8 +13,6 @@ namespace ZeroC.Ice.Test.Optional
 
         public void OpString(string? i1, Current current) => TestHelper.Assert(i1 == null || i1 == "42");
 
-        public string? OpSingleOutString(Current current) => "42";
-
         public int? OpReturnInt(Current current) => 42;
 
         public string? OpReturnString(Current current) => "42";

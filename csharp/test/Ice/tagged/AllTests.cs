@@ -500,8 +500,8 @@ namespace ZeroC.Ice.Test.Tagged
                         byte? b2 = istr.ReadTaggedByte(2);
                         return (b1, b2);
                     });
-                TestHelper.Assert(p1 == 56);
                 TestHelper.Assert(r1 == 56);
+                TestHelper.Assert(r2 == 56);
             }
 
             {
@@ -621,8 +621,8 @@ namespace ZeroC.Ice.Test.Tagged
                     int? i2 = istr.ReadTaggedInt(2);
                     return (i1, i2);
                 });
-                TestHelper.Assert(p1 == 56);
                 TestHelper.Assert(r1 == 56);
+                TestHelper.Assert(r2 == 56);
             }
 
             {
@@ -796,15 +796,15 @@ namespace ZeroC.Ice.Test.Tagged
                 (r1, r2) = initial.OpMyEnum(null);
                 TestHelper.Assert(r1 == null && r2 == null);
 
-                p1 = MyEnum.MyEnumMember;
+                p1 = MyEnum.M1;
                 (r1, r2) = initial.OpMyEnum(p1);
-                TestHelper.Assert(r1 == MyEnum.MyEnumMember && r2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r1 == MyEnum.M1 && r2 == MyEnum.M1);
                 (MyEnum? ReturnValue, MyEnum? r2) r = initial.OpMyEnumAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.r2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r.ReturnValue == MyEnum.M1 && r.r2 == MyEnum.M1);
                 (r1, r2) = initial.OpMyEnum(p1);
-                TestHelper.Assert(r1 == MyEnum.MyEnumMember && r2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r1 == MyEnum.M1 && r2 == MyEnum.M1);
                 r = initial.OpMyEnumAsync(p1).Result;
-                TestHelper.Assert(r.ReturnValue == MyEnum.MyEnumMember && r.r2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r.ReturnValue == MyEnum.M1 && r.r2 == MyEnum.M1);
 
                 (r1, r2) = initial.OpMyEnum(null);
                 TestHelper.Assert(r1 == null && r2 == null); // Ensure out parameter is cleared.
@@ -822,8 +822,8 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(2)?.AsMyEnum()));
-                TestHelper.Assert(r1 == MyEnum.MyEnumMember);
-                TestHelper.Assert(r2 == MyEnum.MyEnumMember);
+                TestHelper.Assert(r1 == MyEnum.M1);
+                TestHelper.Assert(r2 == MyEnum.M1);
 
             }
 

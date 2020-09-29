@@ -81,6 +81,7 @@ module ZeroC::Ice::Test::Optional
         tag(1) IntOptIntDict? opTaggedIntOptIntDict(tag(1) IntOptIntDict? i1);
 
         IntOptStringDict opIntOptStringDict(IntOptStringDict i1);
+
         tag(1) IntOptStringDict? opTaggedIntOptStringDict(tag(1) IntOptStringDict? i1);
 
         MyStruct opMyStruct(MyStruct i1);

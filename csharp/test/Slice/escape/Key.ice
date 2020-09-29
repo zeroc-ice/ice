@@ -64,7 +64,7 @@ interface taggedParams
                       tag(8) explicit* null);
 
     [amd]
-    tag(1) break? catch(tag(2) as? goto,
+    tag(1) break? continue(tag(2) as? goto,
                         tag(3) explicit* if,
                         tag(5) while? internal,
                         tag(7) string? namespace,
