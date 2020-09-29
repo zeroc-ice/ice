@@ -1739,7 +1739,7 @@ enum_def
     if(en)
     {
         EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-        if(enumerators->v.empty() && !en->underlying())
+        if(enumerators->v.empty() && !en->underlying() && en->isUnchecked())
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
