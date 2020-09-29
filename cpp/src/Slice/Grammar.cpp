@@ -3578,7 +3578,7 @@ yyreduce:
     if(en)
     {
         EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast(yyvsp[-1]);
-        if(enumerators->v.empty())
+        if(enumerators->v.empty() && !en->underlying())
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
         }

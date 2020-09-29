@@ -1410,7 +1410,7 @@ operation_list
         // metadata only relevant to the return type would only be set on the return type.
         if (operation->hasSingleReturnType())
         {
-            operation->returnValues().front()->setMetaData(metaData->v);
+            operation->returnType().front()->setMetaData(metaData->v);
         }
     }
 }
@@ -1739,7 +1739,7 @@ enum_def
     if(en)
     {
         EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-        if(enumerators->v.empty())
+        if(enumerators->v.empty() && !en->underlying())
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
