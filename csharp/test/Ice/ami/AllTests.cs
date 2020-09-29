@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,6 +116,7 @@ namespace ZeroC.Ice.Test.AMI
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
+            bool ice1 = helper.Protocol == Protocol.Ice1;
 
             var p = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var serialized = ITestIntfPrx.Parse(helper.GetTestProxy("serialized", 1), communicator);
@@ -308,7 +310,9 @@ namespace ZeroC.Ice.Test.AMI
             output.Write("testing local exceptions with async tasks... ");
             output.Flush();
             {
-                ITestIntfPrx indirect = p.Clone(adapterId: "dummy");
+                ITestIntfPrx indirect = ice1 ?
+                    p.Clone(location: ImmutableArray.Create("dummy")) :
+                    p.Clone(endpoints: ImmutableArray<Endpoint>.Empty, location: ImmutableArray.Create("dummy"));
 
                 try
                 {
@@ -342,7 +346,9 @@ namespace ZeroC.Ice.Test.AMI
             output.Write("testing exception with async task... ");
             output.Flush();
             {
-                ITestIntfPrx i = p.Clone(adapterId: "dummy");
+                ITestIntfPrx i = ice1 ?
+                    p.Clone(location: ImmutableArray.Create("dummy")) :
+                    p.Clone(endpoints: ImmutableArray<Endpoint>.Empty, location: ImmutableArray.Create("dummy"));
 
                 try
                 {

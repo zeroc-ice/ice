@@ -97,10 +97,6 @@ namespace ZeroC.Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
-        /// <summary>The adapter ID of this proxy, or an empty string if this proxy does not have an adapter ID.
-        /// A proxy with an adapter ID is an indirect proxy. </summary>
-        public string AdapterId => IceReference.AdapterId;
-
         /// <summary>Returns the communicator that created this proxy.</summary>
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;
@@ -150,7 +146,10 @@ namespace ZeroC.Ice
         /// <value>When true, invoking such an operation does not wait for the response from the target object. When
         /// false, invoking such an operation waits for the empty response from the target object, unless this behavior
         /// is overridden by metadata on the Slice operation's definition.</value>
-        public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
+        public bool IsOneway => IceReference.IsOneway;
+
+        /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
+        public IReadOnlyList<string> Location => IceReference.Location;
 
         /// <summary>The locator associated with this proxy. This property is null when no locator is associated with
         /// this proxy.</summary>
