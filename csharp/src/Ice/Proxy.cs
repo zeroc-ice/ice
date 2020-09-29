@@ -426,14 +426,16 @@ namespace ZeroC.Ice
                 IProgress<bool>? progress,
                 CancellationToken cancel)
             {
+                cancel.ThrowIfCancellationRequested();
                 if (i < proxy.Communicator.InvocationInterceptors.Count)
                 {
                     InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
                     return interceptor(
                         proxy,
                         request,
-                        (target, request) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
+                        (target, request, cancel) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel),
+                        cancel);
                 }
                 else
                 {
