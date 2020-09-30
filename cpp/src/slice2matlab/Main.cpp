@@ -869,7 +869,7 @@ parseComment(const ContainedPtr& p)
     // First check metadata for a deprecated tag.
     //
     string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
+    if(p->findMetadata("deprecate", deprecateMetadata))
     {
         doc.deprecated = true;
         if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
@@ -1656,7 +1656,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const MemberList members = p->dataMembers();
     if(!members.empty())
     {
-        if(p->hasMetaData("protected"))
+        if(p->hasMetadata("protected"))
         {
             //
             // All members are protected.
@@ -1680,7 +1680,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             MemberList prot, pub;
             for (const auto& member : members)
             {
-                if (member->hasMetaData("protected"))
+                if (member->hasMetadata("protected"))
                 {
                     prot.push_back(member);
                 }
@@ -1724,8 +1724,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
@@ -2534,8 +2534,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);

@@ -766,7 +766,7 @@ bool opCompress(const OperationPtr& op, bool params)
 {
     string direction = params ? "params" : "return";
     string prefix = "compress:";
-    string compress = op->findMetaDataWithPrefix(prefix);
+    string compress = op->findMetadataWithPrefix(prefix);
 
     if (compress.empty())
     {

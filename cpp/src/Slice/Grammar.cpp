@@ -1871,10 +1871,10 @@ yyreduce:
   case 9: /* definitions: definitions file_metadata  */
 #line 237 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[0]);
-    if(!metaData->v.empty())
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[0]);
+    if(!metadata->v.empty())
     {
-        unit->addFileMetaData(metaData->v);
+        unit->addFileMetadata(metadata->v);
     }
 }
 #line 1881 "src/Slice/Grammar.cpp"
@@ -1883,11 +1883,11 @@ yyreduce:
   case 10: /* definitions: definitions local_metadata definition  */
 #line 245 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-1]);
     ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[0]);
-    if(contained && !metaData->v.empty())
+    if(contained && !metadata->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        contained->setMetadata(metadata->v);
     }
 }
 #line 1894 "src/Slice/Grammar.cpp"
@@ -2849,7 +2849,7 @@ yyreduce:
         unit->currentContainer()->checkIntroduced(def->name, dm);
         if (dm && !def->metadata.empty())
         {
-            dm->setMetaData(def->metadata);
+            dm->setMetadata(def->metadata);
         }
     }
 }
@@ -2870,7 +2870,7 @@ yyreduce:
         unit->currentContainer()->checkIntroduced(def->name, dm);
         if (dm && !def->metadata.empty())
         {
-            dm->setMetaData(def->metadata);
+            dm->setMetadata(def->metadata);
         }
     }
 }
@@ -2986,7 +2986,7 @@ yyreduce:
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -3025,7 +3025,7 @@ yyreduce:
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -3062,7 +3062,7 @@ yyreduce:
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -3100,7 +3100,7 @@ yyreduce:
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -3179,11 +3179,11 @@ yyreduce:
   case 104: /* operation_list: local_metadata operation ';' operation_list  */
 #line 1394 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     OperationPtr operation = OperationPtr::dynamicCast(yyvsp[-2]);
-    if (operation && !metaData->v.empty())
+    if (operation && !metadata->v.empty())
     {
-        operation->setMetaData(metaData->v);
+        operation->setMetadata(metadata->v);
 
         // If the operation had a single return type (not a return tuple), also apply the metadata to the return type.
         // TODO: once we introduce more concrete metadata validation, we could sort the metadata out between the return
@@ -3191,7 +3191,7 @@ yyreduce:
         // metadata only relevant to the return type would only be set on the return type.
         if (operation->hasSingleReturnType())
         {
-            operation->returnType().front()->setMetaData(metaData->v);
+            operation->returnType().front()->setMetadata(metadata->v);
         }
     }
 }
@@ -3450,10 +3450,10 @@ yyreduce:
 #line 1634 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr type = TypePtr::dynamicCast(yyvsp[-2]);
     ModulePtr cont = unit->currentModule();
-    yyval = cont->createSequence(ident->v, type, metaData->v);
+    yyval = cont->createSequence(ident->v, type, metadata->v);
 }
 #line 3459 "src/Slice/Grammar.cpp"
     break;
@@ -3462,10 +3462,10 @@ yyreduce:
 #line 1642 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr type = TypePtr::dynamicCast(yyvsp[-2]);
     ModulePtr cont = unit->currentModule();
-    yyval = cont->createSequence(ident->v, type, metaData->v); // Dummy
+    yyval = cont->createSequence(ident->v, type, metadata->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 #line 3472 "src/Slice/Grammar.cpp"
@@ -3475,12 +3475,12 @@ yyreduce:
 #line 1656 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast(yyvsp[-6]);
+    StringListTokPtr keyMetadata = StringListTokPtr::dynamicCast(yyvsp[-6]);
     TypePtr keyType = TypePtr::dynamicCast(yyvsp[-5]);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
+    StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr valueType = TypePtr::dynamicCast(yyvsp[-2]);
     ModulePtr cont = unit->currentModule();
-    yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
+    yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
 }
 #line 3486 "src/Slice/Grammar.cpp"
     break;
@@ -3489,12 +3489,12 @@ yyreduce:
 #line 1666 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast(yyvsp[-6]);
+    StringListTokPtr keyMetadata = StringListTokPtr::dynamicCast(yyvsp[-6]);
     TypePtr keyType = TypePtr::dynamicCast(yyvsp[-5]);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
+    StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr valueType = TypePtr::dynamicCast(yyvsp[-2]);
     ModulePtr cont = unit->currentModule();
-    yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
+    yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 #line 3501 "src/Slice/Grammar.cpp"
@@ -3751,7 +3751,7 @@ yyreduce:
         unit->currentContainer()->checkIntroduced(def->name, param);
         if(param && !def->metadata.empty())
         {
-            param->setMetaData(def->metadata);
+            param->setMetadata(def->metadata);
         }
     }
 }
@@ -4291,11 +4291,11 @@ yyreduce:
   case 201: /* const_def: ICE_CONST local_metadata type ICE_IDENTIFIER '=' const_initializer  */
 #line 2302 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-4]);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-4]);
     TypePtr const_type = TypePtr::dynamicCast(yyvsp[-3]);
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-2]);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
-    yyval = unit->currentModule()->createConst(ident->v, const_type, metaData->v, value->v,
+    yyval = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
 #line 4302 "src/Slice/Grammar.cpp"
@@ -4304,11 +4304,11 @@ yyreduce:
   case 202: /* const_def: ICE_CONST local_metadata type '=' const_initializer  */
 #line 2311 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr const_type = TypePtr::dynamicCast(yyvsp[-2]);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
     unit->error("missing constant name");
-    yyval = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
+    yyval = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 #line 4315 "src/Slice/Grammar.cpp"

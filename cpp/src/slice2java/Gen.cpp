@@ -94,8 +94,8 @@ bool
 isDeprecated(const ContainedPtr& p1, const ContainedPtr& p2)
 {
     string deprecateMetadata;
-    return p1->findMetaData("deprecate", deprecateMetadata) ||
-            (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata));
+    return p1->findMetadata("deprecate", deprecateMetadata) ||
+            (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata));
 }
 
 bool isValue(const TypePtr& constType)
@@ -156,7 +156,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         {
             InterfaceDefPtr interface = op->interface();
             assert(interface);
-            return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetaData(), returnIsTagged, object);
+            return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetadata(), returnIsTagged, object);
         }
         else
         {
@@ -237,12 +237,12 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 
     if(ret)
     {
-        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(), op->returnIsTagged())
+        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetadata(), op->returnIsTagged())
                 + " " + retval);
     }
     for(const auto& p : outParams)
     {
-        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(), p->tagged())
+        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetadata(), p->tagged())
                 + " " + fixKwd(p->name()));
     }
     out << epar;
@@ -271,7 +271,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             writeDocCommentLines(out, dc->returns());
             out << nl << " **/";
         }
-        out << nl << "public " << typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(),
+        out << nl << "public " << typeToAnnotatedString(ret, TypeModeIn, package, op->getMetadata(),
             op->returnIsTagged()) << ' ' << retval << ';';
     }
 
@@ -290,7 +290,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
                 out << nl << " **/";
             }
         }
-        out << nl << "public " << typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(),
+        out << nl << "public " << typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetadata(),
             p->tagged()) << ' ' << fixKwd(name) << ';';
     }
 
@@ -304,14 +304,14 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     {
         const string paramName = fixKwd(pli->name());
         writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, "this." + paramName, true,
-                                  iter, "", pli->getMetaData());
+                                  iter, "", pli->getMetadata());
     }
 
     bool checkReturnType = op->returnIsTagged();
     if(ret && !checkReturnType)
     {
         writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, true, iter, "",
-                                  op->getMetaData());
+                                  op->getMetadata());
     }
 
     //
@@ -322,19 +322,19 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         if(checkReturnType && op->returnTag() < pli->tag())
         {
             writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true,
-                                      iter, "", op->getMetaData());
+                                      iter, "", op->getMetadata());
             checkReturnType = false;
         }
 
         const string paramName = fixKwd(pli->name());
         writeMarshalUnmarshalCode(out, package, pli->type(), TaggedOutParam, pli->tag(),
-                                  "this." + paramName, true, iter, "", pli->getMetaData());
+                                  "this." + paramName, true, iter, "", pli->getMetadata());
     }
 
     if(checkReturnType)
     {
         writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true, iter,
-                                  "", op->getMetaData());
+                                  "", op->getMetadata());
     }
 
     out << eb;
@@ -348,7 +348,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         const string paramName = fixKwd(pli->name());
         const string patchParams = getPatcher(pli->type(), package, "this." + paramName);
         writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, "this." + paramName, false,
-                                  iter, "", pli->getMetaData(), patchParams);
+                                  iter, "", pli->getMetadata(), patchParams);
     }
 
     checkReturnType = op->returnIsTagged();
@@ -356,7 +356,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     {
         const string patchParams = getPatcher(ret, package, retval);
         writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, false, iter, "",
-                                  op->getMetaData(), patchParams);
+                                  op->getMetadata(), patchParams);
     }
 
     //
@@ -369,21 +369,21 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         {
             const string patchParams = getPatcher(ret, package, retval);
             writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, false,
-                                      iter, "", op->getMetaData(), patchParams);
+                                      iter, "", op->getMetadata(), patchParams);
             checkReturnType = false;
         }
 
         const string paramName = fixKwd(pli->name());
         const string patchParams = getPatcher(pli->type(), package, paramName);
         writeMarshalUnmarshalCode(out, package, pli->type(), TaggedOutParam, pli->tag(),
-                                  "this." + paramName, false, iter, "", pli->getMetaData(), patchParams);
+                                  "this." + paramName, false, iter, "", pli->getMetadata(), patchParams);
     }
 
     if(checkReturnType)
     {
         const string patchParams = getPatcher(ret, package, retval);
         writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, false,
-                                  iter, "", op->getMetaData(), patchParams);
+                                  iter, "", op->getMetadata(), patchParams);
     }
 
     out << eb;
@@ -443,12 +443,12 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     out << nl << "public " << opName << "MarshaledResult" << spar;
     if(ret)
     {
-        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetaData(), op->returnIsTagged())
+        out << (typeToAnnotatedString(ret, TypeModeIn, package, op->getMetadata(), op->returnIsTagged())
                 + " " + retval);
     }
     for(const auto& p : outParams)
     {
-        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetaData(), p->tagged())
+        out << (typeToAnnotatedString(p->type(), TypeModeIn, package, p->getMetadata(), p->tagged())
                 + " " + fixKwd((p->name())));
     }
     out << currentParam << epar;
@@ -464,14 +464,14 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     {
         const string paramName = fixKwd(pli->name());
         writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, true, iter,
-                                  "_ostr", pli->getMetaData());
+                                  "_ostr", pli->getMetadata());
     }
 
     bool checkReturnType = op->returnIsTagged();
     if(ret && !checkReturnType)
     {
         writeMarshalUnmarshalCode(out, package, ret, NotTagged, 0, retval, true, iter, "_ostr",
-                                  op->getMetaData());
+                                  op->getMetadata());
     }
 
     //
@@ -483,19 +483,19 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
         if(checkReturnType && op->returnTag() < pli->tag())
         {
             writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true,
-                                      iter, "_ostr", op->getMetaData());
+                                      iter, "_ostr", op->getMetadata());
             checkReturnType = false;
         }
 
         const string paramName = fixKwd(pli->name());
         writeMarshalUnmarshalCode(out, package, pli->type(), TaggedOutParam, pli->tag(), paramName,
-                                  true, iter, "_ostr", pli->getMetaData());
+                                  true, iter, "_ostr", pli->getMetadata());
     }
 
     if(checkReturnType)
     {
         writeMarshalUnmarshalCode(out, package, ret, TaggedReturnParam, op->returnTag(), retval, true, iter,
-                                  "_ostr", op->getMetaData());
+                                  "_ostr", op->getMetadata());
     }
 
     if(op->returnsClasses(false))
@@ -605,7 +605,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 
     for(const auto& q : op->params())
     {
-        const string type = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
+        const string type = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetadata(), q->tagged());
         params.push_back(type + ' ' + fixKwd(q->name()));
     }
 
@@ -618,7 +618,7 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
     vector<string> params;
     for(const auto& q : op->params())
     {
-        const string typeString = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetaData(), q->tagged());
+        const string typeString = typeToAnnotatedString(q->type(), TypeModeIn, package, q->getMetadata(), q->tagged());
         params.push_back(typeString + ' ' + (internal ? "iceP_" + q->name() : fixKwd(q->name())));
     }
 
@@ -660,7 +660,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, 
     {
         string paramName = "iceP_" + pli->name();
         writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, true,
-                                  iter, "", pli->getMetaData());
+                                  iter, "", pli->getMetadata());
     }
 
     //
@@ -669,7 +669,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(Output& out, const string& package, 
     for(const auto& pli : taggedParams)
     {
         writeMarshalUnmarshalCode(out, package, pli->type(), TaggedInParam, pli->tag(), "iceP_" + pli->name(), true,
-                                  iter, "", pli->getMetaData());
+                                  iter, "", pli->getMetadata());
     }
 
     if(op->sendsClasses(false))
@@ -703,13 +703,13 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         TypePtr type;
         bool isTagged;
         int tag;
-        StringList metaData;
+        StringList metadata;
         if(ret)
         {
             type = ret;
             isTagged = op->returnIsTagged();
             tag = op->returnTag();
-            metaData = op->getMetaData();
+            metadata = op->getMetadata();
         }
         else
         {
@@ -717,7 +717,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
             isTagged = outParams.front()->tagged();
             type = unwrapIfOptional(outParams.front()->type());
             tag = outParams.front()->tag();
-            metaData = outParams.front()->getMetaData();
+            metadata = outParams.front()->getMetadata();
         }
 
         const bool val = isValue(type);
@@ -736,11 +736,11 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
         if(isTagged)
         {
             writeMarshalUnmarshalCode(out, package, type, ret ? TaggedReturnParam : TaggedOutParam,
-                                      tag, name, false, iter, "", metaData, patchParams);
+                                      tag, name, false, iter, "", metadata, patchParams);
         }
         else
         {
-            writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, name, false, iter, "", metaData,
+            writeMarshalUnmarshalCode(out, package, type, NotTagged, 0, name, false, iter, "", metadata,
                                       patchParams);
         }
 
@@ -774,13 +774,13 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
         TagMode mode;
         TypePtr type;
         int tag;
-        StringList metaData;
+        StringList metadata;
         if(op->deprecatedReturnType())
         {
             type = unwrapIfOptional(op->deprecatedReturnType());
             mode = op->returnIsTagged() ? TaggedReturnParam : NotTagged;
             tag = op->returnTag();
-            metaData = op->getMetaData();
+            metadata = op->getMetadata();
         }
         else
         {
@@ -788,11 +788,11 @@ Slice::JavaVisitor::writeMarshalServantResults(Output& out, const string& packag
             mode = params.front()->tagged() ? TaggedOutParam : NotTagged;
             type = unwrapIfOptional(params.front()->type());
             tag = params.front()->tag();
-            metaData = params.front()->getMetaData();
+            metadata = params.front()->getMetadata();
         }
 
         int iter = 0;
-        writeMarshalUnmarshalCode(out, package, type, mode, tag, param, true, iter, "", metaData);
+        writeMarshalUnmarshalCode(out, package, type, mode, tag, param, true, iter, "", metadata);
     }
 
     if(op->returnsClasses(false))
@@ -806,7 +806,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
 {
     Output& out = output();
 
-    if(op && (op->hasMetaData("java:UserException") || op->hasMetaData("UserException")))
+    if(op && (op->hasMetadata("java:UserException") || op->hasMetadata("UserException")))
     {
         out.inc();
         out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
@@ -842,7 +842,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
         out << nl << "if(_" << member->name() << ")";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), TaggedInParam, member->tag(),
-                                  fixKwd(member->name()), true, iter, "ostr_", member->getMetaData());
+                                  fixKwd(member->name()), true, iter, "ostr_", member->getMetadata());
         out << eb;
     }
     else
@@ -855,7 +855,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
         }
 
         writeMarshalUnmarshalCode(out, package, member->type(), NotTagged, 0, memberName,
-                                  true, iter, stream, member->getMetaData());
+                                  true, iter, stream, member->getMetadata());
     }
 }
 
@@ -872,7 +872,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
             << getTagFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), TaggedMember, 0, fixKwd(member->name()), false,
-                                  iter, "istr_", member->getMetaData(), patchParams);
+                                  iter, "istr_", member->getMetadata(), patchParams);
         out << eb;
     }
     else
@@ -885,7 +885,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
         }
 
         writeMarshalUnmarshalCode(out, package, member->type(), NotTagged, 0, memberName, false,
-                                  iter, stream, member->getMetaData(), patchParams);
+                                  iter, stream, member->getMetadata(), patchParams);
     }
 }
 
@@ -905,7 +905,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " +
             getEscapedParamName(op, "current");
 
-        const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -981,7 +981,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
-        StringList opMetaData = op->getMetaData();
+        StringList opMetadata = op->getMetadata();
 
         CommentPtr dc = op->parseComment(false);
 
@@ -994,7 +994,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         out << nl << " * @param inS -";
         out << nl << " * @param current -";
         out << nl << " * @return -";
-        if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
+        if(!op->throws().empty() || op->hasMetadata("java:UserException") || op->hasMetadata("UserException"))
         {
             out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package) << " -";
         }
@@ -1009,7 +1009,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         out << name;
         out << " obj, final " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " inS, "
             << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
-        if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
+        if(!op->throws().empty() || op->hasMetadata("java:UserException") || op->hasMetadata("UserException"))
         {
             out.inc();
             out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
@@ -1017,7 +1017,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         }
         out << sb;
 
-        const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
 
         const TypePtr ret = unwrapIfOptional(op->deprecatedReturnType());
 
@@ -1047,7 +1047,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                 else
                 {
                     const string paramName = "iceP_" + pli->name();
-                    const string typeS = typeToAnnotatedString(paramType, TypeModeIn, package, pli->getMetaData(),
+                    const string typeS = typeToAnnotatedString(paramType, TypeModeIn, package, pli->getMetadata(),
                         pli->tagged());
                     out << nl << typeS << ' ' << paramName << ';';
                 }
@@ -1063,14 +1063,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
                 const string paramName = isValue(pli->type()) ? ("icePP_" + pli->name()) : "iceP_" + pli->name();
                 const string patchParams = getPatcher(pli->type(), package, paramName + ".value");
                 writeMarshalUnmarshalCode(out, package, pli->type(), NotTagged, 0, paramName, false,
-                                          iter, "", pli->getMetaData(), patchParams);
+                                          iter, "", pli->getMetadata(), patchParams);
             }
             for(const auto& pli : taggedParams)
             {
                 const string paramName = isValue(pli->type()) ? ("icePP_" + pli->name()) : "iceP_" + pli->name();
                 const string patchParams = getPatcher(pli->type(), package, paramName + ".value");
                 writeMarshalUnmarshalCode(out, package, pli->type(), TaggedInParam, pli->tag(),
-                                          paramName, false, iter, "", pli->getMetaData(), patchParams);
+                                          paramName, false, iter, "", pli->getMetadata(), patchParams);
             }
             if(op->sendsClasses(false))
             {
@@ -1080,7 +1080,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
             for(const auto& pli : values)
             {
-                const string typeS = typeToAnnotatedString(pli->type(), TypeModeIn, package, pli->getMetaData(),
+                const string typeS = typeToAnnotatedString(pli->type(), TypeModeIn, package, pli->getMetadata(),
                                                            pli->tagged());
                 out << nl << typeS << ' ' << "iceP_" << pli->name() << " = icePP_" << pli->name() << ".value;";
             }
@@ -1286,8 +1286,8 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     int iter;
     auto [requiredMembers, taggedMembers] = p->sortedDataMembers();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
+    bool basePreserved = p->inheritsMetadata("preserve-slice");
+    bool preserved = p->hasMetadata("preserve-slice");
 
     if(preserved && !basePreserved)
     {
@@ -1478,7 +1478,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const MemberList& m
             StructPtr st = StructPtr::dynamicCast(t);
             if(st)
             {
-                string memberType = typeToString(st, TypeModeMember, package, p->getMetaData());
+                string memberType = typeToString(st, TypeModeMember, package, p->getMetadata());
                 out << nl << "this." << fixKwd(p->name()) << " = new " << memberType << "();";
             }
         }
@@ -1884,7 +1884,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
         out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
     }
 
-    if(p->hasMetaData("java:UserException") || p->hasMetaData("UserException"))
+    if(p->hasMetadata("java:UserException") || p->hasMetadata("UserException"))
     {
         out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package);
     }
@@ -1987,7 +1987,7 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    JavaGenerator::validateMetaData(p);
+    JavaGenerator::validateMetadata(p);
 
     PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
@@ -2078,10 +2078,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Check for java:implements metadata.
     //
-    const StringList metaData = p->getMetaData();
+    const StringList metadata = p->getMetadata();
     static const string prefix = "java:implements:";
     StringList implements;
-    for(const auto& q : metaData)
+    for(const auto& q : metadata)
     {
         if(q.find(prefix) == 0)
         {
@@ -2173,7 +2173,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 for(const auto& d : allRequiredMembers)
                 {
                     string memberName = fixKwd(d->name());
-                    string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetaData(), true);
+                    string memberType = typeToString(d->type(), TypeModeMember, package, d->getMetadata(), true);
                     dataMember.push_back(memberType + " " + memberName);
                 }
                 out << dataMember << epar;
@@ -2209,7 +2209,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for(const auto& d : allDataMembers)
             {
                 string memberName = fixKwd(d->name());
-                string memberType = typeToAnnotatedString(d->type(), TypeModeMember, package, d->getMetaData(),
+                string memberType = typeToAnnotatedString(d->type(), TypeModeMember, package, d->getMetadata(),
                     d->tagged());
                 dataMember.push_back(memberType + " " + memberName);
             }
@@ -2273,7 +2273,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     writeHiddenDocComment(out);
     out << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
-    if (p->findMetaData("java:serialVersionUID", serialVersionUID))
+    if (p->findMetadata("java:serialVersionUID", serialVersionUID))
     {
         const UnitPtr unt = p->unit();
         const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
@@ -2284,7 +2284,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             ostringstream os;
             os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", -1, os.str());
+            dc->warning(InvalidMetadata, "", -1, os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -2298,7 +2298,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped()
                        << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", -1, os.str());
+                    dc->warning(InvalidMetadata, "", -1, os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -2522,7 +2522,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 for(const auto& member : allRequiredMembers)
                 {
                     string memberName = fixKwd(member->name());
-                    string memberType = typeToString(member->type(), TypeModeMember, package, member->getMetaData(), true);
+                    string memberType = typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true);
                     dataMember.push_back(memberType + " " + memberName);
                 }
                 out << dataMember << epar;
@@ -2591,7 +2591,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             for(const auto& d : allDataMembers)
             {
                 string memberName = fixKwd(d->name());
-                string memberType = typeToAnnotatedString(d->type(), TypeModeMember, package, d->getMetaData(),
+                string memberType = typeToAnnotatedString(d->type(), TypeModeMember, package, d->getMetadata(),
                     d->tagged());
                 dataMember.push_back(memberType + " " + memberName);
             }
@@ -2687,8 +2687,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string scoped = p->scoped();
     string package = getPackage(p);
     ExceptionPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
+    bool basePreserved = p->inheritsMetadata("preserve-slice");
+    bool preserved = p->hasMetadata("preserve-slice");
 
     MemberList sortedMembers = p->dataMembers();
     sortMembers(sortedMembers);
@@ -2786,7 +2786,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     writeHiddenDocComment(out);
     out << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
-    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    if(p->findMetadata("java:serialVersionUID", serialVersionUID))
     {
         const UnitPtr unt = p->unit();
         const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
@@ -2797,7 +2797,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             ostringstream os;
             os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", -1, os.str());
+            dc->warning(InvalidMetadata, "", -1, os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -2811,7 +2811,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
                        << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", -1, os.str());
+                    dc->warning(InvalidMetadata, "", -1, os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -2844,10 +2844,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     //
     // Check for java:implements metadata.
     //
-    const StringList metaData = p->getMetaData();
+    const StringList metadata = p->getMetadata();
     static const string prefix = "java:implements:";
     StringList implements;
-    for(const auto& q : metaData)
+    for(const auto& q : metadata)
     {
         if(q.find(prefix) == 0)
         {
@@ -2905,7 +2905,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         for(const auto& d : members)
         {
             string memberName = fixKwd(d->name());
-            string memberType = typeToString(unwrapIfOptional(d->type()), TypeModeMember, package, d->getMetaData(),
+            string memberType = typeToString(unwrapIfOptional(d->type()), TypeModeMember, package, d->getMetadata(),
                 true);
             dataMember.push_back(memberType + " " + memberName);
             paramNames.push_back(memberName);
@@ -2957,7 +2957,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             // For all other types, we can use the native equals() method.
             //
             SequencePtr seq = SequencePtr::dynamicCast(d->type());
-            if(seq && !hasTypeMetaData(seq, d->getMetaData()))
+            if(seq && !hasTypeMetadata(seq, d->getMetadata()))
             {
                 //
                 // Arrays.equals() handles null values.
@@ -3104,7 +3104,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     writeHiddenDocComment(out);
     out << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
-    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    if(p->findMetadata("java:serialVersionUID", serialVersionUID))
     {
         const UnitPtr unt = p->unit();
         const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
@@ -3114,7 +3114,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             ostringstream os;
             os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", -1, os.str());
+            dc->warning(InvalidMetadata, "", -1, os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -3128,7 +3128,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
                        << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", -1, os.str());
+                    dc->warning(InvalidMetadata, "", -1, os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -3155,17 +3155,17 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     const ContainedPtr contained = ContainedPtr::dynamicCast(container);
 
     const string name = fixKwd(p->name());
-    const StringList metaData = p->getMetaData();
-    const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);
+    const StringList metadata = p->getMetadata();
+    const bool getSet = p->hasMetadata(_getSetMetadata) || contained->hasMetadata(_getSetMetadata);
     const bool isTagged = p->tagged();
     const TypePtr type = unwrapIfOptional(p->type());
     const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
 
-    const string typeS = typeToString(type, TypeModeMember, getPackage(contained), metaData);
+    const string typeS = typeToString(type, TypeModeMember, getPackage(contained), metadata);
     // Tagged data members are only allowed in classes and exceptions.
     const string typeN = (cls || ex) ?
-                             typeToAnnotatedString(type, TypeModeMember, getPackage(contained), metaData, isTagged)
-                             : typeToString(type, TypeModeMember, getPackage(contained), metaData);
+                             typeToAnnotatedString(type, TypeModeMember, getPackage(contained), metadata, isTagged)
+                             : typeToString(type, TypeModeMember, getPackage(contained), metadata);
 
     Output& out = output();
 
@@ -3182,7 +3182,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     // Access visibility for class data members can be controlled by metadata.
     // If none is specified, the default is public.
     //
-    if(cls && (p->hasMetaData("protected") || contained->hasMetaData("protected")))
+    if(cls && (p->hasMetadata("protected") || contained->hasMetadata("protected")))
     {
         out << nl << "protected " << typeN << ' ' << name << ';';
     }
@@ -3342,7 +3342,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
         SequencePtr seq = SequencePtr::dynamicCast(type);
         if(seq)
         {
-            if(!hasTypeMetaData(seq, metaData))
+            if(!hasTypeMetadata(seq, metadata))
             {
                 string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
 
@@ -3603,11 +3603,11 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     string meta;
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(elementType);
-    if(!hasTypeMetaData(p) && builtin && builtin->kind() <= Builtin::KindString)
+    if(!hasTypeMetadata(p) && builtin && builtin->kind() <= Builtin::KindString)
     {
         return; // No helpers for sequence of primitive types
     }
-    else if(hasTypeMetaData(p) && !p->findMetaData("java:type", meta))
+    else if(hasTypeMetadata(p) && !p->findMetadata("java:type", meta))
     {
         return; // No helpers for custom metadata other than java:type
     }
@@ -3656,7 +3656,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
             //
             // Stop if the inner sequence type has a custom, serializable or protobuf type.
             //
-            if(hasTypeMetaData(s))
+            if(hasTypeMetadata(s))
             {
                 break;
             }
@@ -3728,7 +3728,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
         << " ostr, int tag, " << addAnnotation(typeS, "@Nullable") << " v)";
     out << sb;
-    if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
+    if(!hasTypeMetadata(p) && builtin && builtin->kind() < Builtin::KindObject)
     {
         out << nl << "ostr.write" << builtinTable[builtin->kind()] << "Seq(tag, v);";
     }
@@ -3753,13 +3753,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
             const size_t sz = elementType->minWireSize();
             if(sz > 1)
             {
-                string metaData;
+                string metadata;
                 out << nl << "final int taggedSize = v == null ? 0 : ";
-                if(findMetaData("java:buffer", p->getMetaData(), metaData))
+                if(findMetadata("java:buffer", p->getMetadata(), metadata))
                 {
                     out << "v.remaining() / " << sz << ";";
                 }
-                else if(hasTypeMetaData(p))
+                else if(hasTypeMetadata(p))
                 {
                     out << "v.size();";
                 }
@@ -3781,7 +3781,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static " << addAnnotation(typeS, "@Nullable") << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr, int tag)";
     out << sb;
-    if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
+    if(!hasTypeMetadata(p) && builtin && builtin->kind() < Builtin::KindObject)
     {
         out << nl << "return istr.read" << builtinTable[builtin->kind()] << "Seq(tag);";
     }
@@ -3819,7 +3819,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string absolute = getUnqualified(p);
     string helper = getUnqualified(p, "", "", "Helper");
     string package = getPackage(p);
-    StringList metaData = p->getMetaData();
+    StringList metadata = p->getMetadata();
     string formalType = typeToString(p, TypeModeIn, package, StringList(), true);
 
     open(helper, p->file());
@@ -4716,7 +4716,7 @@ Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, cons
     const vector<string> params = getParams(op, package);
     const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " + getEscapedParamName(op, "current");
 
-    const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
+    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
 
     if(amd)
     {
