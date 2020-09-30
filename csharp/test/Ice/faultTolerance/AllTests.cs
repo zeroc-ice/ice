@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     for (int i = 1; i < ports.Count; ++i)
                     {
                         sb.Append($": {transport} -h ");
-                        sb.Append(helper.Host);
+                        sb.Append(helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host);
                         sb.Append(" -p ");
                         sb.Append(helper.BasePort + ports[i]);
                     }
@@ -66,7 +66,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         {
                             sb.Append(',');
                         }
-                        sb.Append(helper.Host);
+                        sb.Append(helper.Host.Contains(":") ? $"[{helper.Host}]" : helper.Host);
                         sb.Append(':');
                         sb.Append(helper.BasePort + ports[i]);
                     }

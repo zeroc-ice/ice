@@ -50,9 +50,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                 properties["Test.Host"] = value;
             }
 
-            if (defaultProperties.TryGetValue("Ice.IPv6", out value))
+            if (defaultProperties.TryGetValue("Ice.PreferIPv6Address", out value))
             {
-                properties["Ice.IPv6"] = value;
+                properties["Ice.PreferIPv6Address"] = value;
             }
 
             properties["Ice.RetryIntervals"] = "-1";
@@ -544,7 +544,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
 
                 {
-
                     // Test Hostname verification only when Test.Host is 127.0.0.1 as that is the IP address used
                     // in the test certificates.
                     if (host.Equals("127.0.0.1"))
@@ -562,10 +561,13 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
-                            IServerPrx? server = fact.CreateServer(serverProperties, true);
+                            IServerPrx server = fact.CreateServer(serverProperties, true)!;
+
+                            TestHelper.Assert(server.Endpoints.All(endpoint => endpoint.Host == "localhost"));
+
                             try
                             {
-                                server!.IcePing();
+                                server.IcePing();
                             }
                             catch (Exception ex)
                             {

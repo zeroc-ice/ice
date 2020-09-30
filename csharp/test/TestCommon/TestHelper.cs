@@ -59,10 +59,11 @@ namespace Test
         }
         public abstract Task RunAsync(string[] args);
 
-        public string GetTestEndpoint(int num = 0, string transport = "") =>
-            GetTestEndpoint(Communicator!.GetProperties(), num, transport);
+        public string GetTestEndpoint(int num = 0, string transport = "", bool ephemeral = false) =>
+            GetTestEndpoint(Communicator!.GetProperties(), num, transport, ephemeral);
 
-        public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
+        public static string GetTestEndpoint(
+            Dictionary<string, string> properties, int num = 0, string transport = "", bool ephemeral = false)
         {
             if (transport.Length == 0 || transport == "default")
             {
@@ -77,6 +78,7 @@ namespace Test
             }
 
             string host = GetTestHost(properties);
+            string port = ephemeral ? "0" : $"{GetTestBasePort(properties) + num}";
 
             if (GetTestProtocol(properties) == Protocol.Ice2 && transport != "udp")
             {
@@ -95,7 +97,7 @@ namespace Test
                     sb.Append(host);
                 }
                 sb.Append(':');
-                sb.Append(GetTestBasePort(properties) + num);
+                sb.Append(port);
                 return sb.ToString();
             }
             else
@@ -113,7 +115,7 @@ namespace Test
                     sb.Append(host);
                 }
                 sb.Append(" -p ");
-                sb.Append(GetTestBasePort(properties) + num);
+                sb.Append(port);
                 return sb.ToString();
             }
         }

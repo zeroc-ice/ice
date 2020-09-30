@@ -75,7 +75,7 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test object adapter endpoint information... ");
             output.Flush();
             {
-                string host = (communicator.GetPropertyAsBool("Ice.IPv6") ?? false) ? "::1" : "127.0.0.1";
+                string host = (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false) ? "::1" : "127.0.0.1";
                 communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
                     "\" -t 15000:udp -h \"" + host + "\"");
                 adapter = communicator.CreateObjectAdapter("TestAdapter");

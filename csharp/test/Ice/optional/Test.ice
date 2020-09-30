@@ -56,15 +56,14 @@ module ZeroC::Ice::Test::Optional
     {
         void shutdown();
 
-        void opSingleInInt(int? i1);
-        void opSingleInString(string? i1);
-        int? opSingleOutInt();
-        string? opSingleOutString();
-        int? opSingleReturnInt();
-        string? opSingleReturnString();
+        void opInt(int? i1);
+        void opString(string? i1);
+        int? opReturnInt();
+        string? opReturnString();
 
-        void opBasicIn(int i1, int? i2, string? i3, string i4);
-        (int? r1, int r2, int? r3, string? r4) opBasicInOut(int i1, int? i2, string? i3);
+        void opBasic(int i1, int? i2, string? i3, string i4);
+
+        (int? r1, int r2, int? r3, string? r4) opBasicReturnTuple(int i1, int? i2, string? i3);
 
         Object? opObject(Object i1, Object? i2);
         Test? opTest(Test i1, Test? i2);
@@ -73,16 +72,17 @@ module ZeroC::Ice::Test::Optional
         C? opC(C i1, C? i2);
 
         OptIntSeq opOptIntSeq(OptIntSeq i1);
-        tag(1) OptIntSeq? opTaggedOptIntSeq(tag(2) OptIntSeq? i1);
+        tag(1) OptIntSeq? opTaggedOptIntSeq(tag(1) OptIntSeq? i1);
 
         OptStringSeq opOptStringSeq(OptStringSeq i1);
-        tag(1) OptStringSeq? opTaggedOptStringSeq(tag(2) OptStringSeq? i1);
+        tag(1) OptStringSeq? opTaggedOptStringSeq(tag(1) OptStringSeq? i1);
 
         IntOptIntDict opIntOptIntDict(IntOptIntDict i1);
-        tag(1) IntOptIntDict? opTaggedIntOptIntDict(tag(2) IntOptIntDict? i1);
+        tag(1) IntOptIntDict? opTaggedIntOptIntDict(tag(1) IntOptIntDict? i1);
 
         IntOptStringDict opIntOptStringDict(IntOptStringDict i1);
-        tag(1) IntOptStringDict? opTaggedIntOptStringDict(tag(2) IntOptStringDict? i1);
+
+        tag(1) IntOptStringDict? opTaggedIntOptStringDict(tag(1) IntOptStringDict? i1);
 
         MyStruct opMyStruct(MyStruct i1);
         MyStruct? opOptMyStruct(MyStruct? i1);

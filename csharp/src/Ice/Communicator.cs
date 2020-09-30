@@ -160,7 +160,6 @@ namespace ZeroC.Ice
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal int IncomingFrameSizeMax { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
-        internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
@@ -533,28 +532,9 @@ namespace ZeroC.Ice
                     }
                 }
 
-                bool isIPv6Supported = Network.IsIPv6Supported();
-                bool ipv4 = GetPropertyAsBool("Ice.IPv4") ?? true;
-                bool ipv6 = GetPropertyAsBool("Ice.IPv6") ?? isIPv6Supported;
-                if (!ipv4 && !ipv6)
-                {
-                    throw new InvalidConfigurationException("Both IPV4 and IPv6 support cannot be disabled.");
-                }
-                else if (ipv4 && ipv6)
-                {
-                    IPVersion = Network.EnableBoth;
-                }
-                else if (ipv4)
-                {
-                    IPVersion = Network.EnableIPv4;
-                }
-                else
-                {
-                    IPVersion = Network.EnableIPv6;
-                }
                 PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
-                NetworkProxy = CreateNetworkProxy(IPVersion);
+                NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
 
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
