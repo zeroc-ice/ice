@@ -156,7 +156,7 @@ Slice::DefinitionContext::findMetadata(const string& prefix) const
 }
 
 StringList
-Slice::DefinitionContext::getMetadata() const
+Slice::DefinitionContext::getAllMetadata() const
 {
     return _metadata;
 }
@@ -937,7 +937,7 @@ Slice::Contained::findMetadataWithPrefix(const string& prefix) const
 }
 
 list<string>
-Slice::Contained::getMetadata() const
+Slice::Contained::getAllMetadata() const
 {
     return _metadata;
 }
@@ -4760,7 +4760,7 @@ Slice::Unit::addFileMetadata(const StringList& metadata)
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
     // Append the file metadata to any existing metadata (e.g., default file metadata).
-    StringList l = dc->getMetadata();
+    StringList l = dc->getAllMetadata();
     copy(metadata.begin(), metadata.end(), back_inserter(l));
     dc->setMetadata(l);
 }
