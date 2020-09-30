@@ -324,15 +324,23 @@ namespace ZeroC.Ice
                 Debug.Assert(Protocol == Protocol.Ice2);
 
                 // Marshaled "by hand" to avoid allocating a string[] for the location.
-                BitSequence bitSequence = ostr.WriteBitSequence(3);
+                BitSequence bitSequence = ostr.WriteBitSequence(3); // bit set to true (set) by default
                 Identity.IceWrite(ostr);
-                if (bitSequence[0] = (Facet.Length > 0))
+                if (Facet.Length > 0)
                 {
                     ostr.WriteString(Facet);
                 }
-                if (bitSequence[1] = (Location.Count > 0))
+                else
+                {
+                    bitSequence[0] = false;
+                }
+                if (Location.Count > 0)
                 {
                     ostr.WriteSequence(Location, OutputStream.IceWriterFromString);
+                }
+                else
+                {
+                    bitSequence[1] = false;
                 }
                 ostr.WriteString(operation);
                 ostr.WriteBool(IsIdempotent);
