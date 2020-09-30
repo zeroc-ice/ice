@@ -236,7 +236,7 @@ namespace ZeroC.Ice.Test.Metrics
             Connection? conn = proxy.GetCachedConnection();
             if (conn != null)
             {
-                conn.Close(ConnectionClose.GracefullyWithWait);
+                conn.Close(ConnectionClose.Gracefully);
             }
 
             try
@@ -250,7 +250,7 @@ namespace ZeroC.Ice.Test.Metrics
             conn = proxy.GetCachedConnection();
             if (conn != null)
             {
-                conn.Close(ConnectionClose.GracefullyWithWait);
+                conn.Close(ConnectionClose.Gracefully);
             }
         }
 
@@ -470,8 +470,8 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!collocated)
             {
-                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-                metrics.Clone(connectionId: "Con1").GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection().Close(ConnectionClose.Gracefully);
+                metrics.Clone(connectionId: "Con1").GetConnection().Close(ConnectionClose.Gracefully);
 
                 WaitForCurrent(clientMetrics, "View", "Connection", 0);
                 WaitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -485,7 +485,7 @@ namespace ZeroC.Ice.Test.Metrics
             string isSecure = "";
             if (!collocated)
             {
-                Endpoint connectionEndpoint = metrics.GetConnection()!.Endpoint;
+                Endpoint connectionEndpoint = metrics.GetConnection().Endpoint;
                 transportName = connectionEndpoint.Transport.ToString();
                 isSecure = connectionEndpoint.IsSecure ? "True" : "False";
             }
@@ -580,7 +580,7 @@ namespace ZeroC.Ice.Test.Metrics
                 map = ToMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
 
                 TestHelper.Assert(map["active"].Current == 1);
-                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection().Close(ConnectionClose.Gracefully);
 
                 map = ToMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
                 // The connection might already be closed so it can be 0 or 1
@@ -588,12 +588,12 @@ namespace ZeroC.Ice.Test.Metrics
 
                 props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
                 UpdateProps(clientProps, serverProps, update, props, "Connection");
-                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection().Close(ConnectionClose.Gracefully);
 
                 var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
                 var metricsWithHold = IMetricsPrx.Parse(helper.GetTestProxy("metrics", 2), communicator);
 
-                metricsWithHold.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
+                metricsWithHold.GetConnection().Acm = new Acm(TimeSpan.FromMilliseconds(50),
                                                                AcmClose.OnInvocation,
                                                                AcmHeartbeat.Off);
                 controller.Hold();
@@ -657,7 +657,7 @@ namespace ZeroC.Ice.Test.Metrics
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
 
-                m.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                m.GetConnection().Close(ConnectionClose.Gracefully);
 
                 WaitForCurrent(clientMetrics, "View", "Connection", 0);
                 WaitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -678,7 +678,7 @@ namespace ZeroC.Ice.Test.Metrics
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
                 TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
-                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection().Close(ConnectionClose.Gracefully);
 
                 ClearView(clientProps, serverProps, update);
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 0);
@@ -744,7 +744,7 @@ namespace ZeroC.Ice.Test.Metrics
                 try
                 {
                     prx.IcePing();
-                    prx.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    prx.GetConnection().Close(ConnectionClose.Gracefully);
                 }
                 catch
                 {
@@ -799,9 +799,9 @@ namespace ZeroC.Ice.Test.Metrics
 
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
-                            prx.GetConnection()!.Endpoint.ToString(), c, output);
+                            prx.GetConnection().Endpoint.ToString(), c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
-                            prx.GetConnection()!.Endpoint.ToString(), c, output);
+                            prx.GetConnection().Endpoint.ToString(), c, output);
 
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTransport", transportName, c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);

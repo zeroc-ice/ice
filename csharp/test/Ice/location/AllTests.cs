@@ -556,7 +556,7 @@ namespace ZeroC.Ice.Test.Location
                 output.Flush();
                 hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
                 obj1.MigrateHello();
-                hello.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                hello.GetConnection().Close(ConnectionClose.Gracefully);
                 hello.SayHello();
                 obj1.MigrateHello();
                 hello.SayHello();

@@ -14,11 +14,6 @@ namespace ZeroC.Ice.Test.AMI
             System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
 
             //
-            // Disable collocation optimization to test async/await dispatch.
-            //
-            properties["Ice.Default.CollocationOptimized"] = "0";
-
-            //
             // This test kills connections, so we don't want warnings.
             //
             properties["Ice.Warn.Connections"] = "0";

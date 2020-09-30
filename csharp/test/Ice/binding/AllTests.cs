@@ -126,7 +126,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.GetAdapterName());
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
                 // Ensure that the proxy correctly caches the connection(we always send the request over the same
@@ -147,7 +147,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     foreach (IRemoteObjectAdapterPrx adpt in adapters)
                     {
-                        adpt.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        adpt.GetTestIntf()!.GetConnection().Close(ConnectionClose.Gracefully);
                     }
                 }
 
@@ -170,7 +170,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.GetAdapterName());
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
                 // Deactivate an adapter and ensure that we can still establish the connection to the remaining
@@ -254,7 +254,7 @@ namespace ZeroC.Ice.Test.Binding
                     {
                         try
                         {
-                            a.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                            a.GetTestIntf()!.GetConnection().Close(ConnectionClose.Gracefully);
                         }
                         catch
                         {
@@ -300,7 +300,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(GetAdapterNameWithAMI(test1));
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
                 // Ensure that the proxy correctly caches the connection (we always send the request over the
@@ -321,7 +321,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     foreach (IRemoteObjectAdapterPrx? adpt in adapters)
                     {
-                        adpt.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        adpt.GetTestIntf()!.GetConnection().Close(ConnectionClose.Gracefully);
                     }
                 }
 
@@ -346,7 +346,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(GetAdapterNameWithAMI(test1));
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
                 // Deactivate an adapter and ensure that we can still establish the connection
@@ -382,7 +382,7 @@ namespace ZeroC.Ice.Test.Binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.GetAdapterName());
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Random);
@@ -394,7 +394,7 @@ namespace ZeroC.Ice.Test.Binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.GetAdapterName());
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
                 Deactivate(com, adapters);
@@ -456,14 +456,14 @@ namespace ZeroC.Ice.Test.Binding
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter36");
                     }
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().Close(ConnectionClose.Gracefully);
 
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter35", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter35");
                     }
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().Close(ConnectionClose.Gracefully);
 
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter34", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)
@@ -776,7 +776,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter82"));
-                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().Close(ConnectionClose.Gracefully);
                     }
 
                     ITestIntfPrx testNonSecure = obj.Clone(preferNonSecure: true);
@@ -790,7 +790,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter81"));
-                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().Close(ConnectionClose.Gracefully);
                     }
 
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
@@ -801,7 +801,7 @@ namespace ZeroC.Ice.Test.Binding
                         for (int i = 0; i < 5; i++)
                         {
                             TestHelper.Assert(obj.GetAdapterName().Equals("Adapter83"));
-                            obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                            obj.GetConnection().Close(ConnectionClose.Gracefully);
                         }
                     }
 

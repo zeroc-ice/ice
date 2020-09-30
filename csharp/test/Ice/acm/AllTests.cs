@@ -206,7 +206,7 @@ namespace ZeroC.Ice.Test.ACM
             var proxy = ITestIntfPrx.Parse(_adapter!.GetTestIntf()!.ToString() ?? "", _communicator!);
             try
             {
-                proxy.GetConnection()!.Closed += (sender, args) =>
+                proxy.GetConnection().Closed += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -215,7 +215,7 @@ namespace ZeroC.Ice.Test.ACM
                         }
                     };
 
-                proxy.GetConnection()!.HeartbeatReceived += (sender, args) =>
+                proxy.GetConnection().HeartbeatReceived += (sender, args) =>
                     {
                         lock (Mutex)
                         {

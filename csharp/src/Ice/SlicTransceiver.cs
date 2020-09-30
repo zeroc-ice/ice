@@ -61,11 +61,16 @@ namespace ZeroC.Ice
 
             if (disposing)
             {
-                if (IsIncoming && !IsBidirectional)
+                if (IsIncoming && !IsBidirectional && !IsControl)
                 {
                     Interlocked.Decrement(ref _transceiver.UnidirectionalStreamCount);
                     ValueTask _ =
                         _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamUnidirectionalFin, null);
+                }
+                else if (!IsIncoming && IsBidirectional && IsStarted)
+                {
+                    Debug.Assert(IsBidirectional);
+                    _transceiver.BidirectionalStreamSemaphore!.Release();
                 }
             }
         }
@@ -81,10 +86,6 @@ namespace ZeroC.Ice
                     {
                         // Wait to be signaled for the reception of a new stream frame for this stream.
                         (_receivedSize, _receivedEndOfStream) = await WaitSignalAsync(cancel).ConfigureAwait(false);
-                        if (_receivedSize == 0)
-                        {
-                            _exception ??= new StreamResetByPeerException("received reset frame");
-                        }
                     }
 
                     if (_exception != null)
@@ -125,14 +126,6 @@ namespace ZeroC.Ice
                 }
                 throw;
             }
-            finally
-            {
-                if (_receivedEndOfStream && !IsIncoming)
-                {
-                    Debug.Assert(IsBidirectional);
-                    _transceiver.BidirectionalStreamSemaphore!.Release();
-                }
-            }
             return _receivedEndOfStream;
         }
 
@@ -155,7 +148,7 @@ namespace ZeroC.Ice
             int size = buffer.GetByteCount();
 
             // TODO: Make the Slic frame size a configuration property? We use 10KB here.
-            int maxFrameSize = 10 * 1024;
+            int maxFrameSize = _transceiver.Options.PacketSize;
             if (size > maxFrameSize)
             {
                 var sendBuffer = new List<ArraySegment<byte>>(buffer.Count);
@@ -206,6 +199,8 @@ namespace ZeroC.Ice
                 }
                 else if (!IsStarted)
                 {
+                    Debug.Assert(!IsIncoming);
+
                     // Ensure we don't open more streams than the peer allows.
                     if (IsBidirectional)
                     {
@@ -240,7 +235,12 @@ namespace ZeroC.Ice
                 SlicDefinitions.FrameType frameType =
                     fin ? SlicDefinitions.FrameType.StreamLast : SlicDefinitions.FrameType.Stream;
 
-                // Write the Slic frame header (frameType - byte, frameSize - varint, streamId - varlong)
+                // Write the Slic frame header (frameType - byte, frameSize - varint, streamId - varlong). Since
+                // we might not need the full space reserved for the header, we modify the send buffer to ensure
+                // the first element points at the start of the Slic header. We'll restore the send buffer once
+                // the send is complete (it's important for the tracing code which might rely on the encoded
+                // data).
+                ArraySegment<byte> previous = buffer[0];
                 ArraySegment<byte> headerData = buffer[0].Slice(Header.Length - sizeLength - streamIdLength - 1);
                 headerData[0] = (byte)frameType;
                 headerData.AsSpan(1, sizeLength).WriteFixedLengthSize20(frameSize);
@@ -258,7 +258,15 @@ namespace ZeroC.Ice
                     Interlocked.Decrement(ref _transceiver.BidirectionalStreamCount);
                 }
 
-                await _transceiver.SendFrameAsync(buffer, cancel).ConfigureAwait(false);
+                try
+                {
+                    await _transceiver.SendFrameAsync(buffer, cancel).ConfigureAwait(false);
+                }
+                finally
+                {
+                    // Restore the original value of the send buffer.
+                    buffer[0] = previous;
+                }
             }
         }
 
@@ -275,55 +283,45 @@ namespace ZeroC.Ice
     internal class SlicTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
         internal int BidirectionalStreamCount;
-        internal SemaphoreSlim? BidirectionalStreamSemaphore;
+        internal AsyncSemaphore? BidirectionalStreamSemaphore;
         internal TimeSpan IdleTimeout;
         internal readonly object Mutex = new object();
+        internal SlicOptions Options { get; }
         internal int UnidirectionalStreamCount;
-        internal SemaphoreSlim? UnidirectionalStreamSemaphore;
+        internal AsyncSemaphore? UnidirectionalStreamSemaphore;
 
         private readonly Channel<TransceiverStream> _acceptChannel;
-        private long _nextBidirectionalId;
-        private long _nextUnidirectionalId;
         private long _lastBidirectionalId;
         private long _lastUnidirectionalId;
+        private long _nextBidirectionalId;
+        private long _nextUnidirectionalId;
         private readonly ManualResetValueTaskCompletionSource<bool> _receiveStreamCompletionTaskSource =
             new ManualResetValueTaskCompletionSource<bool>();
         private Task _sendTask = Task.CompletedTask;
         private readonly BufferedReadTransceiver _transceiver;
 
-        public override ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel) =>
-            _acceptChannel.Reader.ReadAsync(cancel);
+        public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
+        {
+            try
+            {
+                return await _acceptChannel.Reader.ReadAsync(cancel).ConfigureAwait(false);
+            }
+            catch (ChannelClosedException ex)
+            {
+                throw ex.InnerException!;
+            }
+        }
 
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _transceiver.CloseAsync(exception, cancel);
 
         public override TransceiverStream CreateStream(bool bidirectional) => new SlicStream(bidirectional, this);
 
-        internal long AllocateId(bool bidirectional)
-        {
-            lock (Mutex)
-            {
-                long id;
-                if (bidirectional)
-                {
-                    id = _nextBidirectionalId;
-                    _nextBidirectionalId += 4;
-                }
-                else
-                {
-                    id = _nextUnidirectionalId;
-                    _nextUnidirectionalId += 4;
-                }
-                return id;
-            }
-        }
-
         public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             // Initialize the underlying transport
             await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
-            SlicOptions options = Endpoint.Communicator.SlicOptions;
             TimeSpan peerIdleTimeout;
             if (IsIncoming)
             {
@@ -365,16 +363,16 @@ namespace ZeroC.Ice
                     throw new NotSupportedException($"application protocol `{protocol}' is not supported with Slic");
                 }
 
-                BidirectionalStreamSemaphore = new SemaphoreSlim(istr.ReadVarInt());
-                UnidirectionalStreamSemaphore = new SemaphoreSlim(istr.ReadVarInt());
+                BidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
+                UnidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
                 peerIdleTimeout = TimeSpan.FromMilliseconds((double)istr.ReadVarLong());
 
                 // Send back an INITIALIZE_ACK frame.
                 await PrepareAndSendFrameAsync(SlicDefinitions.FrameType.InitializeAck, ostr =>
                 {
-                    ostr.WriteVarInt(options.MaxBidirectionalStreams);
-                    ostr.WriteVarInt(options.MaxUnidirectionalStreams);
-                    ostr.WriteVarLong((long)options.IdleTimeout.TotalMilliseconds);
+                    ostr.WriteVarInt(Options.MaxBidirectionalStreams);
+                    ostr.WriteVarInt(Options.MaxUnidirectionalStreams);
+                    ostr.WriteVarLong((long)Options.IdleTimeout.TotalMilliseconds);
                     return 0;
                 }, cancel).ConfigureAwait(false);
             }
@@ -385,9 +383,9 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteUShort(1); // Slic V1
                     ostr.WriteString(Protocol.Ice2.GetName()); // Ice protocol name
-                    ostr.WriteVarInt(options.MaxBidirectionalStreams);
-                    ostr.WriteVarInt(options.MaxUnidirectionalStreams);
-                    ostr.WriteVarLong((long)options.IdleTimeout.TotalMilliseconds);
+                    ostr.WriteVarInt(Options.MaxBidirectionalStreams);
+                    ostr.WriteVarInt(Options.MaxUnidirectionalStreams);
+                    ostr.WriteVarLong((long)Options.IdleTimeout.TotalMilliseconds);
                     return 0;
                 }, cancel).ConfigureAwait(false);
 
@@ -409,15 +407,15 @@ namespace ZeroC.Ice
                 }
 
                 var istr = new InputStream(data, SlicDefinitions.Encoding);
-                BidirectionalStreamSemaphore = new SemaphoreSlim(istr.ReadVarInt());
-                UnidirectionalStreamSemaphore = new SemaphoreSlim(istr.ReadVarInt());
-                peerIdleTimeout = TimeSpan.FromMilliseconds((double)istr.ReadVarLong());
+                BidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
+                UnidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
+                peerIdleTimeout = TimeSpan.FromMilliseconds(istr.ReadVarLong());
             }
 
             // Use the smallest idle timeout.
-            IdleTimeout = peerIdleTimeout < options.IdleTimeout ? peerIdleTimeout : options.IdleTimeout;
+            IdleTimeout = peerIdleTimeout < Options.IdleTimeout ? peerIdleTimeout : Options.IdleTimeout;
 
-            // Start the receiving frames over the connection until an exception and until an exception is raised.
+            // Start receiving frames and until an exception is raised.
             _ = Task.Run(async () =>
             {
                 try
@@ -441,11 +439,23 @@ namespace ZeroC.Ice
             base(endpoint, adapter, transceiver)
         {
             _transceiver = new BufferedReadTransceiver(transceiver);
+            Options = new SlicOptions();
+            if (adapter?.SerializeDispatch ?? false)
+            {
+                Options.MaxBidirectionalStreams = 1;
+                Options.MaxUnidirectionalStreams = 1;
+            }
+            else
+            {
+                Options.MaxBidirectionalStreams = Endpoint.Communicator.SlicOptions.MaxBidirectionalStreams;
+                Options.MaxUnidirectionalStreams = Endpoint.Communicator.SlicOptions.MaxUnidirectionalStreams;
+            }
+            Options.IdleTimeout = Endpoint.Communicator.SlicOptions.IdleTimeout;
 
             var options = new UnboundedChannelOptions();
             options.SingleReader = true;
             options.SingleWriter = true;
-            options.AllowSynchronousContinuations = true;
+            options.AllowSynchronousContinuations = false;
             _acceptChannel = Channel.CreateUnbounded<TransceiverStream>(options);
 
             // We use the same stream ID numbering scheme as Quic
@@ -461,6 +471,25 @@ namespace ZeroC.Ice
             }
             _lastBidirectionalId = -1;
             _lastUnidirectionalId = -1;
+        }
+
+        internal long AllocateId(bool bidirectional)
+        {
+            lock (Mutex)
+            {
+                long id;
+                if (bidirectional)
+                {
+                    id = _nextBidirectionalId;
+                    _nextBidirectionalId += 4;
+                }
+                else
+                {
+                    id = _nextUnidirectionalId;
+                    _nextUnidirectionalId += 4;
+                }
+                return id;
+            }
         }
 
         internal void FinishedReceivedStreamData() => _receiveStreamCompletionTaskSource.SetResult(false);
@@ -581,6 +610,9 @@ namespace ZeroC.Ice
                 s.Append(streamId);
             }
 
+            s.Append('\n');
+            s.Append(Underlying.ToString());
+
             Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
         }
 
@@ -603,7 +635,7 @@ namespace ZeroC.Ice
                         ValueTask _ = PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Pong,
                                                                null,
                                                                CancellationToken.None);
-                        PingReceived();
+                        ReceivedPing();
                         break;
                     }
                     case SlicDefinitions.FrameType.Pong:
@@ -641,23 +673,22 @@ namespace ZeroC.Ice
                         {
                             // Create a new stream if it's an incoming stream ID and if it's larger than the last
                             // known stream ID (the client could be sending frames for old canceled incoming streams).
-                            SlicOptions options = Endpoint.Communicator.SlicOptions;
                             if (isBidirectional)
                             {
-                                if (BidirectionalStreamCount + 1 == options.MaxBidirectionalStreams)
+                                if (BidirectionalStreamCount == Options.MaxBidirectionalStreams)
                                 {
                                     throw new InvalidDataException(
-                                        $"maximum bidirectional stream count {options.MaxBidirectionalStreams} reached");
+                                        $"maximum bidirectional stream count {Options.MaxBidirectionalStreams} reached");
                                 }
                                 Interlocked.Increment(ref BidirectionalStreamCount);
                                 _lastBidirectionalId = streamId.Value;
                             }
-                            else
+                            else if (streamId > 3)
                             {
-                                if (UnidirectionalStreamCount + 1 == options.MaxUnidirectionalStreams)
+                                if (UnidirectionalStreamCount == Options.MaxUnidirectionalStreams)
                                 {
                                     throw new InvalidDataException(
-                                        $"maximum unidirectional stream count {options.MaxUnidirectionalStreams} reached");
+                                        $"maximum unidirectional stream count {Options.MaxUnidirectionalStreams} reached");
                                 }
                                 Interlocked.Increment(ref UnidirectionalStreamCount);
                                 _lastUnidirectionalId = streamId.Value;
@@ -671,8 +702,15 @@ namespace ZeroC.Ice
                                 stream.Dispose();
 
                                 // Raise the failure if the channel no longer accepts streams
-                                Debug.Assert(_acceptChannel.Reader.Completion.IsFaulted);
-                                await _acceptChannel.Reader.Completion.ConfigureAwait(false);
+                                try
+                                {
+                                    Debug.Assert(_acceptChannel.Reader.Completion.IsFaulted);
+                                    await _acceptChannel.Reader.Completion.ConfigureAwait(false);
+                                }
+                                catch (ChannelClosedException ex)
+                                {
+                                    throw ex.InnerException!;
+                                }
                             }
 
                             // Wait for the stream data receive to complete.
@@ -680,7 +718,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            // The stream has probably been disposed, read and ignore the data.
+                            // The stream has been disposed, read and ignore the data.
                             ArraySegment<byte> data = new byte[size];
                             await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
                         }
@@ -694,7 +732,7 @@ namespace ZeroC.Ice
                         long reason = data.AsReadOnlySpan().ReadVarLong().Value; // TODO: do something with the reason code?
                         if (TryGetStream(streamId.Value, out SlicStream? stream))
                         {
-                            stream.ReceivedFrame(0, true, true);
+                            stream.ReceivedReset();
                         }
                         break;
                     }

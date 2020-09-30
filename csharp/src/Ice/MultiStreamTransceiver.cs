@@ -52,6 +52,7 @@ namespace ZeroC.Ice
                 _observer?.Attach();
             }
         }
+        internal event Action? Reset;
 
         private IObserver? _observer;
         private readonly MultiStreamTransceiver _transceiver;
@@ -85,30 +86,10 @@ namespace ZeroC.Ice
         protected virtual void Dispose(bool disposing)
         {
             _observer?.Detach();
-            if (_transceiver.Streams.Remove(Id, out TransceiverStream? _))
+            if (IsStarted && _transceiver.Streams.Remove(Id, out TransceiverStream? _))
             {
                 _transceiver.CheckStreamsEmpty();
             }
-        }
-
-        internal virtual void CancelSourceIfStreamReset(CancellationTokenSource source)
-        {
-            async void CancelSourceIfStreamReset()
-            {
-                try
-                {
-                    await ReceiveAsync(new byte[1], CancellationToken.None).ConfigureAwait(false);
-                }
-                catch (StreamResetByPeerException)
-                {
-                    source.Cancel();
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
-            CancelSourceIfStreamReset();
         }
 
         internal virtual async ValueTask<(long, string message)> ReceiveCloseFrameAsync()
@@ -137,6 +118,8 @@ namespace ZeroC.Ice
                 return (istr.ReadVarLong(), istr.ReadString());
             }
         }
+
+        internal void ReceivedReset() => Reset?.Invoke();
 
         internal virtual async ValueTask ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
@@ -244,7 +227,6 @@ namespace ZeroC.Ice
                 ostr.WriteString(reason);
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
-                data[0] = new ArraySegment<byte>(data[0].Array!, 0, data[0].Count);
 
                 await SendAsync(data, true, cancel).ConfigureAwait(false);
 
@@ -301,7 +283,10 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                await ResetAsync().ConfigureAwait(false);
+                if (IsStarted)
+                {
+                    await ResetAsync().ConfigureAwait(false);
+                }
                 throw;
             }
         }
@@ -521,7 +506,24 @@ namespace ZeroC.Ice
             }
         }
 
-        protected void PingReceived()
+        protected void Received(int length)
+        {
+            lock (Mutex)
+            {
+                Debug.Assert(length > 0);
+                _observer?.ReceivedBytes(length);
+
+                LastActivity = Time.Elapsed;
+            }
+
+            if (Endpoint.Communicator.TraceLevels.Transport >= 3)
+            {
+                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory,
+                    $"received {length} bytes via {Endpoint.TransportName}\n{this}");
+            }
+        }
+
+        protected void ReceivedPing()
         {
             // Capture the event handler which can be modified anytime by the user code.
             EventHandler? callback = Ping;
@@ -538,23 +540,6 @@ namespace ZeroC.Ice
                         Endpoint.Communicator.Logger.Error($"ping event handler raised an exception:\n{ex}\n{this}");
                     }
                 });
-            }
-        }
-
-        protected void Received(int length)
-        {
-            lock (Mutex)
-            {
-                Debug.Assert(length > 0);
-                _observer?.ReceivedBytes(length);
-
-                LastActivity = Time.Elapsed;
-            }
-
-            if (Endpoint.Communicator.TraceLevels.Transport >= 3)
-            {
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory,
-                    $"received {length} bytes via {Endpoint.TransportName}\n{this}");
             }
         }
 

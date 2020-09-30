@@ -18,6 +18,15 @@ namespace ZeroC.Ice
         private int RequestId => IsBidirectional ? (int)(Id >> 2) + 1 : 0;
         private readonly LegacyTransceiver _transceiver;
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing && IsIncoming)
+            {
+                _transceiver.SerializeSemaphore?.Release();
+            }
+        }
+
         protected override ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
             // This is never called because we override the default ReceiveFrameAsync implementation
             throw new NotImplementedException();
@@ -42,7 +51,7 @@ namespace ZeroC.Ice
         {
             // Wait to be signaled for the reception of a new frame for this stream
             (Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =
-                await WaitSignalAsync(CancellationToken.None).ConfigureAwait(false);
+                await WaitSignalAsync(cancel).ConfigureAwait(false);
             if ((byte)frameType != expectedFrameType)
             {
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
@@ -113,6 +122,7 @@ namespace ZeroC.Ice
 
     internal class LegacyTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
+        internal AsyncSemaphore? SerializeSemaphore { get; }
         private readonly object _mutex = new object();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
@@ -134,8 +144,17 @@ namespace ZeroC.Ice
                         {
                             stream.ReceivedFrame(frameType, frame);
                         }
-                        else if (frameType == Ice1Definitions.FrameType.Request ||
-                                 frameType == Ice1Definitions.FrameType.ValidateConnection)
+                        else if (frameType == Ice1Definitions.FrameType.Request)
+                        {
+                            if (SerializeSemaphore != null)
+                            {
+                                await SerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                            }
+                            stream = new LegacyStream(streamId, this);
+                            stream.ReceivedFrame(frameType, frame);
+                            return stream;
+                        }
+                        else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
                         {
                             stream = new LegacyStream(streamId, this);
                             stream.ReceivedFrame(frameType, frame);
@@ -143,7 +162,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            throw new InvalidDataException("received unexpected frame");
+                            // The stream has been disposed, ignore the data.
                         }
                     }
                 }
@@ -193,6 +212,7 @@ namespace ZeroC.Ice
             base(endpoint, adapter, transceiver)
         {
             _transceiver = transceiver;
+            SerializeSemaphore = adapter?.SerializeDispatch ?? false ? new AsyncSemaphore(1) : null;
 
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)
@@ -350,7 +370,7 @@ namespace ZeroC.Ice
                                                  ArraySegment<byte>.Empty,
                                                  (byte)Ice1Definitions.FrameType.ValidateConnection);
                     }
-                    PingReceived();
+                    ReceivedPing();
                     return (IsIncoming ? 2 : 3, frameType, default);
                 }
 

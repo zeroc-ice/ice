@@ -19,6 +19,11 @@ namespace ZeroC.Ice.Test.AMI
             // of data.
             properties["Ice.TCP.SndSize"] = "50K";
 
+            //
+            // This test kills connections, so we don't want warnings.
+            //
+            properties["Ice.Warn.Connections"] = "0";
+
             await using Communicator communicator = Initialize(properties);
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));

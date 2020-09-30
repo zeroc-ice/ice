@@ -8,10 +8,12 @@ namespace ZeroC.Ice
 {
     internal class SlicOptions
     {
-        internal int MaxBidirectionalStreams { get; set; } = 10;
+        internal TimeSpan IdleTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
-        internal int MaxUnidirectionalStreams { get; set; } = 10;
+        internal int MaxBidirectionalStreams { get; set; } = 100;
 
-        public TimeSpan IdleTimeout { get; set; } = TimeSpan.FromSeconds(30);
+        internal int MaxUnidirectionalStreams { get; set; } = 100;
+
+        internal int PacketSize { get; set; } = 32 * 1024;
     }
 }

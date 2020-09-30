@@ -841,7 +841,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             if (baseProxy.GetConnection() is IPConnection baseConnection)
             {
-                Connection baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection()!;
+                Connection baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection();
                 compObj1 = compObj1.Clone(fixedConnection: baseConnection);
                 compObj2 = compObj2.Clone(fixedConnection: baseConnection2);
                 TestHelper.Assert(!compObj1.Equals(compObj2));

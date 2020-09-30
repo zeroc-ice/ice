@@ -79,9 +79,9 @@ namespace ZeroC.Ice.Test.Timeout
                 // Expect TimeoutException.
                 //
                 controller.HoldAdapter(-1);
-                timeout.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
-                                                       AcmClose.OnInvocationAndIdle,
-                                                       AcmHeartbeat.Off);
+                timeout.GetConnection().Acm = new Acm(TimeSpan.FromMilliseconds(50),
+                                                      AcmClose.OnInvocationAndIdle,
+                                                      AcmHeartbeat.Off);
                 try
                 {
                     timeout.SendData(seq);

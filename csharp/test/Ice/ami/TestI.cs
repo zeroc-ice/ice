@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.AMI
         }
 
         public void
-        Close(CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
+        Close(CloseMode mode, Current current) => current.Connection.Close((ConnectionClose)(int)mode);
 
         public void Sleep(int ms, Current current)
         {

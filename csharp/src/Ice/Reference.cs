@@ -729,7 +729,7 @@ namespace ZeroC.Ice
             // Don't retry if the communicator or object adapter are disposed,
             // or the connection is manually closed.
             //
-            if (ex is ObjectDisposedException || ex is ConnectionClosedLocallyException)
+            if (ex is ObjectDisposedException)
             {
                 throw ExceptionUtil.Throw(ex);
             }

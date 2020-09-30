@@ -23,8 +23,6 @@ namespace ZeroC.Ice
         /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations to
         /// complete.</summary>
         Gracefully,
-        /// <summary>Wait for all pending invocations to complete before closing the connection.</summary>
-        GracefullyWithWait
     }
 
     /// <summary>The state of an Ice connection</summary>
@@ -163,32 +161,13 @@ namespace ZeroC.Ice
         /// <param name="mode">Determines how the connection will be closed.</param>
         public void Close(ConnectionClose mode)
         {
-            // TODO: We should consider removing this method and expose GracefulCloseAsync and CloseAsync
-            // instead. This would remove the support for ConnectionClose.GracefullyWithWait. Is it
-            // useful? Not waiting implies that the pending requests implies these requests will fail and
-            // won't be retried. GracefulCloseAsync could wait for pending requests to complete?
+            // TODO: Should we simply make AbortAsync/CloseAsync public instead?
             if (mode == ConnectionClose.Forcefully)
             {
                 _ = AbortAsync(new ConnectionClosedLocallyException("connection closed forcefully"));
             }
             else if (mode == ConnectionClose.Gracefully)
             {
-                _ = CloseAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
-            }
-            else
-            {
-                Debug.Assert(mode == ConnectionClose.GracefullyWithWait);
-
-                // Wait until all outstanding requests have been completed.
-                lock (_mutex)
-                {
-                    // TODO
-                    // while (_requests.Count > 0)
-                    // {
-                    //     System.Threading.Monitor.Wait(_mutex);
-                    // }
-                }
-
                 _ = CloseAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
             }
         }
@@ -618,40 +597,33 @@ namespace ZeroC.Ice
                 while (true)
                 {
                     stream = await Transceiver.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
-                    if (_exception == null)
+                    if (_exception != null)
                     {
+                        // Ignore the stream if the connection is being closed. The loop will eventually terminate when
+                        // the peer closes the connection.
+                        stream.Dispose();
+                    }
+                    else
+                    {
+                        // Start a new accept stream task
+                        _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
                         break;
                     }
-                    // Ignore the stream if the connection is being closed. The loop will eventually end when
-                    // the peer closes the connection when it gets the close connection frame.
-                    stream.Dispose();
                 }
 
                 ObjectAdapter? adapter = _adapter;
 
-                if (!adapter?.SerializeDispatch ?? true)
-                {
-                    // Start a new accept stream task
-                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
-                }
-
-                var cancelSource = new CancellationTokenSource();
+                using var cancelSource = new CancellationTokenSource();
                 CancellationToken cancel = cancelSource.Token;
+                if (stream.IsBidirectional)
+                {
+                    // Be notified if the peer reset the stream and cancel the dispatch cancellation token source.
+                    stream.Reset += () => cancelSource.Cancel();
+                }
 
                 // Receive the request from the stream
                 (IncomingRequestFrame request, bool fin)
                     = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
-
-                if (!fin)
-                {
-                    // TODO: support for reading streamable data.
-                }
-
-                if (stream.IsBidirectional)
-                {
-                    // Be notified if the peer aborts the stream and cancel the given source.
-                    stream.CancelSourceIfStreamReset(cancelSource);
-                }
 
                 OutgoingResponseFrame response;
                 if (adapter == null)
@@ -665,7 +637,7 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                var current = new Current(adapter, request, stream, cancel, this);
+                var current = new Current(adapter, request, stream, fin, this, cancel);
 
                 // Dispatch the request and get the response
                 if (adapter.TaskScheduler != null)
@@ -677,12 +649,6 @@ namespace ZeroC.Ice
                 else
                 {
                     (response, fin) = await adapter.DispatchAsync(request, stream, current).ConfigureAwait(false);
-                }
-
-                if (adapter.SerializeDispatch)
-                {
-                    // Start a new accept stream task
-                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
                 }
 
                 if (stream.IsBidirectional)
@@ -707,7 +673,7 @@ namespace ZeroC.Ice
             catch (Exception ex)
             {
                 // Other exceptions are considered fatal, abort the connection
-                await AbortAsync(ex);
+                _ = AbortAsync(ex);
                 throw;
             }
             finally

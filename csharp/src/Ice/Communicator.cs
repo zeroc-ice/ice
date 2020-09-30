@@ -496,6 +496,7 @@ namespace ZeroC.Ice
                 SlicOptions.MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100;
                 SlicOptions.MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100;
                 SlicOptions.IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30);
+                SlicOptions.PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024;
 
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;

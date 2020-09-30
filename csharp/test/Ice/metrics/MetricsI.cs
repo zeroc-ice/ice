@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Metrics
         {
         }
 
-        public void Fail(Current current) => current.Connection!.Close(ConnectionClose.Forcefully);
+        public void Fail(Current current) => current.Connection.Close(ConnectionClose.Forcefully);
 
         public void OpWithUserException(Current current) => throw new UserEx("custom UserEx message");
 

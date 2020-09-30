@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public ValueTask FailAsync(Current current)
         {
-            current.Connection!.Close(ConnectionClose.Forcefully);
+            current.Connection.Close(ConnectionClose.Forcefully);
             return new ValueTask(Task.CompletedTask);
         }
 

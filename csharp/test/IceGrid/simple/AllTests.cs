@@ -248,7 +248,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 $"{communicator.DefaultLocator!.Identity.Category}/Registry", communicator);
             IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
-            Connection? connection = session.GetConnection()!;
+            Connection connection = session.GetConnection();
             connection.Acm = new Acm(TimeSpan.FromSeconds(registry.GetACMTimeout()),
                                      connection.Acm.Close,
                                      AcmHeartbeat.Always);

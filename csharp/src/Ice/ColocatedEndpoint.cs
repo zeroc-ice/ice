@@ -9,8 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Channels;
 
-using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long, object, bool)>;
-using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long, object, bool)>;
+using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long, object?, bool)>;
+using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long, object?, bool)>;
 
 namespace ZeroC.Ice
 {
@@ -22,8 +22,8 @@ namespace ZeroC.Ice
 
         public Connection Connect(string connectionId)
         {
-            var reader = Channel.CreateUnbounded<(long, object, bool)>();
-            var writer = Channel.CreateUnbounded<(long, object, bool)>();
+            var reader = Channel.CreateUnbounded<(long, object?, bool)>();
+            var writer = Channel.CreateUnbounded<(long, object?, bool)>();
             long id = Interlocked.Add(ref _nextId, 1);
 
             if (!_writer.TryWrite((id, writer.Writer, reader.Reader)))
