@@ -24,7 +24,7 @@ using namespace IceUtilInternal;
 bool
 Slice::normalizeCase(const ContainedPtr& c)
 {
-    auto fileMetadata = c->unit()->findDefinitionContext(c->file())->getMetadata();
+    auto fileMetadata = c->unit()->findDefinitionContext(c->file())->getAllMetadata();
     if(find(begin(fileMetadata), end(fileMetadata), "preserve-case") != end(fileMetadata) ||
        find(begin(fileMetadata), end(fileMetadata), "cs:preserve-case") != end(fileMetadata))
     {
@@ -1409,7 +1409,7 @@ Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& p)
         string file = *q;
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
-        StringList globalMetadata = dc->getMetadata();
+        StringList globalMetadata = dc->getAllMetadata();
         StringList newGlobalMetadata;
         static const string csPrefix = "cs:";
         static const string clrPrefix = "clr:";
@@ -1546,7 +1546,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
 {
     const string msg = "ignoring invalid metadata";
 
-    StringList localMetadata = cont->getMetadata();
+    StringList localMetadata = cont->getAllMetadata();
     StringList newLocalMetadata;
 
     const UnitPtr ut = cont->unit();

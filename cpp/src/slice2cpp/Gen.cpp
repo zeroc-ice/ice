@@ -169,7 +169,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& constType, const
                 EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
                 assert(enumerator);
 
-                bool unscoped = (findMetadata(ep->getMetadata()) == "%unscoped");
+                bool unscoped = (findMetadata(ep->getAllMetadata()) == "%unscoped");
 
                 if(unscoped)
                 {
@@ -580,7 +580,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     string clScope = fixKwd(interface->scope());
 
     TypePtr ret = p->deprecatedReturnType();
-    string retS = returnTypeToString(ret, p->returnIsTagged(), clScope, p->getMetadata(), useWstring);
+    string retS = returnTypeToString(ret, p->returnIsTagged(), clScope, p->getAllMetadata(), useWstring);
 
     MemberList outParams = p->outParameters();
 
@@ -621,7 +621,8 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
         }
         for (const auto& param : outParams)
         {
-            string typeString = typeToString(param->type(), param->tagged(), clScope, param->getMetadata(), useWstring);
+            string typeString = typeToString(param->type(), param->tagged(), clScope, param->getAllMetadata(),
+                                             useWstring);
 
             map<string, StringList>::iterator r = paramComments.find(param->name());
             if(r != paramComments.end())
@@ -903,7 +904,7 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
-        StringList globalMetadata = dc->getMetadata();
+        StringList globalMetadata = dc->getAllMetadata();
         for(StringList::const_iterator q = globalMetadata.begin(); q != globalMetadata.end();)
         {
             string md = *q++;
@@ -1070,7 +1071,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& p)
         string file = *q;
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
-        StringList globalMetadata = dc->getMetadata();
+        StringList globalMetadata = dc->getAllMetadata();
         int headerExtension = 0;
         int sourceExtension = 0;
         int dllExport = 0;
@@ -1155,7 +1156,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& p)
 bool
 Slice::Gen::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1168,14 +1169,14 @@ Slice::Gen::MetadataVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1188,14 +1189,14 @@ Slice::Gen::MetadataVisitor::visitClassDefEnd(const ClassDefPtr&)
 void
 Slice::Gen::MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1208,7 +1209,7 @@ Slice::Gen::MetadataVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 bool
 Slice::Gen::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1221,7 +1222,7 @@ Slice::Gen::MetadataVisitor::visitExceptionEnd(const ExceptionPtr&)
 bool
 Slice::Gen::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
     return true;
 }
@@ -1236,7 +1237,7 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
 {
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(p->container());
 
-    StringList metadata = p->getMetadata();
+    StringList metadata = p->getAllMetadata();
 
     const UnitPtr ut = p->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
@@ -1273,7 +1274,7 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
 
     for (auto& param : p->allMembers())
     {
-        metadata = validate(param->type(), param->getMetadata(), p->file(), param->line(), true);
+        metadata = validate(param->type(), param->getAllMetadata(), p->file(), param->line(), true);
         param->setMetadata(metadata);
     }
 }
@@ -1281,35 +1282,35 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::MetadataVisitor::visitDataMember(const MemberPtr& p)
 {
-    StringList metadata = validate(p->type(), p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p->type(), p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
 void
 Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
 {
-    StringList metadata = validate(p, p->getMetadata(), p->file(), p->line());
+    StringList metadata = validate(p, p->getAllMetadata(), p->file(), p->line());
     p->setMetadata(metadata);
 }
 
@@ -1393,7 +1394,7 @@ int
 Slice::Gen::setUseWstring(ContainedPtr p, list<int>& hist, int use)
 {
     hist.push_back(use);
-    StringList metadata = p->getMetadata();
+    StringList metadata = p->getAllMetadata();
     if(find(metadata.begin(), metadata.end(), "cpp:type:wstring") != metadata.end())
     {
         use = TypeContextUseWstring;
@@ -1632,7 +1633,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for (const auto& member : allDataMembers)
     {
-        string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getMetadata(), _useWstring);
+        string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getAllMetadata(),
+                                            _useWstring);
         allParameters.push_back(typeName + " " + fixKwd(member->name()));
 
         if (CommentPtr comment = member->parseComment(false))
@@ -1765,7 +1767,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "return typeId;";
     C << eb;
 
-    StringList metadata = p->getMetadata();
+    StringList metadata = p->getAllMetadata();
     if(find(metadata.begin(), metadata.end(), "cpp:ice_print") != metadata.end())
     {
         H << nl << "/**";
@@ -1915,7 +1917,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     const string scope = "";
     string name = fixKwd(p->name());
     writeDocSummary(H, p);
-    H << nl << typeToString(p->type(), p->tagged(), scope, p->getMetadata(), _useWstring)
+    H << nl << typeToString(p->type(), p->tagged(), scope, p->getAllMetadata(), _useWstring)
       << ' ' << name;
 
     string defaultValue = p->defaultValue();
@@ -1929,14 +1931,14 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
             //
             H << '{';
             writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring,
-                               p->getMetadata(), scope);
+                               p->getAllMetadata(), scope);
             H << '}';
         }
         else
         {
             H << " = ";
             writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring,
-                               p->getMetadata(), scope);
+                               p->getAllMetadata(), scope);
         }
     }
 
@@ -1951,7 +1953,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     TypePtr type = p->type();
     int typeCtx = _useWstring;
     string s = typeToString(type, scope, p->typeMetadata(), typeCtx);
-    StringList metadata = p->getMetadata();
+    StringList metadata = p->getAllMetadata();
 
     string seqType = findMetadata(metadata, _useWstring);
     H << sp;
@@ -1972,7 +1974,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
-    string dictType = findMetadata(p->getMetadata());
+    string dictType = findMetadata(p->getAllMetadata());
     int typeCtx = _useWstring;
 
     H << sp;
@@ -2136,7 +2138,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->deprecatedReturnType();
 
     bool retIsTagged = p->returnIsTagged();
-    string retS = returnTypeToString(ret, retIsTagged, clScope, p->getMetadata(), _useWstring);
+    string retS = returnTypeToString(ret, retIsTagged, clScope, p->getAllMetadata(), _useWstring);
 
     vector<string> params;
     vector<string> paramsDecl;
@@ -2160,9 +2162,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         // Use empty scope to get full qualified names in types used with future declarations.
         //
-        futureOutParams.push_back(typeToString(ret, retIsTagged, "", p->getMetadata(), _useWstring));
+        futureOutParams.push_back(typeToString(ret, retIsTagged, "", p->getAllMetadata(), _useWstring));
 
-        lambdaOutParams.push_back(typeToString(ret, retIsTagged, "", p->getMetadata(), _useWstring |
+        lambdaOutParams.push_back(typeToString(ret, retIsTagged, "", p->getAllMetadata(), _useWstring |
                                                TypeContextInParam));
 
         hasTaggedOutParams |= p->returnIsTagged();
@@ -2171,7 +2173,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     for (const auto& inParam : inParams)
     {
         string paramName = fixKwd(inParam->name());
-        string typeString = inputTypeToString(inParam->type(), inParam->tagged(), clScope, inParam->getMetadata(),
+        string typeString = inputTypeToString(inParam->type(), inParam->tagged(), clScope, inParam->getAllMetadata(),
                                               _useWstring);
 
         params.push_back(typeString);
@@ -2184,7 +2186,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     for (const auto& outParam : outParams)
     {
-        StringList metadata = outParam->getMetadata();
+        StringList metadata = outParam->getAllMetadata();
 
         // Use empty scope to get full qualified names in types used with future declarations.
         futureOutParams.push_back(typeToString(outParam->type(), outParam->tagged(), "", metadata, _useWstring));
@@ -2569,7 +2571,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    bool unscoped = findMetadata(p->getMetadata()) == "%unscoped";
+    bool unscoped = findMetadata(p->getAllMetadata()) == "%unscoped";
     H << sp;
     writeDocSummary(H, p);
     H << nl << "enum ";
@@ -2663,7 +2665,7 @@ Slice::Gen::ObjectVisitor::emitDataMember(const MemberPtr& p)
     string scope = "";
 
     writeDocSummary(H, p);
-    H << nl << typeToString(p->type(), p->tagged(), scope, p->getMetadata(), typeContext) << ' ' << name;
+    H << nl << typeToString(p->type(), p->tagged(), scope, p->getAllMetadata(), typeContext) << ' ' << name;
 
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
@@ -2676,14 +2678,14 @@ Slice::Gen::ObjectVisitor::emitDataMember(const MemberPtr& p)
             //
             H << '{';
             writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring,
-                               p->getMetadata(), scope);
+                               p->getAllMetadata(), scope);
             H << '}';
         }
         else
         {
             H << " = ";
             writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring,
-                               p->getMetadata(), scope);
+                               p->getAllMetadata(), scope);
         }
     }
     H << ";";
@@ -2981,7 +2983,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(ret)
     {
-        string typeS = inputTypeToString(ret, p->returnIsTagged(), interfaceScope, p->getMetadata(), _useWstring);
+        string typeS = inputTypeToString(ret, p->returnIsTagged(), interfaceScope, p->getAllMetadata(), _useWstring);
         responseParams.push_back(typeS + " " + returnValueParam);
         responseParamsDecl.push_back(typeS + " ret");
         responseParamsImplDecl.push_back(typeS + " ret");
@@ -2998,14 +3000,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        retS = returnTypeToString(ret, p->returnIsTagged(), interfaceScope, p->getMetadata(), _useWstring);
+        retS = returnTypeToString(ret, p->returnIsTagged(), interfaceScope, p->getAllMetadata(), _useWstring);
     }
 
     for (const auto& inParam : inParams)
     {
         TypePtr type = inParam->type();
         string paramName = fixKwd(inParam->name());
-        params.push_back(typeToString(type, inParam->tagged(), interfaceScope, inParam->getMetadata(),
+        params.push_back(typeToString(type, inParam->tagged(), interfaceScope, inParam->getAllMetadata(),
                                       _useWstring | TypeContextInParam) + " " + paramName);
         args.push_back(condMove(isMovable(type), paramPrefix + inParam->name()));
     }
@@ -3017,13 +3019,13 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
         if(!p->hasMarshaledResult() && !amd)
         {
-            params.push_back(outputTypeToString(type, outParam->tagged(), interfaceScope, outParam->getMetadata(),
+            params.push_back(outputTypeToString(type, outParam->tagged(), interfaceScope, outParam->getAllMetadata(),
                                                 _useWstring) + " " + paramName);
             args.push_back(paramPrefix + outParam->name());
         }
 
         string responseTypeS = inputTypeToString(outParam->type(), outParam->tagged(), interfaceScope,
-                                                    outParam->getMetadata(), _useWstring);
+                                                    outParam->getAllMetadata(), _useWstring);
         responseParams.push_back(responseTypeS + " " + paramName);
         responseParamsDecl.push_back(responseTypeS + " " + paramPrefix + outParam->name());
         responseParamsImplDecl.push_back(responseTypeS + " " + paramPrefix + outParam->name());
@@ -3533,7 +3535,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
         for (const auto& member : allDataMembers)
         {
-            string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getMetadata(),
+            string typeName = inputTypeToString(member->type(), member->tagged(), scope, member->getAllMetadata(),
                                                 typeContext);
             allParamDecls.push_back(typeName + " " + fixKwd(member->name()));
             CommentPtr comment = member->parseComment(false);
@@ -3895,7 +3897,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         TypePtr ret = op->deprecatedReturnType();
         string retS = op->hasMarshaledResult() ?
             scoped + "::" + resultStructName(opName, "", true) :
-            returnTypeToString(ret, op->returnIsTagged(), "", op->getMetadata(), _useWstring);
+            returnTypeToString(ret, op->returnIsTagged(), "", op->getAllMetadata(), _useWstring);
 
         MemberList inParams = op->params();
         MemberList outParams = op->outParameters();
@@ -3909,7 +3911,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             for (const auto& param : inParams)
             {
                 H << typeToString(param->type(), param->tagged(), scope,
-                                  param->getMetadata(), _useWstring | TypeContextInParam)
+                                  param->getAllMetadata(), _useWstring | TypeContextInParam)
                   << "," << nl;
             }
 
@@ -3921,7 +3923,8 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 if(ret)
                 {
-                    responseParams = inputTypeToString(ret, op->returnIsTagged(), scope, op->getMetadata(), _useWstring);
+                    responseParams = inputTypeToString(ret, op->returnIsTagged(), scope, op->getAllMetadata(),
+                                                       _useWstring);
                     if(!outParams.empty())
                     {
                         responseParams += ", ";
@@ -3934,7 +3937,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         responseParams += ", ";
                     }
-                    responseParams += inputTypeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetadata(),
+                    responseParams += inputTypeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getAllMetadata(),
                                                         _useWstring);
                 }
             }
@@ -3950,7 +3953,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             C.useCurrentPosAsIndent();
             for (const auto& param : inParams)
             {
-                C << typeToString(param->type(), param->tagged(), scope, param->getMetadata(),
+                C << typeToString(param->type(), param->tagged(), scope, param->getAllMetadata(),
                                   _useWstring | TypeContextInParam);
                 C << ' ' << fixKwd(param->name()) << "," << nl;
             }
@@ -3969,11 +3972,11 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             C << spar;
             if(ret)
             {
-                C << defaultValue(ret, scope, op->getMetadata());
+                C << defaultValue(ret, scope, op->getAllMetadata());
             }
             for (const auto& param : outParams)
             {
-                C << defaultValue(param->type(), scope, op->getMetadata());
+                C << defaultValue(param->type(), scope, op->getAllMetadata());
             }
 
             if(op->hasMarshaledResult())
@@ -3994,7 +3997,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             for (const auto& param : inParams)
             {
-                H << typeToString(param->type(), param->tagged(), scope, param->getMetadata(),
+                H << typeToString(param->type(), param->tagged(), scope, param->getAllMetadata(),
                                   _useWstring | TypeContextInParam)
                 << ',' << nl;
             }
@@ -4002,7 +4005,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 for (const auto& param : outParams)
                 {
-                    H << outputTypeToString(param->type(), param->tagged(), scope, param->getMetadata(), _useWstring)
+                    H << outputTypeToString(param->type(), param->tagged(), scope, param->getAllMetadata(), _useWstring)
                     << ',' << nl;
                 }
             }
@@ -4020,7 +4023,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             for (const auto& param : inParams)
             {
-                C << typeToString(param->type(), param->tagged(), scope, param->getMetadata(),
+                C << typeToString(param->type(), param->tagged(), scope, param->getAllMetadata(),
                                   _useWstring | TypeContextInParam)
                   << " /*" << fixKwd(param->name()) << "*/" << ',' << nl;
             }
@@ -4028,7 +4031,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 for (const auto& param : outParams)
                 {
-                    C << outputTypeToString(param->type(), param->tagged(), scope, param->getMetadata(), _useWstring)
+                    C << outputTypeToString(param->type(), param->tagged(), scope, param->getAllMetadata(), _useWstring)
                       << " " << fixKwd(param->name()) << ',' << nl;
                 }
             }
@@ -4046,7 +4049,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     C << nl << "return " << scoped << "::" << resultStructName(opName, "", true) << "(";
                     if(ret)
                     {
-                        C << defaultValue(ret, scope, op->getMetadata());
+                        C << defaultValue(ret, scope, op->getAllMetadata());
                         if(!outParams.empty())
                         {
                             C << ", ";
@@ -4055,7 +4058,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
                     for(auto q = outParams.begin(); q != outParams.end();)
                     {
-                        C << defaultValue((*q)->type(), scope, op->getMetadata());
+                        C << defaultValue((*q)->type(), scope, op->getAllMetadata());
                         if(++q != outParams.end())
                         {
                             C << ", ";
@@ -4068,13 +4071,14 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 for (const auto& param : outParams)
                 {
-                    C << nl << fixKwd(param->name()) << " = " << defaultValue(param->type(), scope, op->getMetadata())
+                    C << nl << fixKwd(param->name()) << " = " << defaultValue(param->type(), scope,
+                                                                              op->getAllMetadata())
                       << ";";
                 }
 
                 if(ret)
                 {
-                    C << nl << "return " << defaultValue(ret, scope, op->getMetadata()) << ";";
+                    C << nl << "return " << defaultValue(ret, scope, op->getAllMetadata()) << ";";
                 }
             }
             C << eb;

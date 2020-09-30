@@ -783,13 +783,13 @@ Slice::writeAllocateCode(Output& out, const MemberList& params, const OperationP
     for (const auto& param : params)
     {
         writeParamAllocateCode(out, param->type(), param->tagged(), clScope, fixKwd(prefix + param->name()),
-                               param->getMetadata(), typeCtx);
+                               param->getAllMetadata(), typeCtx);
     }
 
     if(op && op->deprecatedReturnType())
     {
-        writeParamAllocateCode(out, op->deprecatedReturnType(), op->returnIsTagged(), clScope, returnValueS, op->getMetadata(),
-                               typeCtx);
+        writeParamAllocateCode(out, op->deprecatedReturnType(), op->returnIsTagged(), clScope, returnValueS,
+                                    op->getAllMetadata(), typeCtx);
     }
 }
 
@@ -922,7 +922,7 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, MemberList dataMembers, int
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetadata(), typeCtx)
+        out << typeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getAllMetadata(), typeCtx)
             << "&";
     }
     out << "> ice_tuple() const";
@@ -943,13 +943,13 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, MemberList dataMembers, int
 bool
 Slice::findMetadata(const string& prefix, const ClassDeclPtr& cl, string& value)
 {
-    if(findMetadata(prefix, cl->getMetadata(), value))
+    if (findMetadata(prefix, cl->getAllMetadata(), value))
     {
         return true;
     }
 
     ClassDefPtr def = cl->definition();
-    return def ? findMetadata(prefix, def->getMetadata(), value) : false;
+    return def ? findMetadata(prefix, def->getAllMetadata(), value) : false;
 }
 
 bool
@@ -1043,7 +1043,7 @@ Slice::inWstringModule(const SequencePtr& seq)
         {
             break;
         }
-        StringList metadata = mod->getMetadata();
+        StringList metadata = mod->getAllMetadata();
         if(find(metadata.begin(), metadata.end(), "cpp:type:wstring") != metadata.end())
         {
             return true;

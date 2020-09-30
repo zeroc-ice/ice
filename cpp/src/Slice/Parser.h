@@ -205,7 +205,7 @@ public:
 
     void setMetadata(const StringList&);
     std::string findMetadata(const std::string&) const;
-    StringList getMetadata() const;
+    StringList getAllMetadata() const;
 
     // When parsing Slice definitions, apply 3.7 or 4.0 semantics for class parameters, Object etc.
     bool compatMode() const;
@@ -415,7 +415,7 @@ public:
     bool hasMetadataWithPrefix(const std::string&) const;
     bool findMetadata(const std::string&, std::string&) const;
     std::string findMetadataWithPrefix(const std::string&) const;
-    std::list<std::string> getMetadata() const;
+    std::list<std::string> getAllMetadata() const;
     void setMetadata(const std::list<std::string>&);
 
     FormatType parseFormatMetadata() const;

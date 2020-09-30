@@ -102,7 +102,7 @@ public:
             string file = *q;
             DefinitionContextPtr dc = p->findDefinitionContext(file);
             assert(dc);
-            StringList globalMetadata = dc->getMetadata();
+            StringList globalMetadata = dc->getAllMetadata();
             for(StringList::const_iterator r = globalMetadata.begin(); r != globalMetadata.end();)
             {
                 string s = *r++;
@@ -320,7 +320,7 @@ private:
     {
         static const string prefix = "java:";
 
-        StringList metadata = cont->getMetadata();
+        StringList metadata = cont->getAllMetadata();
         StringList result;
 
         UnitPtr unt = cont->container()->unit();
@@ -1487,7 +1487,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     return;
                 }
             }
-            else if(findMetadata("java:serializable", seq->getMetadata(), ignored))
+            else if(findMetadata("java:serializable", seq->getAllMetadata(), ignored))
             {
                 if(marshal)
                 {
@@ -1502,7 +1502,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
             }
             else if(!hasTypeMetadata(seq, metadata) ||
-                    findMetadata("java:type", seq->getMetadata(), ignored) ||
+                    findMetadata("java:type", seq->getAllMetadata(), ignored) ||
                     findMetadata("java:type", metadata, ignored))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
@@ -1547,7 +1547,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     {
                         string ignored2;
                         out << nl << "final int taggedSize = " << param << " == null ? 0 : ";
-                        if(findMetadata("java:buffer", seq->getMetadata(), ignored2) ||
+                        if(findMetadata("java:buffer", seq->getAllMetadata(), ignored2) ||
                            findMetadata("java:buffer", metadata, ignored2))
                         {
                             out << param << ".remaining() / " << sz << ";";
@@ -2156,7 +2156,7 @@ Slice::JavaGenerator::hasTypeMetadata(const TypePtr& type, const StringList& loc
             return true;
         }
 
-        StringList metadata = cont->getMetadata();
+        StringList metadata = cont->getAllMetadata();
 
         if(findMetadata(prefix, metadata, directive))
         {
@@ -2215,7 +2215,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     // Collect metadata for a custom type.
     //
     if(getTypeMetadata(metadata, instanceType, formalType) ||
-       getTypeMetadata(dict->getMetadata(), instanceType, formalType))
+       getTypeMetadata(dict->getAllMetadata(), instanceType, formalType))
     {
         assert(!instanceType.empty());
         if(formalType.empty())
@@ -2282,7 +2282,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     // Collect metadata for a custom type.
     //
     if(getTypeMetadata(metadata, instanceType, formalType) ||
-       getTypeMetadata(seq->getMetadata(), instanceType, formalType))
+       getTypeMetadata(seq->getAllMetadata(), instanceType, formalType))
     {
         assert(!instanceType.empty());
         if(formalType.empty())

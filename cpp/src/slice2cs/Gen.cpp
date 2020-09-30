@@ -390,7 +390,7 @@ string
 getParamAttributes(const MemberPtr& p)
 {
     string result;
-    for(const auto& s : p->getMetadata())
+    for(const auto& s : p->getAllMetadata())
     {
         static const string prefix = "cs:attribute:";
         if(s.find(prefix) == 0)
@@ -521,7 +521,7 @@ Slice::CsVisitor::emitEqualityOperators(const string& name)
 void
 Slice::CsVisitor::emitCustomAttributes(const ContainedPtr& p)
 {
-    StringList metadata = p->getMetadata();
+    StringList metadata = p->getAllMetadata();
     for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
     {
         static const string prefix = "cs:attribute:";
@@ -1199,7 +1199,7 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
 {
     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
     assert(dc);
-    StringList globalMetadata = dc->getMetadata();
+    StringList globalMetadata = dc->getAllMetadata();
 
     static const string attributePrefix = "cs:attribute:";
 

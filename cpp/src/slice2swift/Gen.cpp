@@ -418,7 +418,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetadata());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
@@ -547,7 +547,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool isClass = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetadata());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "public " << (isClass ? "class " : "struct ") << name;
     if(legalKeyType)
     {
@@ -669,7 +669,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, p->getMetadata()) << "]";
+        out << "[" << typeToString(p->type(), p, p->getAllMetadata()) << "]";
     }
 
     if(builtin && builtin->kind() <= Builtin::KindString)
@@ -970,7 +970,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetadata());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "public enum " << name << ": " << enumType;
     out << sb;
 
@@ -1070,7 +1070,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
-    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetadata(), swiftModule);
+    writeConstantValue(out, type, p->valueType(), p->value(), p->getAllMetadata(), swiftModule);
     out << nl;
 }
 
@@ -1329,7 +1329,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetadata());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
@@ -1564,7 +1564,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Check for swift:inherits metadata.
     //
-    const StringList metadata = p->getMetadata();
+    const StringList metadata = p->getAllMetadata();
     static const string prefix = "swift:inherits:";
     for(StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
