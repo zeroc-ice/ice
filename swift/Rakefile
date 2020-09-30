@@ -4,8 +4,8 @@ require 'xcodeproj'
 
 $projectVersion = "4.0.0-alpha.0"
 $dylibVersion = "4.0.0"
-$macOSDeploymentTarget = "10.14"
-$iOSDeploymentTarget = "11.3"
+$macOSDeploymentTarget = "10.15"
+$iOSDeploymentTarget = "12.0"
 
 $tests = [
     "Ice/acm",
@@ -97,6 +97,10 @@ end
 
 def create_project(name, bindist)
     project = Xcodeproj::Project.new(name)
+
+    project.build_configurations.each do |conf|
+        conf.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
+    end
 
     [:osx, :ios].each do |platform|
         create_platform_targets(project, platform, bindist)
@@ -620,6 +624,7 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
         EOF
         rule.dependency_file = "$(DERIVED_FILE_DIR)/$(INPUT_FILE_NAME).d"
         rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+        rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
     end
     target.build_rules << rule
 end
@@ -632,7 +637,7 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
-    rule.file_patterns = "*/#{prefix}/*.ice"
+    rule.file_patterns = "*.ice"
     rule.dependency_file = "$(DERIVED_FILES_DIR)/#{prefix}/$(INPUT_FILE_NAME).d"
 
     rule.script = <<~EOF
@@ -659,6 +664,7 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     EOF
     rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).cpp",
                          "$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/$(INPUT_FILE_BASE).h"]
+    rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
     target.build_rules << rule
 
 end
@@ -674,7 +680,7 @@ def target_add_swiftlint_build_phase(target, basedir)
     EOF
 end
 
-def group_add_files(group, basedir, patterns, exclude = [])
+def find_files(basedir, patterns, exclude = [])
     files = []
     Dir.chdir(basedir) do
         patterns.each do |p|
@@ -683,9 +689,12 @@ def group_add_files(group, basedir, patterns, exclude = [])
             end
         end
     end
-    files = files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
-    files = files.uniq
-    files.map { |file|  group.find_subpath(File.basename(file)) ||  group.new_file("#{basedir}/#{file}") }
+    return files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
+end
+
+def group_add_files(group, basedir, patterns, exclude = [])
+    find_files(basedir, patterns, exclude).map { |file|
+        group.find_subpath(File.basename(file)) ||  group.new_file("#{basedir}/#{file}") }
 end
 
 def target_add_files(target, group, basedir, patterns, excludes = [])
