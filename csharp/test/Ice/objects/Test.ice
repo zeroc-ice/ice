@@ -204,7 +204,7 @@ interface Initial
     (ClassMap r1, ClassMap r2) opClassMap(ClassMap v1);
 
     D1 getD1(D1 d1);
-    void throwEDerived() throws EDerived;
+    void throwEDerived();
 
     void setG(G theG);
 
@@ -215,8 +215,8 @@ interface Initial
     Inner::A getInnerA();
     Inner::Sub::A getInnerSubA();
 
-    void throwInnerEx() throws Inner::Ex;
-    void throwInnerSubEx() throws Inner::Sub::Ex;
+    void throwInnerEx();
+    void throwInnerSubEx();
 
     (M r1, M r2) opM(M v1);
 
