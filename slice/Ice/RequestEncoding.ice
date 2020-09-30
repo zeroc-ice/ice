@@ -44,9 +44,10 @@ module Ice
         \Idempotent
     }
 
+    /// The priority of this request.
+    // TODO: describe semantics.
     unchecked enum Priority : byte
     {
-        Default // TODO: remove once empty unchecked enums are permitted.
     }
 
     /// The header for ice2 requests. All the data members are encoded using the 2.0 encoding.
@@ -58,6 +59,6 @@ module Ice
         StringSeq? location;     // null equivalent to empty sequence
         string operation;
         bool \idempotent;
-        Priority? priority = Default;  // null equivalent to 0
+        Priority? priority;      // null equivalent to 0
     }
 }

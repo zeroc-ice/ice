@@ -324,7 +324,7 @@ namespace ZeroC.Ice
                 Debug.Assert(Protocol == Protocol.Ice2);
 
                 // Marshaled "by hand" to avoid allocating a string[] for the location.
-                BitSequence bitSequence = ostr.WriteBitSequence(2);
+                BitSequence bitSequence = ostr.WriteBitSequence(3);
                 Identity.IceWrite(ostr);
                 if (bitSequence[0] = (Facet.Length > 0))
                 {
@@ -336,7 +336,7 @@ namespace ZeroC.Ice
                 }
                 ostr.WriteString(operation);
                 ostr.WriteBool(IsIdempotent);
-                ostr.Write((Priority)default); // TODO: what is the source for priority?
+                bitSequence[2] = false; // TODO: source for priority.
             }
             PayloadStart = ostr.Tail;
 
