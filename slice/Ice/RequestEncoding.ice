@@ -44,6 +44,8 @@ module Ice
         \Idempotent
     }
 
+#ifdef __SLICE2CS__
+
     /// The priority of this request.
     // TODO: describe semantics.
     unchecked enum Priority : byte
@@ -61,4 +63,5 @@ module Ice
         bool \idempotent;
         Priority? priority;      // null equivalent to 0
     }
+#endif
 }
