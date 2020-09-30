@@ -243,10 +243,10 @@ namespace Test
             ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null)
         {
             var tlsServerOptions = new TlsServerOptions();
-            if (properties.TryGetValue("Test.Transport", out string? value) && value == "wss")
+            if (properties.TryGetValue("Test.Transport", out string? value))
             {
                 // When running test with WSS disable client authentication for browser compatibility
-                tlsServerOptions.RequireClientCertificate = false;
+                tlsServerOptions.RequireClientCertificate = value == "ssl";
             }
             var communicator = new Communicator(properties, tlsServerOptions: tlsServerOptions, observer: observer);
 
