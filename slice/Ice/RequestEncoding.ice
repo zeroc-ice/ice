@@ -13,6 +13,9 @@
 
 [[python:pkgdir:Ice]]
 
+#include <Ice/BuiltinSequences.ice>
+#include <Ice/Identity.ice>
+
 [[java:package:com.zeroc]]
 [cs:namespace:ZeroC]
 module Ice
@@ -40,4 +43,25 @@ module Ice
         /// operations, the Ice run-time does not guarantee at-most-once semantics.
         \Idempotent
     }
+
+#ifdef __SLICE2CS__
+
+    /// The priority of this request.
+    // TODO: describe semantics.
+    unchecked enum Priority : byte
+    {
+    }
+
+    /// The header for ice2 requests. All the data members are encoded using the 2.0 encoding.
+    [cs:readonly]
+    struct Ice2RequestHeader
+    {
+        Identity identity;
+        string? facet = "";      // null equivalent to empty string
+        StringSeq? location;     // null equivalent to empty sequence
+        string operation;
+        bool \idempotent;
+        Priority? priority;      // null equivalent to 0
+    }
+#endif
 }

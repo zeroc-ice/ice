@@ -1128,10 +1128,11 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
-        /// <summary>Reads a facet from the stream.</summary>
+        /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
         /// <returns>The facet read from the stream.</returns>
-        internal string ReadFacet()
+        internal string ReadFacet11()
         {
+            Debug.Assert(OldEncoding);
             string[] facets = ReadArray(1, IceReaderIntoString);
             if (facets.Length > 1)
             {
@@ -1157,7 +1158,7 @@ namespace ZeroC.Ice
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.OperationNotExistException:
                     var identity = new Identity(this);
-                    string facet = ReadFacet();
+                    string facet = ReadFacet11();
                     string operation = ReadString();
 
                     if (replyStatus == ReplyStatus.OperationNotExistException)

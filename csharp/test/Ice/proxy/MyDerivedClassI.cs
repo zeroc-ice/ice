@@ -9,6 +9,8 @@ namespace ZeroC.Ice.Test.Proxy
     {
         public IObjectPrx? Echo(IObjectPrx? obj, Current c) => obj;
 
+        public IEnumerable<string> GetLocation(Current current) => current.Location;
+
         public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public IReadOnlyDictionary<string, string> GetContext(Current current) => _ctx!;

@@ -1615,8 +1615,10 @@ namespace ZeroC.Ice
 
         /// <summary>Writes a facet to the stream.</summary>
         /// <param name="facet">The facet to write to the stream.</param>
-        internal void WriteFacet(string facet)
+        internal void WriteFacet11(string facet)
         {
+            Debug.Assert(OldEncoding);
+
             // The old facet-path style used by the ice1 protocol.
             if (facet.Length == 0)
             {
