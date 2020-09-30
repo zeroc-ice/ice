@@ -176,7 +176,6 @@ slice_error(const char* s)
 %token ICE_LOCAL_METADATA_OPEN
 %token ICE_LOCAL_METADATA_CLOSE
 %token ICE_FILE_METADATA_OPEN
-%token ICE_FILE_METADATA_IGNORE
 %token ICE_FILE_METADATA_CLOSE
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
@@ -208,11 +207,6 @@ file_metadata
 : ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE
 {
     $$ = $2;
-}
-| ICE_FILE_METADATA_IGNORE string_list ICE_FILE_METADATA_CLOSE
-{
-    unit->error("file metadata must appear before any definitions");
-    $$ = $2; // Dummy
 }
 ;
 

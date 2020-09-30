@@ -1195,9 +1195,9 @@ static const flex_int32_t yy_rule_linenum[52] =
       135,  149,  150,  157,  158,  159,  166,  185,  198,  208,
       215,  216,  228,  229,  237,  248,  258,  266,  284,  298,
       326,  331,  334,  340,  341,  346,  352,  371,  376,  382,
-      383,  398,  403,  411,  416,  432,  443,  447,  452,  458,
-      469,  476,  483,  488,  494,  531,  541,  544,  551,  555,
-      569
+      383,  398,  403,  411,  416,  429,  440,  444,  449,  455,
+      466,  473,  480,  485,  491,  528,  538,  541,  548,  552,
+      566
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -2055,21 +2055,18 @@ YY_RULE_SETUP
     yy_push_state(METADATA);
 
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
-    if(yy_top_state() == PRE_SLICE)
+    if(yy_top_state() != PRE_SLICE)
     {
-        return ICE_FILE_METADATA_OPEN;
+        unit->error("file metadata must appear before any definitions");
     }
-    else
-    {
-        return ICE_FILE_METADATA_IGNORE;
-    }
+    return ICE_FILE_METADATA_OPEN;
 }
 	YY_BREAK
 /* Matches the start of a metadata string, ensures the scanner is in QUOTED_METADATA mode,
    * then starts scanning a string literal. */
 case 36:
 YY_RULE_SETUP
-#line 432 "src/Slice/Scanner.l"
+#line 429 "src/Slice/Scanner.l"
 {
     BEGIN(QUOTED_METADATA);
     yy_push_state(STRING_LITERAL);
@@ -2083,14 +2080,14 @@ YY_RULE_SETUP
 /* Matches commas between string literals in quoted metadata and forwards them to the parser. */
 case 37:
 YY_RULE_SETUP
-#line 443 "src/Slice/Scanner.l"
+#line 440 "src/Slice/Scanner.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 447 "src/Slice/Scanner.l"
+#line 444 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     return ICE_LOCAL_METADATA_CLOSE;
@@ -2098,7 +2095,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 452 "src/Slice/Scanner.l"
+#line 449 "src/Slice/Scanner.l"
 {
     yy_pop_state();
     return ICE_FILE_METADATA_CLOSE;
@@ -2107,7 +2104,7 @@ YY_RULE_SETUP
 /* Matches the start of unquoted metadata and switches the scanner into UNQUOTED_METADATA mode. */
 case 40:
 YY_RULE_SETUP
-#line 458 "src/Slice/Scanner.l"
+#line 455 "src/Slice/Scanner.l"
 {
     BEGIN(UNQUOTED_METADATA);
     startLocation(yylloc);
@@ -2121,7 +2118,7 @@ YY_RULE_SETUP
 /* Matches unquoted text in UNQUOTED_METADATA mode. */
 case 41:
 YY_RULE_SETUP
-#line 469 "src/Slice/Scanner.l"
+#line 466 "src/Slice/Scanner.l"
 {
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;
@@ -2131,7 +2128,7 @@ YY_RULE_SETUP
 /* Matches the end of unquoted metadata, and places the ']' back into the stream. */
 case 42:
 YY_RULE_SETUP
-#line 476 "src/Slice/Scanner.l"
+#line 473 "src/Slice/Scanner.l"
 {
     BEGIN(METADATA);
     yyless(0);
@@ -2142,7 +2139,7 @@ YY_RULE_SETUP
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 483 "src/Slice/Scanner.l"
+#line 480 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
@@ -2150,7 +2147,7 @@ YY_RULE_SETUP
 /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
 case 44:
 YY_RULE_SETUP
-#line 488 "src/Slice/Scanner.l"
+#line 485 "src/Slice/Scanner.l"
 {
     unit->error("invalid character between metadata");
 }
@@ -2159,7 +2156,7 @@ YY_RULE_SETUP
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 494 "src/Slice/Scanner.l"
+#line 491 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -2199,7 +2196,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 531 "src/Slice/Scanner.l"
+#line 528 "src/Slice/Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
@@ -2211,14 +2208,14 @@ YY_RULE_SETUP
 /* Matches and consumes any whitespace, except for newlines. */
 case 47:
 YY_RULE_SETUP
-#line 541 "src/Slice/Scanner.l"
+#line 538 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 544 "src/Slice/Scanner.l"
+#line 541 "src/Slice/Scanner.l"
 {
     nextLine(yyleng);
 }
@@ -2227,7 +2224,7 @@ YY_RULE_SETUP
 /* Matches and consumes a BOM, but only when the scanner has just started scanning a new file. */
 case 49:
 YY_RULE_SETUP
-#line 551 "src/Slice/Scanner.l"
+#line 548 "src/Slice/Scanner.l"
 {}
 	YY_BREAK
 /* Matches invalid characters, one at a time to make this the 2nd lowest priority rule. All printable ASCII
@@ -2235,7 +2232,7 @@ YY_RULE_SETUP
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 555 "src/Slice/Scanner.l"
+#line 552 "src/Slice/Scanner.l"
 {
     stringstream s;
     s << "illegal input character: '\\";
@@ -2252,7 +2249,7 @@ YY_RULE_SETUP
    * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 case 51:
 YY_RULE_SETUP
-#line 569 "src/Slice/Scanner.l"
+#line 566 "src/Slice/Scanner.l"
 {
     setLocation(yylloc);
     return yytext[0];
@@ -2260,10 +2257,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 574 "src/Slice/Scanner.l"
+#line 571 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2266 "src/Slice/Scanner.cpp"
+#line 2263 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(PRE_SLICE):
 case YY_STATE_EOF(SLICE):
@@ -3269,7 +3266,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 574 "src/Slice/Scanner.l"
+#line 571 "src/Slice/Scanner.l"
 
 
 namespace Slice
