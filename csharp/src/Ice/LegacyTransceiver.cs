@@ -23,7 +23,14 @@ namespace ZeroC.Ice
             base.Dispose(disposing);
             if (disposing && IsIncoming)
             {
-                _transceiver.SerializeSemaphore?.Release();
+                if (IsBidirectional)
+                {
+                    _transceiver.BidirectionalSerializeSemaphore?.Release();
+                }
+                else if (!IsControl)
+                {
+                    _transceiver.UnidirectionalSerializeSemaphore?.Release();
+                }
             }
         }
 
@@ -56,7 +63,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
             }
-            // fin = true unless it's the validation conneciton frame.
+            // fin = true unless it's the validation connection frame.
             return (frame, frameType != Ice1Definitions.FrameType.ValidateConnection);
         }
 
@@ -115,14 +122,15 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, frame, 0, compressionStatus);
+                TraceFrame(frame, 0, compressionStatus);
             }
         }
     }
 
     internal class LegacyTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
-        internal AsyncSemaphore? SerializeSemaphore { get; }
+        internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
+        internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
         private readonly object _mutex = new object();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
@@ -146,11 +154,18 @@ namespace ZeroC.Ice
                         }
                         else if (frameType == Ice1Definitions.FrameType.Request)
                         {
-                            if (SerializeSemaphore != null)
-                            {
-                                await SerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                            }
                             stream = new LegacyStream(streamId, this);
+                            if (stream.IsBidirectional)
+                            {
+                                if (BidirectionalSerializeSemaphore != null)
+                                {
+                                    await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                }
+                            }
+                            else if (UnidirectionalSerializeSemaphore != null)
+                            {
+                                await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                            }
                             stream.ReceivedFrame(frameType, frame);
                             return stream;
                         }
@@ -201,10 +216,7 @@ namespace ZeroC.Ice
 
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(Endpoint,
-                                         0,
-                                         new List<ArraySegment<byte>>(),
-                                         (byte)Ice1Definitions.FrameType.ValidateConnection);
+                TraceFrame(0, new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.ValidateConnection);
             }
         }
 
@@ -212,7 +224,11 @@ namespace ZeroC.Ice
             base(endpoint, adapter, transceiver)
         {
             _transceiver = transceiver;
-            SerializeSemaphore = adapter?.SerializeDispatch ?? false ? new AsyncSemaphore(1) : null;
+            if (adapter?.SerializeDispatch ?? false)
+            {
+                BidirectionalSerializeSemaphore = new AsyncSemaphore(1);
+                UnidirectionalSerializeSemaphore = new AsyncSemaphore(1);
+            }
 
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)
@@ -339,10 +355,9 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        ProtocolTrace.TraceFrame(Endpoint,
-                                                 0,
-                                                 readBuffer.Slice(Ice1Definitions.HeaderSize),
-                                                 (byte)Ice1Definitions.FrameType.RequestBatch);
+                        TraceFrame(0,
+                                   readBuffer.Slice(Ice1Definitions.HeaderSize),
+                                   (byte)Ice1Definitions.FrameType.RequestBatch);
                     }
                     int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
@@ -365,10 +380,7 @@ namespace ZeroC.Ice
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        ProtocolTrace.TraceFrame(Endpoint,
-                                                 0,
-                                                 ArraySegment<byte>.Empty,
-                                                 (byte)Ice1Definitions.FrameType.ValidateConnection);
+                        TraceFrame(0, ArraySegment<byte>.Empty, (byte)Ice1Definitions.FrameType.ValidateConnection);
                     }
                     ReceivedPing();
                     return (IsIncoming ? 2 : 3, frameType, default);

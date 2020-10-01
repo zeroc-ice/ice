@@ -22,9 +22,19 @@ namespace ZeroC.Ice
 
         public Connection Connect(string connectionId)
         {
-            var reader = Channel.CreateUnbounded<(long, object?, bool)>();
-            var writer = Channel.CreateUnbounded<(long, object?, bool)>();
-            long id = Interlocked.Add(ref _nextId, 1);
+            var readerOptions = new UnboundedChannelOptions();
+            readerOptions.SingleReader = true;
+            readerOptions.SingleWriter = true;
+            readerOptions.AllowSynchronousContinuations = false;
+            var reader = Channel.CreateUnbounded<(long, object?, bool)>(readerOptions);
+
+            var writerOptions = new UnboundedChannelOptions();
+            writerOptions.SingleReader = true;
+            writerOptions.SingleWriter = true;
+            writerOptions.AllowSynchronousContinuations = false;
+            var writer = Channel.CreateUnbounded<(long, object?, bool)>(writerOptions);
+
+            long id = Interlocked.Increment(ref _nextId);
 
             if (!_writer.TryWrite((id, writer.Writer, reader.Reader)))
             {

@@ -347,9 +347,20 @@ namespace ZeroC.Ice
                                                               message,
                                                               cancel).ConfigureAwait(false);
 
-                    // Wait the peer to close the stream.
+                    // Wait for the peer to close the stream.
                     while (true)
                     {
+                        // We can't just wait for the accept stream task failure as the task can sometime succeeds
+                        // depending on the thread scheduling. So we also check for the state to ensure the loop
+                        // eventually terminates once the peer connection is closed.
+                        lock (_mutex)
+                        {
+                            if (_state == ConnectionState.Closed)
+                            {
+                                Debug.Assert(_exception != null);
+                                throw _exception;
+                            }
+                        }
                         await _acceptStreamTask.WaitAsync(cancel).ConfigureAwait(false);
                     }
                 }
@@ -402,6 +413,10 @@ namespace ZeroC.Ice
                         {
                             _closeTask = closeTask;
                         }
+                    }
+                    else if (_state == ConnectionState.Closing)
+                    {
+                        closeTask = PerformCloseAsync(lastStreamId, _exception!);
                     }
                     else
                     {
@@ -599,14 +614,14 @@ namespace ZeroC.Ice
                     stream = await Transceiver.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
                     if (_exception != null)
                     {
-                        // Ignore the stream if the connection is being closed. The loop will eventually terminate when
-                        // the peer closes the connection.
+                        // Ignore the stream if the connection is being closed. The loop will eventually terminate
+                        // when the peer closes the connection.
                         stream.Dispose();
                     }
                     else
                     {
                         // Start a new accept stream task
-                        _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
+                        _acceptStreamTask = Task.Run(() => AcceptStreamAsync().AsTask());
                         break;
                     }
                 }
@@ -639,6 +654,8 @@ namespace ZeroC.Ice
 
                 var current = new Current(adapter, request, stream, fin, this, cancel);
 
+                stream.Observer = Endpoint.Communicator.Observer?.GetDispatchObserver(current, stream.Id, request.Size);
+
                 // Dispatch the request and get the response
                 if (adapter.TaskScheduler != null)
                 {
@@ -665,10 +682,6 @@ namespace ZeroC.Ice
             catch (OperationCanceledException)
             {
                 // Ignore, the dispatch got canceled
-            }
-            catch (StreamResetByPeerException)
-            {
-                // Ignore, the peer closed the stream.
             }
             catch (Exception ex)
             {

@@ -361,20 +361,8 @@ namespace ZeroC.Ice
 
                             // Create the stream and send the request
                             using TransceiverStream stream = connection.CreateStream(!oneway);
-                            if (observer != null)
-                            {
-                                if (connection is ColocatedConnection)
-                                {
-                                    // TODO: Get rid of the colocated observer?
-                                    stream.Observer = observer.GetCollocatedObserver(connection.Adapter!,
-                                                                                      stream.Id,
-                                                                                      request.Size);
-                                }
-                                else
-                                {
-                                    stream.Observer = observer.GetRemoteObserver(connection, stream.Id, request.Size);
-                                }
-                            }
+
+                            stream.Observer = observer?.GetChildInvocationObserver(connection, request.Size);
 
                             // TODO: support for streaming data, fin should be false if there's data to stream.
                             bool fin = true;
@@ -400,7 +388,8 @@ namespace ZeroC.Ice
                                 IncomingResponseFrame response;
 
                                 // Wait for the reception of the response.
-                                (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+                                (response, fin) =
+                                    await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
                                 if (response.ResultType == ResultType.Failure)
                                 {

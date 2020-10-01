@@ -15,7 +15,7 @@ namespace ZeroC.IceMX
     {
         /// <summary>Constructs a new InvocationMetrics object.</summary>
         public InvocationMetrics()
-            : this(remotes: Array.Empty<Metrics>(), collocated: Array.Empty<Metrics>())
+            : this(children: Array.Empty<Metrics>(), remotes: Array.Empty<Metrics>(), collocated: Array.Empty<Metrics>())
         {
         }
     }
@@ -23,36 +23,9 @@ namespace ZeroC.IceMX
 
 namespace ZeroC.Ice
 {
-    internal class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
-    {
-        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
-        private readonly long _requestId;
-        private readonly string _id;
-        private readonly int _size;
 
-        public override void InitMetrics(CollocatedMetrics v) => v.Size += _size;
-
-        internal CollocatedInvocationHelper(ObjectAdapter adapter, long requestId, int size)
-            : base(_attributeResolver)
-        {
-            _id = adapter.Name;
-            _requestId = requestId;
-            _size = size;
-        }
-
-        private class AttributeResolverI : AttributeResolver
-        {
-            public AttributeResolverI()
-            {
-                Add("parent", obj => "Communicator");
-                Add("id", obj => (obj as CollocatedInvocationHelper)?._id);
-                Add("requestId", obj => (obj as CollocatedInvocationHelper)?._requestId);
-            }
-        }
-    }
-
-    internal class CollocatedObserver : ObserverWithDelegate<CollocatedMetrics, ICollocatedObserver>,
-        ICollocatedObserver
+    internal class ChildInvocationObserver :
+        ObserverWithDelegate<ChildInvocationMetrics, IChildInvocationObserver>, IChildInvocationObserver
     {
         public void Reply(int size)
         {
@@ -91,10 +64,8 @@ namespace ZeroC.Ice
                 IObserver>(AdminFacet, "ConnectionEstablishment");
             _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegate,
                 IObserver>(AdminFacet, "EndpointLookup");
-            _invocations.RegisterSubMap<RemoteMetrics>("Remote",
-                (obj, metrics) => (obj as InvocationMetrics)!.Remotes = metrics);
-            _invocations.RegisterSubMap<CollocatedMetrics>("Collocated",
-                (obj, metrics) => (obj as InvocationMetrics)!.Collocated = metrics);
+            _invocations.RegisterSubMap<ChildInvocationMetrics>("ChildInvocation",
+                (obj, metrics) => (obj as InvocationMetrics)!.Children = metrics);
         }
 
         public IObserver? GetConnectionEstablishmentObserver(Endpoint endpoint, string connector)
@@ -507,20 +478,11 @@ namespace ZeroC.Ice
     internal class InvocationObserver : ObserverWithDelegate<InvocationMetrics, IInvocationObserver>,
         IInvocationObserver
     {
-        public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long requestId, int size) =>
-            GetObserver<CollocatedMetrics, CollocatedObserver, ICollocatedObserver>(
-                "Collocated",
-                new CollocatedInvocationHelper(adapter, requestId, size),
-                Delegate?.GetCollocatedObserver(adapter, requestId, size));
-
-        public IRemoteObserver? GetRemoteObserver(
-            Connection connection,
-            long requestId,
-            int size) =>
-            GetObserver<RemoteMetrics, RemoteObserver, IRemoteObserver>(
-                "Remote",
-                new RemoteInvocationHelper(connection, requestId, size),
-                Delegate?.GetRemoteObserver(connection, requestId, size));
+        public IChildInvocationObserver? GetChildInvocationObserver(Connection connection, int size) =>
+            GetObserver<ChildInvocationMetrics, ChildInvocationObserver, IChildInvocationObserver>(
+                "ChildInvocation",
+                new ChildInvocationHelper(connection, size),
+                Delegate?.GetChildInvocationObserver(connection, size));
 
         public void RemoteException()
         {
@@ -611,7 +573,7 @@ namespace ZeroC.Ice
     {
     }
 
-    internal class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
+    internal class ChildInvocationHelper : MetricsHelper<ChildInvocationMetrics>
     {
         private string Id
         {
@@ -626,17 +588,15 @@ namespace ZeroC.Ice
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Connection _connection;
-        private readonly long _requestId;
         private readonly int _size;
         private string? _id;
 
-        public override void InitMetrics(RemoteMetrics v) => v.Size += _size;
+        public override void InitMetrics(ChildInvocationMetrics v) => v.Size += _size;
 
-        internal RemoteInvocationHelper(Connection connection, long requestId, int size)
+        internal ChildInvocationHelper(Connection connection, int size)
             : base(_attributeResolver)
         {
             _connection = connection;
-            _requestId = requestId;
             _size = size;
         }
 
@@ -646,49 +606,39 @@ namespace ZeroC.Ice
             {
                 Add("parent", obj =>
                     {
-                        Connection connection = ((RemoteInvocationHelper)obj)._connection;
+                        Connection connection = ((ChildInvocationHelper)obj)._connection;
                         return string.IsNullOrEmpty(connection.Adapter?.Name) ? "Communicator" : connection.Adapter?.Name;
                     });
-                Add("id", obj => (obj as RemoteInvocationHelper)?.Id);
-                Add("requestId", obj => (obj as RemoteInvocationHelper)?._requestId);
-                Add("incoming", obj => (obj as RemoteInvocationHelper)?._connection.IsIncoming);
-                Add("adapterName", obj => (obj as RemoteInvocationHelper)?._connection.Adapter?.Name);
-                Add("connectionId", obj => (obj as RemoteInvocationHelper)?._connection.ConnectionId);
+                Add("id", obj => (obj as ChildInvocationHelper)?.Id);
+                Add("incoming", obj => (obj as ChildInvocationHelper)?._connection.IsIncoming);
+                Add("adapterName", obj => (obj as ChildInvocationHelper)?._connection.Adapter?.Name);
+                Add("connectionId", obj => (obj as ChildInvocationHelper)?._connection.ConnectionId);
 
                 Add("localHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Address);
+                    ((obj as ChildInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Address);
 
                 Add("localPort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Port);
+                    ((obj as ChildInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Port);
 
                 Add("remoteHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Address);
+                    ((obj as ChildInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Address);
 
                 Add("remotePort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Port);
+                    ((obj as ChildInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Address);
+                    ((obj as ChildInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Port);
+                    ((obj as ChildInvocationHelper)?._connection as UdpConnection)?.MulticastEndpoint?.Port);
 
-                Add("endpoint", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint);
-                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.Transport);
-                Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.IsSecure);
-                Add("endpointHost", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.Host);
-                Add("endpointPort", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint!.Port);
+                Add("endpoint", obj => (obj as ChildInvocationHelper)?._connection.Endpoint);
+                Add("endpointTransport", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.Transport);
+                Add("endpointIsDatagram", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.IsSecure);
+                Add("endpointHost", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.Host);
+                Add("endpointPort", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.Port);
             }
-        }
-    }
-
-    internal class RemoteObserver : ObserverWithDelegate<RemoteMetrics, IRemoteObserver>, IRemoteObserver
-    {
-        public void Reply(int size)
-        {
-            ForEach(v => v.ReplySize += size);
-            Delegate?.Reply(size);
         }
     }
 }

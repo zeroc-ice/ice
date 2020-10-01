@@ -250,7 +250,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             output.WriteLine("ok");
 
-            if (thrower.GetConnection() != null)
+            if (thrower.GetConnection() is not ColocatedConnection)
             {
                 output.Write("testing memory limit marshal exception...");
                 output.Flush();

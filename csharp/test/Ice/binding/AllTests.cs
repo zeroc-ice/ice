@@ -10,8 +10,7 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class AllTests
     {
-        private static string GetAdapterNameWithAMI(ITestIntfPrx testIntf) =>
-            testIntf.GetAdapterNameAsync().Result;
+        private static string GetAdapterNameWithAMI(ITestIntfPrx testIntf) => testIntf.GetAdapterNameAsync().Result;
 
         private static void Shuffle(ref List<IRemoteObjectAdapterPrx> array)
         {
@@ -79,8 +78,8 @@ namespace ZeroC.Ice.Test.Binding
                 com.DeactivateObjectAdapter(adapter);
 
                 var test3 = test1.Clone(ITestIntfPrx.Factory);
-                TestHelper.Assert(test3.GetConnection() == test1.GetConnection());
-                TestHelper.Assert(test3.GetConnection() == test2.GetConnection());
+                TestHelper.Assert(test3.GetCachedConnection() == test1.GetCachedConnection());
+                TestHelper.Assert(test3.GetCachedConnection() == test2.GetCachedConnection());
 
                 try
                 {

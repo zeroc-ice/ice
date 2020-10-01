@@ -685,7 +685,7 @@ namespace ZeroC.Ice.Test.AMI
 
             if (p.SupportsAMD())
             {
-                output.Write("testing graceful close connection with wait... ");
+                output.Write("testing graceful close connection... ");
                 output.Flush();
                 {
                     // Remote case.
@@ -707,7 +707,7 @@ namespace ZeroC.Ice.Test.AMI
                         }
 
                         var cb = new ProgressCallback();
-                        p.CloseAsync(CloseMode.GracefullyWithWait, progress: cb);
+                        p.CloseAsync(CloseMode.Gracefully, progress: cb);
 
                         if (!cb.SentSynchronously)
                         {
@@ -735,10 +735,7 @@ namespace ZeroC.Ice.Test.AMI
                         }
                     }
                 }
-                output.WriteLine("ok");
 
-                output.Write("testing graceful close connection without wait... ");
-                output.Flush();
                 {
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the

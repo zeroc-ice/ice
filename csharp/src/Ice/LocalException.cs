@@ -201,18 +201,6 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This exception indicates that the stream was closed by the peer.</summary>
-    public class StreamResetByPeerException : TransportException
-    {
-        /// <summary>Constructs a new instance of the <see cref="StreamResetByPeerException"/> class with a specified
-        /// error message.</summary>
-        /// <param name="message">The message that describes the error.</param>
-        public StreamResetByPeerException(string message)
-            : base(message)
-        {
-        }
-    }
-
     /// <summary>This exception indicates that the connection was gracefully shut down by the server. A request
     /// that failed with this exception was not executed by the server. In most cases you will not get this
     /// exception because the client automatically retries the invocation in case the server shuts down the connection.

@@ -19,8 +19,7 @@ exception TestIntfException
 enum CloseMode
 {
     Forcefully,
-    Gracefully,
-    GracefullyWithWait
+    Gracefully
 }
 
 interface TestIntf

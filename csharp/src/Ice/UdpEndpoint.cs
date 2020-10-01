@@ -135,8 +135,8 @@ namespace ZeroC.Ice
                         $"attempting to bind to {TransportName} socket\n{transceiver}");
                 }
                 Endpoint endpoint = transceiver.Bind(this);
-                var multiStreamTransceiver = new LegacyTransceiver(transceiver, this, adapter);
-                return new UdpConnection(null, this, multiStreamTransceiver, null, "", adapter);
+                var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
+                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
             }
             catch (Exception)
             {

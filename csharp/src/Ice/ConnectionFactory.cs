@@ -626,6 +626,7 @@ namespace ZeroC.Ice
             : base(endpoint, publish)
         {
             _connection = endpoint.CreateDatagramServerConnection(adapter);
+            Endpoint = _connection.Endpoint;
             _ = _connection.StartAsync();
         }
 

@@ -22,6 +22,7 @@ namespace ZeroC.Ice
             base.Dispose(disposing);
             if (disposing && !IsIncoming)
             {
+                //_transceiver.Endpoint.Communicator.Logger.Trace(_transceiver.Endpoint.Communicator.TraceLevels.TransportCategory, $"RELEASE {Id} {_transceiver}");
                 if (IsBidirectional)
                 {
                     _transceiver.BidirectionalSerializeSemaphore?.Release();
@@ -59,8 +60,10 @@ namespace ZeroC.Ice
         internal ColocatedStream(bool bidirectional, ColocatedTransceiver transceiver) :
             base(bidirectional, transceiver) => _transceiver = transceiver;
 
-        internal void ReceivedFrame(object frame, bool fin, bool runContinuationAsynchronously) =>
-            SignalCompletion((frame, fin), runContinuationAsynchronously);
+        internal void ReceivedFrame(object frame, bool fin) =>
+            // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
+            // code which could end up blocking the AcceptStreamAsync task.
+            SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);
 
         private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
             byte expectedFrameType,
@@ -112,7 +115,9 @@ namespace ZeroC.Ice
                 {
                     if (_transceiver.BidirectionalSerializeSemaphore != null)
                     {
+                        //_transceiver.Endpoint.Communicator.Logger.Trace(_transceiver.Endpoint.Communicator.TraceLevels.TransportCategory, $"WAIT ASYNC {_transceiver}");
                         await _transceiver.BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                        //_transceiver.Endpoint.Communicator.Logger.Trace(_transceiver.Endpoint.Communicator.TraceLevels.TransportCategory, $"DONE WAIT ASYNC {_transceiver}");
                     }
                 }
                 else if (_transceiver.UnidirectionalSerializeSemaphore != null)
@@ -137,7 +142,7 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, frame);
+                TraceFrame(frame);
             }
         }
     }
@@ -171,14 +176,14 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            stream.ReceivedFrame(frame, fin, true);
+                            stream.ReceivedFrame(frame, fin);
                         }
                     }
                     else if (frame is OutgoingRequestFrame || streamId == (IsIncoming ? 2 : 3))
                     {
                         Debug.Assert(frame != null);
                         stream = new ColocatedStream(streamId, this);
-                        stream.ReceivedFrame(frame, fin, false);
+                        stream.ReceivedFrame(frame, fin);
                         return stream;
                     }
                     else
@@ -206,7 +211,7 @@ namespace ZeroC.Ice
         public override ValueTask PingAsync(CancellationToken cancel) => default;
 
         public override string ToString() =>
-            $"ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
+            $"connection ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
 
         internal ColocatedTransceiver(
             ColocatedEndpoint endpoint,

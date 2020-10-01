@@ -321,7 +321,7 @@ namespace ZeroC.Ice
             {
                 1 => 0x00,
                 2 => 0x01,
-                3 => 0x02,
+                4 => 0x02,
                 _ => 0x03
             };
             v |= encodedSize;

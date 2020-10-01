@@ -32,7 +32,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_id == -1);
                 _id = value;
-                _transceiver.Streams.TryAdd(_id, this);
+                _transceiver.AddStream(_id, this);
             }
         }
         public bool IsIncoming => _id % 2 == (_transceiver.IsIncoming ? 0 : 1);
@@ -57,8 +57,6 @@ namespace ZeroC.Ice
         private IObserver? _observer;
         private readonly MultiStreamTransceiver _transceiver;
 
-        public abstract void Abort(Exception ex);
-
         public void Dispose()
         {
             Dispose(true);
@@ -73,7 +71,7 @@ namespace ZeroC.Ice
         {
             _transceiver = transceiver;
             _id = streamId;
-            _transceiver.Streams.TryAdd(_id, this);
+            _transceiver.AddStream(_id, this);
             IsBidirectional = _id % 4 < 2;
         }
 
@@ -86,18 +84,21 @@ namespace ZeroC.Ice
         protected virtual void Dispose(bool disposing)
         {
             _observer?.Detach();
-            if (IsStarted && _transceiver.Streams.Remove(Id, out TransceiverStream? _))
+            if (IsStarted)
             {
-                _transceiver.CheckStreamsEmpty();
+                _transceiver.RemoveStream(Id);
             }
         }
+
+        internal abstract void Abort(Exception ex);
 
         internal virtual async ValueTask<(long, string message)> ReceiveCloseFrameAsync()
         {
             byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.Close;
 
-            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, CancellationToken.None);
+            (ArraySegment<byte> data, bool fin) =
+                await ReceiveFrameAsync(frameType, CancellationToken.None).ConfigureAwait(false);
             if (!fin)
             {
                 throw new InvalidDataException($"expected end of stream after Close frame");
@@ -105,7 +106,7 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, data, frameType);
+                TraceFrame(data, frameType);
             }
 
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
@@ -126,7 +127,7 @@ namespace ZeroC.Ice
             byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.ValidateConnection : (byte)Ice2Definitions.FrameType.Initialize;
 
-            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel);
+            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
             if (fin)
             {
                 throw new InvalidDataException($"received unexpected end of stream after initialize frame");
@@ -134,7 +135,7 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, data, (byte)frameType);
+                TraceFrame(data, (byte)frameType);
             }
 
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
@@ -156,7 +157,7 @@ namespace ZeroC.Ice
             byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.Request : (byte)Ice2Definitions.FrameType.Request;
 
-            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel);
+            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
             var request = new IncomingRequestFrame(_transceiver.Endpoint.Protocol,
                                                    data,
@@ -164,7 +165,7 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, request);
+                _transceiver.TraceFrame(Id, request);
             }
 
             return (request, fin);
@@ -177,7 +178,7 @@ namespace ZeroC.Ice
                 byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
                     (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
 
-                (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel);
+                (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
                 var response = new IncomingResponseFrame(_transceiver.Endpoint.Protocol,
                                                          data,
@@ -185,10 +186,10 @@ namespace ZeroC.Ice
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, response);
+                    TraceFrame(response);
                 }
 
-                (Observer as IRemoteObserver)?.Reply(response.Size);
+                (Observer as ChildInvocationObserver)?.Reply(response.Size);
                 return (response, fin);
             }
             catch (OperationCanceledException)
@@ -206,10 +207,7 @@ namespace ZeroC.Ice
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                             Id,
-                                             new List<ArraySegment<byte>>(),
-                                             (byte)Ice1Definitions.FrameType.CloseConnection);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.CloseConnection);
                 }
             }
             else
@@ -232,10 +230,7 @@ namespace ZeroC.Ice
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                             Id,
-                                             data.Slice(pos, ostr.Tail),
-                                             (byte)Ice2Definitions.FrameType.Close);
+                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.Close);
                 }
             }
         }
@@ -248,10 +243,7 @@ namespace ZeroC.Ice
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                             Id,
-                                             new List<ArraySegment<byte>>(),
-                                             (byte)Ice1Definitions.FrameType.ValidateConnection);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.ValidateConnection);
                 }
             }
             else
@@ -267,15 +259,15 @@ namespace ZeroC.Ice
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_transceiver.Endpoint,
-                                             Id,
-                                             new List<ArraySegment<byte>>(),
-                                             (byte)Ice2Definitions.FrameType.Initialize);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice2Definitions.FrameType.Initialize);
                 }
             }
         }
 
-        internal async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, bool fin, CancellationToken cancel)
+        internal async ValueTask SendRequestFrameAsync(
+            OutgoingRequestFrame request,
+            bool fin,
+            CancellationToken cancel)
         {
             try
             {
@@ -323,6 +315,10 @@ namespace ZeroC.Ice
             // Read the frame data
             if (size > 0)
             {
+                if (size > _transceiver.IncomingFrameSizeMax)
+                {
+                    throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
+                }
                 buffer = size > buffer.Array!.Length ? new ArraySegment<byte>(new byte[size]) : buffer.Slice(0, size);
                 fin = await ReceiveAsync(buffer, cancel).ConfigureAwait(false);
             }
@@ -357,9 +353,12 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                ProtocolTrace.TraceFrame(_transceiver.Endpoint, Id, frame);
+                TraceFrame(frame);
             }
         }
+
+        internal void TraceFrame(object frame, byte type = 0, byte compress = 0) =>
+            _transceiver.TraceFrame(Id, frame, type, compress);
     }
 
     // The signaled transceiver stream class provide signaling functionality using the IValueTaskSource interface.
@@ -367,19 +366,9 @@ namespace ZeroC.Ice
     // the stream when new data is available.
     internal abstract class SignaledTransceiverStream<T> : TransceiverStream, IValueTaskSource<T>
     {
-        private ManualResetValueTaskSourceCore<T> _source;
+        internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
 
-        public override void Abort(Exception ex)
-        {
-            try
-            {
-                _source.RunContinuationsAsynchronously = true;
-                _source.SetException(ex);
-            }
-            catch
-            {
-            }
-        }
+        private ManualResetValueTaskSourceCore<T> _source;
 
         protected SignaledTransceiverStream(long streamId, MultiStreamTransceiver transceiver) :
             base(streamId, transceiver)
@@ -391,7 +380,7 @@ namespace ZeroC.Ice
         {
         }
 
-        protected void SignalCompletion(T result, bool runContinuationAsynchronously)
+        protected void SignalCompletion(T result, bool runContinuationAsynchronously = false)
         {
             _source.RunContinuationsAsynchronously = runContinuationAsynchronously;
             _source.SetResult(result);
@@ -429,6 +418,18 @@ namespace ZeroC.Ice
             object? state,
             short token,
             ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
+
+        internal override void Abort(Exception ex)
+        {
+            try
+            {
+                _source.RunContinuationsAsynchronously = true;
+                _source.SetException(ex);
+            }
+            catch
+            {
+            }
+        }
     }
 
     public abstract class MultiStreamTransceiver : IDisposable
@@ -442,14 +443,14 @@ namespace ZeroC.Ice
         {
             get
             {
-                lock (Mutex)
+                lock (_mutex)
                 {
                     return _observer;
                 }
             }
             set
             {
-                lock (Mutex)
+                lock (_mutex)
                 {
                     _observer = value;
                     _observer?.Attach();
@@ -457,12 +458,12 @@ namespace ZeroC.Ice
             }
         }
         internal event EventHandler? Ping;
-        internal readonly ConcurrentDictionary<long, TransceiverStream> Streams =
-            new ConcurrentDictionary<long, TransceiverStream>();
 
-        private IConnectionObserver? _observer;
         // The mutex provides thread-safety for the _observer and LastActivity data members.
-        private readonly object Mutex = new object();
+        private readonly object _mutex = new object();
+        private IConnectionObserver? _observer;
+        private readonly ConcurrentDictionary<long, TransceiverStream> _streams =
+            new ConcurrentDictionary<long, TransceiverStream>();
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Abort the transport.</summary>
@@ -494,12 +495,12 @@ namespace ZeroC.Ice
             IsIncoming = adapter != null;
             IncomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             LastActivity = Time.Elapsed;
-            Mutex = new object();
+            _mutex = new object();
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            foreach (TransceiverStream stream in Streams.Values)
+            foreach (TransceiverStream stream in _streams.Values)
             {
                 Debug.Assert(stream.IsControl);
                 stream.Dispose();
@@ -508,7 +509,7 @@ namespace ZeroC.Ice
 
         protected void Received(int length)
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 Debug.Assert(length > 0);
                 _observer?.ReceivedBytes(length);
@@ -545,7 +546,7 @@ namespace ZeroC.Ice
 
         protected void Sent(int length)
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 Debug.Assert(length > 0);
                 _observer?.SentBytes(length);
@@ -563,7 +564,7 @@ namespace ZeroC.Ice
         protected bool TryGetStream<T>(long streamId, [NotNullWhen(returnValue: true)] out T? value)
             where T : TransceiverStream
         {
-            if (Streams.TryGetValue(streamId, out TransceiverStream? stream))
+            if (_streams.TryGetValue(streamId, out TransceiverStream? stream))
             {
                 value = (T)stream;
                 return true;
@@ -582,7 +583,7 @@ namespace ZeroC.Ice
 
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
-            lock (Mutex)
+            lock (_mutex)
             {
                 _observer?.Detach();
             }
@@ -610,9 +611,38 @@ namespace ZeroC.Ice
             }
         }
 
+        internal long AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
+        {
+            // Cancel the streams based on the given predicate. Control are not canceled since they are still needed
+            // for sending and receiving goaway frames.
+            long largestStreamId = 0;
+            foreach (TransceiverStream stream in _streams.Values)
+            {
+                if (!stream.IsControl && (predicate?.Invoke(stream) ?? true))
+                {
+                    stream.Abort(exception);
+                }
+                else if (stream.Id > largestStreamId)
+                {
+                    largestStreamId = stream.Id;
+                }
+            }
+            return largestStreamId;
+        }
+
+        internal void AddStream(long id, TransceiverStream stream) => _streams[id] = stream;
+
+        internal void CheckStreamsEmpty()
+        {
+            if (_streams.Count <= 2)
+            {
+                _streamsEmptySource?.TrySetResult();
+            }
+        }
+
         internal void Initialized()
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 LastActivity = Time.Elapsed;
             }
@@ -640,14 +670,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void CheckStreamsEmpty()
-        {
-            if (Streams.Count <= 2)
-            {
-                _streamsEmptySource?.TrySetResult();
-            }
-        }
-
         internal virtual async ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
             TransceiverStream stream = await AcceptStreamAsync(cancel).ConfigureAwait(false);
@@ -655,33 +677,226 @@ namespace ZeroC.Ice
             return stream;
         }
 
+        internal void RemoveStream(long id)
+        {
+            if (_streams.TryRemove(id, out TransceiverStream _))
+            {
+                CheckStreamsEmpty();
+            }
+        }
+
         internal virtual async ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            TransceiverStream stream = CreateStream(false);
+            TransceiverStream stream = CreateControlStream();
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
 
-        internal long AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
+        internal void TraceFrame(long streamId, object frame, byte type = 0, byte compress = 0)
         {
-            long largestStreamId = 0;
-            foreach (TransceiverStream stream in Streams.Values)
+            Communicator communicator = Endpoint.Communicator;
+            Protocol protocol = Endpoint.Protocol;
+            if (communicator.TraceLevels.Protocol >= 1)
             {
-                if (!stream.IsControl && (predicate?.Invoke(stream) ?? true))
+                string framePrefix;
+                string frameType;
+                Encoding encoding;
+                int frameSize;
+                ArraySegment<byte> data = ArraySegment<byte>.Empty;
+
+                if (frame is OutgoingFrame outgoingFrame)
                 {
-                    stream.Abort(exception);
+                    framePrefix = "sent";
+                    encoding = outgoingFrame.Encoding;
+                    frameType = frame is OutgoingRequestFrame ? "request" : "response";
+                    frameSize = outgoingFrame.Size;
                 }
-                else if (stream.Id > largestStreamId)
+                else if (frame is IncomingFrame incomingFrame)
                 {
-                    largestStreamId = stream.Id;
+                    framePrefix = "received";
+                    encoding = incomingFrame.Encoding;
+                    frameType = frame is IncomingRequestFrame ? "request" : "response";
+                    frameSize = incomingFrame.Size;
                 }
+                else
+                {
+                    if (frame is IList<ArraySegment<byte>> sendBuffer)
+                    {
+                        framePrefix = "sent";
+                        data = sendBuffer.Count > 0 ? sendBuffer[0] : ArraySegment<byte>.Empty;
+                    }
+                    else if (frame is ArraySegment<byte> readBuffer)
+                    {
+                        framePrefix = "received";
+                        data = readBuffer;
+                    }
+                    else
+                    {
+                        Debug.Assert(false);
+                        return;
+                    }
+
+                    if (protocol == Protocol.Ice2)
+                    {
+                        frameType = (Ice2Definitions.FrameType)type switch
+                        {
+                            Ice2Definitions.FrameType.Initialize => "initialize",
+                            Ice2Definitions.FrameType.Close => "close",
+                            _ => "unknown"
+                        };
+                        encoding = Ice2Definitions.Encoding;
+                        frameSize = 0;
+                    }
+                    else
+                    {
+                        frameType = (Ice1Definitions.FrameType)type switch
+                        {
+                            Ice1Definitions.FrameType.ValidateConnection => "validate",
+                            Ice1Definitions.FrameType.CloseConnection => "close",
+                            Ice1Definitions.FrameType.RequestBatch => "batch request",
+                            _ => "unknown"
+                        };
+                        encoding = Ice1Definitions.Encoding;
+                        frameSize = 0;
+                    }
+                }
+
+                var s = new StringBuilder();
+                s.Append(framePrefix);
+                s.Append(' ');
+                s.Append(frameType);
+                s.Append(" via ");
+                s.Append(Endpoint.TransportName);
+
+                s.Append("\nprotocol = ");
+                s.Append(protocol.GetName());
+                s.Append("\nencoding = ");
+                s.Append(encoding.ToString());
+
+                s.Append("\nframe size = ");
+                s.Append(frameSize);
+
+                if (protocol == Protocol.Ice2)
+                {
+                    s.Append("\nstream ID = ");
+                    s.Append(streamId);
+                }
+                else if (frameType == "request" || frameType == "response")
+                {
+                    s.Append("\ncompression status = ");
+                    s.Append(compress);
+                    s.Append(compress switch
+                    {
+                        0 => " (not compressed; do not compress response, if any)",
+                        1 => " (not compressed; compress response, if any)",
+                        2 => " (compressed; compress response, if any)",
+                        _ => " (unknown)"
+                    });
+
+                    s.Append("\nrequest ID = ");
+                    int requestId = streamId % 4 < 2 ? (int)(streamId >> 2) + 1 : 0;
+                    s.Append((int)requestId);
+                    if (requestId == 0)
+                    {
+                        s.Append(" (oneway)");
+                    }
+                }
+
+                if (frameType == "request")
+                {
+                    Identity identity;
+                    string facet;
+                    string operation;
+                    bool isIdempotent;
+                    IReadOnlyDictionary<string, string> context;
+                    if (frame is OutgoingRequestFrame outgoingRequest)
+                    {
+                        identity = outgoingRequest.Identity;
+                        facet = outgoingRequest.Facet;
+                        operation = outgoingRequest.Operation;
+                        isIdempotent = outgoingRequest.IsIdempotent;
+                        context = outgoingRequest.Context;
+                    }
+                    else if (frame is IncomingRequestFrame incomingRequest)
+                    {
+                        Debug.Assert(incomingRequest != null);
+                        identity = incomingRequest.Identity;
+                        facet = incomingRequest.Facet;
+                        operation = incomingRequest.Operation;
+                        isIdempotent = incomingRequest.IsIdempotent;
+                        context = incomingRequest.Context;
+                    }
+                    else
+                    {
+                        Debug.Assert(false);
+                        return;
+                    }
+
+                    ToStringMode toStringMode = communicator.ToStringMode;
+                    s.Append("\nidentity = ");
+                    s.Append(identity.ToString(toStringMode));
+
+                    s.Append("\nfacet = ");
+                    if (facet.Length > 0)
+                    {
+                        s.Append(StringUtil.EscapeString(facet, toStringMode));
+                    }
+
+                    s.Append("\noperation = ");
+                    s.Append(operation);
+
+                    s.Append($"\nidempotent = ");
+                    s.Append(isIdempotent.ToString().ToLower());
+
+                    int sz = context.Count;
+                    s.Append("\ncontext = ");
+                    foreach ((string key, string value) in context)
+                    {
+                        s.Append(key);
+                        s.Append('/');
+                        s.Append(value);
+                        if (--sz > 0)
+                        {
+                            s.Append(", ");
+                        }
+                    }
+                }
+                else if (frameType == "response")
+                {
+                    s.Append("\nresult type = ");
+                    if (frame is IncomingResponseFrame incomingResponseFrame)
+                    {
+                        s.Append(incomingResponseFrame.ResultType);
+                    }
+                    else if (frame is OutgoingResponseFrame outgoingResponseFrame)
+                    {
+                        s.Append(outgoingResponseFrame.ResultType);
+                    }
+                }
+                else if (frameType == "batch request")
+                {
+                    s.Append("\nnumber of requests = ");
+                    s.Append(data.AsReadOnlySpan().ReadInt());
+                }
+                else if (protocol == Protocol.Ice2 && frameType == "close")
+                {
+                    var istr = new InputStream(data, encoding);
+                    s.Append("\nlast stream ID = ");
+                    s.Append(istr.ReadVarLong());
+                    s.Append("\nreason = ");
+                    s.Append(istr.ReadString());
+                }
+
+                s.Append('\n');
+                s.Append(ToString());
+
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
-            return largestStreamId;
         }
 
         internal async ValueTask WaitForEmptyStreamsAsync()
         {
-            if (Streams.Count > 2)
+            if (_streams.Count > 2)
             {
                 // Wait for all the streams to complete.
                 _streamsEmptySource ??= new TaskCompletionSource();
@@ -689,6 +904,8 @@ namespace ZeroC.Ice
                 await _streamsEmptySource.Task.ConfigureAwait(false);
             }
         }
+
+        private protected virtual TransceiverStream CreateControlStream() => CreateStream(bidirectional: false);
     }
 
     // A multi-stream transceiver based on a single stream transceiver.
