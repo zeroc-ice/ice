@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#import "Logger.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICETraceUtil : NSObject
