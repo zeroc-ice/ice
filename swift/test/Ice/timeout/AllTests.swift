@@ -208,6 +208,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
             } catch let ex as Ice.ConnectionManuallyClosedException {
                 // Expected.
                 try test(ex.graceful)
+                // swiftlint:disable unneeded_break_in_switch
                 break
             }
         }
