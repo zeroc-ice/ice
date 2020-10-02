@@ -211,7 +211,7 @@ namespace ZeroC.Ice
         public override ValueTask PingAsync(CancellationToken cancel) => default;
 
         public override string ToString() =>
-            $"connection ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
+            $"colocated ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
 
         internal ColocatedTransceiver(
             ColocatedEndpoint endpoint,

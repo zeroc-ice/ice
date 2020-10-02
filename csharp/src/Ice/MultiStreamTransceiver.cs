@@ -42,19 +42,8 @@ namespace ZeroC.Ice
         private protected bool IsStarted => _id != -1;
         private long _id = -1;
 
-        internal IObserver? Observer
-        {
-            get => _observer;
-
-            set
-            {
-                _observer = value;
-                _observer?.Attach();
-            }
-        }
         internal event Action? Reset;
 
-        private IObserver? _observer;
         private readonly MultiStreamTransceiver _transceiver;
 
         public void Dispose()
@@ -83,7 +72,6 @@ namespace ZeroC.Ice
 
         protected virtual void Dispose(bool disposing)
         {
-            _observer?.Detach();
             if (IsStarted)
             {
                 _transceiver.RemoveStream(Id);
@@ -173,30 +161,20 @@ namespace ZeroC.Ice
 
         internal async ValueTask<(IncomingResponseFrame, bool)> ReceiveResponseFrameAsync(CancellationToken cancel)
         {
-            try
+            byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
+                (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
+
+            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
+
+            var response = new IncomingResponseFrame(_transceiver.Endpoint.Protocol,
+                                                        data,
+                                                        _transceiver.IncomingFrameSizeMax);
+
+            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
-                    (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
-
-                (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
-
-                var response = new IncomingResponseFrame(_transceiver.Endpoint.Protocol,
-                                                         data,
-                                                         _transceiver.IncomingFrameSizeMax);
-
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                {
-                    TraceFrame(response);
-                }
-
-                (Observer as ChildInvocationObserver)?.Reply(response.Size);
-                return (response, fin);
+                TraceFrame(response);
             }
-            catch (OperationCanceledException)
-            {
-                await ResetAsync().ConfigureAwait(false);
-                throw;
-            }
+            return (response, fin);
         }
 
         internal virtual async ValueTask SendCloseFrameAsync(long streamId, string reason, CancellationToken cancel)
@@ -283,11 +261,8 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, bool fin, CancellationToken cancel)
-        {
-            (Observer as IDispatchObserver)?.Reply(response.Size);
-            return SendFrameAsync(response, fin, cancel);
-        }
+        internal ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, bool fin, CancellationToken cancel) =>
+             SendFrameAsync(response, fin, cancel);
 
         private protected virtual async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
             byte expectedFrameType,
@@ -691,6 +666,8 @@ namespace ZeroC.Ice
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
+
+        internal int StreamCount => _streams.Count;
 
         internal void TraceFrame(long streamId, object frame, byte type = 0, byte compress = 0)
         {

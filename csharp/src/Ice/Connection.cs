@@ -463,34 +463,34 @@ namespace ZeroC.Ice
                 //
                 // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because the
                 // monitor() method is still only called every (timeout / 2) period.
-                // if (_state == ConnectionState.Active &&
-                //     (acm.Heartbeat == AcmHeartbeat.Always ||
-                //     (acm.Heartbeat != AcmHeartbeat.Off && now >= (Transceiver.LastActivity + (acm.Timeout / 4)))))
-                // {
-                //     if (acm.Heartbeat != AcmHeartbeat.OnDispatch || _dispatchCount > 0)
-                //     {
-                //         Debug.Assert(_state == ConnectionState.Active);
-                //         if (!Endpoint.IsDatagram)
-                //         {
-                //             ValueTask ignored = Transceiver.PingAsync(default);
-                //         }
-                //     }
-                // }
+                if (_state == ConnectionState.Active &&
+                    (acm.Heartbeat == AcmHeartbeat.Always ||
+                    (acm.Heartbeat != AcmHeartbeat.Off && now >= (Transceiver.LastActivity + (acm.Timeout / 4)))))
+                {
+                    if (acm.Heartbeat != AcmHeartbeat.OnDispatch || Transceiver.StreamCount > 0)
+                    {
+                        Debug.Assert(_state == ConnectionState.Active);
+                        if (!Endpoint.IsDatagram)
+                        {
+                            ValueTask ignored = Transceiver.PingAsync(default);
+                        }
+                    }
+                }
 
-                // if (acm.Close != AcmClose.Off && now >= Transceiver.LastActivity + acm.Timeout)
-                // {
-                //     if (acm.Close == AcmClose.OnIdleForceful || (acm.Close != AcmClose.OnIdle && (_requests.Count > 0)))
-                //     {
-                //         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
-                //         // ACM activity in the last period.
-                //         _ = AbortAsync(new ConnectionTimeoutException());
-                //     }
-                //     else if (acm.Close != AcmClose.OnInvocation && _dispatchCount == 0 && _requests.Count == 0)
-                //     {
-                //         // The connection is idle, close it.
-                //         _ = CloseAsync(new ConnectionIdleException());
-                //     }
-                // }
+                if (acm.Close != AcmClose.Off && now >= Transceiver.LastActivity + acm.Timeout)
+                {
+                    if (acm.Close == AcmClose.OnIdleForceful || (acm.Close != AcmClose.OnIdle && (Transceiver.StreamCount > 0)))
+                    {
+                        // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
+                        // ACM activity in the last period.
+                        _ = AbortAsync(new ConnectionTimeoutException());
+                    }
+                    else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount == 0)
+                    {
+                        // The connection is idle, close it.
+                        _ = CloseAsync(new ConnectionIdleException());
+                    }
+                }
             }
         }
 
@@ -654,18 +654,16 @@ namespace ZeroC.Ice
 
                 var current = new Current(adapter, request, stream, fin, this, cancel);
 
-                stream.Observer = Endpoint.Communicator.Observer?.GetDispatchObserver(current, stream.Id, request.Size);
-
                 // Dispatch the request and get the response
                 if (adapter.TaskScheduler != null)
                 {
-                    (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, stream, current),
+                    (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, current),
                                                     cancel,
                                                     adapter.TaskScheduler).ConfigureAwait(false);
                 }
                 else
                 {
-                    (response, fin) = await adapter.DispatchAsync(request, stream, current).ConfigureAwait(false);
+                    (response, fin) = await adapter.DispatchAsync(request, current).ConfigureAwait(false);
                 }
 
                 if (stream.IsBidirectional)

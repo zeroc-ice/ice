@@ -879,9 +879,11 @@ namespace ZeroC.Ice
 
         internal async ValueTask<(OutgoingResponseFrame, bool)> DispatchAsync(
             IncomingRequestFrame request,
-            TransceiverStream stream,
             Current current)
         {
+            IDispatchObserver? dispatchObserver = Communicator.Observer?.GetDispatchObserver(current,
+                                                                                             current.StreamId,
+                                                                                             request.Size);
             try
             {
                 Debug.Assert(current.Adapter == this);
@@ -909,11 +911,11 @@ namespace ZeroC.Ice
                 {
                     response.Finish();
                 }
+                dispatchObserver?.Reply(response.Size);
                 return (response, true);
             }
             catch (Exception ex)
             {
-                var dispatchObserver = stream.Observer as IDispatchObserver;
                 if (!current.IsOneway)
                 {
                     RemoteException actualEx;
@@ -934,6 +936,7 @@ namespace ZeroC.Ice
 
                     var response = new OutgoingResponseFrame(request, actualEx);
                     response.Finish();
+                    dispatchObserver?.Reply(response.Size);
                     return (response, true);
                 }
                 else
@@ -945,6 +948,10 @@ namespace ZeroC.Ice
                     dispatchObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                     return (OutgoingResponseFrame.WithVoidReturnValue(current), true);
                 }
+            }
+            finally
+            {
+                dispatchObserver?.Detach();
             }
 
             void Warning(Exception ex)

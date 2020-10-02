@@ -146,7 +146,7 @@ namespace ZeroC.Ice
                 ArraySegment<byte> buffer;
                 if (Endpoint.IsDatagram)
                 {
-                    buffer = await _transceiver.ReceiveDatagramAsync(CancellationToken.None).ConfigureAwait(false);
+                    buffer = await _transceiver.ReceiveDatagramAsync(cancel).ConfigureAwait(false);
                     if (buffer.Count < Ice1Definitions.HeaderSize)
                     {
                         ReceivedInvalidData($"received datagram with {buffer.Count} bytes");
@@ -157,7 +157,7 @@ namespace ZeroC.Ice
                 else
                 {
                     buffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
-                    await ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+                    await ReceiveAsync(buffer, cancel).ConfigureAwait(false);
                 }
 
                 // Check header
@@ -196,8 +196,7 @@ namespace ZeroC.Ice
                     }
                     Debug.Assert(size == buffer.Count);
 
-                    await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize),
-                                       CancellationToken.None).ConfigureAwait(false);
+                    await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize), cancel).ConfigureAwait(false);
                 }
 
                 (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
@@ -205,6 +204,14 @@ namespace ZeroC.Ice
                 {
                     if (TryGetStream(streamId, out LegacyStream? stream))
                     {
+                        if (frameType == Ice1Definitions.FrameType.ValidateConnection)
+                        {
+                            // Except for the validate conneciton frame, subsequence validate connection messages are
+                            // heartbeats sent by the peer. We just handle it here and don't pass it over the control
+                            // stream which only expect the close frame at this point.
+                            Debug.Assert(stream.IsControl);
+                            continue;
+                        }
                         stream.ReceivedFrame(frameType, frame);
                     }
                     else if (frameType == Ice1Definitions.FrameType.Request)

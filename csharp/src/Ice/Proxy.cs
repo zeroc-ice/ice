@@ -350,8 +350,9 @@ namespace ZeroC.Ice
                 {
                     while (true)
                     {
-                        bool sent = false;
+                        bool sentRequest = false;
                         Connection? connection = null;
+                        IChildInvocationObserver? childObserver = null;
                         try
                         {
                             // Get the connection, this will eventually establish a connection if needed.
@@ -362,7 +363,8 @@ namespace ZeroC.Ice
                             // Create the stream and send the request
                             using TransceiverStream stream = connection.CreateStream(!oneway);
 
-                            stream.Observer = observer?.GetChildInvocationObserver(connection, request.Size);
+                            childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
+                            childObserver?.Attach();
 
                             // TODO: support for streaming data, fin should be false if there's data to stream.
                             bool fin = true;
@@ -375,7 +377,7 @@ namespace ZeroC.Ice
                             {
                                 _ = Task.Run(() => progress.Report(false), CancellationToken.None);
                             }
-                            sent = true;
+                            sentRequest = true;
 
                             if (oneway)
                             {
@@ -390,6 +392,15 @@ namespace ZeroC.Ice
                                 // Wait for the reception of the response.
                                 (response, fin) =
                                     await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+
+                                if (childObserver != null)
+                                {
+                                    // Detach now to not count as a remote failure the 1.1 system exception which might
+                                    // be raised below.
+                                    childObserver.Reply(response.Size);
+                                    childObserver.Detach();
+                                    childObserver = null;
+                                }
 
                                 if (response.ResultType == ResultType.Failure)
                                 {
@@ -408,12 +419,15 @@ namespace ZeroC.Ice
                                 return response;
                             }
                         }
-                        catch (OperationCanceledException)
+                        catch (OperationCanceledException ex)
                         {
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                             throw; // Don't retry cancelled operations
                         }
                         catch (Exception ex)
                         {
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+
                             // Clear the proxy's cached request handler if connection caching is enabled
                             if (reference.IsConnectionCached && connection != null)
                             {
@@ -423,7 +437,7 @@ namespace ZeroC.Ice
                             // TODO: revisit retry logic
                             // We only retry after failing with an ObjectNotExistException or a local exception.
                             int delay = reference.CheckRetryAfterException(ex,
-                                                                           sent,
+                                                                           sentRequest,
                                                                            request.IsIdempotent,
                                                                            ref retryCount);
                             if (delay > 0)
@@ -437,6 +451,10 @@ namespace ZeroC.Ice
                             }
 
                             observer?.Retried();
+                        }
+                        finally
+                        {
+                            childObserver?.Detach();
                         }
                     }
                 }
