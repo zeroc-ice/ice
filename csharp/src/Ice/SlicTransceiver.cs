@@ -144,7 +144,6 @@ namespace ZeroC.Ice
 
             int size = buffer.GetByteCount();
 
-            // TODO: Make the Slic frame size a configuration property? We use 10KB here.
             int maxFrameSize = _transceiver.Options.PacketSize;
             if (size > maxFrameSize)
             {
@@ -162,6 +161,7 @@ namespace ZeroC.Ice
                         sendSize += sendBuffer[0].Count;
                     }
 
+                    bool lastBuffer = false;
                     for (int i = start.Segment; i < buffer.Count; ++i)
                     {
                         int segmentOffset = i == start.Segment ? start.Offset : 0;
@@ -176,11 +176,12 @@ namespace ZeroC.Ice
                         {
                             sendBuffer.Add(buffer[i].Slice(segmentOffset));
                             sendSize += sendBuffer[^1].Count;
+                            lastBuffer = i + 1 == buffer.Count;
                         }
                     }
 
                     offset += sendSize;
-                    await SendFrameAsync(sendSize, offset == size, sendBuffer).ConfigureAwait(false);
+                    await SendFrameAsync(sendSize, lastBuffer && fin, sendBuffer).ConfigureAwait(false);
                 }
             }
             else

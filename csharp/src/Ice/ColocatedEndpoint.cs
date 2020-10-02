@@ -49,7 +49,8 @@ namespace ZeroC.Ice
                                            null);
         }
 
-        public override string ToString() => _endpoint.Adapter.Name;
+        public override string ToString() =>
+            _endpoint.Adapter.Name.Length == 0 ? "unnamed adapter" : _endpoint.Adapter.Name;
 
         internal ColocatedConnector(
             ColocatedEndpoint endpoint,
@@ -87,7 +88,8 @@ namespace ZeroC.Ice
 
         public string ToDetailedString() => ToString();
 
-        public override string ToString() => _endpoint.Adapter.Name;
+        public override string ToString() =>
+            _endpoint.Adapter.Name.Length == 0 ? "unnamed adapter" : _endpoint.Adapter.Name;
 
         internal ColocatedAcceptor(
             ColocatedEndpoint endpoint,

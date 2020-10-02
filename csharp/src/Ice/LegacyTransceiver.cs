@@ -142,44 +142,113 @@ namespace ZeroC.Ice
         {
             while (true)
             {
-                ArraySegment<byte> buffer = await PerformReceiveFrameAsync().ConfigureAwait(false);
-                if (buffer.Count > 0) // Can be empty if invalid datagram.
+                // Read header
+                ArraySegment<byte> buffer;
+                if (Endpoint.IsDatagram)
                 {
-                    (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
-                    if (streamId >= 0)
+                    buffer = await _transceiver.ReceiveDatagramAsync(CancellationToken.None).ConfigureAwait(false);
+                    if (buffer.Count < Ice1Definitions.HeaderSize)
                     {
-                        if (TryGetStream(streamId, out LegacyStream? stream))
-                        {
-                            stream.ReceivedFrame(frameType, frame);
-                        }
-                        else if (frameType == Ice1Definitions.FrameType.Request)
-                        {
-                            stream = new LegacyStream(streamId, this);
-                            if (stream.IsBidirectional)
-                            {
-                                if (BidirectionalSerializeSemaphore != null)
-                                {
-                                    await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                                }
-                            }
-                            else if (UnidirectionalSerializeSemaphore != null)
-                            {
-                                await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                            }
-                            stream.ReceivedFrame(frameType, frame);
-                            return stream;
-                        }
-                        else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
-                        {
-                            stream = new LegacyStream(streamId, this);
-                            stream.ReceivedFrame(frameType, frame);
-                            return stream;
-                        }
-                        else
-                        {
-                            // The stream has been disposed, ignore the data.
-                        }
+                        ReceivedInvalidData($"received datagram with {buffer.Count} bytes");
+                        continue;
                     }
+                    Received(buffer.Count);
+                }
+                else
+                {
+                    buffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
+                    await ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+                }
+
+                // Check header
+                Ice1Definitions.CheckHeader(buffer.Slice(0, Ice1Definitions.HeaderSize));
+                int size = buffer.AsReadOnlySpan(10, 4).ReadInt();
+                if (size < Ice1Definitions.HeaderSize)
+                {
+                    ReceivedInvalidData($"received ice1 frame with only {size} bytes");
+                    continue;
+                }
+                if (size > IncomingFrameSizeMax)
+                {
+                    ReceivedInvalidData($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
+                    continue;
+                }
+
+                // Read the remainder of the frame if needed
+                if (size > buffer.Count)
+                {
+                    if (Endpoint.IsDatagram)
+                    {
+                        ReceivedInvalidData($"maximum datagram size of {buffer.Count} exceeded");
+                        continue;
+                    }
+
+                    if (size > buffer.Array!.Length)
+                    {
+                        // Allocate a new array and copy the header over
+                        var tmpBuffer = new ArraySegment<byte>(new byte[size], 0, size);
+                        buffer.AsSpan().CopyTo(tmpBuffer.AsSpan(0, Ice1Definitions.HeaderSize));
+                        buffer = tmpBuffer;
+                    }
+                    else
+                    {
+                        buffer = new ArraySegment<byte>(buffer.Array!, 0, size);
+                    }
+                    Debug.Assert(size == buffer.Count);
+
+                    await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize),
+                                       CancellationToken.None).ConfigureAwait(false);
+                }
+
+                (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
+                if (streamId >= 0)
+                {
+                    if (TryGetStream(streamId, out LegacyStream? stream))
+                    {
+                        stream.ReceivedFrame(frameType, frame);
+                    }
+                    else if (frameType == Ice1Definitions.FrameType.Request)
+                    {
+                        stream = new LegacyStream(streamId, this);
+                        if (stream.IsBidirectional)
+                        {
+                            if (BidirectionalSerializeSemaphore != null)
+                            {
+                                await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                            }
+                        }
+                        else if (UnidirectionalSerializeSemaphore != null)
+                        {
+                            await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                        }
+                        stream.ReceivedFrame(frameType, frame);
+                        return stream;
+                    }
+                    else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
+                    {
+                        stream = new LegacyStream(streamId, this);
+                        stream.ReceivedFrame(frameType, frame);
+                        return stream;
+                    }
+                    else
+                    {
+                        // The stream has been disposed, ignore the data.
+                    }
+                }
+            }
+
+            void ReceivedInvalidData(string message)
+            {
+                // Invalid data on a datagram connection doesn't kill the connection. The bogus data could be sent by
+                // a bogus or malicious peer. For non-datagram connections however, we raise an exception to abort the
+                // connection.
+                if (!Endpoint.IsDatagram)
+                {
+                    throw new InvalidDataException(message);
+                }
+                else if (Endpoint.Communicator.WarnDatagrams)
+                {
+                    Endpoint.Communicator.Logger.Warning(message);
                 }
             }
         }
@@ -391,71 +460,6 @@ namespace ZeroC.Ice
                     throw new InvalidDataException($"received ice1 frame with unknown frame type `{frameType}'");
                 }
             }
-        }
-
-        private async ValueTask<ArraySegment<byte>> PerformReceiveFrameAsync()
-        {
-            // Read header
-            ArraySegment<byte> readBuffer;
-            if (Endpoint.IsDatagram)
-            {
-                readBuffer = await _transceiver.ReceiveDatagramAsync(default).ConfigureAwait(false);
-                if (readBuffer.Count == 0)
-                {
-                    // The transport failed to read a datagram which was too big or it received an empty datagram.
-                    return readBuffer;
-                }
-                Received(readBuffer.Count);
-            }
-            else
-            {
-                readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
-                await ReceiveAsync(readBuffer).ConfigureAwait(false);
-            }
-
-            // Check header
-            Ice1Definitions.CheckHeader(readBuffer);
-            int size = readBuffer.AsReadOnlySpan(10, 4).ReadInt();
-            if (size < Ice1Definitions.HeaderSize)
-            {
-                throw new InvalidDataException($"received ice1 frame with only {size} bytes");
-            }
-
-            if (size > IncomingFrameSizeMax)
-            {
-                throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
-            }
-
-            // Read the remainder of the frame if needed
-            if (size > readBuffer.Count)
-            {
-                if (!Endpoint.IsDatagram)
-                {
-                    if (size > readBuffer.Array!.Length)
-                    {
-                        // Allocate a new array and copy the header over
-                        var buffer = new ArraySegment<byte>(new byte[size], 0, size);
-                        readBuffer.AsSpan().CopyTo(buffer.AsSpan(0, Ice1Definitions.HeaderSize));
-                        readBuffer = buffer;
-                    }
-                    else
-                    {
-                        readBuffer = new ArraySegment<byte>(readBuffer.Array!, 0, size);
-                    }
-                    Debug.Assert(size == readBuffer.Count);
-
-                    await ReceiveAsync(readBuffer.Slice(Ice1Definitions.HeaderSize)).ConfigureAwait(false);
-                }
-                else
-                {
-                    if (Endpoint.Communicator.WarnDatagrams)
-                    {
-                        Endpoint.Communicator.Logger.Warning($"maximum datagram size of {readBuffer.Count} exceeded");
-                    }
-                    return default;
-                }
-            }
-            return readBuffer;
         }
 
         private async ValueTask ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)

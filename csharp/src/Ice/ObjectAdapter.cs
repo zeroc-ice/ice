@@ -990,6 +990,12 @@ namespace ZeroC.Ice
 
         internal bool IsLocal(Reference r)
         {
+            // The proxy protocol must match the object adapter's protocol.
+            if (r.Protocol != Protocol)
+            {
+                return false;
+            }
+
             // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             if (r.IsWellKnown)

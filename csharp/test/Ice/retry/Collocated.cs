@@ -29,9 +29,10 @@ namespace ZeroC.Ice.Test.Retry
             //
             properties["Ice.RetryIntervals"] = "0 1 10000";
             await using Communicator? communicator2 = Initialize(properties, observer: observer);
-            communicator.CreateObjectAdapter().Add("retry", new Retry());
-            communicator2.CreateObjectAdapter().Add("retry", new Retry());
-            await AllTests.Run(this, communicator, communicator2, "retry").ShutdownAsync();
+            communicator.CreateObjectAdapter(protocol: Protocol).Add("retry", new Retry());
+            communicator2.CreateObjectAdapter(protocol: Protocol).Add("retry", new Retry());
+            string proxy = Protocol == ZeroC.Ice.Protocol.Ice1 ? "retry" : "ice:retry";
+            await AllTests.Run(this, communicator, communicator2, proxy).ShutdownAsync();
         }
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }

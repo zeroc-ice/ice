@@ -157,8 +157,8 @@ namespace ZeroC.Ice
                     // TODO: Fix to use the cancellable API with 5.0
                     SocketReceiveFromResult result =
                         await Socket.ReceiveFromAsync(buffer,
-                                                   SocketFlags.None,
-                                                   peerAddr).WaitAsync(cancel).ConfigureAwait(false);
+                                                      SocketFlags.None,
+                                                      peerAddr).WaitAsync(cancel).ConfigureAwait(false);
                     _peerAddr = result.RemoteEndPoint;
                     received = result.ReceivedBytes;
                 }
