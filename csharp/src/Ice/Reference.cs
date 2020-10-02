@@ -981,6 +981,12 @@ namespace ZeroC.Ice
 
                     if (newLocation?.Count > 0)
                     {
+                        if (newLocation.Count > 1)
+                        {
+                            throw new ArgumentException(
+                                $"{nameof(location)} is limited to a single segment for ice1 proxies",
+                                nameof(location));
+                        }
                         newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
                     }
                     else if (newEndpoints?.Count > 0)

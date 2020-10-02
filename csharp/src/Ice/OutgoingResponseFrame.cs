@@ -287,7 +287,7 @@ namespace ZeroC.Ice
                     case ReplyStatus.OperationNotExistException:
                         var dispatchException = (DispatchException)exception;
                         dispatchException.Identity.IceWrite(ostr);
-                        ostr.WriteFacet(dispatchException.Facet);
+                        ostr.WriteFacet11(dispatchException.Facet);
                         ostr.WriteString(dispatchException.Operation);
                         break;
 

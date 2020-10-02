@@ -617,9 +617,9 @@ namespace ZeroC.Ice.Test.Tagged
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
-                    int? i1 = istr.ReadTaggedInt(1);
-                    int? i2 = istr.ReadTaggedInt(2);
-                    return (i1, i2);
+                    int? r1 = istr.ReadTaggedInt(1);
+                    int? r2 = istr.ReadTaggedInt(2);
+                    return (r1, r2);
                 });
                 TestHelper.Assert(r1 == 56);
                 TestHelper.Assert(r2 == 56);
