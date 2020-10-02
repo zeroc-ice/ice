@@ -74,7 +74,7 @@ public:
     virtual ~CsGenerator() {};
 
     // Validate all metadata in the unit with a "cs:" prefix.
-    static void validateMetaData(const UnitPtr&);
+    static void validateMetadata(const UnitPtr&);
 
     static std::string typeToString(const TypePtr& type, const std::string& package, bool readOnly = false);
 
@@ -138,7 +138,7 @@ private:
         const std::string& param);
 
     std::string dictionaryUnmarshalCode(const DictionaryPtr& dict, const std::string& scope);
-    class MetaDataVisitor : public ParserVisitor
+    class MetadataVisitor : public ParserVisitor
     {
     public:
 

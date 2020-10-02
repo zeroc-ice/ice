@@ -416,14 +416,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_push_state(METADATA);
 
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
-    if(yy_top_state() == PRE_SLICE)
+    if(yy_top_state() != PRE_SLICE)
     {
-        return ICE_FILE_METADATA_OPEN;
+        unit->error("file metadata must appear before any definitions");
     }
-    else
-    {
-        return ICE_FILE_METADATA_IGNORE;
-    }
+    return ICE_FILE_METADATA_OPEN;
 }
 
   /* Matches the start of a metadata string, ensures the scanner is in QUOTED_METADATA mode,

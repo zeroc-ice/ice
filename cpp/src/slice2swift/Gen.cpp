@@ -27,7 +27,7 @@ getClassResolverPrefix(const UnitPtr& p)
     assert(dc);
 
     static const string classResolverPrefix = "swift:class-resolver-prefix:";
-    string result = dc->findMetaData(classResolverPrefix);
+    string result = dc->findMetadata(classResolverPrefix);
     if(!result.empty())
     {
         result = result.substr(classResolverPrefix.size());
@@ -81,7 +81,7 @@ Gen::~Gen()
 void
 Gen::generate(const UnitPtr& p)
 {
-    SwiftGenerator::validateMetaData(p);
+    SwiftGenerator::validateMetadata(p);
 
     ImportVisitor importVisitor(_out);
     p->visit(&importVisitor, false);
@@ -418,7 +418,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
@@ -436,8 +436,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     writeMembers(out, members, p);
 
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     if(preserved && !basePreserved)
     {
@@ -547,7 +547,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool isClass = p->usesClasses();
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "public " << (isClass ? "class " : "struct ") << name;
     if(legalKeyType)
     {
@@ -669,7 +669,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, p->getMetaData()) << "]";
+        out << "[" << typeToString(p->type(), p, p->getAllMetadata()) << "]";
     }
 
     if(builtin && builtin->kind() <= Builtin::KindString)
@@ -814,8 +814,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
-    const string keyType = typeToString(p->keyType(), p, p->keyMetaData());
-    const string valueType = typeToString(p->valueType(), p, p->valueMetaData());
+    const string keyType = typeToString(p->keyType(), p, p->keyMetadata());
+    const string valueType = typeToString(p->valueType(), p, p->valueMetadata());
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
@@ -970,7 +970,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "public enum " << name << ": " << enumType;
     out << sb;
 
@@ -1070,7 +1070,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
-    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetaData(), swiftModule);
+    writeConstantValue(out, type, p->valueType(), p->value(), p->getAllMetadata(), swiftModule);
     out << nl;
 }
 
@@ -1329,7 +1329,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetaData());
+    writeSwiftAttributes(out, p->getAllMetadata());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
@@ -1346,8 +1346,8 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const MemberList baseMembers = base ? base->allDataMembers() : MemberList();
     const MemberList allMembers = p->allDataMembers();
 
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     writeMembers(out, members, p);
     if(preserved && !basePreserved)
@@ -1564,9 +1564,9 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Check for swift:inherits metadata.
     //
-    const StringList metaData = p->getMetaData();
+    const StringList metadata = p->getAllMetadata();
     static const string prefix = "swift:inherits:";
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for(StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         if(q->find(prefix) == 0)
         {

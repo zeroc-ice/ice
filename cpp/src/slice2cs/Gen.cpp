@@ -87,8 +87,8 @@ string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
     string deprecateMetadata, deprecateReason;
-    if(p1->findMetaData("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    if(p1->findMetadata("deprecate", deprecateMetadata) ||
+       (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata)))
     {
         deprecateReason = "This " + type + " has been deprecated.";
         const string prefix = "deprecate:";
@@ -390,7 +390,7 @@ string
 getParamAttributes(const MemberPtr& p)
 {
     string result;
-    for(const auto& s : p->getMetaData())
+    for(const auto& s : p->getAllMetadata())
     {
         static const string prefix = "cs:attribute:";
         if(s.find(prefix) == 0)
@@ -521,8 +521,8 @@ Slice::CsVisitor::emitEqualityOperators(const string& name)
 void
 Slice::CsVisitor::emitCustomAttributes(const ContainedPtr& p)
 {
-    StringList metaData = p->getMetaData();
-    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+    StringList metadata = p->getAllMetadata();
+    for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
     {
         static const string prefix = "cs:attribute:";
         if(i->find(prefix) == 0)
@@ -1141,7 +1141,7 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    CsGenerator::validateMetaData(p);
+    CsGenerator::validateMetadata(p);
 
     UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
@@ -1199,12 +1199,12 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
 {
     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
     assert(dc);
-    StringList globalMetaData = dc->getMetaData();
+    StringList globalMetadata = dc->getAllMetadata();
 
     static const string attributePrefix = "cs:attribute:";
 
     bool sep = false;
-    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    for(StringList::const_iterator q = globalMetadata.begin(); q != globalMetadata.end(); ++q)
     {
         string::size_type pos = q->find(attributePrefix);
         if(pos == 0 && q->size() > attributePrefix.size())
@@ -1497,8 +1497,8 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
 
     // Marshaling support
     MemberList members = p->dataMembers();
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetadata("preserve-slice");
+    const bool preserved = p->hasMetadata("preserve-slice");
 
     ClassDefPtr base = p->base();
 
@@ -1795,7 +1795,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitCommonAttributes();
     emitCustomAttributes(p);
     _out << nl << "public ";
-    if(p->hasMetaData("cs:readonly"))
+    if(p->hasMetadata("cs:readonly"))
     {
         _out << "readonly ";
     }
@@ -2089,7 +2089,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
 
     _out << sp;
 
-    bool readonly = StructPtr::dynamicCast(cont) && cont->hasMetaData("cs:readonly");
+    bool readonly = StructPtr::dynamicCast(cont) && cont->hasMetadata("cs:readonly");
 
     writeTypeDocComment(p, getDeprecateReason(p, cont, "member"));
     emitDeprecate(p, cont, _out, "member");
@@ -2101,7 +2101,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     }
     _out << typeToString(p->type(), getNamespace(cont));
     _out << " " << fixId(fieldName(p), ExceptionPtr::dynamicCast(cont) ? Slice::ExceptionType : Slice::ObjectType);
-    if(cont->hasMetaData("cs:property"))
+    if(cont->hasMetadata("cs:property"))
     {
         _out << "{ get; set; }";
     }
@@ -2372,7 +2372,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string opName = operationName(operation);
     string name = fixId(opName);
     string asyncName = opName + "Async";
-    bool oneway = operation->hasMetaData("oneway");
+    bool oneway = operation->hasMetadata("oneway");
 
     TypePtr ret = operation->deprecatedReturnType();
     string retS = typeToString(operation->deprecatedReturnType(), ns);
@@ -2775,7 +2775,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(interface);
     string deprecateReason = getDeprecateReason(operation, interface, "operation");
-    bool amd = _generateAllAsync || interface->hasMetaData("amd") || operation->hasMetaData("amd");
+    bool amd = _generateAllAsync || interface->hasMetadata("amd") || operation->hasMetadata("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
 
     _out << sp;
@@ -2805,7 +2805,7 @@ void
 Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 {
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
-    bool amd = _generateAllAsync || interface->hasMetaData("amd") || operation->hasMetaData("amd");
+    bool amd = _generateAllAsync || interface->hasMetadata("amd") || operation->hasMetadata("amd");
     string ns = getNamespace(interface);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
@@ -3036,7 +3036,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
 
     _out << sp << nl;
 
-    if(interface->hasMetaData("amd") || op->hasMetaData("amd"))
+    if(interface->hasMetadata("amd") || op->hasMetadata("amd"))
     {
         _out << "public override " << returnTaskStr(op, ns, true) << " " << opName << "Async" << spar
              << getNames(op->params())

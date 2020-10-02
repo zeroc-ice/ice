@@ -53,9 +53,9 @@ void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::strin
 void writeStreamHelpers(::IceUtilInternal::Output&, const DataMemberContainerPtr&);
 void writeIceTuple(::IceUtilInternal::Output&, MemberList, int);
 
-bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
-bool findMetaData(const std::string&, const StringList&, std::string&);
-std::string findMetaData(const StringList&, int = 0);
+bool findMetadata(const std::string&, const ClassDeclPtr&, std::string&);
+bool findMetadata(const std::string&, const StringList&, std::string&);
+std::string findMetadata(const StringList&, int = 0);
 bool inWstringModule(const SequencePtr&);
 
 std::string getDataMemberRef(const MemberPtr&);

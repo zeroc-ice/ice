@@ -70,8 +70,8 @@ string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
     string deprecateMetadata, deprecateReason;
-    if(p1->findMetaData("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    if(p1->findMetadata("deprecate", deprecateMetadata) ||
+       (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata)))
     {
         deprecateReason = "This " + type + " has been deprecated.";
         const string prefix = "deprecate:";
@@ -695,7 +695,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     {
         const string prefix = "js:module:";
-        const string m = dc->findMetaData(prefix);
+        const string m = dc->findMetadata(prefix);
         if(!m.empty())
         {
             module = m.substr(prefix.size());
@@ -719,7 +719,7 @@ Slice::Gen::generate(const UnitPtr& p)
     //
     // Check for global "js:es6-module" metadata. If this is set we are using es6 module mapping
     //
-    bool es6module = dc->findMetaData("js:es6-module") == "js:es6-module";
+    bool es6module = dc->findMetadata("js:es6-module") == "js:es6-module";
 
     _jsout << nl << "/* eslint-disable */";
     _jsout << nl << "/* jshint ignore: start */";
@@ -1016,7 +1016,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     {
         const string prefix = "js:module:";
         DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
-        string m1 = dc->findMetaData(prefix);
+        string m1 = dc->findMetadata(prefix);
         if(!m1.empty())
         {
             m1 = m1.substr(prefix.size());
@@ -1037,7 +1037,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
             dc = p->findDefinitionContext(*i);
 
-            string m2 = dc->findMetaData(prefix);
+            string m2 = dc->findMetadata(prefix);
             if(!m2.empty())
             {
                 m2 = m2.substr(prefix.size());
@@ -1393,7 +1393,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
 
-    bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
+    bool preserved = p->hasMetadata("preserve-slice") && !p->inheritsMetadata("preserve-slice");
 
     _out << nl << "Slice.defineValue(" << localScope << "." << name << ", "
          << "iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "], "
@@ -1845,8 +1845,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << eb << ";";
 
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
+    bool basePreserved = p->inheritsMetadata("preserve-slice");
+    bool preserved = p->hasMetadata("preserve-slice");
 
     if(preserved && !basePreserved)
     {

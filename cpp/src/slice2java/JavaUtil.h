@@ -63,7 +63,7 @@ public:
     //
     // Validate all metadata in the unit with a "java:" prefix.
     //
-    static void validateMetaData(const UnitPtr&);
+    static void validateMetadata(const UnitPtr&);
 
     void close();
 
@@ -199,21 +199,21 @@ protected:
     //
     // Search metadata for an entry with the given prefix and return the entire string.
     //
-    static bool findMetaData(const std::string&, const StringList&, std::string&);
+    static bool findMetadata(const std::string&, const StringList&, std::string&);
 
     //
     // Get custom type metadata. If metadata is found, the abstract and
     // concrete types are extracted and the function returns true. If an
     // abstract type is not specified, it is set to an empty string.
     //
-    static bool getTypeMetaData(const StringList&, std::string&, std::string&);
+    static bool getTypeMetadata(const StringList&, std::string&, std::string&);
 
     //
     // Determine whether a custom type is defined. The function checks the
     // metadata of the type's original definition, as well as any optional
     // metadata that typically represents a data member or parameter.
     //
-    static bool hasTypeMetaData(const TypePtr&, const StringList& = StringList());
+    static bool hasTypeMetadata(const TypePtr&, const StringList& = StringList());
 
     //
     // Obtain the concrete and abstract types for a dictionary or sequence type.
@@ -226,7 +226,7 @@ protected:
 
     virtual JavaOutput* createOutput();
 
-    static const std::string _getSetMetaData;
+    static const std::string _getSetMetadata;
 
 private:
 

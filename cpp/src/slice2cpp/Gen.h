@@ -264,7 +264,7 @@ private:
         std::string defaultValue(const TypePtr&, const std::string&, const StringList&) const;
     };
 
-    class MetaDataVisitor : public ParserVisitor
+    class MetadataVisitor : public ParserVisitor
     {
     public:
 
@@ -293,7 +293,7 @@ private:
         StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, int, bool = false);
     };
 
-    static void validateMetaData(const UnitPtr&);
+    static void validateMetadata(const UnitPtr&);
 };
 
 }
