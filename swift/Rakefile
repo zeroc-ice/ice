@@ -545,12 +545,22 @@ def create_platform_targets(project, platform, bindist)
     #
     unless bindist
         scheme = Xcodeproj::XCScheme.new
-        scheme.add_build_target(iceimpl_target)
-        scheme.add_build_target(ice_target)
+
         scheme.add_build_target(glacier2_target)
         scheme.add_build_target(icestorm_target)
         scheme.add_build_target(icegrid_target)
+
+        scheme.build_action.parallelize_buildables = false
+        scheme.build_action.build_implicit_dependencies = true
         scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
+
+        scheme = Xcodeproj::XCScheme.new
+
+        scheme.add_build_target(test_driver_target)
+
+        scheme.build_action.parallelize_buildables = false
+        scheme.build_action.build_implicit_dependencies = true
+        scheme.save_as("ice.xcodeproj", "TestDriver #{platform_name}", true)
     end
 end
 
@@ -599,7 +609,7 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
 
     if prefix then
         rule.name = "Slice Compiler for #{prefix}/*.ice"
-        rule.file_patterns = "*/#{prefix}/*.ice"
+        rule.file_patterns = "*.ice"
         rule.script = <<~EOF
             #{slic2swift}
             BASENAME=$(basename -- "$INPUT_FILE_PATH")
@@ -613,6 +623,7 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
         EOF
         rule.dependency_file = "$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_NAME).d"
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
+        rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
     else
         rule.name = "Slice Compiler"
         rule.file_patterns = "*.ice"
@@ -624,7 +635,6 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
         EOF
         rule.dependency_file = "$(DERIVED_FILE_DIR)/$(INPUT_FILE_NAME).d"
         rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
-        rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
     end
     target.build_rules << rule
 end
@@ -664,9 +674,19 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     EOF
     rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).cpp",
                          "$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/$(INPUT_FILE_BASE).h"]
-    rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
+
+    inputs = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| File.basename(p, ".ice") }
+    rule.input_files = inputs.map { |p|
+        "$SRCROOT/../slice/#{prefix}/#{p}.ice"
+    }
     target.build_rules << rule
 
+    #group = project_group(project, "cpp/include/#{prefix}")
+    #inputs.map { |p|
+    #    file = group.new_file("$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/#{p}.h")
+    #    header = target.headers_build_phase.add_file_reference(file)
+    #    header.settings = { "ATTRIBUTES" => ["Public"] }
+    #}
 end
 
 def target_add_swiftlint_build_phase(target, basedir)
