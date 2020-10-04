@@ -53,6 +53,8 @@ sequence<MyEnum> MyEnumSeq;
 sequence<ushort> UShortSeq;
 sequence<varulong> VarULongSeq;
 
+sequence<IntSeq> IntSeqSeq;
+
 [cs:generic:List] sequence<byte> ByteList;
 [cs:generic:List] sequence<bool> BoolList;
 [cs:generic:List] sequence<short> ShortList;
@@ -93,7 +95,6 @@ class MultiTagged
     tag(15) StringIntDict? sid;
     tag(16) FixedStruct? fs;
     tag(17) VarStruct? vs;
-
     tag(18) ShortSeq? shs;
     tag(19) MyEnumSeq? es;
     tag(20) FixedStructSeq? fss;
@@ -242,6 +243,8 @@ interface Initial
     (tag(1) FixedStructList? r1, tag(2) FixedStructList? r2) opFixedStructList(tag(1) FixedStructList? p1);
 
     (tag(1) VarStructSeq? r1, tag(2) VarStructSeq? r2) opVarStructSeq(tag(1) VarStructSeq? p1);
+
+    (tag(1) IntSeqSeq? r1, tag(2) IntSeqSeq? r2) opIntSeqSeq(tag(1) IntSeqSeq? p1);
 
     (tag(1) IntIntDict? r1, tag(2) IntIntDict? r2) opIntIntDict(tag(1) IntIntDict? p1);
 

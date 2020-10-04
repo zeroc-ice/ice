@@ -38,35 +38,6 @@ namespace ZeroC.Ice
             CloseConnection = 4
         }
 
-        internal static readonly byte[] RequestHeader = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.Request,
-            0, // Compression status.
-            0, 0, 0, 0, // Frame size (placeholder).
-            0, 0, 0, 0 // Request ID (placeholder).
-        };
-
-        internal static readonly byte[] RequestBatchHeader = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.RequestBatch,
-            0, // Compression status.
-            0, 0, 0, 0, // Frame size (placeholder).
-            0, 0, 0, 0 // Number of requests in batch (placeholder).
-        };
-
-        internal static readonly byte[] ReplyHeader = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.Reply,
-            0, // Compression status.
-            0, 0, 0, 0 // Frame size (placeholder).
-        };
-
         internal static readonly byte[] ValidateConnectionFrame = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
@@ -83,6 +54,37 @@ namespace ZeroC.Ice
             (byte)FrameType.CloseConnection,
             0, // Compression status.
             HeaderSize, 0, 0, 0 // Frame size.
+        };
+
+        /*
+        private static readonly byte[] _batchRequestHeaderPrologue = new byte[]
+        {
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+            (byte)FrameType.RequestBatch,
+            0, // Compression status.
+            0, 0, 0, 0, // Frame size (placeholder).
+            0, 0, 0, 0 // Number of requests in batch (placeholder).
+        };
+        */
+
+        private static readonly byte[] _requestHeaderPrologue = new byte[]
+        {
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+            (byte)FrameType.Request,
+            0, // Compression status.
+            0, 0, 0, 0, // Frame size (placeholder).
+            0, 0, 0, 0 // Request ID (placeholder).
+        };
+
+        private static readonly byte[] _responseHeaderPrologue = new byte[]
+        {
+            Magic[0], Magic[1], Magic[2], Magic[3],
+            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
+            (byte)FrameType.Reply,
+            0, // Compression status.
+            0, 0, 0, 0 // Frame size (placeholder).
         };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
@@ -110,10 +112,19 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static string GetFacet(string[] facetPath)
+        {
+            if (facetPath.Length > 1)
+            {
+                throw new InvalidDataException($"read ice1 facet path with {facetPath.Length} elements");
+            }
+            return facetPath.Length == 1 ? facetPath[0] : "";
+        }
+
         internal static List<ArraySegment<byte>> GetRequestData(OutgoingRequestFrame frame, int requestId)
         {
             byte[] headerData = new byte[HeaderSize + 4];
-            RequestHeader.CopyTo(headerData.AsSpan());
+            _requestHeaderPrologue.CopyTo(headerData.AsSpan());
 
             OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
             OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
@@ -126,7 +137,7 @@ namespace ZeroC.Ice
         internal static List<ArraySegment<byte>> GetResponseData(OutgoingResponseFrame frame, int requestId)
         {
             byte[] headerData = new byte[HeaderSize + 4];
-            ReplyHeader.CopyTo(headerData.AsSpan());
+            _responseHeaderPrologue.CopyTo(headerData.AsSpan());
 
             OutputStream.WriteInt(frame.Size + HeaderSize + 4, headerData.AsSpan(10, 4));
             OutputStream.WriteInt(requestId, headerData.AsSpan(HeaderSize, 4));
@@ -134,6 +145,24 @@ namespace ZeroC.Ice
             var data = new List<ArraySegment<byte>>() { headerData };
             data.AddRange(frame.Data);
             return data;
+        }
+
+        /// <summary>Helper method to write the request header body without constructing an Ice1RequestHeaderBody
+        /// struct.</summary>
+        internal static void WriteIce1RequestHeaderBody(
+            this OutputStream ostr,
+            Identity identity,
+            string facet,
+            string operation,
+            bool idempotent,
+            IReadOnlyDictionary<string, string> context)
+        {
+            Debug.Assert(ostr.Encoding == Encoding);
+            identity.IceWrite(ostr);
+            ostr.WriteFacet11(facet);
+            ostr.WriteString(operation);
+            ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
+            ostr.WriteDictionary(context, OutputStream.IceWriterFromString, OutputStream.IceWriterFromString);
         }
 
         private static string BytesToString(Span<byte> bytes) => BitConverter.ToString(bytes.ToArray());

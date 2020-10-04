@@ -185,8 +185,8 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<CV?>, IEnumerable<CV?>) OpCustomCVS(Custom<CV?> i, Current current) => (i, i);
 
-        public (IEnumerable<Custom<int>>, IEnumerable<Custom<int>>) OpCustomIntSS(Custom<Custom<int>> i, Current current) => (i, i);
+        public (IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<int>>) OpCustomIntSS(Custom<Custom<int>> i, Current current) => (i, i);
 
-        public (IEnumerable<Custom<CV?>>, IEnumerable<Custom<CV?>>) OpCustomCVSS(Custom<Custom<CV?>> i, Current current) => (i, i);
+        public (IEnumerable<IEnumerable<CV?>>, IEnumerable<IEnumerable<CV?>>) OpCustomCVSS(Custom<Custom<CV?>> i, Current current) => (i, i);
     }
 }

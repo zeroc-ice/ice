@@ -48,7 +48,7 @@ std::string returnTaskStr(const OperationPtr& operation, const std::string& ns, 
 bool isCollectionType(const TypePtr&);
 bool isValueType(const TypePtr&); // value with C# "struct" meaning
 bool isReferenceType(const TypePtr&); // opposite of value
-bool isMappedToReadOnlyMemory(const SequencePtr& seq);
+bool isFixedSizeNumericSequence(const SequencePtr& seq);
 
 std::vector<std::string> getNames(const MemberList& params, const std::string& prefix = "");
 std::vector<std::string> getNames(const MemberList& params, std::function<std::string (const MemberPtr&)> fn);
@@ -76,11 +76,19 @@ public:
     // Validate all metadata in the unit with a "cs:" prefix.
     static void validateMetadata(const UnitPtr&);
 
-    static std::string typeToString(const TypePtr& type, const std::string& package, bool readOnly = false);
+    static std::string typeToString(
+        const TypePtr& type,
+        const std::string& package,
+        bool readOnly = false,
+        bool readOnlyParam = false);
 
 protected:
 
-    std::string outputStreamWriter(const TypePtr& type, const std::string& scope, bool forNestedType);
+    std::string outputStreamWriter(
+        const TypePtr& type,
+        const std::string& scope,
+        bool readOnly = false,
+        bool readOnlyParam = false);
 
     void writeMarshalCode(
         ::IceUtilInternal::Output& out,
@@ -127,8 +135,9 @@ private:
     std::string sequenceMarshalCode(
         const SequencePtr& seq,
         const std::string& scope,
-        const std::string& param,
-        bool forNestedType = false);
+        const std::string& v,
+        bool readOnly = false,
+        bool readOnlyParam = false);
 
     std::string sequenceUnmarshalCode(const SequencePtr& seq, const std::string& scope);
 

@@ -409,11 +409,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
     {
         ostringstream param;
         param << getParamAttributes(p);
-        if(StructPtr::dynamicCast(p->type()))
-        {
-            param << "in ";
-        }
-        param << CsGenerator::typeToString(p->type(), ns, true) << " " << paramName(p);
+        param << CsGenerator::typeToString(p->type(), ns, true, true) << " " << paramName(p);
         params.push_back(param.str());
     }
     params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " +
@@ -430,11 +426,7 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
     {
         ostringstream param;
         param << getParamAttributes(p);
-        if(StructPtr::dynamicCast(p->type()))
-        {
-            param << "in ";
-        }
-        param << CsGenerator::typeToString(p->type(), ns, true) << " " << paramName(p, prefix);
+        param << CsGenerator::typeToString(p->type(), ns, true, true) << " " << paramName(p, prefix);
         params.push_back(param.str());
     }
 
@@ -1805,7 +1797,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sp;
     _out << nl << "/// <summary>A <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> used to read <see cref=\""
          << name << "\"/> instances.</summary>";
-    _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
+    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "istr => new " << name << "(istr);";
     _out.dec();
@@ -1813,9 +1805,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sp;
     _out << nl << "/// <summary>A <see cref=\"ZeroC.Ice.OutputStreamWriter{T}\"/> used to write <see cref=\""
          << name << "\"/> instances.</summary>";
-    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =";
+    _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << name << "> IceWriter =";
     _out.inc();
-    _out << nl << "(ZeroC.Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
+    _out << nl << "(ostr, value) => value.IceWrite(ostr);";
     _out.dec();
     return true;
 }
@@ -1883,24 +1875,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << eb;
 
-    _out << sp;
-    _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "var hash = new global::System.HashCode();";
-    for(const auto& i : dataMembers)
-    {
-        _out << nl << "hash.Add(this." << fixId(fieldName(i), Slice::ObjectType) << ");";
-    }
-    _out << nl << "return hash.ToHashCode();";
-    _out << eb;
-
-    //
     // Equals implementation
-    //
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public bool Equals(" << fixId(p->name()) << " other)";
+    _out << nl << "public readonly bool Equals(" << fixId(p->name()) << " other)";
 
     _out << " =>";
     _out.inc();
@@ -1932,19 +1910,30 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public override bool Equals(object? other) => other is " << name << " value && this.Equals(value);";
+    _out << nl << "public readonly override bool Equals(object? other) => other is " << name
+        << " value && this.Equals(value);";
 
     emitEqualityOperators(name);
 
     _out << sp;
-    _out << nl << "/// <summary>Marshals the struct by writing its data to the <see cref=\"ZeroC.Ice.OutputStream\"/>."
-         << "</summary>";
+    _out << nl << "/// <inheritdoc/>";
+    _out << nl << "public readonly override int GetHashCode()";
+    _out << sb;
+    _out << nl << "var hash = new global::System.HashCode();";
+    for(const auto& i : dataMembers)
+    {
+        _out << nl << "hash.Add(this." << fixId(fieldName(i), Slice::ObjectType) << ");";
+    }
+    _out << nl << "return hash.ToHashCode();";
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "/// <summary>Marshals the struct by writing its fields to the "
+        << "<see cref=\"ZeroC.Ice.OutputStream\"/>.</summary>";
     _out << nl << "/// <param name=\"ostr\">The stream to write to.</param>";
     _out << nl << "public readonly void IceWrite(ZeroC.Ice.OutputStream ostr)";
     _out << sb;
-
     writeMarshalDataMembers(dataMembers, ns, 0);
-
     _out << eb;
     _out << eb;
 }
@@ -2198,7 +2187,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (paramCount > 0)
             {
-                inValue = paramCount > 1 || StructPtr::dynamicCast(params.front()->type());
+                inValue = paramCount > 1;
                 _out << (inValue ? "in " : "") << toTupleType(params, true) << " args" << ", ";
             }
             _out << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context) =>";
@@ -2465,7 +2454,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     if (defaultWriter)
     {
         // This includes operations with a single struct parameter.
-        _out << outputStreamWriter(params.front()->type(), ns, false);
+        _out << outputStreamWriter(params.front()->type(), ns, true, true);
     }
     else
     {
@@ -2612,7 +2601,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (returnCount > 0)
             {
                 _out << sp;
-                bool inValue = returnCount > 1 || StructPtr::dynamicCast(returns.front()->type());
+                bool inValue = returnCount > 1;
                 _out << nl << "/// <summary>Creates an <see cref=\"ZeroC.Ice.OutgoingResponseFrame\"/> for operation "
                      << fixId(operationName(operation)) << ".</summary>";
                 _out << nl << "/// <param name=\"current\">Holds decoded header data and other information about the "
@@ -2982,7 +2971,7 @@ Slice::Gen::DispatcherVisitor::writeOutgoingResponseWriter(const OperationPtr& o
     if (defaultWriter)
     {
         // This includes operations with a single struct return type.
-        _out << outputStreamWriter(returns.front()->type(), ns, false);
+        _out << outputStreamWriter(returns.front()->type(), ns, true, true);
     }
     else
     {

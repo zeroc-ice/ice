@@ -84,6 +84,10 @@ namespace ZeroC.Ice.Test.Tagged
 
         public (IEnumerable<VarStruct>?, IEnumerable<VarStruct>?) OpVarStructSeq(VarStruct[]? p1, Current current) => (p1, p1);
 
+        public (IEnumerable<IEnumerable<int>>?, IEnumerable<IEnumerable<int>>?) OpIntSeqSeq(
+            int[][]? p1,
+            Current current) => (p1, p1);
+
         public (IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)
         OpIntIntDict(Dictionary<int, int>? p1, Current current) => (p1, p1);
 

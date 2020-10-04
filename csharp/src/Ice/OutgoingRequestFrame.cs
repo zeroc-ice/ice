@@ -309,42 +309,12 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                // Marshaled "by hand" to avoid allocating a string[] for the facet and a new dictionary for the
-                // context.
-                Identity.IceWrite(ostr);
-                ostr.WriteFacet11(Facet);
-                ostr.WriteString(Operation);
-                ostr.Write(IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal);
-                ostr.WriteDictionary(_initialContext,
-                                     OutputStream.IceWriterFromString,
-                                     OutputStream.IceWriterFromString);
+                ostr.WriteIce1RequestHeaderBody(Identity, Facet, Operation, IsIdempotent, _initialContext);
             }
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
-
-                // Marshaled "by hand" to avoid allocating a string[] for the location.
-                BitSequence bitSequence = ostr.WriteBitSequence(3); // bit set to true (set) by default
-                Identity.IceWrite(ostr);
-                if (Facet.Length > 0)
-                {
-                    ostr.WriteString(Facet);
-                }
-                else
-                {
-                    bitSequence[0] = false;
-                }
-                if (Location.Count > 0)
-                {
-                    ostr.WriteSequence(Location, OutputStream.IceWriterFromString);
-                }
-                else
-                {
-                    bitSequence[1] = false;
-                }
-                ostr.WriteString(operation);
-                ostr.WriteBool(IsIdempotent);
-                bitSequence[2] = false; // TODO: source for priority.
+                ostr.WriteIce2RequestHeaderBody(Identity, Facet, Location, Operation, IsIdempotent);
             }
             PayloadStart = ostr.Tail;
 

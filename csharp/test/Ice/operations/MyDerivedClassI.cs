@@ -55,7 +55,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<bool[]>, IEnumerable<bool[]>) OpBoolSS(bool[][] p1, bool[][] p2, Current current)
+        public (IEnumerable<IEnumerable<bool>>, IEnumerable<IEnumerable<bool>>) OpBoolSS(bool[][] p1, bool[][] p2, Current current)
         {
             bool[][] p3 = new bool[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -100,7 +100,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<byte[]>, IEnumerable<byte[]>) OpByteSS(byte[][] p1, byte[][] p2, Current current)
+        public (IEnumerable<IEnumerable<byte>>, IEnumerable<IEnumerable<byte>>) OpByteSS(byte[][] p1, byte[][] p2, Current current)
         {
             byte[][] p3 = new byte[p1.Length][];
             for (int i = 0; i < p1.Length; i++)
@@ -134,7 +134,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p1, p4);
         }
 
-        public (IEnumerable<double[]>, IEnumerable<float[]>, IEnumerable<double[]>) OpFloatDoubleSS(float[][] p1,
+        public (IEnumerable<IEnumerable<double>>, IEnumerable<IEnumerable<float>>, IEnumerable<IEnumerable<double>>) OpFloatDoubleSS(float[][] p1,
             double[][] p2, Current current)
         {
             double[][] p4 = new double[p2.Length][];
@@ -293,7 +293,7 @@ namespace ZeroC.Ice.Test.Operations
             return (p2, p4, p5);
         }
 
-        public (IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>) OpShortIntLongSS(
+        public (IEnumerable<IEnumerable<long>>, IEnumerable<IEnumerable<short>>, IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<long>>) OpShortIntLongSS(
             short[][] p1, int[][] p2, long[][] p3, Current current)
         {
             int[][] p5 = new int[p2.Length][];
@@ -309,7 +309,7 @@ namespace ZeroC.Ice.Test.Operations
             return (p3, p1, p5, p6);
         }
 
-        public (IEnumerable<ulong[]>, IEnumerable<ushort[]>, IEnumerable<uint[]>, IEnumerable<ulong[]>)
+        public (IEnumerable<IEnumerable<ulong>>, IEnumerable<IEnumerable<ushort>>, IEnumerable<IEnumerable<uint>>, IEnumerable<IEnumerable<ulong>>)
         OpUShortUIntULongSS(ushort[][] p1, uint[][] p2, ulong[][] p3, Current current)
         {
             uint[][] p5 = new uint[p2.Length][];
@@ -366,7 +366,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p1);
         }
 
-        public (IEnumerable<Dictionary<byte, bool>>, IEnumerable<Dictionary<byte, bool>>) OpByteBoolDS(
+        public (IEnumerable<IReadOnlyDictionary<byte, bool>>, IEnumerable<IReadOnlyDictionary<byte, bool>>) OpByteBoolDS(
             Dictionary<byte, bool>[] p1,
             Dictionary<byte, bool>[] p2,
             Current current)
@@ -383,7 +383,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<short, int>>, IEnumerable<Dictionary<short, int>>) OpShortIntDS(
+        public (IEnumerable<IReadOnlyDictionary<short, int>>, IEnumerable<IReadOnlyDictionary<short, int>>) OpShortIntDS(
             Dictionary<short, int>[] p1,
             Dictionary<short, int>[] p2,
             Current current)
@@ -400,7 +400,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<ushort, uint>>, IEnumerable<Dictionary<ushort, uint>>) OpUShortUIntDS(
+        public (IEnumerable<IReadOnlyDictionary<ushort, uint>>, IEnumerable<IReadOnlyDictionary<ushort, uint>>) OpUShortUIntDS(
             Dictionary<ushort, uint>[] p1,
             Dictionary<ushort, uint>[] p2,
             Current current)
@@ -417,7 +417,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<long, float>>, IEnumerable<Dictionary<long, float>>) OpLongFloatDS(
+        public (IEnumerable<IReadOnlyDictionary<long, float>>, IEnumerable<IReadOnlyDictionary<long, float>>) OpLongFloatDS(
             Dictionary<long, float>[] p1,
             Dictionary<long, float>[] p2,
             Current current)
@@ -434,7 +434,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<ulong, float>>, IEnumerable<Dictionary<ulong, float>>) OpULongFloatDS(
+        public (IEnumerable<IReadOnlyDictionary<ulong, float>>, IEnumerable<IReadOnlyDictionary<ulong, float>>) OpULongFloatDS(
             Dictionary<ulong, float>[] p1,
             Dictionary<ulong, float>[] p2,
             Current current)
@@ -451,7 +451,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<string, string>>, IEnumerable<Dictionary<string, string>>) OpStringStringDS(
+        public (IEnumerable<IReadOnlyDictionary<string, string>>, IEnumerable<IReadOnlyDictionary<string, string>>) OpStringStringDS(
             Dictionary<string, string>[] p1,
             Dictionary<string, string>[] p2,
             Current current)
@@ -468,7 +468,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<string, MyEnum>>, IEnumerable<Dictionary<string, MyEnum>>) OpStringMyEnumDS(
+        public (IEnumerable<IReadOnlyDictionary<string, MyEnum>>, IEnumerable<IReadOnlyDictionary<string, MyEnum>>) OpStringMyEnumDS(
             Dictionary<string, MyEnum>[] p1,
             Dictionary<string, MyEnum>[] p2,
             Current current)
@@ -485,7 +485,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<MyEnum, string>>, IEnumerable<Dictionary<MyEnum, string>>) OpMyEnumStringDS(
+        public (IEnumerable<IReadOnlyDictionary<MyEnum, string>>, IEnumerable<IReadOnlyDictionary<MyEnum, string>>) OpMyEnumStringDS(
             Dictionary<MyEnum, string>[] p1,
             Dictionary<MyEnum, string>[] p2,
             Current current)
@@ -502,8 +502,8 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<MyStruct, MyEnum>>,
-                IEnumerable<Dictionary<MyStruct, MyEnum>>) OpMyStructMyEnumDS(
+        public (IEnumerable<IReadOnlyDictionary<MyStruct, MyEnum>>,
+                IEnumerable<IReadOnlyDictionary<MyStruct, MyEnum>>) OpMyStructMyEnumDS(
             Dictionary<MyStruct, MyEnum>[] p1,
             Dictionary<MyStruct, MyEnum>[] p2,
             Current current)
@@ -728,7 +728,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<string[]>, IEnumerable<string[]>) OpStringSS(string[][] p1, string[][] p2, Current current)
+        public (IEnumerable<IEnumerable<string>>, IEnumerable<IEnumerable<string>>) OpStringSS(string[][] p1, string[][] p2, Current current)
         {
             string[][] p3 = new string[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -742,7 +742,7 @@ namespace ZeroC.Ice.Test.Operations
             return (r, p3);
         }
 
-        public (IEnumerable<string[][]>, IEnumerable<string[][]>) OpStringSSS(string[][][] p1, string[][][] p2,
+        public (IEnumerable<IEnumerable<IEnumerable<string>>>, IEnumerable<IEnumerable<IEnumerable<string>>>) OpStringSSS(string[][][] p1, string[][][] p2,
             Current current)
         {
             string[][][]? p3 = new string[p1.Length + p2.Length][][];
