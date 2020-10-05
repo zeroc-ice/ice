@@ -152,6 +152,7 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
         private volatile Exception? _exception;
+        private long _lastIncomingStreamId;
         private readonly IConnectionManager? _manager;
         private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
@@ -188,7 +189,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                HeartbeatAsync().AsTask().Wait();
+                HeartbeatAsync().Wait();
             }
             catch (AggregateException ex)
             {
@@ -200,7 +201,7 @@ namespace ZeroC.Ice
         /// <summary>Sends an asynchronous heartbeat frame.</summary>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public async ValueTask HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
+        public async Task HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
         {
             await Transceiver.PingAsync(cancel).ConfigureAwait(false);
             progress?.Report(true);
@@ -320,7 +321,7 @@ namespace ZeroC.Ice
                 // incoming streams to complete before sending the close frame but instead provide the ID of the
                 // latest incoming stream ID to the peer. The peer will close the connection once it received the
                 // response for this stream ID.
-                long lastIncomingStreamId = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
+                _lastIncomingStreamId = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
 
                 if (Endpoint.Protocol == Protocol.Ice1)
                 {
@@ -343,7 +344,7 @@ namespace ZeroC.Ice
                     string message = exception.ToString();
 
                     // Write the close frame
-                    await _controlStream!.SendCloseFrameAsync(lastIncomingStreamId,
+                    await _controlStream!.SendCloseFrameAsync(_lastIncomingStreamId,
                                                               message,
                                                               cancel).ConfigureAwait(false);
 
@@ -472,7 +473,7 @@ namespace ZeroC.Ice
                         Debug.Assert(_state == ConnectionState.Active);
                         if (!Endpoint.IsDatagram)
                         {
-                            ValueTask ignored = Transceiver.PingAsync(default);
+                            _ = Transceiver.PingAsync(default);
                         }
                     }
                 }
@@ -608,22 +609,29 @@ namespace ZeroC.Ice
             TransceiverStream? stream = null;
             try
             {
-                // Accept a new stream
                 while (true)
                 {
+                    // Accept a new stream.
                     stream = await Transceiver.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
+
+                    // Ignore the stream if the connection is being closed and the stream ID superior to the last
+                    // incoming stream ID to be processed. The loop will eventually terminate when the peer closes
+                    // the connection.
                     if (_exception != null)
                     {
-                        // Ignore the stream if the connection is being closed. The loop will eventually terminate
-                        // when the peer closes the connection.
-                        stream.Dispose();
+                        lock (_mutex)
+                        {
+                            if (stream.Id > _lastIncomingStreamId)
+                            {
+                                stream.Dispose();
+                                continue;
+                            }
+                        }
                     }
-                    else
-                    {
-                        // Start a new accept stream task
-                        _acceptStreamTask = Task.Run(() => AcceptStreamAsync().AsTask());
-                        break;
-                    }
+
+                    // Start a new accept stream task otherwise to process the stream.
+                    _acceptStreamTask = Task.Run(() => AcceptStreamAsync().AsTask());
+                    break;
                 }
 
                 ObjectAdapter? adapter = _adapter;

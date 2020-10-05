@@ -284,7 +284,7 @@ namespace ZeroC.Ice
 
         public override ValueTask InitializeAsync(CancellationToken cancel) => _transceiver.InitializeAsync(cancel);
 
-        public override async ValueTask PingAsync(CancellationToken cancel)
+        public override async Task PingAsync(CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
 
@@ -423,7 +423,17 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.Request:
                 {
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
-                    long streamId = requestId == 0 ? (_nextPeerUnidirectionalId += 4) : (requestId - 1 ) << 2;
+                    long streamId;
+                    if (requestId == 0)
+                    {
+                        // Assign an ID for incoming oneway requests.
+                        streamId = _nextPeerUnidirectionalId += 4;
+
+                    }
+                    else
+                    {
+                        streamId = ((requestId - 1) << 2) + (IsIncoming ? 0 : 1);
+                    }
                     return (streamId, frameType, readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                 }
 
@@ -448,7 +458,7 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.Reply:
                 {
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
-                    long streamId = (requestId - 1) << 2;
+                    long streamId = ((requestId - 1) << 2) + (IsIncoming ? 1 : 0);
                     return (streamId, frameType, readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                 }
 

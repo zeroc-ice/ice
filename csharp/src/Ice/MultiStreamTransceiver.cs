@@ -161,20 +161,28 @@ namespace ZeroC.Ice
 
         internal async ValueTask<(IncomingResponseFrame, bool)> ReceiveResponseFrameAsync(CancellationToken cancel)
         {
-            byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
-
-            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
-
-            var response = new IncomingResponseFrame(_transceiver.Endpoint.Protocol,
-                                                        data,
-                                                        _transceiver.IncomingFrameSizeMax);
-
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            try
             {
-                TraceFrame(response);
+                byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
+                    (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
+
+                (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
+
+                var response = new IncomingResponseFrame(_transceiver.Endpoint.Protocol,
+                                                         data,
+                                                         _transceiver.IncomingFrameSizeMax);
+
+                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                {
+                    TraceFrame(response);
+                }
+                return (response, fin);
             }
-            return (response, fin);
+            catch (OperationCanceledException)
+            {
+                await ResetAsync().ConfigureAwait(false);
+                throw;
+            }
         }
 
         internal virtual async ValueTask SendCloseFrameAsync(long streamId, string reason, CancellationToken cancel)
@@ -280,6 +288,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
             }
 
+            // Read the remainder of the varint size if needed.
             int sizeLength = buffer[1].ReadSizeLength20();
             if (sizeLength > 1)
             {
@@ -456,7 +465,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Sends ping data to defer the idle timeout.</summary>
-        public abstract ValueTask PingAsync(CancellationToken cancel);
+        public abstract Task PingAsync(CancellationToken cancel);
 
         /// <summary>Initializes the transport.</summary>
         public abstract ValueTask InitializeAsync(CancellationToken cancel);

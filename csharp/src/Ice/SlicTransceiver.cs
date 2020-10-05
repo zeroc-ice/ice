@@ -53,7 +53,6 @@ namespace ZeroC.Ice
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-
             if (disposing)
             {
                 if (IsSignaled && _exception == null)
@@ -77,8 +76,7 @@ namespace ZeroC.Ice
                 if (IsIncoming && !IsBidirectional && !IsControl)
                 {
                     Interlocked.Decrement(ref _transceiver.UnidirectionalStreamCount);
-                    ValueTask _ =
-                        _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamUnidirectionalFin, null);
+                    _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamUnidirectionalFin, null);
                 }
                 else if (!IsIncoming && IsBidirectional && IsStarted)
                 {
@@ -324,9 +322,7 @@ namespace ZeroC.Ice
                         {
                             throw new InvalidDataException("unexpected data for Slic Ping fame");
                         }
-                        ValueTask _ = PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Pong,
-                                                               null,
-                                                               CancellationToken.None);
+                        _ = PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Pong, null, CancellationToken.None);
                         ReceivedPing();
                         if (Endpoint.Communicator.TraceLevels.Transport > 2)
                         {
@@ -548,7 +544,7 @@ namespace ZeroC.Ice
             IdleTimeout = peerIdleTimeout < Options.IdleTimeout ? peerIdleTimeout : Options.IdleTimeout;
         }
 
-        public override ValueTask PingAsync(CancellationToken cancel) =>
+        public override Task PingAsync(CancellationToken cancel) =>
             PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Ping, null, cancel);
 
         internal SlicTransceiver(
@@ -619,7 +615,7 @@ namespace ZeroC.Ice
             _receiveStreamCompletionTaskSource.SetResult(frameSize - frameOffset);
         }
 
-        internal async ValueTask PrepareAndSendFrameAsync(
+        internal Task PrepareAndSendFrameAsync(
             SlicDefinitions.FrameType type,
             Func<OutputStream, long>? writer,
             CancellationToken cancel = default)
@@ -638,7 +634,7 @@ namespace ZeroC.Ice
                 TraceTransportFrame("sending ", type, frameSize, streamId);
             }
 
-            await SendFrameAsync(data, cancel).ConfigureAwait(false);
+            return SendFrameAsync(data, cancel);
         }
 
         internal async ValueTask ReceiveDataAsync(ArraySegment<byte> buffer, CancellationToken cancel)

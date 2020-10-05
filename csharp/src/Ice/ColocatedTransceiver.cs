@@ -20,14 +20,14 @@ namespace ZeroC.Ice
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (disposing && !IsIncoming)
+
+            if (disposing && !IsIncoming && IsStarted)
             {
-                //_transceiver.Endpoint.Communicator.Logger.Trace(_transceiver.Endpoint.Communicator.TraceLevels.TransportCategory, $"RELEASE {Id} {_transceiver}");
                 if (IsBidirectional)
                 {
                     _transceiver.BidirectionalSerializeSemaphore?.Release();
                 }
-                else
+                else if (!IsControl)
                 {
                     _transceiver.UnidirectionalSerializeSemaphore?.Release();
                 }
@@ -115,9 +115,7 @@ namespace ZeroC.Ice
                 {
                     if (_transceiver.BidirectionalSerializeSemaphore != null)
                     {
-                        //_transceiver.Endpoint.Communicator.Logger.Trace(_transceiver.Endpoint.Communicator.TraceLevels.TransportCategory, $"WAIT ASYNC {_transceiver}");
                         await _transceiver.BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                        //_transceiver.Endpoint.Communicator.Logger.Trace(_transceiver.Endpoint.Communicator.TraceLevels.TransportCategory, $"DONE WAIT ASYNC {_transceiver}");
                     }
                 }
                 else if (_transceiver.UnidirectionalSerializeSemaphore != null)
@@ -208,7 +206,7 @@ namespace ZeroC.Ice
 
         public override ValueTask InitializeAsync(CancellationToken cancel) => default;
 
-        public override ValueTask PingAsync(CancellationToken cancel) => default;
+        public override Task PingAsync(CancellationToken cancel) => Task.CompletedTask;
 
         public override string ToString() =>
             $"colocated ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
