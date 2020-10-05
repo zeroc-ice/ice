@@ -18,7 +18,9 @@ namespace ZeroC.Ice
             Response = 2,
         }
 
-        /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance.</summary>
+        /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance. This
+        /// implementation is slightly more efficient than the generated code because it avoids the allocation of a
+        /// string[] to write the location.</summary>
         internal static void WriteIce2RequestHeaderBody(
             this OutputStream ostr,
             Identity identity,
@@ -28,7 +30,7 @@ namespace ZeroC.Ice
             bool idempotent)
         {
             Debug.Assert(ostr.Encoding == Encoding);
-            BitSequence bitSequence = ostr.WriteBitSequence(3); // bit set to true (set) by default
+            BitSequence bitSequence = ostr.WriteBitSequence(4); // bit set to true (set) by default
 
             identity.IceWrite(ostr);
             if (facet.Length > 0)
@@ -50,8 +52,17 @@ namespace ZeroC.Ice
             }
 
             ostr.WriteString(operation);
-            ostr.WriteBool(idempotent);
-            bitSequence[2] = false; // TODO: source for priority.
+
+            if (idempotent)
+            {
+                ostr.WriteBool(true);
+            }
+            else
+            {
+                bitSequence[2] = false;
+            }
+
+            bitSequence[3] = false; // TODO: source for priority.
         }
     }
 }

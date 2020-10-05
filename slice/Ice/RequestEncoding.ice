@@ -72,7 +72,7 @@ module Ice
         string? facet = "";      // null equivalent to empty string
         StringSeq? location;     // null equivalent to empty sequence
         string operation;
-        bool \idempotent;
+        bool? \idempotent;       // null equivalent to false
         Priority? priority;      // null equivalent to 0
     }
 #endif

@@ -7,7 +7,9 @@ using System.Diagnostics;
 namespace ZeroC.Ice
 {
     /// <summary>Extension class for OutputStream to marshal ProxyData11 and ProxyData20 without creating a
-    /// ProxyData11/20 instance.</summary>
+    /// ProxyData11/20 instance. This implementation is slightly more efficient than the generated code because it
+    /// avoids the allocation of a string[] to write the facet (ProxyData11) and of a string[] to write the location
+    /// (ProxyData20)</summary>
     internal static class ProxyDataExtensions
     {
         internal static void WriteProxyData11(

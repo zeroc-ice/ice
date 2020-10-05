@@ -860,7 +860,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? map.Count == 5 : map.Count == 6);
 
             // TODO: temporary, currently we often save 2 bytes with the ice2 protocol
-            int protocolRequestSizeAdjustment = ice1 ? 0 : -3;
+            int protocolRequestSizeAdjustment = ice1 ? 0 : -4;
             int protocolReplySizeAdjustment = ice1 ? 0 : -2;
 
             DispatchMetrics dm1;
@@ -1070,7 +1070,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else
             {
-                TestHelper.Assert(rim1.Size == 36 && rim1.ReplySize == 10);
+                TestHelper.Assert(rim1.Size == 34 && rim1.ReplySize == 10);
             }
 
             if (ice1) // TODO: enable ice2
@@ -1199,7 +1199,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else
             {
-                TestHelper.Assert(rim1.Size == 36 && rim1.ReplySize == 0);
+                TestHelper.Assert(rim1.Size == 34 && rim1.ReplySize == 0);
             }
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",

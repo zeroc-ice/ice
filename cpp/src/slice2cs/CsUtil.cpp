@@ -311,12 +311,9 @@ Slice::fixId(const string& name, unsigned int baseTypes)
 string
 Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool readOnly, bool readOnlyParam)
 {
-    if (readOnlyParam)
-    {
-        assert(readOnly);
-    }
+    assert(!readOnlyParam || readOnly);
 
-    if(!type)
+    if (!type)
     {
         return "void";
     }
@@ -1144,17 +1141,14 @@ string
 Slice::CsGenerator::sequenceMarshalCode(
     const SequencePtr& seq,
     const string& scope,
-    const string& v,
+    const string& value,
     bool readOnly,
     bool readOnlyParam)
 {
     TypePtr type = seq->type();
     ostringstream out;
 
-    if (readOnlyParam)
-    {
-        assert(readOnly);
-    }
+    assert(!readOnlyParam || readOnly);
 
     bool hasCustomType = seq->hasMetadataWithPrefix("cs:generic");
 
@@ -1162,33 +1156,32 @@ Slice::CsGenerator::sequenceMarshalCode(
     {
         if (readOnlyParam && !hasCustomType)
         {
-            out << "ostr.WriteSequence(" << v << ".Span)";
+            out << "ostr.WriteSequence(" << value << ".Span)";
         }
         else if (readOnly)
         {
-            // v is an IEnumerable<T>
-            out << "ostr.WriteSequence(" << v << ")";
+            // value is an IEnumerable<T>
+            out << "ostr.WriteSequence(" << value << ")";
         }
         else
         {
             assert(!hasCustomType);
-            out << "ostr.WriteArray(" << v << ")";
+            out << "ostr.WriteArray(" << value << ")";
         }
     }
     else if (auto optional = OptionalPtr::dynamicCast(type); optional && optional->encodedUsingBitSequence())
     {
         TypePtr underlying = optional->underlying();
-        out << "ostr.WriteSequence(" << v;
+        out << "ostr.WriteSequence(" << value;
         if (isReferenceType(underlying))
         {
             out << ", withBitSequence: true";
         }
-        out << ", " << outputStreamWriter(underlying, scope, readOnly);
-        out << ")";
+        out << ", " << outputStreamWriter(underlying, scope, readOnly) << ")";
     }
     else
     {
-        out << "ostr.WriteSequence(" << v << ", " << outputStreamWriter(type, scope, readOnly) << ")";
+        out << "ostr.WriteSequence(" << value << ", " << outputStreamWriter(type, scope, readOnly) << ")";
     }
     return out.str();
 }

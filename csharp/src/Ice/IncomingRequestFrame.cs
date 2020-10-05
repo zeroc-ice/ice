@@ -60,7 +60,7 @@ namespace ZeroC.Ice
                 Facet = requestHeaderBody.Facet ?? "";
                 Location = requestHeaderBody.Location ?? Array.Empty<string>();
                 Operation = requestHeaderBody.Operation;
-                IsIdempotent = requestHeaderBody.Idempotent;
+                IsIdempotent = requestHeaderBody.Idempotent ?? false;
                 Priority = requestHeaderBody.Priority ?? default;
                 Context = null!; // initialized below
 

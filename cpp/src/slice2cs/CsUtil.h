@@ -135,7 +135,7 @@ private:
     std::string sequenceMarshalCode(
         const SequencePtr& seq,
         const std::string& scope,
-        const std::string& v,
+        const std::string& value,
         bool readOnly = false,
         bool readOnlyParam = false);
 
