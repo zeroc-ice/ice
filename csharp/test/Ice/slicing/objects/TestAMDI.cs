@@ -62,7 +62,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             var b = new B();
             b.Sb = "B1.sb";
             b.Pb = b;
-            return new ValueTask<B?>(b);
+            return new (b);
         }
 
         public ValueTask<B?> TwoElementCycleAsync(Current current)
@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             b2.Sb = "B2.sb";
             b2.Pb = b1;
             b1.Pb = b2;
-            return new ValueTask<B?>(b1);
+            return new (b1);
         }
 
         public ValueTask<B?> D1AsBAsync(Current current)
@@ -88,7 +88,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d2.Pd2 = d1;
             d1.Pb = d2;
             d1.Pd1 = d2;
-            return new ValueTask<B?>(d1);
+            return new (d1);
         }
 
         public ValueTask<D1?> D1AsD1Async(Current current)
@@ -103,7 +103,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d2.Pd2 = d1;
             d1.Pb = d2;
             d1.Pd1 = d2;
-            return new ValueTask<D1?>(d1);
+            return new (d1);
         }
 
         public ValueTask<B?> D2AsBAsync(Current current)
@@ -118,7 +118,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d1.Pd1 = d2;
             d2.Pb = d1;
             d2.Pd2 = d1;
-            return new ValueTask<B?>(d2);
+            return new (d2);
         }
 
         public ValueTask<(B?, B?)> ParamTest1Async(Current current)
@@ -133,7 +133,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d2.Pd2 = d1;
             d1.Pb = d2;
             d1.Pd1 = d2;
-            return MakeValueTask(((B?)d1, (B?)d2));
+            return new ((d1, d2));
         }
 
         public ValueTask<(B?, B?)> ParamTest2Async(Current current)
@@ -148,7 +148,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d2.Pd2 = d1;
             d1.Pb = d2;
             d1.Pd1 = d2;
-            return MakeValueTask(((B?)d2, (B?)d1));
+            return new ((d2, d1));
         }
 
         public ValueTask<(B?, B?, B?)> ParamTest3Async(Current current)
@@ -177,7 +177,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d3.Pd1 = null;
             d4.Pd2 = d3;
 
-            return MakeValueTask(((B?)d3, (B?)d2, (B?)d4));
+            return new ((d3, d2, d4));
         }
 
         public ValueTask<(B?, B?)> ParamTest4Async(Current current)
@@ -189,7 +189,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d4.P1.Sb = "B.sb (1)";
             d4.P2 = new B();
             d4.P2.Sb = "B.sb (2)";
-            return MakeValueTask(((B?)d4.P2, (B?)d4));
+            return new ((d4.P2, d4));
         }
 
         public ValueTask<(B?, B?, B?)> ReturnTest1Async(Current current)
@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d2.Pd2 = d1;
             d1.Pb = d2;
             d1.Pd1 = d2;
-            return MakeValueTask(((B?)d2, (B?)d2, (B?)d1));
+            return new ((d2, d2, d1));
         }
 
         public ValueTask<(B?, B?, B?)> ReturnTest2Async(Current current)
@@ -219,12 +219,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             d2.Pd2 = d1;
             d1.Pb = d2;
             d1.Pd1 = d2;
-            return new ValueTask<(B?, B?, B?)>((d1, d1, d2));
+            return new ((d1, d1, d2));
         }
 
-        public ValueTask<B?> ReturnTest3Async(B? p1, B? p2, Current current) => MakeValueTask(p1);
+        public ValueTask<B?> ReturnTest3Async(B? p1, B? p2, Current current) => new (p1);
 
-        public ValueTask<SS3> SequenceTestAsync(SS1? p1, SS2? p2, Current current) => MakeValueTask(new SS3(p1, p2));
+        public ValueTask<SS3> SequenceTestAsync(SS1? p1, SS2? p2, Current current) => new (new SS3(p1, p2));
 
         public ValueTask<(IReadOnlyDictionary<int, B?>, IReadOnlyDictionary<int, B?>)> DictionaryTestAsync(
             Dictionary<int, B?> bin,
@@ -255,13 +255,13 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                 d1.Pd1 = d1;
                 r[i * 20] = d1;
             }
-            return new ValueTask<(IReadOnlyDictionary<int, B?>, IReadOnlyDictionary<int, B?>)>((r, bout));
+            return new ((r, bout));
         }
 
-        public ValueTask<PBase?> ExchangePBaseAsync(PBase? pb, Current current) => MakeValueTask(pb);
+        public ValueTask<PBase?> ExchangePBaseAsync(PBase? pb, Current current) => new (pb);
 
         public ValueTask<Preserved?> PBSUnknownAsPreservedAsync(Current current) =>
-            new ValueTask<Preserved?>(new PSUnknown(5, "preserved", "unknown", null, new MyClass(15)));
+            new (new PSUnknown(5, "preserved", "unknown", null, new MyClass(15)));
 
         public ValueTask CheckPBSUnknownAsync(Preserved? p, Current current)
         {
@@ -283,7 +283,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             graph.Next.Next.Next = graph;
 
             var r = new PSUnknown(5, "preserved", "unknown", graph, null);
-            return new ValueTask<Preserved?>(r);
+            return new (r);
         }
 
         public ValueTask CheckPBSUnknownWithGraphAsync(Preserved? p, Current current)
@@ -316,7 +316,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<PNode?> ExchangePNodeAsync(PNode? pn, Current current) => MakeValueTask(pn);
+        public ValueTask<PNode?> ExchangePNodeAsync(PNode? pn, Current current) => new (pn);
 
         public ValueTask ThrowBaseAsBaseAsync(Current current)
         {
@@ -375,8 +375,5 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             f.H.F = f;
             return new ValueTask<Forward?>(f);
         }
-
-        // Type-inference helper method
-        private static ValueTask<T> MakeValueTask<T>(T result) => new ValueTask<T>(result);
     }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -24,8 +25,8 @@ namespace ZeroC.Ice
     /// <param name="value">The value to write to the stream.</param>
     public delegate void OutputStreamWriter<in T>(OutputStream ostr, T value);
 
-    /// <summary>A delegate that writes a value passed as in-reference to an output stream. This value is typically an
-    /// instance of a mapped Slice struct, or the parameters or return value of an operation.</summary>
+    /// <summary>A delegate that writes a value passed as in-reference to an output stream. This value typically
+    /// corresponds to the argument tuple or return value tuple of an operation.</summary>
     /// <typeparam name="T">The type of the value to write (a struct).</typeparam>
     /// <param name="ostr">The output stream to write to.</param>
     /// <param name="value">The value to write to the stream.</param>
@@ -342,54 +343,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct.</summary>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(
-            IReadOnlyDictionary<TKey, TValue> v,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-        {
-            WriteSize(v.Count);
-            foreach ((TKey key, TValue value) in v)
-            {
-                key.IceWrite(this);
-                valueWriter(this, value);
-            }
-        }
-
-        /// <summary>Writes a dictionary to the stream. The dictionary's value is a mapped Slice struct.</summary>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(
-            IReadOnlyDictionary<TKey, TValue> v,
-            OutputStreamWriter<TKey> keyWriter)
-            where TKey : notnull
-            where TValue : struct, IStreamableStruct
-        {
-            WriteSize(v.Count);
-            foreach ((TKey key, TValue value) in v)
-            {
-                keyWriter(this, key);
-                value.IceWrite(this);
-            }
-        }
-
-        /// <summary>Writes a dictionary to the stream. Both the dictionary's key and value are mapped Slice structs.
-        /// </summary>
-        /// <param name="v">The dictionary to write.</param>
-        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct, IStreamableStruct
-        {
-            WriteSize(v.Count);
-            foreach ((TKey key, TValue value) in v)
-            {
-                key.IceWrite(this);
-                value.IceWrite(this);
-            }
-        }
-
         /// <summary>Writes a dictionary to the stream. The dictionary's value type is reference type.</summary>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
@@ -430,7 +383,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a dictionary to the stream. The dictionary's value type is nullable value type.
+        /// <summary>Writes a dictionary to the stream. The dictionary's value type is a nullable value type.
         /// </summary>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
@@ -452,129 +405,6 @@ namespace ZeroC.Ice
                 if (value is TValue actualValue)
                 {
                     valueWriter(this, actualValue);
-                }
-                else
-                {
-                    bitSequence[index] = false;
-                }
-                index++;
-            }
-        }
-
-        /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct and the
-        /// dictionary's value type is a reference type.</summary>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
-        /// false.</param>
-        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(
-            IReadOnlyDictionary<TKey, TValue?> v,
-            bool withBitSequence,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-            where TValue : class
-        {
-            if (withBitSequence)
-            {
-                int count = v.Count;
-                WriteSize(count);
-                BitSequence bitSequence = WriteBitSequence(count);
-                int index = 0;
-                foreach ((TKey key, TValue? value) in v)
-                {
-                    key.IceWrite(this);
-                    if (value != null)
-                    {
-                        valueWriter(this, value);
-                    }
-                    else
-                    {
-                        bitSequence[index] = false;
-                    }
-                    index++;
-                }
-            }
-            else
-            {
-                WriteDictionary((IReadOnlyDictionary<TKey, TValue>)v, valueWriter);
-            }
-        }
-
-        /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct and the
-        /// dictionary's value type is a nullable value type.</summary>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(
-            IReadOnlyDictionary<TKey, TValue?> v,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct
-        {
-            int count = v.Count;
-            WriteSize(count);
-            BitSequence bitSequence = WriteBitSequence(count);
-            int index = 0;
-            foreach ((TKey key, TValue? value) in v)
-            {
-                key.IceWrite(this);
-                if (value is TValue actualValue)
-                {
-                    valueWriter(this, actualValue);
-                }
-                else
-                {
-                    bitSequence[index] = false;
-                }
-                index++;
-            }
-        }
-
-        /// <summary>Writes a dictionary to the stream. The dictionary's value is a nullable mapped Slice struct.
-        /// </summary>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(
-            IReadOnlyDictionary<TKey, TValue?> v,
-            OutputStreamWriter<TKey> keyWriter)
-            where TKey : notnull
-            where TValue : struct, IStreamableStruct
-        {
-            int count = v.Count;
-            WriteSize(count);
-            BitSequence bitSequence = WriteBitSequence(count);
-            int index = 0;
-            foreach ((TKey key, TValue? value) in v)
-            {
-                keyWriter(this, key);
-                if (value is TValue actualValue)
-                {
-                    actualValue.IceWrite(this);
-                }
-                else
-                {
-                    bitSequence[index] = false;
-                }
-                index++;
-            }
-        }
-
-        /// <summary>Writes a dictionary to the stream. Both the dictionary's key and value are mapped Slice structs,
-        /// and the values are nullable.</summary>
-        /// <param name="v">The dictionary to write.</param>
-        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue?> v)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct, IStreamableStruct
-        {
-            int count = v.Count;
-            WriteSize(count);
-            BitSequence bitSequence = WriteBitSequence(count);
-            int index = 0;
-            foreach ((TKey key, TValue? value) in v)
-            {
-                key.IceWrite(this);
-                if (value is TValue actualValue)
-                {
-                    actualValue.IceWrite(this);
                 }
                 else
                 {
@@ -622,6 +452,24 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Writes a sequence of fixed-size numeric values, such as int and long, to the stream.</summary>
+        /// <param name="v">The sequence of numeric values.</param>
+        public void WriteSequence<T>(IEnumerable<T> v) where T : struct
+        {
+            if (v is T[] vArray)
+            {
+                WriteArray(vArray);
+            }
+            else if (v is ImmutableArray<T> vImmutableArray)
+            {
+                WriteSequence(vImmutableArray.AsSpan());
+            }
+            else
+            {
+                WriteSequence(v, (ostr, element) => ostr.WriteFixedSizeNumeric(element));
+            }
+        }
+
         /// <summary>Writes a sequence to the stream.</summary>
         /// <param name="v">The sequence to write.</param>
         /// <param name="writer">The delegate that writes each element to the stream.</param>
@@ -631,17 +479,6 @@ namespace ZeroC.Ice
             foreach (T item in v)
             {
                 writer(this, item);
-            }
-        }
-
-        /// <summary>Writes a sequence to the stream. Elements of the sequence are mapped Slice structs.</summary>
-        /// <param name="v">The sequence to write.</param>
-        public void WriteSequence<T>(IEnumerable<T> v) where T : struct, IStreamableStruct
-        {
-            WriteSize(v.Count()); // potentially slow Linq Count()
-            foreach (T item in v)
-            {
-                item.IceWrite(this);
             }
         }
 
@@ -700,31 +537,9 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a sequence of nullable values to the stream. The values are mapped Slice structs.</summary>
-        /// <param name="v">The sequence to write.</param>
-        public void WriteSequence<T>(IEnumerable<T?> v) where T : struct, IStreamableStruct
-        {
-            int count = v.Count(); // potentially slow Linq Count()
-            WriteSize(count);
-            BitSequence bitSequence = WriteBitSequence(count);
-            int index = 0;
-            foreach (T? item in v)
-            {
-                if (item is T value)
-                {
-                    value.IceWrite(this);
-                }
-                else
-                {
-                    bitSequence[index] = false;
-                }
-                index++;
-            }
-        }
-
         /// <summary>Writes a mapped Slice struct to the stream.</summary>
         /// <param name="v">The struct instance to write.</param>
-        public void WriteStruct<T>(in T v) where T : struct, IStreamableStruct => v.IceWrite(this);
+        public void WriteStruct<T>(T v) where T : struct, IStreamableStruct => v.IceWrite(this);
 
         // Write methods for tagged basic types
 
@@ -940,75 +755,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream. The dictionary's key is a mapped
-        /// Slice struct.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue>? v,
-            int entrySize,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-        {
-            Debug.Assert(entrySize > 1);
-            if (v is IReadOnlyDictionary<TKey, TValue> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
-                int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + GetSizeLength(count));
-                WriteDictionary(dict, valueWriter);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream. The dictionary's value is a
-        /// mapped Slice struct.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue>? v,
-            int entrySize,
-            OutputStreamWriter<TKey> keyWriter)
-            where TKey : notnull
-            where TValue : struct, IStreamableStruct
-        {
-            Debug.Assert(entrySize > 1);
-            if (v is IReadOnlyDictionary<TKey, TValue> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
-                int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + GetSizeLength(count));
-                WriteDictionary(dict, keyWriter);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream. Both the dictionary's key and
-        /// value are mapped Slice structs.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue>? v,
-            int entrySize)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct, IStreamableStruct
-        {
-            Debug.Assert(entrySize > 1);
-            if (v is IReadOnlyDictionary<TKey, TValue> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
-                int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + GetSizeLength(count));
-                WriteDictionary(dict);
-            }
-        }
-
         /// <summary>Writes a tagged dictionary with variable-size elements to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
@@ -1026,66 +772,6 @@ namespace ZeroC.Ice
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
                 WriteDictionary(dict, keyWriter, valueWriter);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary with variable-size elements to the stream. The dictionary's key is
-        /// a mapped Slice struct.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue>? v,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict, valueWriter);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary with variable-size elements to the stream. The dictionary's value is a
-        /// mapped Slice struct.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue>? v,
-            OutputStreamWriter<TKey> keyWriter)
-            where TKey : notnull
-            where TValue : struct, IStreamableStruct
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict, keyWriter);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary with variable-size elements to the stream. Both the dictionary's key and
-        /// value are mapped Slice structs.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue>? v)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct, IStreamableStruct
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict);
                 EndFixedLengthSize(pos);
             }
         }
@@ -1138,90 +824,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged dictionary to the stream. The dictionary's key is a mapped Slice struct.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
-        /// false.</param>
-        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue?>? v,
-            bool withBitSequence,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-            where TValue : class
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict, withBitSequence, valueWriter);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary to the stream. The dictionary's key is a mapped Slice struct,
-        /// and the dictionary's value type is a nullable value type.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue?>? v,
-            OutputStreamWriter<TValue> valueWriter)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict, valueWriter);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary to the stream. The dictionary's value is a nullable mapped Slice struct.
-        /// </summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue?>? v,
-            OutputStreamWriter<TKey> keyWriter)
-            where TKey : notnull
-            where TValue : struct, IStreamableStruct
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict, keyWriter);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged dictionary to the stream. Both the dictionary's key and value are mapped Slice
-        /// structs, and the value's type is nullable.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The dictionary to write.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(
-            int tag,
-            IReadOnlyDictionary<TKey, TValue?>? v)
-            where TKey : struct, IStreamableStruct
-            where TValue : struct, IStreamableStruct
-        {
-            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteDictionary(dict);
-                EndFixedLengthSize(pos);
-            }
-        }
-
         /// <summary>Writes a tagged proxy to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The proxy to write.</param>
@@ -1254,6 +856,28 @@ namespace ZeroC.Ice
                     WriteSize(v.IsEmpty ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
                 }
                 WriteSequence(v);
+            }
+        }
+
+        /// <summary>Writes a tagged sequence of fixed-size numeric values to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The sequence to write.</param>
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v) where T : struct
+        {
+            if (v is IEnumerable<T> value)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
+
+                int elementSize = Unsafe.SizeOf<T>();
+                if (elementSize > 1)
+                {
+                    int count = value.Count(); // potentially slow Linq Count()
+
+                    // First write the size in bytes, so that the reader can skip it. We optimize-out this byte size
+                    // when elementSize is 1.
+                    WriteSize(count == 0 ? 1 : (count * elementSize) + GetSizeLength(count));
+                }
+                WriteSequence(value);
             }
         }
 
@@ -1301,52 +925,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged sequence of variable-size values to the stream. Elements of the sequence are
-        /// mapped Slice structs.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The sequence to write.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v) where T : struct, IStreamableStruct
-        {
-            if (v is IEnumerable<T> value)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteSequence(value);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged sequence of fixed-size values to the stream. Elements of the sequence are
-        /// mapped Slice structs.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The sequence to write.</param>
-        /// <param name="elementSize">The fixed size of each element of the sequence, in bytes.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v, int elementSize)
-            where T : struct, IStreamableStruct
-        {
-            Debug.Assert(elementSize > 0);
-            if (v is IEnumerable<T> value)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
-
-                int count = value.Count(); // potentially slow Linq Count()
-
-                if (elementSize > 1)
-                {
-                    // First write the size in bytes, so that the reader can skip it. We optimize-out this byte size
-                    // when elementSize is 1.
-                    WriteSize(count == 0 ? 1 : (count * elementSize) + GetSizeLength(count));
-                }
-
-                // Write the sequence "inline" instead of calling WriteSequence to avoid recomputing count.
-                WriteSize(count);
-                foreach (T item in value)
-                {
-                    item.IceWrite(this);
-                }
-            }
-        }
-
         /// <summary>Writes a tagged sequence of nullable elements to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
@@ -1380,22 +958,6 @@ namespace ZeroC.Ice
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
                 WriteSequence(value, writer);
-                EndFixedLengthSize(pos);
-            }
-        }
-
-        /// <summary>Writes a tagged sequence of nullable values to the stream. Elements of the sequence are mapped
-        /// Slice structs.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The sequence to write.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v)
-            where T : struct, IStreamableStruct
-        {
-            if (v is IEnumerable<T?> value)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartFixedLengthSize();
-                WriteSequence(value);
                 EndFixedLengthSize(pos);
             }
         }
@@ -1490,10 +1052,6 @@ namespace ZeroC.Ice
         }
 
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
-
-        // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
-        internal static void WriteSize20(int size, Span<byte> data) =>
-            WriteFixedLengthSize20(size, data);
 
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
@@ -1613,24 +1171,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a facet to the stream.</summary>
-        /// <param name="facet">The facet to write to the stream.</param>
-        internal void WriteFacet11(string facet)
-        {
-            Debug.Assert(OldEncoding);
-
-            // The old facet-path style used by the ice1 protocol.
-            if (facet.Length == 0)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(1);
-                WriteString(facet);
-            }
-        }
-
         internal void WriteBinaryContextEntry(int key, ReadOnlySpan<byte> value)
         {
             WriteVarInt(key);
@@ -1639,14 +1179,6 @@ namespace ZeroC.Ice
         }
 
         internal void WriteBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
-        {
-            WriteVarInt(key);
-            Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
-            writer(this, value);
-            EndFixedLengthSize(pos, 2);
-        }
-
-        internal void WriteBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
             WriteVarInt(key);
             Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
@@ -2007,7 +1539,6 @@ namespace ZeroC.Ice
         private void WriteFixedSizeNumeric<T>(T v) where T : struct
         {
             int elementSize = Unsafe.SizeOf<T>();
-            Debug.Assert(elementSize > 1); // for size 1, we write the byte directly
             Span<byte> data = stackalloc byte[elementSize];
             MemoryMarshal.Write(data, ref v);
             WriteByteSpan(data);

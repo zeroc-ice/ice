@@ -52,15 +52,27 @@ module Ice
     {
     }
 
-    /// The header for ice2 requests. All the data members are encoded using the 2.0 encoding.
+    // A request header consists of two parts: a prologue which contains the frame type and frame size (and occasionally
+    // more) and a body which contains the target's identity, operation name and more.
+
     [cs:readonly]
-    struct Ice2RequestHeader
+    struct Ice1RequestHeaderBody
+    {
+        Identity identity;
+        StringSeq facetPath;
+        string operation;
+        OperationMode operationMode;
+        Context context;
+    }
+
+    [cs:readonly]
+    struct Ice2RequestHeaderBody
     {
         Identity identity;
         string? facet = "";      // null equivalent to empty string
         StringSeq? location;     // null equivalent to empty sequence
         string operation;
-        bool \idempotent;
+        bool? \idempotent;       // null equivalent to false
         Priority? priority;      // null equivalent to 0
     }
 #endif

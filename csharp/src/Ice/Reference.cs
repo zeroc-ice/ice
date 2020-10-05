@@ -1284,13 +1284,7 @@ namespace ZeroC.Ice
             if (ostr.Encoding == Encoding.V11)
             {
                 Identity.IceWrite(ostr);
-                var proxyData = new ProxyData11(Facet.Length > 0 ? new string[] { Facet } : Array.Empty<string>(),
-                                                InvocationMode,
-                                                secure: false,
-                                                Protocol,
-                                                protocolMinor: 0,
-                                                Encoding);
-                proxyData.IceWrite(ostr);
+                ostr.WriteProxyData11(Facet, InvocationMode, Protocol, Encoding);
                 ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
 
                 if (Endpoints.Count == 0)
@@ -1304,19 +1298,7 @@ namespace ZeroC.Ice
                 Debug.Assert(ostr.Encoding == Encoding.V20);
 
                 ostr.Write(Endpoints.Count > 0 ? ProxyKind.Direct : ProxyKind.Indirect);
-
-                // For non ice1 proxies, invocation mode is not marshaled so we "adjust" it to Twoway which gets
-                // converted to null below.
-                InvocationMode adjustedMode = Protocol == Protocol.Ice1 ? InvocationMode : InvocationMode.Twoway;
-
-                var proxyData = new ProxyData20(Identity,
-                                                Protocol == Protocol.Ice2 ? null : Protocol,
-                                                Encoding == Encoding.V20 ? null : Encoding,
-                                                Location.Count > 0 ? Location.ToArray() : null,
-                                                adjustedMode != InvocationMode.Twoway ? adjustedMode : null,
-                                                Facet.Length > 0 ? Facet : null);
-
-                proxyData.IceWrite(ostr);
+                ostr.WriteProxyData20(Identity, Protocol, Encoding, Location, InvocationMode, Facet);
 
                 if (Endpoints.Count > 0)
                 {

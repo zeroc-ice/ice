@@ -81,7 +81,7 @@ namespace ZeroC.Ice
             where T : struct
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
-            writer(ostr, returnValue);
+            writer(ostr, in returnValue);
             response.PayloadEnd = ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
@@ -287,7 +287,7 @@ namespace ZeroC.Ice
                     case ReplyStatus.OperationNotExistException:
                         var dispatchException = (DispatchException)exception;
                         dispatchException.Identity.IceWrite(ostr);
-                        ostr.WriteFacet11(dispatchException.Facet);
+                        ostr.WriteIce1Facet(dispatchException.Facet);
                         ostr.WriteString(dispatchException.Operation);
                         break;
 

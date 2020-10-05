@@ -50,6 +50,7 @@ Slice::paramTypeStr(const MemberPtr& param, bool readOnly)
 {
     return CsGenerator::typeToString(param->type(),
                                      getNamespace(InterfaceDefPtr::dynamicCast(param->operation()->container())),
+                                     readOnly,
                                      readOnly);
 }
 
@@ -308,9 +309,11 @@ Slice::fixId(const string& name, unsigned int baseTypes)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool readOnly)
+Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool readOnly, bool readOnlyParam)
 {
-    if(!type)
+    assert(!readOnlyParam || readOnly);
+
+    if (!type)
     {
         return "void";
     }
@@ -377,8 +380,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         if (readOnly)
         {
             auto elementType = seq->type();
-            string elementTypeStr = "<" + typeToString(elementType, package) + ">";
-            if (isMappedToReadOnlyMemory(seq))
+            string elementTypeStr = "<" + typeToString(elementType, package, readOnly) + ">";
+            if (isFixedSizeNumericSequence(seq) && customType.empty() && readOnlyParam)
             {
                 return "global::System.ReadOnlyMemory" + elementTypeStr; // same for optional!
             }
@@ -525,7 +528,7 @@ Slice::isReferenceType(const TypePtr& type)
 }
 
 bool
-Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
+Slice::isFixedSizeNumericSequence(const SequencePtr& seq)
 {
     TypePtr type = seq->type();
     if (auto en = EnumPtr::dynamicCast(type); en && en->underlying())
@@ -534,8 +537,7 @@ Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength() &&
-        !seq->hasMetadataWithPrefix("cs:generic");
+    return builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength();
 }
 
 vector<string>
@@ -610,7 +612,7 @@ Slice::toTupleType(const MemberList& params, bool readOnly)
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool forNestedType)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool readOnly, bool readOnlyParam)
 {
     ostringstream out;
     if (auto optional = OptionalPtr::dynamicCast(type))
@@ -651,7 +653,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     {
         // We generate the sequence writer inline, so this function must not be called when the top-level object is
         // not cached.
-        out << "(ostr, sequence) => " << sequenceMarshalCode(seq, scope, "sequence", forNestedType);
+        out << "(ostr, sequence) => " << sequenceMarshalCode(seq, scope, "sequence", readOnly, readOnlyParam);
     }
     else
     {
@@ -727,13 +729,13 @@ Slice::CsGenerator::writeMarshalCode(
         {
             out << nl << "ostr.Write" << builtinSuffixTable[builtin->kind()] << "(" << param << ");";
         }
-        else if (auto st = StructPtr::dynamicCast(type))
+        else if (StructPtr::dynamicCast(type))
         {
             out << nl << param << ".IceWrite(ostr);";
         }
         else if (auto seq = SequencePtr::dynamicCast(type))
         {
-            out << nl << sequenceMarshalCode(seq, scope, param, forNestedType) << ";";
+            out << nl << sequenceMarshalCode(seq, scope, param, !forNestedType, !forNestedType) << ";";
         }
         else if (auto dict = DictionaryPtr::dynamicCast(type))
         {
@@ -921,18 +923,26 @@ Slice::CsGenerator::writeTaggedMarshalCode(
     {
         const TypePtr elementType = seq->type();
         builtin = BuiltinPtr::dynamicCast(elementType);
-        if (isMappedToReadOnlyMemory(seq))
+
+        bool hasCustomType = seq->hasMetadataWithPrefix("cs:generic");
+        bool readOnly = !isDataMember;
+
+        if (isFixedSizeNumericSequence(seq) && (readOnly || !hasCustomType))
         {
-            out << nl << "ostr";
-            if (isDataMember)
+            if (readOnly && !hasCustomType)
             {
-                out << ".WriteTaggedArray(" << tag << ", " << param;
+                out << nl << "ostr.WriteTaggedSequence(" << tag << ", " << param << ".Span" << ");";
+            }
+            else if (readOnly)
+            {
+                // param is an IEnumerable<T>
+                out << nl << "ostr.WriteTaggedSequence(" << tag << ", " << param << ");";
             }
             else
             {
-                out << ".WriteTaggedSequence(" << tag << ", " << param << ".Span";
+                assert(!hasCustomType);
+                out << nl << "ostr.WriteTaggedArray(" << tag << ", " << param << ");";
             }
-            out << ");";
         }
         else if (auto optional = OptionalPtr::dynamicCast(elementType); optional && optional->encodedUsingBitSequence())
         {
@@ -942,32 +952,19 @@ Slice::CsGenerator::writeTaggedMarshalCode(
             {
                 out << ", withBitSequence: true";
             }
-            if (!StructPtr::dynamicCast(underlying))
-            {
-                out << ", " << outputStreamWriter(underlying, scope, true);
-            }
-            out << ");";
+            out << ", " << outputStreamWriter(underlying, scope, !isDataMember) << ");";
         }
         else if (elementType->isVariableLength())
         {
-            out << nl << "ostr.WriteTaggedSequence(" << tag << ", " << param;
-            if (!StructPtr::dynamicCast(elementType))
-            {
-                out << ", " << outputStreamWriter(elementType, scope, true);
-            }
-            out << ");";
+            out << nl << "ostr.WriteTaggedSequence(" << tag << ", " << param
+                << ", " << outputStreamWriter(elementType, scope, !isDataMember) << ");";
         }
         else
         {
             // Fixed size = min-size
             out << nl << "ostr.WriteTaggedSequence(" << tag << ", " << param << ", "
-                << "elementSize: " << elementType->minWireSize();
-
-            if (!StructPtr::dynamicCast(elementType))
-            {
-                out << ", " << outputStreamWriter(elementType, scope, true);
-            }
-            out << ");";
+                << "elementSize: " << elementType->minWireSize()
+                << ", " << outputStreamWriter(elementType, scope, !isDataMember) << ");";
         }
     }
     else
@@ -996,15 +993,8 @@ Slice::CsGenerator::writeTaggedMarshalCode(
         {
             out << ", withBitSequence: true";
         }
-        if (!StructPtr::dynamicCast(keyType))
-        {
-            out << ", " << outputStreamWriter(keyType, scope, true);
-        }
-        if (!StructPtr::dynamicCast(valueType))
-        {
-            out << ", " << outputStreamWriter(valueType, scope, true);
-        }
-        out << ");";
+        out << ", " << outputStreamWriter(keyType, scope)
+            << ", " << outputStreamWriter(valueType, scope) << ");";
     }
 }
 
@@ -1056,7 +1046,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(
     else if (seq)
     {
         const TypePtr elementType = seq->type();
-        if (isMappedToReadOnlyMemory(seq))
+        if (isFixedSizeNumericSequence(seq) && !seq->hasMetadataWithPrefix("cs:generic"))
         {
             out << "istr.ReadTaggedArray";
             if (auto enElement = EnumPtr::dynamicCast(elementType); enElement && !enElement->isUnchecked())
@@ -1151,45 +1141,47 @@ string
 Slice::CsGenerator::sequenceMarshalCode(
     const SequencePtr& seq,
     const string& scope,
-    const string& param,
-    bool forNestedType)
+    const string& value,
+    bool readOnly,
+    bool readOnlyParam)
 {
     TypePtr type = seq->type();
     ostringstream out;
 
-    if (isMappedToReadOnlyMemory(seq))
+    assert(!readOnlyParam || readOnly);
+
+    bool hasCustomType = seq->hasMetadataWithPrefix("cs:generic");
+
+    if (isFixedSizeNumericSequence(seq) && (readOnly || !hasCustomType))
     {
-        if (forNestedType)
+        if (readOnlyParam && !hasCustomType)
         {
-            out << "ostr.WriteArray(" << param << ")";
+            out << "ostr.WriteSequence(" << value << ".Span)";
+        }
+        else if (readOnly)
+        {
+            // value is an IEnumerable<T>
+            out << "ostr.WriteSequence(" << value << ")";
         }
         else
         {
-            out << "ostr.WriteSequence(" << param << ".Span)";
+            assert(!hasCustomType);
+            out << "ostr.WriteArray(" << value << ")";
         }
     }
     else if (auto optional = OptionalPtr::dynamicCast(type); optional && optional->encodedUsingBitSequence())
     {
         TypePtr underlying = optional->underlying();
-        out << "ostr.WriteSequence(" << param;
+        out << "ostr.WriteSequence(" << value;
         if (isReferenceType(underlying))
         {
             out << ", withBitSequence: true";
         }
-        if (!StructPtr::dynamicCast(underlying))
-        {
-            out << ", " << outputStreamWriter(underlying, scope, true);
-        }
-        out << ")";
+        out << ", " << outputStreamWriter(underlying, scope, readOnly) << ")";
     }
     else
     {
-        out << "ostr.WriteSequence(" << param;
-        if (!StructPtr::dynamicCast(type))
-        {
-            out << ", " << outputStreamWriter(type, scope, true);
-        }
-        out << ")";
+        out << "ostr.WriteSequence(" << value << ", " << outputStreamWriter(type, scope, readOnly) << ")";
     }
     return out.str();
 }
@@ -1290,16 +1282,8 @@ Slice::CsGenerator::dictionaryMarshalCode(const DictionaryPtr& dict, const strin
     {
         out << ", withBitSequence: true";
     }
-    if (!StructPtr::dynamicCast(key))
-    {
-        out << ", " << outputStreamWriter(key, scope, true);
-    }
-    if (!StructPtr::dynamicCast(value))
-    {
-        out << ", " << outputStreamWriter(value, scope, true);
-    }
-    out << ")";
-
+    out << ", " << outputStreamWriter(key, scope)
+        << ", " << outputStreamWriter(value, scope) << ")";
     return out.str();
 }
 
