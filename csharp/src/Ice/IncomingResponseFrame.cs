@@ -164,7 +164,7 @@ namespace ZeroC.Ice
 
                 if (istr != null)
                 {
-                    throw istr.ReadSystemException11(replyStatus);
+                    throw istr.ReadIce1SystemException(replyStatus);
                 }
             }
         }
@@ -207,7 +207,7 @@ namespace ZeroC.Ice
             Exception exception;
             if (Encoding == Encoding.V11 && replyStatus != ReplyStatus.UserException)
             {
-                exception = istr.ReadSystemException11(replyStatus);
+                exception = istr.ReadIce1SystemException(replyStatus);
                 istr.CheckEndOfBuffer(skipTaggedParams: false);
             }
             else

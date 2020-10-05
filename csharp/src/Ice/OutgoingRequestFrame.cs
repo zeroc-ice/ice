@@ -133,7 +133,7 @@ namespace ZeroC.Ice
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
-            writer(ostr, args);
+            writer(ostr, in args);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {

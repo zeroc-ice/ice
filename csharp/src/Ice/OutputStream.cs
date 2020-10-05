@@ -1053,10 +1053,6 @@ namespace ZeroC.Ice
 
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
-        // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
-        internal static void WriteSize20(int size, Span<byte> data) =>
-            WriteFixedLengthSize20(size, data);
-
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
         {
@@ -1175,24 +1171,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a facet to the stream.</summary>
-        /// <param name="facet">The facet to write to the stream.</param>
-        internal void WriteFacet11(string facet)
-        {
-            Debug.Assert(OldEncoding);
-
-            // The old facet-path style used by the ice1 protocol.
-            if (facet.Length == 0)
-            {
-                WriteSize(0);
-            }
-            else
-            {
-                WriteSize(1);
-                WriteString(facet);
-            }
-        }
-
         internal void WriteBinaryContextEntry(int key, ReadOnlySpan<byte> value)
         {
             WriteVarInt(key);
@@ -1201,14 +1179,6 @@ namespace ZeroC.Ice
         }
 
         internal void WriteBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
-        {
-            WriteVarInt(key);
-            Position pos = StartFixedLengthSize(2); // 2-bytes size place holder
-            writer(this, value);
-            EndFixedLengthSize(pos, 2);
-        }
-
-        internal void WriteBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
             WriteVarInt(key);
             Position pos = StartFixedLengthSize(2); // 2-bytes size place holder

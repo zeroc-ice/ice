@@ -18,7 +18,7 @@ namespace ZeroC.Ice
             Encoding encoding)
         {
             Debug.Assert(ostr.Encoding == Encoding.V11);
-            ostr.WriteFacet11(facet);
+            ostr.WriteIce1Facet(facet);
             ostr.Write(invocationMode);
             ostr.WriteBool(false); // "secure"
             ostr.Write(protocol);

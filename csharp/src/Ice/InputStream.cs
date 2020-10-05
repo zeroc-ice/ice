@@ -1128,58 +1128,6 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
-        /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
-        /// <returns>The facet read from the stream.</returns>
-        internal string ReadFacet11()
-        {
-            Debug.Assert(OldEncoding);
-            string[] facets = ReadArray(1, IceReaderIntoString);
-            if (facets.Length > 1)
-            {
-                throw new InvalidDataException($"read ice1 facet path with {facets.Length} elements");
-            }
-            return facets.Length == 1 ? facets[0] : "";
-        }
-
-        /// <summary>Reads a system exception encoded using the 1.1 encoding, based on the provided reply status.
-        /// </summary>
-        /// <param name="replyStatus">The reply status.</param>
-        /// <returns>The exception read from the stream.</returns>
-        internal DispatchException ReadSystemException11(ReplyStatus replyStatus)
-        {
-            Debug.Assert(OldEncoding);
-            Debug.Assert((byte)replyStatus > (byte)ReplyStatus.UserException);
-
-            DispatchException systemException;
-
-            switch (replyStatus)
-            {
-                case ReplyStatus.FacetNotExistException:
-                case ReplyStatus.ObjectNotExistException:
-                case ReplyStatus.OperationNotExistException:
-                    var identity = new Identity(this);
-                    string facet = ReadFacet11();
-                    string operation = ReadString();
-
-                    if (replyStatus == ReplyStatus.OperationNotExistException)
-                    {
-                        systemException = new OperationNotExistException(identity, facet, operation);
-                    }
-                    else
-                    {
-                        systemException = new ObjectNotExistException(identity, facet, operation);
-                    }
-                    break;
-
-                default:
-                    systemException = new UnhandledException(ReadString(), Identity.Empty, "", "");
-                    break;
-            }
-
-            systemException.ConvertToUnhandled = true;
-            return systemException;
-        }
-
         internal void Skip(int size)
         {
             if (size < 0 || size > _buffer.Length - Pos)

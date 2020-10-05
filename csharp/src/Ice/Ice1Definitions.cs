@@ -147,6 +147,73 @@ namespace ZeroC.Ice
             return data;
         }
 
+        /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
+        /// <param name="istr">The stream to read from.</param>
+        /// <returns>The facet read from the stream.</returns>
+        internal static string ReadIce1Facet(this InputStream istr)
+        {
+            Debug.Assert(istr.Encoding == Encoding);
+            return GetFacet(istr.ReadArray(1, InputStream.IceReaderIntoString));
+        }
+
+        /// <summary>Reads an ice1 system exception encoded based on the provided reply status.</summary>
+        /// <param name="istr">The stream to read from.</param>
+        /// <param name="replyStatus">The reply status.</param>
+        /// <returns>The exception read from the stream.</returns>
+        internal static DispatchException ReadIce1SystemException(this InputStream istr, ReplyStatus replyStatus)
+        {
+            Debug.Assert(istr.Encoding == Encoding);
+            Debug.Assert((byte)replyStatus > (byte)ReplyStatus.UserException);
+
+            DispatchException systemException;
+
+            switch (replyStatus)
+            {
+                case ReplyStatus.FacetNotExistException:
+                case ReplyStatus.ObjectNotExistException:
+                case ReplyStatus.OperationNotExistException:
+                    var identity = new Identity(istr);
+                    string facet = istr.ReadIce1Facet();
+                    string operation = istr.ReadString();
+
+                    if (replyStatus == ReplyStatus.OperationNotExistException)
+                    {
+                        systemException = new OperationNotExistException(identity, facet, operation);
+                    }
+                    else
+                    {
+                        systemException = new ObjectNotExistException(identity, facet, operation);
+                    }
+                    break;
+
+                default:
+                    systemException = new UnhandledException(istr.ReadString(), Identity.Empty, "", "");
+                    break;
+            }
+
+            systemException.ConvertToUnhandled = true;
+            return systemException;
+        }
+
+        /// <summary>Writes a facet as a facet path.</summary>
+        /// <param name="ostr">The stream.</param>
+        /// <param name="facet">The facet to write to the stream.</param>
+        internal static void WriteIce1Facet(this OutputStream ostr, string facet)
+        {
+            Debug.Assert(ostr.Encoding == Encoding);
+
+            // The old facet-path style used by the ice1 protocol.
+            if (facet.Length == 0)
+            {
+                ostr.WriteSize(0);
+            }
+            else
+            {
+                ostr.WriteSize(1);
+                ostr.WriteString(facet);
+            }
+        }
+
         /// <summary>Writes a request header body without constructing an Ice1RequestHeaderBody instance.</summary>
         internal static void WriteIce1RequestHeaderBody(
             this OutputStream ostr,
@@ -158,7 +225,7 @@ namespace ZeroC.Ice
         {
             Debug.Assert(ostr.Encoding == Encoding);
             identity.IceWrite(ostr);
-            ostr.WriteFacet11(facet);
+            ostr.WriteIce1Facet(facet);
             ostr.WriteString(operation);
             ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
             ostr.WriteDictionary(context, OutputStream.IceWriterFromString, OutputStream.IceWriterFromString);
