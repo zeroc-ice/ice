@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-#include <Ice/RequestEncoding.ice>
+#include <Ice/Context.ice>
 
 [[swift:class-resolver-prefix:IceOperationsAMD]]
 

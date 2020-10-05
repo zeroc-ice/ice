@@ -1,6 +1,5 @@
-//
+
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #pragma once
 
@@ -14,19 +13,17 @@
 [[python:pkgdir:Ice]]
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Context.ice>
 #include <Ice/Identity.ice>
 
 [[java:package:com.zeroc]]
 [cs:namespace:ZeroC]
 module Ice
 {
-    // These definitions help with the encoding of requests.
-
-    /// A request context. Each operation has a <code>Context</code> as its implicit final parameter.
-    dictionary<string, string> Context;
+    // These definitions help with the encoding of ice1 frames or when reading "raw" ice1 frames.
 
     /// Determines the retry behavior an invocation in case of a (potentially) recoverable error. OperationMode is
-    /// sent with each request to allow the server to verify the assumptions made by the caller.
+    /// sent with each ice1 request to allow the server to verify the assumptions made by the caller.
     enum OperationMode : byte
     {
         /// Ordinary operations have <code>Normal</code> mode. These operations can modify object state; invoking such
@@ -44,17 +41,8 @@ module Ice
         \Idempotent
     }
 
-#ifdef __SLICE2CS__
-
-    /// The priority of this request.
-    // TODO: describe semantics.
-    unchecked enum Priority : byte
-    {
-    }
-
-    // A request header consists of two parts: a prologue which contains the frame type and frame size (and occasionally
-    // more) and a body which contains the target's identity, operation name and more.
-
+    /// The body of an ice1 request header. A request header consists of two parts: a prologue which contains the frame
+    /// type and frame size (and more) and a body which contains the target's identity, operation name and more.
     [cs:readonly]
     struct Ice1RequestHeaderBody
     {
@@ -65,15 +53,31 @@ module Ice
         Context context;
     }
 
-    [cs:readonly]
-    struct Ice2RequestHeaderBody
+    /// The reply status of an ice1 response frame.
+    enum ReplyStatus : byte
     {
-        Identity identity;
-        string? facet = "";      // null equivalent to empty string
-        StringSeq? location;     // null equivalent to empty sequence
-        string operation;
-        bool? \idempotent;       // null equivalent to false
-        Priority? priority;      // null equivalent to 0
+        /// A successful reply message.
+        OK = 0,
+
+        /// A user exception reply message.
+        UserException = 1,
+
+        /// The target object does not exist.
+        ObjectNotExistException = 2,
+
+        /// The target object does not support the facet.
+        FacetNotExistException = 3,
+
+        /// The target object does not support the operation.
+        OperationNotExistException = 4,
+
+        /// The reply message carries an unknown Ice local exception.
+        UnknownLocalException = 5,
+
+        /// The reply message carries an unknown Ice user exception.
+        UnknownUserException = 6,
+
+        /// The reply message carries an unknown exception.
+        UnknownException = 7
     }
-#endif
 }
