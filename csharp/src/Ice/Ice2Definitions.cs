@@ -18,8 +18,7 @@ namespace ZeroC.Ice
             Response = 2,
         }
 
-        /// <summary>Helper method to write the request header body without constructing an Ice2RequestHeaderBody
-        /// struct.</summary>
+        /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance.</summary>
         internal static void WriteIce2RequestHeaderBody(
             this OutputStream ostr,
             Identity identity,
