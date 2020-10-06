@@ -5,6 +5,55 @@ using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
+    /// <summary>The retry policy that can be specified when constructing a remote exception.</summary>
+    public readonly struct RetryPolicy : IEquatable<RetryPolicy>
+    {
+        public readonly Retryable Retryable;
+        public readonly TimeSpan Delay;
+
+        /// <summary>The NoRetry policy, specifies that the exception cannot be retried. This is the default policy
+        /// when no policy is specified.</summary>
+        public static readonly RetryPolicy NoRetry = new RetryPolicy(Retryable.No);
+
+        /// <summary>The OtherReplica policy, specifies that the exception can be retried on a different replica.
+        /// </summary>
+        public static readonly RetryPolicy OtherReplica = new RetryPolicy(Retryable.OtherReplica);
+
+        /// <summary>Creates a retry policy that specifies that the exception can be retried after the given delay.</summary>
+        /// <param name="delay">The delay after which the exception can be retried.</param>
+        /// <returns>The retry policy.</returns>
+        public static RetryPolicy AfterDelay(TimeSpan delay) => new RetryPolicy(Retryable.AfterDelay, delay);
+
+        /// <inheritdoc/>
+        public bool Equals(RetryPolicy other) => Retryable == other.Retryable && Delay == other.Delay;
+
+        /// <inheritdoc/>
+        public override bool Equals(object? obj) => obj is RetryPolicy other && Equals(other);
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => HashCode.Combine(Retryable, Delay);
+
+        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>
+        public static bool operator ==(RetryPolicy lhs, RetryPolicy rhs) => lhs.Equals(rhs);
+
+        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
+        /// <param name="lhs">The left hand side operand.</param>
+        /// <param name="rhs">The right hand side operand.</param>
+        /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
+        public static bool operator !=(RetryPolicy lhs, RetryPolicy rhs) => !(lhs == rhs);
+
+        internal RetryPolicy(Retryable retryable, TimeSpan delay = default)
+        {
+            Retryable = retryable;
+            Delay = delay;
+        }
+
+        internal const int BinaryContextKey = 10;
+    }
+
     /// <summary>Base class for exceptions that can be transmitted in responses to Ice requests. The derived exception
     /// classes are generated from exceptions defined in Slice.</summary>
     public class RemoteException : Exception
@@ -18,6 +67,9 @@ namespace ZeroC.Ice
         /// in a remote server.</summary>
         public bool ConvertToUnhandled { get; set; }
 
+        internal TimeSpan AfterDelay { get; private set; }
+        internal Retryable Retryable { get; private set; }
+
         /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
         /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in
         /// derived partial exception classes that provide a custom default message.</summary>
@@ -30,21 +82,24 @@ namespace ZeroC.Ice
 
         private readonly bool _hasCustomMessage;
 
-        /// <summary>Constructs a remote exception with the provided message.</summary>
-        /// <param name="message">Message that describes the exception.</param>
-        protected internal RemoteException(string? message)
-            : base(message) => _hasCustomMessage = message != null;
-
         /// <summary>Constructs a remote exception with the default system message.</summary>
-        protected RemoteException()
+        protected RemoteException(RetryPolicy retryPolicy = default)
         {
+            Retryable = retryPolicy.Retryable;
+            AfterDelay = retryPolicy.Delay;
         }
 
         /// <summary>Constructs a remote exception with the provided message and inner exception.</summary>
         /// <param name="message">Message that describes the exception.</param>
+        /// <param name="retryPolicy">The retry policy for the exception.</param>
         /// <param name="innerException">The inner exception.</param>
-        protected RemoteException(string? message, Exception? innerException)
-            : base(message, innerException) => _hasCustomMessage = message != null;
+        protected internal RemoteException(string? message, RetryPolicy retryPolicy = default, Exception? innerException = null)
+            : base(message, innerException)
+        {
+            Retryable = retryPolicy.Retryable;
+            AfterDelay = retryPolicy.Delay;
+            _hasCustomMessage = message != null;
+        }
 
         /// <summary>Unmarshals a remote exception from the <see cref="InputStream"/>. This base implementation is only
         /// called on a plain RemoteException.</summary>

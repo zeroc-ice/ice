@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -51,8 +52,7 @@ namespace ZeroC.Ice
     /// <summary>This exception reports an attempt to use a destroyed communicator.</summary>
     public class CommunicatorDisposedException : ObjectDisposedException
     {
-        /// <summary>Constructs a new instance of the <see cref="CommunicatorDisposedException"/> class with a specified
-        /// error message.</summary>
+        /// <summary>Constructs a new instance of the <see cref="CommunicatorDisposedException"/> class.</summary>
         public CommunicatorDisposedException()
             : base("")
         {
@@ -76,6 +76,12 @@ namespace ZeroC.Ice
             : base($"could not find the endpoints for proxy `{stringifiedProxy}'")
         {
         }
+    }
+
+    /// <summary>This exception reports that an exception asked for retry using a different replica but all known
+    /// replicas have been already used.</summary>
+    public class NoMoreReplicasException : Exception
+    {
     }
 
     /// <summary>This exception reports an error from the transport layer.</summary>
@@ -292,15 +298,43 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This is a purely Ice-internal exception used for retries.</summary>
-    public class RetryException : Exception
+    /// <summary>This exception indicates that an attempt was made to send a request using an
+    /// <see cref="IRequestHandler"/> that is no longer valid.</summary>
+    public class InvalidRequestHandlerException : Exception
     {
-        /// <summary>Constructs a new instance of the <see cref="RetryException"/> class with a reference to the inner
+        /// <summary>Constructs a new instance of the <see cref="InvalidRequestHandlerException"/> class with a reference to the inner
         /// exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        internal RetryException(Exception innerException)
+        internal InvalidRequestHandlerException(Exception innerException)
             : base("", innerException)
         {
+        }
+    }
+
+    /// <summary>This exception wraps an incoming response frame containing a failure an unmarshals is retry policy,
+    /// it is used by Ice run-time for retries.</summary>
+    public class RetryableException : Exception
+    {
+        /// <summary>Gets the delay after which an exception can be retried when the exception uses
+        /// <see cref="Retryable.AfterDelay"/>.</summary>
+        public TimeSpan Delay { get; }
+        /// <summary>The incoming response frame containing the failure.</summary>
+        public IncomingResponseFrame ResponseFrame { get; }
+        /// <summary>Gets the remote exception <see cref="Retryable"/> setting.</summary>
+        public Retryable Retryable { get; }
+
+        /// <summary>Constructs a new instance of the <see cref="RetryableException"/> class.</summary>
+        /// <param name="responseFrame">The <see cref="IncomingResponseFrame"/> containing the failure.</param>
+        public RetryableException(IncomingResponseFrame responseFrame)
+        {
+            Debug.Assert(responseFrame.ResultType == ResultType.Failure);
+            ResponseFrame = responseFrame;
+            if (responseFrame.BinaryContext.TryGetValue(RetryPolicy.BinaryContextKey, out ReadOnlyMemory<byte> value))
+            {
+                Retryable = (Retryable)value.Span[0];
+                Delay = Retryable == Retryable.AfterDelay ?
+                    TimeSpan.FromMilliseconds(value[1..].Span.ReadVarULong().Value) : TimeSpan.Zero;
+            }
         }
     }
 }

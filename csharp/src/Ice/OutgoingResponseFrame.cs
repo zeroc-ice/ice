@@ -312,6 +312,17 @@ namespace ZeroC.Ice
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
+            else if (Encoding == Encoding.V20 && exception.Retryable != Retryable.No)
+            {
+                AddBinaryContextEntry(RetryPolicy.BinaryContextKey, exception, (ostr, value) =>
+                {
+                    ostr.Write(value.Retryable);
+                    if (value.Retryable == Retryable.AfterDelay)
+                    {
+                        ostr.WriteVarUInt((uint)value.AfterDelay.TotalMilliseconds);
+                    }
+                });
+            }
         }
 
         internal OutgoingResponseFrame(

@@ -146,6 +146,10 @@ namespace ZeroC.Ice
         /// was not set during communicator initialization.</summary>
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
+        /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
+        /// invocation. It must be a number greater than 0.</summary>
+        public int RetryMaxAttempts { get; }
+
         /// <summary>The output mode or format for ToString on Ice proxies when the protocol is ice1. See
         /// <see cref="Ice.ToStringMode"/>.</summary>
         public ToStringMode ToStringMode { get; }
@@ -163,7 +167,6 @@ namespace ZeroC.Ice
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
-        internal int[] RetryIntervals { get; }
         internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -491,6 +494,13 @@ namespace ZeroC.Ice
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
+                RetryMaxAttempts = GetPropertyAsInt("Ice.RetryMaxAttempts") ?? 5;
+
+                if (RetryMaxAttempts <= 0)
+                {
+                    throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
+                }
+
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
                 WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
                 WarnDispatch = GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
@@ -508,29 +518,6 @@ namespace ZeroC.Ice
                 ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
                 _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
-
-                string[]? arr = GetPropertyAsList("Ice.RetryIntervals");
-
-                if (arr == null)
-                {
-                    RetryIntervals = new int[] { 0 };
-                }
-                else
-                {
-                    RetryIntervals = new int[arr.Length];
-                    for (int i = 0; i < arr.Length; i++)
-                    {
-                        int v = int.Parse(arr[i], CultureInfo.InvariantCulture);
-                        // If -1 is the first value, no retry and wait intervals.
-                        if (i == 0 && v == -1)
-                        {
-                            RetryIntervals = Array.Empty<int>();
-                            break;
-                        }
-
-                        RetryIntervals[i] = v > 0 ? v : 0;
-                    }
-                }
 
                 PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 

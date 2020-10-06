@@ -20,10 +20,21 @@ interface Retry
     idempotent int opIdempotent(int c);
     void opNotIdempotent();
     void opSystemException();
+    int opAfterDelay(int retries, int delay);
 
     idempotent void sleep(int delay);
 
     idempotent void shutdown();
+}
+
+interface Replicated
+{
+    void otherReplica();
+}
+
+interface NonReplicated
+{
+    void otherReplica();
 }
 
 }

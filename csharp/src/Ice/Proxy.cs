@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -186,8 +187,8 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync(cancel: default);
-                return (task.IsCompleted ? task.Result : task.AsTask().Result) as Connection;
+                ValueTask<Connection?> task = prx.GetConnectionAsync(cancel: default);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
             {
@@ -203,7 +204,9 @@ namespace ZeroC.Ice
             this IObjectPrx prx,
             CancellationToken cancel = default)
         {
-            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
+            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(
+                ImmutableList<IConnector>.Empty,
+                cancel).ConfigureAwait(false);
             return handler as Connection;
         }
 
@@ -322,9 +325,13 @@ namespace ZeroC.Ice
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
                                                                                      request.Operation,
                                                                                      request.Context);
-                int retryCount = 0;
                 try
                 {
+                    Exception? lastException = null;
+                    Retryable retryable = Retryable.OtherReplica;
+                    TimeSpan afterDelay = TimeSpan.Zero;
+                    int retryCount = 0;
+                    var excludedConnectors = new List<IConnector>();
                     while (true)
                     {
                         IRequestHandler? handler = null;
@@ -332,7 +339,8 @@ namespace ZeroC.Ice
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
-                            handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
+                            handler = await reference.GetRequestHandlerAsync(excludedConnectors,
+                                                                             cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
                             IncomingResponseFrame response =
@@ -346,53 +354,131 @@ namespace ZeroC.Ice
                             if (response.ResultType == ResultType.Failure)
                             {
                                 observer?.RemoteException();
-
-                                // TODO: revisit
-                                // We throw here the 1.1 system exceptions, as they are used for retries
-                                response.ThrowIfSystemException(proxy.Communicator);
+                                if (response.ReadSystemException(proxy.Communicator) is Exception systemException)
+                                {
+                                    throw ExceptionUtil.Throw(systemException);
+                                }
+                                else
+                                {
+                                    throw new RetryableException(response);
+                                }
                             }
 
                             return response;
                         }
-                        catch (RetryException)
+                        catch (InvalidRequestHandlerException)
                         {
-                            // Clear the proxy's cached request handler if connection caching is enabled
+                            // TODO temporary, this is already fixed in the transport refactoring branch
+                            // Not a retry, we try to send the request using a handler that was no longer valid
                             if (reference.IsConnectionCached)
                             {
-                                proxy.IceReference.ClearRequestHandler(handler!);
+                                reference.ClearRequestHandler(handler!);
                             }
+                            continue;
                         }
-                        catch (OperationCanceledException)
+                        catch (NoMoreReplicasException)
                         {
-                            throw; // Don't retry cancelled operations
+                            // The last exception asked to retry using a different replica, but we already tried all
+                            // known replicas.
+                            Debug.Assert(lastException != null);
+                            throw ExceptionUtil.Throw(lastException);
                         }
                         catch (Exception ex)
                         {
-                            // Clear the proxy's cached request handler if connection caching is enabled
-                            if (reference.IsConnectionCached && handler != null)
+                            lastException = ex;
+                            if (++retryCount < reference.Communicator.RetryMaxAttempts)
                             {
-                                proxy.IceReference.ClearRequestHandler(handler);
-                            }
+                                // Should we exclude the connector that where the failure originates
+                                bool excludeConnector = true;
+                                try
+                                {
+                                    throw;
+                                }
+                                catch (ConnectionClosedByPeerException)
+                                {
+                                    // Always retry a gracefully close connection. Don't exclude the connector after a
+                                    // graceful close connection, in case it is the only connector available.
+                                    excludeConnector = false;
+                                }
+                                catch (TransportException) when (request.IsIdempotent || !progressWrapper.IsSent)
+                                {
+                                    // Retry transport exceptions if the request is idempotent or was not send
+                                    excludeConnector = !(ex is ConnectionTimeoutException);
+                                }
+                                catch (ObjectNotExistException) when (request.Encoding != Encoding.V20)
+                                {
+                                    if (reference.IsIndirect && reference.IsWellKnown)
+                                    {
+                                        reference.LocatorInfo?.ClearCache(reference);
+                                    }
+                                }
+                                catch (RetryableException) when (request.Encoding != Encoding.V20 &&
+                                                                 request.IsIdempotent)
+                                {
+                                    // With the old encoding remote exceptions don't carry any Retryable settings.
+                                    // We keep the old behavior of retrying on idempotent, other replica is preferred
+                                    // and the current replica is not excluded.
+                                    excludeConnector = false;
+                                }
+                                catch (RetryableException remoteEx) when (remoteEx.Retryable != Retryable.No)
+                                {
+                                    // Retry remote exceptions if allowed by its Retryable setting
+                                    retryable = remoteEx.Retryable;
+                                    afterDelay = remoteEx.Delay;
+                                    excludeConnector = retryable == Retryable.OtherReplica;
+                                }
 
-                            // TODO: revisit retry logic
-                            // We only retry after failing with an ObjectNotExistException or a local exception.
-                            int delay = reference.CheckRetryAfterException(ex,
-                                                                           progressWrapper.IsSent,
-                                                                           request.IsIdempotent,
-                                                                           ref retryCount);
-                            if (delay > 0)
-                            {
-                                // The delay task can be canceled either by the user code using the provided
-                                // cancellation token or if the communicator is destroyed.
-                                using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                                    cancel,
-                                    proxy.Communicator.CancellationToken);
-                                await Task.Delay(delay, tokenSource.Token).ConfigureAwait(false);
-                            }
+                                if (handler is Connection connection)
+                                {
+                                    if (retryable == Retryable.OtherReplica)
+                                    {
+                                        reference.Communicator.OutgoingConnectionFactory.SetHintFailure(
+                                            connection.Connector);
+                                    }
 
-                            observer?.Retried();
+                                    if (excludeConnector)
+                                    {
+                                        excludedConnectors.Add(connection.Connector);
+                                        if (reference.Communicator.TraceLevels.Retry >= 1)
+                                        {
+                                            reference.Communicator.Logger.Trace(
+                                                reference.Communicator.TraceLevels.RetryCategory,
+                                                $"excluding connector\n{connection.Connector}");
+                                        }
+                                    }
+
+                                    if (reference.IsConnectionCached)
+                                    {
+                                        reference.ClearRequestHandler(handler);
+                                    }
+                                }
+
+                                if (reference.Communicator.TraceLevels.Retry >= 1)
+                                {
+                                    reference.Communicator.Logger.Trace(
+                                        reference.Communicator.TraceLevels.RetryCategory,
+                                        $"retrying operation call: because of exception\n{ex}");
+                                }
+
+                                if (retryable == Retryable.AfterDelay && afterDelay != TimeSpan.Zero)
+                                {
+                                    // The delay task can be canceled either by the user code using the provided
+                                    // cancellation token or if the communicator is destroyed.
+                                    using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
+                                        cancel,
+                                        proxy.Communicator.CancellationToken);
+                                    await Task.Delay(afterDelay, tokenSource.Token).ConfigureAwait(false);
+                                }
+                                observer?.Retried();
+                                continue;
+                            }
+                            throw;
                         }
                     }
+                }
+                catch (RetryableException ex)
+                {
+                    return ex.ResponseFrame;
                 }
                 catch (Exception ex)
                 {
@@ -401,7 +487,7 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    // Use IDisposable for observers, this will allow using "using".
+                    // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
             }

@@ -1607,6 +1607,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     string messageParamName = getEscapedParamName(p, "message");
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
+    string retryPolicyParamName = getEscapedParamName(p, "retryPolicy");
 
     bool hasPublicParameterlessCtor = true;
     vector<string> allParameters;
@@ -1639,21 +1640,31 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         if (allParameters.size() > 0)
         {
+            if (i == 0)
+            {
+                // Insert retry policy last
+                allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
+                baseParamNames.push_back(retryPolicyParamName);
+            }
             _out << sp;
             _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
+
             if (i > 0)
             {
-                _out << nl << "/// <param name=\"message\">Message that describes the exception.</param>";
+                _out << nl << "/// <param name=\"" << messageParamName
+                     << "\">Message that describes the exception.</param>";
             }
             for (const auto& member : p->allDataMembers())
             {
                 CommentInfo comment = processComment(member, "");
                 writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
             }
+            _out << nl << "/// <param name=\"" << retryPolicyParamName
+                 << "\">The retry policy for the exception.</param>";
             if (i > 1)
             {
-                _out << nl << "/// <param name=\"innerException\">The exception that is the cause of the current "
-                     << "exception.</param>";
+                _out << nl << "/// <param name=\"" << innerExceptionParamName
+                     << "\">The exception that is the cause of the current exception.</param>";
             }
             _out << nl << "public " << name << spar << allParameters << epar;
             _out.inc();
@@ -1666,8 +1677,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             for (const auto& member : dataMembers)
             {
-                    string memberName = fixId(fieldName(member), Slice::ExceptionType);
-                    _out << nl << "this." << memberName << " = " << fixId(member->name()) << ';';
+                string memberName = fixId(fieldName(member), Slice::ExceptionType);
+                _out << nl << "this." << memberName << " = " << fixId(member->name()) << ';';
             }
             _out << eb;
         }
@@ -1677,10 +1688,20 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             // Insert message first
             allParameters.insert(allParameters.cbegin(), "string? " + messageParamName);
             baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
+            // Add retry policy if not already added
+            if (allParameters.size() == 1)
+            {
+                // Insert retry policy last
+                allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
+                baseParamNames.push_back(retryPolicyParamName);
+            }
         }
         else if (i == 1)
         {
-            // Also add innerException
+            // Remove RetryPolicy default
+            allParameters.erase(prev(allParameters.end()));
+            allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName);
+            // Add innerException last
             allParameters.push_back("global::System.Exception? " + innerExceptionParamName);
             baseParamNames.push_back(innerExceptionParamName);
         }
@@ -1691,7 +1712,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         _out << sp;
         _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
-        _out << nl << "public " << name << "()";
+        _out << nl << "/// <param name=\"" << retryPolicyParamName << "\">The retry policy for the exception.</param>";
+        _out << nl << "public " << name << "(ZeroC.Ice.RetryPolicy retryPolicy = default)";
+        _out.inc();
+        _out << nl << ": base(retryPolicy)";
+        _out.dec();
         _out << sb;
         writeDataMemberDefaultValues(dataMembers, ns, Slice::ExceptionType);
         _out << eb;

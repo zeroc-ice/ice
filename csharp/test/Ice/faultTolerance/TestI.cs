@@ -8,8 +8,6 @@ namespace ZeroC.Ice.Test.FaultTolerance
     {
         public void Abort(Current current) => Process.GetCurrentProcess().Kill();
 
-        public void IdempotentAbort(Current current) => Process.GetCurrentProcess().Kill();
-
         public int Pid(Current current) => System.Environment.ProcessId;
 
         public void Shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();

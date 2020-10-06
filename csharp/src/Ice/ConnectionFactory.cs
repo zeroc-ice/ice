@@ -28,6 +28,8 @@ namespace ZeroC.Ice
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _disposeTask;
+        private readonly List<(DateTime DateTime, IConnector Connector)> _hintFailures =
+            new List<(DateTime, IConnector)>();
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
@@ -79,6 +81,7 @@ namespace ZeroC.Ice
             bool hasMore,
             EndpointSelectionType selType,
             string connectionId,
+            IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
         {
             Debug.Assert(endpoints.Count > 0);
@@ -97,23 +100,31 @@ namespace ZeroC.Ice
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        if (connectionList.FirstOrDefault(connection => connection.Active) is Connection connection)
+                        if (connectionList.FirstOrDefault(connection =>
+                            connection.Active && !excludedConnectors.Contains(connection.Connector))
+                            is Connection connection)
                         {
                             return connection;
                         }
                     }
                 }
+
+                // Purge expired hint failures
+                // TODO allow to set the expiration time for hint failures
+                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(120);
+                _hintFailures.RemoveAll(v => v.DateTime <= expirationDate);
             }
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
             // resolve an endpoint hostname into connector addresses.
-            var connectors = new List<(IConnector, Endpoint)>();
+            var connectors = new List<(IConnector Connector, Endpoint Endpoint)>();
             foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
-                    foreach (IConnector connector in await endpoint.ConnectorsAsync(selType,
-                                                                                    cancel).ConfigureAwait(false))
+                    IEnumerable<IConnector> connectorEndpoints =
+                        await endpoint.ConnectorsAsync(selType, cancel).ConfigureAwait(false);
+                    foreach (IConnector connector in connectorEndpoints)
                     {
                         connectors.Add((connector, endpoint));
                     }
@@ -139,6 +150,29 @@ namespace ZeroC.Ice
                         // If this was the last endpoint and we didn't manage to get a single connector, we're done.
                         throw;
                     }
+                }
+            }
+
+            lock (_mutex)
+            {
+                if (_disposeTask != null)
+                {
+                    throw new CommunicatorDisposedException();
+                }
+
+                // Exclude connectors that where already tried, order the remaining connectors moving connectors with
+                // recent failures to the end of the list.
+                connectors = connectors.Where(item => !excludedConnectors.Contains(item.Connector)).OrderBy(
+                    item =>
+                    {
+                        return _hintFailures.Where(hint => hint.Connector.Equals(item.Connector))
+                            .Select(hint => hint.DateTime)
+                            .DefaultIfEmpty(DateTime.UnixEpoch).First();
+                    }).ToList();
+
+                if (connectors.Count == 0)
+                {
+                    throw new NoMoreReplicasException();
                 }
             }
 
@@ -265,6 +299,15 @@ namespace ZeroC.Ice
             }
         }
 
+        internal void SetHintFailure(IConnector connector)
+        {
+            lock (_mutex)
+            {
+                _hintFailures.RemoveAll(item => item.Connector.Equals(connector));
+                _hintFailures.Add((DateTime.Now, connector));
+            }
+        }
+
         internal void SetRouterInfo(RouterInfo routerInfo)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
@@ -386,6 +429,11 @@ namespace ZeroC.Ice
                         bool last = i == connectors.Count - 1;
 
                         TraceLevels traceLevels = _communicator.TraceLevels;
+                        lock (_mutex)
+                        {
+                            _hintFailures.Add((DateTime.Now, connector));
+                        }
+
                         if (traceLevels.Transport >= 2)
                         {
                             _communicator.Logger.Trace(traceLevels.TransportCategory,

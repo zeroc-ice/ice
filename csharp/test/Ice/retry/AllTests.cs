@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using Test;
 
@@ -40,37 +41,29 @@ namespace ZeroC.Ice.Test.Retry
             }
         }
 
-        public static IRetryPrx Run(
-            TestHelper helper,
-            Communicator communicator,
-            Communicator communicator2,
-            string rf)
+        public static IRetryPrx Run(TestHelper helper, Communicator communicator, bool colocated)
         {
            bool ice1 = helper.Protocol == Protocol.Ice1;
 
-            Instrumentation.TestInvocationReset();
-
             TextWriter output = helper.Output;
-            output.Write("testing stringToProxy... ");
-            output.Flush();
-            var retry1 = IRetryPrx.Parse(rf, communicator);
-            retry1.IcePing();
-            var retry2 = IRetryPrx.Parse(rf, communicator);
-            retry2.IcePing();
-            output.WriteLine("ok");
+
+            var retry1 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator);
 
             output.Write("calling regular operation with first proxy... ");
             output.Flush();
+            Instrumentation.TestInvocationReset();
             retry1.Op(false);
+            Instrumentation.TestInvocationCount(1);
+            Instrumentation.TestFailureCount(0);
+            Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
-
-            Instrumentation.TestInvocationCount(3);
 
             output.Write("calling operation to kill connection with second proxy... ");
             output.Flush();
+            Instrumentation.TestInvocationReset();
             try
             {
-                retry2.Op(true);
+                retry1.Op(true);
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -81,12 +74,13 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(1);
+            // Instrumentation.TestFailureCount(1);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
             output.Write("calling regular operation with first proxy again... ");
             output.Flush();
+            Instrumentation.TestInvocationReset();
             retry1.Op(false);
             Instrumentation.TestInvocationCount(1);
             Instrumentation.TestFailureCount(0);
@@ -94,6 +88,7 @@ namespace ZeroC.Ice.Test.Retry
             output.WriteLine("ok");
 
             output.Write("calling regular AMI operation with first proxy... ");
+            Instrumentation.TestInvocationReset();
             retry1.OpAsync(false).Wait();
             Instrumentation.TestInvocationCount(1);
             Instrumentation.TestFailureCount(0);
@@ -101,9 +96,10 @@ namespace ZeroC.Ice.Test.Retry
             output.WriteLine("ok");
 
             output.Write("calling AMI operation to kill connection with second proxy... ");
+            Instrumentation.TestInvocationReset();
             try
             {
-                retry2.OpAsync(true).Wait();
+                retry1.OpAsync(true).Wait();
                 TestHelper.Assert(false);
             }
             catch (AggregateException ex)
@@ -113,56 +109,20 @@ namespace ZeroC.Ice.Test.Retry
             }
 
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(1);
+            // Instrumentation.TestFailureCount(1);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
             output.Write("calling regular AMI operation with first proxy again... ");
+            Instrumentation.TestInvocationReset();
             retry1.OpAsync(false).Wait();
             Instrumentation.TestInvocationCount(1);
             Instrumentation.TestFailureCount(0);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
-            // TODO: with ice1, we retry on UnhandledExceptions (!) thrown by the server when the operation is
-            // idempotent. With ice2, no remote exception currently triggers any retry.
-            if (ice1)
-            {
-                output.Write("testing idempotent operation... ");
-                TestHelper.Assert(retry1.OpIdempotent(4) == 4);
-                Instrumentation.TestInvocationCount(1);
-                Instrumentation.TestFailureCount(0);
-                Instrumentation.TestRetryCount(4);
-                TestHelper.Assert(retry1.OpIdempotentAsync(4).Result == 4);
-                Instrumentation.TestInvocationCount(1);
-                Instrumentation.TestFailureCount(0);
-                Instrumentation.TestRetryCount(4);
-                output.WriteLine("ok");
-
-                if (retry1.GetCachedConnection() != null)
-                {
-                    output.Write("testing idempotent operation with bi-dir proxy... ");
-                    try
-                    {
-                        retry1.Clone(fixedConnection: retry1.GetCachedConnection()).OpIdempotent(4);
-                    }
-                    catch (UnhandledException)
-                    {
-                    }
-                    Instrumentation.TestInvocationCount(1);
-                    Instrumentation.TestFailureCount(1);
-
-                    Instrumentation.TestRetryCount(0);
-                    TestHelper.Assert(retry1.OpIdempotent(4) == 4);
-                    Instrumentation.TestInvocationCount(1);
-                    Instrumentation.TestFailureCount(0);
-                    // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
-                    Instrumentation.TestRetryCount(3);
-                    output.WriteLine("ok");
-                }
-            }
-
             output.Write("testing non-idempotent operation... ");
+            Instrumentation.TestInvocationReset();
             try
             {
                 retry1.OpNotIdempotent();
@@ -195,6 +155,7 @@ namespace ZeroC.Ice.Test.Retry
             output.WriteLine("ok");
 
             output.Write("testing system exception... "); // it's just a regular remote exception
+            Instrumentation.TestInvocationReset();
             try
             {
                 retry1.OpSystemException();
@@ -204,11 +165,9 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
             Instrumentation.TestInvocationCount(1);
-            if (ice1)
-            {
-                Instrumentation.TestFailureCount(0); // TODO: ice2
-            }
+            Instrumentation.TestFailureCount(0);
             Instrumentation.TestRetryCount(0);
+
             try
             {
                 retry1.OpSystemExceptionAsync().Wait();
@@ -219,33 +178,113 @@ namespace ZeroC.Ice.Test.Retry
                 TestHelper.Assert(ex.InnerException is SystemFailure);
             }
             Instrumentation.TestInvocationCount(1);
-            if (ice1)
-            {
-                Instrumentation.TestFailureCount(0); // TODO: ice2
-            }
+            Instrumentation.TestFailureCount(0);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
-            if (ice1)
+            if (!ice1)
             {
                 output.Write("testing cancellation and retries... ");
                 output.Flush();
-
-                retry2 = IRetryPrx.Parse(retry1.ToString()!, communicator2);
+                Instrumentation.TestInvocationReset();
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
                     using var cancel = new CancellationTokenSource(500);
-                    retry2.OpIdempotentAsync(4, cancel: cancel.Token).Wait();
+                    retry1.OpIdempotent(4, cancel: cancel.Token);
                     TestHelper.Assert(false);
                 }
-                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                catch (OperationCanceledException)
                 {
                     Instrumentation.TestRetryCount(2);
-                    retry2.OpIdempotent(-1); // Reset the counter
-                    Instrumentation.TestRetryCount(-1);
+                    retry1.OpIdempotent(-1);
                 }
                 output.WriteLine("ok");
+
+                output.Write("testing retry after delay... ");
+                output.Flush();
+                Instrumentation.TestInvocationReset();
+                try
+                {
+                    // No retries before timeout kicks-in
+                    using var cancel = new CancellationTokenSource(500);
+                    retry1.OpAfterDelay(2, 600, cancel: cancel.Token);
+                    TestHelper.Assert(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    Instrumentation.TestRetryCount(0);
+                    retry1.OpAfterDelay(-1, 0);
+                }
+
+                {
+                    Instrumentation.TestInvocationReset();
+                    // No retries before timeout kicks-in
+                    using var cancel = new CancellationTokenSource(500);
+                    int n = retry1.OpAfterDelay(4, 50, cancel: cancel.Token);
+                    Instrumentation.TestRetryCount(4);
+                    retry1.OpAfterDelay(-1, 0);
+                    TestHelper.Assert(n == 4);
+                }
+
+                {
+                    // No more than 5 invocation attempts with the default settings
+                    Instrumentation.TestInvocationReset();
+                    // No retries before timeout kicks-in
+                    using var cancel = new CancellationTokenSource(500);
+                    try
+                    {
+                        retry1.OpAfterDelay(5, 50, cancel: cancel.Token);
+                        TestHelper.Assert(false);
+                    }
+                    catch (SystemFailure)
+                    {
+                        Instrumentation.TestRetryCount(4);
+                        retry1.OpAfterDelay(-1, 0);
+                    }
+                }
+                output.WriteLine("ok");
+
+                if (!colocated)
+                {
+                    output.Write("testing retry other replica... ");
+                    output.Flush();
+                    // Build a multi-endpoint proxy by hand.
+                    // TODO: should the TestHelper help with that?
+                    var sb = new StringBuilder(helper.GetTestProxy("replicated"));
+                    sb.Append("?alt-endpoint=");
+                    sb.Append(helper.Host.Contains(":") ? $"[{helper.Host}]" : helper.Host);
+                    sb.Append(':');
+                    sb.Append(helper.BasePort + 1);
+
+                    IReplicatedPrx? replicated = IReplicatedPrx.Parse(sb.ToString(), communicator).Clone(
+                        endpointSelection: EndpointSelectionType.Ordered);
+
+                    replicated.IcePing();
+                    TestHelper.Assert(((IPConnection)replicated.GetCachedConnection()!).RemoteEndpoint!.Port ==
+                                      helper.BasePort);
+
+                    Instrumentation.TestInvocationReset();
+                    replicated.OtherReplica();
+                    Instrumentation.TestRetryCount(1);
+                    TestHelper.Assert(((IPConnection)replicated.GetCachedConnection()!).RemoteEndpoint!.Port ==
+                                      helper.BasePort + 1);
+
+                    try
+                    {
+                        var nonreplicated = INonReplicatedPrx.Parse(helper.GetTestProxy("replicated"), communicator);
+
+                        nonreplicated.IcePing();
+                        TestHelper.Assert(((IPConnection)nonreplicated.GetCachedConnection()!).RemoteEndpoint!.Port ==
+                                          helper.BasePort);
+                        nonreplicated.OtherReplica();
+                        TestHelper.Assert(false);
+                    }
+                    catch (SystemFailure)
+                    {
+                    }
+                    output.WriteLine("ok");
+                }
             }
             return retry1;
         }

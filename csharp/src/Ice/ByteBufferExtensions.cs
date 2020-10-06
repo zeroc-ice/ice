@@ -249,5 +249,18 @@ namespace ZeroC.Ice
 
             return (value, buffer[0].ReadSizeLength20());
         }
+
+        internal static (ulong Value, int ValueLength) ReadVarULong(this ReadOnlySpan<byte> buffer)
+        {
+            ulong value = (buffer[0] & 0x03) switch
+            {
+                0 => (ulong)buffer[0] >> 2,
+                1 => (ulong)BitConverter.ToUInt16(buffer) >> 2,
+                2 => BitConverter.ToUInt32(buffer) >> 2,
+                _ => BitConverter.ToUInt64(buffer) >> 2
+            };
+
+            return (value, buffer[0].ReadSizeLength20());
+        }
     }
 }
