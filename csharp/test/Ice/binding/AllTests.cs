@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Test;
 
 namespace ZeroC.Ice.Test.Binding
@@ -819,6 +820,9 @@ namespace ZeroC.Ice.Test.Binding
                 output.Write("testing ipv4 & ipv6 connections... ");
                 output.Flush();
 
+                // TODO: rework what we test here.
+                // 1. The Ice. prefix has been missing for a while so this isn't testing much
+                // 2. We're removing the Ice.IPv4, Ice.IPv4, and Ice.PreferIPv6Address properties
                 var ipv4 = new Dictionary<string, string>()
                 {
                     { "IPv4", "1" },
@@ -851,12 +855,23 @@ namespace ZeroC.Ice.Test.Binding
                 };
 
                 Func<string, string> getEndpoint = host =>
-                    TestHelper.GetTestEndpoint(new Dictionary<string, string>(communicator.GetProperties())
-                    {
-                        ["Test.Host"] = host
-                    },
-                    2,
-                    "tcp");
+                    TestHelper.GetTestEndpoint(
+                        new Dictionary<string, string>(communicator.GetProperties())
+                        {
+                            ["Test.Host"] = host
+                        },
+                        2,
+                        "tcp");
+
+                 Func<string, string, string> getProxy = (identity, host) =>
+                    TestHelper.GetTestProxy(
+                        identity,
+                        new Dictionary<string, string>(communicator.GetProperties())
+                        {
+                            ["Test.Host"] = host
+                        },
+                        2,
+                        "tcp");
 
                 var anyipv4 = new Dictionary<string, string>(ipv4)
                 {
@@ -973,6 +988,109 @@ namespace ZeroC.Ice.Test.Binding
                         clientCommunicator.Dispose();
                     }
                     serverCommunicator.Dispose();
+                }
+
+                // Test IPv6 dual mode socket
+                {
+                    using Communicator serverCommunicator = new Communicator();
+                    string endpoint = getEndpoint("::0");
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
+                    oa.Activate();
+
+                    try
+                    {
+                        using ObjectAdapter ipv4OA =
+                            serverCommunicator.CreateObjectAdapterWithEndpoints(getEndpoint("0.0.0.0"));
+                        ipv4OA.Activate();
+                        TestHelper.Assert(false);
+                    }
+                    catch (TransportException)
+                    {
+                        // Expected. ::0 is a dual-mode socket so binding 0.0.0.0 will fail
+                    }
+
+                    try
+                    {
+                        using Communicator clientCommunicator = new Communicator();
+                        var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
+                        prx.IcePing();
+                    }
+                    catch (ObjectNotExistException)
+                    {
+                        // Expected, no object registered.
+                    }
+                }
+
+                // Test IPv6 only socket
+                {
+                    using Communicator serverCommunicator = new Communicator();
+                    string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6only" : "?ipv6only=true");
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
+                    oa.Activate();
+
+                    // Returned endpoints must be IPv6
+                    {
+                        IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
+                        TestHelper.Assert(prx.Endpoints.Count > 0);
+                        TestHelper.Assert(prx.Endpoints.All(e => e.Host.Contains(":")));
+                    }
+
+                    // 0.0.0.0 can still be bound if ::0 is IPv6 only
+                    {
+                        string ipv4Endpoint = getEndpoint("0.0.0.0");
+                        using ObjectAdapter ipv4OA = serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
+                        ipv4OA.Activate();
+                    }
+
+                    try
+                    {
+                        using Communicator clientCommunicator = new Communicator();
+                        var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
+                        prx.IcePing();
+                        TestHelper.Assert(false);
+                    }
+                    catch (ConnectionRefusedException)
+                    {
+                        // Expected, server socket is IPv6 only.
+                    }
+                }
+
+                // Listen on IPv4 loopback with IPv6 dual mode socket
+                {
+                    using Communicator serverCommunicator = new Communicator();
+                    string endpoint = getEndpoint("::ffff:127.0.0.1");
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
+                    oa.Activate();
+
+                    try
+                    {
+                        string ipv4Endpoint = getEndpoint("127.0.0.1");
+                        using ObjectAdapter ipv4OA = serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
+                        ipv4OA.Activate();
+                        TestHelper.Assert(false);
+                    }
+                    catch (TransportException)
+                    {
+                        // Expected. 127.0.0.1 is already in use
+                    }
+
+                    // Returned endpoint must be IPv6
+                    {
+                        IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
+                        TestHelper.Assert(prx.Endpoints.Count == 1);
+                        TestHelper.Assert(prx.Endpoints.All(e => e.Host.Contains(":")));
+                    }
+
+                    try
+                    {
+                        using Communicator clientCommunicator = new Communicator();
+                        var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
+                        prx.IcePing();
+                    }
+                    catch (ObjectNotExistException)
+                    {
+                        // Expected, no object registered.
+                    }
                 }
 
                 output.WriteLine("ok");
