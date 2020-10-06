@@ -72,11 +72,11 @@ namespace ZeroC.Ice
             byte[] headerData = new byte[Ice1Definitions.HeaderSize + 4];
             if (frame is OutgoingRequestFrame)
             {
-                Ice1Definitions.RequestHeader.CopyTo(headerData.AsSpan());
+                Ice1Definitions.RequestHeaderPrologue.CopyTo(headerData.AsSpan());
             }
             else
             {
-                Ice1Definitions.ReplyHeader.CopyTo(headerData.AsSpan());
+                Ice1Definitions.ResponseHeaderPrologue.CopyTo(headerData.AsSpan());
             }
             int size = frame.Size + Ice1Definitions.HeaderSize + 4;
             headerData.AsSpan(10, 4).WriteInt(size);
@@ -157,7 +157,7 @@ namespace ZeroC.Ice
                 }
 
                 // Check header
-                Ice1Definitions.CheckHeader(buffer.Slice(0, Ice1Definitions.HeaderSize));
+                Ice1Definitions.CheckHeader(buffer.AsReadOnlySpan(0, Ice1Definitions.HeaderSize));
                 int size = buffer.AsReadOnlySpan(10, 4).ReadInt();
                 if (size < Ice1Definitions.HeaderSize)
                 {

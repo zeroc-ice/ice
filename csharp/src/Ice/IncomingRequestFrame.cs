@@ -44,27 +44,25 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                Identity = new Identity(istr);
-                Facet = istr.ReadFacet11();
+                var requestHeaderBody = new Ice1RequestHeaderBody(istr);
+                Identity = requestHeaderBody.Identity;
+                Facet = Ice1Definitions.GetFacet(requestHeaderBody.FacetPath);
                 Location = Array.Empty<string>();
-                Operation = istr.ReadString();
-                IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
-                Context = istr.ReadDictionary(minKeySize: 1,
-                                              minValueSize: 1,
-                                              InputStream.IceReaderIntoString,
-                                              InputStream.IceReaderIntoString);
+                Operation = requestHeaderBody.Operation;
+                IsIdempotent = requestHeaderBody.OperationMode != OperationMode.Normal;
+                Context = requestHeaderBody.Context;
                 Priority = default;
             }
             else
             {
-                var requestHeader = new Ice2RequestHeader(istr);
-                Identity = requestHeader.Identity;
-                Facet = requestHeader.Facet ?? "";
-                Location = requestHeader.Location ?? Array.Empty<string>();
-                Operation = requestHeader.Operation;
-                IsIdempotent = requestHeader.Idempotent;
-                Priority = requestHeader.Priority ?? default;
-                Context = new Dictionary<string, string>();
+                var requestHeaderBody = new Ice2RequestHeaderBody(istr);
+                Identity = requestHeaderBody.Identity;
+                Facet = requestHeaderBody.Facet ?? "";
+                Location = requestHeaderBody.Location ?? Array.Empty<string>();
+                Operation = requestHeaderBody.Operation;
+                IsIdempotent = requestHeaderBody.Idempotent ?? false;
+                Priority = requestHeaderBody.Priority ?? default;
+                Context = null!; // initialized below
 
                 if (Location.Any(segment => segment.Length == 0))
                 {
@@ -87,12 +85,20 @@ namespace ZeroC.Ice
 
             Payload = Data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
 
-            if (Protocol == Protocol.Ice2 && BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
+            if (Protocol == Protocol.Ice2)
             {
-                Context = value.Read(istr => istr.ReadDictionary(minKeySize: 1,
-                                                                 minValueSize: 1,
-                                                                 InputStream.IceReaderIntoString,
-                                                                 InputStream.IceReaderIntoString));
+                // BinaryContext is a computed property that depends on Payload.
+                if (BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
+                {
+                    Context = value.Read(istr => istr.ReadDictionary(minKeySize: 1,
+                                                                     minValueSize: 1,
+                                                                     InputStream.IceReaderIntoString,
+                                                                     InputStream.IceReaderIntoString));
+                }
+                else
+                {
+                    Context = new Dictionary<string, string>();
+                }
             }
 
             if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)

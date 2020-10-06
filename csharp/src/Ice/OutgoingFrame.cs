@@ -105,25 +105,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
-        /// <param name="key">The binary context entry key.</param>
-        /// <param name="value">The value to marshal as the binary context entry value.</param>
-        /// <param name="writer">The writer used to marshal the value.</param>
-        /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
-        /// <exception cref="ArgumentException">If the key is already in use.</exception>
-        public void AddBinaryContextEntry<T>(int key, in T value, OutputStreamValueWriter<T> writer) where T : struct
-        {
-            OutputStream ostr = StartBinaryContext();
-            if (AddKey(key))
-            {
-                ostr.WriteBinaryContextEntry(key, value, writer);
-            }
-            else
-            {
-                throw new ArgumentException($"key `{key}' is already in use", nameof(key));
-            }
-        }
-
         /// <summary>Compresses the encapsulation payload using GZip compression. Compressed encapsulation payload is
         /// only supported with the 2.0 encoding.</summary>
         /// <returns>A <see cref="CompressionResult"/> value indicating the result of the compression operation.

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/RequestEncoding.ice>
+#include <Ice/Context.ice>
 
 [[java:package:test.Ice.proxy]]
 module Test

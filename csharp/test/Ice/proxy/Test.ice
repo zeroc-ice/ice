@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/RequestEncoding.ice>
+#include <Ice/Context.ice>
 
 [[suppress-warning:reserved-identifier]]
 

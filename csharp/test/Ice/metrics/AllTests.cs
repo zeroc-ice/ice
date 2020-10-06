@@ -879,7 +879,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(map.Count == 6);
 
             // TODO: temporary, currently we often save 2 bytes with the ice2 protocol
-            int protocolRequestSizeAdjustment = ice1 ? 0 : -3;
+            int protocolRequestSizeAdjustment = ice1 ? 0 : -4;
             int protocolReplySizeAdjustment = ice1 ? 0 : -2;
 
             DispatchMetrics dm1;
@@ -1099,7 +1099,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 78 : 72) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 34) && rim1.ReplySize > 7);
             if (ice1)
             {
                 CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
@@ -1194,7 +1194,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 36) && rim1.ReplySize == 0);
+            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 34) && rim1.ReplySize == 0);
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
                         () => InvokeOp(metricsOneway), output);

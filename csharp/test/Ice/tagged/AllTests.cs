@@ -1498,6 +1498,34 @@ namespace ZeroC.Ice.Test.Tagged
             }
 
             {
+                List<int>? p1 = null;
+                (List<int>? r1, List<int>? r2) = initial.OpIntList(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+
+                p1 = new List<int> { 7, 8, 13 };
+                (r1, r2) = initial.OpIntList(p1);
+                TestHelper.Assert(p1.SequenceEqual(r1!) && p1.SequenceEqual(r2!));
+            }
+
+            {
+                int[][]? p1 = null;
+                (int[][]? r1, int[][]? r2) = initial.OpIntSeqSeq(p1);
+                TestHelper.Assert(r1 == null && r2 == null);
+
+                p1 = new int[][] { new int[] { 1, 2, 3 }, new int[] { 4, 5, 6 } };
+                (r1, r2) = initial.OpIntSeqSeq(p1);
+
+                TestHelper.Assert(r1 != null && r2 != null);
+                TestHelper.Assert(p1.Length == r1.Length);
+                TestHelper.Assert(p1.Length == r2.Length);
+                for (int i = 0; i < p1.Length; ++i)
+                {
+                    TestHelper.Assert(p1[i].SequenceEqual(r1[i]));
+                    TestHelper.Assert(p1[i].SequenceEqual(r2[i]));
+                }
+            }
+
+            {
                 Dictionary<int, int>? p1 = null;
                 (Dictionary<int, int>? r1, Dictionary<int, int>? r2) = initial.OpIntIntDict(p1);
                 TestHelper.Assert(r1 == null && r2 == null);
