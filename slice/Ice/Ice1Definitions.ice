@@ -20,7 +20,7 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-    // These definitions help with the encoding of ice1 frames or when reading "raw" ice1 frames.
+    // These definitions help with the encoding of ice1 frames.
 
     /// Determines the retry behavior an invocation in case of a (potentially) recoverable error. OperationMode is
     /// sent with each ice1 request to allow the server to verify the assumptions made by the caller.
@@ -32,7 +32,7 @@ module Ice
         Normal,
 
         /// <p class="Deprecated"><code>Nonmutating</code> is deprecated; use <code>Idempotent</code> instead.
-        Nonmutating,
+        Nonmutating, // TODO: deprecated metadata for enumerator
 
         /// Operations that use the Slice <code>idempotent</code> keyword can modify object state, but invoking an
         /// operation twice in a row must result in the same object state as invoking it once. For example,

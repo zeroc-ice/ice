@@ -1971,7 +1971,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         else
         {
             _out << ',';
+            _out << sp;
         }
+
+        writeTypeDocComment(en, getDeprecateReason(en, 0, "enumerator"));
         _out << nl << fixId(en->name());
         if (p->explicitValue())
         {

@@ -18,7 +18,7 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-    // These definitions help with the encoding of ice2 frames, or when reading "raw" ice2 frames.
+    // These definitions help with the encoding of ice2 frames.
 
 #ifdef __SLICE2CS__
 
