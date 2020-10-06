@@ -769,13 +769,13 @@ namespace ZeroC.Ice
         }
     }
 
-    internal sealed class Property
+    internal readonly struct Property
     {
         internal bool Deprecated { get; }
         internal string? DeprecatedBy { get; }
         internal string Pattern { get; }
 
-        internal Property(string pattern, bool deprecated, string? deprecatedBy)
+        internal Property(string pattern, bool deprecated = false, string? deprecatedBy = null)
         {
             Pattern = pattern;
             Deprecated = deprecated;

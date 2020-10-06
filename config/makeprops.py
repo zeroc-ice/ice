@@ -466,14 +466,14 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
-        self.srcFile.write("        internal static Property[][] ValidProperties =\n")
+        self.srcFile.write("        internal static readonly Property[][] ValidProperties =\n")
 
         self.srcFile.write("        {\n")
         for s in self.sections:
             self.srcFile.write("            %sProps,\n" % s)
         self.srcFile.write("        };\n\n")
 
-        self.srcFile.write("        internal static string[] ClassPropertyNames =\n")
+        self.srcFile.write("        internal static readonly string[] ClassPropertyNames =\n")
         self.srcFile.write("        {\n")
         for s in self.cmdLineOptions:
             self.srcFile.write("            \"%s\",\n" % s)
@@ -486,19 +486,19 @@ class CSPropertyHandler(PropertyHandler):
         return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection, \
+        self.srcFile.write("             new (@\"^%s\.%s$\", deprecated: true),\n" % (self.currentSection, \
                 self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, @\"%s\"),\n" % \
+        self.srcFile.write("             new (@\"^%s\.%s$\", deprecated: true, deprecatedBy: @\"%s\"),\n" % \
                 (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", false, null),\n" % (self.currentSection, \
+        self.srcFile.write("             new (@\"^%s\.%s$\"),\n" % (self.currentSection, \
                 self.fix(propertyName)))
 
     def newSection(self):
-        self.srcFile.write("        internal static Property[] %sProps =\n" % self.currentSection);
+        self.srcFile.write("        internal static readonly Property[] %sProps =\n" % self.currentSection);
         self.srcFile.write("        {\n")
 
     def closeSection(self):
