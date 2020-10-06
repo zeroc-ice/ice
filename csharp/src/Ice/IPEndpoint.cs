@@ -21,7 +21,7 @@ namespace ZeroC.Ice
             option switch
             {
                 "source-address" => SourceAddress?.ToString(),
-                "ipv6only" => IPv6Only ? "true" : "false",
+                "ipv6-only" => IsIPv6Only ? "true" : "false",
                 _ => base[option],
             };
 
@@ -35,20 +35,18 @@ namespace ZeroC.Ice
         internal const ushort DefaultIPPort = 4062;
 
         /// <summary>Whether IPv6 sockets created from this endpoint are dual-mode or IPv6 only.</summary>
-        internal bool IPv6Only { get; }
+        internal bool IsIPv6Only { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
         internal IPAddress? SourceAddress { get; }
 
-        internal bool IsOAEndpoint { get; }
-
         public override bool Equals(Endpoint? other) =>
             other is IPEndpoint ipEndpoint &&
                 Equals(SourceAddress, ipEndpoint.SourceAddress) &&
-                IPv6Only == ipEndpoint.IPv6Only &&
+                IsIPv6Only == ipEndpoint.IsIPv6Only &&
                 base.Equals(other);
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), SourceAddress, IPv6Only);
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), SourceAddress, IsIPv6Only);
 
         public override bool IsLocal(Endpoint endpoint)
         {
@@ -72,7 +70,7 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (IPv6Only != ipEndpoint.IPv6Only)
+                if (IsIPv6Only != ipEndpoint.IsIPv6Only)
                 {
                     return false;
                 }
@@ -158,7 +156,7 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard()
         {
-            int ipv6only = IPv6Only ? Network.EnableIPv6 : Network.EnableBoth;
+            int ipv6only = IsIPv6Only ? Network.EnableIPv6 : Network.EnableBoth;
             List<string> hosts = Network.GetHostsForEndpointExpand(Host, ipv6only, false);
             if (hosts.Count == 0)
             {
@@ -193,14 +191,12 @@ namespace ZeroC.Ice
                 sb.Append(" -p ");
                 sb.Append(Port.ToString(CultureInfo.InvariantCulture));
 
-                if (IsOAEndpoint)
+                if (IsIPv6Only)
                 {
-                    if (IPv6Only)
-                    {
-                        sb.Append($" --ipv6only");
-                    }
+                    sb.Append(" --ipv6Only");
                 }
-                else if (SourceAddress != null)
+
+                if (SourceAddress != null)
                 {
                     string sourceAddr = SourceAddress.ToString();
                     bool addQuote = sourceAddr.IndexOf(':') != -1;
@@ -218,11 +214,12 @@ namespace ZeroC.Ice
             }
             else
             {
-                if (IsOAEndpoint)
+                if (IsIPv6Only)
                 {
-                    sb.Append($"ipv6only={(IPv6Only ? "true" : "false")}");
+                    sb.Append($"ipv6-only=true");
                 }
-                else if (SourceAddress != null)
+
+                if (SourceAddress != null)
                 {
                     sb.Append("source-address=");
                     sb.Append(SourceAddress);
@@ -245,14 +242,13 @@ namespace ZeroC.Ice
             Debug.Assert(protocol == Protocol.Ice2);
             Host = host;
             Port = port;
-            IsOAEndpoint = oaEndpoint;
 
-            if (IsOAEndpoint)
+            if (oaEndpoint)
             {
-                if (options.TryGetValue("ipv6only", out string? value))
+                if (options.TryGetValue("ipv6-only", out string? value))
                 {
-                    IPv6Only = bool.Parse(value);
-                    options.Remove("ipv6only");
+                    IsIPv6Only = bool.Parse(value);
+                    options.Remove("ipv6-only");
                 }
             }
             else // parsing a URI that represents a proxy
@@ -304,8 +300,6 @@ namespace ZeroC.Ice
             string endpointString)
             : base(communicator, Protocol.Ice1)
         {
-            IsOAEndpoint = oaEndpoint;
-
             if (options.TryGetValue("-h", out string? argument))
             {
                 Host = argument ??
@@ -346,10 +340,10 @@ namespace ZeroC.Ice
 
             if (options.TryGetValue("--sourceAddress", out argument))
             {
-                if (IsOAEndpoint)
+                if (oaEndpoint)
                 {
                     throw new FormatException(
-                        $"`--sourceAddress' not valid for object adapter endpoint `{endpointString}'");
+                        $"`--sourceAddress' not valid for an Object Adapter endpoint `{endpointString}'");
                 }
                 if (argument == null)
                 {
@@ -367,22 +361,27 @@ namespace ZeroC.Ice
                 }
                 options.Remove("--sourceAddress");
             }
-            else if (!IsOAEndpoint)
+            else if (!oaEndpoint)
             {
                 SourceAddress = Communicator.DefaultSourceAddress;
             }
             // else SourceAddress remains null
 
-            if (options.TryGetValue("--ipv6only", out argument))
+            if (options.TryGetValue("--ipv6Only", out argument))
             {
+                if (!oaEndpoint)
+                {
+                    throw new FormatException(
+                        $"`--ipv6Only' not valid for an Object Adapter endpoint `{endpointString}'");
+                }
                 if (argument != null)
                 {
-                    throw new FormatException($"--ipv6only does not accept an argument in endpoint `{endpointString}'");
+                    throw new FormatException($"--ipv6Only does not accept an argument in endpoint `{endpointString}'");
                 }
-                IPv6Only = true;
-                options.Remove("--ipv6only");
+                IsIPv6Only = true;
+                options.Remove("--ipv6Only");
             }
-            // else IPv6Only remains false (default initialized)
+            // else IsIPv6Only remains false (default initialized)
         }
 
         // Constructor for Clone
@@ -392,8 +391,7 @@ namespace ZeroC.Ice
             Host = host;
             Port = port;
             SourceAddress = endpoint.SourceAddress;
-            IsOAEndpoint = endpoint.IsOAEndpoint;
-            IPv6Only = endpoint.IPv6Only;
+            IsIPv6Only = endpoint.IsIPv6Only;
         }
 
         /// <summary>Creates a clone with the specified host and port.</summary>

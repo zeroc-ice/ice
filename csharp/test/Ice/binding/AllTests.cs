@@ -1024,7 +1024,7 @@ namespace ZeroC.Ice.Test.Binding
                 // Test IPv6 only socket
                 {
                     using Communicator serverCommunicator = new Communicator();
-                    string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6only" : "?ipv6only=true");
+                    string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     oa.Activate();
 

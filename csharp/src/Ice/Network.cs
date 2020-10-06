@@ -27,7 +27,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    var flag = endpoint.IPv6Only ? 1 : 0;
+                    var flag = endpoint.IsIPv6Only ? 1 : 0;
                     socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
                 }
                 catch (SocketException ex)
