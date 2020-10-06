@@ -1081,14 +1081,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 36) && rim1.ReplySize == (ice1 ? 14 : 10));
+            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 34) && rim1.ReplySize == (ice1 ? 14 : 10));
 
             im1 = (InvocationMetrics)map["opWithUserException"];
             TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 76 : 70) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 76 : 68) && rim1.ReplySize > 7);
             TestHelper.Assert(im1.UserException == 2);
 
             im1 = (InvocationMetrics)map["opWithLocalException"];
@@ -1099,7 +1099,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 34) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 78 : 70) && rim1.ReplySize > 7);
             if (ice1)
             {
                 CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
@@ -1113,7 +1113,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 94 : 88) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 94 : 86) && rim1.ReplySize > 7);
             if (ice1)
             {
                 CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ObjectNotExistException", 2, output);
@@ -1127,7 +1127,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 82 : 76) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 82 : 74) && rim1.ReplySize > 7);
             if (ice1)
             {
                 CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
