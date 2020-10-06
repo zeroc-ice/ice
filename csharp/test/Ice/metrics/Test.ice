@@ -21,8 +21,7 @@ interface Metrics
 
     idempotent void fail();
 
-    void opWithUserException()
-        throws UserEx;
+    void opWithUserException();
 
     void opWithRequestFailedException();
 

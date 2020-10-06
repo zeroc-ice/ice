@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -146,8 +144,8 @@ namespace ZeroC.Ice
         }
 
         // Constructor for unmarshaling.
-        internal UdpEndpoint(InputStream istr, Communicator communicator)
-            : base(istr, communicator, Protocol.Ice1) => HasCompressionFlag = istr.ReadBool();
+        internal UdpEndpoint(InputStream istr)
+            : base(istr, Protocol.Ice1) => HasCompressionFlag = istr.ReadBool();
 
         // Constructor for ice1 endpoint parsing.
         internal UdpEndpoint(

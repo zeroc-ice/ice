@@ -23,7 +23,7 @@ public:
     static std::string getModuleMetadata(const ContainedPtr&);
     static std::string fixId(const std::string&);
     static std::string fixId(const ContainedPtr&);
-    static bool findMetaData(const std::string&, const StringList&, std::string&);
+    static bool findMetadata(const std::string&, const StringList&, std::string&);
     static std::string importPrefix(const TypePtr&,
                                     const ContainedPtr&,
                                     const std::vector<std::pair<std::string, std::string> >&);

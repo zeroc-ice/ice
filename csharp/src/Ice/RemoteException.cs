@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Diagnostics;
@@ -26,7 +24,7 @@ namespace ZeroC.Ice
         protected virtual string? DefaultMessage => null;
 
         /// <summary>Returns the sliced data if the exception has a preserved-slice base exception and has been sliced during
-        /// un-marshaling, <c>null</c> is returned otherwise.</summary>
+        /// unmarshaling, <c>null</c> is returned otherwise.</summary>
         protected SlicedData? IceSlicedData { get; set; }
         internal SlicedData? SlicedData => IceSlicedData;
 

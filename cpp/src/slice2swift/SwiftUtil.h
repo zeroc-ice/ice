@@ -50,7 +50,7 @@ public:
 
     virtual ~SwiftGenerator() {};
 
-    static void validateMetaData(const UnitPtr&);
+    static void validateMetadata(const UnitPtr&);
 
 protected:
 
@@ -133,7 +133,7 @@ protected:
 
 private:
 
-    class MetaDataVisitor : public ParserVisitor
+    class MetadataVisitor : public ParserVisitor
     {
     public:
 

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Diagnostics;
@@ -354,13 +352,13 @@ namespace ZeroC.Ice
 
         private ManualResetValueTaskSourceCore<T> _source;
 
-        protected SignaledTransceiverStream(long streamId, MultiStreamTransceiver transceiver) :
-            base(streamId, transceiver)
+        protected SignaledTransceiverStream(long streamId, MultiStreamTransceiver transceiver)
+            : base(streamId, transceiver)
         {
         }
 
-        protected SignaledTransceiverStream(bool bidirectional, MultiStreamTransceiver transceiver) :
-            base(bidirectional, transceiver)
+        protected SignaledTransceiverStream(bool bidirectional, MultiStreamTransceiver transceiver)
+            : base(bidirectional, transceiver)
         {
         }
 
@@ -580,9 +578,7 @@ namespace ZeroC.Ice
                 s.Append(" connection\n");
                 s.Append(ToString());
 
-                //
                 // Trace the cause of unexpected connection closures
-                //
                 if (!(exception is ConnectionClosedException ||
                       exception is ConnectionIdleException ||
                       exception is ObjectDisposedException))
@@ -832,7 +828,7 @@ namespace ZeroC.Ice
                     s.Append(operation);
 
                     s.Append($"\nidempotent = ");
-                    s.Append(isIdempotent.ToString().ToLower());
+                    s.Append(isIdempotent.ToString().ToLowerInvariant());
 
                     int sz = context.Count;
                     s.Append("\ncontext = ");
@@ -915,7 +911,7 @@ namespace ZeroC.Ice
         protected MultiStreamTransceiverWithUnderlyingTransceiver(
             Endpoint endpoint,
             ObjectAdapter? adapter,
-            ITransceiver transceiver) :
-            base(endpoint, adapter) => Underlying = transceiver;
+            ITransceiver transceiver)
+            : base(endpoint, adapter) => Underlying = transceiver;
     }
 }

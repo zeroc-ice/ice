@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 
@@ -105,7 +103,7 @@ namespace ZeroC.Ice
         {
         }
 
-        /// <summary>Constructs a new instance of the <see cref="LoadException"/> ckass with a specified error message
+        /// <summary>Constructs a new instance of the <see cref="LoadException"/> class with a specified error message
         /// and a reference to the inner exception that is the cause of this exception.</summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>

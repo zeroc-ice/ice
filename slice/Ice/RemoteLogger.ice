@@ -37,7 +37,7 @@ module Ice
         ErrorMessage
     }
 
-    /// A sequence of {@link LogMessageType}
+    /// A sequence of {@link LogMessageType}.
     sequence<LogMessageType> LogMessageTypeSeq;
 
     /// A complete log message.
@@ -47,7 +47,7 @@ module Ice
         LogMessageType type;
 
         /// The date and time when the {@link Logger} received this message, expressed
-        /// as the number of microseconds since the Unix Epoch (00:00:00 UTC on 1 January 1970)
+        /// as the number of microseconds since the Unix Epoch (00:00:00 UTC on 1 January 1970).
         long timestamp;
 
         /// For a message of type trace, the trace category of this log message;

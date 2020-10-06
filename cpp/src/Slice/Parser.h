@@ -58,7 +58,7 @@ enum WarningCategory
 {
     All,
     Deprecated,
-    InvalidMetaData,
+    InvalidMetadata,
     ReservedIdentifier
 };
 
@@ -203,9 +203,9 @@ public:
 
     void setFilename(const std::string&);
 
-    void setMetaData(const StringList&);
-    std::string findMetaData(const std::string&) const;
-    StringList getMetaData() const;
+    void setMetadata(const StringList&);
+    std::string findMetadata(const std::string&) const;
+    StringList getAllMetadata() const;
 
     // When parsing Slice definitions, apply 3.7 or 4.0 semantics for class parameters, Object etc.
     bool compatMode() const;
@@ -221,7 +221,7 @@ private:
     void initSuppressedWarnings();
 
     int _includeLevel;
-    StringList _metaData;
+    StringList _metadata;
     std::string _filename;
     std::set<WarningCategory> _suppressedWarnings;
 };
@@ -243,7 +243,7 @@ public:
     StringList seeAlso() const;   // Targets of @see tags.
 
     StringList returns() const;                           // Description of an operation's return value.
-    std::map<std::string, StringList> parameters() const; // Parameter descriptions for an op. Key is parameter name.
+    std::map<std::string, StringList> params() const; // Parameter descriptions for an op. Key is parameter name.
     std::map<std::string, StringList> exceptions() const; // Exception descriptions for an op. Key is exception name.
 
 private:
@@ -257,7 +257,7 @@ private:
     StringList _seeAlso;
 
     StringList _returns;
-    std::map<std::string, StringList> _parameters;
+    std::map<std::string, StringList> _params;
     std::map<std::string, StringList> _exceptions;
 
     friend class Contained;
@@ -411,14 +411,14 @@ public:
 
     int includeLevel() const;
 
-    bool hasMetaData(const std::string&) const;
-    bool hasMetaDataWithPrefix(const std::string&) const;
-    bool findMetaData(const std::string&, std::string&) const;
-    std::string findMetaDataWithPrefix(const std::string&) const;
-    std::list<std::string> getMetaData() const;
-    void setMetaData(const std::list<std::string>&);
+    bool hasMetadata(const std::string&) const;
+    bool hasMetadataWithPrefix(const std::string&) const;
+    bool findMetadata(const std::string&, std::string&) const;
+    std::string findMetadataWithPrefix(const std::string&) const;
+    std::list<std::string> getAllMetadata() const;
+    void setMetadata(const std::list<std::string>&);
 
-    FormatType parseFormatMetaData() const;
+    FormatType parseFormatMetadata() const;
 
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
@@ -437,7 +437,7 @@ protected:
     int _line;
     std::string _comment;
     int _includeLevel;
-    std::list<std::string> _metaData;
+    std::list<std::string> _metadata;
 };
 
 // ----------------------------------------------------------------------
@@ -456,7 +456,7 @@ public:
     // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
     virtual ContainedList contents() const = 0;
-    bool hasContentsWithMetaData(const std::string&) const;
+    bool hasContentsWithMetadata(const std::string&) const;
     std::string thisScope() const;
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
@@ -466,7 +466,7 @@ protected:
 
     Container(const UnitPtr&);
 
-    bool checkFileMetaData(const StringList&, const StringList&);
+    bool checkFileMetadata(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
 
     std::map<std::string, ContainedPtr> _introducedMap;
@@ -615,7 +615,7 @@ public:
     ClassList allBases() const;
     MemberList allDataMembers() const;
     bool isA(const std::string&) const;
-    bool inheritsMetaData(const std::string&) const;
+    bool inheritsMetadata(const std::string&) const;
     bool hasBaseDataMembers() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -698,12 +698,12 @@ public:
     // class/proxy and that are not tagged.
     size_t paramsBitSequenceSize() const;
 
-    // The "return" bit sequence length. It corresponds to the number of return parameters with optional types that are
+    // The "return" bit sequence length. It corresponds to the number of return members with optional types that are
     // not class/proxy and that are not tagged.
     size_t returnBitSequenceSize() const;
 
     void destroy() override;
-    TypePtr returnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
+    TypePtr deprecatedReturnType() const; //TODO remove this once the compilers have been updated to use return-tuples.
     bool returnIsTagged() const; //TODO remove this once the compilers have been updated to use return-tuples.
     int returnTag() const; //TODO remove this once the compilers have been updated to use return-tuples.
     Mode mode() const; // TODO: remove
@@ -712,9 +712,9 @@ public:
     bool hasMarshaledResult() const;
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
     MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int);
-    MemberList parameters() const;
+    MemberList params() const;
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
-    MemberList returnValues() const;
+    MemberList returnType() const;
     MemberList allMembers() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
@@ -736,9 +736,9 @@ protected:
 
     friend class InterfaceDef;
 
-    MemberList _parameters;
-    MemberList _returnValues;
-    bool _usesOutParameters;
+    MemberList _params;
+    MemberList _returnType;
+    bool _usesOutParams;
     bool _hasReturnType;
     std::list<ExceptionPtr> _throws;
     Mode _mode;
@@ -766,7 +766,7 @@ public:
     OperationList operations() const;
     OperationList allOperations() const;
     bool isA(const std::string&) const;
-    bool inheritsMetaData(const std::string&) const;
+    bool inheritsMetadata(const std::string&) const;
     ContainedList contents() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
@@ -826,7 +826,7 @@ public:
     ExceptionList allBases() const;
     bool isBaseOf(const ExceptionPtr&) const;
     bool usesClasses(bool) const;
-    bool inheritsMetaData(const std::string&) const;
+    bool inheritsMetadata(const std::string&) const;
     bool hasBaseDataMembers() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -875,7 +875,7 @@ class Sequence : public virtual Constructed
 public:
 
     TypePtr type() const;
-    StringList typeMetaData() const;
+    StringList typeMetadata() const;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -893,7 +893,7 @@ protected:
     friend class Module;
 
     TypePtr _type;
-    StringList _typeMetaData;
+    StringList _typeMetadata;
 };
 
 // ----------------------------------------------------------------------
@@ -906,8 +906,8 @@ public:
 
     TypePtr keyType() const;
     TypePtr valueType() const;
-    StringList keyMetaData() const;
-    StringList valueMetaData() const;
+    StringList keyMetadata() const;
+    StringList valueMetadata() const;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -929,8 +929,8 @@ protected:
 
     TypePtr _keyType;
     TypePtr _valueType;
-    StringList _keyMetaData;
-    StringList _valueMetaData;
+    StringList _keyMetadata;
+    StringList _valueMetadata;
 };
 
 // ----------------------------------------------------------------------
@@ -1024,7 +1024,7 @@ class Const : public virtual Contained
 public:
 
     TypePtr type() const;
-    StringList typeMetaData() const;
+    StringList typeMetadata() const;
     SyntaxTreeBasePtr valueType() const;
     std::string value() const;
     std::string literal() const;
@@ -1041,7 +1041,7 @@ protected:
     friend class Module;
 
     TypePtr _type;
-    StringList _typeMetaData;
+    StringList _typeMetadata;
     SyntaxTreeBasePtr _valueType;
     std::string _value;
     std::string _literal;
@@ -1108,7 +1108,7 @@ public:
     int setCurrentFile(const std::string&, int);
     int currentIncludeLevel() const;
 
-    void addFileMetaData(const StringList&);
+    void addFileMetadata(const StringList&);
 
     void error(const std::string&); // Not const because error count is increased
     void warning(WarningCategory, const std::string&) const;
@@ -1161,7 +1161,7 @@ private:
     Unit(bool, const StringList&);
 
     bool _all;
-    StringList _defaultFileMetaData;
+    StringList _defaultFileMetadata;
     int _errors;
     std::string _currentComment;
     int _currentIncludeLevel;

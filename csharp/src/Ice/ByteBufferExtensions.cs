@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Diagnostics;
@@ -48,7 +46,7 @@ namespace ZeroC.Ice
         public static T Read<T>(
             this ReadOnlyMemory<byte> buffer,
             Communicator communicator,
-            InputStreamReader<T> reader) => buffer.Read(Encoding.V2_0, communicator, reader);
+            InputStreamReader<T> reader) => buffer.Read(Encoding.V20, communicator, reader);
 
         /// <summary>Reads a value from the buffer. Value cannot contain any proxy.</summary>
         /// <typeparam name="T">The type of the value.</typeparam>
@@ -74,7 +72,7 @@ namespace ZeroC.Ice
         /// <exception name="InvalidDataException">Thrown when <c>reader</c> finds invalid data or <c>reader</c> leaves
         /// unread data in the buffer.</exception>
         public static T Read<T>(this ReadOnlyMemory<byte> buffer, InputStreamReader<T> reader) =>
-            buffer.Read(Encoding.V2_0, null, reader);
+            buffer.Read(Encoding.V20, null, reader);
 
         /// <summary>Reads an empty encapsulation from the buffer.</summary>
         /// <param name="buffer">The byte buffer.</param>
@@ -93,7 +91,7 @@ namespace ZeroC.Ice
         /// <exception name="InvalidDataException">Thrown when the buffer is not an empty encapsulation, for example
         /// when buffer contains an encapsulation that does not have only tagged parameters.</exception>
         public static void ReadEmptyEncapsulation(this ReadOnlyMemory<byte> buffer) =>
-            buffer.ReadEmptyEncapsulation(Encoding.V2_0);
+            buffer.ReadEmptyEncapsulation(Encoding.V20);
 
         /// <summary>Reads the contents of an encapsulation from the buffer.</summary>
         /// <typeparam name="T">The type of the contents.</typeparam>
@@ -131,7 +129,7 @@ namespace ZeroC.Ice
             this ReadOnlyMemory<byte> buffer,
             Communicator communicator,
             InputStreamReader<T> payloadReader) =>
-            buffer.ReadEncapsulation(Encoding.V2_0, communicator, payloadReader);
+            buffer.ReadEncapsulation(Encoding.V20, communicator, payloadReader);
 
         internal static ReadOnlyMemory<T> AsReadOnlyMemory<T>(this ArraySegment<T> segment) => segment;
 
@@ -156,7 +154,7 @@ namespace ZeroC.Ice
             int sizeLength;
             int size;
 
-            if (encoding == Encoding.V1_1)
+            if (encoding == Encoding.V11)
             {
                 sizeLength = 4;
                 size = buffer.ReadInt() - sizeLength; // Remove the size length which is included with the 1.1 encoding.
@@ -182,7 +180,7 @@ namespace ZeroC.Ice
 
         internal static int ReadFixedLengthSize(this ReadOnlySpan<byte> buffer, Encoding encoding)
         {
-            if (encoding == Encoding.V1_1)
+            if (encoding == Encoding.V11)
             {
                 return buffer.ReadInt();
             }
@@ -198,7 +196,7 @@ namespace ZeroC.Ice
         internal static ushort ReadUShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToUInt16(buffer);
 
         internal static (int Size, int SizeLength) ReadSize(this ReadOnlySpan<byte> buffer, Encoding encoding) =>
-            encoding == Encoding.V1_1 ? buffer.ReadSize11() : buffer.ReadSize20();
+            encoding == Encoding.V11 ? buffer.ReadSize11() : buffer.ReadSize20();
 
         /// <summary>Reads a string from a UTF-8 byte buffer. The size of the byte buffer corresponds to the number of
         /// UTF-8 code points in the string.</summary>
@@ -258,7 +256,7 @@ namespace ZeroC.Ice
 
         internal static void WriteEncapsulationSize(this Span<byte> buffer, int size, Encoding encoding)
         {
-            if (encoding == Encoding.V2_0)
+            if (encoding == Encoding.V20)
             {
                 buffer.WriteFixedLengthSize20(size);
             }

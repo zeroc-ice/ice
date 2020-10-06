@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -94,7 +92,7 @@ namespace ZeroC.Ice
             try
             {
                 INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                int ipVersion = networkProxy?.IPVersion ?? Communicator.IPVersion;
+                int ipVersion = networkProxy?.IPVersion ?? Network.EnableBoth;
                 if (networkProxy != null)
                 {
                     networkProxy = await networkProxy.ResolveHostAsync(ipVersion, cancel).ConfigureAwait(false);
@@ -123,11 +121,6 @@ namespace ZeroC.Ice
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
         {
             publish = null;
-            // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
-            if (Host.Length == 0)
-            {
-                return new Endpoint[] { this };
-            }
 
             // If using a fixed port, this endpoint can be used as the published endpoint to access the returned
             // endpoints. Otherwise, we'll publish each individual expanded endpoint.
@@ -135,7 +128,7 @@ namespace ZeroC.Ice
 
             IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host,
                                                                      Port,
-                                                                     Communicator.IPVersion,
+                                                                     Network.EnableBoth,
                                                                      EndpointSelectionType.Ordered,
                                                                      Communicator.PreferIPv6);
 
@@ -151,7 +144,7 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard()
         {
-            List<string> hosts = Network.GetHostsForEndpointExpand(Host, Communicator.IPVersion, false);
+            List<string> hosts = Network.GetHostsForEndpointExpand(Host, Network.EnableBoth, false);
             if (hosts.Count == 0)
             {
                 return new Endpoint[] { this };
@@ -166,7 +159,8 @@ namespace ZeroC.Ice
         {
             if (Protocol == Protocol.Ice1)
             {
-                if (Host.Length > 0)
+                Debug.Assert(Host.Length > 0);
+
                 {
                     sb.Append(" -h ");
                     bool addQuote = Host.IndexOf(':') != -1;
@@ -238,11 +232,16 @@ namespace ZeroC.Ice
         }
 
         // Constructor for unmarshaling.
-        private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
-            : base(communicator, protocol)
+        private protected IPEndpoint(InputStream istr, Protocol protocol)
+            : base(istr.Communicator!, protocol)
         {
             Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
             Host = istr.ReadString();
+
+            if (Host.Length == 0)
+            {
+                throw new InvalidDataException("endpoint host is empty");
+            }
 
             if (protocol == Protocol.Ice1)
             {
@@ -255,7 +254,7 @@ namespace ZeroC.Ice
             {
                 Port = istr.ReadUShort();
             }
-            SourceAddress = communicator.DefaultSourceAddress;
+            SourceAddress = istr.Communicator!.DefaultSourceAddress;
         }
 
         // Constructor for ice1 endpoint parsing.
@@ -273,7 +272,9 @@ namespace ZeroC.Ice
 
                 if (Host == "*")
                 {
-                    Host = oaEndpoint ? "" :
+                    // TODO: Should we check that IPv6 is enabled first and use 0.0.0.0 otherwise, or will
+                    // ::0 just bind to the IPv4 addresses in this case?
+                    Host = oaEndpoint ? "::0" :
                         throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
                 }
                 options.Remove("-h");

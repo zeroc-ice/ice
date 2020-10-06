@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +10,13 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Proxy provides extension methods for IObjectPrx</summary>
+    /// <summary>Factory function that creates a proxy from a reference.</summary>
+    /// <typeparam name="T">The proxy type.</typeparam>
+    /// <param name="reference">The underlying reference.</param>
+    /// <returns>The new proxy.</returns>
+    public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
+
+    /// <summary>Proxy provides extension methods for IObjectPrx.</summary>
     public static class Proxy
     {
         /// <summary>Tests whether this proxy points to a remote object derived from T. If so it returns a proxy of
@@ -33,7 +37,6 @@ namespace ZeroC.Ice
         /// is identical to this proxy except for its identity and other options set through parameters.</summary>
         /// <param name="prx">The source proxy.</param>
         /// <param name="factory">The proxy factory used to manufacture the clone.</param>
-        /// <param name="adapterId">The adapter ID of the clone (optional).</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
         /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
         /// </param>
@@ -49,11 +52,12 @@ namespace ZeroC.Ice
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="identity">The identity of the clone.</param>
         /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
-        /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
+        /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
+        /// </param>
+        /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
-        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
-        /// version of the invocationMode parameter.</param>
+        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
@@ -61,7 +65,6 @@ namespace ZeroC.Ice
         public static T Clone<T>(
             this IObjectPrx prx,
             ProxyFactory<T> factory,
-            string? adapterId = null,
             bool? cacheConnection = null,
             bool clearLocator = false,
             bool clearRouter = false,
@@ -75,13 +78,13 @@ namespace ZeroC.Ice
             Identity? identity = null,
             string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
+            IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
             bool? preferNonSecure = null,
             IRouterPrx? router = null) where T : class, IObjectPrx =>
-            factory(prx.IceReference.Clone(adapterId,
-                                           cacheConnection,
+            factory(prx.IceReference.Clone(cacheConnection,
                                            clearLocator,
                                            clearRouter,
                                            connectionId,
@@ -94,6 +97,7 @@ namespace ZeroC.Ice
                                            identity,
                                            identityAndFacet,
                                            invocationMode,
+                                           location,
                                            locator,
                                            locatorCacheTimeout,
                                            oneway,
@@ -104,7 +108,6 @@ namespace ZeroC.Ice
         /// through parameters. This method returns this proxy instead of a new proxy in the event none of the options
         /// specified through the parameters change this proxy's options.</summary>
         /// <param name="prx">The source proxy.</param>
-        /// <param name="adapterId">The adapter ID of the clone (optional).</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
         /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
         /// </param>
@@ -117,18 +120,18 @@ namespace ZeroC.Ice
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
-        /// <param name="invocationMode">The invocation mode of the clone (optional).</param>
+        /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
+        /// </param>
+        /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
-        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
-        /// version of the invocationMode parameter.</param>
+        /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy with the same type as this proxy.</returns>
         public static T Clone<T>(
             this T prx,
-            string? adapterId = null,
             bool? cacheConnection = null,
             bool clearLocator = false,
             bool clearRouter = false,
@@ -139,14 +142,14 @@ namespace ZeroC.Ice
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
+            IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
             bool? preferNonSecure = null,
             IRouterPrx? router = null) where T : IObjectPrx
         {
-            Reference clone = prx.IceReference.Clone(adapterId,
-                                                     cacheConnection,
+            Reference clone = prx.IceReference.Clone(cacheConnection,
                                                      clearLocator,
                                                      clearRouter,
                                                      connectionId,
@@ -159,6 +162,7 @@ namespace ZeroC.Ice
                                                      identity: null,
                                                      identityAndFacet: null,
                                                      invocationMode,
+                                                     location,
                                                      locator,
                                                      locatorCacheTimeout,
                                                      oneway,
@@ -168,6 +172,12 @@ namespace ZeroC.Ice
             // Reference.Clone never returns a new reference == to itself.
             return ReferenceEquals(clone, prx.IceReference) ? prx : (T)prx.Clone(clone);
         }
+
+        /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
+        /// connection, it does not attempt to create a connection.</summary>
+        /// <returns>The cached Connection for this proxy (null if the proxy does not have
+        /// an established connection).</returns>
+        public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
@@ -192,12 +202,6 @@ namespace ZeroC.Ice
         public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx prx,
             CancellationToken cancel = default) => prx.IceReference.GetConnectionAsync(cancel);
-
-        /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
-        /// connection, it does not attempt to create a connection.</summary>
-        /// <returns>The cached Connection for this proxy (null if the proxy does not have
-        /// an established connection).</returns>
-        public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
 
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -279,41 +283,6 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default)
-        {
-            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
-
-            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                int i,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
-            {
-                if (i < proxy.Communicator.InvocationInterceptors.Count)
-                {
-                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                    return interceptor(
-                        proxy,
-                        request,
-                        (target, request) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel));
-                }
-                else
-                {
-                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                }
-            }
-        }
-
         private static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
@@ -326,10 +295,8 @@ namespace ZeroC.Ice
             InvocationMode mode = proxy.IceReference.InvocationMode;
             switch (mode)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 case InvocationMode.BatchOneway:
                 case InvocationMode.BatchDatagram:
-#pragma warning restore CS0618 // Type or member is obsolete
                     Debug.Assert(false); // not implemented
                     return default;
                 case InvocationMode.Datagram when !oneway:
@@ -444,10 +411,10 @@ namespace ZeroC.Ice
                             {
                                 // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
-                                CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(
+                                using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                                     cancel,
-                                    proxy.Communicator.CancellationToken).Token;
-                                await Task.Delay(delay, token).ConfigureAwait(false);
+                                    proxy.Communicator.CancellationToken);
+                                await Task.Delay(delay, tokenSource.Token).ConfigureAwait(false);
                             }
 
                             observer?.Retried();
@@ -471,11 +438,47 @@ namespace ZeroC.Ice
             }
         }
 
+        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+            this IObjectPrx proxy,
+            OutgoingRequestFrame request,
+            bool oneway,
+            bool synchronous,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
+        {
+            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
+
+            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                bool synchronous,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+            {
+                cancel.ThrowIfCancellationRequested();
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
+                {
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request, cancel) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel),
+                        cancel);
+                }
+                else
+                {
+                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
+                }
+            }
+        }
+
         private class ProgressWrapper : IProgress<bool>
         {
-            private readonly IProgress<bool>? _progress;
-
             internal bool IsSent { get; private set; }
+            private readonly IProgress<bool>? _progress;
 
             public void Report(bool sentSynchronously)
             {

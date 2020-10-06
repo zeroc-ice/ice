@@ -692,7 +692,7 @@ classdef AllTests
                 assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
-                assert(strcmp(ex.vs.m, 'hello2');
+                assert(strcmp(ex.vs.m, 'hello2'));
                 assert(strcmp(ex.ss, 'test2'));
                 assert(strcmp(ex.vs2.m, 'hello2'));
             end

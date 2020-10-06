@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Threading.Tasks;
@@ -14,7 +12,8 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginThreeFail : BasePluginFail
         {
-            public PluginThreeFail(Communicator communicator) : base(communicator)
+            public PluginThreeFail(Communicator communicator)
+                : base(communicator)
             {
             }
 

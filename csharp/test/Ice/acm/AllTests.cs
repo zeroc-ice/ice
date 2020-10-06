@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -291,8 +289,8 @@ namespace ZeroC.Ice.Test.ACM
         private class InvocationHeartbeatTest : TestCase
         {
             // Faster ACM to make sure we receive enough ACM heartbeats
-            public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("invocation heartbeat", com, helper) => SetServerAcm(1, null, null);
+            public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("invocation heartbeat", com, helper) => SetServerAcm(1, null, null);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.Sleep(4);
@@ -307,8 +305,8 @@ namespace ZeroC.Ice.Test.ACM
         private class InvocationNoHeartbeatTest : TestCase
         {
             // Disable heartbeat on invocations
-            public InvocationNoHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("invocation with no heartbeat", com, helper) =>
+            public InvocationNoHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("invocation with no heartbeat", com, helper) =>
                 SetServerAcm(2, AcmClose.OnInvocation, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
@@ -334,8 +332,8 @@ namespace ZeroC.Ice.Test.ACM
 
         private class InvocationHeartbeatCloseOnIdleTest : TestCase
         {
-            public InvocationHeartbeatCloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("invocation with no heartbeat and close on idle", com, helper)
+            public InvocationHeartbeatCloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("invocation with no heartbeat and close on idle", com, helper)
             {
                 SetClientAcm(1, AcmClose.OnIdle, AcmHeartbeat.Off); // Only close on idle.
                 SetServerAcm(1, AcmClose.OnInvocation, AcmHeartbeat.Off); // Disable heartbeat on invocations
@@ -357,8 +355,8 @@ namespace ZeroC.Ice.Test.ACM
         private class CloseOnIdleTest : TestCase
         {
             // Only close on idle
-            public CloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("close on idle", com, helper) => SetClientAcm(1, AcmClose.OnIdle, AcmHeartbeat.Off);
+            public CloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("close on idle", com, helper) => SetClientAcm(1, AcmClose.OnIdle, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -373,7 +371,7 @@ namespace ZeroC.Ice.Test.ACM
                     }
                     catch (Exception ex)
                     {
-                        TestHelper.Assert(ex is ConnectionIdleException);;
+                        TestHelper.Assert(ex is ConnectionIdleException);
                     }
                 }
             }
@@ -382,8 +380,8 @@ namespace ZeroC.Ice.Test.ACM
         private class CloseOnInvocationTest : TestCase
         {
             // Only close on invocation
-            public CloseOnInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("close on invocation", com, helper) => SetClientAcm(1, AcmClose.OnInvocation, AcmHeartbeat.Off);
+            public CloseOnInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("close on invocation", com, helper) => SetClientAcm(1, AcmClose.OnInvocation, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -400,8 +398,8 @@ namespace ZeroC.Ice.Test.ACM
         private class CloseOnIdleAndInvocationTest : TestCase
         {
             // Only close on idle and invocation
-            public CloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("close on idle and invocation", com, helper) =>
+            public CloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("close on idle and invocation", com, helper) =>
                 SetClientAcm(1, AcmClose.OnInvocationAndIdle, AcmHeartbeat.Off);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -417,7 +415,7 @@ namespace ZeroC.Ice.Test.ACM
                 }
                 catch (Exception ex)
                 {
-                    TestHelper.Assert(ex is ConnectionIdleException);;
+                    TestHelper.Assert(ex is ConnectionIdleException);
                 }
             }
         }
@@ -425,8 +423,8 @@ namespace ZeroC.Ice.Test.ACM
         private class ForcefulCloseOnIdleAndInvocationTest : TestCase
         {
             // Only close on idle and invocation
-            public ForcefulCloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("forceful close on idle and invocation", com, helper) =>
+            public ForcefulCloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("forceful close on idle and invocation", com, helper) =>
                 SetClientAcm(1, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -450,8 +448,8 @@ namespace ZeroC.Ice.Test.ACM
         private class HeartbeatOnIdleTest : TestCase
         {
             // Enable server heartbeats.
-            public HeartbeatOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("heartbeat on idle", com, helper) => SetServerAcm(1, null, AcmHeartbeat.OnIdle);
+            public HeartbeatOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("heartbeat on idle", com, helper) => SetServerAcm(1, null, AcmHeartbeat.OnIdle);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -467,8 +465,8 @@ namespace ZeroC.Ice.Test.ACM
         private class HeartbeatAlwaysTest : TestCase
         {
             // Enable server heartbeats.
-            public HeartbeatAlwaysTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("heartbeat always", com, helper) => SetServerAcm(1, null, AcmHeartbeat.Always);
+            public HeartbeatAlwaysTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("heartbeat always", com, helper) => SetServerAcm(1, null, AcmHeartbeat.Always);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -487,8 +485,8 @@ namespace ZeroC.Ice.Test.ACM
 
         private class HeartbeatManualTest : TestCase
         {
-            public HeartbeatManualTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("manual heartbeats", com, helper)
+            public HeartbeatManualTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("manual heartbeats", com, helper)
             {
                 // Disable heartbeats.
                 SetClientAcm(10, null, AcmHeartbeat.Off);
@@ -510,8 +508,8 @@ namespace ZeroC.Ice.Test.ACM
 
         private class SetAcmTest : TestCase
         {
-            public SetAcmTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("setACM/getACM", com, helper) => SetClientAcm(15, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
+            public SetAcmTest(IRemoteCommunicatorPrx com, TestHelper helper)
+                : base("setACM/getACM", com, helper) => SetClientAcm(15, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {

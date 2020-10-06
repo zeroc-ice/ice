@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 namespace ZeroC.Ice
 {
@@ -27,9 +25,7 @@ namespace ZeroC.Ice
 
             string keyBase = "Ice.Trace.";
 
-            // TODO: remove once all mappings support Ice.Trace.Transport
-            int network = communicator.GetPropertyAsInt(keyBase + "Network") ?? 0;
-            Transport = communicator.GetPropertyAsInt(keyBase + TransportCategory) ?? network;
+            Transport = communicator.GetPropertyAsInt(keyBase + TransportCategory) ?? 0;
             Protocol = communicator.GetPropertyAsInt(keyBase + ProtocolCategory) ?? 0;
             Retry = communicator.GetPropertyAsInt(keyBase + RetryCategory) ?? 0;
             Location = communicator.GetPropertyAsInt(keyBase + LocationCategory) ?? 0;

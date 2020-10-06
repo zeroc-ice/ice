@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -170,7 +168,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                ValueEncoding = Encoding.V1_1;
+                ValueEncoding = Encoding.V11;
             }
 
             if (options.TryGetValue("-v", out argument))

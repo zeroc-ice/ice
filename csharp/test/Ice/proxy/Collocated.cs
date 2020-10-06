@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -19,7 +17,7 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());
-            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+            // Don't activate OA to ensure collocation is used.
             AllTests.Run(this);
         }
 

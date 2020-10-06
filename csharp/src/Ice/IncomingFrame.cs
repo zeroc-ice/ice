@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -30,7 +28,7 @@ namespace ZeroC.Ice
                     ArraySegment<byte> buffer = Data.Slice(Payload.Offset + Payload.Count - Data.Offset);
                     if (buffer.Count > 0)
                     {
-                        var istr = new InputStream(buffer, Encoding.V2_0);
+                        var istr = new InputStream(buffer, Encoding.V20);
                         int dictionarySize = istr.ReadSize();
                         var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
                         for (int i = 0; i < dictionarySize; ++i)
@@ -63,10 +61,10 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The frame byte count</summary>
+        /// <summary>The frame byte count.</summary>
         public int Size => Data.Count;
 
-        /// <summary>The frame data</summary>
+        /// <summary>The frame data.</summary>
         internal ArraySegment<byte> Data { get; set; }
 
         private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
@@ -119,7 +117,7 @@ namespace ZeroC.Ice
                                                                 gzipIndex,
                                                                 decompressedData.Length - gzipIndex);
                 Debug.Assert(encapsulation.Array != null);
-                var compressed = new GZipStream(
+                using var compressed = new GZipStream(
                     new MemoryStream(encapsulation.Array,
                                      encapsulation.Offset + sizeLength + 3 + decompressedSizeLength,
                                      encapsulation.Count - sizeLength - 3 - decompressedSizeLength),

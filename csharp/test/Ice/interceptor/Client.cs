@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.IO;
 using System.Reflection;
@@ -16,7 +14,7 @@ namespace ZeroC.Ice.Test.Interceptor
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",
-                    Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+                    Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
             await using Communicator communicator = Initialize(
                 ref args,
                 new Dictionary<string, string>()

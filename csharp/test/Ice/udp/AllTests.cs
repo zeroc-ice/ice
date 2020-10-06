@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Diagnostics;
@@ -64,7 +62,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            communicator.SetProperty("ReplyAdapter.Endpoints", "udp -h localhost");
+            communicator.SetProperty("ReplyAdapter.Endpoints", helper.GetTestEndpoint(0, "udp", true));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
@@ -122,10 +120,8 @@ namespace ZeroC.Ice.Test.UDP
             }
             catch (DatagramLimitException)
             {
-                //
-                // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-                // will be throw when try to send a packet bigger than that.
-                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means that
+                // DatagramLimitException will be throw when try to send a packet bigger than that.
                 TestHelper.Assert(seq.Length > 16384);
             }
             obj.GetConnection().Close(ConnectionClose.Gracefully);
@@ -137,10 +133,8 @@ namespace ZeroC.Ice.Test.UDP
                 obj.SendByteSeq(seq, reply);
 
                 bool b = replyI.WaitReply(1, TimeSpan.FromMilliseconds(500));
-                //
-                // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                // should not be delivered.
-                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet should not be
+                // delivered.
                 TestHelper.Assert(!b);
             }
             catch (DatagramLimitException)
@@ -160,7 +154,7 @@ namespace ZeroC.Ice.Test.UDP
             var sb = new StringBuilder("test -d:udp -h ");
 
             // Use loopback to prevent other machines to answer.
-            if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
+            if (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false)
             {
                 sb.Append("\"ff15::1:1\"");
             }
@@ -172,7 +166,7 @@ namespace ZeroC.Ice.Test.UDP
             sb.Append(helper.BasePort + 10);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                if (communicator.GetPropertyAsBool("Ice.IPv6") ?? false)
+                if (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false)
                 {
                     sb.Append(" --interface \"::1\"");
                 }
@@ -206,27 +200,31 @@ namespace ZeroC.Ice.Test.UDP
                 Console.Out.WriteLine("ok");
             }
 
-            Console.Out.Write("testing udp bi-dir connection... ");
-            Console.Out.Flush();
-            obj.GetConnection().Adapter = adapter;
-            nRetry = 5;
-            while (nRetry-- > 0)
+            // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                replyI.Reset();
-                obj.PingBiDir(reply.Identity);
-                obj.PingBiDir(reply.Identity);
-                obj.PingBiDir(reply.Identity);
-                ret = replyI.WaitReply(3, TimeSpan.FromSeconds(2));
-                if (ret)
+                Console.Out.Write("testing udp bi-dir connection... ");
+                Console.Out.Flush();
+                obj.GetConnection().Adapter = adapter;
+                nRetry = 5;
+                while (nRetry-- > 0)
                 {
-                    break; // Success
+                    replyI.Reset();
+                    obj.PingBiDir(reply.Identity);
+                    obj.PingBiDir(reply.Identity);
+                    obj.PingBiDir(reply.Identity);
+                    ret = replyI.WaitReply(3, TimeSpan.FromSeconds(2));
+                    if (ret)
+                    {
+                        break; // Success
+                    }
+                    replyI = new PingReplyI();
+                    reply = adapter.AddWithUUID(
+                        replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
                 }
-                replyI = new PingReplyI();
-                reply = adapter.AddWithUUID(
-                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                TestHelper.Assert(ret);
+                Console.Out.WriteLine("ok");
             }
-            TestHelper.Assert(ret);
-            Console.Out.WriteLine("ok");
         }
     }
 }

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Net;
 using System.Threading.Tasks;
@@ -29,9 +27,7 @@ namespace ZeroC.Ice
                                      null);
         }
 
-        //
         // Only for use by UdpEndpointI
-        //
         internal UdpConnector(UdpEndpoint endpoint, EndPoint addr)
         {
             _endpoint = endpoint;

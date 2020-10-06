@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -10,39 +8,6 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The proxy's invocation mode.</summary>
-    public enum InvocationMode : byte
-    {
-        /// <summary>This is the default invocation mode, a request using twoway mode always expects a response.
-        /// </summary>
-        Twoway,
-        /// <summary>A request using oneway mode returns control to the application code as soon as it has been
-        /// accepted by the local transport.</summary>
-        Oneway,
-        /// <summary>The batch-oneway invocation mode is no longer supported, it was supported with version up to 3.7.
-        /// </summary>
-        [Obsolete("The batch-oneway invocation mode is no longer supported, it was supported with version up to 3.7")]
-        BatchOneway,
-        /// <summary>Invocation mode use by datagram based transports.</summary>
-        Datagram,
-        /// <summary>
-        /// The batch-datagram invocation mode is no longer supported, it was supported with version up to 3.7
-        /// </summary>
-        [Obsolete("The batch-datagram invocation mode is no longer supported, it was supported with version up to 3.7")]
-        BatchDatagram,
-
-        /// <summary>Marker for the last value.</summary>
-#pragma warning disable CS0618 // Type or member is obsolete
-        Last = BatchDatagram
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-
-    /// <summary>Factory function that creates a proxy from a reference.</summary>
-    /// <typeparam name="T">The proxy type.</typeparam>
-    /// <param name="reference">The underlying reference.</param>
-    /// <returns>The new proxy.</returns>
-    public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
-
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
@@ -97,41 +62,40 @@ namespace ZeroC.Ice
         /// pseudo-interface Object.</summary>
         public static class Response
         {
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_id.</summary>
+            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_id.
+            /// </summary>
             public static readonly InputStreamReader<string> IceId = InputStream.IceReaderIntoString;
 
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_ids.</summary>
+            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_ids.
+            /// </summary>
             public static readonly InputStreamReader<string[]> IceIds =
                 istr => istr.ReadArray(minElementSize: 1, InputStream.IceReaderIntoString);
 
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for operation ice_isA.</summary>
+            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_isA.
+            /// </summary>
             public static readonly InputStreamReader<bool> IceIsA = InputStream.IceReaderIntoBool;
         }
 
-        /// <summary>Factory for IObjectPrx proxies.</summary>
+        /// <summary>Factory for <see cref="IObjectPrx"/> proxies.</summary>
         public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
-        /// <summary>An InputStream reader used to read non nullable proxies.</summary>
+        /// <summary>An <see cref="InputStreamReader{T}"/> used to read <see cref="IObjectPrx"/> proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
 
-        /// <summary>An InputStream reader used to read nullable proxies.</summary>
+        /// <summary>An <see cref="InputStreamReader{T}"/> used to read <see cref="IObjectPrx"/> nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoNullable =
             (istr) => istr.ReadNullableProxy(Factory);
 
-        /// <summary>An OutputStream writer used to write non nullable proxies.</summary>
+        /// <summary>An OutputStream writer used to write <see cref="IObjectPrx"/> proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
 
-        /// <summary>An OutputStream writer used to write nullable proxies.</summary>
+        /// <summary>An OutputStream writer used to write <see cref="IObjectPrx"/> nullable proxies.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
-
-        /// <summary>The adapter ID of this proxy, or an empty string if this proxy does not have an adapter ID.
-        /// A proxy with an adapter ID is an indirect proxy. </summary>
-        public string AdapterId => IceReference.AdapterId;
 
         /// <summary>Returns the communicator that created this proxy.</summary>
         /// <returns>The communicator that created this proxy.</returns>
@@ -165,7 +129,7 @@ namespace ZeroC.Ice
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;
 
-        /// <summary>The invocation mode of this proxy. </summary>
+        /// <summary>The invocation mode of this proxy. Only useful for ice1 proxies.</summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
 
         /// <summary>Indicates whether or not this proxy caches its connection.</summary>
@@ -179,11 +143,13 @@ namespace ZeroC.Ice
 
         /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
         /// waits for an empty response from the target Ice object.</summary>
-        /// <value>When true, invoking such an operation does not wait for the response from the target object. This
-        /// corresponds to several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. When false,
-        /// invoking such an operation waits for the empty response from the target object, unless this behavior is
-        /// overridden by metadata on the Slice operation's definition.</value>
-        public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
+        /// <value>When true, invoking such an operation does not wait for the response from the target object. When
+        /// false, invoking such an operation waits for the empty response from the target object, unless this behavior
+        /// is overridden by metadata on the Slice operation's definition.</value>
+        public bool IsOneway => IceReference.IsOneway;
+
+        /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
+        public IReadOnlyList<string> Location => IceReference.Location;
 
         /// <summary>The locator associated with this proxy. This property is null when no locator is associated with
         /// this proxy.</summary>
@@ -226,8 +192,8 @@ namespace ZeroC.Ice
 
         /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
         /// <param name="s">The proxy string representation.</param>
-        /// <param name="communicator">The communicator for the new proxy</param>
-        /// <returns>The new proxy</returns>
+        /// <param name="communicator">The communicator for the new proxy.</param>
+        /// <returns>The new proxy.</returns>
         /// <exception cref="FormatException"><c>s</c> does not contain a valid string representation of a proxy.
         /// </exception>
         public static IObjectPrx Parse(string s, Communicator communicator) =>
@@ -235,7 +201,7 @@ namespace ZeroC.Ice
 
         /// <summary>Converts the string representation of a proxy to its <see cref="IObjectPrx"/> equivalent.</summary>
         /// <param name="s">The proxy string representation.</param>
-        /// <param name="communicator">The communicator for the new proxy</param>
+        /// <param name="communicator">The communicator for the new proxy.</param>
         /// <param name="prx">When this method returns it contains the new proxy, if the conversion succeeded or null
         /// if the conversion failed.</param>
         /// <returns><c>true</c> if the s parameter was converted successfully; otherwise, <c>false</c>.</returns>
@@ -299,7 +265,8 @@ namespace ZeroC.Ice
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>True if the target object implements the Slice interface identified by id</returns>.
+        /// <returns>True if the target object implements the Slice interface identified by id, false otherwise.
+        /// </returns>
         public bool IceIsA(
             string id,
             IReadOnlyDictionary<string, string>? context = null,

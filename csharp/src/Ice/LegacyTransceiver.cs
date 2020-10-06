@@ -1,14 +1,10 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Sources;
 
 namespace ZeroC.Ice
 {
@@ -43,8 +39,8 @@ namespace ZeroC.Ice
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
             _transceiver.SendFrameAsync(buffer, cancel);
 
-        internal LegacyStream(long streamId, LegacyTransceiver transceiver) : base(streamId, transceiver) =>
-            _transceiver = transceiver;
+        internal LegacyStream(long streamId, LegacyTransceiver transceiver)
+            : base(streamId, transceiver) => _transceiver = transceiver;
 
         internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =>
             // If we received a response, we make sure to run the continuation asynchronously since this might end
@@ -206,7 +202,7 @@ namespace ZeroC.Ice
                     {
                         if (frameType == Ice1Definitions.FrameType.ValidateConnection)
                         {
-                            // Except for the validate conneciton frame, subsequence validate connection messages are
+                            // Except for the validate connection frame, subsequent validate connection messages are
                             // heartbeats sent by the peer. We just handle it here and don't pass it over the control
                             // stream which only expect the close frame at this point.
                             Debug.Assert(stream.IsControl);
@@ -296,8 +292,8 @@ namespace ZeroC.Ice
             }
         }
 
-        internal LegacyTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter) :
-            base(endpoint, adapter, transceiver)
+        internal LegacyTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
+            : base(endpoint, adapter, transceiver)
         {
             _transceiver = transceiver;
             if (adapter?.SerializeDispatch ?? false)

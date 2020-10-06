@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -210,7 +208,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             output.Flush();
             {
                 string multicast;
-                if (communicator.GetProperty("Ice.IPv6") == "1")
+                if (communicator.GetProperty("Ice.PreferIPv6Address") == "1")
                 {
                     multicast = "\"ff15::1\"";
                 }

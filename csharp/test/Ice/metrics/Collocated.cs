@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -27,7 +25,7 @@ namespace ZeroC.Ice.Test.Metrics
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("metrics", new Metrics());
-            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+            // Don't activate OA to ensure collocation is used.
 
             IMetricsPrx metrics = AllTests.Run(this, observer, colocated: true);
             await metrics.ShutdownAsync();

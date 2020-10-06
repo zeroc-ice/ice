@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +8,7 @@ namespace ZeroC.Ice
 {
     /// <summary>SlicedData holds the sliced-off unknown slices of a class or remote exception. Each SlicedData value
     /// holds at least one slice.</summary>
-    public readonly struct SlicedData
+    public readonly struct SlicedData : IEquatable<SlicedData>
     {
         /// <summary>The Ice encoding of the "unknown" slices held by this SlicedData. These slices can only be
         /// remarshaled with the same encoding.</summary>
@@ -18,6 +16,24 @@ namespace ZeroC.Ice
 
         /// <summary>The "unknown" or unreadable slices from a class or remote exception instance.</summary>
         public readonly IReadOnlyList<SliceInfo> Slices { get; }
+
+        /// <inheritdoc/>
+        public bool Equals(SlicedData other) =>
+            Encoding == other.Encoding &&
+            Slices == other.Slices;
+
+        /// <inheritdoc/>
+        public override bool Equals(object? obj) => obj is SlicedData value && Equals(value);
+
+        /// <inheritdoc/>
+        public override int GetHashCode() =>
+            HashCode.Combine(Encoding, Slices);
+
+        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
+        public static bool operator ==(SlicedData lhs, SlicedData rhs) => lhs.Equals(rhs);
+
+        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
+        public static bool operator !=(SlicedData lhs, SlicedData rhs) => !(lhs == rhs);
 
         internal SlicedData(Encoding encoding, IReadOnlyList<SliceInfo> slices)
         {

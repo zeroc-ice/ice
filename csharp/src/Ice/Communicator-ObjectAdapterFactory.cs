@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -130,8 +128,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(string name, string endpoints,
-            bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
+        public ObjectAdapter CreateObjectAdapterWithEndpoints(
+            string name,
+            string endpoints,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null)
         {
             if (name.Length == 0)
             {

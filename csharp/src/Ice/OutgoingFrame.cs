@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -137,7 +135,7 @@ namespace ZeroC.Ice
                 throw new InvalidOperationException("cannot modify a sealed frame");
             }
 
-            if (Encoding != Encoding.V2_0)
+            if (Encoding != Encoding.V20)
             {
                 throw new NotSupportedException("payload compression is only supported with 2.0 encoding");
             }
@@ -181,7 +179,8 @@ namespace ZeroC.Ice
 
                 offset += sizeLength;
                 using var memoryStream = new MemoryStream(compressedData, offset, compressedData.Length - offset);
-                var gzipStream = new GZipStream(memoryStream,
+                using var gzipStream = new GZipStream(
+                    memoryStream,
                     _compressionLevel == CompressionLevel.Fastest ? System.IO.Compression.CompressionLevel.Fastest :
                                                                     System.IO.Compression.CompressionLevel.Optimal);
                 try
@@ -297,7 +296,7 @@ namespace ZeroC.Ice
 
             if (_binaryContextOstr == null)
             {
-                _binaryContextOstr = new OutputStream(Encoding.V2_0, Data, PayloadEnd);
+                _binaryContextOstr = new OutputStream(Encoding.V20, Data, PayloadEnd);
                 _binaryContextOstr.WriteByteSpan(stackalloc byte[2]); // 2-bytes size place holder
             }
             return _binaryContextOstr;
@@ -319,7 +318,7 @@ namespace ZeroC.Ice
                     if (defaultBinaryContext.Count > 0)
                     {
                         // Add segment for each slot that was not written yet.
-                        var istr = new InputStream(defaultBinaryContext, Encoding.V2_0);
+                        var istr = new InputStream(defaultBinaryContext, Encoding.V20);
                         int dictionarySize = istr.ReadSize();
                         for (int i = 0; i < dictionarySize; ++i)
                         {

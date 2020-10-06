@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -26,9 +24,7 @@ namespace ZeroC.Ice.Test.Properties
                 Console.Out.WriteLine("ok");
             }
 
-            //
             // Try to load multiple config files.
-            //
             {
                 Console.Out.Write("testing using Ice.Config with multiple config files... ");
                 Console.Out.Flush();

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -13,7 +11,7 @@ namespace ZeroC.Ice
     {
         // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
         // for the subset of the encoding used by the ice1 headers.
-        internal static readonly Encoding Encoding = Encoding.V1_1;
+        internal static readonly Encoding Encoding = Encoding.V11;
 
         // Size of an ice1 frame header:
         // Magic number (4 bytes)
@@ -55,7 +53,7 @@ namespace ZeroC.Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) FrameType.Request,
+            (byte)FrameType.Request,
             0, // Compression status.
             0, 0, 0, 0, // Frame size (placeholder).
             0, 0, 0, 0 // Request ID (placeholder).

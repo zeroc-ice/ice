@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -72,17 +70,11 @@ namespace ZeroC.Ice.Test.Objects
             output.Write("checking consistency... ");
             output.Flush();
             TestHelper.Assert(b1 != b2);
-            //TestHelper.Assert(b1 != c);
-            //TestHelper.Assert(b1 != d);
-            //TestHelper.Assert(b2 != c);
-            //TestHelper.Assert(b2 != d);
-            //TestHelper.Assert(c != d);
             TestHelper.Assert(b1.TheB == b1);
             TestHelper.Assert(b1.TheC == null);
             TestHelper.Assert(b1.TheA is B);
             TestHelper.Assert(((B)b1.TheA).TheA == b1.TheA);
             TestHelper.Assert(((B)b1.TheA).TheB == b1);
-            //TestHelper.Assert(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
             TestHelper.Assert(((B)b1.TheA).TheC!.TheB == b1.TheA);
 
             // More tests possible for b2 and d, but I think this is already

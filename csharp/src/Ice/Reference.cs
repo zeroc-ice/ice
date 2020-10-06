@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -13,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Reference is an Ice-internal but publicly visible class. Each Ice proxy has single get-only property,
-    /// IceReference, which holds the reference associated with this proxy. Reference represents the untyped
-    /// implementation of a proxy. Multiples proxies that point to the same Ice object and share the same proxy
-    /// options can share the same Reference object, even if these proxies have different types.</summary>
+    /// <summary>Reference is an Ice-internal but publicly visible class. Each Ice proxy has a single Reference.
+    /// Reference represents the untyped implementation of a proxy. Multiples proxies that point to the same Ice object
+    /// and share the same proxy options can share the same Reference object, even if these proxies have different
+    /// types.</summary>
     public sealed class Reference : IEquatable<Reference>
     {
-        internal string AdapterId { get; }
+        internal string AdapterId => Location.Count == 0 ? "" : Location[0];
         internal Communicator Communicator { get; }
         internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
@@ -28,12 +26,18 @@ namespace ZeroC.Ice
         internal IReadOnlyList<Endpoint> Endpoints { get; }
         internal string Facet { get; }
         internal Identity Identity { get; }
+
+        // For ice1 proxies, all the enumerators are meaningful. For other proxies, only the Twoway and Oneway
+        // enumerators are used.
         internal InvocationMode InvocationMode { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed { get; }
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
-        internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && AdapterId.Length == 0;
+        public bool IsOneway => InvocationMode != InvocationMode.Twoway;
+        internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
+        internal IReadOnlyList<string> Location { get; }
         internal TimeSpan LocatorCacheTimeout { get; }
+
         internal LocatorInfo? LocatorInfo { get; }
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
@@ -75,12 +79,12 @@ namespace ZeroC.Ice
                 throw new FormatException("empty string is invalid");
             }
 
-            string adapterId;
             Encoding encoding;
             IReadOnlyList<Endpoint> endpoints;
             string facet;
             Identity identity;
             InvocationMode invocationMode = InvocationMode.Twoway;
+            IReadOnlyList<string> location;
             Protocol protocol;
 
             if (UriParser.IsProxyUri(proxyString))
@@ -90,9 +94,9 @@ namespace ZeroC.Ice
                 (endpoints, path, proxyOptions, facet) = UriParser.ParseProxy(proxyString, communicator);
 
                 protocol = proxyOptions.Protocol ?? Protocol.Ice2;
-                encoding = proxyOptions.Encoding ?? Encoding.V2_0;
+                Debug.Assert(protocol != Protocol.Ice1); // the URI parsing rejects ice1
 
-                adapterId = "";
+                encoding = proxyOptions.Encoding ?? Encoding.V20;
 
                 switch (path.Count)
                 {
@@ -100,36 +104,39 @@ namespace ZeroC.Ice
                         // TODO: should we add a default identity "Default" or "Root" or "Main"?
                         throw new FormatException($"missing identity in proxy `{proxyString}'");
                     case 1:
-                        identity = new Identity(path[0], "");
+                        identity = new Identity(category: "", name: path[0]);
+                        location = ImmutableArray<string>.Empty;
                         break;
                     case 2:
-                        identity = new Identity(path[1], path[0]);
-                        break;
-                    case 3:
-                        adapterId = path[0];
-                        identity = new Identity(path[2], path[1]);
-                        // TODO: temporary
-                        if (endpoints.Count > 0 && adapterId.Length > 0)
-                        {
-                            throw new FormatException($"direct proxy `{proxyString}' cannot include a location");
-                        }
+                        identity = new Identity(category: path[0], name: path[1]);
+                        location = ImmutableArray<string>.Empty;
                         break;
                     default:
-                        // TODO: should we convert adapterId/location into a sequence<string>?
-                        throw new FormatException($"too many segments in path of proxy `{proxyString}'");
+                        identity = new Identity(category: path[^2], name: path[^1]);
+                        path.RemoveRange(path.Count - 2, 2);
+                        location = path;
+                        break;
                 }
 
                 if (identity.Name.Length == 0)
                 {
                     throw new FormatException($"invalid identity with empty name in proxy `{proxyString}'");
                 }
+                if (location.Any(segment => segment.Length == 0))
+                {
+                    throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
+                }
             }
             else
             {
-                (identity, facet, invocationMode, encoding, adapterId, endpoints) =
+                protocol = Protocol.Ice1;
+                string location0;
+
+                (identity, facet, invocationMode, encoding, location0, endpoints) =
                     Ice1Parser.ParseProxy(proxyString, communicator);
 
-                protocol = Protocol.Ice1;
+                // 0 or 1 segment
+                location = location0.Length > 0 ? ImmutableArray.Create(location0) : ImmutableArray<string>.Empty;
             }
 
             bool? cacheConnection = null;
@@ -189,8 +196,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            return new Reference(adapterId: adapterId,
-                                 cacheConnection: cacheConnection ?? true,
+            return new Reference(cacheConnection: cacheConnection ?? true,
                                  communicator: communicator,
                                  connectionId: "",
                                  context: context ?? communicator.DefaultContext,
@@ -200,6 +206,7 @@ namespace ZeroC.Ice
                                  facet: facet,
                                  identity: identity,
                                  invocationMode: invocationMode,
+                                 location: location,
                                  locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
                                  locatorInfo:
                                     locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
@@ -239,10 +246,6 @@ namespace ZeroC.Ice
             else
             {
                 // Compare properties specific to routable references
-                if (AdapterId != other.AdapterId)
-                {
-                    return false;
-                }
                 if (ConnectionId != other.ConnectionId)
                 {
                     return false;
@@ -256,6 +259,10 @@ namespace ZeroC.Ice
                     return false;
                 }
                 if (IsConnectionCached != other.IsConnectionCached)
+                {
+                    return false;
+                }
+                if (!Location.SequenceEqual(other.Location))
                 {
                     return false;
                 }
@@ -337,7 +344,6 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    hash.Add(AdapterId);
                     hash.Add(ConnectionId);
                     foreach (Endpoint e in Endpoints)
                     {
@@ -345,6 +351,10 @@ namespace ZeroC.Ice
                     }
                     hash.Add(IsConnectionCached);
                     hash.Add(EndpointSelection);
+                    foreach (string s in Location)
+                    {
+                        hash.Add(s);
+                    }
                     hash.Add(LocatorCacheTimeout);
                     if (LocatorInfo != null)
                     {
@@ -417,17 +427,13 @@ namespace ZeroC.Ice
                     case InvocationMode.Oneway:
                         sb.Append(" -o");
                         break;
-#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchOneway:
-#pragma warning restore CS0618 // Type or member is obsolete
                         sb.Append(" -O");
                         break;
                     case InvocationMode.Datagram:
                         sb.Append(" -d");
                         break;
-#pragma warning disable CS0618 // Type or member is obsolete
                     case InvocationMode.BatchDatagram:
-#pragma warning restore CS0618 // Type or member is obsolete
                         sb.Append(" -D");
                         break;
                 }
@@ -437,13 +443,15 @@ namespace ZeroC.Ice
                 sb.Append(" -e ");
                 sb.Append(Encoding.ToString());
 
-                if (AdapterId.Length > 0)
+                if (Location.Count > 0)
                 {
+                    Debug.Assert(Location.Count == 1); // at most 1 segment with ice1
+
                     sb.Append(" @ ");
 
                     // If the encoded adapter id string contains characters which the reference parser uses as
                     // separators, then we enclose the adapter id string in quotes.
-                    string a = StringUtil.EscapeString(AdapterId, Communicator.ToStringMode);
+                    string a = StringUtil.EscapeString(Location[0], Communicator.ToStringMode);
                     if (StringUtil.FindFirstOf(a, " :@") != -1)
                     {
                         sb.Append('"');
@@ -468,17 +476,20 @@ namespace ZeroC.Ice
             else // >= ice2, use URI format
             {
                 string path;
-                if (AdapterId.Length > 0)
+                if (Location.Count > 0)
                 {
-                    string location = Uri.EscapeDataString(AdapterId);
-                    if (Identity.Category.Length > 0)
+                    var pathBuilder = new StringBuilder();
+                    foreach (string s in Location)
                     {
-                        path = $"{location}/{Identity}";
+                        pathBuilder.Append(Uri.EscapeDataString(s));
+                        pathBuilder.Append('/');
                     }
-                    else
+                    if (Identity.Category.Length == 0)
                     {
-                        path = $"{location}//{Identity}";
+                        pathBuilder.Append('/');
                     }
+                    pathBuilder.Append(Identity); // Identity.ToString() escapes the string
+                    path = pathBuilder.ToString();
                 }
                 else
                 {
@@ -555,80 +566,114 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a reference from the input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <returns>The reference read from the stream (can be null).</returns>
-        internal static Reference? Read(InputStream istr, Communicator communicator)
+        internal static Reference? Read(InputStream istr)
         {
-            var identity = new Identity(istr);
-            if (identity.Name.Length == 0)
+            if (istr.Encoding == Encoding.V11)
             {
-                return null;
-            }
-
-            string facet = istr.ReadFacet();
-            int mode = istr.ReadByte();
-            if (mode < 0 || mode > (int)InvocationMode.Last)
-            {
-                throw new InvalidDataException($"invalid invocation mode: {mode}");
-            }
-
-            istr.ReadBool(); // secure option, ignored
-
-            byte major = istr.ReadByte();
-            byte minor = istr.ReadByte();
-            if (minor != 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
-            }
-            var protocol = (Protocol)major;
-            if (protocol == 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to 0");
-            }
-
-            major = istr.ReadByte();
-            minor = istr.ReadByte();
-            var encoding = new Encoding(major, minor);
-
-            Endpoint[] endpoints;
-            string adapterId = "";
-
-            int sz = istr.ReadSize();
-            if (sz > 0)
-            {
-                endpoints = new Endpoint[sz];
-                for (int i = 0; i < sz; i++)
+                var identity = new Identity(istr);
+                if (identity.Name.Length == 0)
                 {
-                    endpoints[i] = istr.ReadEndpoint(protocol, communicator);
+                    return null;
                 }
+
+                var proxyData = new ProxyData11(istr);
+
+                if (proxyData.FacetPath.Length > 1)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy with {proxyData.FacetPath.Length} elements in its facet path");
+                }
+
+                if ((byte)proxyData.Protocol == 0)
+                {
+                    throw new InvalidDataException("received proxy with protocol set to 0");
+                }
+
+                if (proxyData.Protocol != Protocol.Ice1 && proxyData.InvocationMode != InvocationMode.Twoway)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy for protocol {proxyData.Protocol.GetName()} with invocation mode set");
+                }
+
+                if (proxyData.ProtocolMinor != 0)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy with invalid protocolMinor value: {proxyData.ProtocolMinor}");
+                }
+
+                // The min size for an Endpoint with the 1.1 encoding is: transport (short = 2 bytes) + encapsulation
+                // header (6 bytes), for a total of 8 bytes.
+                Endpoint[] endpoints =
+                    istr.ReadArray(minElementSize: 8, istr => istr.ReadEndpoint(proxyData.Protocol));
+
+                string location0 = endpoints.Length == 0 ? istr.ReadString() : "";
+
+                return new Reference(istr.Communicator!,
+                                     proxyData.Encoding,
+                                     endpoints,
+                                     proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
+                                     identity,
+                                     proxyData.InvocationMode,
+                                     location: location0.Length > 0 ?
+                                        ImmutableArray.Create(location0) : ImmutableArray<string>.Empty,
+                                     proxyData.Protocol);
             }
             else
             {
-                endpoints = Array.Empty<Endpoint>();
-                adapterId = istr.ReadString();
-            }
+                Debug.Assert(istr.Encoding == Encoding.V20);
 
-            return new Reference(adapterId,
-                                 communicator,
-                                 encoding,
-                                 endpoints,
-                                 facet,
-                                 identity,
-                                 invocationMode: (InvocationMode)mode,
-                                 protocol);
+                ProxyKind proxyKind = istr.ReadProxyKind();
+                if (proxyKind == ProxyKind.Null)
+                {
+                    return null;
+                }
+
+                var proxyData = new ProxyData20(istr);
+
+                if (proxyData.Identity.Name.Length == 0)
+                {
+                    throw new InvalidDataException(
+                        $"received non-null proxy with empty identity name");
+                }
+
+                Protocol protocol = proxyData.Protocol ?? Protocol.Ice2;
+
+                if (proxyData.InvocationMode != null && protocol != Protocol.Ice1)
+                {
+                    throw new InvalidDataException(
+                        $"received proxy for protocol {protocol.GetName()} with invocation mode set");
+                }
+
+                // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
+                // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
+                // sequence), for a total of 7 bytes.
+                IReadOnlyList<Endpoint> endpoints = proxyKind == ProxyKind.Direct ?
+                    istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) :
+                    ImmutableArray<Endpoint>.Empty;
+
+                return new Reference(istr.Communicator!,
+                                     proxyData.Encoding ?? Encoding.V20,
+                                     endpoints,
+                                     proxyData.Facet ?? "",
+                                     proxyData.Identity,
+                                     proxyData.InvocationMode ?? InvocationMode.Twoway,
+                                     (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
+                                     protocol);
+            }
         }
 
         // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
-        internal Reference(string adapterId,
-                           Communicator communicator,
-                           Encoding encoding,
-                           IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
-                           string facet,
-                           Identity identity,
-                           InvocationMode invocationMode,
-                           Protocol protocol)
-            : this(adapterId: adapterId,
-                   cacheConnection: true,
+        internal Reference(
+            Communicator communicator,
+            Encoding encoding,
+            IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
+            string facet,
+            Identity identity,
+            InvocationMode invocationMode,
+            IReadOnlyList<string> location, // already a copy provided by Ice
+            Protocol protocol)
+            : this(cacheConnection: true,
                    communicator: communicator,
                    connectionId: "",
                    context: communicator.DefaultContext,
@@ -638,6 +683,7 @@ namespace ZeroC.Ice
                    facet: facet,
                    identity: identity,
                    invocationMode: invocationMode,
+                   location: location,
                    locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
                    preferNonSecure: communicator.DefaultPreferNonSecure,
@@ -663,19 +709,15 @@ namespace ZeroC.Ice
         {
             // TODO: revisit retry logic
 
-            //
             // If the request was sent and is not idempotent, the operation might be retried only if the exception
             // is an ObjectNotExistException or ConnectionClosedByPeerException. Otherwise, it can't be retried.
-            //
             if (sent && !idempotent && !(ex is ObjectNotExistException) && !(ex is ConnectionClosedByPeerException))
             {
                 throw ExceptionUtil.Throw(ex);
             }
 
-            //
-            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
-            // the connection and the request will fail with the exception.
-            //
+            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to the connection and the request will
+            // fail with the exception.
             if (IsFixed)
             {
                 throw ExceptionUtil.Throw(ex);
@@ -686,14 +728,10 @@ namespace ZeroC.Ice
                 RouterInfo? ri = RouterInfo;
                 if (ri != null && one.Operation.Equals("ice_add_proxy"))
                 {
-                    //
-                    // If we have a router, an ObjectNotExistException with an
-                    // operation name "ice_add_proxy" indicates to the client
-                    // that the router isn't aware of the proxy (for example,
-                    // because it was evicted by the router). In this case, we
-                    // must *always* retry, so that the missing proxy is added
-                    // to the router.
-                    //
+                    // If we have a router, an ObjectNotExistException with an operation name "ice_add_proxy" indicates
+                    // to the client that the router isn't aware of the proxy (for example, because it was evicted by
+                    // the router). In this case, we must *always* retry, so that the missing proxy is added to the
+                    // router.
 
                     ri.ClearCache(this);
 
@@ -706,11 +744,7 @@ namespace ZeroC.Ice
                 }
                 else if (IsIndirect)
                 {
-                    //
-                    // We retry ObjectNotExistException if the reference is
-                    // indirect.
-                    //
-
+                    // We retry ObjectNotExistException if the reference is indirect.
                     if (IsWellKnown)
                     {
                         LocatorInfo?.ClearCache(this);
@@ -718,17 +752,12 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    //
                     // For all other cases, we don't retry ObjectNotExistException.
-                    //
                     throw ExceptionUtil.Throw(ex);
                 }
             }
 
-            //
-            // Don't retry if the communicator or object adapter are disposed,
-            // or the connection is manually closed.
-            //
+            // Don't retry if the communicator or object adapter are disposed.
             if (ex is ObjectDisposedException)
             {
                 throw ExceptionUtil.Throw(ex);
@@ -740,10 +769,7 @@ namespace ZeroC.Ice
             int interval;
             if (cnt == (Communicator.RetryIntervals.Length + 1) && ex is ConnectionClosedByPeerException)
             {
-                //
-                // A connection closed exception is always retried at least once, even if the retry
-                // limit is reached.
-                //
+                // A connection closed exception is always retried at least once, even if the retry limit is reached.
                 interval = 0;
             }
             else if (cnt > Communicator.RetryIntervals.Length)
@@ -781,7 +807,6 @@ namespace ZeroC.Ice
         }
 
         internal Reference Clone(
-            string? adapterId = null,
             bool? cacheConnection = null,
             bool clearLocator = false,
             bool clearRouter = false,
@@ -795,6 +820,7 @@ namespace ZeroC.Ice
             Identity? identity = null,
             string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
+            IEnumerable<string>? location = null, // from app
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
@@ -810,9 +836,19 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
-            if (oneway != null && invocationMode != null)
+            if (invocationMode != null)
             {
-                throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                if (oneway != null)
+                {
+                    throw new ArgumentException($"cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+                }
+                if (Protocol != Protocol.Ice1)
+                {
+                    // This way, we won't get an invalid invocationMode when protocol > ice1.
+                    throw new ArgumentException(
+                        $"{nameof(invocationMode)} applies only to ice1 proxies",
+                        nameof(invocationMode));
+                }
             }
 
             if (identityAndFacet != null && facet != null)
@@ -829,11 +865,6 @@ namespace ZeroC.Ice
             {
                 invocationMode = oneway.Value ? InvocationMode.Oneway : InvocationMode.Twoway;
             }
-            if (endpoints != null && adapterId != null)
-            {
-                throw new ArgumentException($"cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
-            }
-
             if (identityAndFacet != null)
             {
                 (identity, facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
@@ -844,10 +875,6 @@ namespace ZeroC.Ice
                 // Note that Clone does not allow to clear the fixedConnection
 
                 // Make sure that all arguments incompatible with fixed references are null
-                if (adapterId != null)
-                {
-                    throw new ArgumentException("cannot change the adapter ID of a fixed proxy", nameof(adapterId));
-                }
                 if (cacheConnection != null)
                 {
                     throw new ArgumentException("cannot change the connection caching configuration of a fixed proxy",
@@ -865,18 +892,19 @@ namespace ZeroC.Ice
                 }
                 if (endpoints != null)
                 {
-                    throw new ArgumentException("cannot change the endpoints of a fixed proxy",
-                        nameof(endpoints));
+                    throw new ArgumentException("cannot change the endpoints of a fixed proxy", nameof(endpoints));
+                }
+                if (location != null)
+                {
+                    throw new ArgumentException("cannot change the location of a fixed proxy", nameof(location));
                 }
                 if (locator != null)
                 {
-                    throw new ArgumentException("cannot change the locator of a fixed proxy",
-                        nameof(locator));
+                    throw new ArgumentException("cannot change the locator of a fixed proxy", nameof(locator));
                 }
                 else if (clearLocator)
                 {
-                    throw new ArgumentException("cannot change the locator of a fixed proxy",
-                        nameof(clearLocator));
+                    throw new ArgumentException("cannot change the locator of a fixed proxy", nameof(clearLocator));
                 }
                 if (locatorCacheTimeout != null)
                 {
@@ -909,6 +937,18 @@ namespace ZeroC.Ice
             else
             {
                 // Routable reference
+                if (endpoints?.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
+                {
+                    throw new ArgumentException($"the protocol of endpoint `{endpoint}' is not {Protocol}",
+                                                nameof(endpoints));
+                }
+
+                if (location != null && location.Any(segment => segment.Length == 0))
+                {
+                    throw new ArgumentException($"invalid location `{location}' with an empty segment",
+                                                nameof(location));
+                }
+
                 if (locator != null && clearLocator)
                 {
                     throw new ArgumentException($"cannot set both {nameof(locator)} and {nameof(clearLocator)}");
@@ -925,26 +965,33 @@ namespace ZeroC.Ice
                         $"invalid {nameof(locatorCacheTimeout)}: {locatorCacheTimeout}", nameof(locatorCacheTimeout));
                 }
 
-                if (adapterId != null && endpoints != null)
-                {
-                    throw new ArgumentException($"cannot set both {nameof(adapterId)} and {nameof(endpoints)}");
-                }
+                IReadOnlyList<Endpoint>? newEndpoints = endpoints?.ToImmutableArray();
+                IReadOnlyList<string>? newLocation = location?.ToImmutableArray();
 
-                IReadOnlyList<Endpoint>? newEndpoints = null;
-
-                if (adapterId != null)
+                if (Protocol == Protocol.Ice1)
                 {
-                    newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
-                }
-                else if (endpoints != null)
-                {
-                    if (endpoints.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
+                    if (newLocation?.Count > 0 && newEndpoints?.Count > 0)
                     {
-                        throw new ArgumentException($"the protocol of endpoint `{endpoint}' is not {Protocol}",
-                                                    nameof(endpoints));
+                        throw new ArgumentException(
+                            @$"cannot set both a non-empty {nameof(location)} and a non-empty {
+                                nameof(endpoints)} on an ice1 proxy",
+                            nameof(location));
                     }
-                    adapterId = ""; // make sure the clone's adapterID is empty
-                    newEndpoints = endpoints.ToList(); // make a copy
+
+                    if (newLocation?.Count > 0)
+                    {
+                        if (newLocation.Count > 1)
+                        {
+                            throw new ArgumentException(
+                                $"{nameof(location)} is limited to a single segment for ice1 proxies",
+                                nameof(location));
+                        }
+                        newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
+                    }
+                    else if (newEndpoints?.Count > 0)
+                    {
+                        newLocation = ImmutableArray<string>.Empty; // make sure the clone's location is empty
+                    }
                 }
 
                 LocatorInfo? locatorInfo = LocatorInfo;
@@ -967,8 +1014,7 @@ namespace ZeroC.Ice
                     routerInfo = null;
                 }
 
-                var clone = new Reference(adapterId ?? AdapterId,
-                                          cacheConnection ?? IsConnectionCached,
+                var clone = new Reference(cacheConnection ?? IsConnectionCached,
                                           Communicator,
                                           connectionId ?? ConnectionId,
                                           context?.ToImmutableDictionary() ?? Context,
@@ -978,6 +1024,7 @@ namespace ZeroC.Ice
                                           facet ?? Facet,
                                           identity ?? Identity,
                                           invocationMode ?? InvocationMode,
+                                          newLocation ?? Location,
                                           locatorCacheTimeout ?? LocatorCacheTimeout,
                                           locatorInfo, // no fallback otherwise breaks clearLocator
                                           preferNonSecure ?? PreferNonSecure,
@@ -1059,9 +1106,7 @@ namespace ZeroC.Ice
                     {
                         case InvocationMode.Twoway:
                         case InvocationMode.Oneway:
-#pragma warning disable CS0618 // Type or member is obsolete
                         case InvocationMode.BatchOneway:
-#pragma warning restore CS0618 // Type or member is obsolete
                             if (endpoint.IsDatagram)
                             {
                                 return false;
@@ -1069,9 +1114,7 @@ namespace ZeroC.Ice
                             break;
 
                         case InvocationMode.Datagram:
-#pragma warning disable CS0618 // Type or member is obsolete
                         case InvocationMode.BatchDatagram:
-#pragma warning restore CS0618 // Type or member is obsolete
                             if (!endpoint.IsDatagram)
                             {
                                 return false;
@@ -1105,9 +1148,7 @@ namespace ZeroC.Ice
                     throw new NoEndpointException(ToString());
                 }
 
-                //
                 // Finally, create the connection.
-                //
                 try
                 {
                     OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
@@ -1153,10 +1194,8 @@ namespace ZeroC.Ice
                     {
                         await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this));
 
-                        //
                         // Set the object adapter for this router (if any) on the new connection, so that callbacks from
                         // the router can be received over this new connection.
-                        //
                         if (RouterInfo.Adapter != null)
                         {
                             connection.Adapter = RouterInfo.Adapter;
@@ -1230,57 +1269,78 @@ namespace ZeroC.Ice
             return properties;
         }
 
-        // Marshal the reference.
+        // Marshal the non-null reference.
         internal void Write(OutputStream ostr)
         {
             if (IsFixed)
             {
+                // TODO: should be true only for the 1.1 encoding once we add Fixed support in the 2.0 encoding
                 throw new NotSupportedException("cannot marshal a fixed proxy");
             }
 
-            Identity.IceWrite(ostr);
-            ostr.WriteFacet(Facet);
-            ostr.WriteByte((byte)InvocationMode);
-            ostr.WriteBool(false); // secure option, always false (not used)
-            ostr.WriteByte((byte)Protocol);
-            ostr.WriteByte(0);
-            ostr.WriteByte(Encoding.Major);
-            ostr.WriteByte(Encoding.Minor);
-
-            ostr.WriteSize(Endpoints.Count);
-            if (Endpoints.Count > 0)
+            if (ostr.Encoding == Encoding.V11)
             {
-                Debug.Assert(AdapterId.Length == 0);
-                foreach (Endpoint endpoint in Endpoints)
+                Identity.IceWrite(ostr);
+                var proxyData = new ProxyData11(Facet.Length > 0 ? new string[] { Facet } : Array.Empty<string>(),
+                                                InvocationMode,
+                                                secure: false,
+                                                Protocol,
+                                                protocolMinor: 0,
+                                                Encoding);
+                proxyData.IceWrite(ostr);
+                ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
+
+                if (Endpoints.Count == 0)
                 {
-                    ostr.WriteEndpoint(endpoint);
+                    // If Location holds more than 1 segment, the extra segments are not marshaled.
+                    ostr.WriteString(Location.Count == 0 ? "" : Location[0]);
                 }
             }
             else
             {
-                ostr.WriteString(AdapterId);
+                Debug.Assert(ostr.Encoding == Encoding.V20);
+
+                ostr.Write(Endpoints.Count > 0 ? ProxyKind.Direct : ProxyKind.Indirect);
+
+                // For non ice1 proxies, invocation mode is not marshaled so we "adjust" it to Twoway which gets
+                // converted to null below.
+                InvocationMode adjustedMode = Protocol == Protocol.Ice1 ? InvocationMode : InvocationMode.Twoway;
+
+                var proxyData = new ProxyData20(Identity,
+                                                Protocol == Protocol.Ice2 ? null : Protocol,
+                                                Encoding == Encoding.V20 ? null : Encoding,
+                                                Location.Count > 0 ? Location.ToArray() : null,
+                                                adjustedMode != InvocationMode.Twoway ? adjustedMode : null,
+                                                Facet.Length > 0 ? Facet : null);
+
+                proxyData.IceWrite(ostr);
+
+                if (Endpoints.Count > 0)
+                {
+                    ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
+                }
             }
         }
 
         // Constructor for routable references, not bound to a connection
-        private Reference(string adapterId,
-                          bool cacheConnection,
-                          Communicator communicator,
-                          string connectionId,
-                          IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
-                          Encoding encoding,
-                          EndpointSelectionType endpointSelection,
-                          IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
-                          string facet,
-                          Identity identity,
-                          InvocationMode invocationMode,
-                          TimeSpan locatorCacheTimeout,
-                          LocatorInfo? locatorInfo,
-                          bool preferNonSecure,
-                          Protocol protocol,
-                          RouterInfo? routerInfo)
+        private Reference(
+            bool cacheConnection,
+            Communicator communicator,
+            string connectionId,
+            IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
+            Encoding encoding,
+            EndpointSelectionType endpointSelection,
+            IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
+            string facet,
+            Identity identity,
+            InvocationMode invocationMode,
+            IReadOnlyList<string> location, // already a copy provided by Ice
+            TimeSpan locatorCacheTimeout,
+            LocatorInfo? locatorInfo,
+            bool preferNonSecure,
+            Protocol protocol,
+            RouterInfo? routerInfo)
         {
-            AdapterId = adapterId;
             Communicator = communicator;
             ConnectionId = connectionId;
             Context = context;
@@ -1291,30 +1351,37 @@ namespace ZeroC.Ice
             Identity = identity;
             InvocationMode = invocationMode;
             IsConnectionCached = cacheConnection;
+            Location = location;
             LocatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
             PreferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
 
-            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            if (Protocol == Protocol.Ice1)
             {
-                throw new ArgumentException(
-                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
+                Debug.Assert(location.Count <= 1);
+                Debug.Assert(location.Count == 0 || endpoints.Count == 0);
             }
+            else
+            {
+                Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
+            }
+
+            Debug.Assert(location.Count == 0 || location[0].Length > 0); // first segment cannot be empty
             Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
         }
 
         // Constructor for fixed references.
-        private Reference(Communicator communicator,
-                          IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
-                          Encoding encoding,
-                          string facet,
-                          Connection fixedConnection,
-                          Identity identity,
-                          InvocationMode invocationMode)
+        private Reference(
+            Communicator communicator,
+            IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
+            Encoding encoding,
+            string facet,
+            Connection fixedConnection,
+            Identity identity,
+            InvocationMode invocationMode)
         {
-            AdapterId = "";
             Communicator = communicator;
             ConnectionId = "";
             Context = context;
@@ -1326,6 +1393,7 @@ namespace ZeroC.Ice
             InvocationMode = invocationMode;
             IsConnectionCached = false;
             IsFixed = true;
+            Location = ImmutableArray<string>.Empty;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
             PreferNonSecure = false;
@@ -1335,25 +1403,25 @@ namespace ZeroC.Ice
             _connection = fixedConnection;
             _connection.ThrowException(); // Throw in case our connection is already destroyed.
 
-            if (Protocol == Protocol.Ice2 && (byte)InvocationMode > (byte)InvocationMode.Oneway)
+            if (Protocol == Protocol.Ice1)
             {
-                throw new ArgumentException(
-                    $"invocation mode `{InvocationMode}' is not compatible with the ice2 protocol");
-            }
-
-            if (InvocationMode == InvocationMode.Datagram)
-            {
-                if (!(_connection.Endpoint?.IsDatagram ?? false))
+                if (InvocationMode == InvocationMode.Datagram)
                 {
-                    throw new ArgumentException("a fixed datagram proxy requires a datagram connection",
-                        nameof(fixedConnection));
+                    if (!(_connection.Endpoint as Endpoint)!.IsDatagram)
+                    {
+                        throw new ArgumentException(
+                            "a fixed datagram proxy requires a datagram connection",
+                            nameof(fixedConnection));
+                    }
+                }
+                else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
+                {
+                    throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
                 }
             }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
-#pragma warning restore CS0618 // Type or member is obsolete
+            else
             {
-                throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
+                Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
         }
     }

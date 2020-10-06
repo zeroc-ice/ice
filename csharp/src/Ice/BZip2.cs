@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -271,7 +269,10 @@ namespace ZeroC.Ice
         private static extern IntPtr BZ2_bzLibVersion();
 
         [DllImport("bzip2", EntryPoint = "BZ2_bzCompressInit", ExactSpelling = true)]
-        private static extern int BZ2_bzCompressInit(ref BZStream stream, int blockSize100k, int verbosity,
+        private static extern int BZ2_bzCompressInit(
+            ref BZStream stream,
+            int blockSize100k,
+            int verbosity,
             int workFactor);
 
         [DllImport("bzip2", EntryPoint = "BZ2_bzCompress", ExactSpelling = true)]

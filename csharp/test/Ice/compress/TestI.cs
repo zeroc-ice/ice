@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Linq;
@@ -25,7 +23,7 @@ namespace ZeroC.Ice.Test.Compress
         {
             if (current.Operation == "opCompressParams" || current.Operation == "opCompressParamsAndReturn")
             {
-                if (request.Encoding == Encoding.V2_0)
+                if (request.Encoding == Encoding.V20)
                 {
                     TestHelper.Assert(request.HasCompressedPayload == _compressed);
                     if (!_compressed)
@@ -38,7 +36,7 @@ namespace ZeroC.Ice.Test.Compress
             OutgoingResponseFrame response = await _servant.DispatchAsync(request, current);
             if (current.Operation == "opCompressReturn" || current.Operation == "opCompressParamsAndReturn")
             {
-                if (response.Encoding == Encoding.V2_0)
+                if (response.Encoding == Encoding.V20)
                 {
                     if (_compressed)
                     {
@@ -60,7 +58,7 @@ namespace ZeroC.Ice.Test.Compress
                 }
             }
 
-            if (response.Encoding == Encoding.V2_0 && current.Operation == "opWithUserException")
+            if (response.Encoding == Encoding.V20 && current.Operation == "opWithUserException")
             {
                 response.CompressPayload();
             }

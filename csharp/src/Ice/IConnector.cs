@@ -1,7 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
-using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {

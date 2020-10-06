@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -51,7 +49,7 @@ namespace ZeroC.Ice
         /// <param name="istr">The input stream to read from.</param>
         /// <param name="transport">The transport of the endpoint.</param>
         /// <param name="protocol">The protocol of the enclosing proxy.</param>
-        /// <returns>Returns the endpoint read from the stream</returns>
+        /// <returns>Returns the endpoint read from the stream.</returns>
         Endpoint Read(InputStream istr, Transport transport, Protocol protocol);
     }
 }

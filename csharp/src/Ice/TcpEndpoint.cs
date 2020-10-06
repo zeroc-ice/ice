@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -122,11 +120,10 @@ namespace ZeroC.Ice
         // Constructor for unmarshaling
         internal TcpEndpoint(
             InputStream istr,
-            Communicator communicator,
             Transport transport,
             Protocol protocol,
             bool mostDerived = true)
-            : base(istr, communicator, protocol)
+            : base(istr, protocol)
         {
             Transport = transport;
             if (protocol == Protocol.Ice1)

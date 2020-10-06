@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,9 +17,7 @@ namespace ZeroC.Ice.Test.AMI
             // of data.
             properties["Ice.TCP.SndSize"] = "50K";
 
-            //
             // This test kills connections, so we don't want warnings.
-            //
             properties["Ice.Warn.Connections"] = "0";
 
             await using Communicator communicator = Initialize(properties);
@@ -32,11 +28,11 @@ namespace ZeroC.Ice.Test.AMI
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
             adapter.Add("test2", new TestIntf2());
-            //adapter.activate(); // Collocated test doesn't need to activate the OA
+            // Don't activate OA to ensure collocation is used.
 
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2", serializeDispatch: true);
             adapter2.Add("serialized", new TestIntf());
-            //adapter2.Activate();
+            // Don't activate OA to ensure collocation is used.
 
             AllTests.Run(this);
         }

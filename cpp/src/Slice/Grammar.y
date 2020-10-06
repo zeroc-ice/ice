@@ -176,7 +176,6 @@ slice_error(const char* s)
 %token ICE_LOCAL_METADATA_OPEN
 %token ICE_LOCAL_METADATA_CLOSE
 %token ICE_FILE_METADATA_OPEN
-%token ICE_FILE_METADATA_IGNORE
 %token ICE_FILE_METADATA_CLOSE
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
@@ -209,11 +208,6 @@ file_metadata
 {
     $$ = $2;
 }
-| ICE_FILE_METADATA_IGNORE string_list ICE_FILE_METADATA_CLOSE
-{
-    unit->error("file metadata must appear before any definitions");
-    $$ = $2; // Dummy
-}
 ;
 
 // ----------------------------------------------------------------------
@@ -241,19 +235,19 @@ definitions
 // ----------------------------------------------------------------------
 : definitions file_metadata
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
-    if(!metaData->v.empty())
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
+    if(!metadata->v.empty())
     {
-        unit->addFileMetaData(metaData->v);
+        unit->addFileMetadata(metadata->v);
     }
 }
 | definitions local_metadata definition
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
     ContainedPtr contained = ContainedPtr::dynamicCast($3);
-    if(contained && !metaData->v.empty())
+    if(contained && !metadata->v.empty())
     {
-        contained->setMetaData(metaData->v);
+        contained->setMetadata(metadata->v);
     }
 }
 | %empty
@@ -1097,7 +1091,7 @@ data_member
         unit->currentContainer()->checkIntroduced(def->name, dm);
         if (dm && !def->metadata.empty())
         {
-            dm->setMetaData(def->metadata);
+            dm->setMetadata(def->metadata);
         }
     }
 }
@@ -1114,7 +1108,7 @@ data_member
         unit->currentContainer()->checkIntroduced(def->name, dm);
         if (dm && !def->metadata.empty())
         {
-            dm->setMetaData(def->metadata);
+            dm->setMetadata(def->metadata);
         }
     }
 }
@@ -1227,7 +1221,7 @@ operation_preamble
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -1262,7 +1256,7 @@ operation_preamble
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -1295,7 +1289,7 @@ operation_preamble
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -1329,7 +1323,7 @@ operation_preamble
                                                      returnMember->tag);
                 if (p && !returnMember->metadata.empty())
                 {
-                    p->setMetaData(returnMember->metadata);
+                    p->setMetadata(returnMember->metadata);
                 }
             }
 
@@ -1398,11 +1392,11 @@ operation_list
 // ----------------------------------------------------------------------
 : local_metadata operation ';' operation_list
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($1);
     OperationPtr operation = OperationPtr::dynamicCast($2);
-    if (operation && !metaData->v.empty())
+    if (operation && !metadata->v.empty())
     {
-        operation->setMetaData(metaData->v);
+        operation->setMetadata(metadata->v);
 
         // If the operation had a single return type (not a return tuple), also apply the metadata to the return type.
         // TODO: once we introduce more concrete metadata validation, we could sort the metadata out between the return
@@ -1410,7 +1404,7 @@ operation_list
         // metadata only relevant to the return type would only be set on the return type.
         if (operation->hasSingleReturnType())
         {
-            operation->returnValues().front()->setMetaData(metaData->v);
+            operation->returnType().front()->setMetadata(metadata->v);
         }
     }
 }
@@ -1639,18 +1633,18 @@ sequence_def
 : ICE_SEQUENCE '<' local_metadata type '>' ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
     ModulePtr cont = unit->currentModule();
-    $$ = cont->createSequence(ident->v, type, metaData->v);
+    $$ = cont->createSequence(ident->v, type, metadata->v);
 }
 | ICE_SEQUENCE '<' local_metadata type '>' keyword
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
     ModulePtr cont = unit->currentModule();
-    $$ = cont->createSequence(ident->v, type, metaData->v); // Dummy
+    $$ = cont->createSequence(ident->v, type, metadata->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
@@ -1661,22 +1655,22 @@ dictionary_def
 : ICE_DICTIONARY '<' local_metadata type ',' local_metadata type '>' ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($9);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($3);
+    StringListTokPtr keyMetadata = StringListTokPtr::dynamicCast($3);
     TypePtr keyType = TypePtr::dynamicCast($4);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($6);
+    StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
     ModulePtr cont = unit->currentModule();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
+    $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
 }
 | ICE_DICTIONARY '<' local_metadata type ',' local_metadata type '>' keyword
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($9);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($3);
+    StringListTokPtr keyMetadata = StringListTokPtr::dynamicCast($3);
     TypePtr keyType = TypePtr::dynamicCast($4);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($6);
+    StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
     ModulePtr cont = unit->currentModule();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
+    $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
@@ -1739,7 +1733,7 @@ enum_def
     if(en)
     {
         EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-        if(enumerators->v.empty())
+        if(enumerators->v.empty() && (!en->underlying() || !en->isUnchecked()))
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
@@ -1900,7 +1894,7 @@ parameter
         unit->currentContainer()->checkIntroduced(def->name, param);
         if(param && !def->metadata.empty())
         {
-            param->setMetaData(def->metadata);
+            param->setMetadata(def->metadata);
         }
     }
 }
@@ -2306,20 +2300,20 @@ const_def
 // ----------------------------------------------------------------------
 : ICE_CONST local_metadata type ICE_IDENTIFIER '=' const_initializer
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
     TypePtr const_type = TypePtr::dynamicCast($3);
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
-    $$ = unit->currentModule()->createConst(ident->v, const_type, metaData->v, value->v,
+    $$ = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
 | ICE_CONST local_metadata type '=' const_initializer
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
     TypePtr const_type = TypePtr::dynamicCast($3);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
-    $$ = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
+    $$ = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 ;

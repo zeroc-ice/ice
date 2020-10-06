@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -56,7 +54,7 @@ namespace ZeroC.Ice
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, returnValue);
             response.PayloadEnd = ostr.Finish();
-            if (compress && current.Encoding == Encoding.V2_0)
+            if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
             }
@@ -85,7 +83,7 @@ namespace ZeroC.Ice
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, returnValue);
             response.PayloadEnd = ostr.Finish();
-            if (compress && current.Encoding == Encoding.V2_0)
+            if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
             }
@@ -132,7 +130,7 @@ namespace ZeroC.Ice
                 byte[] buffer = new byte[8];
                 Data.Add(buffer);
 
-                if (response.ResultType == ResultType.Failure && Encoding == Encoding.V1_1)
+                if (response.ResultType == ResultType.Failure && Encoding == Encoding.V11)
                 {
                     // When the response carries a failure encoded with 1.1, we need to perform a small adjustment
                     // between ice1 and ice2 response frames.
@@ -239,7 +237,7 @@ namespace ZeroC.Ice
             : this(request.Protocol, request.Encoding)
         {
             ReplyStatus replyStatus = ReplyStatus.UserException;
-            if (Encoding == Encoding.V1_1)
+            if (Encoding == Encoding.V11)
             {
                 replyStatus = exception switch
                 {
@@ -266,7 +264,7 @@ namespace ZeroC.Ice
                                         Encoding,
                                         FormatType.Sliced);
 
-                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1)
+                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
                 {
                     // The first byte of the encapsulation data is the actual ReplyStatus
                     ostr.WriteByte((byte)replyStatus);
@@ -281,7 +279,7 @@ namespace ZeroC.Ice
                 hasEncapsulation = false;
             }
 
-            if (Encoding == Encoding.V1_1)
+            if (Encoding == Encoding.V11)
             {
                 switch (replyStatus)
                 {
@@ -289,7 +287,7 @@ namespace ZeroC.Ice
                     case ReplyStatus.OperationNotExistException:
                         var dispatchException = (DispatchException)exception;
                         dispatchException.Identity.IceWrite(ostr);
-                        ostr.WriteFacet(dispatchException.Facet);
+                        ostr.WriteFacet11(dispatchException.Facet);
                         ostr.WriteString(dispatchException.Operation);
                         break;
 

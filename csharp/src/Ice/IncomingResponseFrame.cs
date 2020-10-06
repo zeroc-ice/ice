@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Concurrent;
@@ -101,7 +99,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    Encoding = Encoding.V1_1;
+                    Encoding = Encoding.V11;
                 }
             }
             else
@@ -124,7 +122,7 @@ namespace ZeroC.Ice
                     Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 Payload = Data.Slice(0, 1 + size + sizeLength);
-                HasCompressedPayload = Encoding == Encoding.V2_0 && Payload[1 + sizeLength + 2] != 0;
+                HasCompressedPayload = Encoding == Encoding.V20 && Payload[1 + sizeLength + 2] != 0;
             }
             else
             {
@@ -135,7 +133,7 @@ namespace ZeroC.Ice
         /// <summary>If this response holds a 1.1-encoded system exception, reads and throws this exception.</summary>
         internal void ThrowIfSystemException(Communicator communicator)
         {
-            if (ResultType == ResultType.Failure && Encoding == Encoding.V1_1)
+            if (ResultType == ResultType.Failure && Encoding == Encoding.V11)
             {
                 var replyStatus = (ReplyStatus)Payload[0]; // can be reassigned below
 
@@ -144,7 +142,7 @@ namespace ZeroC.Ice
                 {
                     if (replyStatus != ReplyStatus.UserException)
                     {
-                        istr = new InputStream(Payload.Slice(1), Encoding.V1_1);
+                        istr = new InputStream(Payload.Slice(1), Encoding.V11);
                     }
                 }
                 else
@@ -193,7 +191,7 @@ namespace ZeroC.Ice
                                        communicator,
                                        startEncapsulation: true);
 
-                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V1_1)
+                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
                 {
                     byte b = istr.ReadByte();
                     replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
@@ -202,12 +200,12 @@ namespace ZeroC.Ice
             }
             else
             {
-                Debug.Assert(Protocol == Protocol.Ice1 && Encoding == Encoding.V1_1);
-                istr = new InputStream(Payload.Slice(1), Encoding.V1_1);
+                Debug.Assert(Protocol == Protocol.Ice1 && Encoding == Encoding.V11);
+                istr = new InputStream(Payload.Slice(1), Encoding.V11);
             }
 
             Exception exception;
-            if (Encoding == Encoding.V1_1 && replyStatus != ReplyStatus.UserException)
+            if (Encoding == Encoding.V11 && replyStatus != ReplyStatus.UserException)
             {
                 exception = istr.ReadSystemException11(replyStatus);
                 istr.CheckEndOfBuffer(skipTaggedParams: false);

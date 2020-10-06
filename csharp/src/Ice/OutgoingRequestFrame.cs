@@ -1,9 +1,9 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -44,6 +44,9 @@ namespace ZeroC.Ice
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
 
+        /// <summary>The location of the target Ice object. With ice1, it is always empty.</summary>
+        public IReadOnlyList<string> Location { get; }
+
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
         private Dictionary<string, string>? _contextOverride;
@@ -71,7 +74,7 @@ namespace ZeroC.Ice
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
-        /// <returns>A new OutgoingRequestFrame</returns>
+        /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -90,7 +93,7 @@ namespace ZeroC.Ice
                                         format);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
-            if (compress && proxy.Encoding == Encoding.V2_0)
+            if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
             }
@@ -132,7 +135,7 @@ namespace ZeroC.Ice
                                         format);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
-            if (compress && proxy.Encoding == Encoding.V2_0)
+            if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
             }
@@ -270,16 +273,14 @@ namespace ZeroC.Ice
             Encoding = proxy.Encoding;
             Identity = proxy.Identity;
             Facet = proxy.Facet;
+            Location = proxy.Location;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
-            Identity.IceWrite(ostr);
-            ostr.WriteFacet(Facet);
-            ostr.WriteString(operation);
-            ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
+
             if (context != null)
             {
-                _initialContext = context;
+                // This makes a copy if context is not immutable.
+                _initialContext = context.ToImmutableDictionary();
             }
             else
             {
@@ -304,11 +305,46 @@ namespace ZeroC.Ice
                 }
             }
 
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
+
             if (Protocol == Protocol.Ice1)
             {
+                // Marshaled "by hand" to avoid allocating a string[] for the facet and a new dictionary for the
+                // context.
+                Identity.IceWrite(ostr);
+                ostr.WriteFacet11(Facet);
+                ostr.WriteString(Operation);
+                ostr.Write(IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal);
                 ostr.WriteDictionary(_initialContext,
                                      OutputStream.IceWriterFromString,
                                      OutputStream.IceWriterFromString);
+            }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice2);
+
+                // Marshaled "by hand" to avoid allocating a string[] for the location.
+                BitSequence bitSequence = ostr.WriteBitSequence(3); // bit set to true (set) by default
+                Identity.IceWrite(ostr);
+                if (Facet.Length > 0)
+                {
+                    ostr.WriteString(Facet);
+                }
+                else
+                {
+                    bitSequence[0] = false;
+                }
+                if (Location.Count > 0)
+                {
+                    ostr.WriteSequence(Location, OutputStream.IceWriterFromString);
+                }
+                else
+                {
+                    bitSequence[1] = false;
+                }
+                ostr.WriteString(operation);
+                ostr.WriteBool(IsIdempotent);
+                bitSequence[2] = false; // TODO: source for priority.
             }
             PayloadStart = ostr.Tail;
 

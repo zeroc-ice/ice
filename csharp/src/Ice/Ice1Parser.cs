@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -181,7 +179,7 @@ namespace ZeroC.Ice
                          string Facet,
                          InvocationMode InvocationMode,
                          Encoding Encoding,
-                         string AdapterId,
+                         string Location0,
                          IReadOnlyList<Endpoint> Endpoints) ParseProxy(string s, Communicator communicator)
         {
             // TODO: rework this implementation
@@ -323,9 +321,8 @@ namespace ZeroC.Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -O option in `{s}'");
                         }
-#pragma warning disable CS0618 // Type or member is obsolete
+
                         invocationMode = InvocationMode.BatchOneway;
-#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     case 'd':
@@ -343,9 +340,7 @@ namespace ZeroC.Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -D option in `{s}'");
                         }
-#pragma warning disable CS0618 // Type or member is obsolete
                         invocationMode = InvocationMode.BatchDatagram;
-#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     case 's':
@@ -384,7 +379,7 @@ namespace ZeroC.Ice
 
             if (beg == -1)
             {
-                return (identity, facet, invocationMode, encoding, AdapterId: "", ImmutableArray<Endpoint>.Empty);
+                return (identity, facet, invocationMode, encoding, Location0: "", ImmutableArray<Endpoint>.Empty);
             }
 
             var endpoints = new List<Endpoint>();
@@ -445,7 +440,7 @@ namespace ZeroC.Ice
                 }
 
                 Debug.Assert(endpoints.Count > 0);
-                return (identity, facet, invocationMode, encoding, AdapterId: "", endpoints);
+                return (identity, facet, invocationMode, encoding, Location0: "", endpoints);
             }
             else if (s[beg] == '@')
             {
@@ -455,7 +450,7 @@ namespace ZeroC.Ice
                     throw new FormatException($"missing adapter id in `{s}'");
                 }
 
-                string adapterstr;
+                string locationStr;
                 end = StringUtil.CheckQuote(s, beg);
                 if (end == -1)
                 {
@@ -468,12 +463,12 @@ namespace ZeroC.Ice
                     {
                         end = s.Length;
                     }
-                    adapterstr = s[beg..end];
+                    locationStr = s[beg..end];
                 }
                 else
                 {
                     beg++; // Skip leading quote
-                    adapterstr = s[beg..end];
+                    locationStr = s[beg..end];
                     end++; // Skip trailing quote
                 }
 
@@ -483,14 +478,14 @@ namespace ZeroC.Ice
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
-                string adapterId = StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
+                string location0 = StringUtil.UnescapeString(locationStr, 0, locationStr.Length, "");
 
-                if (adapterId.Length == 0)
+                if (location0.Length == 0)
                 {
-                    throw new FormatException($"empty adapter id in proxy `{s}'");
+                    throw new FormatException($"empty location in proxy `{s}'");
                 }
 
-                return (identity, facet, invocationMode, encoding, adapterId, ImmutableArray<Endpoint>.Empty);
+                return (identity, facet, invocationMode, encoding, location0, ImmutableArray<Endpoint>.Empty);
             }
 
             throw new FormatException($"malformed proxy `{s}'");
@@ -615,7 +610,8 @@ namespace ZeroC.Ice
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Value.Length);
 
                     return new InputStream(bufferList[0].Slice(0, tail.Offset),
-                                           Ice1Definitions.Encoding).ReadEndpoint(Protocol.Ice1, communicator);
+                                           Ice1Definitions.Encoding,
+                                           communicator).ReadEndpoint(Protocol.Ice1);
                 }
                 else
                 {

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Linq;
@@ -24,18 +22,18 @@ namespace ZeroC.Ice.Test.Assemblies
             properties["Ice.PreloadAssemblies"] = "0";
 
             string assembly =
-                $"{Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase))}/core.dll";
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "core.dll");
 
             await using (Communicator communicator = Initialize(properties))
             {
                 Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
-                    e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
+                    e => e.Location.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
             }
             properties["Ice.PreloadAssemblies"] = "1";
             await using (Communicator communicator = Initialize(properties))
             {
                 Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
-                    e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
+                    e => e.Location.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
             }
 
             Console.Out.WriteLine("ok");

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +23,7 @@ namespace ZeroC.Ice
         Gracefully,
     }
 
-    /// <summary>The state of an Ice connection</summary>
+    /// <summary>The state of an Ice connection.</summary>
     public enum ConnectionState : byte
     {
         /// <summary>The connection is being validated.</summary>
@@ -302,17 +300,13 @@ namespace ZeroC.Ice
                         _closeTask ??= PerformCloseAsync(exception);
                         Debug.Assert(_closeTask != null);
                     }
-                    else if (_closeTask == null)
-                    {
-                        _ = AbortAsync(exception);
-                    }
-                    closeTask = _closeTask!;
+                    closeTask = _closeTask ?? AbortAsync(exception);
                 }
-
                 await closeTask.ConfigureAwait(false);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
             }
 
             async Task PerformCloseAsync(Exception exception)
@@ -440,11 +434,17 @@ namespace ZeroC.Ice
                 // Wait for all the streams to complete.
                 await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
-                // Close the transport
-                await Transceiver.CloseAsync(exception, CancellationToken.None);
+                try
+                {
+                    // Close the transport
+                    await Transceiver.CloseAsync(exception, CancellationToken.None);
+                }
+                finally
+                {
+                    // Abort the connection once all the streams have completed.
+                    await AbortAsync(exception).ConfigureAwait(false);
+                }
 
-                // Abort the connection once all the streams have completed.
-                await AbortAsync(exception).ConfigureAwait(false);
             }
         }
 

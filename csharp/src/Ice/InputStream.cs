@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections;
@@ -21,9 +19,7 @@ namespace ZeroC.Ice
     /// <summary>Reads a byte buffer encoded using the Ice encoding.</summary>
     public sealed partial class InputStream
     {
-        //
         // Cached InputStreamReader static objects used by the generated code
-        //
 
         /// <summary>A <see cref="InputStreamReader{T}"/> used to read <c>bool</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -100,6 +96,10 @@ namespace ZeroC.Ice
         public static readonly InputStreamReader<ulong> IceReaderIntoVarULong =
             istr => istr.ReadVarULong();
 
+        /// <summary>The Communicator associated with this stream. It cannot be null when reading a proxy, class, or
+        /// exception.</summary>
+        public Communicator? Communicator { get; }
+
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
         /// <value>The encoding.</value>
         public Encoding Encoding { get; }
@@ -124,10 +124,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // The communicator must be set when reading a proxy, class, or exception.
-        private readonly Communicator? _communicator;
-
-        private bool OldEncoding => Encoding == Encoding.V1_1;
+        private bool OldEncoding => Encoding == Encoding.V11;
 
         // The byte buffer we are reading.
         private readonly ReadOnlyMemory<byte> _buffer;
@@ -163,9 +160,7 @@ namespace ZeroC.Ice
         private List<string>? _typeIdMap11;
         private List<string[]>? _typeIdMap20;
 
-        //
         // Read methods for basic types
-        //
 
         /// <summary>Reads a bool from the stream.</summary>
         /// <returns>The bool read from the stream.</returns>
@@ -328,9 +323,7 @@ namespace ZeroC.Ice
                 _ => ReadULong() >> 2
             };
 
-        //
         // Read methods for constructed types except class and exception
-        //
 
         /// <summary>Reads a sequence of fixed-size numeric values from the stream and returns an array.</summary>
         /// <returns>The sequence read from the stream, as an array.</returns>
@@ -442,12 +435,12 @@ namespace ZeroC.Ice
         /// <returns>The proxy read from the stream, or null.</returns>
         public T? ReadNullableProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            if (_communicator == null)
+            if (Communicator == null)
             {
                 throw new InvalidOperationException(
                     "cannot read a proxy from an InputStream with a null communicator");
             }
-            return Reference.Read(this, _communicator) is Reference reference ? factory(reference) : null;
+            return Reference.Read(this) is Reference reference ? factory(reference) : null;
         }
 
         /// <summary>Reads a proxy from the stream.</summary>
@@ -526,8 +519,12 @@ namespace ZeroC.Ice
             InputStreamReader<TValue> valueReader)
             where TKey : notnull
             where TValue : class =>
-            ReadDictionary(new SortedDictionary<TKey, TValue?>(), ReadAndCheckSeqSize(minKeySize), withBitSequence,
-                keyReader, valueReader);
+            ReadDictionary(
+                new SortedDictionary<TKey, TValue?>(),
+                ReadAndCheckSeqSize(minKeySize),
+                withBitSequence,
+                keyReader,
+                valueReader);
 
         /// <summary>Reads a sorted dictionary from the stream. The dictionary's value type is a nullable value type.
         /// </summary>
@@ -542,12 +539,13 @@ namespace ZeroC.Ice
             InputStreamReader<TValue> valueReader)
             where TKey : notnull
             where TValue : struct =>
-            ReadDictionary(new SortedDictionary<TKey, TValue?>(), ReadAndCheckSeqSize(minKeySize), keyReader,
+            ReadDictionary(
+                new SortedDictionary<TKey, TValue?>(),
+                ReadAndCheckSeqSize(minKeySize),
+                keyReader,
                 valueReader);
 
-        //
         // Read methods for tagged basic types
-        //
 
         /// <summary>Reads a tagged bool from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -645,9 +643,7 @@ namespace ZeroC.Ice
         public ulong? ReadTaggedVarULong(int tag) =>
             ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VInt) ? ReadVarULong() : (ulong?)null;
 
-        //
         // Read methods for tagged constructed types except class
-        //
 
         /// <summary>Reads a tagged array of a fixed-size numeric type from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -965,9 +961,7 @@ namespace ZeroC.Ice
             return null;
         }
 
-        //
         // Other methods
-        //
 
         /// <summary>Reads a bit sequence from the stream.</summary>
         /// <param name="bitSequenceSize">The minimum number of bits in the sequence.</param>
@@ -992,7 +986,7 @@ namespace ZeroC.Ice
             Communicator? communicator = null,
             bool startEncapsulation = false)
         {
-            _communicator = communicator;
+            Communicator = communicator;
             Pos = 0;
             _buffer = buffer;
             Encoding = encoding;
@@ -1016,7 +1010,7 @@ namespace ZeroC.Ice
                 Encoding = encapsEncoding;
                 Encoding.CheckSupported();
 
-                if (encapsEncoding == Encoding.V2_0)
+                if (encapsEncoding == Encoding.V20)
                 {
                     byte compressionStatus = ReadByte();
                     if (compressionStatus != 0)
@@ -1056,13 +1050,14 @@ namespace ZeroC.Ice
 
         /// <summary>Reads an endpoint from the stream.</summary>
         /// <param name="protocol">The Ice protocol of this endpoint.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <returns>The endpoint read from the stream.</returns>
-        internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
+        internal Endpoint ReadEndpoint(Protocol protocol)
         {
+            Debug.Assert(Communicator != null);
+
             var transport = (Transport)ReadShort();
             // We only look up the factory for the transport if the protocol is supported.
-            IEndpointFactory? factory = protocol.IsSupported() ? communicator.IceFindEndpointFactory(transport) : null;
+            IEndpointFactory? factory = protocol.IsSupported() ? Communicator.IceFindEndpointFactory(transport) : null;
 
             Endpoint endpoint;
 
@@ -1071,7 +1066,7 @@ namespace ZeroC.Ice
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
                 if (!encoding.IsSupported)
                 {
-                    // If we can't read the encapsulation, it's like we didn't find a factory.
+                    // If we can't read the encapsulation (very unlikely), it's like we didn't find a factory.
                     factory = null;
                 }
 
@@ -1082,7 +1077,7 @@ namespace ZeroC.Ice
                 // We need to read the encapsulation except for ice1 + null factory.
                 if (protocol == Protocol.Ice1 && factory == null)
                 {
-                    endpoint = new OpaqueEndpoint(communicator,
+                    endpoint = new OpaqueEndpoint(Communicator,
                                                   transport,
                                                   encoding,
                                                   _buffer.Slice(Pos, size).ToArray());
@@ -1096,17 +1091,20 @@ namespace ZeroC.Ice
                     // need to create a new InputStream). A less common situation is an ice1 proxy in 2.0 encapsulation
                     // with 1.1-encoded endpoints (we need a new InputStream in this case).
                     InputStream istr = encoding == Encoding ?
-                        this : new InputStream(_buffer.Slice(Pos, size), encoding);
+                        this : new InputStream(_buffer.Slice(Pos, size), encoding, Communicator);
 
-                    endpoint = factory?.Read(istr, transport, protocol) ??
-                        new UniversalEndpoint(istr, communicator, transport, protocol); // protocol is ice2 or greater
+                    // When factory is null, protocol is necessarily > ice1 (see first if block), and as a result we
+                    // never create a UniversalEndpoint for ice1.
+                    endpoint =
+                        factory?.Read(istr, transport, protocol) ?? new UniversalEndpoint(istr, transport, protocol);
 
                     if (ReferenceEquals(istr, this))
                     {
-                        // Make sure we read the full encapsulation
+                        // Make sure we read the full encapsulation.
                         if (Pos != oldPos + size)
                         {
-                            throw new InvalidDataException($"{oldPos + size - Pos} bytes left in endpoint encapsulation");
+                            throw new InvalidDataException(
+                                $"{oldPos + size - Pos} bytes left in endpoint encapsulation");
                         }
                     }
                     else
@@ -1120,21 +1118,21 @@ namespace ZeroC.Ice
                     string transportName = transport.ToString().ToLowerInvariant();
                     throw new InvalidDataException(@$"cannot read endpoint for protocol `{
                         protocol.GetName()}' and transport `{
-                            transportName}' in encapsulation encoded with encoding `{encoding}'");
+                            transportName}' with endpoint encapsulation encoded with encoding `{encoding}'");
                 }
             }
             else
             {
-                endpoint = factory?.Read(this, transport, protocol) ??
-                    new UniversalEndpoint(this, communicator, transport, protocol);
+                endpoint = factory?.Read(this, transport, protocol) ?? new UniversalEndpoint(this, transport, protocol);
             }
             return endpoint;
         }
 
-        /// <summary>Reads a facet from the stream.</summary>
+        /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
         /// <returns>The facet read from the stream.</returns>
-        internal string ReadFacet()
+        internal string ReadFacet11()
         {
+            Debug.Assert(OldEncoding);
             string[] facets = ReadArray(1, IceReaderIntoString);
             if (facets.Length > 1)
             {
@@ -1160,7 +1158,7 @@ namespace ZeroC.Ice
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.OperationNotExistException:
                     var identity = new Identity(this);
-                    string facet = ReadFacet();
+                    string facet = ReadFacet11();
                     string operation = ReadString();
 
                     if (replyStatus == ReplyStatus.OperationNotExistException)

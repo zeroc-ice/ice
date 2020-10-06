@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -207,7 +205,7 @@ namespace ZeroC.Ice
                 List<string> interfaces;
                 if (MulticastAddress == null)
                 {
-                    interfaces = Network.GetHostsForEndpointExpand(_addr.ToString(), _communicator.IPVersion, true);
+                    interfaces = Network.GetHostsForEndpointExpand(_addr.ToString(), Network.EnableBoth, true);
                 }
                 else
                 {
@@ -317,11 +315,11 @@ namespace ZeroC.Ice
             string multicastInterface)
         {
             _communicator = communicator;
-            _addr = Network.GetAddressForServerEndpoint(host, port, communicator.IPVersion, communicator.PreferIPv6);
+            _addr = Network.GetAddressForServerEndpoint(host, port, Network.EnableBoth, communicator.PreferIPv6);
             _multicastInterface = multicastInterface;
             _incoming = true;
 
-            Socket = Network.CreateServerSocket(true, _addr.AddressFamily, communicator.IPVersion);
+            Socket = Network.CreateServerSocket(true, _addr.AddressFamily);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);

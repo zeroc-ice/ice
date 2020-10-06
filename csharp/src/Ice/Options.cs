@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +19,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Splits a string into a list of command line arguments, the string is parsed using semantics similar
-        /// to that of command-line arguments</summary>
+        /// to that of command-line arguments.</summary>
         /// <param name="line">The string to split.</param>
         /// <returns>An array of strings containing the parsed command line arguments.</returns>
         public static string[] Split(string line)
@@ -112,7 +110,6 @@ namespace ZeroC.Ice
                                     // Move to start of next argument.
                                     while (++i < l.Length && inputFieldSeparator.IndexOf(l[i]) != -1)
                                     {
-                                        ;
                                     }
                                     --i;
                                 }

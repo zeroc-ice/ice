@@ -319,7 +319,7 @@ compile(const vector<string>& argv)
                     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
                     assert(dc);
                     const string prefix = "js:module:";
-                    string m = dc->findMetaData(prefix);
+                    string m = dc->findMetadata(prefix);
                     if(!m.empty())
                     {
                         m = m.substr(prefix.size());

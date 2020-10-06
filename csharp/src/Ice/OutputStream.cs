@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -55,9 +53,7 @@ namespace ZeroC.Ice
             internal int Offset;
         }
 
-        //
         // Cached OutputStreamWriter static objects used by the generated code
-        //
 
         /// <summary>A <see cref="OutputStreamWriter{T}"/> used to write <c>bool</c> values.</summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -155,7 +151,7 @@ namespace ZeroC.Ice
 
         private bool InEncapsulation => _startPos != null;
 
-        private bool OldEncoding => Encoding == Encoding.V1_1;
+        private bool OldEncoding => Encoding == Encoding.V11;
 
         // The number of bytes that the stream can hold.
         private int _capacity;
@@ -195,9 +191,7 @@ namespace ZeroC.Ice
         // write, in order.
         private Dictionary<string, int>? _typeIdMap;
 
-        //
         // Write methods for basic types
-        //
 
         /// <summary>Writes a boolean to the stream.</summary>
         /// <param name="v">The boolean to write to the stream.</param>
@@ -324,9 +318,7 @@ namespace ZeroC.Ice
             WriteByteSpan(data.Slice(0, 1 << encodedSize));
         }
 
-        //
         // Write methods for constructed types except class and exception
-        //
 
         /// <summary>Writes an array of fixed-size numeric values, such as int and long, to the stream.</summary>
         /// <param name="v">The array of numeric values.</param>
@@ -602,7 +594,14 @@ namespace ZeroC.Ice
             }
             else
             {
-                Identity.Empty.IceWrite(this);
+                if (OldEncoding)
+                {
+                    Identity.Empty.IceWrite(this);
+                }
+                else
+                {
+                    this.Write(ProxyKind.@Null);
+                }
             }
         }
 
@@ -727,9 +726,7 @@ namespace ZeroC.Ice
         /// <param name="v">The struct instance to write.</param>
         public void WriteStruct<T>(in T v) where T : struct, IStreamableStruct => v.IceWrite(this);
 
-        //
         // Write methods for tagged basic types
-        //
 
         /// <summary>Writes a tagged boolean to the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -911,9 +908,7 @@ namespace ZeroC.Ice
             }
         }
 
-        //
         // Write methods for tagged constructed types except class
-        //
 
         /// <summary>Writes a tagged array of fixed-size numeric values to the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -1433,9 +1428,7 @@ namespace ZeroC.Ice
             }
         }
 
-        //
         // Other methods
-        //
 
         /// <summary>Writes a sequence of bits to the stream, and returns this sequence backed by the stream's buffer.
         /// </summary>
@@ -1530,7 +1523,7 @@ namespace ZeroC.Ice
             _format = format;
             _startPos = _tail;
             WriteEncapsulationHeader(payloadEncoding); // with placeholder for size
-            if (payloadEncoding == Encoding.V2_0)
+            if (payloadEncoding == Encoding.V20)
             {
                 WriteByte(0); // Placeholder for the compression status
             }
@@ -1640,8 +1633,8 @@ namespace ZeroC.Ice
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
             encoding.CheckSupported();
-            WriteEncapsulationHeader(size: encoding == Encoding.V2_0 ? 3 : 2, encoding);
-            if (encoding == Encoding.V2_0)
+            WriteEncapsulationHeader(size: encoding == Encoding.V20 ? 3 : 2, encoding);
+            if (encoding == Encoding.V20)
             {
                 WriteByte(0); // The compression status, 0 not-compressed
             }
@@ -1656,7 +1649,7 @@ namespace ZeroC.Ice
             {
                 Position startPos = _tail;
                 int sizeLength = OldEncoding ? 4 : 2;
-                if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
+                if (endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
                     WriteEncapsulationHeader(opaqueEndpoint.ValueEncoding, sizeLength); // with placeholder for size
                     WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive
@@ -1665,7 +1658,7 @@ namespace ZeroC.Ice
                 {
                     // For ice1 and ice2, this corresponds to the protocol's encoding.
                     Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
-                        Ice1Definitions.Encoding : Encoding.V2_0;
+                        Ice1Definitions.Encoding : Encoding.V20;
 
                     WriteEncapsulationHeader(payloadEncoding, sizeLength); // with placeholder for size
                     Encoding previousEncoding = Encoding;
@@ -1694,8 +1687,10 @@ namespace ZeroC.Ice
 
         /// <summary>Writes a facet to the stream.</summary>
         /// <param name="facet">The facet to write to the stream.</param>
-        internal void WriteFacet(string facet)
+        internal void WriteFacet11(string facet)
         {
+            Debug.Assert(OldEncoding);
+
             // The old facet-path style used by the ice1 protocol.
             if (facet.Length == 0)
             {

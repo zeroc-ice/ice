@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -54,11 +52,11 @@ namespace ZeroC.Ice
             return _transceiver.SendFrameAsync(Id, buffer, fin, cancel);
         }
 
-        internal ColocatedStream(long streamId, ColocatedTransceiver transceiver) : base(streamId, transceiver) =>
-            _transceiver = transceiver;
+        internal ColocatedStream(long streamId, ColocatedTransceiver transceiver)
+            : base(streamId, transceiver) => _transceiver = transceiver;
 
-        internal ColocatedStream(bool bidirectional, ColocatedTransceiver transceiver) :
-            base(bidirectional, transceiver) => _transceiver = transceiver;
+        internal ColocatedStream(bool bidirectional, ColocatedTransceiver transceiver)
+            : base(bidirectional, transceiver) => _transceiver = transceiver;
 
         internal void ReceivedFrame(object frame, bool fin) =>
             // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
@@ -216,7 +214,8 @@ namespace ZeroC.Ice
             long id,
             ChannelWriter<(long, object?, bool)> writer,
             ChannelReader<(long, object?, bool)> reader,
-            bool isIncoming) : base(endpoint, isIncoming ? endpoint.Adapter : null)
+            bool isIncoming)
+            : base(endpoint, isIncoming ? endpoint.Adapter : null)
         {
             if (!isIncoming && endpoint.Adapter.SerializeDispatch)
             {

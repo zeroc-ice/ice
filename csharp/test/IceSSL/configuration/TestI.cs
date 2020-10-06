@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -82,8 +80,13 @@ namespace ZeroC.IceSSL.Test.Configuration
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             string host = TestHelper.GetTestHost(communicator.GetProperties());
 
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(
-                "ServerAdapter", ice1 ? $"ssl -h {host}" : $"ice+ssl://{host}:0");
+            string serverEndpoint = TestHelper.GetTestEndpoint(
+                properties: communicator.GetProperties(),
+                num: 1,
+                transport: "ssl",
+                ephemeral: host != "localhost");
+
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", serverEndpoint);
             var server = new SSLServer(communicator);
             IServerPrx prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;

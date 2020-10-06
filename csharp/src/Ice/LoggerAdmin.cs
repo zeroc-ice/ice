@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -56,11 +54,13 @@ namespace ZeroC.Ice
             {
                 // Creates a new task that waits for the last request task to complete and to send the given
                 // request. Save this new task as the last request task.
-                _lastRequestTask = QueueAsync(_lastRequestTask, operation, localLogger,
-                     request);
+                _lastRequestTask = QueueAsync(_lastRequestTask, operation, localLogger, request);
             }
 
-            async Task QueueAsync(Task previousRequestTask, string operation, ILogger localLogger,
+            async Task QueueAsync(
+                Task previousRequestTask,
+                string operation,
+                ILogger localLogger,
                 Func<IRemoteLoggerPrx, Task> request)
             {
                 try
@@ -148,7 +148,10 @@ namespace ZeroC.Ice
                     throw new RemoteLoggerAlreadyAttachedException();
                 }
 
-                logForwarder = new LogForwarder(this, ChangeCommunicator(prx, _sendLogCommunicator), messageTypes,
+                logForwarder = new LogForwarder(
+                    this,
+                    ChangeCommunicator(prx, _sendLogCommunicator),
+                    messageTypes,
                     traceCategories);
                 _logForwarderMap.Add(remoteLoggerId, logForwarder);
 

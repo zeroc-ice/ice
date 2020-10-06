@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -29,13 +27,13 @@ namespace ZeroC.Ice
             Close = 0x8,
             Ping = 0x9,
             Pong = 0xA
-        };
+        }
 
         private enum ClosureStatusCode : short
         {
             Normal = 1000,
             Shutdown = 1001
-        };
+        }
 
         private const byte FlagFinal = 0x80;   // Last frame
         private const byte FlagMasked = 0x80;   // Payload is masked
@@ -77,10 +75,18 @@ namespace ZeroC.Ice
             // Send the close frame.
             await SendImplAsync(OpCode.Close, new List<ArraySegment<byte>> { payload }, cancel).ConfigureAwait(false);
 
-            if (exception is ConnectionClosedByPeerException)
-            {
-                await ReceiveFrameAsync(cancel).ConfigureAwait(false);
-            }
+            // if (exception is ConnectionClosedByPeerException)
+            // {
+            //     // Wait to receive the close frame.
+            //     try
+            //     {
+            //         await ReceiveFrameAsync(cancel).ConfigureAwait(false);
+            //     }
+            //     catch (ConnectionLostException)
+            //     {
+            //         // Ignore.
+            //     }
+            // }
         }
 
         public void Dispose() => _underlying.Dispose();
@@ -91,14 +97,10 @@ namespace ZeroC.Ice
 
             try
             {
-                //
                 // The server waits for the client's upgrade request, the client sends the upgrade request.
-                //
                 if (!_incoming)
                 {
-                    //
                     // Compose the upgrade request.
-                    //
                     var sb = new StringBuilder();
                     sb.Append("GET " + _resource + " HTTP/1.1\r\n");
                     sb.Append("Host: " + _host + "\r\n");
@@ -108,10 +110,7 @@ namespace ZeroC.Ice
                     sb.Append("Sec-WebSocket-Version: 13\r\n");
                     sb.Append("Sec-WebSocket-Key: ");
 
-                    //
-                    // The value for Sec-WebSocket-Key is a 16-byte random number,
-                    // encoded with Base64.
-                    //
+                    // The value for Sec-WebSocket-Key is a 16-byte random number, encoded with Base64.
                     byte[] key = new byte[16];
                     _rand.NextBytes(key);
                     _key = Convert.ToBase64String(key);
@@ -181,7 +180,8 @@ namespace ZeroC.Ice
                             sb.Append("Sec-WebSocket-Accept: ");
                             string input = key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-                            byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+                            using var sha1 = SHA1.Create();
+                            byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
                             sb.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
 
@@ -242,8 +242,12 @@ namespace ZeroC.Ice
                 _receivePayloadOffset = 0;
             }
 
+            if (_receivePayloadLength == 0)
+            {
+                throw new ConnectionLostException();
+            }
+
             // Read the payload
-            Debug.Assert(_receivePayloadLength > 0);
             int length = Math.Min(_receivePayloadLength, buffer.Count);
             int received = await _underlying.ReceiveAsync(buffer[0..length], cancel).ConfigureAwait(false);
 
@@ -267,8 +271,8 @@ namespace ZeroC.Ice
         public override string ToString() => _underlying.ToString()!;
 
         internal
-        WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource) :
-            this(communicator, del)
+        WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource)
+            : this(communicator, del)
         {
             _host = host;
             _resource = resource;
@@ -301,18 +305,14 @@ namespace ZeroC.Ice
             // Set the opcode - this is the one and only data frame.
             buffer[i++] = (byte)((byte)opCode | FlagFinal);
 
-            //
             // Set the payload length.
-            //
             if (payloadLength <= 125)
             {
                 buffer[i++] = (byte)payloadLength;
             }
             else if (payloadLength > 125 && payloadLength <= 65535)
             {
-                //
                 // Use an extra 16 bits to encode the payload length.
-                //
                 buffer[i++] = 126;
                 short length = System.Net.IPAddress.HostToNetworkOrder((short)payloadLength);
                 MemoryMarshal.Write(buffer.AsSpan(i, 2), ref length);
@@ -320,9 +320,7 @@ namespace ZeroC.Ice
             }
             else if (payloadLength > 65535)
             {
-                //
                 // Use an extra 64 bits to encode the payload length.
-                //
                 buffer[i++] = 127;
                 long length = System.Net.IPAddress.HostToNetworkOrder((long)payloadLength);
                 MemoryMarshal.Write(buffer.AsSpan(i, 8), ref length);
@@ -331,10 +329,7 @@ namespace ZeroC.Ice
 
             if (!_incoming)
             {
-                //
-                // Add a random 32-bit mask to every outgoing frame, copy the payload data,
-                // and apply the mask.
-                //
+                // Add a random 32-bit mask to every outgoing frame, copy the payload data, and apply the mask.
                 buffer[1] = (byte)(buffer[1] | FlagMasked);
                 _rand.NextBytes(_sendMask);
                 Buffer.BlockCopy(_sendMask, 0, buffer, i, _sendMask.Length);
@@ -404,7 +399,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Transport >= 3)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                        $"received {_transportName} {opCode} frame with {_receivePayloadLength} bytes payload\n{this}");
+                        $"received {_transportName} {opCode} frame with {payloadLength} bytes payload\n{this}");
                 }
 
                 switch (opCode)
@@ -426,7 +421,7 @@ namespace ZeroC.Ice
                     {
                         // Read the Close frame payload.
                         ReadOnlyMemory<byte> payloadBuffer =
-                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(payloadLength, cancel).ConfigureAwait(false);
 
                         byte[] payload = payloadBuffer.ToArray();
                         if (_incoming)
@@ -441,7 +436,7 @@ namespace ZeroC.Ice
                         // we didn't send a close frame and we should reply back with a close frame.
                         if (_closing)
                         {
-                            throw new ConnectionLostException();
+                            return 0;
                         }
                         else
                         {
@@ -454,7 +449,7 @@ namespace ZeroC.Ice
                     {
                         // Read the ping payload.
                         ReadOnlyMemory<byte> payload =
-                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(payloadLength, cancel).ConfigureAwait(false);
 
                         // Send a Pong frame with the received payload.
                         var sendBuffer = new List<ArraySegment<byte>> { payload.ToArray() };
@@ -465,7 +460,7 @@ namespace ZeroC.Ice
                     {
                         // Read the pong payload.
                         ReadOnlyMemory<byte> payload =
-                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(payloadLength, cancel).ConfigureAwait(false);
 
                         // Nothing to do, this can be received even if we don't send a ping frame if the peer sends
                         // an unidirectional heartbeat.
@@ -632,7 +627,8 @@ namespace ZeroC.Ice
 
             string input = _key + WsUUID;
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-            byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+            using var sha1 = SHA1.Create();
+            byte[] hash = sha1.ComputeHash(_utf8.GetBytes(input));
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
             if (!value.Equals(Convert.ToBase64String(hash)))
             {

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -493,7 +491,7 @@ namespace ZeroC.Ice
         /// <param name="start">Index to start escaping the string.</param>
         /// <param name="end">Index to end escaping the string.</param>
         /// <param name="special">String containing special characters that must be escape.</param>
-        /// <returns>The escaped stirng</returns>
+        /// <returns>The escaped string.</returns>
         public static string UnescapeString(string s, int start, int end, string special)
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);
@@ -666,27 +664,21 @@ namespace ZeroC.Ice
             Debug.Assert(s.Length > 0);
             Debug.Assert(pat.Length > 0);
 
-            //
             // If pattern does not contain a wildcard just compare strings.
-            //
             int beginIndex = pat.IndexOf('*');
             if (beginIndex < 0)
             {
                 return s.Equals(pat);
             }
 
-            //
             // Make sure start of the strings match
-            //
             if (beginIndex > s.Length || !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex)))
             {
                 return false;
             }
 
-            //
-            // Make sure there is something present in the middle to match the
-            // wildcard. If emptyMatch is true, allow a match of "".
-            //
+            // Make sure there is something present in the middle to match the wildcard. If emptyMatch is true, allow
+            // a match of "".
             int endLength = pat.Length - beginIndex - 1;
             if (endLength > s.Length)
             {
@@ -698,9 +690,7 @@ namespace ZeroC.Ice
                 return false;
             }
 
-            //
             // Make sure end of the strings match
-            //
             if (!s[endIndex..].Equals(pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1)))
             {
                 return false;

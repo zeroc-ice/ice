@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -114,7 +112,7 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This interface represents a monitor for the Acm (Active Connection Management)</summary>
+    /// <summary>This interface represents a monitor for the Acm (Active Connection Management).</summary>
     public interface IAcmMonitor
     {
         /// <summary>Gets the Acm configuration for this monitor.</summary>
@@ -256,7 +254,10 @@ namespace ZeroC.Ice
                     {
                         _logger.Error($"exception in connection monitor:\n{ex}");
                     }
-                }, null, Acm.Timeout, Acm.Timeout);
+                },
+                null,
+                Acm.Timeout,
+                Acm.Timeout);
             }
         }
 

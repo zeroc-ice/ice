@@ -49,11 +49,11 @@ class BaseClass
 [format:sliced]
 interface Relay
 {
-    void knownPreservedAsBase() throws Base;
-    void knownPreservedAsKnownPreserved() throws KnownPreserved;
+    void knownPreservedAsBase();
+    void knownPreservedAsKnownPreserved();
 
-    void unknownPreservedAsBase() throws Base;
-    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+    void unknownPreservedAsBase();
+    void unknownPreservedAsKnownPreserved();
 
     void clientPrivateException();
 }
@@ -61,37 +61,37 @@ interface Relay
 [format:sliced]
 interface TestIntf
 {
-    void baseAsBase() throws Base;
-    void unknownDerivedAsBase() throws Base;
-    void knownDerivedAsBase() throws Base;
-    void knownDerivedAsKnownDerived() throws KnownDerived;
+    void baseAsBase();
+    void unknownDerivedAsBase();
+    void knownDerivedAsBase();
+    void knownDerivedAsKnownDerived();
 
-    void unknownIntermediateAsBase() throws Base;
-    void knownIntermediateAsBase() throws Base;
-    void knownMostDerivedAsBase() throws Base;
-    void knownIntermediateAsKnownIntermediate() throws KnownIntermediate;
-    void knownMostDerivedAsKnownIntermediate() throws KnownIntermediate;
-    void knownMostDerivedAsKnownMostDerived() throws KnownMostDerived;
+    void unknownIntermediateAsBase();
+    void knownIntermediateAsBase();
+    void knownMostDerivedAsBase();
+    void knownIntermediateAsKnownIntermediate();
+    void knownMostDerivedAsKnownIntermediate();
+    void knownMostDerivedAsKnownMostDerived();
 
-    void unknownMostDerived1AsBase() throws Base;
-    void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
-    void unknownMostDerived2AsBase() throws Base;
+    void unknownMostDerived1AsBase();
+    void unknownMostDerived1AsKnownIntermediate();
+    void unknownMostDerived2AsBase();
 
-    [format:compact] void unknownMostDerived2AsBaseCompact() throws Base;
+    [format:compact] void unknownMostDerived2AsBaseCompact();
 
-    void knownPreservedAsBase() throws Base;
-    void knownPreservedAsKnownPreserved() throws KnownPreserved;
+    void knownPreservedAsBase();
+    void knownPreservedAsKnownPreserved();
 
     void serverPrivateException();
 
-    void relayKnownPreservedAsBase(Relay* r) throws Base;
-    void relayKnownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
+    void relayKnownPreservedAsBase(Relay* r);
+    void relayKnownPreservedAsKnownPreserved(Relay* r);
 
-    void unknownPreservedAsBase() throws Base;
-    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+    void unknownPreservedAsBase();
+    void unknownPreservedAsKnownPreserved();
 
-    void relayUnknownPreservedAsBase(Relay* r) throws Base;
-    void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
+    void relayUnknownPreservedAsBase(Relay* r);
+    void relayUnknownPreservedAsKnownPreserved(Relay* r);
 
     void relayClientPrivateException(Relay* r);
 

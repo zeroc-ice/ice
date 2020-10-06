@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +10,9 @@ namespace ZeroC.Ice.Test.Proxy
     {
         public ValueTask<IObjectPrx?> EchoAsync(IObjectPrx? obj, Current c) =>
             new ValueTask<IObjectPrx?>(obj);
+
+        public ValueTask<IEnumerable<string>> GetLocationAsync(Current current) =>
+            new ValueTask<IEnumerable<string>>(current.Location);
 
         public ValueTask ShutdownAsync(Current current)
         {

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -91,16 +89,16 @@ namespace ZeroC.Ice.Test.Interceptor
                     prx.Communicator.GetProperties(),
                     invocationInterceptors: new InvocationInterceptor[]
                     {
-                        (target, request, next) =>
+                        (target, request, next, cancel) =>
                         {
                             if (ice2)
                             {
                                 request.ContextOverride["interceptor-1"] = "interceptor-1";
                                 request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
                             }
-                            return next(target, request);
+                            return next(target, request, cancel);
                         },
-                        async (target, request, next) =>
+                        async (target, request, next, cancel) =>
                         {
                             if (ice2)
                             {
@@ -108,7 +106,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                 request.ContextOverride["interceptor-2"] = "interceptor-2";
                                 request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
                             }
-                            IncomingResponseFrame response = await next(target, request);
+                            IncomingResponseFrame response = await next(target, request, cancel);
                             TestHelper.Assert(invocationContext.Value == int.Parse(request.Context["local-user"]));
                             if (ice2)
                             {
@@ -140,27 +138,27 @@ namespace ZeroC.Ice.Test.Interceptor
                     prx.Communicator.GetProperties(),
                     invocationInterceptors: new InvocationInterceptor[]
                     {
-                        (target, request, next) =>
+                        (target, request, next, cancel) =>
                         {
                             if (ice2)
                             {
                                 request.ContextOverride["interceptor-1"] = "interceptor-1";
                             }
-                            return next(target, request);
+                            return next(target, request, cancel);
                         },
-                        async (target, request, next) =>
+                        async (target, request, next, cancel) =>
                         {
                             if (response == null)
                             {
-                                response = await next(target, request);
+                                response = await next(target, request, cancel);
                             }
                             return response;
                         },
-                        (target, request, next) =>
+                        (target, request, next, cancel) =>
                         {
                             invocations++;
                             TestHelper.Assert(response == null);
-                            return next(target, request);
+                            return next(target, request, cancel);
                         }
                     });
 
@@ -177,20 +175,20 @@ namespace ZeroC.Ice.Test.Interceptor
                     prx.Communicator.GetProperties(),
                     invocationInterceptors: new InvocationInterceptor[]
                     {
-                        (target, request, next) =>
+                        (target, request, next, cancel) =>
                         {
                             request.ContextOverride["interceptor-1"] = "interceptor-1";
-                            return next(target, request);
+                            return next(target, request, cancel);
                         },
-                        (target, request, next) =>
+                        (target, request, next, cancel) =>
                         {
                             TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
                             throw new InvalidOperationException("stop interceptor chain");
                         },
-                        (target, request, next) =>
+                        (target, request, next, cancel) =>
                         {
                             TestHelper.Assert(false);
-                            return next(target, request);
+                            return next(target, request, cancel);
                         }
                     });
 

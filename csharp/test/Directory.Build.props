@@ -19,5 +19,8 @@
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/net5/IceStorm.dll" />
             </ItemGroup>
         </Otherwise>
-      </Choose>
+    </Choose>
+    <ItemGroup>
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\msbuild\stylecop.json" Link="stylecop.json" />
+    </ItemGroup>
 </Project>

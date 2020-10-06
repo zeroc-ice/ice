@@ -63,9 +63,9 @@ isOptionalProxyOrClass(const TypePtr& type)
 }
 
 string
-stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
+stringTypeToString(const TypePtr&, const StringList& metadata, int typeCtx)
 {
-    string strType = findMetaData(metaData, typeCtx);
+    string strType = findMetadata(metadata, typeCtx);
     if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
     {
         return "::std::wstring";
@@ -81,9 +81,9 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
 }
 
 string
-sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metaData, int typeCtx)
+sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metadata, int typeCtx)
 {
-    string seqType = findMetaData(metaData, typeCtx);
+    string seqType = findMetadata(metadata, typeCtx);
     if(!seqType.empty())
     {
         if(seqType == "%array")
@@ -106,12 +106,12 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
                 }
                 else
                 {
-                    string s = toTemplateArg(typeToString(seq->type(), scope, seq->typeMetaData(),
+                    string s = toTemplateArg(typeToString(seq->type(), scope, seq->typeMetadata(),
                                                           inWstringModule(seq) ? TypeContextUseWstring : 0));
                     return "::std::vector<" + s + '>';
                 }
             }
-            string s = typeToString(seq->type(), scope, seq->typeMetaData(),
+            string s = typeToString(seq->type(), scope, seq->typeMetadata(),
                                     typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
             return "::std::pair<const " + s + "*, const " + s + "*>";
         }
@@ -127,9 +127,9 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
 }
 
 string
-dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const StringList& metaData, int typeCtx)
+dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const StringList& metadata, int typeCtx)
 {
-    const string dictType = findMetaData(metaData, typeCtx);
+    const string dictType = findMetadata(metadata, typeCtx);
     if(dictType.empty())
     {
         return getUnqualified(fixKwd(dict->scoped()), scope);
@@ -142,9 +142,9 @@ dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const Str
 
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const string& scope, const string& fixedName,
-                       const StringList& metaData, int typeCtx)
+                       const StringList& metadata, int typeCtx)
 {
-    string s = typeToString(unwrapIfOptional(type), scope, metaData, typeCtx);
+    string s = typeToString(unwrapIfOptional(type), scope, metadata, typeCtx);
     if(isTagged)
     {
         s = toOptional(s);
@@ -171,7 +171,7 @@ writeMarshalUnmarshalParams(Output& out, const MemberList& params, const Operati
     const auto [requiredParams, taggedParams] = getSortedMembers(params);
 
     // Marshal required parameters.
-    if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsTagged()))
+    if(!requiredParams.empty() || (op && op->deprecatedReturnType() && !op->returnIsTagged()))
     {
         out << nl;
         out << stream << streamOp;
@@ -180,14 +180,14 @@ writeMarshalUnmarshalParams(Output& out, const MemberList& params, const Operati
         {
             out << objPrefix + fixKwd(prefix + param->name());
         }
-        if(op && op->returnType() && !op->returnIsTagged())
+        if(op && op->deprecatedReturnType() && !op->returnIsTagged())
         {
             out << objPrefix + returnValueS;
         }
         out << epar << ";";
     }
 
-    if (!taggedParams.empty() || (op && op->returnType() && op->returnIsTagged()))
+    if (!taggedParams.empty() || (op && op->deprecatedReturnType() && op->returnIsTagged()))
     {
         out << nl;
         out << stream << streamOp;
@@ -377,7 +377,7 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 }
 
 string
-Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
+Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metadata, int typeCtx)
 {
     static const std::array<std::string, 17> builtinTable =
     {
@@ -402,7 +402,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 
     if (isOptionalProxyOrClass(type))
     {
-        return typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx);
+        return typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metadata, typeCtx);
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -410,7 +410,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return stringTypeToString(type, metaData, typeCtx);
+            return stringTypeToString(type, metadata, typeCtx);
         }
         else
         {
@@ -445,13 +445,13 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return sequenceTypeToString(seq, scope, metaData, typeCtx);
+        return sequenceTypeToString(seq, scope, metadata, typeCtx);
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        return dictionaryTypeToString(dict, scope, metaData, typeCtx);
+        return dictionaryTypeToString(dict, scope, metadata, typeCtx);
     }
 
     assert(0);
@@ -459,20 +459,20 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 }
 
 string
-Slice::typeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData, int typeCtx)
+Slice::typeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metadata, int typeCtx)
 {
     if(tagged) // meaning tagged
     {
-        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx));
+        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metadata, typeCtx));
     }
     else
     {
-        return typeToString(type, scope, metaData, typeCtx);
+        return typeToString(type, scope, metadata, typeCtx);
     }
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData,
+Slice::returnTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metadata,
                           int typeCtx)
 {
     if(!type)
@@ -482,14 +482,14 @@ Slice::returnTypeToString(const TypePtr& type, bool tagged, const string& scope,
 
     if(tagged)
     {
-        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx));
+        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metadata, typeCtx));
     }
 
-    return typeToString(type, scope, metaData, typeCtx);
+    return typeToString(type, scope, metadata, typeCtx);
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData,
+Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metadata,
                          int typeCtx)
 {
     static const std::array<std::string, 17> inputBuiltinTable =
@@ -517,13 +517,13 @@ Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, 
 
     if(tagged)
     {
-        return "const " + toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData,
+        return "const " + toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metadata,
             typeCtx)) + '&';
     }
 
     if (isOptionalProxyOrClass(type))
     {
-        return inputTypeToString(OptionalPtr::dynamicCast(type)->underlying(), tagged, scope, metaData, typeCtx);
+        return inputTypeToString(OptionalPtr::dynamicCast(type)->underlying(), tagged, scope, metadata, typeCtx);
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -531,7 +531,7 @@ Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, 
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
+            return string("const ") + stringTypeToString(type, metadata, typeCtx) + '&';
         }
         else
         {
@@ -566,13 +566,13 @@ Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return "const " + sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
+        return "const " + sequenceTypeToString(seq, scope, metadata, typeCtx) + "&";
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        return "const " + dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
+        return "const " + dictionaryTypeToString(dict, scope, metadata, typeCtx) + "&";
     }
 
     assert(0);
@@ -580,7 +580,7 @@ Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, 
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData,
+Slice::outputTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metadata,
                           int typeCtx)
 {
     static const std::array<std::string, 17> outputBuiltinTable =
@@ -606,12 +606,12 @@ Slice::outputTypeToString(const TypePtr& type, bool tagged, const string& scope,
 
     if(tagged)
     {
-        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx)) + '&';
+        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metadata, typeCtx)) + '&';
     }
 
     if (isOptionalProxyOrClass(type))
     {
-        return outputTypeToString(OptionalPtr::dynamicCast(type)->underlying(), tagged, scope, metaData, typeCtx);
+        return outputTypeToString(OptionalPtr::dynamicCast(type)->underlying(), tagged, scope, metadata, typeCtx);
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -619,7 +619,7 @@ Slice::outputTypeToString(const TypePtr& type, bool tagged, const string& scope,
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return stringTypeToString(type, metaData, typeCtx) + "&";
+            return stringTypeToString(type, metadata, typeCtx) + "&";
         }
         else
         {
@@ -654,13 +654,13 @@ Slice::outputTypeToString(const TypePtr& type, bool tagged, const string& scope,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
+        return sequenceTypeToString(seq, scope, metadata, typeCtx) + "&";
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        return dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
+        return dictionaryTypeToString(dict, scope, metadata, typeCtx) + "&";
     }
 
     assert(0);
@@ -783,13 +783,13 @@ Slice::writeAllocateCode(Output& out, const MemberList& params, const OperationP
     for (const auto& param : params)
     {
         writeParamAllocateCode(out, param->type(), param->tagged(), clScope, fixKwd(prefix + param->name()),
-                               param->getMetaData(), typeCtx);
+                               param->getAllMetadata(), typeCtx);
     }
 
-    if(op && op->returnType())
+    if(op && op->deprecatedReturnType())
     {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsTagged(), clScope, returnValueS, op->getMetaData(),
-                               typeCtx);
+        writeParamAllocateCode(out, op->deprecatedReturnType(), op->returnIsTagged(), clScope, returnValueS,
+                                    op->getAllMetadata(), typeCtx);
     }
 }
 
@@ -922,7 +922,7 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, MemberList dataMembers, int
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getMetaData(), typeCtx)
+        out << typeToString((*q)->type(), (*q)->tagged(), scope, (*q)->getAllMetadata(), typeCtx)
             << "&";
     }
     out << "> ice_tuple() const";
@@ -941,21 +941,21 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, MemberList dataMembers, int
 }
 
 bool
-Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
+Slice::findMetadata(const string& prefix, const ClassDeclPtr& cl, string& value)
 {
-    if(findMetaData(prefix, cl->getMetaData(), value))
+    if (findMetadata(prefix, cl->getAllMetadata(), value))
     {
         return true;
     }
 
     ClassDefPtr def = cl->definition();
-    return def ? findMetaData(prefix, def->getMetaData(), value) : false;
+    return def ? findMetadata(prefix, def->getAllMetadata(), value) : false;
 }
 
 bool
-Slice::findMetaData(const string& prefix, const StringList& metaData, string& value)
+Slice::findMetadata(const string& prefix, const StringList& metadata, string& value)
 {
-    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
+    for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); i++)
     {
         string s = *i;
         if(s.find(prefix) == 0)
@@ -968,11 +968,11 @@ Slice::findMetaData(const string& prefix, const StringList& metaData, string& va
 }
 
 string
-Slice::findMetaData(const StringList& metaData, int typeCtx)
+Slice::findMetadata(const StringList& metadata, int typeCtx)
 {
     static const string prefix = "cpp:";
 
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for(StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
     {
         string str = *q;
         if(str.find(prefix) == 0)
@@ -1043,12 +1043,12 @@ Slice::inWstringModule(const SequencePtr& seq)
         {
             break;
         }
-        StringList metaData = mod->getMetaData();
-        if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
+        StringList metadata = mod->getAllMetadata();
+        if(find(metadata.begin(), metadata.end(), "cpp:type:wstring") != metadata.end())
         {
             return true;
         }
-        else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+        else if(find(metadata.begin(), metadata.end(), "cpp:type:string") != metadata.end())
         {
             return false;
         }

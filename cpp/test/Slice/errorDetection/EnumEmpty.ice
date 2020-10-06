@@ -7,4 +7,10 @@ module Test
 
 enum foo {}
 
+enum bar : ushort {}
+
+unchecked enum baz {}
+
+unchecked enum ok : byte {}
+
 }

@@ -4,4 +4,7 @@
     <PropertyGroup>
         <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5</AppTargetFramework>
     </PropertyGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\msbuild\stylecop.json" Link="stylecop.json" />
+    </ItemGroup>
 </Project>

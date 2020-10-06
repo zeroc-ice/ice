@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -19,7 +17,7 @@ namespace ZeroC.Ice.Test.Plugin
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",
-                            Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+                            Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
             {
                 Console.Write("testing a simple plug-in... ");
                 Console.Out.Flush();

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -147,7 +145,8 @@ namespace ZeroC.Ice
         {
         }
 
-        internal ColocatedEndpoint(ObjectAdapter adapter) : base(adapter.Communicator, adapter.Protocol)
+        internal ColocatedEndpoint(ObjectAdapter adapter)
+            : base(adapter.Communicator, adapter.Protocol)
         {
             Adapter = adapter;
             var options = new UnboundedChannelOptions();

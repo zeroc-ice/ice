@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -58,11 +56,11 @@ namespace ZeroC.Ice
             transport switch
             {
                 var tv when tv == Transport.TCP || tv == Transport.SSL =>
-                    new TcpEndpoint(istr, _communicator, transport, protocol),
+                    new TcpEndpoint(istr, transport, protocol),
                 var tv when tv == Transport.WS || tv == Transport.WSS =>
-                    new WSEndpoint(istr, _communicator, transport, protocol),
+                    new WSEndpoint(istr, transport, protocol),
                 var tv when tv == Transport.UDP && protocol == Protocol.Ice1 =>
-                    new UdpEndpoint(istr, _communicator),
+                    new UdpEndpoint(istr),
                 _ => throw new NotSupportedException(
                     $"cannot read endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };

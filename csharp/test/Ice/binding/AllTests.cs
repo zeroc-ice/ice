@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -274,10 +272,8 @@ namespace ZeroC.Ice.Test.Binding
                     com.CreateObjectAdapter("AdapterAMI13", testTransport)!
                 };
 
-                //
-                // Ensure that when a connection is opened it's reused for new
-                // proxies and that all endpoints are eventually tried.
-                //
+                // Ensure that when a connection is opened it's reused for new proxies and that all endpoints are
+                // eventually tried.
                 var names = new List<string>
                 {
                     "AdapterAMI11",
@@ -324,10 +320,8 @@ namespace ZeroC.Ice.Test.Binding
                     }
                 }
 
-                //
-                // Deactivate an adapter and ensure that we can still
-                // establish the connection to the remaining adapters.
-                //
+                // Deactivate an adapter and ensure that we can still establish the connection to the remaining
+                // adapters.
                 com.DeactivateObjectAdapter(adapters[0]);
                 names.Add("AdapterAMI12");
                 names.Add("AdapterAMI13");
@@ -348,8 +342,8 @@ namespace ZeroC.Ice.Test.Binding
                     test1.GetConnection().Close(ConnectionClose.Gracefully);
                 }
 
-                // Deactivate an adapter and ensure that we can still establish the connection
-                // to the remaining adapter.
+                // Deactivate an adapter and ensure that we can still establish the connection to the remaining
+                // adapter.
                 com.DeactivateObjectAdapter(adapters[2]);
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters);
                 TestHelper.Assert(GetAdapterNameWithAMI(obj).Equals("AdapterAMI12"));

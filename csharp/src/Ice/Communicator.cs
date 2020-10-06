@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Concurrent;
@@ -162,7 +160,6 @@ namespace ZeroC.Ice
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal int IncomingFrameSizeMax { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
-        internal int IPVersion { get; }
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
@@ -328,7 +325,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs a new communicator.</summary>
-        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties</param>
+        /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
         /// param has precedence over the properties param.</param>
         /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
@@ -531,9 +528,7 @@ namespace ZeroC.Ice
                     for (int i = 0; i < arr.Length; i++)
                     {
                         int v = int.Parse(arr[i], CultureInfo.InvariantCulture);
-                        //
                         // If -1 is the first value, no retry and wait intervals.
-                        //
                         if (i == 0 && v == -1)
                         {
                             RetryIntervals = Array.Empty<int>();
@@ -544,28 +539,9 @@ namespace ZeroC.Ice
                     }
                 }
 
-                bool isIPv6Supported = Network.IsIPv6Supported();
-                bool ipv4 = GetPropertyAsBool("Ice.IPv4") ?? true;
-                bool ipv6 = GetPropertyAsBool("Ice.IPv6") ?? isIPv6Supported;
-                if (!ipv4 && !ipv6)
-                {
-                    throw new InvalidConfigurationException("Both IPV4 and IPv6 support cannot be disabled.");
-                }
-                else if (ipv4 && ipv6)
-                {
-                    IPVersion = Network.EnableBoth;
-                }
-                else if (ipv4)
-                {
-                    IPVersion = Network.EnableIPv4;
-                }
-                else
-                {
-                    IPVersion = Network.EnableIPv6;
-                }
                 PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
-                NetworkProxy = CreateNetworkProxy(IPVersion);
+                NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
 
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
@@ -596,12 +572,10 @@ namespace ZeroC.Ice
                 // Load plug-ins.
                 LoadPlugins(ref args);
 
-                //
                 // Create Admin facets, if enabled.
                 //
                 // Note that any logger-dependent admin facet must be created after we load all plugins,
                 // since one of these plugins can be a Logger plugin that sets a new logger during loading
-                //
 
                 if (GetProperty("Ice.Admin.Enabled") == null)
                 {
@@ -617,18 +591,14 @@ namespace ZeroC.Ice
 
                 if (_adminEnabled)
                 {
-                    //
                     // Process facet
-                    //
                     string processFacetName = "Process";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
                         _adminFacets.Add(processFacetName, new Process(this));
                     }
 
-                    //
                     // Logger facet
-                    //
                     string loggerFacetName = "Logger";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                     {
@@ -637,9 +607,7 @@ namespace ZeroC.Ice
                         _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
                     }
 
-                    //
                     // Properties facet
-                    //
                     string propertiesFacetName = "Properties";
                     PropertiesAdmin? propsAdmin = null;
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
@@ -648,9 +616,7 @@ namespace ZeroC.Ice
                         _adminFacets.Add(propertiesFacetName, propsAdmin);
                     }
 
-                    //
                     // Metrics facet
-                    //
                     string metricsFacetName = "Metrics";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
                     {
@@ -688,9 +654,7 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
 
-                //
                 // Show process id if requested (but only once).
-                //
                 lock (_mutex)
                 {
                     if (!_printProcessIdDone && (GetPropertyAsBool("Ice.PrintProcessId") ?? false))

@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +34,7 @@ namespace ZeroC.Ice
             0x03, 0x05, 0x07, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, // Stream ID (varlong)
         };
 
-        internal static readonly Encoding Encoding = Encoding.V2_0;
+        internal static readonly Encoding Encoding = Encoding.V20;
     }
 
     // The stream implementation for Slic. It implements IValueTaskSource<> directly instead of using
@@ -267,11 +265,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal SlicStream(long streamId, SlicTransceiver transceiver) : base(streamId, transceiver) =>
-            _transceiver = transceiver;
+        internal SlicStream(long streamId, SlicTransceiver transceiver)
+            : base(streamId, transceiver) => _transceiver = transceiver;
 
-        internal SlicStream(bool bidirectional, SlicTransceiver transceiver) : base(bidirectional, transceiver) =>
-            _transceiver = transceiver;
+        internal SlicStream(bool bidirectional, SlicTransceiver transceiver)
+            : base(bidirectional, transceiver) => _transceiver = transceiver;
 
         internal override void Abort(Exception ex)
         {
@@ -550,8 +548,8 @@ namespace ZeroC.Ice
         internal SlicTransceiver(
             ITransceiver transceiver,
             Endpoint endpoint,
-            ObjectAdapter? adapter) :
-            base(endpoint, adapter, transceiver)
+            ObjectAdapter? adapter)
+            : base(endpoint, adapter, transceiver)
         {
             _transceiver = new BufferedReadTransceiver(transceiver);
             _receiveStreamCompletionTaskSource.SetResult(0);

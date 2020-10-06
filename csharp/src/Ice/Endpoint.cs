@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Collections.Generic;
@@ -150,7 +148,7 @@ namespace ZeroC.Ice
         /// <summary>Checks whether this endpoint and the given endpoint point to the same local peer. This is used for
         /// the colocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
         /// </summary>
-        /// <param name="endpoint">The other endpoint</param>
+        /// <param name="endpoint">The other endpoint.</param>
         /// <returns><c>True</c> if the other endpoint point to the same local peer, <c>False</c> otherwise.</returns>
         public abstract bool IsLocal(Endpoint endpoint);
 
@@ -175,7 +173,7 @@ namespace ZeroC.Ice
         /// <param name="endpointSelection">The endpoint selection type used when expanding the endpoint address.
         /// </param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>A collector of connectors for this endpoint</returns>
+        /// <returns>A collector of connectors for this endpoint.</returns>
         public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
             EndpointSelectionType endpointSelection,
             CancellationToken cancel);
@@ -194,7 +192,7 @@ namespace ZeroC.Ice
         /// endpoint can be used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if
         /// it uses a fixed port, null otherwise).
         /// </summary>
-        /// <param name="publishedEndpoint">TODO???</param>
+        /// <param name="publishedEndpoint">TODO.</param>
         /// <returns>The collection containing the expanded endpoints.</returns>
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 

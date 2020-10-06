@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System;
 using System.Threading.Tasks;
@@ -17,13 +15,13 @@ namespace ZeroC.Ice.Test.Interceptor
             public void Initialize(PluginInitializationContext context)
             {
                 context.AddInvocationInterceptor(
-                    async (target, request, next) =>
+                    async (target, request, next, cancel) =>
                     {
                         if (request.Protocol == Protocol.Ice2)
                         {
                             request.ContextOverride["InvocationPlugin"] = "1";
                         }
-                        IncomingResponseFrame response = await next(target, request);
+                        IncomingResponseFrame response = await next(target, request, cancel);
                         if (response.Protocol == Protocol.Ice2 && response.ResultType == ResultType.Success)
                         {
                             TestHelper.Assert(

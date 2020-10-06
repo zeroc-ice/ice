@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Threading.Tasks;
 
@@ -12,7 +10,8 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginTwo : BasePlugin
         {
-            public PluginTwo(Communicator communicator) : base(communicator)
+            public PluginTwo(Communicator communicator)
+                : base(communicator)
             {
             }
 

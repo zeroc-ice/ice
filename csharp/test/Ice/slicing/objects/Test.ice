@@ -121,18 +121,18 @@ interface TestIntf
     D1 D1AsD1();
     B D2AsB();
 
-    void paramTest1(out B p1, out B p2);
-    void paramTest2(out B p2, out B p1);
-    B paramTest3(out B p1, out B p2);
-    B paramTest4(out B p);
+    (B r1, B r2) paramTest1();
+    (B r1, B r2) paramTest2();
+    (B r1, B r2, B r3) paramTest3();
+    (B r1, B r2) paramTest4();
 
-    B returnTest1(out B p1, out B p2);
-    B returnTest2(out B p2, out B p1);
+    (B r1, B r2, B r3) returnTest1();
+    (B r1, B r2, B r3) returnTest2();
     B returnTest3(B p1, B p2);
 
     SS3 sequenceTest(SS1 p1, SS2 p2);
 
-    BDict dictionaryTest(BDict bin, out BDict bout);
+    (BDict r1, BDict r2) dictionaryTest(BDict bin);
 
     PBase exchangePBase(PBase pb);
 
@@ -147,13 +147,13 @@ interface TestIntf
 
     PNode exchangePNode(PNode pn);
 
-    void throwBaseAsBase() throws BaseException;
-    void throwDerivedAsBase() throws BaseException;
-    void throwDerivedAsDerived() throws DerivedException;
-    void throwUnknownDerivedAsBase() throws BaseException;
-    [amd] void throwPreservedException() throws PreservedException;
+    void throwBaseAsBase();
+    void throwDerivedAsBase();
+    void throwDerivedAsDerived();
+    void throwUnknownDerivedAsBase();
+    [amd] void throwPreservedException();
 
-    void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
+    Forward useForward(); /* Use of forward-declared class to verify that code is generated correctly. */
 
     void shutdown();
 }

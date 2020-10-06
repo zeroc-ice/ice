@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 using System.Collections.Generic;
 using System.Net;
@@ -42,7 +40,7 @@ namespace ZeroC.Ice
             s.Append(ToString());
 
             List<string> interfaces =
-                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), Endpoint.Communicator.IPVersion, true);
+                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), Network.EnableBoth, true);
             if (interfaces.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
@@ -60,10 +58,10 @@ namespace ZeroC.Ice
 
             _addr = Network.GetAddressForServerEndpoint(endpoint.Host,
                                                         endpoint.Port,
-                                                        endpoint.Communicator.IPVersion,
+                                                        Network.EnableBoth,
                                                         endpoint.Communicator.PreferIPv6);
 
-            _socket = Network.CreateServerSocket(false, _addr.AddressFamily, endpoint.Communicator.IPVersion);
+            _socket = Network.CreateServerSocket(false, _addr.AddressFamily);
 
             try
             {
