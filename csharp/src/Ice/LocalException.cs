@@ -87,6 +87,7 @@ namespace ZeroC.Ice
     /// <summary>This exception reports an error from the transport layer.</summary>
     public class TransportException : Exception
     {
+        internal Retryable Retryable;
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class. A plain
         /// TransportException should have a custom message or an inner exception (or both).</summary>
         protected TransportException()
