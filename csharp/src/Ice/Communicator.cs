@@ -500,6 +500,7 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
                 }
+                RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
 
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
                 WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
