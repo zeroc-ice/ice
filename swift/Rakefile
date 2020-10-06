@@ -100,6 +100,8 @@ def create_project(name, bindist)
 
     project.build_configurations.each do |conf|
         conf.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
+        # Disable header maps as they cause problems with parallel builds on Xcode 12
+        conf.build_settings["USE_HEADERMAP"] = "NO"
     end
 
     [:osx, :ios].each do |platform|
@@ -545,22 +547,10 @@ def create_platform_targets(project, platform, bindist)
     #
     unless bindist
         scheme = Xcodeproj::XCScheme.new
-
         scheme.add_build_target(glacier2_target)
         scheme.add_build_target(icestorm_target)
         scheme.add_build_target(icegrid_target)
-
-        scheme.build_action.parallelize_buildables = false
-        scheme.build_action.build_implicit_dependencies = true
         scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
-
-        scheme = Xcodeproj::XCScheme.new
-
-        scheme.add_build_target(test_driver_target)
-
-        scheme.build_action.parallelize_buildables = false
-        scheme.build_action.build_implicit_dependencies = true
-        scheme.save_as("ice.xcodeproj", "TestDriver #{platform_name}", true)
     end
 end
 
@@ -680,13 +670,6 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
         "$SRCROOT/../slice/#{prefix}/#{p}.ice"
     }
     target.build_rules << rule
-
-    #group = project_group(project, "cpp/include/#{prefix}")
-    #inputs.map { |p|
-    #    file = group.new_file("$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/#{p}.h")
-    #    header = target.headers_build_phase.add_file_reference(file)
-    #    header.settings = { "ATTRIBUTES" => ["Public"] }
-    #}
 end
 
 def target_add_swiftlint_build_phase(target, basedir)
