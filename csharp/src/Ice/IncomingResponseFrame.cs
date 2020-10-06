@@ -26,7 +26,7 @@ namespace ZeroC.Ice
             {
                 var data = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
-                ostr.WriteByte((byte)ResultType.Success);
+                ostr.Write(ResultType.Success);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
                 return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
@@ -87,13 +87,9 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                byte b = Data[0];
-                if (b > 7)
-                {
-                    throw new InvalidDataException($"received response frame with unknown reply status `{b}'");
-                }
+                ReplyStatus replyStatus = Data[0].AsReplyStatus();
 
-                if (b <= (byte)ReplyStatus.UserException)
+                if ((byte)replyStatus <= (byte)ReplyStatus.UserException)
                 {
                     hasEncapsulation = true;
                 }
@@ -104,11 +100,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                byte b = Data[0];
-                if (b > 1)
-                {
-                    throw new InvalidDataException($"invalid result type `{b}' in ice2 response frame");
-                }
+                _ = Data[0].AsResultType(); // just to check the value
                 hasEncapsulation = true;
             }
 
@@ -152,10 +144,7 @@ namespace ZeroC.Ice
                                            communicator,
                                            startEncapsulation: true);
 
-                    byte b = istr.ReadByte();
-                    replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
-                        throw new InvalidDataException($"received ice2 response frame with invalid reply status `{b}'");
-
+                    replyStatus = istr.ReadReplyStatus();
                     if (replyStatus == ReplyStatus.UserException)
                     {
                         istr = null; // we are not throwing this user exception here
@@ -193,9 +182,7 @@ namespace ZeroC.Ice
 
                 if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
                 {
-                    byte b = istr.ReadByte();
-                    replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
-                        throw new InvalidDataException($"received ice2 response frame with invalid reply status `{b}'");
+                    replyStatus = istr.ReadReplyStatus();
                 }
             }
             else

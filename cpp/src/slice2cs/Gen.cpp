@@ -1820,17 +1820,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     MemberList dataMembers = p->dataMembers();
 
+    emitEqualityOperators(name);
+    _out << sp;
+
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
-    if(partialInitialize)
-    {
-        _out << sp;
-        _out << nl << "/// <summary>The constructor calls the Initialize partial method after initializing "
-             << "the data members.</summary>";
-        _out << nl << "partial void Initialize();";
-    }
-
-    _out << sp;
     _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
     for (const auto& member : dataMembers)
     {
@@ -1913,8 +1907,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public readonly override bool Equals(object? other) => other is " << name
         << " value && this.Equals(value);";
 
-    emitEqualityOperators(name);
-
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
     _out << nl << "public readonly override int GetHashCode()";
@@ -1935,6 +1927,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     writeMarshalDataMembers(dataMembers, ns, 0);
     _out << eb;
+
+    if (partialInitialize)
+    {
+        _out << sp;
+        _out << nl << "/// <summary>The constructor calls the Initialize partial method after initializing "
+             << "the fields.</summary>";
+        _out << nl << "partial void Initialize();";
+    }
+
     _out << eb;
 }
 
@@ -1971,7 +1972,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         else
         {
             _out << ',';
+            _out << sp;
         }
+
+        writeTypeDocComment(en, getDeprecateReason(en, 0, "enumerator"));
         _out << nl << fixId(en->name());
         if (p->explicitValue())
         {
@@ -2010,17 +2014,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     _out << sp;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << name << " value) =>";
-    _out.inc();
-    if (p->underlying())
-    {
-        _out << nl << "ostr.Write" << builtinSuffix(p->underlying()) << "((" << underlying << ")value);";
-    }
-    else
-    {
-        _out << nl << "ostr.WriteSize((int)value);";
-    }
-    _out.dec();
+    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name()
+        << ";";
 
     _out << sp;
     _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";
@@ -2064,9 +2059,17 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name()
-        << ";";
-
+    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << name << " value) =>";
+    _out.inc();
+    if (p->underlying())
+    {
+        _out << nl << "ostr.Write" << builtinSuffix(p->underlying()) << "((" << underlying << ")value);";
+    }
+    else
+    {
+        _out << nl << "ostr.WriteSize((int)value);";
+    }
+    _out.dec();
     _out << eb;
 }
 
