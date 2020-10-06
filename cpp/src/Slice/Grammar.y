@@ -1727,7 +1727,7 @@ enum_def
     unit->pushContainer(en);
     $$ = en;
 }
-'{' enumerators '}'
+'{' enumerator_list_or_empty '}'
 {
     if (EnumPtr en = EnumPtr::dynamicCast($3))
     {
@@ -1749,7 +1749,7 @@ enum_def
     unit->pushContainer(en);
     $$ = en;
 }
-'{' enumerators '}'
+'{' enumerator_list_or_empty '}'
 {
     unit->popContainer();
     $$ = $1;
@@ -1770,9 +1770,10 @@ enum_underlying
 ;
 
 // ----------------------------------------------------------------------
-enumerators
+enumerator_list_or_empty
 // ----------------------------------------------------------------------
 : enumerator_list
+| enumerator_list ','
 | %empty
 {
     $$ = new EnumeratorListTok;
