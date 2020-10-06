@@ -576,7 +576,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!colocated)
             {
-                metricsWithHold.GetConnection().Acm = new Acm(TimeSpan.FromMilliseconds(100),
+                metricsWithHold.GetConnection().Acm = new Acm(TimeSpan.FromMilliseconds(200),
                                                               AcmClose.OnInvocation,
                                                               AcmHeartbeat.Off);
                 controller.Hold();

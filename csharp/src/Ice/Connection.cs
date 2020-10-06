@@ -297,25 +297,28 @@ namespace ZeroC.Ice
                     if (_state == ConnectionState.Active && _controlStream != null)
                     {
                         SetState(ConnectionState.Closing, exception);
-                        _closeTask ??= PerformCloseAsync(exception);
+                        _closeTask ??= Task.Run(() => PerformCloseAsync(exception));
                         Debug.Assert(_closeTask != null);
                     }
                     closeTask = _closeTask ?? AbortAsync(exception);
                 }
                 await closeTask.ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex);
+                // Ignore
             }
 
             async Task PerformCloseAsync(Exception exception)
             {
-                // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for the
-                // incoming streams to complete before sending the close frame but instead provide the ID of the
-                // latest incoming stream ID to the peer. The peer will close the connection once it received the
-                // response for this stream ID.
+                // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for
+                // the incoming streams to complete before sending the close frame but instead provide the ID
+                // of the latest incoming stream ID to the peer. The peer will close the connection once it
+                // received the response for this stream ID.
                 _lastIncomingStreamId = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
+
+                // Yield to ensure the code below is executed without the mutex locked.
+                await Task.Yield();
 
                 if (Endpoint.Protocol == Protocol.Ice1)
                 {
@@ -431,6 +434,9 @@ namespace ZeroC.Ice
                 // Abort non-processed outgoing streams and all incoming streams.
                 Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
 
+                // Yield to ensure the code below is executed without the mutex locked.
+                await Task.Yield();
+
                 // Wait for all the streams to complete.
                 await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
@@ -444,7 +450,6 @@ namespace ZeroC.Ice
                     // Abort the connection once all the streams have completed.
                     await AbortAsync(exception).ConfigureAwait(false);
                 }
-
             }
         }
 
@@ -583,8 +588,7 @@ namespace ZeroC.Ice
             {
                 await Transceiver.AbortAsync(exception).ConfigureAwait(false);
 
-                // Yield to ensure the code below is executed without the mutex locked. PerformCloseAsync, the code
-                // below is not safe to call with this mutex locked.
+                // Yield to ensure the code below is executed without the mutex locked.
                 await Task.Yield();
 
                 Transceiver.Dispose();
