@@ -108,14 +108,14 @@ namespace ZeroC.Ice
             return null;
         }
 
-        public IDispatchObserver? GetDispatchObserver(Current current, long requestId, int size)
+        public IDispatchObserver? GetDispatchObserver(Current current, long streamId, int size)
         {
             if (_dispatch.IsEnabled)
             {
                 try
                 {
-                    return _dispatch.GetObserver(new DispatchHelper(current, requestId, size),
-                        _delegate?.GetDispatchObserver(current, requestId, size));
+                    return _dispatch.GetObserver(new DispatchHelper(current, streamId, size),
+                        _delegate?.GetDispatchObserver(current, streamId, size));
                 }
                 catch (Exception ex)
                 {
@@ -288,18 +288,18 @@ namespace ZeroC.Ice
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Current _current;
-        private readonly long _requestId;
+        private readonly long _streamId;
 
         private string? _id;
         private readonly int _size;
 
         public override void InitMetrics(DispatchMetrics v) => v.Size += _size;
 
-        internal DispatchHelper(Current current, long requestId, int size)
+        internal DispatchHelper(Current current, long streamId, int size)
             : base(_attributeResolver)
         {
             _current = current;
-            _requestId = requestId;
+            _streamId = streamId;
             _size = size;
         }
 
@@ -354,7 +354,7 @@ namespace ZeroC.Ice
                         return current?.Identity.ToString(current.Adapter!.Communicator.ToStringMode);
                     });
                 Add("facet", obj => (obj as DispatchHelper)?._current.Facet);
-                Add("requestId", obj => (obj as DispatchHelper)?._requestId);
+                Add("streamId", obj => (obj as DispatchHelper)?._streamId);
                 Add("mode", obj => (obj as DispatchHelper)?._current.IsOneway == true ? "oneway" : "twoway");
             }
         }

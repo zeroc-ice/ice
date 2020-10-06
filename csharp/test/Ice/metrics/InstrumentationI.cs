@@ -280,7 +280,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public IDispatchObserver GetDispatchObserver(Current current, long requestId, int s)
+        public IDispatchObserver GetDispatchObserver(Current current, long streamId, int s)
         {
             lock (_mutex)
             {

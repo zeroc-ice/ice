@@ -472,7 +472,8 @@ namespace ZeroC.Ice
             lock (_mutex)
             {
                 return GetMetricsView(viewName) is MetricsView view &&
-                    view.GetFailures(mapName, id) is MetricsFailures failures ? failures : new MetricsFailures();
+                    view.GetFailures(mapName, id) is MetricsFailures failures ?
+                        failures : new MetricsFailures(id, new Dictionary<string, int>());
             }
         }
 
@@ -482,13 +483,11 @@ namespace ZeroC.Ice
             {
                 if (GetMetricsView(viewName) is MetricsView view)
                 {
-                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>,
-                            (long)Time.Elapsed.TotalMilliseconds);
+                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>, (long)Time.Elapsed.TotalMilliseconds);
                 }
                 else
                 {
-                    return (ImmutableDictionary<string, Metrics?[]>.Empty,
-                            (long)Time.Elapsed.TotalMilliseconds);
+                    return (ImmutableDictionary<string, Metrics?[]>.Empty, (long)Time.Elapsed.TotalMilliseconds);
                 }
             }
         }
