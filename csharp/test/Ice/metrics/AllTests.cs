@@ -593,16 +593,8 @@ namespace ZeroC.Ice.Test.Metrics
                 controller.Resume();
 
                 cm1 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                while (true)
-                {
-                    sm1 = (ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                    if (sm1.Failures >= 2)
-                    {
-                        break;
-                    }
-                    Thread.Sleep(10);
-                }
-                TestHelper.Assert(cm1.Failures == 2 && sm1.Failures >= 2);
+                sm1 = (ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+                TestHelper.Assert(cm1.Failures == 2 && sm1.Failures >= 1);
 
                 CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectionTimeoutException", 1, output);
                 CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 1, output);
