@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <SliceCompile Include="..\..\..\slice\Ice\BuiltinSequences.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Context.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Identity.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Locator.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Metrics.ice" />
