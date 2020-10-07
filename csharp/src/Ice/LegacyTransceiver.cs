@@ -42,11 +42,21 @@ namespace ZeroC.Ice
         internal LegacyStream(long streamId, LegacyTransceiver transceiver)
             : base(streamId, transceiver) => _transceiver = transceiver;
 
-        internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =>
+        internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame)
+        {
             // If we received a response, we make sure to run the continuation asynchronously since this might end
             // up calling user code and could therefore prevent receiving further data since AcceptStreamAsync
             // would be blocked calling user code through this method.
-            SignalCompletion((frameType, frame), frameType == Ice1Definitions.FrameType.Reply);
+            if (frameType == Ice1Definitions.FrameType.Reply)
+            {
+                _transceiver.LastResponseStreamId = Id;
+                SignalCompletion((frameType, frame), runContinuationAsynchronously: true);
+            }
+            else
+            {
+                SignalCompletion((frameType, frame), runContinuationAsynchronously: false);
+            }
+        }
 
         private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
             byte expectedFrameType,

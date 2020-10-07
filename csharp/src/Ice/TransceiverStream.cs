@@ -132,7 +132,11 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
             {
-                return (0, "connection gracefully closed by peer");
+                // LastResponseStreamId contains the stream ID of the last received response. We make sure to return
+                // this stream ID to ensure the request with this stream ID will complete successfully in case the
+                // close connection message is received shortly after the response and potentially processed before
+                // due to the thread scheduling.
+                return (_transceiver.LastResponseStreamId, "connection gracefully closed by peer");
             }
             else
             {

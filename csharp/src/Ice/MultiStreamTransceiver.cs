@@ -24,6 +24,10 @@ namespace ZeroC.Ice
 
         internal int IncomingFrameSizeMax { get; }
         internal TimeSpan LastActivity { get; set; }
+        // The stream ID of the last received response with the Ice1 protocol. Keeping track of this stream ID is
+        // necessary to avoid a race condition with the close connection message which could be received and
+        // processed before the response is delivered to the stream.
+        internal long LastResponseStreamId { get; set; }
         internal IConnectionObserver? Observer
         {
             get
