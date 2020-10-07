@@ -29,12 +29,7 @@ all:: tests
 # Workaround for carthage sporadic SEGFAULT (https://github.com/Carthage/Carthage/issues/2760).
 # If it SEGFAULT we retry.
 carthage:
-	$(Q)cd .. && \
-	carthage update --cache-builds || if [ $$? = 139 ]; then \
-	carthage update --cache-builds || if [ $$? = 139 ]; then \
-	carthage update --cache-builds || if [ $$? = 139 ]; then \
-	carthage update --cache-builds || if [ $$? = 139 ]; then \
-	carthage update --cache-builds; fi; fi; fi; fi
+	$(Q)cd .. && ./swift/carthage.sh update --cache-builds
 
 tests srcs:: carthage
 
