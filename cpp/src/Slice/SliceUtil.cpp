@@ -788,3 +788,27 @@ bool Slice::opCompressReturn(const OperationPtr& op)
 {
     return opCompress(op, false);
 }
+
+string Slice::getDeprecateReason(const ContainedPtr& p, bool checkContainer)
+{
+    // Check if there was `deprecate` metadata directly on the entity.
+    auto deprecateMsg = p->findMetadata("deprecate");
+    // If the entity wasn't directly deprecated, check if it's container is.
+    if (!deprecateMsg && checkContainer)
+    {
+        if (ContainedPtr p2 = ContainedPtr::dynamicCast(p->container()))
+        {
+            deprecateMsg = p2->findMetadata("deprecate");
+        }
+    }
+
+    if (deprecateMsg)
+    {
+        if (deprecateMsg->empty())
+        {
+            return "This " + p->kindOf() + " has been deprecated";
+        }
+        return *deprecateMsg;
+    }
+    return "";
+}

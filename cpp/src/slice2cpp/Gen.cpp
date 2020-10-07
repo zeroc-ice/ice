@@ -80,20 +80,14 @@ isConstexprType(const TypePtr& constType)
 }
 
 string
-getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
+getDeprecateSymbol(const ContainedPtr& p1, bool checkContainer)
 {
-    string deprecateMetadata, deprecateSymbol;
-    if(p1->findMetadata("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata)))
+    string deprecateMessage = getDeprecateReason(p1, checkContainer);
+    if(!deprecateMessage.empty())
     {
-        string msg = "is deprecated";
-        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-        {
-            msg = deprecateMetadata.substr(10);
-        }
-        deprecateSymbol = "ICE_DEPRECATED_API(\"" + msg + "\") ";
+        return "ICE_DEPRECATED_API(\"" + deprecateMessage + "\") ";
     }
-    return deprecateSymbol;
+    return "";
 }
 
 void
@@ -2226,7 +2220,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         futureT = resultStructName(name, fixKwd(interface->name()));
     }
 
-    const string deprecateSymbol = getDeprecateSymbol(p, interface);
+    const string deprecateSymbol = getDeprecateSymbol(p, true);
 
     CommentPtr comment = p->parseComment(false);
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
@@ -3108,7 +3102,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetadata("cpp:const")) ? " const" : "";
 
     string opName = amd ? (name + "Async") : fixKwd(name);
-    string deprecateSymbol = getDeprecateSymbol(p, interface);
+    string deprecateSymbol = getDeprecateSymbol(p, true);
 
     H << sp;
     if(comment)

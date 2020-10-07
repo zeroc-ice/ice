@@ -97,6 +97,10 @@ bool opCompressParams(const OperationPtr& op);
 // Returns true if the compress:return metadata is set for the operation
 bool opCompressReturn(const OperationPtr& op);
 
+// Checks if a Slice entity is deprecated and returns the deprecation message if there is one (or a default message if
+// there isn't any). If the entity isn't deprecated, this returns the empty string.
+std::string getDeprecateReason(const ContainedPtr& p, bool checkContainer = false);
+
 }
 
 #endif

@@ -90,14 +90,6 @@ getEscapedParamName(const MemberList& params, const string& name)
     return name;
 }
 
-bool
-isDeprecated(const ContainedPtr& p1, const ContainedPtr& p2)
-{
-    string deprecateMetadata;
-    return p1->findMetadata("deprecate", deprecateMetadata) ||
-            (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata));
-}
-
 bool isValue(const TypePtr& constType)
 {
     TypePtr type = unwrapIfOptional(constType);
@@ -1187,13 +1179,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         writeHiddenDocComment(out);
         for(const auto& op : allOps)
         {
-            //
             // Suppress deprecation warnings if this method dispatches to a deprecated operation.
-            //
-            ContainerPtr container = op->container();
-            InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(container);
-            assert(interface);
-            if(isDeprecated(op, interface))
+            if (!getDeprecateReason(op, true).empty())
             {
                 out << nl << "@SuppressWarnings(\"deprecation\")";
                 break;
