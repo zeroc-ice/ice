@@ -908,10 +908,11 @@ namespace ZeroC.Ice
                 IObject? servant = Find(current.Identity, current.Facet);
                 if (servant == null)
                 {
-                    throw new ObjectNotExistException(current.Identity,
-                                                      current.Facet,
-                                                      current.Operation,
-                                                      RetryPolicy.OtherReplica);
+                    throw new ObjectNotExistException(
+                        current.Identity,
+                        current.Facet,
+                        current.Operation,
+                        _replicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
                 }
 
                 ValueTask<OutgoingResponseFrame> DispatchAsync(int i)

@@ -132,25 +132,7 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
             Instrumentation.TestInvocationCount(1);
-            if (ice1)
-            {
-                Instrumentation.TestFailureCount(1); // TODO: ice2
-            }
-            Instrumentation.TestRetryCount(0);
-            try
-            {
-                retry1.OpNotIdempotentAsync().Wait();
-                TestHelper.Assert(false);
-            }
-            catch (AggregateException ex)
-            {
-                TestHelper.Assert(ex.InnerException is UnhandledException);
-            }
-            Instrumentation.TestInvocationCount(1);
-            if (ice1)
-            {
-                Instrumentation.TestFailureCount(1); // TODO: ice2
-            }
+            Instrumentation.TestFailureCount(1);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 
@@ -165,7 +147,7 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(0);
+            Instrumentation.TestFailureCount(1);
             Instrumentation.TestRetryCount(0);
 
             try
@@ -178,7 +160,7 @@ namespace ZeroC.Ice.Test.Retry
                 TestHelper.Assert(ex.InnerException is SystemFailure);
             }
             Instrumentation.TestInvocationCount(1);
-            Instrumentation.TestFailureCount(0);
+            Instrumentation.TestFailureCount(1);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
 

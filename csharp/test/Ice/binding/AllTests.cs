@@ -436,36 +436,7 @@ namespace ZeroC.Ice.Test.Binding
                 catch (ConnectFailedException)
                 {
                 }
-
-                IReadOnlyList<Endpoint> endpoints = obj.Endpoints;
-
                 adapters.Clear();
-
-                // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (ice1)
-                {
-                    // Now, re-activate the adapters with the same endpoints in the opposite order.
-                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter36", endpoints[2].ToString()));
-                    for (int i = 0; i < 3; i++)
-                    {
-                        TestHelper.Assert(obj.GetAdapterName() == "Adapter36");
-                    }
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-
-                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter35", endpoints[1].ToString()));
-                    for (int i = 0; i < 3; i++)
-                    {
-                        TestHelper.Assert(obj.GetAdapterName() == "Adapter35");
-                    }
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-
-                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter34", endpoints[0].ToString()));
-                    for (int i = 0; i < 3; i++)
-                    {
-                        TestHelper.Assert(obj.GetAdapterName() == "Adapter34");
-                    }
-                    Deactivate(com, adapters);
-                }
             }
             output.WriteLine("ok");
 

@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Metrics
         public ValueTask OpWithUserExceptionAsync(Current current) => throw new UserEx("custom UserEx message");
 
         public ValueTask OpWithRequestFailedExceptionAsync(Current current) =>
-            throw new ObjectNotExistException(current, retryPolicy: RetryPolicy.OtherReplica);
+            throw new ObjectNotExistException(current);
 
         public ValueTask OpWithLocalExceptionAsync(Current current) =>
             throw new InvalidConfigurationException("fake");

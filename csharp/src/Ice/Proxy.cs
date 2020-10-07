@@ -329,19 +329,19 @@ namespace ZeroC.Ice
                 {
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
-                    Retryable retryable = Retryable.No;
-                    TimeSpan afterDelay = TimeSpan.Zero;
-                    var excludedConnectors = new List<IConnector>();
-                    int retryCount = 0;
-                    while (true)
+                    List<IConnector>? excludedConnectors = null;
+                    for (int retryCount = 0; retryCount < reference.Communicator.RetryMaxAttempts;)
                     {
                         IRequestHandler? handler = null;
                         var progressWrapper = new ProgressWrapper(progress);
+                        Retryable retryable = Retryable.No;
+                        TimeSpan afterDelay = TimeSpan.Zero;
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
-                            handler = await reference.GetRequestHandlerAsync(excludedConnectors,
-                                                                             cancel).ConfigureAwait(false);
+                            handler = await reference.GetRequestHandlerAsync(
+                                excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
+                                cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
                             response = await handler.SendRequestAsync(request,
@@ -350,12 +350,12 @@ namespace ZeroC.Ice
                                                                       observer,
                                                                       progressWrapper,
                                                                       cancel).ConfigureAwait(false);
-
+                            lastException = null;
                             if (response.ResultType != ResultType.Failure)
                             {
                                 return response;
                             }
-                            // retry
+                            // retry below
                         }
                         catch (InvalidRequestHandlerException)
                         {
@@ -371,15 +371,7 @@ namespace ZeroC.Ice
                         {
                             // The last exception asked to retry using a different replica, but we already tried all
                             // known replicas.
-                            if (lastException != null)
-                            {
-                                throw ExceptionUtil.Throw(lastException);
-                            }
-                            else
-                            {
-                                Debug.Assert(response != null && response.ResultType == ResultType.Failure);
-                                return response;
-                            }
+                            break;
                         }
                         catch (ConnectionClosedByPeerException ex)
                         {
@@ -392,34 +384,35 @@ namespace ZeroC.Ice
                         {
                             // Retry transport exceptions if the request is idempotent or was not send
                             lastException = ex;
-                            retryable = ex.Retryable;
+                            retryable = Retryable.AfterDelay;
                         }
 
-                        if (response != null)
+                        if (lastException == null)
                         {
-                            Debug.Assert(response.ResultType == ResultType.Failure);
+                            Debug.Assert(response != null && response.ResultType == ResultType.Failure);
                             observer?.RemoteException();
-                            if (response.ReadSystemException(proxy.Communicator) is Exception systemException)
+                            if (response.ReadSystemException(proxy.Communicator) is Exception systemException &&
+                                systemException is ObjectNotExistException one)
                             {
-                                // 1.1 system exceptions
-                                if (systemException is ObjectNotExistException && reference.IsWellKnown)
+                                // 1.1 System exceptions
+                                lastException = systemException;
+                                if (reference.RouterInfo != null && one.Operation == "ice_add_proxy")
                                 {
-                                    reference.LocatorInfo?.ClearCache(reference);
+                                    // If we have a router, an ObjectNotExistException with an operation name
+                                    // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy
+                                    // (for example, because it was evicted by the router). In this case, we must
+                                    // *always* retry, so that the missing proxy is added to the router.
+                                    reference.RouterInfo.ClearCache(reference);
                                     retryable = Retryable.AfterDelay;
-                                    afterDelay = TimeSpan.Zero;
                                 }
-                                else if (request.IsIdempotent && !progressWrapper.IsSent)
+                                else if (reference.IsIndirect)
                                 {
+                                    if (reference.IsWellKnown)
+                                    {
+                                        reference.LocatorInfo?.ClearCache(reference);
+                                    }
                                     retryable = Retryable.AfterDelay;
-                                    afterDelay = TimeSpan.Zero;
                                 }
-                            }
-                            else if (request.Encoding != Encoding.V20 &&
-                                     request.IsIdempotent &&
-                                     !progressWrapper.IsSent)
-                            {
-                                retryable = Retryable.AfterDelay;
-                                afterDelay = TimeSpan.Zero;
                             }
                             else if (response.BinaryContext.TryGetValue(RetryPolicy.BinaryContextKey,
                                                                         out ReadOnlyMemory<byte> value))
@@ -428,22 +421,19 @@ namespace ZeroC.Ice
                                 afterDelay = retryable == Retryable.AfterDelay ?
                                     TimeSpan.FromMilliseconds(value[1..].Span.ReadVarULong().Value) : TimeSpan.Zero;
                             }
-                            else
-                            {
-                                retryable = Retryable.No;
-                                afterDelay = TimeSpan.Zero;
-                            }
                         }
 
-                        if (retryable != Retryable.No && ++retryCount < reference.Communicator.RetryMaxAttempts)
+                        if (retryable == Retryable.No)
+                        {
+                            break; // We cannot retry
+                        }
+                        else if (++retryCount < reference.Communicator.RetryMaxAttempts)
                         {
                             if (handler is Connection connection)
                             {
                                 if (retryable == Retryable.OtherReplica)
                                 {
-                                    reference.Communicator.OutgoingConnectionFactory.SetHintFailure(
-                                        connection.Connector);
-
+                                    excludedConnectors ??= new List<IConnector>();
                                     excludedConnectors.Add(connection.Connector);
                                     if (reference.Communicator.TraceLevels.Retry >= 1)
                                     {
@@ -476,25 +466,21 @@ namespace ZeroC.Ice
                                 await Task.Delay(afterDelay, tokenSource.Token).ConfigureAwait(false);
                             }
                             observer?.Retried();
-                            continue;
                         }
-                        break;
                     }
+
                     // No more retries return the response
                     if (lastException != null)
                     {
+                        observer?.Failed(lastException.GetType().FullName ?? "System.Exception");
                         throw ExceptionUtil.Throw(lastException);
                     }
                     else
                     {
+                        observer?.Failed("System.Exception"); // TODO cleanup observer logic
                         Debug.Assert(response != null && response.ResultType == ResultType.Failure);
                         return response;
                     }
-                }
-                catch (Exception ex)
-                {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw;
                 }
                 finally
                 {

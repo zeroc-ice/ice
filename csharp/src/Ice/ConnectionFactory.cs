@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -28,8 +29,7 @@ namespace ZeroC.Ice
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _disposeTask;
-        private readonly List<(DateTime DateTime, IConnector Connector)> _hintFailures =
-            new List<(DateTime, IConnector)>();
+        private readonly Dictionary<IConnector, DateTime> _hintFailures = new Dictionary<IConnector, DateTime>();
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
@@ -85,7 +85,6 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             Debug.Assert(endpoints.Count > 0);
-
             lock (_mutex)
             {
                 if (_disposeTask != null)
@@ -110,9 +109,13 @@ namespace ZeroC.Ice
                 }
 
                 // Purge expired hint failures
-                // TODO allow to set the expiration time for hint failures
-                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(120);
-                _hintFailures.RemoveAll(v => v.DateTime <= expirationDate);
+                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
+                var expiredFailures = _hintFailures.Where(entry => entry.Value <= expirationDate).Select(
+                    entry => entry.Key).ToList();
+                foreach (IConnector expired in expiredFailures)
+                {
+                    _hintFailures.Remove(expired);
+                }
             }
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
@@ -122,9 +125,9 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    IEnumerable<IConnector> connectorEndpoints =
+                    IEnumerable<IConnector> endpointConnectors =
                         await endpoint.ConnectorsAsync(selType, cancel).ConfigureAwait(false);
-                    foreach (IConnector connector in connectorEndpoints)
+                    foreach (IConnector connector in endpointConnectors)
                     {
                         connectors.Add((connector, endpoint));
                     }
@@ -163,12 +166,8 @@ namespace ZeroC.Ice
                 // Exclude connectors that where already tried, order the remaining connectors moving connectors with
                 // recent failures to the end of the list.
                 connectors = connectors.Where(item => !excludedConnectors.Contains(item.Connector)).OrderBy(
-                    item =>
-                    {
-                        return _hintFailures.Where(hint => hint.Connector.Equals(item.Connector))
-                            .Select(hint => hint.DateTime)
-                            .DefaultIfEmpty(DateTime.UnixEpoch).First();
-                    }).ToList();
+                    item => _hintFailures.TryGetValue(item.Connector, out DateTime value) ?
+                        value : DateTime.UnixEpoch).ToList();
 
                 if (connectors.Count == 0)
                 {
@@ -303,8 +302,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                _hintFailures.RemoveAll(item => item.Connector.Equals(connector));
-                _hintFailures.Add((DateTime.Now, connector));
+                _hintFailures[connector] = DateTime.Now;
             }
         }
 
@@ -429,10 +427,7 @@ namespace ZeroC.Ice
                         bool last = i == connectors.Count - 1;
 
                         TraceLevels traceLevels = _communicator.TraceLevels;
-                        lock (_mutex)
-                        {
-                            _hintFailures.Add((DateTime.Now, connector));
-                        }
+                        SetHintFailure(connector);
 
                         if (traceLevels.Transport >= 2)
                         {

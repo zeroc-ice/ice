@@ -883,15 +883,15 @@ namespace ZeroC.Ice.Test.Metrics
             // Reply contains the exception stack depending on the OS.
             TestHelper.Assert(dm1.Size == (39 + protocolRequestSizeAdjustment) && dm1.ReplySize > 7);
             dm1 = (DispatchMetrics)map["opWithRequestFailedException"];
-            TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 5 && dm1.Failures == 0 && dm1.UserException == 5);
+            TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
             if (ice1)
             {
-                TestHelper.Assert(dm1.Size == 235 && dm1.ReplySize == 200);
+                TestHelper.Assert(dm1.Size == 47 && dm1.ReplySize == 40);
             }
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == 215 && dm1.ReplySize == 1195);
+                TestHelper.Assert(dm1.Size == 43 && dm1.ReplySize == 233);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
@@ -1076,7 +1076,7 @@ namespace ZeroC.Ice.Test.Metrics
             if (ice1) // TODO: enable ice2
             {
                 im1 = (InvocationMetrics)map["opWithUserException"];
-                TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
+                TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
                 TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
                 rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
                 TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
@@ -1096,20 +1096,20 @@ namespace ZeroC.Ice.Test.Metrics
                 {
                     TestHelper.Assert(rim1.Size == 72 && rim1.ReplySize > 7);
                 }
-                CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
+                CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
                 im1 = (InvocationMetrics)map["opWithRequestFailedException"];
-                TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 8);
+                TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
                 TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
                 rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
-                TestHelper.Assert(rim1.Current == 0 && rim1.Total == 10 && rim1.Failures == 0);
+                TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
                 if (ice1)
                 {
-                    TestHelper.Assert(rim1.Size == 470 && rim1.ReplySize == 400);
+                    TestHelper.Assert(rim1.Size == 94 && rim1.ReplySize == 80);
                 }
                 else
                 {
-                    TestHelper.Assert(rim1.Size == 440 && rim1.ReplySize == 400);
+                    TestHelper.Assert(rim1.Size == 88 && rim1.ReplySize == 80);
                 }
                 CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ObjectNotExistException", 2, output);
 
@@ -1126,14 +1126,14 @@ namespace ZeroC.Ice.Test.Metrics
                 {
                     TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize > 7);
                 }
-                CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
+                CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
                 if (!collocated)
                 {
                     im1 = (InvocationMetrics)map["fail"];
-                    TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 2 && im1.Remotes.Length == 1);
+                    TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 8 && im1.Remotes.Length == 1);
                     rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
-                    TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 2);
+                    TestHelper.Assert(rim1.Current == 0 && rim1.Total == 10 && rim1.Failures == 10);
                     CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ConnectionLostException", 2, output);
                 }
             }

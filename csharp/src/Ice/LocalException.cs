@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -87,7 +86,6 @@ namespace ZeroC.Ice
     /// <summary>This exception reports an error from the transport layer.</summary>
     public class TransportException : Exception
     {
-        internal Retryable Retryable;
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class. A plain
         /// TransportException should have a custom message or an inner exception (or both).</summary>
         protected TransportException()
@@ -309,33 +307,6 @@ namespace ZeroC.Ice
         internal InvalidRequestHandlerException(Exception innerException)
             : base("", innerException)
         {
-        }
-    }
-
-    /// <summary>This exception wraps an incoming response frame containing a failure an unmarshals is retry policy,
-    /// it is used by Ice run-time for retries.</summary>
-    public class RetryableException : Exception
-    {
-        /// <summary>Gets the delay after which an exception can be retried when the exception uses
-        /// <see cref="Retryable.AfterDelay"/>.</summary>
-        public TimeSpan Delay { get; }
-        /// <summary>The incoming response frame containing the failure.</summary>
-        public IncomingResponseFrame ResponseFrame { get; }
-        /// <summary>Gets the remote exception <see cref="Retryable"/> setting.</summary>
-        public Retryable Retryable { get; }
-
-        /// <summary>Constructs a new instance of the <see cref="RetryableException"/> class.</summary>
-        /// <param name="responseFrame">The <see cref="IncomingResponseFrame"/> containing the failure.</param>
-        public RetryableException(IncomingResponseFrame responseFrame)
-        {
-            Debug.Assert(responseFrame.ResultType == ResultType.Failure);
-            ResponseFrame = responseFrame;
-            if (responseFrame.BinaryContext.TryGetValue(RetryPolicy.BinaryContextKey, out ReadOnlyMemory<byte> value))
-            {
-                Retryable = (Retryable)value.Span[0];
-                Delay = Retryable == Retryable.AfterDelay ?
-                    TimeSpan.FromMilliseconds(value[1..].Span.ReadVarULong().Value) : TimeSpan.Zero;
-            }
         }
     }
 }
