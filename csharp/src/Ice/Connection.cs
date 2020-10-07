@@ -297,7 +297,7 @@ namespace ZeroC.Ice
                     if (_state == ConnectionState.Active && _controlStream != null)
                     {
                         SetState(ConnectionState.Closing, exception);
-                        _closeTask ??= Task.Run(() => PerformCloseAsync(exception));
+                        _closeTask ??= PerformCloseAsync(exception);
                         Debug.Assert(_closeTask != null);
                     }
                     closeTask = _closeTask ?? AbortAsync(exception);
@@ -539,6 +539,10 @@ namespace ZeroC.Ice
                         throw _exception!;
                     }
                     SetState(ConnectionState.Active);
+
+                    // Start the asynchronous AcceptStream operation from the thread pool to prevent eventually reading
+                    // synchronously new frames from this thread.
+                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
                 }
             }
             catch (OperationCanceledException)
@@ -725,6 +729,8 @@ namespace ZeroC.Ice
             Debug.Assert((exception == null && state < ConnectionState.Closing) ||
                          (exception != null && state >= ConnectionState.Closing));
 
+            Debug.Assert(_state < state); // Don't switch twice and only switch to a higher value state.
+
             if (_exception == null && exception != null)
             {
                 // If we are in closed state, an exception must be set.
@@ -746,38 +752,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            Debug.Assert(_state != state); // Don't switch twice.
-            switch (state)
-            {
-                case ConnectionState.Validating:
-                {
-                    Debug.Assert(false);
-                    break;
-                }
-
-                case ConnectionState.Active:
-                {
-                    Debug.Assert(_state == ConnectionState.Validating);
-                    // Start the asynchronous operation from the thread pool to prevent eventually reading
-                    // synchronously new frames from this thread.
-                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
-                    break;
-                }
-
-                case ConnectionState.Closing:
-                {
-                    Debug.Assert(_state == ConnectionState.Active);
-                    break;
-                }
-
-                case ConnectionState.Closed:
-                {
-                    Debug.Assert(_state < ConnectionState.Closed);
-                    break;
-                }
-            }
-
-            // We register with the connection monitor if our new state is State.Active. ACM monitors the connection
+            // We register with the connection monitor if our new state is Active. ACM monitors the connection
             // once it's initialized and validated and until it's closed. Timeouts for connection establishment and
             // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (state == ConnectionState.Active)
@@ -792,11 +767,8 @@ namespace ZeroC.Ice
 
             if (_communicator.Observer != null)
             {
-                if (_state != state)
-                {
-                    Transceiver.Observer =
-                        _communicator.Observer.GetConnectionObserver(this, state, Transceiver.Observer);
-                }
+                Transceiver.Observer = _communicator.Observer.GetConnectionObserver(this, state, Transceiver.Observer);
+
                 if (Transceiver.Observer != null && state == ConnectionState.Closed)
                 {
                     Debug.Assert(_exception != null);
