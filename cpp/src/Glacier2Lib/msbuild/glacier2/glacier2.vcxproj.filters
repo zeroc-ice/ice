@@ -165,13 +165,7 @@
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Glacier2\PermissionsVerifier.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Glacier2\PermissionsVerifierF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Glacier2\Router.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Glacier2\RouterF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Glacier2\Session.h">
@@ -186,13 +180,7 @@
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Glacier2\PermissionsVerifier.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Glacier2\PermissionsVerifierF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Glacier2\Router.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Glacier2\RouterF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Glacier2\Session.h">
@@ -207,13 +195,7 @@
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Glacier2\PermissionsVerifier.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Glacier2\PermissionsVerifierF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Glacier2\Router.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Glacier2\RouterF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Glacier2\Session.h">
@@ -228,13 +210,7 @@
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Glacier2\PermissionsVerifier.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Glacier2\PermissionsVerifierF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Glacier2\Router.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Glacier2\RouterF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Glacier2\Session.h">
@@ -256,13 +232,7 @@
     <SliceCompile Include="..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\PermissionsVerifierF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Glacier2\Router.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\RouterF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Glacier2\Session.ice">

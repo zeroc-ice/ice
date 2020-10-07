@@ -11,7 +11,7 @@
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/ReplicaSessionManager.h>
 #include <IceGrid/PluginFacade.h>
-#include <Glacier2/PermissionsVerifierF.h>
+#include <Glacier2/PermissionsVerifier.h>
 #include <IceStorm/Service.h>
 
 namespace IceGrid

@@ -10,7 +10,7 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
-#include <Ice/LocatorF.h>
+#include <Ice/Locator.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/Identity.h>
 #include <Ice/EndpointIF.h>

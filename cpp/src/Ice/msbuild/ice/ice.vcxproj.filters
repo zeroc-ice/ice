@@ -1792,16 +1792,10 @@
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Locator.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\LocatorF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Metrics.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Process.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\ProcessF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\PropertiesAdmin.h">
@@ -1813,9 +1807,6 @@
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Router.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\RouterF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
@@ -1825,16 +1816,10 @@
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Locator.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\LocatorF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Metrics.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Process.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\ProcessF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\PropertiesAdmin.h">
@@ -1846,9 +1831,6 @@
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Router.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\RouterF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
@@ -1858,16 +1840,10 @@
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Locator.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\LocatorF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Metrics.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Process.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\ProcessF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\PropertiesAdmin.h">
@@ -1879,9 +1855,6 @@
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Router.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\RouterF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
@@ -1891,16 +1864,10 @@
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Locator.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\LocatorF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Metrics.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Process.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\ProcessF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\PropertiesAdmin.h">
@@ -1910,9 +1877,6 @@
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Router.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\RouterF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1926,16 +1890,10 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ProcessF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice">
@@ -1945,9 +1903,6 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Router.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\RouterF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>
