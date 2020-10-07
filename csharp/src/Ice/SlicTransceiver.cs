@@ -279,6 +279,7 @@ namespace ZeroC.Ice
             : base(endpoint, adapter, transceiver)
         {
             _transceiver = new BufferedReadTransceiver(transceiver);
+            _receiveStreamCompletionTaskSource.RunContinuationAsynchronously = true;
             _receiveStreamCompletionTaskSource.SetResult(0);
 
             Options = new SlicOptions();
