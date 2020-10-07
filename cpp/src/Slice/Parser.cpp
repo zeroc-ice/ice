@@ -1385,34 +1385,6 @@ Slice::Container::Container(const UnitPtr& ut) :
 }
 
 bool
-Slice::Container::checkFileMetadata(const StringList& m1, const StringList& m2)
-{
-    // Not all file metadata mismatches represent actual problems. We are only concerned about
-    // the prefixes listed below (also see bug 2766).
-    array<string, 2> prefixes =
-    {
-        "java:package",
-        "python:package"
-    };
-
-    // Collect the metadata that is unique to each list.
-    StringList diffs;
-    set_symmetric_difference(m1.begin(), m1.end(), m2.begin(), m2.end(), back_inserter(diffs));
-
-    for (const auto& diff : diffs)
-    {
-        for (const auto& prefix : prefixes)
-        {
-            if (diff.find(prefix) != string::npos)
-            {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool
 Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, SyntaxTreeBasePtr& valueType,
                                    const string& value, bool isConstant)
 {

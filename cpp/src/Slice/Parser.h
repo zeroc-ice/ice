@@ -466,7 +466,6 @@ protected:
 
     Container(const UnitPtr&);
 
-    bool checkFileMetadata(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
 
     std::map<std::string, ContainedPtr> _introducedMap;
