@@ -244,7 +244,7 @@ namespace ZeroC.Ice
                 ostr.WriteString(reason);
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
-                ArraySegment<byte> header = data[0];
+
                 await SendAsync(data, true, cancel).ConfigureAwait(false);
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)

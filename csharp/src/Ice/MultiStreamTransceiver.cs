@@ -339,7 +339,7 @@ namespace ZeroC.Ice
                     if (frame is IList<ArraySegment<byte>> sendBuffer)
                     {
                         framePrefix = "sent";
-                        data = sendBuffer.Count > 0 ? sendBuffer[0] : ArraySegment<byte>.Empty;
+                        data = sendBuffer.Count > 0 ? sendBuffer.AsArraySegment() : ArraySegment<byte>.Empty;
                     }
                     else if (frame is ArraySegment<byte> readBuffer)
                     {

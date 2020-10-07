@@ -473,7 +473,7 @@ namespace ZeroC.Ice
                     (acm.Heartbeat == AcmHeartbeat.Always ||
                     (acm.Heartbeat != AcmHeartbeat.Off && now >= (Transceiver.LastActivity + (acm.Timeout / 4)))))
                 {
-                    if (acm.Heartbeat != AcmHeartbeat.OnDispatch || Transceiver.StreamCount > 0)
+                    if (acm.Heartbeat != AcmHeartbeat.OnDispatch || Transceiver.StreamCount > 2)
                     {
                         Debug.Assert(_state == ConnectionState.Active);
                         if (!Endpoint.IsDatagram)
@@ -485,13 +485,14 @@ namespace ZeroC.Ice
 
                 if (acm.Close != AcmClose.Off && now >= Transceiver.LastActivity + acm.Timeout)
                 {
-                    if (acm.Close == AcmClose.OnIdleForceful || (acm.Close != AcmClose.OnIdle && (Transceiver.StreamCount > 0)))
+                    if (acm.Close == AcmClose.OnIdleForceful ||
+                        (acm.Close != AcmClose.OnIdle && (Transceiver.StreamCount > 2)))
                     {
                         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
                         // ACM activity in the last period.
                         _ = AbortAsync(new ConnectionTimeoutException());
                     }
-                    else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount == 0)
+                    else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount <= 2)
                     {
                         // The connection is idle, close it.
                         _ = CloseAsync(new ConnectionIdleException());

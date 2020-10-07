@@ -589,11 +589,12 @@ namespace ZeroC.Ice.Test.ACM
 
             TextWriter output = helper.Output;
 
+            // TODO: remove tests which are no longer supported when we refactor ACM.
             var tests = new List<TestCase>
             {
                 new InvocationHeartbeatTest(com, helper),
-                new InvocationNoHeartbeatTest(com, helper),
-                new InvocationHeartbeatCloseOnIdleTest(com, helper),
+                // new InvocationNoHeartbeatTest(com, helper),
+                // new InvocationHeartbeatCloseOnIdleTest(com, helper),
 
                 new CloseOnIdleTest(com, helper),
                 new CloseOnInvocationTest(com, helper),
