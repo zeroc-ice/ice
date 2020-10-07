@@ -5,7 +5,6 @@
         "Glacier2/Metrics.ice",
         "Glacier2/PermissionsVerifier.ice",
         "Glacier2/Router.ice",
-        "Glacier2/RouterF.ice",
         "Glacier2/Session.ice",
         "Glacier2/SSLInfo.ice"],
     "common":[
