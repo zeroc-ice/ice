@@ -98,6 +98,30 @@ bool isValue(const TypePtr& constType)
     return (b && b->usesClasses()) || cl;
 }
 
+long getSerialVersionUID(const DataMemberContainerPtr& p)
+{
+    if (auto metadata = p->findMetadata("java:serialVersionUID"))
+    {
+        const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
+        assert(dc);
+
+        try
+        {
+            return stoll(*metadata);
+        }
+        catch (const logic_error&)
+        {
+            string msg = "ignoring invalid serialVersionUID for class `" + p->scoped() + "'; generating default value";
+            dc->warning(InvalidMetadata, "", -1, msg);
+            return computeSerialVersionUUID(p);
+        }
+    }
+    else
+    {
+        return computeSerialVersionUUID(p);
+    }
+}
+
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
@@ -2260,44 +2284,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if (p->findMetadata("java:serialVersionUID", serialVersionUID))
-    {
-        const UnitPtr unt = p->unit();
-        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-        assert(dc);
-
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if (pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetadata, "", -1, os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            Int64 v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if (serialVersionUID != "0")
-            {
-                if (!stringToInt64(serialVersionUID, v)) // conversion error
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                       << "'; generating default value";
-                    dc->warning(InvalidMetadata, "", -1, os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+    out << getSerialVersionUUID(p) << "L;";
 
     writeMarshaling(out, p);
 
@@ -2774,44 +2761,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if(p->findMetadata("java:serialVersionUID", serialVersionUID))
-    {
-        const UnitPtr unt = p->unit();
-        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-        assert(dc);
-
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if(pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetadata, "", -1, os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            Int64 v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if(serialVersionUID != "0")
-            {
-                if(!stringToInt64(serialVersionUID, v)) // conversion error
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
-                       << "'; generating default value";
-                    dc->warning(InvalidMetadata, "", -1, os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+    out << getSerialVersionUUID(p) << "L;";
 
     out << eb;
     close();
@@ -3092,43 +3042,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "public static final long serialVersionUID = ";
-    string serialVersionUID;
-    if(p->findMetadata("java:serialVersionUID", serialVersionUID))
-    {
-        const UnitPtr unt = p->unit();
-        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-        assert(dc);
-        string::size_type pos = serialVersionUID.rfind(":") + 1;
-        if(pos == string::npos)
-        {
-            ostringstream os;
-            os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetadata, "", -1, os.str());
-            out << computeSerialVersionUUID(p);
-        }
-        else
-        {
-            Int64 v = 0;
-            serialVersionUID = serialVersionUID.substr(pos);
-            if(serialVersionUID != "0")
-            {
-                if(!stringToInt64(serialVersionUID, v)) // conversion error
-                {
-                    ostringstream os;
-                    os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
-                       << "'; generating default value";
-                    dc->warning(InvalidMetadata, "", -1, os.str());
-                    out << computeSerialVersionUUID(p);
-                }
-            }
-            out << v;
-        }
-    }
-    else
-    {
-        out << computeSerialVersionUUID(p);
-    }
-    out << "L;";
+    out << getSerialVersionUUID(p) << "L;";
 
     out << eb;
     close();
