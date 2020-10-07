@@ -4,8 +4,8 @@ require 'xcodeproj'
 
 $projectVersion = "4.0.0-alpha.0"
 $dylibVersion = "4.0.0"
-$macOSDeploymentTarget = "10.14"
-$iOSDeploymentTarget = "11.3"
+$macOSDeploymentTarget = "10.15"
+$iOSDeploymentTarget = "12.0"
 
 $tests = [
     "Ice/acm",
@@ -97,6 +97,12 @@ end
 
 def create_project(name, bindist)
     project = Xcodeproj::Project.new(name)
+
+    project.build_configurations.each do |conf|
+        conf.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
+        # Disable header maps as they cause problems with parallel builds on Xcode 12
+        conf.build_settings["USE_HEADERMAP"] = "NO"
+    end
 
     [:osx, :ios].each do |platform|
         create_platform_targets(project, platform, bindist)
@@ -541,8 +547,6 @@ def create_platform_targets(project, platform, bindist)
     #
     unless bindist
         scheme = Xcodeproj::XCScheme.new
-        scheme.add_build_target(iceimpl_target)
-        scheme.add_build_target(ice_target)
         scheme.add_build_target(glacier2_target)
         scheme.add_build_target(icestorm_target)
         scheme.add_build_target(icegrid_target)
@@ -595,7 +599,7 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
 
     if prefix then
         rule.name = "Slice Compiler for #{prefix}/*.ice"
-        rule.file_patterns = "*/#{prefix}/*.ice"
+        rule.file_patterns = "*.ice"
         rule.script = <<~EOF
             #{slic2swift}
             BASENAME=$(basename -- "$INPUT_FILE_PATH")
@@ -609,6 +613,7 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
         EOF
         rule.dependency_file = "$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_NAME).d"
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
+        rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
     else
         rule.name = "Slice Compiler"
         rule.file_patterns = "*.ice"
@@ -632,7 +637,7 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
-    rule.file_patterns = "*/#{prefix}/*.ice"
+    rule.file_patterns = "*.ice"
     rule.dependency_file = "$(DERIVED_FILES_DIR)/#{prefix}/$(INPUT_FILE_NAME).d"
 
     rule.script = <<~EOF
@@ -659,8 +664,12 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     EOF
     rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).cpp",
                          "$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/$(INPUT_FILE_BASE).h"]
-    target.build_rules << rule
 
+    inputs = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| File.basename(p, ".ice") }
+    rule.input_files = inputs.map { |p|
+        "$SRCROOT/../slice/#{prefix}/#{p}.ice"
+    }
+    target.build_rules << rule
 end
 
 def target_add_swiftlint_build_phase(target, basedir)
@@ -674,7 +683,7 @@ def target_add_swiftlint_build_phase(target, basedir)
     EOF
 end
 
-def group_add_files(group, basedir, patterns, exclude = [])
+def find_files(basedir, patterns, exclude = [])
     files = []
     Dir.chdir(basedir) do
         patterns.each do |p|
@@ -683,9 +692,12 @@ def group_add_files(group, basedir, patterns, exclude = [])
             end
         end
     end
-    files = files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
-    files = files.uniq
-    files.map { |file|  group.find_subpath(File.basename(file)) ||  group.new_file("#{basedir}/#{file}") }
+    return files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
+end
+
+def group_add_files(group, basedir, patterns, exclude = [])
+    find_files(basedir, patterns, exclude).map { |file|
+        group.find_subpath(File.basename(file)) ||  group.new_file("#{basedir}/#{file}") }
 end
 
 def target_add_files(target, group, basedir, patterns, excludes = [])
