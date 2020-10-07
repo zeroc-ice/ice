@@ -312,14 +312,14 @@ namespace ZeroC.Ice
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
-            else if (Encoding == Encoding.V20 && exception.Retryable != Retryable.No)
+            else if (Encoding == Encoding.V20 && exception.RetryPolicy.Retryable != Retryable.No)
             {
-                AddBinaryContextEntry(RetryPolicy.BinaryContextKey, exception, (ostr, value) =>
+                AddBinaryContextEntry((int)BinaryContext.RetryPolicy, exception.RetryPolicy, (ostr, retryPolicy) =>
                 {
-                    ostr.Write(value.Retryable);
-                    if (value.Retryable == Retryable.AfterDelay)
+                    ostr.Write(retryPolicy.Retryable);
+                    if (retryPolicy.Retryable == Retryable.AfterDelay)
                     {
-                        ostr.WriteVarUInt((uint)value.AfterDelay.TotalMilliseconds);
+                        ostr.WriteVarUInt((uint)retryPolicy.Delay.TotalMilliseconds);
                     }
                 });
             }

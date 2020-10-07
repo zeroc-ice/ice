@@ -414,7 +414,7 @@ namespace ZeroC.Ice
                                     retryable = Retryable.AfterDelay;
                                 }
                             }
-                            else if (response.BinaryContext.TryGetValue(RetryPolicy.BinaryContextKey,
+                            else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
                                                                         out ReadOnlyMemory<byte> value))
                             {
                                 retryable = (Retryable)value.Span[0];

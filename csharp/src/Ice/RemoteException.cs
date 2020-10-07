@@ -50,8 +50,6 @@ namespace ZeroC.Ice
             Retryable = retryable;
             Delay = delay;
         }
-
-        internal const int BinaryContextKey = 10;
     }
 
     /// <summary>Base class for exceptions that can be transmitted in responses to Ice requests. The derived exception
@@ -68,7 +66,7 @@ namespace ZeroC.Ice
         public bool ConvertToUnhandled { get; set; }
 
         internal TimeSpan AfterDelay { get; private set; }
-        internal Retryable Retryable { get; private set; }
+        internal RetryPolicy RetryPolicy { get; private set; }
 
         /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
         /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in
@@ -83,11 +81,8 @@ namespace ZeroC.Ice
         private readonly bool _hasCustomMessage;
 
         /// <summary>Constructs a remote exception with the default system message.</summary>
-        protected RemoteException(RetryPolicy retryPolicy = default)
-        {
-            Retryable = retryPolicy.Retryable;
-            AfterDelay = retryPolicy.Delay;
-        }
+        /// <param name="retryPolicy">The retry policy for the exception.</param>
+        protected RemoteException(RetryPolicy retryPolicy = default) => RetryPolicy = retryPolicy;
 
         /// <summary>Constructs a remote exception with the provided message and inner exception.</summary>
         /// <param name="message">Message that describes the exception.</param>
@@ -96,8 +91,7 @@ namespace ZeroC.Ice
         protected internal RemoteException(string? message, RetryPolicy retryPolicy = default, Exception? innerException = null)
             : base(message, innerException)
         {
-            Retryable = retryPolicy.Retryable;
-            AfterDelay = retryPolicy.Delay;
+            RetryPolicy = retryPolicy;
             _hasCustomMessage = message != null;
         }
 
