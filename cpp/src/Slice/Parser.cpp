@@ -911,6 +911,13 @@ Slice::Contained::hasMetadataWithPrefix(const string& prefix) const
     return !findMetadataWithPrefix(prefix).empty();
 }
 
+optional<string>
+Slice::Contained::findMetadata(const string& directive) const
+{
+    // TODO this is temporary until we can fully replace the current metadata logic.
+    return findMetadata(directive, parseMetadata(_metadata));
+}
+
 bool
 Slice::Contained::findMetadata(const string& prefix, string& meta) const
 {

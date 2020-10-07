@@ -101,6 +101,20 @@ bool opCompressReturn(const OperationPtr& op);
 // there isn't any). If the entity isn't deprecated, this returns the empty string.
 std::string getDeprecateReason(const ContainedPtr& p, bool checkContainer = false);
 
+// Parses a raw string of metadata, converting it into a directive and argument pair.
+std::pair<std::string, std::string> parseMetadata(const std::string& metadata);
+
+// Parses a list of raw metadata strings, converting it into a map of directives (keys) and arguments (values).
+std::map<std::string, std::string> parseMetadata(const StringList& metadata);
+
+// Returns true if `metadata` contains the specified metadata directive.
+bool hasMetadata(const std::string& directive, const std::map<std::string, std::string>& metadata);
+
+// Returns any arguments passed to the specified metadata directive if it's present.
+// Otherwise it returns a null optional to indicate the metadata isn't set.
+std::optional<std::string> findMetadata(const std::string& directive,
+                                        const std::map<std::string, std::string>& metadata);
+
 }
 
 #endif

@@ -812,3 +812,48 @@ string Slice::getDeprecateReason(const ContainedPtr& p, bool checkContainer)
     }
     return "";
 }
+
+pair<string, string> Slice::parseMetadata(const string& metadata)
+{
+    // Check if the metadata has any arguments.
+    auto argumentStart = metadata.find("(");
+    if (argumentStart == string::npos)
+    {
+        return make_pair(metadata, "");
+    }
+    else
+    {
+        // Make sure the parentheses are balanced. For metadata with arguments, the final character must be ')'.
+        auto argumentEnd = metadata.length() - 1;
+        if (metadata.at(argumentEnd) != ')')
+        {
+            unit->error("missing closing parentheses for metadata arguments");
+        }
+        return make_pair(metadata.substr(0, argumentStart), metadata.substr(argumentStart + 1, argumentEnd));
+    }
+}
+
+map<string, string> Slice::parseMetadata(const StringList& metadata)
+{
+    map<string, string> parsedMetadata;
+    for (const auto& m : metadata)
+    {
+        parsedMetadata.insert(parseMetadata(m));
+    }
+    return parsedMetadata;
+}
+
+bool Slice::hasMetadata(const string& directive, const map<string, string>& metadata)
+{
+    return metadata.find(directive) != metadata.end();
+}
+
+optional<string> Slice::findMetadata(const string& directive, const map<string, string>& metadata)
+{
+    auto match = metadata.find(directive);
+    if (match != metadata.end())
+    {
+        return match->second;
+    }
+    return nullopt;
+}

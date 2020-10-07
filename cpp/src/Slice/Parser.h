@@ -413,6 +413,7 @@ public:
 
     bool hasMetadata(const std::string&) const;
     bool hasMetadataWithPrefix(const std::string&) const;
+    std::optional<std::string> findMetadata(const std::string&) const;
     bool findMetadata(const std::string&, std::string&) const;
     std::string findMetadataWithPrefix(const std::string&) const;
     std::list<std::string> getAllMetadata() const;
