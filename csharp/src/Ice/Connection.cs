@@ -514,6 +514,10 @@ namespace ZeroC.Ice
                     cancel = source.Token;
                 }
 
+                Transceiver.Observer = _communicator.Observer?.GetConnectionObserver(this,
+                                                                                     ConnectionState.Validating,
+                                                                                     Transceiver.Observer);
+
                 // Initialize the transport.
                 await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
