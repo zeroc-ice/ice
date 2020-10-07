@@ -812,7 +812,7 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>Represents a colocated connection to an object adapter</summary>
+    /// <summary>Represents a connection to a colocated object adapter.</summary>
     public class ColocatedConnection : Connection
     {
         internal ColocatedConnection(
@@ -864,7 +864,7 @@ namespace ZeroC.Ice
             }
         }
 
-        protected IPConnection(
+        internal IPConnection(
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
@@ -907,7 +907,7 @@ namespace ZeroC.Ice
 
         private SslStream? SslStream => _transceiver.Underlying.SslStream;
 
-        protected internal TcpConnection(
+        internal TcpConnection(
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
@@ -927,7 +927,7 @@ namespace ZeroC.Ice
 
         private readonly UdpTransceiver _udpTransceiver;
 
-        protected internal UdpConnection(
+        internal UdpConnection(
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
@@ -946,7 +946,7 @@ namespace ZeroC.Ice
 
         private readonly WSTransceiver _wsTransceiver;
 
-        protected internal WSConnection(
+        internal WSConnection(
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,

@@ -48,6 +48,12 @@ namespace ZeroC.Ice
         private int _receivedSize;
         private bool _receivedEndOfStream;
 
+        public override void Abort(Exception ex)
+        {
+            base.Abort(ex);
+            _exception = ex;
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -135,7 +141,7 @@ namespace ZeroC.Ice
             bool fin,
             CancellationToken cancel)
         {
-            // Ensure the caller reserved space for the Slic header by checking for sentinel header.
+            // Ensure the caller reserved space for the Slic header by checking for the sentinel header.
             Debug.Assert(Header.Span.SequenceEqual(buffer[0].Slice(0, Header.Length)));
 
             int size = buffer.GetByteCount();
@@ -270,12 +276,6 @@ namespace ZeroC.Ice
 
         internal SlicStream(bool bidirectional, SlicTransceiver transceiver)
             : base(bidirectional, transceiver) => _transceiver = transceiver;
-
-        internal override void Abort(Exception ex)
-        {
-            base.Abort(ex);
-            _exception = ex;
-        }
 
         internal void ReceivedFrame(int size, bool fin) =>
             // Ensure to run the continuation asynchronously in case the continuation ends up calling user-code.
