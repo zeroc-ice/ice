@@ -89,7 +89,7 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
         public IEnumerable<string> IceIds(Current current, CancellationToken cancel) =>
@@ -98,7 +98,7 @@ namespace ZeroC.Ice
         /// <summary>Tests whether this object supports the specified Slice interface.</summary>
         /// <param name="typeId">The type ID of the Slice interface to test against.</param>
         /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         /// <returns>True if this object implements the interface specified by typeId.</returns>
         public bool IceIsA(string typeId, Current current, CancellationToken cancel) =>
@@ -106,7 +106,7 @@ namespace ZeroC.Ice
 
         /// <summary>Tests whether this object can be reached.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         public void IcePing(Current current, CancellationToken cancel)
         {
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_id request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         /// <returns>The response frame.</returns>
         protected ValueTask<OutgoingResponseFrame> IceDIceIdAsync(
@@ -146,7 +146,7 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_ids request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         /// <returns>The response frame.</returns>
         protected ValueTask<OutgoingResponseFrame> IceDIceIdsAsync(
@@ -162,7 +162,7 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_isA request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         /// <returns>The response frame.</returns>
         protected ValueTask<OutgoingResponseFrame> IceDIceIsAAsync(
@@ -178,7 +178,7 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_ping request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
-        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is canceled.
         /// </param>
         /// <returns>The response frame.</returns>
         protected ValueTask<OutgoingResponseFrame> IceDIcePingAsync(

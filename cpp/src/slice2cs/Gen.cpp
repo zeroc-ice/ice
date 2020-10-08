@@ -454,7 +454,7 @@ vector<string>
 getInvocationArgsAMI(const OperationPtr& op,
                      const string& context = "",
                      const string& progress = "null",
-                     const string cancelationToken = "global::System.Threading.CancellationToken.None",
+                     const string cancellationToken = "global::System.Threading.CancellationToken.None",
                      const string& async = "true")
 {
     vector<string> args = getNames(op->params());
@@ -469,7 +469,7 @@ getInvocationArgsAMI(const OperationPtr& op,
     }
 
     args.push_back(progress);
-    args.push_back(cancelationToken);
+    args.push_back(cancellationToken);
     args.push_back(async);
 
     return args;
@@ -949,7 +949,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
         }
     }
     _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-         << "\">A cancelation token that receives the cancelation requests.</param>";
+         << "\">A cancellation token that receives the cancellation requests.</param>";
 
     if(dispatch && p->hasMarshaledResult())
     {
