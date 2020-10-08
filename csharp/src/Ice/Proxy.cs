@@ -327,7 +327,7 @@ namespace ZeroC.Ice
 
                             cancel.ThrowIfCancellationRequested();
 
-                            // Create the stream and send the request
+                            // Create the outgoing stream.
                             using TransceiverStream stream = connection.CreateStream(!oneway);
 
                             childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
@@ -336,10 +336,11 @@ namespace ZeroC.Ice
                             // TODO: support for streaming data, fin should be false if there's data to stream.
                             bool fin = true;
 
-                            // Send the request and wait for the sending.
+                            // Send the request and wait for the sending to complete.
                             await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
 
-                            // The request is sent
+                            // The request is sent, notify the progress callback from a separate thread.
+                            // TODO: Get rid of the sentSynchronously parameter which is always false now?
                             if (progress != null)
                             {
                                 _ = Task.Run(() => progress.Report(false), CancellationToken.None);
@@ -352,9 +353,12 @@ namespace ZeroC.Ice
                             }
                             else
                             {
-                                // TODO: Is the synchronous boolean still useful there?
-
                                 IncomingResponseFrame response;
+
+                                // TODO: the synchronous boolean is no longer used. It was used to allow the reception
+                                // of the response frame to be ran synchronously from the IO thread. Supporting this
+                                // might still be possible depending on the underlying transport but it would be quite
+                                // complex. So get rid of the synchronous boolean and simplify the proxy generated code?
 
                                 // Wait for the reception of the response.
                                 (response, fin) =
@@ -371,6 +375,7 @@ namespace ZeroC.Ice
 
                                 if (response.ResultType == ResultType.Failure)
                                 {
+                                    // TODO: revisit system excpetion are reported twice to the observer.
                                     observer?.RemoteException();
 
                                     // TODO: revisit
@@ -380,7 +385,7 @@ namespace ZeroC.Ice
 
                                 if (!fin)
                                 {
-                                    // TODO: handle stream data.
+                                    // TODO: handle received stream data.
                                 }
 
                                 return response;
