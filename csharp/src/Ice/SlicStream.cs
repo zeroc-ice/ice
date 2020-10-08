@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    // The stream implementation for Slic. It implements IValueTaskSource<> directly instead of using
-    // ManualResetValueTaskCompletionSource<T> to minimize the number of heap allocations.
+    /// <summary>The stream implementation for Slic.</summary>
     internal class SlicStream : SignaledTransceiverStream<(int, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
@@ -50,6 +49,9 @@ namespace ZeroC.Ice
 
                 if (IsIncoming && !IsBidirectional && !IsControl)
                 {
+                    // The incoming uni-directional stream is considered completed once it's disposed. It's important
+                    // to decrement the stream count before sending the StreamUnidirectionalFin frame to prevent a
+                    // race where the peer could start a new stream before the counter was decremented.
                     Interlocked.Decrement(ref _transceiver.UnidirectionalStreamCount);
                     _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamUnidirectionalFin, null);
                 }
@@ -103,7 +105,7 @@ namespace ZeroC.Ice
             await _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamReset, ostr =>
                 {
                     ostr.WriteVarLong(Id);
-                    ostr.WriteVarLong(0); // TODO: reason code?
+                    ostr.WriteVarLong(0); // TODO: reason code or remove?
                     return Id;
                 }, CancellationToken.None).ConfigureAwait(false);
 
@@ -117,23 +119,33 @@ namespace ZeroC.Ice
 
             int size = buffer.GetByteCount();
 
+            // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
             int maxFrameSize = _transceiver.Options.PacketSize;
             if (size > maxFrameSize)
             {
+                // The send buffer for the Slic packet.
                 var sendBuffer = new List<ArraySegment<byte>>(buffer.Count);
+
+                // The amount of data sent so far.
                 int offset = 0;
+
+                // The position of the data to send next.
                 var start = new OutputStream.Position();
+
                 while (offset < size)
                 {
-                    int sendSize = 0;
                     sendBuffer.Clear();
 
+                    int sendSize = 0;
                     if (offset > 0)
                     {
+                        // If it's not the first Slic packet, we re-use the space reserved for Slic header in the first
+                        // segment of the protocol buffer.
                         sendBuffer.Add(buffer[0].Slice(0, Header.Length));
                         sendSize += sendBuffer[0].Count;
                     }
 
+                    // Append data until we reach the Slic packet size or the end of the protocol buffer.
                     bool lastBuffer = false;
                     for (int i = start.Segment; i < buffer.Count; ++i)
                     {
@@ -153,15 +165,19 @@ namespace ZeroC.Ice
                         }
                     }
 
+                    // Send the Slic packet.
                     offset += sendSize;
                     await SendFrameAsync(sendSize, lastBuffer && fin, sendBuffer).ConfigureAwait(false);
                 }
             }
             else
             {
+                // If the protocol buffer is small enough to fit in a single Slic packet, send it directly.
                 await SendFrameAsync(size, fin, buffer).ConfigureAwait(false);
             }
 
+            // Send a Slic packet. The first segment of the given buffer always contain space reserved for the Slic
+            // header.
             async Task SendFrameAsync(int frameSize, bool fin, IList<ArraySegment<byte>> buffer)
             {
                 if (_exception != null)
@@ -172,7 +188,10 @@ namespace ZeroC.Ice
                 {
                     Debug.Assert(!IsIncoming);
 
-                    // Ensure we don't open more streams than the peer allows.
+                    // If the outgoing stream isn't started, it's the first Send call. Wwe need to ensure we
+                    // don't open more streams to the peer than it allows so we first wait on the semaphores.
+                    // The wait on the semaphore provides FIFO guarantee to ensure that the sending of
+                    // requests will be serialized.
                     if (IsBidirectional)
                     {
                         await _transceiver.BidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
@@ -200,6 +219,7 @@ namespace ZeroC.Ice
                 Debug.Assert(frameSize > Header.Length);
                 frameSize -= Header.Length;
 
+                // Compute how much space the size and stream ID require to figure out the start of the Slic header.
                 int sizeLength = OutputStream.GetVarLongLength(frameSize);
                 int streamIdLength = OutputStream.GetVarLongLength(Id);
                 frameSize += streamIdLength;
@@ -226,6 +246,10 @@ namespace ZeroC.Ice
 
                 if (IsIncoming && fin)
                 {
+                    // The incoming bi-directional stream is considered completed once more data will be written on
+                    // the stream. It's important to decrement the stream count here before the peer receives the
+                    // last stream frame  to prevent a race where the peer could start a new stream before the counter
+                    // is decremented.
                     Debug.Assert(IsBidirectional);
                     Interlocked.Decrement(ref _transceiver.BidirectionalStreamCount);
                 }
@@ -236,8 +260,7 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    // Restore the original value of the send buffer.
-                    buffer[0] = previous;
+                    buffer[0] = previous; // Restore the original value of the send buffer.
                 }
             }
         }

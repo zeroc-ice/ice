@@ -113,16 +113,16 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask<(long, string message)> ReceiveCloseFrameAsync()
+        internal virtual async ValueTask<(long, string message)> ReceiveGoAwayFrameAsync()
         {
             byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.Close;
+                (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
 
             (ArraySegment<byte> data, bool fin) =
                 await ReceiveFrameAsync(frameType, CancellationToken.None).ConfigureAwait(false);
             if (!fin)
             {
-                throw new InvalidDataException($"expected end of stream after Close frame");
+                throw new InvalidDataException($"expected end of stream after GoAway frame");
             }
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
@@ -222,7 +222,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask SendCloseFrameAsync(long streamId, string reason, CancellationToken cancel)
+        internal virtual async ValueTask SendGoAwayFrameAsync(long streamId, string reason, CancellationToken cancel)
         {
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
             {
@@ -241,7 +241,7 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteByteSpan(Header.Span);
                 }
-                ostr.WriteByte((byte)Ice2Definitions.FrameType.Close);
+                ostr.WriteByte((byte)Ice2Definitions.FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
                 ostr.WriteVarLong(streamId);
@@ -253,7 +253,7 @@ namespace ZeroC.Ice
 
                 if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.Close);
+                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.GoAway);
                 }
             }
         }

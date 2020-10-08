@@ -213,7 +213,7 @@ namespace ZeroC.Ice.Test.ACM
                         }
                     };
 
-                proxy.GetConnection().HeartbeatReceived += (sender, args) =>
+                proxy.GetConnection().PingReceived += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -497,11 +497,11 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.StartHeartbeatCount();
                 Connection con = proxy.GetConnection()!;
-                con.Heartbeat();
-                con.Heartbeat();
-                con.Heartbeat();
-                con.Heartbeat();
-                con.Heartbeat();
+                con.Ping();
+                con.Ping();
+                con.Ping();
+                con.Ping();
+                con.Ping();
                 proxy.WaitForHeartbeatCount(5);
             }
         }
@@ -554,7 +554,7 @@ namespace ZeroC.Ice.Test.ACM
                 con.Closed += (sender, args) => t3.SetResult(null);
                 TestHelper.Assert(t3.Task.Result == null);
 
-                con.HeartbeatReceived += (sender, args) => TestHelper.Assert(false);
+                con.PingReceived += (sender, args) => TestHelper.Assert(false);
 
                 foreach ((string close, string hearbeat) in new (string, string)[]
                                                                 {

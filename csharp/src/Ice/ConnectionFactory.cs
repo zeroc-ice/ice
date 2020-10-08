@@ -47,7 +47,7 @@ namespace ZeroC.Ice
                 // Wait for connections to be closed.
                 IEnumerable<Task> tasks =
                     _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                        connection.CloseAsync(new CommunicatorDisposedException()));
+                        connection.GoAwayAsync(new CommunicatorDisposedException()));
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
 #if DEBUG
@@ -366,7 +366,7 @@ namespace ZeroC.Ice
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                         }
-                        await connection.StartAsync().ConfigureAwait(false);
+                        await connection.InitializeAsync().ConfigureAwait(false);
                         return connection;
                     }
                     catch (CommunicatorDisposedException ex)
@@ -500,7 +500,7 @@ namespace ZeroC.Ice
 
             // The connection set is immutable once _disposed = true
             var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
-            IEnumerable<Task> tasks = _connections.Select(connection => connection.CloseAsync(exception));
+            IEnumerable<Task> tasks = _connections.Select(connection => connection.GoAwayAsync(exception));
 
             // Wait for AcceptAsync and the connection closure to return.
             if (_acceptTask != null)
@@ -600,14 +600,14 @@ namespace ZeroC.Ice
                         // We don't wait for the connection to be activated. This could take a while for some transports
                         // such as TLS based transports where the handshake requires few round trips between the client
                         // and server.
-                        _ = connection.StartAsync();
+                        _ = connection.InitializeAsync();
                     }
                 }
                 catch (Exception exception)
                 {
                     if (connection != null)
                     {
-                        await connection.CloseAsync(exception);
+                        await connection.GoAwayAsync(exception);
                     }
                     if (_disposed)
                     {
@@ -633,7 +633,7 @@ namespace ZeroC.Ice
         public override async ValueTask DisposeAsync()
         {
             var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_connection.Adapter!.Name}");
-            await _connection.CloseAsync(exception).ConfigureAwait(false);
+            await _connection.GoAwayAsync(exception).ConfigureAwait(false);
         }
 
         public override string ToString() => _connection.ToString()!;
@@ -643,7 +643,7 @@ namespace ZeroC.Ice
         {
             _connection = endpoint.CreateDatagramServerConnection(adapter);
             Endpoint = _connection.Endpoint;
-            _ = _connection.StartAsync();
+            _ = _connection.InitializeAsync();
         }
 
         internal override void Activate()

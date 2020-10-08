@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>The Slic transceiver implements a multi-stream transport on top of a single-stream transport such
+    /// as TCP. It supports the same set of features as Quic.</summary>
     internal class SlicTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
         internal int BidirectionalStreamCount;
@@ -30,7 +32,7 @@ namespace ZeroC.Ice
 
         public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
         {
-            // Wait for the previous stream data receive to complete.
+            // Eventually wait for the stream data receive to complete if stream data is being received.
             await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
 
             while (true)
@@ -57,7 +59,7 @@ namespace ZeroC.Ice
                     }
                     case SlicDefinitions.FrameType.Pong:
                     {
-                        // TODO: setup a timer to expect pong frame response?
+                        // TODO: setup and reset timer here for the pong frame response?
                         if (size != 0)
                         {
                             throw new InvalidDataException("unexpected data for Slic Pong fame");
@@ -81,12 +83,10 @@ namespace ZeroC.Ice
 
                         if (TryGetStream(streamId.Value, out SlicStream? stream))
                         {
-                            // Existing stream, notify the stream that data is available for read. We ensure that the
-                            // continuation is ran asynchronously as otherwise this could end up blocking and it would
-                            // prevent receiving further data.
-                            stream.ReceivedFrame(size, type == SlicDefinitions.FrameType.StreamLast);
+                            // Existing stream, notify the stream that data is available for read.
+                            stream.ReceivedFrame(size, fin: type == SlicDefinitions.FrameType.StreamLast);
 
-                            // Wait for the stream data receive to complete.
+                            // Wait for the stream to receive the data before reading a new Slic frame.
                             await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
                         }
                         else if (isIncoming &&
@@ -94,6 +94,9 @@ namespace ZeroC.Ice
                         {
                             // Create a new stream if it's an incoming stream ID and if it's larger than the last
                             // known stream ID (the client could be sending frames for old canceled incoming streams).
+
+                            // Ensure the peer doesn't open more streams that it is allowed and keep track of the last
+                            // accepted stream ID.
                             if (isBidirectional)
                             {
                                 if (BidirectionalStreamCount == Options.MaxBidirectionalStreams)
@@ -115,7 +118,7 @@ namespace ZeroC.Ice
                                 _lastUnidirectionalId = streamId.Value;
                             }
 
-                            // Accept the new incoming stream and notify that data is available for read.
+                            // Accept the new incoming stream and notify the stream that data is available.
                             stream = new SlicStream(streamId.Value, this);
                             stream.ReceivedFrame(size, type == SlicDefinitions.FrameType.StreamLast);
                             return stream;
@@ -137,7 +140,8 @@ namespace ZeroC.Ice
                         Debug.Assert(streamId != null);
                         ArraySegment<byte> data = new byte[size];
                         await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                        long reason = data.AsReadOnlySpan().ReadVarLong().Value; // TODO: do something with the reason code?
+                        // TODO: do something with the reason code? Or remove the reason code?
+                        long reason = data.AsReadOnlySpan().ReadVarLong().Value;
                         if (TryGetStream(streamId.Value, out SlicStream? stream))
                         {
                             stream.ReceivedReset();
@@ -150,6 +154,9 @@ namespace ZeroC.Ice
                     }
                     case SlicDefinitions.FrameType.StreamUnidirectionalFin:
                     {
+                        // The peer finished processing an un-directional stream. We can release the semaphore to
+                        // eventually open a new un-directional stream.
+                        // TODO: should we provide the stream ID at least for tracing here?
                         if (Endpoint.Communicator.TraceLevels.Transport > 2)
                         {
                             TraceTransportFrame("received ", type, size, streamId);
@@ -216,6 +223,8 @@ namespace ZeroC.Ice
                     throw new NotSupportedException($"application protocol `{protocol}' is not supported with Slic");
                 }
 
+                // Read the maximum stream counts and peer idle timeout and configure the semaphores to ensure
+                // we don't open more streams than the peer allows.
                 BidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
                 UnidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
                 peerIdleTimeout = TimeSpan.FromMilliseconds((double)istr.ReadVarLong());
@@ -259,6 +268,8 @@ namespace ZeroC.Ice
                     throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
                 }
 
+                // Read the maximum stream counts and peer idle timeout and configure the semaphores to ensure
+                // we don't open more streams than the peer allows.
                 var istr = new InputStream(data, SlicDefinitions.Encoding);
                 BidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
                 UnidirectionalStreamSemaphore = new AsyncSemaphore(istr.ReadVarInt());
@@ -270,6 +281,7 @@ namespace ZeroC.Ice
         }
 
         public override Task PingAsync(CancellationToken cancel) =>
+            // TODO: shall we set a timer for expecting the Pong frame?
             PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Ping, null, cancel);
 
         internal SlicTransceiver(
@@ -282,6 +294,8 @@ namespace ZeroC.Ice
             _receiveStreamCompletionTaskSource.RunContinuationAsynchronously = true;
             _receiveStreamCompletionTaskSource.SetResult(0);
 
+            // If serialization if enabled on the adapter, we configure the maximum stream counts to 1 to ensure
+            // the peer won't open more than one stream.
             Options = new SlicOptions();
             if (adapter?.SerializeDispatch ?? false)
             {
@@ -331,6 +345,7 @@ namespace ZeroC.Ice
 
         internal void FinishedReceivedStreamData(long streamId, int frameOffset, int frameSize, bool fin)
         {
+            // The stream finished receiving stream data.
             if (Endpoint.Communicator.TraceLevels.Transport > 2)
             {
                 TraceTransportFrame("received ",
@@ -523,7 +538,8 @@ namespace ZeroC.Ice
 
         internal async ValueTask WaitForReceivedStreamDataCompletionAsync(CancellationToken cancel)
         {
-            // If the stream didn't fully read the stream data, finish reading it here before returning.
+            // If the stream didn't fully read the stream data, finish reading it here before returning. The stream
+            // might not have fully received the data if it was aborted or canceled.
             int size = await _receiveStreamCompletionTaskSource.ValueTask.WaitAsync(cancel).ConfigureAwait(false);
             if (size > 0)
             {

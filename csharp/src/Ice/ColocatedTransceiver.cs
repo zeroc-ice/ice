@@ -32,9 +32,10 @@ namespace ZeroC.Ice
                     (long streamId, object? frame, bool fin) = await _reader.ReadAsync(cancel).ConfigureAwait(false);
                     if (TryGetStream(streamId, out ColocatedStream? stream))
                     {
+                        // If we received a frame for a known stream, signal the stream of the frame reception. A null
+                        // frame indicates a stream reset so reset the stream in this case.
                         if (frame == null)
                         {
-                            // A null frame indicates a stream Reset.
                             stream.ReceivedReset();
                         }
                         else
@@ -44,6 +45,8 @@ namespace ZeroC.Ice
                     }
                     else if (frame is OutgoingRequestFrame || streamId == (IsIncoming ? 2 : 3))
                     {
+                        // If we received an outgoing request frame or a frame for the incoming control stream,
+                        // create a new stream and provide it the received frame.
                         Debug.Assert(frame != null);
                         stream = new ColocatedStream(streamId, this);
                         stream.ReceivedFrame(frame, fin);
@@ -84,6 +87,10 @@ namespace ZeroC.Ice
             bool isIncoming)
             : base(endpoint, isIncoming ? endpoint.Adapter : null)
         {
+            _id = id;
+            _writer = writer;
+            _reader = reader;
+
             if (!isIncoming && endpoint.Adapter.SerializeDispatch)
             {
                 BidirectionalSerializeSemaphore = new AsyncSemaphore(1);
@@ -101,9 +108,6 @@ namespace ZeroC.Ice
                 _nextBidirectionalId = 0;
                 _nextUnidirectionalId = 2;
             }
-            _id = id;
-            _writer = writer;
-            _reader = reader;
         }
 
         internal long AllocateId(bool bidirectional)

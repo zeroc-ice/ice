@@ -15,19 +15,19 @@ namespace ZeroC.Ice
     /// <summary>Determines the behavior when manually closing a connection.</summary>
     public enum ConnectionClose
     {
-        /// <summary>Close the connection immediately without sending a close connection protocol message to the peer
+        /// <summary>Close the connection immediately without sending a GoAway protocol message to the peer
         /// and waiting for the peer to acknowledge it.</summary>
         Forcefully,
-        /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations to
-        /// complete.</summary>
+        /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations
+        // to complete, just wait for pending dispatch to complete.</summary>
         Gracefully,
     }
 
     /// <summary>The state of an Ice connection.</summary>
     public enum ConnectionState : byte
     {
-        /// <summary>The connection is being validated.</summary>
-        Validating = 0,
+        /// <summary>The connection is being initialized.</summary>
+        Initializing = 0,
         /// <summary>The connection is active and can send and receive messages.</summary>
         Active,
         /// <summary>The connection is being gracefully shutdown and waits for the peer to close its end of the
@@ -87,22 +87,8 @@ namespace ZeroC.Ice
         /// </value>
         public ObjectAdapter? Adapter
         {
-            // We don't use a volatile for _adapter to avoid extra-memory barriers when accessing _adapter with
-            // the mutex locked.
-            get
-            {
-                lock (_mutex)
-                {
-                    return _adapter;
-                }
-            }
-            set
-            {
-                lock (_mutex)
-                {
-                    _adapter = value;
-                }
-            }
+            get => _adapter;
+            set => _adapter = value;
         }
 
         /// <summary>Get the connection ID which was used to create the connection.</summary>
@@ -113,7 +99,7 @@ namespace ZeroC.Ice
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
 
-        /// <summary>True for incoming connections false otherwise.</summary>
+        /// <summary><c>true</c> for incoming connections <c>false</c> otherwise.</summary>
         public bool IsIncoming => _connector == null;
 
         /// <summary>The protocol used by the connection.</summary>
@@ -125,7 +111,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _state > ConnectionState.Validating && _state < ConnectionState.Closing;
+                    return _state > ConnectionState.Initializing && _state < ConnectionState.Closing;
                 }
             }
         }
@@ -141,9 +127,8 @@ namespace ZeroC.Ice
         internal List<Endpoint> Endpoints { get; }
 
         private protected MultiStreamTransceiver Transceiver { get; }
-
         private volatile Task _acceptStreamTask = Task.CompletedTask;
-        private ObjectAdapter? _adapter;
+        private volatile ObjectAdapter? _adapter;
         private TransceiverStream? _controlStream;
         private EventHandler? _closed;
         private Task? _closeTask;
@@ -160,14 +145,13 @@ namespace ZeroC.Ice
         /// <param name="mode">Determines how the connection will be closed.</param>
         public void Close(ConnectionClose mode)
         {
-            // TODO: Should we simply make AbortAsync/CloseAsync public instead?
             if (mode == ConnectionClose.Forcefully)
             {
                 _ = AbortAsync(new ConnectionClosedLocallyException("connection closed forcefully"));
             }
             else if (mode == ConnectionClose.Gracefully)
             {
-                _ = CloseAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
+                _ = GoAwayAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
             }
         }
 
@@ -181,29 +165,6 @@ namespace ZeroC.Ice
         /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
             factory(new Reference(_communicator, this, identity));
-
-        /// <summary>Sends a heartbeat frame.</summary>
-        public void Heartbeat()
-        {
-            try
-            {
-                HeartbeatAsync().Wait();
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Sends an asynchronous heartbeat frame.</summary>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public async Task HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
-        {
-            await Transceiver.PingAsync(cancel).ConfigureAwait(false);
-            progress?.Report(true);
-        }
 
         /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
         /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
@@ -224,9 +185,9 @@ namespace ZeroC.Ice
             remove => _closed -= value;
         }
 
-        /// <summary>This event is raised when the connection receives a heartbeat. The connection object is passed as
-        /// the event sender argument.</summary>
-        public event EventHandler? HeartbeatReceived
+        /// <summary>This event is raised when the connection receives a ping frame. The connection object is
+        /// passed as the event sender argument.</summary>
+        public event EventHandler? PingReceived
         {
             add
             {
@@ -236,6 +197,29 @@ namespace ZeroC.Ice
             {
                 Transceiver.Ping -= value;
             }
+        }
+
+        /// <summary>Sends a ping frame.</summary>
+        public void Ping()
+        {
+            try
+            {
+                PingAsync().Wait();
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        /// <summary>Sends an asynchronous ping frame.</summary>
+        /// <param name="progress">Sent progress provider.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public async Task PingAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
+        {
+            await Transceiver.PingAsync(cancel).ConfigureAwait(false);
+            progress?.Report(true);
         }
 
         /// <summary>Throws an exception indicating the reason for connection closure. For example,
@@ -271,48 +255,54 @@ namespace ZeroC.Ice
             _connector = connector;
             ConnectionId = connectionId;
             Endpoint = endpoint;
-            Endpoints = endpoint == null ? new List<Endpoint>() : new List<Endpoint>() { endpoint };
+            Endpoints = new List<Endpoint>() { endpoint };
             _adapter = adapter;
-            _state = ConnectionState.Validating;
+            _state = ConnectionState.Initializing;
         }
 
-        internal void ClearAdapter(ObjectAdapter adapter)
+        internal void ClearAdapter(ObjectAdapter adapter) => Interlocked.CompareExchange(ref _adapter, null, adapter);
+
+        internal TransceiverStream CreateStream(bool bidirectional)
         {
+            // Ensure the stream is created in the active state only, no new streams should be created if the
+            // connection is closing or closed.
             lock (_mutex)
             {
-                if (_adapter == adapter)
+                if (_exception != null)
                 {
-                    _adapter = null;
+                    throw _exception;
                 }
+                Debug.Assert(_state == ConnectionState.Active);
+                return Transceiver.CreateStream(bidirectional);
             }
         }
 
-        internal async Task CloseAsync(Exception exception)
+        internal async Task GoAwayAsync(Exception exception)
         {
             try
             {
-                Task closeTask;
+                Task goAwayTask;
                 lock (_mutex)
                 {
                     if (_state == ConnectionState.Active && _controlStream != null)
                     {
                         SetState(ConnectionState.Closing, exception);
-                        _closeTask ??= PerformCloseAsync(exception);
+                        _closeTask ??= PerformGoAwayAsync(exception);
                         Debug.Assert(_closeTask != null);
                     }
-                    closeTask = _closeTask ?? AbortAsync(exception);
+                    goAwayTask = _closeTask ?? AbortAsync(exception);
                 }
-                await closeTask.ConfigureAwait(false);
+                await goAwayTask.ConfigureAwait(false);
             }
             catch
             {
                 // Ignore
             }
 
-            async Task PerformCloseAsync(Exception exception)
+            async Task PerformGoAwayAsync(Exception exception)
             {
                 // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for
-                // the incoming streams to complete before sending the close frame but instead provide the ID
+                // the incoming streams to complete before sending the GoAway frame but instead provide the ID
                 // of the latest incoming stream ID to the peer. The peer will close the connection once it
                 // received the response for this stream ID.
                 _lastIncomingStreamId = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
@@ -320,9 +310,9 @@ namespace ZeroC.Ice
                 // Yield to ensure the code below is executed without the mutex locked.
                 await Task.Yield();
 
+                // With Ice1, we first wait for all incoming streams to complete before sending the GoAway frame.
                 if (Endpoint.Protocol == Protocol.Ice1)
                 {
-                    // With Ice1, we first wait for all incoming streams to complete before sending the close frame.
                     await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
                 }
 
@@ -341,9 +331,9 @@ namespace ZeroC.Ice
                     string message = exception.ToString();
 
                     // Write the close frame
-                    await _controlStream!.SendCloseFrameAsync(_lastIncomingStreamId,
-                                                              message,
-                                                              cancel).ConfigureAwait(false);
+                    await _controlStream!.SendGoAwayFrameAsync(_lastIncomingStreamId,
+                                                               message,
+                                                               cancel).ConfigureAwait(false);
 
                     // Wait for the peer to close the stream.
                     while (true)
@@ -373,82 +363,6 @@ namespace ZeroC.Ice
                 finally
                 {
                     source?.Dispose();
-                }
-            }
-        }
-
-        internal TransceiverStream CreateStream(bool bidirectional)
-        {
-            // Ensure the stream is created in the active state only, no new streams should be created if the
-            // connection is closing or closed.
-            lock (_mutex)
-            {
-                if (_exception != null)
-                {
-                    throw _exception;
-                }
-                Debug.Assert(_state == ConnectionState.Active);
-                return Transceiver.CreateStream(bidirectional);
-            }
-        }
-
-        internal async Task WaitForCloseAsync(TransceiverStream peerControlStream)
-        {
-            try
-            {
-                // Wait to receive the close frame on the control stream.
-                (long lastStreamId, string message) =
-                    await peerControlStream.ReceiveCloseFrameAsync().ConfigureAwait(false);
-
-                Task closeTask;
-                lock (_mutex)
-                {
-                    if (_state == ConnectionState.Active)
-                    {
-                        SetState(ConnectionState.Closing, new ConnectionClosedByPeerException(message));
-                        closeTask = PerformCloseAsync(lastStreamId, _exception!);
-                        if (_closeTask == null)
-                        {
-                            _closeTask = closeTask;
-                        }
-                    }
-                    else if (_state == ConnectionState.Closing)
-                    {
-                        closeTask = PerformCloseAsync(lastStreamId, _exception!);
-                    }
-                    else
-                    {
-                        closeTask = _closeTask!;
-                    }
-                }
-
-                await closeTask.ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                await AbortAsync(ex);
-            }
-
-            async Task PerformCloseAsync(long lastStreamId, Exception exception)
-            {
-                // Abort non-processed outgoing streams and all incoming streams.
-                Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
-
-                // Yield to ensure the code below is executed without the mutex locked.
-                await Task.Yield();
-
-                // Wait for all the streams to complete.
-                await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
-
-                try
-                {
-                    // Close the transport
-                    await Transceiver.CloseAsync(exception, CancellationToken.None);
-                }
-                finally
-                {
-                    // Abort the connection once all the streams have completed.
-                    await AbortAsync(exception).ConfigureAwait(false);
                 }
             }
         }
@@ -495,24 +409,19 @@ namespace ZeroC.Ice
                     else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount <= 2)
                     {
                         // The connection is idle, close it.
-                        _ = CloseAsync(new ConnectionIdleException());
+                        _ = GoAwayAsync(new ConnectionIdleException());
                     }
                 }
             }
         }
 
-        internal async Task StartAsync()
+        internal async Task InitializeAsync()
         {
-            CancellationTokenSource? source = null;
             try
             {
-                CancellationToken cancel = default;
-                TimeSpan timeout = _communicator.ConnectTimeout;
-                if (timeout > TimeSpan.Zero)
-                {
-                    source = new CancellationTokenSource(timeout);
-                    cancel = source.Token;
-                }
+                Debug.Assert(_communicator.ConnectTimeout > TimeSpan.Zero);
+                using var source = new CancellationTokenSource(_communicator.ConnectTimeout);
+                CancellationToken cancel = source.Token;
 
                 // Initialize the transport.
                 await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
@@ -527,7 +436,7 @@ namespace ZeroC.Ice
                         await Transceiver.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
 
                     // Setup a task to wait for the close frame on the peer's control stream.
-                    _ = Task.Run(async () => await WaitForCloseAsync(peerControlStream).ConfigureAwait(false));
+                    _ = Task.Run(async () => await WaitForGoAwayAsync(peerControlStream).ConfigureAwait(false));
                 }
 
                 Transceiver.Initialized();
@@ -554,10 +463,6 @@ namespace ZeroC.Ice
             {
                 _ = AbortAsync(ex);
                 throw;
-            }
-            finally
-            {
-                source?.Dispose();
             }
         }
 
@@ -593,9 +498,11 @@ namespace ZeroC.Ice
             {
                 await Transceiver.AbortAsync(exception).ConfigureAwait(false);
 
-                // Yield to ensure the code below is executed without the mutex locked.
+                // Yield to ensure the code below is executed without the mutex locked (PerformAbortAsync is called
+                // with the mutex locked).
                 await Task.Yield();
 
+                // Dispose of the transceiver.
                 Transceiver.Dispose();
 
                 // Raise the Closed event
@@ -638,26 +545,26 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    // Start a new accept stream task otherwise to process the stream.
+                    // Start a new accept stream task otherwise to accept another stream.
                     _acceptStreamTask = Task.Run(() => AcceptStreamAsync().AsTask());
                     break;
                 }
-
-                ObjectAdapter? adapter = _adapter;
 
                 using var cancelSource = new CancellationTokenSource();
                 CancellationToken cancel = cancelSource.Token;
                 if (stream.IsBidirectional)
                 {
-                    // Be notified if the peer reset the stream and cancel the dispatch cancellation token source.
+                    // Be notified if the peer resets the stream to cancel the dispatch.
                     stream.Reset += () => cancelSource.Cancel();
                 }
 
-                // Receive the request from the stream
+                // Receives the request frame from the stream
                 (IncomingRequestFrame request, bool fin)
                     = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
 
+                // If no adapter is configure to dispatch the request, return an ObjectNotExistException to the caller.
                 OutgoingResponseFrame response;
+                ObjectAdapter? adapter = _adapter;
                 if (adapter == null)
                 {
                     if (stream.IsBidirectional)
@@ -669,9 +576,8 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                var current = new Current(adapter, request, stream, fin, this, cancel);
-
                 // Dispatch the request and get the response
+                var current = new Current(adapter, request, stream, fin, this, cancel);
                 if (adapter.TaskScheduler != null)
                 {
                     (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, current),
@@ -687,11 +593,6 @@ namespace ZeroC.Ice
                 {
                     // Send the response over the stream
                     await stream.SendResponseFrameAsync(response, fin, cancel);
-
-                    if (!fin)
-                    {
-                        // TODO: send streamable data.
-                    }
                 }
             }
             catch (OperationCanceledException)
@@ -739,7 +640,7 @@ namespace ZeroC.Ice
                 _exception = exception;
 
                 // We don't warn if we are not validated.
-                if (_state > ConnectionState.Validating && _communicator.WarnConnections)
+                if (_state > ConnectionState.Initializing && _communicator.WarnConnections)
                 {
                     // Don't warn about certain expected exceptions.
                     if (!(_exception is ConnectionClosedException ||
@@ -782,6 +683,70 @@ namespace ZeroC.Ice
                 }
             }
             _state = state;
+        }
+
+        private async Task WaitForGoAwayAsync(TransceiverStream peerControlStream)
+        {
+            try
+            {
+                // Wait to receive the close frame on the control stream.
+                (long lastStreamId, string message) =
+                    await peerControlStream.ReceiveGoAwayFrameAsync().ConfigureAwait(false);
+
+                Task goAwayTask;
+                lock (_mutex)
+                {
+                    if (_state == ConnectionState.Active)
+                    {
+                        SetState(ConnectionState.Closing, new ConnectionClosedByPeerException(message));
+                        goAwayTask = PerformGoAwayAsync(lastStreamId, _exception!);
+                        if (_closeTask == null)
+                        {
+                            _closeTask = goAwayTask;
+                        }
+                    }
+                    else if (_state == ConnectionState.Closing)
+                    {
+                        // We already initiated graceful connection closure. If the peer did as well, we can cancel
+                        // incoming/outgoing streams.
+                        goAwayTask = PerformGoAwayAsync(lastStreamId, _exception!);
+                    }
+                    else
+                    {
+                        goAwayTask = _closeTask!;
+                    }
+                }
+
+                await goAwayTask.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await AbortAsync(ex);
+            }
+
+            async Task PerformGoAwayAsync(long lastStreamId, Exception exception)
+            {
+                // Abort non-processed outgoing streams and all incoming streams.
+                Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
+
+                // Yield to ensure the code below is executed without the mutex locked (PerformGoAwayAsync is called
+                // with the mutex locked).
+                await Task.Yield();
+
+                // Wait for all the streams to complete.
+                await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
+
+                try
+                {
+                    // Close the transport
+                    await Transceiver.CloseAsync(exception, CancellationToken.None).ConfigureAwait(false);
+                }
+                finally
+                {
+                    // Abort the connection once all the streams have completed.
+                    await AbortAsync(exception).ConfigureAwait(false);
+                }
+            }
         }
     }
 

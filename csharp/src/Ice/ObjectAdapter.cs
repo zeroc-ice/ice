@@ -896,6 +896,8 @@ namespace ZeroC.Ice
                     throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                 }
 
+                // TODO: support input streamable data if Current.EndOfStream == false and output streamable data.
+
                 ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
                 {
                     if (i < Interceptors.Count)

@@ -13,20 +13,20 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The MultiStreamTransceiver abstract base class to be implemented by multi-stream transports.</summary>
+    /// <summary>The MultiStreamTransceiver abstract base class to implement multi-stream transports.</summary>
     public abstract class MultiStreamTransceiver : IDisposable
     {
         /// <summary>The endpoint from which the transceiver was created.</summary>
         public Endpoint Endpoint { get; }
 
-        /// <summary>True for incoming transceivers false otherwise.</summary>
+        /// <summary><c>true</c> for incoming transceivers <c>false</c> otherwise.</summary>
         public bool IsIncoming { get; }
 
         internal int IncomingFrameSizeMax { get; }
         internal TimeSpan LastActivity { get; set; }
         // The stream ID of the last received response with the Ice1 protocol. Keeping track of this stream ID is
-        // necessary to avoid a race condition with the close connection message which could be received and
-        // processed before the response is delivered to the stream.
+        // necessary to avoid a race condition with the GoAway frame which could be received and processed before
+        // the response is delivered to the stream.
         internal long LastResponseStreamId { get; set; }
         internal IConnectionObserver? Observer
         {
@@ -68,13 +68,14 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public abstract ValueTask CloseAsync(Exception exception, CancellationToken cancel);
 
+        /// <summary>Releases the resources used by the transceiver.</summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>Sends ping data to defer the idle timeout.</summary>
+        /// <summary>Sends a ping frame to defer the idle timeout.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public abstract Task PingAsync(CancellationToken cancel);
 
@@ -85,11 +86,11 @@ namespace ZeroC.Ice
         /// <summary>Creates an outgoing stream. Depending on the transport implementation, the stream ID might not
         /// be immediately available after the stream creation. It will be available after the first successfull send
         /// call on the stream.</summary>
-        /// <param name="bidirectional">True to create a bidirectional stream, False otherwise.</param>
-        /// <return>The created outgoing stream.</return>
+        /// <param name="bidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
+        /// <return>The outgoing stream.</return>
         public abstract TransceiverStream CreateStream(bool bidirectional);
 
-        /// <summary>The MultiStreamTransceiver constructor</summary>
+        /// <summary>The MultiStreamTransceiver constructor.</summary>
         /// <param name="endpoint">The endpoint from which the transceiver was created.</param>
         /// <param name="adapter">The object adapter from which the transceiver was created or null if the transceiver
         /// is an outgoing transceiver created from the communicator.</param>
@@ -107,6 +108,8 @@ namespace ZeroC.Ice
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
+            // The only streams left at this point should be the control steram. The connection ensures other streams
+            // are aborted and disposed when the connection is aborted.
             foreach (TransceiverStream stream in _streams.Values)
             {
                 Debug.Assert(stream.IsControl);
@@ -195,12 +198,11 @@ namespace ZeroC.Ice
 
         internal async ValueTask AbortAsync(Exception exception)
         {
-            // Abort the transport
+            // Abort the transport.
             Abort();
 
-            // Abort the streams and Wait for all all the streams to be completed
+            // Abort the streams and wait for all all the streams to be completed.
             AbortStreams(exception);
-
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
             lock (_mutex)
@@ -231,8 +233,8 @@ namespace ZeroC.Ice
 
         internal long AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
-            // Cancel the streams based on the given predicate. Control are not canceled since they are still needed
-            // for sending and receiving goaway frames.
+            // Cancel the streams based on the given predicate. Control streams are not canceled since they are
+            //  still needed for sending and receiving GoAway frames.
             long largestStreamId = 0;
             foreach (TransceiverStream stream in _streams.Values)
             {
@@ -361,7 +363,7 @@ namespace ZeroC.Ice
                         frameType = (Ice2Definitions.FrameType)type switch
                         {
                             Ice2Definitions.FrameType.Initialize => "initialize",
-                            Ice2Definitions.FrameType.Close => "close",
+                            Ice2Definitions.FrameType.GoAway => "goaway",
                             _ => "unknown"
                         };
                         encoding = Ice2Definitions.Encoding;
@@ -518,7 +520,7 @@ namespace ZeroC.Ice
         {
             if (_streams.Count > 2)
             {
-                // Wait for all the streams to complete.
+                // Create a task completion source to wait for the streams to complete.
                 _streamsEmptySource ??= new TaskCompletionSource();
                 CheckStreamsEmpty();
                 await _streamsEmptySource.Task.ConfigureAwait(false);

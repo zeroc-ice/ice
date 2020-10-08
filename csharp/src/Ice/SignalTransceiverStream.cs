@@ -10,7 +10,7 @@ namespace ZeroC.Ice
 {
     /// <summary>The SignaledTransceiverStream abstract class provides signaling functionality using the
     /// IValueTaskSource interface. It's useful for stream implementations that depend on the transceiver
-    /// for receiving data: the transceiver can easily signal the stream when new data is available.</summary>
+    /// for receiving data. The transceiver can easily signal the stream when new data is available.</summary>
     internal abstract class SignaledTransceiverStream<T> : TransceiverStream, IValueTaskSource<T>
     {
         internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;

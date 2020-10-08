@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The TransceiverStream class for the colocated transport</summary>
+    /// <summary>The TransceiverStream class for the colocated transport.</summary>
     internal class ColocatedStream : SignaledTransceiverStream<(object, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
@@ -26,6 +26,9 @@ namespace ZeroC.Ice
                 }
                 else if (!IsControl)
                 {
+                    // TODO: this is most likely not correct! The semaphore needs to be released only once the
+                    // dispatch completes, not once the client invocation sending completes. We need to add a
+                    // test for oneway serialization and fix this.
                     _transceiver.UnidirectionalSerializeSemaphore?.Release();
                 }
             }
@@ -41,8 +44,8 @@ namespace ZeroC.Ice
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel)
         {
-            // This is only called for initialize/close frame on the control streams. Requests or responses are handled
-            // by the SendFrameAsync method override below.
+            // This is only called for Initialize/GoAway frame on the control streams. Requests or responses are
+            // handled by the SendFrameAsync method override below.
             if (!IsStarted)
             {
                 Id = _transceiver.AllocateId(false);
@@ -79,6 +82,7 @@ namespace ZeroC.Ice
             }
             else if (frame is List<ArraySegment<byte>> data)
             {
+                // Initialize or GoAway frame.
                 if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
                 {
                     Debug.Assert(expectedFrameType == data[0][8]);

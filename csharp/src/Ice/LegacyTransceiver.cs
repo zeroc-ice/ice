@@ -8,135 +8,16 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal class LegacyStream : SignaledTransceiverStream<(Ice1Definitions.FrameType, ArraySegment<byte>)>
-    {
-        protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
-        private int RequestId => IsBidirectional ? (int)(Id >> 2) + 1 : 0;
-        private readonly LegacyTransceiver _transceiver;
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing && IsIncoming)
-            {
-                if (IsBidirectional)
-                {
-                    _transceiver.BidirectionalSerializeSemaphore?.Release();
-                }
-                else if (!IsControl)
-                {
-                    _transceiver.UnidirectionalSerializeSemaphore?.Release();
-                }
-            }
-        }
-
-        protected override ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
-            // This is never called because we override the default ReceiveFrameAsync implementation
-            throw new NotImplementedException();
-
-        protected override ValueTask ResetAsync() => new ValueTask();
-
-        protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
-            _transceiver.SendFrameAsync(buffer, cancel);
-
-        internal LegacyStream(long streamId, LegacyTransceiver transceiver)
-            : base(streamId, transceiver) => _transceiver = transceiver;
-
-        internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame)
-        {
-            // If we received a response, we make sure to run the continuation asynchronously since this might end
-            // up calling user code and could therefore prevent receiving further data since AcceptStreamAsync
-            // would be blocked calling user code through this method.
-            if (frameType == Ice1Definitions.FrameType.Reply)
-            {
-                _transceiver.LastResponseStreamId = Id;
-                SignalCompletion((frameType, frame), runContinuationAsynchronously: true);
-            }
-            else
-            {
-                SignalCompletion((frameType, frame), runContinuationAsynchronously: false);
-            }
-        }
-
-        private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
-            byte expectedFrameType,
-            CancellationToken cancel)
-        {
-            // Wait to be signaled for the reception of a new frame for this stream
-            (Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) =
-                await WaitSignalAsync(cancel).ConfigureAwait(false);
-            if ((byte)frameType != expectedFrameType)
-            {
-                throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
-            }
-            // fin = true unless it's the validation connection frame.
-            return (frame, frameType != Ice1Definitions.FrameType.ValidateConnection);
-        }
-
-        private protected override async ValueTask SendFrameAsync(
-            OutgoingFrame frame,
-            bool fin,
-            CancellationToken cancel)
-        {
-            var buffer = new List<ArraySegment<byte>>(frame.Data.Count + 1);
-            byte[] headerData = new byte[Ice1Definitions.HeaderSize + 4];
-            if (frame is OutgoingRequestFrame)
-            {
-                Ice1Definitions.RequestHeaderPrologue.CopyTo(headerData.AsSpan());
-            }
-            else
-            {
-                Ice1Definitions.ResponseHeaderPrologue.CopyTo(headerData.AsSpan());
-            }
-            int size = frame.Size + Ice1Definitions.HeaderSize + 4;
-            headerData.AsSpan(10, 4).WriteInt(size);
-            headerData.AsSpan(Ice1Definitions.HeaderSize).WriteInt(RequestId);
-            buffer.Add(headerData);
-            buffer.AddRange(frame.Data);
-
-            byte compressionStatus = 0;
-            if (BZip2.IsLoaded && frame.Compress)
-            {
-                List<ArraySegment<byte>>? compressed = null;
-                if (size >= _transceiver.Endpoint.Communicator.CompressionMinSize)
-                {
-                    compressed = BZip2.Compress(buffer,
-                                                size,
-                                                Ice1Definitions.HeaderSize,
-                                                _transceiver.Endpoint.Communicator.CompressionLevel);
-                }
-
-                ArraySegment<byte> header;
-                if (compressed != null)
-                {
-                    buffer = compressed;
-                    header = buffer[0];
-                    size = buffer.GetByteCount();
-                }
-                else // Message not compressed, request compressed response, if any.
-                {
-                    header = buffer[0];
-                    header[9] = 1; // Write the compression status
-                }
-                compressionStatus = header[9];
-            }
-
-            // Ensure the frame isn't bigger than what we can send with the transport.
-            _transceiver.Underlying.CheckSendSize(size);
-
-            await _transceiver.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-            {
-                TraceFrame(frame, 0, compressionStatus);
-            }
-        }
-    }
-
+    /// <summary>The legacy transceiver implements a multi-stream transport using the Ice1 protocol. A new incoming
+    /// stream is created for each incoming Ice1 request and an outgoing stream is created for outgoing requests.
+    /// The streams created by the legacy transceiver are always finished once the request or response frames are
+    /// sent or received. Data streaming is not supported. Initialize or GoAway frames sent over the control streams
+    /// are translated to connection validation or close connection Ice1 frames.</summary>
     internal class LegacyTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
+
         private readonly object _mutex = new object();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
@@ -148,7 +29,7 @@ namespace ZeroC.Ice
         {
             while (true)
             {
-                // Read header
+                // Receive the Ice1 frame header.
                 ArraySegment<byte> buffer;
                 if (Endpoint.IsDatagram)
                 {
@@ -166,7 +47,7 @@ namespace ZeroC.Ice
                     await ReceiveAsync(buffer, cancel).ConfigureAwait(false);
                 }
 
-                // Check header
+                // Check the header
                 Ice1Definitions.CheckHeader(buffer.AsReadOnlySpan(0, Ice1Definitions.HeaderSize));
                 int size = buffer.AsReadOnlySpan(10, 4).ReadInt();
                 if (size < Ice1Definitions.HeaderSize)
@@ -180,7 +61,7 @@ namespace ZeroC.Ice
                     continue;
                 }
 
-                // Read the remainder of the frame if needed
+                // Read the remainder of the frame if needed.
                 if (size > buffer.Count)
                 {
                     if (Endpoint.IsDatagram)
@@ -191,7 +72,7 @@ namespace ZeroC.Ice
 
                     if (size > buffer.Array!.Length)
                     {
-                        // Allocate a new array and copy the header over
+                        // Allocate a new array and copy the header over.
                         var tmpBuffer = new ArraySegment<byte>(new byte[size], 0, size);
                         buffer.AsSpan().CopyTo(tmpBuffer.AsSpan(0, Ice1Definitions.HeaderSize));
                         buffer = tmpBuffer;
@@ -205,11 +86,14 @@ namespace ZeroC.Ice
                     await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize), cancel).ConfigureAwait(false);
                 }
 
+                // Parse the received frame and translate it into a stream ID, frame type and frame data. The returned
+                // stream ID can be negative if the Ice1 frame is no longer supported (batch requests).
                 (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
                 if (streamId >= 0)
                 {
                     if (TryGetStream(streamId, out LegacyStream? stream))
                     {
+                        // If this is a known stream, pass the data to the stream.
                         if (frameType == Ice1Definitions.FrameType.ValidateConnection)
                         {
                             // Except for the validate connection frame, subsequent validate connection messages are
@@ -222,6 +106,8 @@ namespace ZeroC.Ice
                     }
                     else if (frameType == Ice1Definitions.FrameType.Request)
                     {
+                        // Create a new input stream for the request. If serialization is enabled, ensure we acquire
+                        // the semaphore first to serialize the dispatching.
                         stream = new LegacyStream(streamId, this);
                         if (stream.IsBidirectional)
                         {
@@ -239,7 +125,10 @@ namespace ZeroC.Ice
                     }
                     else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
                     {
+                        // If we received a connection validation frame and the stream is not known, it's the first
+                        // received connection validation message, create the control stream and return it.
                         stream = new LegacyStream(streamId, this);
+                        Debug.Assert(stream.IsControl);
                         stream.ReceivedFrame(frameType, frame);
                         return stream;
                     }
@@ -306,6 +195,9 @@ namespace ZeroC.Ice
             : base(endpoint, adapter, transceiver)
         {
             _transceiver = transceiver;
+
+            // If serialization is enabled on the object adapter, create semaphore to limit the number of concurrent
+            // dispatch per connection.
             if (adapter?.SerializeDispatch ?? false)
             {
                 BidirectionalSerializeSemaphore = new AsyncSemaphore(1);
@@ -329,6 +221,9 @@ namespace ZeroC.Ice
 
         internal override ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
+            // With Ice1, the connection validation message is only sent by the server to the client. So here we
+            // we only expect the conneciton validation message for an outgoing connection and just return the
+            // control stream immediately for an incoming connection.
             if (IsIncoming)
             {
                 return new ValueTask<TransceiverStream>(new LegacyStream(2, this));
@@ -343,7 +238,7 @@ namespace ZeroC.Ice
         {
             cancel.ThrowIfCancellationRequested();
 
-            // Synchronization is required here because this might be called concurrently by the connection code
+            // Synchronization is required here because this might be called concurrently by the connection code.
             Task task;
             lock (_mutex)
             {
@@ -384,6 +279,9 @@ namespace ZeroC.Ice
 
         internal override ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
+            // With Ice1, the connection validation message is only sent by the server to the client. So here we
+            // we only expect the conneciton validation message for an incoming connection and just return the
+            // control stream immediately for an outgoing connection.
             if (IsIncoming)
             {
                 return base.SendInitializeFrameAsync(cancel);
@@ -429,12 +327,13 @@ namespace ZeroC.Ice
                 case Ice1Definitions.FrameType.Request:
                 {
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
+
+                    // Compute the stream ID out of the request ID. For one-way requests which use a null request ID,
+                    // we generated a new stream ID using the _nextPeerUnidirectionalId counter.
                     long streamId;
                     if (requestId == 0)
                     {
-                        // Assign an ID for incoming oneway requests.
                         streamId = _nextPeerUnidirectionalId += 4;
-
                     }
                     else
                     {
@@ -457,7 +356,6 @@ namespace ZeroC.Ice
                         throw new InvalidDataException(
                             $"received ice1 RequestBatchMessage with {invokeNum} batch requests");
                     }
-                    Debug.Assert(false); // TODO: deal with batch requests
                     return (-1, frameType, default);
                 }
 
@@ -474,6 +372,7 @@ namespace ZeroC.Ice
                     {
                         TraceFrame(0, ArraySegment<byte>.Empty, (byte)Ice1Definitions.FrameType.ValidateConnection);
                     }
+                    // Notify the control stream of the reception of a Ping frame.
                     ReceivedPing();
                     return (IsIncoming ? 2 : 3, frameType, default);
                 }

@@ -17,7 +17,7 @@ namespace ZeroC.Ice
             Initialize = 0,
             Request = 1,
             Response = 2,
-            Close = 3
+            GoAway = 3
         }
 
         /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance. This
