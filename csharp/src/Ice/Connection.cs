@@ -19,7 +19,7 @@ namespace ZeroC.Ice
         /// and waiting for the peer to acknowledge it.</summary>
         Forcefully,
         /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations
-        // to complete, just wait for pending dispatch to complete.</summary>
+        /// to complete, just wait for pending dispatch to complete.</summary>
         Gracefully,
     }
 
@@ -316,26 +316,18 @@ namespace ZeroC.Ice
                     await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
                 }
 
-                CancellationTokenSource? source = null;
-                TimeSpan timeout = _communicator.CloseTimeout;
-                if (timeout > TimeSpan.Zero)
-                {
-                    source = new CancellationTokenSource(timeout);
-                }
-
                 try
                 {
-                    CancellationToken cancel = source?.Token ?? default;
-
-                    // TODO: send a better message?
-                    string message = exception.ToString();
+                    Debug.Assert(_communicator.CloseTimeout != TimeSpan.Zero);
+                    using var source = new CancellationTokenSource(_communicator.CloseTimeout);
+                    CancellationToken cancel = source.Token;
 
                     // Write the close frame
                     await _controlStream!.SendGoAwayFrameAsync(_lastIncomingStreamIds,
-                                                               message,
+                                                               exception.Message,
                                                                cancel).ConfigureAwait(false);
 
-                    // Wait for the peer to close the stream.
+                    // Wait for the peer to close the connection.
                     while (true)
                     {
                         // We can't just wait for the accept stream task failure as the task can sometime succeeds
@@ -359,10 +351,6 @@ namespace ZeroC.Ice
                 catch (Exception ex)
                 {
                     await AbortAsync(ex);
-                }
-                finally
-                {
-                    source?.Dispose();
                 }
             }
         }

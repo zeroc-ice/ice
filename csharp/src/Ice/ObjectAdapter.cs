@@ -176,8 +176,11 @@ namespace ZeroC.Ice
             {
                 // Synchronously Dispose of the incoming connection factories to stop accepting new incoming requests
                 // or connections. This ensures that once DisposeAsync returns, no new requests will be dispatched.
-                IEnumerable<Task> tasks =
-                    _incomingConnectionFactories.Select(factory => factory.DisposeAsync().AsTask());
+                // Calling ToArray is important here to ensure that all the DisposeAsync calls are executed before we
+                // eventually hit an await (we want to make that once DisposeAsync returns a Task, all the connections
+                // started closing).
+                Task[] tasks =
+                    _incomingConnectionFactories.Select(factory => factory.DisposeAsync().AsTask()).ToArray();
 
                 // Wait for activation to complete. This is necessary avoid out of order locator updates.
                 if (_activateTask != null)
