@@ -12,24 +12,21 @@ namespace ZeroC.IceDiscovery
 {
     internal class Lookup : ILookup
     {
-        private readonly Dictionary<string, LookupReply> _adapterReplies =
-            new Dictionary<string, LookupReply>();
+        private readonly Dictionary<string, LookupReply> _adapterReplies = new ();
         private readonly string _domainId;
         private readonly int _latencyMultiplier;
         private readonly ILookupPrx _lookup;
-        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups =
-            new Dictionary<ILookupPrx, ILookupReplyPrx>();
-        private readonly object _mutex = new object();
-        private readonly Dictionary<Identity, LookupReply> _objectReplies =
-            new Dictionary<Identity, LookupReply>();
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new ();
+        private readonly object _mutex = new ();
+        private readonly Dictionary<Identity, LookupReply> _objectReplies = new ();
         private readonly LocatorRegistry _registry;
         private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;
         private readonly TimeSpan _timeout;
 
-        public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx? reply, Current current)
+        public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx reply, Current current)
         {
-            if (!domainId.Equals(_domainId))
+            if (domainId != _domainId)
             {
                 return; // Ignore
             }
@@ -40,7 +37,6 @@ namespace ZeroC.IceDiscovery
                 // Reply to the multicast request using the given proxy.
                 try
                 {
-                    Debug.Assert(reply != null);
                     reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
                 catch
@@ -50,20 +46,18 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
+        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx reply, Current current)
         {
             if (domainId != _domainId)
             {
                 return; // Ignore
             }
 
-            IObjectPrx? proxy = _registry.FindObject(id);
-            if (proxy != null)
+            if (_registry.FindObject(id) is IObjectPrx proxy)
             {
                 // Reply to the multicast request using the given proxy.
                 try
                 {
-                    Debug.Assert(reply != null);
                     reply.FoundObjectByIdAsync(id, proxy);
                 }
                 catch
@@ -218,7 +212,9 @@ namespace ZeroC.IceDiscovery
             return await task.ConfigureAwait(false);
         }
 
-        internal async Task<IObjectPrx?> InvokeAsync(Func<ILookupPrx, ILookupReplyPrx, Task> find, LookupReply replyServant)
+        private async Task<IObjectPrx?> InvokeAsync(
+            Func<ILookupPrx, ILookupReplyPrx, Task> find,
+            LookupReply replyServant)
         {
             Identity requestId = _replyAdapter.AddWithUUID(replyServant, ILocatorRegistryPrx.Factory).Identity;
 

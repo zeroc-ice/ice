@@ -31,10 +31,9 @@ namespace ZeroC.IceDiscovery
 
     internal class LocatorRegistry : ILocatorRegistry
     {
-        private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
-        private readonly object _mutex = new object();
-        private readonly Dictionary<string, HashSet<string>> _replicaGroups =
-            new Dictionary<string, HashSet<string>>();
+        private readonly Dictionary<string, IObjectPrx> _adapters = new ();
+        private readonly object _mutex = new ();
+        private readonly Dictionary<string, HashSet<string>> _replicaGroups = new ();
 
         public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
         {
@@ -96,7 +95,8 @@ namespace ZeroC.IceDiscovery
             return default;
         }
 
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>
+        // IceDiscovery does not use the server's Process.
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx process, Current current) =>
             new ValueTask(Task.CompletedTask);
 
         internal (IObjectPrx? Proxy, bool IsReplicaGroup) FindAdapter(string adapterId)

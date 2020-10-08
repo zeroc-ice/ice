@@ -18,40 +18,27 @@
 [cs:namespace:ZeroC]
 /// IceLocatorDiscovery is an Ice plug-in that enables the discovery of IceGrid and custom locators via
 /// UDP multicast.
+/// The IceDiscovery plug-in implements the {@see Ice.Locator} interface to locate (or discover) locators such as
+/// the IceGrid registry or custom IceGrid-like locator implementations using UDP multicast.
 module IceLocatorDiscovery
 {
-    /// The Ice lookup reply interface must be implemented by clients which
-    /// are searching for Ice locators. Ice locator implementations invoke
-    /// on this interface to provide their locator proxy.
-    ///
-    /// @see Lookup
+    /// The IceLocatorDiscovery.Reply object adapter of a client application hosts a LookupReply object that processes
+    /// replies to discovery requests.
     interface LookupReply
     {
-        /// This method is called by the implementation of the Lookup
-        /// interface to reply to a findLocator request.
-        ///
-        /// @param prx The proxy of the locator.
-        void foundLocator(Ice::Locator* prx);
+        /// Provides a locator proxy in response to a {@see ILookup.FindLocator} call on a Lookup object.
+        /// @param proxy The proxy for the locator object.
+        void foundLocator(Ice::Locator proxy);
     }
 
-    /// The Ice lookup interface is implemented by Ice locator
-    /// implementations and can be used by clients to find available Ice
-    /// locators on the network.
-    ///
-    /// Ice locator implementations provide a well-known `Ice/LocatorLookup'
-    /// object accessible through UDP multicast. Clients typically make a
-    /// multicast findLocator request to find the locator proxy.
-    ///
-    /// @see LookupReply
+    /// An locator implementation such as IceGrid registry hosts a Lookup object that receives discovery requests from
+    /// clients. This Lookup object is well-known object with identity `Ice/LocatorLookup'.
     interface Lookup
     {
-        /// Find a locator proxy with the given instance name.
-        ///
-        /// @param instanceName Restrict the search to Ice registries
-        /// configured with the given instance name. If empty, all the
-        /// available registries will reply.
-        ///
+        /// Finds a locator with the given instance name.
+        /// @param instanceName Restrict the search to locator implementations configured with the given instance name.
+        /// If empty, all available locator implementations will reply.
         /// @param reply The reply object to use to send the reply.
-        idempotent void findLocator(string instanceName, LookupReply* reply);
+        idempotent void findLocator(string instanceName, LookupReply reply);
     }
 }
