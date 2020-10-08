@@ -1,6 +1,5 @@
-//
+
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #pragma once
 
@@ -20,155 +19,112 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-    /// This exception is raised if an adapter cannot be found.
+    /// This exception is thrown when an object adapter was not found.
     exception AdapterNotFoundException
     {
     }
 
-    /// This exception is raised if the proxy is invalid for the given replica group.
+    /// This exception is thrown when the provided proxy is invalid.
     exception InvalidProxyException
     {
     }
 
-    /// This exception is raised if the replica group provided by the
-    /// server is invalid.
+    /// This exception is thrown when the provided replica group is invalid.
     exception InvalidReplicaGroupIdException
     {
     }
 
-    /// This exception is raised if a server tries to set endpoints for
-    /// an adapter that is already active.
+    /// This exception is thrown when a server tries to register endpoints for an object adapter that is already active.
     exception AdapterAlreadyActiveException
     {
     }
 
-    /// This exception is raised if an object cannot be found.
+    /// This exception is thrown when an Ice object was not found.
     exception ObjectNotFoundException
     {
     }
 
-    /// This exception is raised if a server cannot be found.
+    /// This exception is thrown when a server was notfound.
     exception ServerNotFoundException
     {
     }
 
     interface LocatorRegistry;
 
-    /// The Ice locator interface. This interface is used by clients to
-    /// lookup adapters and objects. It is also used by servers to get the
-    /// locator registry proxy.
-    ///
-    /// <p class="Note">The {@link Locator} interface is intended to be used by
-    /// Ice internals and by locator implementations. Regular user code
-    /// should not attempt to use any functionality of this interface
-    /// directly.
+    /// The Ice locator interface. This interface is used by clients to lookup adapters and objects. It is also used by
+    /// servers to get the locator registry proxy.
     interface Locator
     {
-        /// Find an object by identity and return a proxy that contains
-        /// the adapter ID or endpoints which can be used to access the
-        /// object.
-        ///
+        /// Finds an object by identity and returns a proxy that provides a location or endpoint(s) that can be used
+        /// to reach the object.
         /// @param id The identity.
-        ///
-        /// @return The proxy, or null if the object is not active.
-        ///
-        /// @throws ObjectNotFoundException Raised if the object cannot
-        /// be found.
-        [amd] [nonmutating] [cpp:const] idempotent Object* findObjectById(Identity id)
+        /// @return A proxy that provides a location or endpoint(s) or null if an object with identity <c>id</c> was
+        /// not found.
+        /// @throws ObjectNotFoundException Thrown if an object with identity <c>id</c> was not found. This exception
+        /// is equivalent to a null return value.
+        [amd] [nonmutating] [cpp:const] idempotent Object? findObjectById(Identity id)
             throws ObjectNotFoundException;
 
-        /// Find an adapter by id and return a proxy that contains
-        /// its endpoints.
-        ///
-        /// @param id The adapter id.
-        ///
-        /// @return The adapter proxy, or null if the adapter is not active.
-        ///
-        /// @throws AdapterNotFoundException Raised if the adapter cannot be
-        /// found.
-        [amd] [nonmutating] [cpp:const] idempotent Object* findAdapterById(string id)
+        /// Finds an object adapter by id and returns a proxy that provides the object adapter's endpoint(s).
+        /// @param id The adapter ID.
+        /// @return A proxy with the adapter's endpoint(s) or null if an object adapter with adapter ID <c>id</c> was
+        /// not found.
+        /// @throws AdapterNotFoundException Thrown if an object adapter with this adapter ID was not found. This
+        /// exception is equivalent to a null return value.
+        [amd] [nonmutating] [cpp:const] idempotent Object? findAdapterById(string id)
             throws AdapterNotFoundException;
 
-        /// Get the locator registry.
-        ///
-        /// @return The locator registry.
-        [nonmutating] [cpp:const] idempotent LocatorRegistry* getRegistry();
+        /// Gets the locator registry.
+        /// @return The locator registry, or null if this locator has no registry.
+        [nonmutating] [cpp:const] idempotent LocatorRegistry? getRegistry();
     }
 
-    /// The Ice locator registry interface. This interface is used by
-    /// servers to register adapter endpoints with the locator.
-    ///
-    /// <p class="Note"> The {@link LocatorRegistry} interface is intended to be used
-    /// by Ice internals and by locator implementations. Regular user
-    /// code should not attempt to use any functionality of this interface
-    /// directly.
+    /// The Ice locator registry interface. This interface is used by a server to register the endpoints of its object
+    /// adapters with the locator.
     interface LocatorRegistry
     {
-        /// Set the adapter endpoints with the locator registry.
-        ///
-        /// @param id The adapter id.
-        ///
-        /// @param proxy The adapter proxy (a dummy direct proxy created
-        /// by the adapter). The direct proxy contains the adapter
-        /// endpoints.
-        ///
-        /// @throws AdapterNotFoundException Raised if the adapter cannot
-        /// be found, or if the locator only allows
-        /// registered adapters to set their active proxy and the
-        /// adapter is not registered with the locator.
-        ///
-        /// @throws AdapterAlreadyActiveException Raised if an adapter with the same
-        /// id is already active.
-        [amd] idempotent void setAdapterDirectProxy(string id, Object* proxy)
+        /// Registers or unregisters the endpoints of an object adapter.
+        /// @param id The adapter ID.
+        /// @param proxy A dummy direct proxy created by the object adapter that provides the object adapter's
+        /// endpoints. The locator considers an object adapter to be active after it has registered its endpoints. When
+        /// proxy is null, the endpoints are unregistered and the locator considers the object adapter inactive.
+        /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
+        /// their active endpoints and no object adapter with this adapter ID was registered with the locator.
+        /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
+        /// registered its endpoints.
+        [amd] idempotent void setAdapterDirectProxy(string id, Object? proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
-        /// Set the adapter endpoints with the locator registry.
-        ///
-        /// @param adapterId The adapter id.
-        ///
-        /// @param replicaGroupId The replica group id.
-        ///
-        /// @param p The adapter proxy (a dummy direct proxy created
-        /// by the adapter). The direct proxy contains the adapter
-        /// endpoints.
-        ///
-        /// @throws AdapterNotFoundException Raised if the adapter cannot
-        /// be found, or if the locator only allows registered adapters to
-        /// set their active proxy and the adapter is not registered with
-        /// the locator.
-        ///
-        /// @throws AdapterAlreadyActiveException Raised if an adapter with the same
-        /// id is already active.
-        ///
-        /// @throws InvalidReplicaGroupIdException Raised if the given
-        /// replica group doesn't match the one registered with the
-        /// locator registry for this object adapter.
-        [amd] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
+        /// Registers or unregisters the endpoints of an object adapter that is a member of a replica group.
+        /// @param adapterId The adapter ID.
+        /// @param replicaGroupId The replica group ID.
+        /// @param proxy A dummy direct proxy created by the object adapter that provides the object adapter's
+        /// endpoints. The locator considers an object adapter to be active after it has registered its endpoints. When
+        /// proxy is null, the endpoints are unregistered and the locator considers the object adapter inactive.
+        /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
+        /// their active endpoints and no object adapter with this adapter ID was registered with the locator.
+        /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
+        /// @throws InvalidReplicaGroupIdException Thrown if the given replica group does not match the replica group
+        /// associated with the adapter ID in the locator's database.
+        [amd] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object? proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
-        /// Set the process proxy for a server.
-        ///
-        /// @param id The server id.
-        ///
-        /// @param proxy The process proxy.
-        ///
-        /// @throws ServerNotFoundException Raised if the server cannot
-        /// be found.
-        [amd] idempotent void setServerProcessProxy(string id, Process* proxy)
+        /// Registers a proxy for a server's Process object.
+        /// @param id The server ID.
+        /// @param proxy A proxy for the server's Process object.
+        /// @throws ServerNotFoundException Thrown if the locator does not know a server with this server ID.
+        [amd] idempotent void setServerProcessProxy(string id, Process proxy)
             throws ServerNotFoundException;
     }
 
-    /// This interface should be implemented by services implementing the
-    /// Ice::Locator interface. It should be advertised through an Ice
-    /// object with the identity `Ice/LocatorFinder'. This allows clients
-    /// to retrieve the locator proxy with just the endpoint information of
-    /// the service.
+    /// This interface is implemented by services that implement the Ice::Locator interface, and is advertised as an
+    /// Ice object with the identity `Ice/LocatorFinder'. This allows clients to retrieve the locator proxy with just
+    /// the endpoint information of the service.
     interface LocatorFinder
     {
-        /// Get the locator proxy implemented by the process hosting this
-        /// finder object. The proxy might point to several replicas.
-        ///
+        /// Gets the locator proxy implemented by the service hosting this finder object. The proxy might point to
+        /// several replicas.
         /// @return The locator proxy.
-        Locator* getLocator();
+        Locator getLocator();
     }
 }
