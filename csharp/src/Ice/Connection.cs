@@ -135,7 +135,7 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
         private volatile Exception? _exception;
-        private long _lastIncomingStreamId;
+        private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
         private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
@@ -305,7 +305,7 @@ namespace ZeroC.Ice
                 // the incoming streams to complete before sending the GoAway frame but instead provide the ID
                 // of the latest incoming stream ID to the peer. The peer will close the connection once it
                 // received the response for this stream ID.
-                _lastIncomingStreamId = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
+                _lastIncomingStreamIds = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
 
                 // Yield to ensure the code below is executed without the mutex locked.
                 await Task.Yield();
@@ -331,7 +331,7 @@ namespace ZeroC.Ice
                     string message = exception.ToString();
 
                     // Write the close frame
-                    await _controlStream!.SendGoAwayFrameAsync(_lastIncomingStreamId,
+                    await _controlStream!.SendGoAwayFrameAsync(_lastIncomingStreamIds,
                                                                message,
                                                                cancel).ConfigureAwait(false);
 
@@ -537,7 +537,8 @@ namespace ZeroC.Ice
                     {
                         lock (_mutex)
                         {
-                            if (stream.Id > _lastIncomingStreamId)
+                            if (stream.Id > (stream.IsBidirectional ? _lastIncomingStreamIds.Bidirectional :
+                                                                      _lastIncomingStreamIds.Unidirectional))
                             {
                                 stream.Dispose();
                                 continue;
@@ -690,7 +691,7 @@ namespace ZeroC.Ice
             try
             {
                 // Wait to receive the close frame on the control stream.
-                (long lastStreamId, string message) =
+                ((long Bidirectional, long Unidirectional) lastStreamIds, string message) =
                     await peerControlStream.ReceiveGoAwayFrameAsync().ConfigureAwait(false);
 
                 Task goAwayTask;
@@ -699,7 +700,7 @@ namespace ZeroC.Ice
                     if (_state == ConnectionState.Active)
                     {
                         SetState(ConnectionState.Closing, new ConnectionClosedByPeerException(message));
-                        goAwayTask = PerformGoAwayAsync(lastStreamId, _exception!);
+                        goAwayTask = PerformGoAwayAsync(lastStreamIds, _exception!);
                         if (_closeTask == null)
                         {
                             _closeTask = goAwayTask;
@@ -709,7 +710,7 @@ namespace ZeroC.Ice
                     {
                         // We already initiated graceful connection closure. If the peer did as well, we can cancel
                         // incoming/outgoing streams.
-                        goAwayTask = PerformGoAwayAsync(lastStreamId, _exception!);
+                        goAwayTask = PerformGoAwayAsync(lastStreamIds, _exception!);
                     }
                     else
                     {
@@ -724,10 +725,14 @@ namespace ZeroC.Ice
                 await AbortAsync(ex);
             }
 
-            async Task PerformGoAwayAsync(long lastStreamId, Exception exception)
+            async Task PerformGoAwayAsync((long Bidirectional, long Unidirectional) lastStreamIds, Exception exception)
             {
                 // Abort non-processed outgoing streams and all incoming streams.
-                Transceiver.AbortStreams(exception, stream => stream.IsIncoming || stream.Id > lastStreamId);
+                Transceiver.AbortStreams(exception,
+                                         stream => stream.IsIncoming ||
+                                                   stream.IsBidirectional ?
+                                                       stream.Id > lastStreamIds.Bidirectional :
+                                                       stream.Id > lastStreamIds.Unidirectional);
 
                 // Yield to ensure the code below is executed without the mutex locked (PerformGoAwayAsync is called
                 // with the mutex locked).

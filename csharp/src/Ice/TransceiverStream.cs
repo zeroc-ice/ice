@@ -113,7 +113,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask<(long, string message)> ReceiveGoAwayFrameAsync()
+        internal virtual async ValueTask<((long, long), string message)> ReceiveGoAwayFrameAsync()
         {
             byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
@@ -136,12 +136,12 @@ namespace ZeroC.Ice
                 // this stream ID to ensure the request with this stream ID will complete successfully in case the
                 // close connection message is received shortly after the response and potentially processed before
                 // due to the thread scheduling.
-                return (_transceiver.LastResponseStreamId, "connection gracefully closed by peer");
+                return ((_transceiver.LastResponseStreamId, 0), "connection gracefully closed by peer");
             }
             else
             {
                 var istr = new InputStream(data, Ice2Definitions.Encoding);
-                return (istr.ReadVarLong(), istr.ReadString());
+                return ((istr.ReadVarLong(), istr.ReadVarLong()), istr.ReadString());
             }
         }
 
@@ -222,7 +222,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask SendGoAwayFrameAsync(long streamId, string reason, CancellationToken cancel)
+        internal virtual async ValueTask SendGoAwayFrameAsync(
+            (long Bidirectional, long Unidirectional) streamIds,
+            string reason,
+            CancellationToken cancel)
         {
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
             {
@@ -244,7 +247,8 @@ namespace ZeroC.Ice
                 ostr.WriteByte((byte)Ice2Definitions.FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
-                ostr.WriteVarLong(streamId);
+                ostr.WriteVarLong(streamIds.Bidirectional);
+                ostr.WriteVarLong(streamIds.Unidirectional);
                 ostr.WriteString(reason);
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);

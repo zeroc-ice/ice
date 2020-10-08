@@ -231,23 +231,31 @@ namespace ZeroC.Ice
             }
         }
 
-        internal long AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
+        internal (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
             //  still needed for sending and receiving GoAway frames.
-            long largestStreamId = 0;
+            long largestBidirectionalStreamId = 0;
+            long largestUnidirectionalStreamId = 0;
             foreach (TransceiverStream stream in _streams.Values)
             {
                 if (!stream.IsControl && (predicate?.Invoke(stream) ?? true))
                 {
                     stream.Abort(exception);
                 }
-                else if (stream.Id > largestStreamId)
+                else if (stream.IsBidirectional)
                 {
-                    largestStreamId = stream.Id;
+                    if (stream.Id > largestBidirectionalStreamId)
+                    {
+                        largestBidirectionalStreamId = stream.Id;
+                    }
+                }
+                else if (stream.Id > largestUnidirectionalStreamId)
+                {
+                    largestUnidirectionalStreamId = stream.Id;
                 }
             }
-            return largestStreamId;
+            return (largestBidirectionalStreamId, largestUnidirectionalStreamId);
         }
 
         internal void AddStream(long id, TransceiverStream stream) => _streams[id] = stream;
@@ -500,10 +508,12 @@ namespace ZeroC.Ice
                     s.Append("\nnumber of requests = ");
                     s.Append(data.AsReadOnlySpan().ReadInt());
                 }
-                else if (protocol == Protocol.Ice2 && frameType == "close")
+                else if (protocol == Protocol.Ice2 && frameType == "goaway")
                 {
                     var istr = new InputStream(data, encoding);
-                    s.Append("\nlast stream ID = ");
+                    s.Append("\nlast bidirectional stream ID = ");
+                    s.Append(istr.ReadVarLong());
+                    s.Append("\nlast undirectional stream ID = ");
                     s.Append(istr.ReadVarLong());
                     s.Append("\nreason = ");
                     s.Append(istr.ReadString());
