@@ -216,14 +216,7 @@ namespace ZeroC.Ice
             Debug.Assert(protocol == Protocol.Ice2);
             if (!oaEndpoint && IPAddress.TryParse(host, out IPAddress? address))
             {
-                if (address.Equals(IPAddress.Any))
-                {
-                    throw new ArgumentException("Any IPv4 address not allowed in proxy endpoint", nameof(host));
-                }
-                else if (address.Equals(IPAddress.IPv6Any))
-                {
-                    throw new ArgumentException("Any IPv6 address not allowed in proxy endpoint", nameof(host));
-                }
+                throw new ArgumentException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint", nameof(host));
             }
             Host = host;
             Port = port;
@@ -252,18 +245,6 @@ namespace ZeroC.Ice
             if (Host.Length == 0)
             {
                 throw new InvalidDataException("endpoint host is empty");
-            }
-
-            if (IPAddress.TryParse(Host, out IPAddress? address))
-            {
-                if (address.Equals(IPAddress.Any))
-                {
-                    throw new InvalidDataException("Any IPv4 address not allowed in proxy endpoint");
-                }
-                else if (address.Equals(IPAddress.IPv6Any))
-                {
-                    throw new ArgumentException("Any IPv6 address not allowed in proxy endpoint");
-                }
             }
 
             if (protocol == Protocol.Ice1)
@@ -303,14 +284,7 @@ namespace ZeroC.Ice
 
                 if (!oaEndpoint && IPAddress.TryParse(Host, out IPAddress? address))
                 {
-                    if (address.Equals(IPAddress.Any))
-                    {
-                        throw new FormatException("Any IPv4 address not allowed in proxy endpoint");
-                    }
-                    else if (address.Equals(IPAddress.IPv6Any))
-                    {
-                        throw new FormatException("Any IPv6 address not allowed in proxy endpoint");
-                    }
+                    throw new FormatException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint");
                 }
 
                 options.Remove("-h");
