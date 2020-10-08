@@ -467,7 +467,7 @@ namespace ZeroC.Ice
         }
     }
 
-    // IncomingConnectionFactory for TCP based transports
+    // IncomingConnectionFactory for acceptor based transports.
     internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
     {
         public IAcmMonitor AcmMonitor { get; }
@@ -625,7 +625,7 @@ namespace ZeroC.Ice
         }
     }
 
-    // IncomingConnectionFactory for ice1 datagram based transports
+    // IncomingConnectionFactory for datagram based transports
     internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory
     {
         private readonly Connection _connection;

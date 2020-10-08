@@ -12,11 +12,11 @@ namespace ZeroC.Ice
     /// relies on ManualResetValueTaskCompletionSource to minimize heap allocations.</summary>
     internal class AsyncSemaphore
     {
-        internal int _currentCount;
-        private readonly Queue<ManualResetValueTaskCompletionSource<bool>> _queue
-            = new Queue<ManualResetValueTaskCompletionSource<bool>>();
+        private int _currentCount;
         private readonly int _maxCount;
         private readonly object _mutex = new object();
+        private readonly Queue<ManualResetValueTaskCompletionSource<bool>> _queue
+            = new Queue<ManualResetValueTaskCompletionSource<bool>>();
 
         internal AsyncSemaphore(int initialCount)
         {
@@ -61,7 +61,10 @@ namespace ZeroC.Ice
                 {
                     if (_queue.Count == 0)
                     {
-                        Debug.Assert(_currentCount < _maxCount);
+                        if (_currentCount == _maxCount)
+                        {
+                            throw new SemaphoreFullException($"semaphore maximum count of {_maxCount} already reached");
+                        }
                         ++_currentCount;
                         return;
                     }

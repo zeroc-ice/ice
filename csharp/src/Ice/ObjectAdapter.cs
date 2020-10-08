@@ -987,10 +987,11 @@ namespace ZeroC.Ice
 
                 if (_colocatedConnectionFactory == null)
                 {
-                    _colocatedConnectionFactory ??= new AcceptorIncomingConnectionFactory(this,
-                                                                                          new ColocatedEndpoint(this),
-                                                                                          null,
-                                                                                          new Acm());
+                    // TODO: ACM configuration?
+                    _colocatedConnectionFactory = new AcceptorIncomingConnectionFactory(this,
+                                                                                        new ColocatedEndpoint(this),
+                                                                                        null,
+                                                                                        new Acm());
 
                     // It's safe to start the connection within the synchronization, this isn't supposed to block for
                     // colocated connections.

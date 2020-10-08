@@ -74,19 +74,6 @@ namespace ZeroC.Ice
 
             // Send the close frame.
             await SendImplAsync(OpCode.Close, new List<ArraySegment<byte>> { payload }, cancel).ConfigureAwait(false);
-
-            // if (exception is ConnectionClosedByPeerException)
-            // {
-            //     // Wait to receive the close frame.
-            //     try
-            //     {
-            //         await ReceiveFrameAsync(cancel).ConfigureAwait(false);
-            //     }
-            //     catch (ConnectionLostException)
-            //     {
-            //         // Ignore.
-            //     }
-            // }
         }
 
         public void Dispose() => _underlying.Dispose();
