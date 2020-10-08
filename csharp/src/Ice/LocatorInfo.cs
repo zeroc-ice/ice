@@ -29,7 +29,7 @@ namespace ZeroC.Ice
         private ILocatorRegistryPrx? _locatorRegistry;
 
         // _mutex protects _adapterRequests and _objectRequests
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new ();
 
         private readonly ConcurrentDictionary<Identity, (TimeSpan InsertionTime, Reference Reference)>
             _objectReferenceTable = new ();
@@ -45,30 +45,16 @@ namespace ZeroC.Ice
         internal void ClearCache(Reference reference)
         {
             Debug.Assert(reference.IsIndirect);
-            if (!reference.IsWellKnown)
+
+            if (reference.IsWellKnown)
             {
-                IReadOnlyList<Endpoint>? endpoints = RemoveAdapterEndpoints(reference.AdapterId);
-                if (endpoints != null && reference.Communicator.TraceLevels.Location >= 2)
+                if (RemoveObjectReference(reference.Identity) is Reference resolvedReference)
                 {
-                    Trace("removed endpoints for adapter from locator cache", reference, endpoints);
-                }
-            }
-            else
-            {
-                Reference? resolvedReference = RemoveObjectReference(reference.Identity);
-                if (resolvedReference != null)
-                {
-                    if (!resolvedReference.IsIndirect)
+                    if (resolvedReference.IsIndirect)
                     {
-                        if (reference.Communicator.TraceLevels.Location >= 2)
-                        {
-                            Trace("removed endpoints for well-known object from locator cache",
-                                  reference,
-                                  resolvedReference.Endpoints);
-                        }
-                    }
-                    else if (!resolvedReference.IsWellKnown)
-                    {
+                        // We don't cache bogus well-known resolved references.
+                        Debug.Assert(!resolvedReference.IsWellKnown);
+
                         if (reference.Communicator.TraceLevels.Location >= 2)
                         {
                             Trace("removed adapter for well-known object from locator cache",
@@ -77,6 +63,23 @@ namespace ZeroC.Ice
                         }
                         ClearCache(resolvedReference);
                     }
+                    else
+                    {
+                        if (reference.Communicator.TraceLevels.Location >= 2)
+                        {
+                            Trace("removed endpoints for well-known object from locator cache",
+                                  reference,
+                                  resolvedReference.Endpoints);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (RemoveAdapterEndpoints(reference.AdapterId) is IReadOnlyList<Endpoint> endpoints &&
+                    reference.Communicator.TraceLevels.Location >= 2)
+                {
+                    Trace("removed endpoints for adapter from locator cache", reference, endpoints);
                 }
             }
         }
