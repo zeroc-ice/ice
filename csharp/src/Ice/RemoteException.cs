@@ -11,11 +11,11 @@ namespace ZeroC.Ice
         public readonly Retryable Retryable;
         public readonly TimeSpan Delay;
 
-        /// <summary>The NoRetry policy, specifies that the exception cannot be retried. This is the default policy
+        /// <summary>The NoRetry policy specifies that the exception cannot be retried. This is the default policy
         /// when no policy is specified.</summary>
         public static readonly RetryPolicy NoRetry = new RetryPolicy(Retryable.No);
 
-        /// <summary>The OtherReplica policy, specifies that the exception can be retried on a different replica.
+        /// <summary>The OtherReplica policy specifies that the exception can be retried on a different replica.
         /// </summary>
         public static readonly RetryPolicy OtherReplica = new RetryPolicy(Retryable.OtherReplica);
 
@@ -45,7 +45,13 @@ namespace ZeroC.Ice
         /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
         public static bool operator !=(RetryPolicy lhs, RetryPolicy rhs) => !(lhs == rhs);
 
-        internal RetryPolicy(Retryable retryable, TimeSpan delay = default)
+        internal RetryPolicy(InputStream istr)
+        {
+            Retryable = istr.ReadRetryable();
+            Delay = Retryable == Retryable.AfterDelay ? TimeSpan.FromMilliseconds(istr.ReadVarULong()) : TimeSpan.Zero;
+        }
+
+        private RetryPolicy(Retryable retryable, TimeSpan delay = default)
         {
             Retryable = retryable;
             Delay = delay;
@@ -65,8 +71,7 @@ namespace ZeroC.Ice
         /// in a remote server.</summary>
         public bool ConvertToUnhandled { get; set; }
 
-        internal TimeSpan AfterDelay { get; private set; }
-        internal RetryPolicy RetryPolicy { get; private set; }
+        internal RetryPolicy RetryPolicy { get; }
 
         /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
         /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in

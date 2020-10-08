@@ -131,7 +131,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>If this response holds a 1.1-encoded system exception, reads and throws this exception.</summary>
-        internal Exception? ReadSystemException(Communicator communicator)
+        internal Exception? ReadIce1SystemException(Communicator communicator)
         {
             if (ResultType == ResultType.Failure && Encoding == Encoding.V11)
             {

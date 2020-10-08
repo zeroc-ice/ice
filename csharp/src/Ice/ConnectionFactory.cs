@@ -29,7 +29,10 @@ namespace ZeroC.Ice
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _disposeTask;
-        private readonly Dictionary<IConnector, DateTime> _hintFailures = new Dictionary<IConnector, DateTime>();
+        // We keep a map of the connectors that has recently result in a failed connection attempt, this is used to
+        // influence the selection of connectors when creating new connections, connectors with recent failures
+        // are tried last this avoids retries choosing always connectors that have already result in a connect failure.
+        private readonly Dictionary<IConnector, DateTime> _connectFailures = new ();
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
@@ -107,15 +110,6 @@ namespace ZeroC.Ice
                         }
                     }
                 }
-
-                // Purge expired hint failures
-                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
-                var expiredFailures = _hintFailures.Where(entry => entry.Value <= expirationDate).Select(
-                    entry => entry.Key).ToList();
-                foreach (IConnector expired in expiredFailures)
-                {
-                    _hintFailures.Remove(expired);
-                }
             }
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
@@ -163,11 +157,19 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
+                // Purge expired hint failures
+                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
+                var expiredFailures = _connectFailures.Where(entry => entry.Value <= expirationDate).Select(
+                    entry => entry.Key).ToList();
+                foreach (IConnector expired in expiredFailures)
+                {
+                    _connectFailures.Remove(expired);
+                }
+
                 // Exclude connectors that where already tried, order the remaining connectors moving connectors with
                 // recent failures to the end of the list.
                 connectors = connectors.Where(item => !excludedConnectors.Contains(item.Connector)).OrderBy(
-                    item => _hintFailures.TryGetValue(item.Connector, out DateTime value) ?
-                        value : DateTime.UnixEpoch).ToList();
+                    item => _connectFailures.TryGetValue(item.Connector, out DateTime value) ? value : default).ToList();
 
                 if (connectors.Count == 0)
                 {
@@ -302,7 +304,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                _hintFailures[connector] = DateTime.Now;
+                _connectFailures[connector] = DateTime.Now;
             }
         }
 

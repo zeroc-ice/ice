@@ -334,11 +334,10 @@ namespace ZeroC.Ice
                     {
                         IRequestHandler? handler = null;
                         var progressWrapper = new ProgressWrapper(progress);
-                        Retryable retryable = Retryable.No;
-                        TimeSpan afterDelay = TimeSpan.Zero;
+                        RetryPolicy retryPolicy = RetryPolicy.NoRetry;
                         try
                         {
-                            // Get the request handler, this will eventually establish a connection if needed.
+                            // Get the request handler and establish a connection if needed.
                             handler = await reference.GetRequestHandlerAsync(
                                 excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
                                 cancel).ConfigureAwait(false);
@@ -378,20 +377,20 @@ namespace ZeroC.Ice
                             // Always retry a gracefully close connection. Don't exclude the connector after a
                             // graceful close connection, in case it is the only connector available.
                             lastException = ex;
-                            retryable = Retryable.AfterDelay;
+                            retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
                         }
                         catch (TransportException ex) when (request.IsIdempotent || !progressWrapper.IsSent)
                         {
                             // Retry transport exceptions if the request is idempotent or was not send
                             lastException = ex;
-                            retryable = Retryable.AfterDelay;
+                            retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
                         }
 
                         if (lastException == null)
                         {
                             Debug.Assert(response != null && response.ResultType == ResultType.Failure);
                             observer?.RemoteException();
-                            if (response.ReadSystemException(proxy.Communicator) is Exception systemException &&
+                            if (response.ReadIce1SystemException(proxy.Communicator) is Exception systemException &&
                                 systemException is ObjectNotExistException one)
                             {
                                 // 1.1 System exceptions
@@ -403,7 +402,7 @@ namespace ZeroC.Ice
                                     // (for example, because it was evicted by the router). In this case, we must
                                     // *always* retry, so that the missing proxy is added to the router.
                                     reference.RouterInfo.ClearCache(reference);
-                                    retryable = Retryable.AfterDelay;
+                                    retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
                                 }
                                 else if (reference.IsIndirect)
                                 {
@@ -411,19 +410,17 @@ namespace ZeroC.Ice
                                     {
                                         reference.LocatorInfo?.ClearCache(reference);
                                     }
-                                    retryable = Retryable.AfterDelay;
+                                    retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
                                 }
                             }
                             else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
                                                                         out ReadOnlyMemory<byte> value))
                             {
-                                retryable = (Retryable)value.Span[0];
-                                afterDelay = retryable == Retryable.AfterDelay ?
-                                    TimeSpan.FromMilliseconds(value[1..].Span.ReadVarULong().Value) : TimeSpan.Zero;
+                                retryPolicy = value.Read(istr => new RetryPolicy(istr));
                             }
                         }
 
-                        if (retryable == Retryable.No)
+                        if (retryPolicy.Retryable == Retryable.No)
                         {
                             break; // We cannot retry
                         }
@@ -431,7 +428,7 @@ namespace ZeroC.Ice
                         {
                             if (handler is Connection connection)
                             {
-                                if (retryable == Retryable.OtherReplica)
+                                if (retryPolicy.Retryable == Retryable.OtherReplica)
                                 {
                                     excludedConnectors ??= new List<IConnector>();
                                     excludedConnectors.Add(connection.Connector);
@@ -456,14 +453,14 @@ namespace ZeroC.Ice
                                     "retrying operation call: because of exception");
                             }
 
-                            if (retryable == Retryable.AfterDelay && afterDelay != TimeSpan.Zero)
+                            if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
                             {
                                 // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
                                 using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                                     cancel,
                                     proxy.Communicator.CancellationToken);
-                                await Task.Delay(afterDelay, tokenSource.Token).ConfigureAwait(false);
+                                await Task.Delay(retryPolicy.Delay, tokenSource.Token).ConfigureAwait(false);
                             }
                             observer?.Retried();
                         }
