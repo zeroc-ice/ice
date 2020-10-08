@@ -949,7 +949,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
         }
     }
     _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-         << "\">A cancellation token that receives the cancellation requests.</param>";
+         << "\">A cancelation token that receives the cancelation requests.</param>";
 
     if(dispatch && p->hasMarshaledResult())
     {
