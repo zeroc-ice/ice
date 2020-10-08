@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
@@ -19,7 +20,10 @@ namespace ZeroC.Ice.Test.Compress
             _compressed = compressed;
         }
 
-        public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        public async ValueTask<OutgoingResponseFrame> DispatchAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             if (current.Operation == "opCompressParams" || current.Operation == "opCompressParamsAndReturn")
             {
@@ -33,7 +37,7 @@ namespace ZeroC.Ice.Test.Compress
                     }
                 }
             }
-            OutgoingResponseFrame response = await _servant.DispatchAsync(request, current);
+            OutgoingResponseFrame response = await _servant.DispatchAsync(request, current, cancel);
             if (current.Operation == "opCompressReturn" || current.Operation == "opCompressParamsAndReturn")
             {
                 if (response.Encoding == Encoding.V20)
@@ -68,7 +72,7 @@ namespace ZeroC.Ice.Test.Compress
 
     public sealed class TestIntf : ITestIntf
     {
-        public void OpCompressParams(int size, byte[] p1, Current current)
+        public void OpCompressParams(int size, byte[] p1, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(size == p1.Length);
             for (int i = 0; i < size; ++i)
@@ -77,16 +81,16 @@ namespace ZeroC.Ice.Test.Compress
             }
         }
 
-        public ReadOnlyMemory<byte> OpCompressParamsAndReturn(
-            byte[] p1,
-            Current current) => p1;
+        public ReadOnlyMemory<byte> OpCompressParamsAndReturn(byte[] p1, Current current, CancellationToken cancel) =>
+            p1;
 
-        public ReadOnlyMemory<byte> OpCompressReturn(int size, Current current) =>
+        public ReadOnlyMemory<byte> OpCompressReturn(int size, Current current, CancellationToken cancel) =>
             Enumerable.Range(0, size).Select(i => (byte)i).ToArray();
 
-        public void OpWithUserException(int size, Current current) =>
+        public void OpWithUserException(int size, Current current, CancellationToken cancel) =>
             throw new MyException(Enumerable.Range(0, size).Select(i => (byte)i).ToArray());
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
     }
 }

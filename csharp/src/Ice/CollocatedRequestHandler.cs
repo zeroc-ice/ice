@@ -130,8 +130,8 @@ namespace ZeroC.Ice
             try
             {
                 var incomingRequest = new IncomingRequestFrame(outgoingRequest, _adapter.IncomingFrameSizeMax);
-                var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
-                return await _adapter.DispatchAsync(incomingRequest, requestId, current).ConfigureAwait(false);
+                var current = new Current(_adapter, incomingRequest, oneway: requestId == 0);
+                return await _adapter.DispatchAsync(incomingRequest, requestId, current, cancel).ConfigureAwait(false);
             }
             finally
             {

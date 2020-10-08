@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Location
@@ -13,7 +14,7 @@ namespace ZeroC.Ice.Test.Location
             _requestCount = 0;
         }
 
-        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapter, Current current)
+        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapter, Current current, CancellationToken cancel)
         {
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
@@ -22,7 +23,7 @@ namespace ZeroC.Ice.Test.Location
             return new ValueTask<IObjectPrx?>(_registry.GetAdapter(adapter).Clone(encoding: current.Encoding));
         }
 
-        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current)
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current, CancellationToken cancel)
         {
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
@@ -31,9 +32,9 @@ namespace ZeroC.Ice.Test.Location
             return new ValueTask<IObjectPrx?>(_registry.GetObject(id).Clone(encoding: current.Encoding));
         }
 
-        public ILocatorRegistryPrx GetRegistry(Current current) => _registryPrx;
+        public ILocatorRegistryPrx GetRegistry(Current current, CancellationToken cancel) => _registryPrx;
 
-        public int GetRequestCount(Current current) => _requestCount;
+        public int GetRequestCount(Current current, CancellationToken cancel) => _requestCount;
 
         private readonly ServerLocatorRegistry _registry;
         private readonly ILocatorRegistryPrx _registryPrx;

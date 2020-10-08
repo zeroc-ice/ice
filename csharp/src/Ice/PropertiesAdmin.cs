@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
@@ -23,12 +24,16 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly ILogger _logger;
 
-        public string GetProperty(string key, Current current) => _communicator.GetProperty(key) ?? "";
+        public string GetProperty(string key, Current current, CancellationToken cancel) =>
+            _communicator.GetProperty(key) ?? "";
 
-        public IReadOnlyDictionary<string, string> GetPropertiesForPrefix(string prefix, Current current) =>
+        public IReadOnlyDictionary<string, string> GetPropertiesForPrefix(
+            string prefix,
+            Current current,
+            CancellationToken cancel) =>
             _communicator.GetProperties(forPrefix: prefix);
 
-        public void SetProperties(Dictionary<string, string> newProperties, Current current)
+        public void SetProperties(Dictionary<string, string> newProperties, Current current, CancellationToken cancel)
         {
             int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 

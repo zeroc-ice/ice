@@ -27,7 +27,12 @@ namespace ZeroC.IceDiscovery
         private readonly int _retryCount;
         private readonly TimeSpan _timeout;
 
-        public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx? reply, Current current)
+        public void FindAdapterById(
+            string domainId,
+            string adapterId,
+            ILookupReplyPrx? reply,
+            Current current,
+            CancellationToken cancel)
         {
             if (!domainId.Equals(_domainId))
             {
@@ -41,7 +46,7 @@ namespace ZeroC.IceDiscovery
                 try
                 {
                     Debug.Assert(reply != null);
-                    reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
+                    reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, cancel: cancel);
                 }
                 catch
                 {
@@ -50,7 +55,12 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
+        public void FindObjectById(
+            string domainId,
+            Identity id,
+            ILookupReplyPrx? reply,
+            Current current,
+            CancellationToken cancel)
         {
             if (domainId != _domainId)
             {
@@ -64,7 +74,7 @@ namespace ZeroC.IceDiscovery
                 try
                 {
                     Debug.Assert(reply != null);
-                    reply.FoundObjectByIdAsync(id, proxy);
+                    reply.FoundObjectByIdAsync(id, proxy, cancel: cancel);
                 }
                 catch
                 {
@@ -277,10 +287,15 @@ namespace ZeroC.IceDiscovery
         private readonly object _mutex = new object();
         private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
 
-        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current current) =>
+        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current current, CancellationToken cancel) =>
             CompletionSource.SetResult(proxy);
 
-        public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current current)
+        public void FoundAdapterById(
+            string adapterId,
+            IObjectPrx? proxy,
+            bool isReplicaGroup,
+            Current current,
+            CancellationToken cancel)
         {
             if (isReplicaGroup)
             {

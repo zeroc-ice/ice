@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ZeroC.Ice;
@@ -15,12 +16,19 @@ namespace ZeroC.IceDiscovery
         private readonly Lookup _lookup;
         private readonly ILocatorRegistryPrx _registry;
 
-        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapterId, Current current) =>
+        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(
+            string adapterId,
+            Current current,
+            CancellationToken cancel) =>
             _lookup.FindAdapterAsync(adapterId);
 
-        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObjectAsync(id);
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(
+            Identity id,
+            Current current,
+            CancellationToken cancel) =>
+            _lookup.FindObjectAsync(id);
 
-        public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;
+        public ILocatorRegistryPrx? GetRegistry(Current current, CancellationToken cancel) => _registry;
 
         internal Locator(Lookup lookup, ILocatorRegistryPrx registry)
         {
@@ -36,7 +44,11 @@ namespace ZeroC.IceDiscovery
         private readonly Dictionary<string, HashSet<string>> _replicaGroups =
             new Dictionary<string, HashSet<string>>();
 
-        public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
+        public ValueTask SetAdapterDirectProxyAsync(
+            string adapterId,
+            IObjectPrx? proxy,
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -56,7 +68,8 @@ namespace ZeroC.IceDiscovery
             string adapterId,
             string replicaGroupId,
             IObjectPrx? proxy,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -96,7 +109,11 @@ namespace ZeroC.IceDiscovery
             return default;
         }
 
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>
+        public ValueTask SetServerProcessProxyAsync(
+            string id,
+            IProcessPrx? process,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask(Task.CompletedTask);
 
         internal (IObjectPrx? Proxy, bool IsReplicaGroup) FindAdapter(string adapterId)

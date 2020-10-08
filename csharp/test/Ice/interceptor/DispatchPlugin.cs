@@ -13,10 +13,10 @@ namespace ZeroC.Ice.Test.Interceptor
             public void Initialize(PluginInitializationContext context)
             {
                 context.AddDispatchInterceptor(
-                    async (request, current, next) =>
+                    async (request, current, next, cancel) =>
                     {
                         current.Context["DispatchPlugin"] = "1";
-                        OutgoingResponseFrame response = await next(request, current);
+                        OutgoingResponseFrame response = await next(request, current, cancel);
                         if (request.Protocol == Protocol.Ice2)
                         {
                             response.AddBinaryContextEntry(100, 100, (ostr, v) => ostr.WriteInt(v));

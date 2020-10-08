@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Location
@@ -15,15 +16,15 @@ namespace ZeroC.Ice.Test.Location
             _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
-        public void Shutdown(Current current) => _adapter1.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => _adapter1.Communicator.ShutdownAsync();
 
-        public IHelloPrx GetHello(Current current) =>
+        public IHelloPrx GetHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
 
         public IHelloPrx GetReplicatedHello(Current current) =>
             _adapter1.CreateProxy("hello", IHelloPrx.Factory);
 
-        public void MigrateHello(Current current)
+        public void MigrateHello(Current current, CancellationToken cancel)
         {
             var id = Identity.Parse("hello");
 

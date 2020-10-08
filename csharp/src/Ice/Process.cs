@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
+
 namespace ZeroC.Ice
 {
     // Default implementation of the Process Admin facet.
@@ -7,9 +9,9 @@ namespace ZeroC.Ice
     {
         private readonly Communicator _communicator;
 
-        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => _ = _communicator.ShutdownAsync();
 
-        public void WriteMessage(string message, int fd, Current current)
+        public void WriteMessage(string message, int fd, Current current, CancellationToken cancel)
         {
             switch (fd)
             {
