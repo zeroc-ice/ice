@@ -21,7 +21,7 @@ namespace ZeroC.Ice.Test.Location
         public IHelloPrx GetHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
 
-        public IHelloPrx GetReplicatedHello(Current current) =>
+        public IHelloPrx GetReplicatedHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateProxy("hello", IHelloPrx.Factory);
 
         public void MigrateHello(Current current, CancellationToken cancel)
@@ -31,13 +31,13 @@ namespace ZeroC.Ice.Test.Location
             IObject? servant = _adapter1.Remove(id);
             if (servant != null)
             {
-                _registry.AddObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current);
+                _registry.AddObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current, cancel);
             }
             else
             {
                 servant = _adapter2.Remove(id);
                 TestHelper.Assert(servant != null);
-                _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
+                _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current, cancel);
             }
         }
 

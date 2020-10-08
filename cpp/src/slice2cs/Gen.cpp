@@ -2858,7 +2858,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << paramName(params.front(), "iceP_");
             }
-            _out << "current" << epar << ".ConfigureAwait(false);";
+            _out << "current" << "cancel" << epar << ".ConfigureAwait(false);";
             _out << nl << "return returnValue.Response;";
         }
         else
@@ -2873,7 +2873,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << paramName(params.front(), "iceP_");
             }
-            _out << "current" << epar << ".Response);";
+            _out << "current" << "cancel" << epar << ".Response);";
         }
         _out << eb;
     }
