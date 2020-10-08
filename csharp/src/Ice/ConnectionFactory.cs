@@ -477,30 +477,36 @@ namespace ZeroC.Ice
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private volatile bool _disposed;
+        private bool _disposed;
         private readonly object _mutex = new object();
 
         public override async ValueTask DisposeAsync()
         {
-            // Close the acceptor
             if (_communicator.TraceLevels.Transport >= 1)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                     $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
             }
 
-            _disposed = true;
-            _acceptor.Dispose();
+            // Dispose of the acceptor and close the connections. It's important to perform this synchronously without
+            // any await in between to guarantee that once Communicator.ShutdownAsync returns the communicator no
+            // longer accepts any requests.
 
-            // Wait for AcceptAsync to return
+            lock (_mutex)
+            {
+                _disposed = true;
+                _acceptor.Dispose();
+            }
+
+            // The connection set is immutable once _disposed = true
+            var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
+            IEnumerable<Task> tasks = _connections.Select(connection => connection.CloseAsync(exception));
+
+            // Wait for AcceptAsync and the connection closure to return.
             if (_acceptTask != null)
             {
                 await _acceptTask.ConfigureAwait(false);
             }
-
-            // Wait for all the connections to be closed, the connection set is immutable once AcceptAsync returned
-            var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
-            IEnumerable<Task> tasks = _connections.Select(connection => connection.CloseAsync(exception));
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
@@ -522,10 +528,9 @@ namespace ZeroC.Ice
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
-            AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
-
             _acceptor = Endpoint.Acceptor(this, _adapter);
 
+            AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
             Endpoint = _acceptor.Endpoint;
 
             if (_communicator.TraceLevels.Transport >= 1)
@@ -545,10 +550,14 @@ namespace ZeroC.Ice
 
             // Start the asynchronous operation from the thread pool to prevent eventually accepting
             // synchronously new connections from this thread.
-            _acceptTask = Task.Factory.StartNew(AcceptAsync,
-                                                default,
-                                                TaskCreationOptions.None,
-                                                _adapter.TaskScheduler ?? TaskScheduler.Default);
+            lock (_mutex)
+            {
+                Debug.Assert(!_disposed);
+                _acceptTask = Task.Factory.StartNew(AcceptAsync,
+                                                    default,
+                                                    TaskCreationOptions.None,
+                                                    _adapter.TaskScheduler ?? TaskScheduler.Default);
+            }
         }
 
         internal override void UpdateConnectionObservers()
@@ -566,15 +575,40 @@ namespace ZeroC.Ice
         {
             while (true)
             {
-                Connection connection;
+                Connection? connection = null;
                 try
                 {
                     // We don't use ConfigureAwait(false) on purpose. We want to ensure continuations execute on the
                     // object adapter scheduler if an adapter scheduler is set.
                     connection = await _acceptor.AcceptAsync();
+
+                    if (_communicator.TraceLevels.Transport >= 2)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                            $"trying to accept {Endpoint.TransportName} connection\n{connection}");
+                    }
+
+                    lock (_mutex)
+                    {
+                        if (_disposed)
+                        {
+                            throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
+                        }
+
+                        _connections.Add(connection);
+
+                        // We don't wait for the connection to be activated. This could take a while for some transports
+                        // such as TLS based transports where the handshake requires few round trips between the client
+                        // and server.
+                        _ = connection.StartAsync();
+                    }
                 }
-                catch (Exception ex)
+                catch (Exception exception)
                 {
+                    if (connection != null)
+                    {
+                        await connection.CloseAsync(exception);
+                    }
                     if (_disposed)
                     {
                         return;
@@ -583,25 +617,9 @@ namespace ZeroC.Ice
                     // We print an error and wait for one second to avoid running in a tight loop in case the
                     // failures occurs immediately again. Failures here are unexpected and could be considered
                     // fatal.
-                    _communicator.Logger.Error($"failed to accept connection:\n{ex}\n{_acceptor}");
+                    _communicator.Logger.Error($"failed to accept connection:\n{exception}\n{_acceptor}");
                     await Task.Delay(TimeSpan.FromSeconds(1));
                     continue;
-                }
-
-                if (_communicator.TraceLevels.Transport >= 2)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                        $"trying to accept {Endpoint.TransportName} connection\n{connection}");
-                }
-
-                lock (_mutex)
-                {
-                    _connections.Add(connection);
-
-                    // We don't wait for the connection to be activated. This could take a while for some transports
-                    // such as TLS based transports where the handshake requires few round trips between the client
-                    // and server.
-                    _ = connection.StartAsync();
                 }
             }
         }
