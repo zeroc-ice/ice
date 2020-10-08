@@ -178,7 +178,7 @@ namespace ZeroC.Ice.Test.Tagged
         }
 
         public IInitial.OpMStruct1MarshaledReturnValue OpMStruct1(
-            Current current, 
+            Current current,
             CancellationToken cancel) => new IInitial.OpMStruct1MarshaledReturnValue(new SmallStruct(), current);
 
         public IInitial.OpMStruct2MarshaledReturnValue OpMStruct2(

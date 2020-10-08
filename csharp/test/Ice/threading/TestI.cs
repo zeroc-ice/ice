@@ -36,7 +36,7 @@ namespace ZeroC.Ice.Test.Threading
                 throw new TestFailedException(
                     $"unexpected task scheduler from pingAsync dispatch: {TaskScheduler.Current}");
             }
-            await Task.Delay(1).ConfigureAwait(false);
+            await Task.Delay(1, cancel).ConfigureAwait(false);
         }
 
         public void Concurrent(int level, Current current, CancellationToken cancel)
