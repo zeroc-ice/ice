@@ -44,7 +44,7 @@ module Ice
     {
     }
 
-    /// This exception is thrown when a server was not be found.
+    /// This exception is thrown when a server was notfound.
     exception ServerNotFoundException
     {
     }

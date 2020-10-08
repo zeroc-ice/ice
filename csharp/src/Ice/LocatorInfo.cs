@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,11 +20,9 @@ namespace ZeroC.Ice
         internal ILocatorPrx Locator { get; }
 
         private readonly ConcurrentDictionary<string, (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints)>
-            _adapterEndpointsTable =
-                new ConcurrentDictionary<string, (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints)>();
+            _adapterEndpointsTable = new ();
 
-        private readonly Dictionary<string, Task<IReadOnlyList<Endpoint>>> _adapterRequests =
-            new Dictionary<string, Task<IReadOnlyList<Endpoint>>>();
+        private readonly Dictionary<string, Task<IReadOnlyList<Endpoint>>> _adapterRequests = new ();
 
         private readonly bool _background;
 
@@ -33,11 +32,9 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
 
         private readonly ConcurrentDictionary<Identity, (TimeSpan InsertionTime, Reference Reference)>
-            _objectReferenceTable =
-                new ConcurrentDictionary<Identity, (TimeSpan InsertionTime, Reference Reference)>();
+            _objectReferenceTable = new ();
 
-        private readonly Dictionary<Identity, Task<Reference?>> _objectRequests =
-            new Dictionary<Identity, Task<Reference?>>();
+        private readonly Dictionary<Identity, Task<Reference?>> _objectRequests = new ();
 
         internal LocatorInfo(ILocatorPrx locator, bool background)
         {
@@ -220,19 +217,19 @@ namespace ZeroC.Ice
                 else
                 {
                     Communicator communicator = reference.Communicator;
-                    var s = new System.Text.StringBuilder();
-                    s.Append("no endpoints configured for ");
+                    var sb = new StringBuilder();
+                    sb.Append("no endpoints configured for ");
                     if (reference.AdapterId.Length > 0)
                     {
-                        s.Append("adapter\n");
-                        s.Append("adapter = " + reference.AdapterId);
+                        sb.Append("adapter\n");
+                        sb.Append("adapter = " + reference.AdapterId);
                     }
                     else
                     {
-                        s.Append("well-known object\n");
-                        s.Append("well-known proxy = " + reference.ToString());
+                        sb.Append("well-known object\n");
+                        sb.Append("well-known proxy = " + reference.ToString());
                     }
-                    communicator.Logger.Trace(communicator.TraceLevels.LocationCategory, s.ToString());
+                    communicator.Logger.Trace(communicator.TraceLevels.LocationCategory, sb.ToString());
                 }
             }
             return (endpoints, cached);
@@ -253,39 +250,42 @@ namespace ZeroC.Ice
             return _locatorRegistry;
         }
 
-        // Returns true if the time-to-live has been reached
         private static bool CheckTTL(TimeSpan insertionTime, TimeSpan ttl) =>
             ttl == Timeout.InfiniteTimeSpan || (Time.Elapsed - insertionTime) <= ttl;
 
         private static void Trace(string msg, Reference r, IReadOnlyList<Endpoint> endpoints)
         {
-            var s = new System.Text.StringBuilder();
-            s.Append(msg + "\n");
+            var sb = new StringBuilder();
+            sb.Append(msg + "\n");
             if (r.AdapterId.Length > 0)
             {
-                s.Append("adapter = " + r.AdapterId + "\n");
+                sb.Append("adapter = ");
+                sb.Append(r.AdapterId);
+                sb.Append('\n');
             }
             else
             {
-                s.Append("well-known proxy = " + r.ToString() + "\n");
+                sb.Append("well-known proxy = ");
+                sb.Append(r);
+                sb.Append('\n');
             }
-            s.Append("endpoints = ");
-            s.Append(string.Join(":", endpoints));
-            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCategory, s.ToString());
+            sb.Append("endpoints = ");
+            sb.Append(string.Join(":", endpoints));
+            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCategory, sb.ToString());
         }
 
-        private static void Trace(string msg, Reference r, Reference resolved)
+        private static void Trace(string msg, Reference wellKnown, Reference resolved)
         {
-            Debug.Assert(r.IsWellKnown);
-            var s = new System.Text.StringBuilder();
-            s.Append(msg);
-            s.Append('\n');
-            s.Append("well-known proxy = ");
-            s.Append(r.ToString());
-            s.Append('\n');
-            s.Append("adapter = ");
-            s.Append(resolved.AdapterId);
-            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCategory, s.ToString());
+            Debug.Assert(wellKnown.IsWellKnown);
+            var sb = new StringBuilder();
+            sb.Append(msg);
+            sb.Append('\n');
+            sb.Append("well-known proxy = ");
+            sb.Append(wellKnown);
+            sb.Append('\n');
+            sb.Append("adapter = ");
+            sb.Append(resolved.AdapterId);
+            wellKnown.Communicator.Logger.Trace(wellKnown.Communicator.TraceLevels.LocationCategory, sb.ToString());
         }
 
         private (IReadOnlyList<Endpoint> Endpoints, bool Cached) GetAdapterEndpoints(string adapter, TimeSpan ttl)
