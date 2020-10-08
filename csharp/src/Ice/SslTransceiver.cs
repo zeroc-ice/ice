@@ -155,6 +155,11 @@ namespace ZeroC.Ice
                 return sent;
 
             }
+            catch (ObjectDisposedException ex)
+            {
+                // The stream might have been disposed if the connection is closed.
+                throw new TransportException(ex);
+            }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex);
