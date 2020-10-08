@@ -113,13 +113,23 @@ long getSerialVersionUUID(const DataMemberContainerPtr& p)
         {
             string msg = "ignoring invalid serialVersionUID for class `" + p->scoped() + "'; generating default value";
             dc->warning(InvalidMetadata, "", -1, msg);
-            return computeSerialVersionUUID(p);
         }
     }
-    else
+
+    if (auto cont = ClassDefPtr::dynamicCast(p))
     {
-        return computeSerialVersionUUID(p);
+        return computeSerialVersionUUID(cont);
     }
+    if (auto cont = StructPtr::dynamicCast(p))
+    {
+        return computeSerialVersionUUID(cont);
+    }
+    if (auto cont = ExceptionPtr::dynamicCast(p))
+    {
+        return computeSerialVersionUUID(cont);
+    }
+    assert(false);
+    return -1;
 }
 
 }

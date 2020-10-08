@@ -915,7 +915,7 @@ optional<string>
 Slice::Contained::findMetadata(const string& directive) const
 {
     // TODO this is temporary until we can fully replace the current metadata logic.
-    return findMetadata(directive, parseMetadata(_metadata));
+    return Slice::findMetadata(directive, parseMetadata(_metadata));
 }
 
 bool
