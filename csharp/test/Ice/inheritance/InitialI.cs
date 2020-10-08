@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using ZeroC.Ice.Test.Inheritance.MA;
 using ZeroC.Ice.Test.Inheritance.MB;
 
@@ -15,14 +16,15 @@ namespace ZeroC.Ice.Test.Inheritance
             _ic = adapter.AddWithUUID(new IC(), IICPrx.Factory);
         }
 
-        public IIAPrx Iaop(Current current) => _ia;
-        public IIB1Prx Ib1op(Current current) => _ib1;
+        public IIAPrx Iaop(Current current, CancellationToken cancel) => _ia;
+        public IIB1Prx Ib1op(Current current, CancellationToken cancel) => _ib1;
 
-        public IIB2Prx Ib2op(Current current) => _ib2;
+        public IIB2Prx Ib2op(Current current, CancellationToken cancel) => _ib2;
 
-        public IICPrx Icop(Current current) => _ic;
+        public IICPrx Icop(Current current, CancellationToken cancel) => _ic;
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
 
         private readonly IIAPrx _ia;
         private readonly IIB1Prx _ib1;

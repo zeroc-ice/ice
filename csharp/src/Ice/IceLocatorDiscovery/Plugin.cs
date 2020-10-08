@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
@@ -19,9 +20,11 @@ namespace ZeroC.IceLocatorDiscovery
 
     internal class VoidLocator : ILocator
     {
-        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string id, Current current) => default;
-        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current) => default;
-        public ILocatorRegistryPrx? GetRegistry(Current current) => null;
+        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string id, Current current, CancellationToken cancel) =>
+            default;
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current, CancellationToken cancel) =>
+            default;
+        public ILocatorRegistryPrx? GetRegistry(Current current, CancellationToken cancel) => null;
     }
 
     internal class Locator : IObject
@@ -350,7 +353,8 @@ namespace ZeroC.IceLocatorDiscovery
     internal class LookupReply : ILookupReply
     {
         private readonly Locator _locator;
-        public void FoundLocator(ILocatorPrx? locator, Current current) => _locator.FoundLocator(locator);
+        public void FoundLocator(ILocatorPrx? locator, Current current, CancellationToken cancel) =>
+            _locator.FoundLocator(locator);
         internal LookupReply(Locator locator) => _locator = locator;
     }
 

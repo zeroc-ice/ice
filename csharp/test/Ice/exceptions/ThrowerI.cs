@@ -1,19 +1,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public sealed class Thrower : IThrower
     {
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
 
-        public bool SupportsAssertException(Current current) => false;
+        public bool SupportsAssertException(Current current, CancellationToken cancel) => false;
 
-        public void ThrowAasA(int a, Current current) => throw new A(a);
+        public void ThrowAasA(int a, Current current, CancellationToken cancel) => throw new A(a);
 
-        public void ThrowAorDasAorD(int a, Current current)
+        public void ThrowAorDasAorD(int a, Current current, CancellationToken cancel)
         {
             if (a > 0)
             {
@@ -25,39 +27,44 @@ namespace ZeroC.Ice.Test.Exceptions
             }
         }
 
-        public void ThrowBasA(int a, int b, Current current) => ThrowBasB(a, b, current);
+        public void ThrowBasA(int a, int b, Current current, CancellationToken cancel) => ThrowBasB(a, b, current, cancel);
 
-        public void ThrowBasB(int a, int b, Current current) => throw new B(a, b);
+        public void ThrowBasB(int a, int b, Current current, CancellationToken cancel) => throw new B(a, b);
 
-        public void ThrowCasA(int a, int b, int c, Current current) => ThrowCasC(a, b, c, current);
+        public void ThrowCasA(int a, int b, int c, Current current, CancellationToken cancel) =>
+            ThrowCasC(a, b, c, current, cancel);
 
-        public void ThrowCasB(int a, int b, int c, Current current) => ThrowCasC(a, b, c, current);
+        public void ThrowCasB(int a, int b, int c, Current current, CancellationToken cancel) =>
+            ThrowCasC(a, b, c, current, cancel);
 
-        public void ThrowCasC(int a, int b, int c, Current current) => throw new C(a, b, c);
+        public void ThrowCasC(int a, int b, int c, Current current, CancellationToken cancel) => throw new C(a, b, c);
 
-        public void ThrowCustomDispatchException(Current current) =>
+        public void ThrowCustomDispatchException(Current current, CancellationToken cancel) =>
             throw new CustomDispatchException(current.Identity, current.Facet, current.Operation, "custom");
 
-        public void ThrowLocalException(Current current) => throw new ConnectionTimeoutException();
+        public void ThrowLocalException(Current current, CancellationToken cancel) =>
+            throw new ConnectionTimeoutException();
 
-        public void ThrowNonIceException(Current current) => throw new System.Exception();
+        public void ThrowNonIceException(Current current, CancellationToken cancel) => throw new Exception();
 
-        public void ThrowAssertException(Current current) => TestHelper.Assert(false);
+        public void ThrowAssertException(Current current, CancellationToken cancel) => TestHelper.Assert(false);
 
         // 20KB is over the configured 10KB message size max.
-        public ReadOnlyMemory<byte> ThrowMemoryLimitException(byte[] seq, Current current) => new byte[1024 * 20];
+        public ReadOnlyMemory<byte> ThrowMemoryLimitException(byte[] seq, Current current, CancellationToken cancel) =>
+            new byte[1024 * 20];
 
-        public void ThrowLocalExceptionIdempotent(Current current) => throw new ConnectionTimeoutException();
+        public void ThrowLocalExceptionIdempotent(Current current, CancellationToken cancel) =>
+            throw new ConnectionTimeoutException();
 
-        public void ThrowAfterResponse(Current current)
+        public void ThrowAfterResponse(Current current, CancellationToken cancel)
         {
             // Only relevant for AMD.
         }
 
         // Only relevant for AMD.
-        public void ThrowAfterException(Current current) => throw new A();
+        public void ThrowAfterException(Current current, CancellationToken cancel) => throw new A();
 
-        public void ThrowAConvertedToUnhandled(Current current) =>
+        public void ThrowAConvertedToUnhandled(Current current, CancellationToken cancel) =>
             throw new A() { ConvertToUnhandled = true };
     }
 }

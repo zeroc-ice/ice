@@ -1,12 +1,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx CreateObjectAdapter(string name, string transport, Current current)
+        public IRemoteObjectAdapterPrx CreateObjectAdapter(
+            string name,
+            string transport,
+            Current current,
+            CancellationToken cancel)
         {
             int retry = 5;
             while (true)
@@ -30,17 +35,25 @@ namespace ZeroC.Ice.Test.Binding
             }
         }
 
-        public IRemoteObjectAdapterPrx CreateObjectAdapterWithEndpoints(string name, string endpoints, Current current)
+        public IRemoteObjectAdapterPrx CreateObjectAdapterWithEndpoints(
+            string name,
+            string endpoints,
+            Current current,
+            CancellationToken cancel)
         {
             ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
         // Collocated call.
-        public void DeactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
-            adapter!.Deactivate();
+        public void DeactivateObjectAdapter(
+            IRemoteObjectAdapterPrx? adapter,
+            Current current,
+            CancellationToken cancel) =>
+            adapter!.Deactivate(cancel: cancel);
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
 
         private int _nextPort = 10;
     }

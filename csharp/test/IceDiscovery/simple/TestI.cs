@@ -3,12 +3,18 @@
 using System.Collections.Generic;
 using ZeroC.Ice;
 using Test;
+using System.Threading;
 
 namespace ZeroC.IceDiscovery.Test.Simple
 {
     public sealed class Controller : IController
     {
-        public void ActivateObjectAdapter(string name, string adapterId, string replicaGroupId, Current current)
+        public void ActivateObjectAdapter(
+            string name,
+            string adapterId,
+            string replicaGroupId,
+            Current current,
+            CancellationToken cancel)
         {
             Communicator communicator = current.Adapter.Communicator;
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
@@ -20,32 +26,33 @@ namespace ZeroC.IceDiscovery.Test.Simple
             oa.Activate();
         }
 
-        public void DeactivateObjectAdapter(string name, Current current)
+        public void DeactivateObjectAdapter(string name, Current current, CancellationToken cancel)
         {
             _adapters[name].Dispose();
             _adapters.Remove(name);
         }
 
-        public void AddObject(string oaName, string id, Current current)
+        public void AddObject(string oaName, string id, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
             _adapters[oaName].Add(id, new TestIntf());
         }
 
-        public void RemoveObject(string oaName, string id, Current current)
+        public void RemoveObject(string oaName, string id, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
             _adapters[oaName].Remove(id);
         }
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
 
         private readonly Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
     }
 
     public sealed class TestIntf : ITestIntf
     {
-        public string GetAdapterId(Current current) =>
+        public string GetAdapterId(Current current, CancellationToken cancel) =>
             current.Adapter.Communicator.GetProperty($"{current.Adapter.Name}.AdapterId") ?? "";
     }
 }

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Collections.Generic;
-using ZeroC.Ice;
+using System.Threading;
 using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
@@ -11,7 +11,7 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         internal SSLServer(Communicator communicator) => _communicator = communicator;
 
-        public void NoCert(Current current)
+        public void NoCert(Current current, CancellationToken cancel)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        public void CheckCert(string subjectDN, string issuerDN, Current current)
+        public void CheckCert(string subjectDN, string issuerDN, Current current, CancellationToken cancel)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        public void CheckCipher(string cipher, Current current)
+        public void CheckCipher(string cipher, Current current, CancellationToken cancel)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         public IServerPrx CreateServer(
             Dictionary<string, string> properties,
             bool requireClientCertificate,
-            Current current)
+            Current current, CancellationToken cancel)
         {
             properties["IceSSL.DefaultDir"] = _defaultDir;
             var communicator = new Communicator(
@@ -94,7 +94,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             return prx;
         }
 
-        public void DestroyServer(IServerPrx? srv, Current current)
+        public void DestroyServer(IServerPrx? srv, Current current, CancellationToken cancel)
         {
             if (_servers.TryGetValue(srv!.Identity, out SSLServer? server))
             {
@@ -103,7 +103,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        public void Shutdown(Current current)
+        public void Shutdown(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_servers.Count == 0);
             current.Adapter.Communicator.ShutdownAsync();

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -13,10 +14,15 @@ namespace ZeroC.Ice
         /// <summary>Dispatches a request on this servant.</summary>
         /// <param name="request">The <see cref="IncomingRequestFrame"/> to dispatch.</param>
         /// <param name="current">Holds decoded header data and other information about the current request.</param>
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is cancelled.
+        /// </param>
         /// <returns>A value task that provides the <see cref="OutgoingResponseFrame"/> for the request.</returns>
         /// <exception cref="Exception">Any exception thrown by DispatchAsync will be marshaled into the response
         /// frame.</exception>
-        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             // TODO: switch to abstract method (but doesn't work as of .NET 5 preview 8).
             Debug.Assert(false);
@@ -76,24 +82,33 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that is notified of cancellation when the dispatch is cancelled.
+        /// </param>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(Current current) => "::Ice::Object";
+        public string IceId(Current current, CancellationToken cancel) => "::Ice::Object";
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
         /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
-        public IEnumerable<string> IceIds(Current current) => new string[] { "::Ice::Object" };
+        public IEnumerable<string> IceIds(Current current, CancellationToken cancel) =>
+            new string[] { "::Ice::Object" };
 
         /// <summary>Tests whether this object supports the specified Slice interface.</summary>
         /// <param name="typeId">The type ID of the Slice interface to test against.</param>
         /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
         /// <returns>True if this object implements the interface specified by typeId.</returns>
-        public bool IceIsA(string typeId, Current current) =>
-            Array.BinarySearch((string[])IceIds(current), typeId, StringComparer.Ordinal) >= 0;
+        public bool IceIsA(string typeId, Current current, CancellationToken cancel) =>
+            Array.BinarySearch((string[])IceIds(current, cancel), typeId, StringComparer.Ordinal) >= 0;
 
         /// <summary>Tests whether this object can be reached.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
-        public void IcePing(Current current)
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
+        public void IcePing(Current current, CancellationToken cancel)
         {
             // Does nothing
         }
@@ -115,44 +130,64 @@ namespace ZeroC.Ice
         /// <summary>Dispatches an ice_id request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
         /// <returns>The response frame.</returns>
-        protected ValueTask<OutgoingResponseFrame> IceDIceIdAsync(IncomingRequestFrame request, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceDIceIdAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             request.ReadEmptyArgs();
-            string returnValue = IceId(current);
+            string returnValue = IceId(current, cancel);
             return new ValueTask<OutgoingResponseFrame>(Response.IceId(current, returnValue));
         }
 
         /// <summary>Dispatches an ice_ids request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
         /// <returns>The response frame.</returns>
-        protected ValueTask<OutgoingResponseFrame> IceDIceIdsAsync(IncomingRequestFrame request, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceDIceIdsAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             request.ReadEmptyArgs();
-            IEnumerable<string> returnValue = IceIds(current);
+            IEnumerable<string> returnValue = IceIds(current, cancel);
             return new ValueTask<OutgoingResponseFrame>(Response.IceIds(current, returnValue));
         }
 
         /// <summary>Dispatches an ice_isA request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
         /// <returns>The response frame.</returns>
-        protected ValueTask<OutgoingResponseFrame> IceDIceIsAAsync(IncomingRequestFrame request, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceDIceIsAAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             string id = request.ReadArgs(current.Communicator, Request.IceIsA);
-            bool returnValue = IceIsA(id, current);
+            bool returnValue = IceIsA(id, current, cancel);
             return new ValueTask<OutgoingResponseFrame>(Response.IceIsA(current, returnValue));
         }
 
         /// <summary>Dispatches an ice_ping request.</summary>
         /// <param name="request">The request frame.</param>
         /// <param name="current">The current object for the dispatch.</param>
+        /// <param name="cancel">A cancelation token that is notified of cancelation when the dispatch is cancelled.
+        /// </param>
         /// <returns>The response frame.</returns>
-        protected ValueTask<OutgoingResponseFrame> IceDIcePingAsync(IncomingRequestFrame request, Current current)
+        protected ValueTask<OutgoingResponseFrame> IceDIcePingAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             request.ReadEmptyArgs();
-            IcePing(current);
+            IcePing(current, cancel);
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
     }
