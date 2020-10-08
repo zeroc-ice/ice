@@ -210,8 +210,7 @@ namespace ZeroC.Ice
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
-        private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
-            new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
+
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
@@ -1182,14 +1181,8 @@ namespace ZeroC.Ice
                 locator = locator.Clone(clearLocator: true, encoding: encoding);
             }
 
-            return _locatorInfoMap.GetOrAdd(locator, locatorKey =>
-            {
-                // Rely on locator identity and encoding for the adapter table. We want to have only one table per
-                // locator and encoding (not one per locator proxy).
-                LocatorTable table =
-                    _locatorTableMap.GetOrAdd((locatorKey.Identity, locatorKey.Encoding), key => new LocatorTable());
-                return new LocatorInfo(locatorKey, table, _backgroundLocatorCacheUpdates);
-            });
+            return _locatorInfoMap.GetOrAdd(locator,
+                                            locator => new LocatorInfo(locator, _backgroundLocatorCacheUpdates));
         }
 
         internal RouterInfo? GetRouterInfo(IRouterPrx? router)
