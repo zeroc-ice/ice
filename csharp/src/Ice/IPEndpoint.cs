@@ -214,6 +214,10 @@ namespace ZeroC.Ice
             : base(communicator, protocol)
         {
             Debug.Assert(protocol == Protocol.Ice2);
+            if (!oaEndpoint && IPAddress.TryParse(host, out IPAddress? address))
+            {
+                throw new ArgumentException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint", nameof(host));
+            }
             Host = host;
             Port = port;
             if (!oaEndpoint) // parsing a URI that represents a proxy
@@ -277,6 +281,12 @@ namespace ZeroC.Ice
                     Host = oaEndpoint ? "::0" :
                         throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
                 }
+
+                if (!oaEndpoint && IPAddress.TryParse(Host, out IPAddress? address))
+                {
+                    throw new FormatException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint");
+                }
+
                 options.Remove("-h");
             }
             else
