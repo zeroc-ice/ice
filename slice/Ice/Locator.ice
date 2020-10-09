@@ -58,16 +58,16 @@ module Ice
         /// Finds an object by identity and returns a proxy that provides a location or endpoint(s) that can be used
         /// to reach the object.
         /// @param id The identity.
-        /// @return A proxy that provides a location or endpoint(s) or null if an object with identity <c>id</c> was
+        /// @return A proxy that provides a location or endpoint(s) or null if an object with identity `id' was
         /// not found.
-        /// @throws ObjectNotFoundException Thrown if an object with identity <c>id</c> was not found. This exception
+        /// @throws ObjectNotFoundException Thrown if an object with identity `id' was not found. This exception
         /// is equivalent to a null return value.
         [amd] [nonmutating] [cpp:const] idempotent Object? findObjectById(Identity id)
             throws ObjectNotFoundException;
 
         /// Finds an object adapter by id and returns a proxy that provides the object adapter's endpoint(s).
         /// @param id The adapter ID.
-        /// @return A proxy with the adapter's endpoint(s) or null if an object adapter with adapter ID <c>id</c> was
+        /// @return A proxy with the adapter's endpoint(s) or null if an object adapter with adapter ID `id' was
         /// not found.
         /// @throws AdapterNotFoundException Thrown if an object adapter with this adapter ID was not found. This
         /// exception is equivalent to a null return value.
