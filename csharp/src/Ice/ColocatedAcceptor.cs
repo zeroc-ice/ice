@@ -3,8 +3,8 @@
 using System.Threading.Tasks;
 using System.Threading.Channels;
 
-using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long, object?, bool)>;
-using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long, object?, bool)>;
+using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long StreamId, object? Frame, bool Fin)>;
+using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long StreamId, object? Frame, bool Fin)>;
 
 namespace ZeroC.Ice
 {

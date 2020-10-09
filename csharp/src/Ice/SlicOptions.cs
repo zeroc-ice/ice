@@ -4,14 +4,14 @@ using System;
 
 namespace ZeroC.Ice
 {
-    internal class SlicOptions
+    internal record SlicOptions
     {
-        internal TimeSpan IdleTimeout { get; set; } = TimeSpan.FromSeconds(30);
+        internal TimeSpan IdleTimeout { get; init; }
 
-        internal int MaxBidirectionalStreams { get; set; } = 100;
+        internal int MaxBidirectionalStreams { get; init; }
 
-        internal int MaxUnidirectionalStreams { get; set; } = 100;
+        internal int MaxUnidirectionalStreams { get; init; }
 
-        internal int PacketSize { get; set; } = 32 * 1024;
+        internal int PacketSize { get; init; }
     }
 }

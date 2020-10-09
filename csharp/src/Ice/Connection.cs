@@ -8,7 +8,6 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
@@ -48,7 +47,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _monitor?.Acm ?? new Acm();
+                    return _monitor?.Acm ?? Acm.Disabled;
                 }
             }
             set
@@ -105,17 +104,6 @@ namespace ZeroC.Ice
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
 
-        internal bool Active
-        {
-            get
-            {
-                lock (_mutex)
-                {
-                    return _state > ConnectionState.Initializing && _state < ConnectionState.Closing;
-                }
-            }
-        }
-
         // The connector from which the connection was created. This is used by the outgoing connection factory.
         internal IConnector Connector => _connector!;
 
@@ -125,6 +113,8 @@ namespace ZeroC.Ice
         // or "localhost" are different endpoints but they all end up resolving to the same connector and can use
         // the same connection).
         internal List<Endpoint> Endpoints { get; }
+
+        internal bool IsActive => _state == ConnectionState.Active;
 
         private protected MultiStreamTransceiver Transceiver { get; }
         private volatile Task _acceptStreamTask = Task.CompletedTask;
@@ -138,8 +128,8 @@ namespace ZeroC.Ice
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
         private IAcmMonitor? _monitor;
-        private readonly object _mutex = new object();
-        private ConnectionState _state; // The current state.
+        private readonly object _mutex = new ();
+        private volatile ConnectionState _state; // The current state.
 
         /// <summary>Manually closes the connection using the specified closure mode.</summary>
         /// <param name="mode">Determines how the connection will be closed.</param>
@@ -149,8 +139,9 @@ namespace ZeroC.Ice
             {
                 _ = AbortAsync(new ConnectionClosedLocallyException("connection closed forcefully"));
             }
-            else if (mode == ConnectionClose.Gracefully)
+            else
             {
+                Debug.Assert(mode == ConnectionClose.Gracefully);
                 _ = GoAwayAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
             }
         }
@@ -189,22 +180,16 @@ namespace ZeroC.Ice
         /// passed as the event sender argument.</summary>
         public event EventHandler? PingReceived
         {
-            add
-            {
-                Transceiver.Ping += value;
-            }
-            remove
-            {
-                Transceiver.Ping -= value;
-            }
+            add => Transceiver.Ping += value;
+            remove => Transceiver.Ping -= value;
         }
 
         /// <summary>Sends a ping frame.</summary>
-        public void Ping()
+        public void Ping(CancellationToken cancel = default)
         {
             try
             {
-                PingAsync().Wait();
+                PingAsync(cancel: cancel).Wait(cancel);
             }
             catch (AggregateException ex)
             {
@@ -272,7 +257,7 @@ namespace ZeroC.Ice
                 {
                     throw _exception;
                 }
-                Debug.Assert(_state == ConnectionState.Active);
+                Debug.Assert(IsActive);
                 return Transceiver.CreateStream(bidirectional);
             }
         }

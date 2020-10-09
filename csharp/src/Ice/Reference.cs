@@ -1042,7 +1042,7 @@ namespace ZeroC.Ice
             Connection? connection = _connection;
 
             // If the cached connection is no longer active, clear it and get a new connection.
-            if (!IsFixed && connection != null && !connection.Active)
+            if (!IsFixed && connection != null && !connection.IsActive)
             {
                 ClearConnection(connection);
                 connection = null;

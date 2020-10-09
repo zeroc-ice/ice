@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Channels;
 
-using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long, object?, bool)>;
-using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long, object?, bool)>;
+using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long StreamId, object? Frame, bool Fin)>;
+using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long StreamId, object? Frame, bool Fin)>;
 
 namespace ZeroC.Ice
 {
@@ -57,10 +57,12 @@ namespace ZeroC.Ice
             : base(adapter.Communicator, adapter.Protocol)
         {
             Adapter = adapter;
-            var options = new UnboundedChannelOptions();
-            options.SingleReader = true;
-            options.SingleWriter = true;
-            options.AllowSynchronousContinuations = true;
+            var options = new UnboundedChannelOptions
+            {
+                SingleReader = true,
+                SingleWriter = true,
+                AllowSynchronousContinuations = true
+            };
             _channel = Channel.CreateUnbounded<(long, ColocatedChannelWriter, ColocatedChannelReader)>(options);
             _connectors = new IConnector[] { new ColocatedConnector(this, _channel.Writer) };
         }

@@ -16,7 +16,7 @@ namespace ZeroC.Ice
         internal int BidirectionalStreamCount;
         internal AsyncSemaphore? BidirectionalStreamSemaphore;
         internal TimeSpan IdleTimeout;
-        internal readonly object Mutex = new object();
+        internal readonly object Mutex = new ();
         internal SlicOptions Options { get; }
         internal int UnidirectionalStreamCount;
         internal AsyncSemaphore? UnidirectionalStreamSemaphore;
@@ -25,8 +25,7 @@ namespace ZeroC.Ice
         private long _lastUnidirectionalId;
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
-        private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource =
-            new ManualResetValueTaskCompletionSource<int>();
+        private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new ();
         private Task _sendTask = Task.CompletedTask;
         private readonly BufferedReadTransceiver _transceiver;
 
@@ -296,18 +295,11 @@ namespace ZeroC.Ice
 
             // If serialization if enabled on the adapter, we configure the maximum stream counts to 1 to ensure
             // the peer won't open more than one stream.
-            Options = new SlicOptions();
+            Options = Endpoint.Communicator.SlicOptions;
             if (adapter?.SerializeDispatch ?? false)
             {
-                Options.MaxBidirectionalStreams = 1;
-                Options.MaxUnidirectionalStreams = 1;
+                Options = Options with { MaxBidirectionalStreams = 1, MaxUnidirectionalStreams = 1 };
             }
-            else
-            {
-                Options.MaxBidirectionalStreams = Endpoint.Communicator.SlicOptions.MaxBidirectionalStreams;
-                Options.MaxUnidirectionalStreams = Endpoint.Communicator.SlicOptions.MaxUnidirectionalStreams;
-            }
-            Options.IdleTimeout = Endpoint.Communicator.SlicOptions.IdleTimeout;
 
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)

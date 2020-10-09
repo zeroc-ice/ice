@@ -489,11 +489,13 @@ namespace ZeroC.Ice
                 ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
                 ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
 
-                SlicOptions = new SlicOptions();
-                SlicOptions.MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100;
-                SlicOptions.MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100;
-                SlicOptions.IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30);
-                SlicOptions.PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024;
+                SlicOptions = new SlicOptions
+                {
+                    MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
+                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
+                    IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30),
+                    PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
+                };
 
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;

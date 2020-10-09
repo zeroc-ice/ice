@@ -329,6 +329,5 @@ namespace ZeroC.Ice
         }
 
         internal static void WriteInt(this Span<byte> buffer, int v) => MemoryMarshal.Write(buffer, ref v);
-
     }
 }

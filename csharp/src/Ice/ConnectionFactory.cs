@@ -23,14 +23,11 @@ namespace ZeroC.Ice
         public IAcmMonitor AcmMonitor { get; }
 
         private readonly Communicator _communicator;
-        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector =
-            new MultiDictionary<(IConnector, string), Connection>();
-        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
-            new MultiDictionary<(Endpoint, string), Connection>();
+        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector = new ();
+        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint = new ();
         private Task? _disposeTask;
-        private readonly object _mutex = new object();
-        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
-            new Dictionary<(IConnector, string), Task<Connection>>();
+        private readonly object _mutex = new ();
+        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending = new ();
 
         public async ValueTask DisposeAsync()
         {
@@ -99,7 +96,7 @@ namespace ZeroC.Ice
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        if (connectionList.FirstOrDefault(connection => connection.Active) is Connection connection)
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                         {
                             return connection;
                         }
@@ -162,7 +159,7 @@ namespace ZeroC.Ice
                         if (_connectionsByConnector.TryGetValue((connector, connectionId),
                                                                 out ICollection<Connection>? connectionList))
                         {
-                            if (connectionList.FirstOrDefault(connection => connection.Active) is Connection connection)
+                            if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                             {
                                 return connection;
                             }
@@ -476,9 +473,9 @@ namespace ZeroC.Ice
         private Task? _acceptTask;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
-        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
+        private readonly HashSet<Connection> _connections = new ();
         private bool _disposed;
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new ();
 
         public override async ValueTask DisposeAsync()
         {

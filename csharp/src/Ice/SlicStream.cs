@@ -49,7 +49,7 @@ namespace ZeroC.Ice
 
                 if (IsIncoming && !IsBidirectional && !IsControl)
                 {
-                    // The incoming uni-directional stream is considered completed once it's disposed. It's important
+                    // The incoming unidirectional stream is considered completed once it's disposed. It's important
                     // to decrement the stream count before sending the StreamUnidirectionalFin frame to prevent a
                     // race where the peer could start a new stream before the counter was decremented.
                     Interlocked.Decrement(ref _transceiver.UnidirectionalStreamCount);
@@ -57,7 +57,6 @@ namespace ZeroC.Ice
                 }
                 else if (!IsIncoming && IsBidirectional && IsStarted)
                 {
-                    Debug.Assert(IsBidirectional);
                     _transceiver.BidirectionalStreamSemaphore!.Release();
                 }
             }
@@ -75,7 +74,7 @@ namespace ZeroC.Ice
                     _receivedOffset = 0;
                     if (_receivedEndOfStream && offset + _receivedSize < buffer.Count)
                     {
-                        throw new InvalidDataException("received less data than expected with last frame");
+                        throw new InvalidDataException("received last frame with less data than expected");
                     }
                 }
 
@@ -107,7 +106,7 @@ namespace ZeroC.Ice
                     ostr.WriteVarLong(Id);
                     ostr.WriteVarLong(0); // TODO: reason code or remove?
                     return Id;
-                }, CancellationToken.None).ConfigureAwait(false);
+                }).ConfigureAwait(false);
 
         protected override async ValueTask SendAsync(
             IList<ArraySegment<byte>> buffer,
@@ -214,7 +213,7 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                // The given buffer includes space for the Slic header, we substract the header size from the given
+                // The given buffer includes space for the Slic header, we subtract the header size from the given
                 // frame size.
                 Debug.Assert(frameSize > Header.Length);
                 frameSize -= Header.Length;
@@ -246,7 +245,7 @@ namespace ZeroC.Ice
 
                 if (IsIncoming && fin)
                 {
-                    // The incoming bi-directional stream is considered completed once more data will be written on
+                    // The incoming bidirectional stream is considered completed once more data will be written on
                     // the stream. It's important to decrement the stream count here before the peer receives the
                     // last stream frame  to prevent a race where the peer could start a new stream before the counter
                     // is decremented.

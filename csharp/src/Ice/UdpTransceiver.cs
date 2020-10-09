@@ -47,7 +47,7 @@ namespace ZeroC.Ice
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         // Windows does not allow binding to the multicast address itself so we bind to INADDR_ANY
-                        // instead. As a result, bi-directional connection won't work because the source address won't
+                        // instead. As a result, bidirectional connection won't work because the source address won't
                         // be the multicast address and the client will therefore reject the datagram.
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {

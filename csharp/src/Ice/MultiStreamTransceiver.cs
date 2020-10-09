@@ -19,11 +19,13 @@ namespace ZeroC.Ice
         /// <summary>The endpoint from which the transceiver was created.</summary>
         public Endpoint Endpoint { get; }
 
-        /// <summary><c>true</c> for incoming transceivers <c>false</c> otherwise.</summary>
+        /// <summary><c>true</c> for incoming transceivers <c>false</c> otherwise. An incoming transceiver is created
+        /// by a server-side acceptor while an outgoing transceiver is created from the endpoint by the client-side.
+        /// </summary>
         public bool IsIncoming { get; }
 
         internal int IncomingFrameSizeMax { get; }
-        internal TimeSpan LastActivity { get; set; }
+        internal TimeSpan LastActivity { get; private set; }
         // The stream ID of the last received response with the Ice1 protocol. Keeping track of this stream ID is
         // necessary to avoid a race condition with the GoAway frame which could be received and processed before
         // the response is delivered to the stream.
@@ -47,12 +49,12 @@ namespace ZeroC.Ice
             }
         }
         internal event EventHandler? Ping;
+        internal int StreamCount => _streams.Count;
 
         // The mutex provides thread-safety for the _observer and LastActivity data members.
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new ();
         private IConnectionObserver? _observer;
-        private readonly ConcurrentDictionary<long, TransceiverStream> _streams =
-            new ConcurrentDictionary<long, TransceiverStream>();
+        private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new ();
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Aborts the transceiver.</summary>
@@ -84,7 +86,7 @@ namespace ZeroC.Ice
         public abstract ValueTask InitializeAsync(CancellationToken cancel);
 
         /// <summary>Creates an outgoing stream. Depending on the transport implementation, the stream ID might not
-        /// be immediately available after the stream creation. It will be available after the first successfull send
+        /// be immediately available after the stream creation. It will be available after the first successful send
         /// call on the stream.</summary>
         /// <param name="bidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
         /// <return>The outgoing stream.</return>
@@ -100,7 +102,6 @@ namespace ZeroC.Ice
             IsIncoming = adapter != null;
             IncomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
             LastActivity = Time.Elapsed;
-            _mutex = new object();
         }
 
         /// <summary>Releases the resources used by the transceiver.</summary>
@@ -108,7 +109,7 @@ namespace ZeroC.Ice
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // The only streams left at this point should be the control steram. The connection ensures other streams
+            // The only streams left at this point should be the control stream. The connection ensures other streams
             // are aborted and disposed when the connection is aborted.
             foreach (TransceiverStream stream in _streams.Values)
             {
@@ -201,7 +202,7 @@ namespace ZeroC.Ice
             // Abort the transport.
             Abort();
 
-            // Abort the streams and wait for all all the streams to be completed.
+            // Abort the streams and wait for all the streams to be completed.
             AbortStreams(exception);
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
@@ -234,7 +235,7 @@ namespace ZeroC.Ice
         internal (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
-            //  still needed for sending and receiving GoAway frames.
+            // still needed for sending and receiving GoAway frames.
             long largestBidirectionalStreamId = 0;
             long largestUnidirectionalStreamId = 0;
             foreach (TransceiverStream stream in _streams.Values)
@@ -320,210 +321,208 @@ namespace ZeroC.Ice
             return stream;
         }
 
-        internal int StreamCount => _streams.Count;
-
         internal void TraceFrame(long streamId, object frame, byte type = 0, byte compress = 0)
         {
             Communicator communicator = Endpoint.Communicator;
             Protocol protocol = Endpoint.Protocol;
-            if (communicator.TraceLevels.Protocol >= 1)
-            {
-                string framePrefix;
-                string frameType;
-                Encoding encoding;
-                int frameSize;
-                ArraySegment<byte> data = ArraySegment<byte>.Empty;
 
-                if (frame is OutgoingFrame outgoingFrame)
+            Debug.Assert(communicator.TraceLevels.Protocol >= 1);
+
+            string framePrefix;
+            string frameType;
+            Encoding encoding;
+            int frameSize;
+            ArraySegment<byte> data = ArraySegment<byte>.Empty;
+
+            if (frame is OutgoingFrame outgoingFrame)
+            {
+                framePrefix = "sent";
+                encoding = outgoingFrame.Encoding;
+                frameType = frame is OutgoingRequestFrame ? "request" : "response";
+                frameSize = outgoingFrame.Size;
+            }
+            else if (frame is IncomingFrame incomingFrame)
+            {
+                framePrefix = "received";
+                encoding = incomingFrame.Encoding;
+                frameType = frame is IncomingRequestFrame ? "request" : "response";
+                frameSize = incomingFrame.Size;
+            }
+            else
+            {
+                if (frame is IList<ArraySegment<byte>> sendBuffer)
                 {
                     framePrefix = "sent";
-                    encoding = outgoingFrame.Encoding;
-                    frameType = frame is OutgoingRequestFrame ? "request" : "response";
-                    frameSize = outgoingFrame.Size;
+                    data = sendBuffer.Count > 0 ? sendBuffer.AsArraySegment() : ArraySegment<byte>.Empty;
                 }
-                else if (frame is IncomingFrame incomingFrame)
+                else if (frame is ArraySegment<byte> readBuffer)
                 {
                     framePrefix = "received";
-                    encoding = incomingFrame.Encoding;
-                    frameType = frame is IncomingRequestFrame ? "request" : "response";
-                    frameSize = incomingFrame.Size;
+                    data = readBuffer;
                 }
                 else
                 {
-                    if (frame is IList<ArraySegment<byte>> sendBuffer)
-                    {
-                        framePrefix = "sent";
-                        data = sendBuffer.Count > 0 ? sendBuffer.AsArraySegment() : ArraySegment<byte>.Empty;
-                    }
-                    else if (frame is ArraySegment<byte> readBuffer)
-                    {
-                        framePrefix = "received";
-                        data = readBuffer;
-                    }
-                    else
-                    {
-                        Debug.Assert(false);
-                        return;
-                    }
-
-                    if (protocol == Protocol.Ice2)
-                    {
-                        frameType = (Ice2Definitions.FrameType)type switch
-                        {
-                            Ice2Definitions.FrameType.Initialize => "initialize",
-                            Ice2Definitions.FrameType.GoAway => "goaway",
-                            _ => "unknown"
-                        };
-                        encoding = Ice2Definitions.Encoding;
-                        frameSize = 0;
-                    }
-                    else
-                    {
-                        frameType = (Ice1Definitions.FrameType)type switch
-                        {
-                            Ice1Definitions.FrameType.ValidateConnection => "validate",
-                            Ice1Definitions.FrameType.CloseConnection => "close",
-                            Ice1Definitions.FrameType.RequestBatch => "batch request",
-                            _ => "unknown"
-                        };
-                        encoding = Ice1Definitions.Encoding;
-                        frameSize = 0;
-                    }
+                    Debug.Assert(false);
+                    return;
                 }
-
-                var s = new StringBuilder();
-                s.Append(framePrefix);
-                s.Append(' ');
-                s.Append(frameType);
-                s.Append(" via ");
-                s.Append(Endpoint.TransportName);
-
-                s.Append("\nprotocol = ");
-                s.Append(protocol.GetName());
-                s.Append("\nencoding = ");
-                s.Append(encoding.ToString());
-
-                s.Append("\nframe size = ");
-                s.Append(frameSize);
 
                 if (protocol == Protocol.Ice2)
                 {
-                    s.Append("\nstream ID = ");
-                    s.Append(streamId);
+                    frameType = (Ice2Definitions.FrameType)type switch
+                    {
+                        Ice2Definitions.FrameType.Initialize => "initialize",
+                        Ice2Definitions.FrameType.GoAway => "goaway",
+                        _ => "unknown"
+                    };
+                    encoding = Ice2Definitions.Encoding;
+                    frameSize = 0;
                 }
-                else if (frameType == "request" || frameType == "response")
+                else
                 {
-                    s.Append("\ncompression status = ");
-                    s.Append(compress);
-                    s.Append(compress switch
+                    frameType = (Ice1Definitions.FrameType)type switch
                     {
-                        0 => " (not compressed; do not compress response, if any)",
-                        1 => " (not compressed; compress response, if any)",
-                        2 => " (compressed; compress response, if any)",
-                        _ => " (unknown)"
-                    });
-
-                    s.Append("\nrequest ID = ");
-                    int requestId = streamId % 4 < 2 ? (int)(streamId >> 2) + 1 : 0;
-                    s.Append((int)requestId);
-                    if (requestId == 0)
-                    {
-                        s.Append(" (oneway)");
-                    }
+                        Ice1Definitions.FrameType.ValidateConnection => "validate",
+                        Ice1Definitions.FrameType.CloseConnection => "close",
+                        Ice1Definitions.FrameType.RequestBatch => "batch request",
+                        _ => "unknown"
+                    };
+                    encoding = Ice1Definitions.Encoding;
+                    frameSize = 0;
                 }
-
-                if (frameType == "request")
-                {
-                    Identity identity;
-                    string facet;
-                    string operation;
-                    bool isIdempotent;
-                    IReadOnlyDictionary<string, string> context;
-                    if (frame is OutgoingRequestFrame outgoingRequest)
-                    {
-                        identity = outgoingRequest.Identity;
-                        facet = outgoingRequest.Facet;
-                        operation = outgoingRequest.Operation;
-                        isIdempotent = outgoingRequest.IsIdempotent;
-                        context = outgoingRequest.Context;
-                    }
-                    else if (frame is IncomingRequestFrame incomingRequest)
-                    {
-                        Debug.Assert(incomingRequest != null);
-                        identity = incomingRequest.Identity;
-                        facet = incomingRequest.Facet;
-                        operation = incomingRequest.Operation;
-                        isIdempotent = incomingRequest.IsIdempotent;
-                        context = incomingRequest.Context;
-                    }
-                    else
-                    {
-                        Debug.Assert(false);
-                        return;
-                    }
-
-                    ToStringMode toStringMode = communicator.ToStringMode;
-                    s.Append("\nidentity = ");
-                    s.Append(identity.ToString(toStringMode));
-
-                    s.Append("\nfacet = ");
-                    if (facet.Length > 0)
-                    {
-                        s.Append(StringUtil.EscapeString(facet, toStringMode));
-                    }
-
-                    s.Append("\noperation = ");
-                    s.Append(operation);
-
-                    s.Append($"\nidempotent = ");
-                    s.Append(isIdempotent.ToString().ToLowerInvariant());
-
-                    int sz = context.Count;
-                    s.Append("\ncontext = ");
-                    foreach ((string key, string value) in context)
-                    {
-                        s.Append(key);
-                        s.Append('/');
-                        s.Append(value);
-                        if (--sz > 0)
-                        {
-                            s.Append(", ");
-                        }
-                    }
-                }
-                else if (frameType == "response")
-                {
-                    s.Append("\nresult type = ");
-                    if (frame is IncomingResponseFrame incomingResponseFrame)
-                    {
-                        s.Append(incomingResponseFrame.ResultType);
-                    }
-                    else if (frame is OutgoingResponseFrame outgoingResponseFrame)
-                    {
-                        s.Append(outgoingResponseFrame.ResultType);
-                    }
-                }
-                else if (frameType == "batch request")
-                {
-                    s.Append("\nnumber of requests = ");
-                    s.Append(data.AsReadOnlySpan().ReadInt());
-                }
-                else if (protocol == Protocol.Ice2 && frameType == "goaway")
-                {
-                    var istr = new InputStream(data, encoding);
-                    s.Append("\nlast bidirectional stream ID = ");
-                    s.Append(istr.ReadVarLong());
-                    s.Append("\nlast undirectional stream ID = ");
-                    s.Append(istr.ReadVarLong());
-                    s.Append("\nreason = ");
-                    s.Append(istr.ReadString());
-                }
-
-                s.Append('\n');
-                s.Append(ToString());
-
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
+
+            var s = new StringBuilder();
+            s.Append(framePrefix);
+            s.Append(' ');
+            s.Append(frameType);
+            s.Append(" via ");
+            s.Append(Endpoint.TransportName);
+
+            s.Append("\nprotocol = ");
+            s.Append(protocol.GetName());
+            s.Append("\nencoding = ");
+            s.Append(encoding.ToString());
+
+            s.Append("\nframe size = ");
+            s.Append(frameSize);
+
+            if (protocol == Protocol.Ice2)
+            {
+                s.Append("\nstream ID = ");
+                s.Append(streamId);
+            }
+            else if (frameType == "request" || frameType == "response")
+            {
+                s.Append("\ncompression status = ");
+                s.Append(compress);
+                s.Append(compress switch
+                {
+                    0 => " (not compressed; do not compress response, if any)",
+                    1 => " (not compressed; compress response, if any)",
+                    2 => " (compressed; compress response, if any)",
+                    _ => " (unknown)"
+                });
+
+                s.Append("\nrequest ID = ");
+                int requestId = streamId % 4 < 2 ? (int)(streamId >> 2) + 1 : 0;
+                s.Append(requestId);
+                if (requestId == 0)
+                {
+                    s.Append(" (oneway)");
+                }
+            }
+
+            if (frameType == "request")
+            {
+                Identity identity;
+                string facet;
+                string operation;
+                bool isIdempotent;
+                IReadOnlyDictionary<string, string> context;
+                if (frame is OutgoingRequestFrame outgoingRequest)
+                {
+                    identity = outgoingRequest.Identity;
+                    facet = outgoingRequest.Facet;
+                    operation = outgoingRequest.Operation;
+                    isIdempotent = outgoingRequest.IsIdempotent;
+                    context = outgoingRequest.Context;
+                }
+                else if (frame is IncomingRequestFrame incomingRequest)
+                {
+                    Debug.Assert(incomingRequest != null);
+                    identity = incomingRequest.Identity;
+                    facet = incomingRequest.Facet;
+                    operation = incomingRequest.Operation;
+                    isIdempotent = incomingRequest.IsIdempotent;
+                    context = incomingRequest.Context;
+                }
+                else
+                {
+                    Debug.Assert(false);
+                    return;
+                }
+
+                ToStringMode toStringMode = communicator.ToStringMode;
+                s.Append("\nidentity = ");
+                s.Append(identity.ToString(toStringMode));
+
+                s.Append("\nfacet = ");
+                if (facet.Length > 0)
+                {
+                    s.Append(StringUtil.EscapeString(facet, toStringMode));
+                }
+
+                s.Append("\noperation = ");
+                s.Append(operation);
+
+                s.Append($"\nidempotent = ");
+                s.Append(isIdempotent.ToString().ToLowerInvariant());
+
+                int sz = context.Count;
+                s.Append("\ncontext = ");
+                foreach ((string key, string value) in context)
+                {
+                    s.Append(key);
+                    s.Append('/');
+                    s.Append(value);
+                    if (--sz > 0)
+                    {
+                        s.Append(", ");
+                    }
+                }
+            }
+            else if (frameType == "response")
+            {
+                s.Append("\nresult type = ");
+                if (frame is IncomingResponseFrame incomingResponseFrame)
+                {
+                    s.Append(incomingResponseFrame.ResultType);
+                }
+                else if (frame is OutgoingResponseFrame outgoingResponseFrame)
+                {
+                    s.Append(outgoingResponseFrame.ResultType);
+                }
+            }
+            else if (frameType == "batch request")
+            {
+                s.Append("\nnumber of requests = ");
+                s.Append(data.AsReadOnlySpan().ReadInt());
+            }
+            else if (protocol == Protocol.Ice2 && frameType == "goaway")
+            {
+                var istr = new InputStream(data, encoding);
+                s.Append("\nlast bidirectional stream ID = ");
+                s.Append(istr.ReadVarLong());
+                s.Append("\nlast unidirectional stream ID = ");
+                s.Append(istr.ReadVarLong());
+                s.Append("\nreason = ");
+                s.Append(istr.ReadString());
+            }
+
+            s.Append('\n');
+            s.Append(ToString());
+
+            communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
         }
 
         internal async ValueTask WaitForEmptyStreamsAsync()

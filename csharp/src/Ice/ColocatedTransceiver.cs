@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     {
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
-        internal readonly object Mutex = new object();
+        internal readonly object Mutex = new ();
 
         private readonly long _id;
         private long _nextBidirectionalId;
