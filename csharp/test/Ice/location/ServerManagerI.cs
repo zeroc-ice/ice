@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Location
@@ -13,11 +14,11 @@ namespace ZeroC.Ice.Test.Location
             _helper = helper;
         }
 
-        public void StartServer(Current current)
+        public void StartServer(Current current, CancellationToken cancel)
         {
             foreach (Communicator? c in _communicators)
             {
-                c.WaitForShutdownAsync().Wait();
+                c.WaitForShutdownAsync().Wait(cancel);
                 c.Dispose();
             }
             _communicators.Clear();
@@ -77,7 +78,7 @@ namespace ZeroC.Ice.Test.Location
             }
         }
 
-        public void Shutdown(Current current)
+        public void Shutdown(Current current, CancellationToken cancel)
         {
             foreach (Communicator c in _communicators)
             {

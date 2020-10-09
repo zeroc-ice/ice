@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
 
 namespace ZeroC.Ice.Test.Binding
 {
@@ -13,9 +14,9 @@ namespace ZeroC.Ice.Test.Binding
             _adapter.Activate();
         }
 
-        public ITestIntfPrx GetTestIntf(Current current) => _testIntf;
+        public ITestIntfPrx GetTestIntf(Current current, CancellationToken cancel) => _testIntf;
 
-        public void Deactivate(Current current)
+        public void Deactivate(Current current, CancellationToken cancel)
         {
             try
             {

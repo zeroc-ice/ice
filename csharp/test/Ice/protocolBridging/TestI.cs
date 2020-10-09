@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
@@ -12,7 +13,10 @@ namespace ZeroC.Ice.Test.ProtocolBridging
     {
         private IObjectPrx _target;
 
-        ValueTask<OutgoingResponseFrame> IObject.DispatchAsync(IncomingRequestFrame request, Current current)
+        ValueTask<OutgoingResponseFrame> IObject.DispatchAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             if (current.Operation == "op" || current.Operation == "opVoid")
             {
@@ -34,7 +38,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
                 request.Context["Intercepted"] = "1";
             }
 
-            return _target.ForwardAsync(current.IsOneway, request);
+            return _target.ForwardAsync(current.IsOneway, request, cancel: cancel);
         }
 
         internal Forwarder(IObjectPrx target) => _target = target;
@@ -42,7 +46,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
 
     public sealed class TestI : ITestIntf
     {
-        public int Op(int x, Current current)
+        public int Op(int x, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Context["MyCtx"] == "hello");
             TestHelper.Assert(current.Context.Count == 2);
@@ -50,7 +54,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             return x;
         }
 
-        public void OpVoid(Current current)
+        public void OpVoid(Current current, CancellationToken cancel)
         {
             if (current.Context.Count == 2)
             {
@@ -63,34 +67,34 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             }
         }
 
-        public (int, string) OpReturnOut(int x, Current current)
+        public (int, string) OpReturnOut(int x, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Context.Count == 1);
             TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
             return (x, $"value={x}");
         }
 
-        public void OpOneway(int x, Current current)
+        public void OpOneway(int x, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Context.Count == 1);
             TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
             TestHelper.Assert(x == 42);
         }
 
-        public void OpMyError(Current current)
+        public void OpMyError(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Context.Count == 1);
             TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
             throw new MyError(42);
         }
 
-        public void OpObjectNotExistException(Current current)
+        public void OpObjectNotExistException(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Context.Count == 1);
             TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
             throw new ObjectNotExistException(current);
         }
-        public ITestIntfPrx OpNewProxy(Current current)
+        public ITestIntfPrx OpNewProxy(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Context.Count == 1);
             TestHelper.Assert(current.Context.ContainsKey("Intercepted") || current.Context.ContainsKey("Direct"));
@@ -98,6 +102,6 @@ namespace ZeroC.Ice.Test.ProtocolBridging
                 encoding: current.Encoding);
         }
 
-        public void Shutdown(Current current) => current.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => current.Communicator.ShutdownAsync();
     }
 }

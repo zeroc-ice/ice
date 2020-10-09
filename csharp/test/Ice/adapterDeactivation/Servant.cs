@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -11,14 +12,14 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
     {
         private int _nextPort = 23456;
 
-        public (IObjectPrx?, bool?) GetClientProxy(Current current) => (null, false);
+        public (IObjectPrx?, bool?) GetClientProxy(Current current, CancellationToken cancel) => (null, false);
 
-        public IObjectPrx GetServerProxy(Current current) =>
+        public IObjectPrx GetServerProxy(Current current, CancellationToken cancel) =>
             IObjectPrx.Parse(TestHelper.GetTestProtocol(current.Communicator.GetProperties()) == Protocol.Ice1 ?
                 $"dummy:tcp -h localhost -p {_nextPort++}" : $"ice+tcp://localhost:{_nextPort++}/dummy",
                 current.Communicator);
 
-        public IEnumerable<IObjectPrx?> AddProxies(IObjectPrx?[] proxies, Current current) =>
+        public IEnumerable<IObjectPrx?> AddProxies(IObjectPrx?[] proxies, Current current, CancellationToken cancel) =>
             Array.Empty<IObjectPrx?>();
     }
 
@@ -26,7 +27,10 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
     {
         private readonly IRouter _router = new Router();
 
-        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
         {
             IObject? servant;
             if (current.Identity.Name == "router")
@@ -39,7 +43,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 TestHelper.Assert(current.Identity.Name == "test");
                 servant = new TestIntf();
             }
-            return servant.DispatchAsync(request, current);
+            return servant.DispatchAsync(request, current, cancel);
         }
     }
 }

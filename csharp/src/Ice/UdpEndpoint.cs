@@ -134,7 +134,7 @@ namespace ZeroC.Ice
 
         public override (ITransceiver, Endpoint) GetTransceiver()
         {
-            var transceiver = new UdpTransceiver(Communicator, Host, Port, MulticastInterface);
+            var transceiver = new UdpTransceiver(this, Communicator);
             try
             {
                 if (Communicator.TraceLevels.Transport >= 2)

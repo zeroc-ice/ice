@@ -5,38 +5,41 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZeroC.Slice.Test.Escape.@abstract;
 using Test;
+using System.Threading;
 
 public class Client : TestHelper
 {
     public sealed class Case : Icase
     {
-        public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current) => new ValueTask<int>(0);
+        public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current, CancellationToken cancel) =>
+            new ValueTask<int>(0);
     }
 
     public sealed class Decimal : Idecimal
     {
-        public void @default(ZeroC.Ice.Current current)
+        public void @default(ZeroC.Ice.Current current, CancellationToken cancel)
         {
         }
     }
 
     public sealed class Explicit : Iexplicit
     {
-        public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current) => new ValueTask<int>(0);
+        public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current, CancellationToken cancel) =>
+            new ValueTask<int>(0);
 
-        public void @default(ZeroC.Ice.Current current) => Assert(current.Operation == "default");
+        public void @default(ZeroC.Ice.Current current, CancellationToken cancel) => Assert(current.Operation == "default");
     }
 
     public sealed class Test1I : ZeroC.Slice.Test.Escape.@abstract.System.ITest
     {
-        public void op(ZeroC.Ice.Current c)
+        public void op(ZeroC.Ice.Current current, CancellationToken cancel)
         {
         }
     }
 
     public sealed class Test2I : ZeroC.Slice.Test.Escape.System.ITest
     {
-        public void op(ZeroC.Ice.Current c)
+        public void op(ZeroC.Ice.Current current, CancellationToken cancel)
         {
         }
     }
