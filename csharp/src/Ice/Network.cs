@@ -20,15 +20,16 @@ namespace ZeroC.Ice
         internal const int EnableIPv6 = 1;
         internal const int EnableBoth = 2;
 
-        internal static Socket CreateServerSocket(bool udp, AddressFamily family)
+        internal static Socket CreateServerSocket(IPEndpoint endpoint, AddressFamily family)
         {
-            Socket socket = CreateSocket(udp, family);
+            Socket socket = CreateSocket(endpoint.IsDatagram, family);
             if (family == AddressFamily.InterNetworkV6)
             {
                 try
                 {
-                    // TODO: this should configured by an "ipv6only" option on the OA's endpoint
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0);
+                    socket.SetSocketOption(SocketOptionLevel.IPv6,
+                                           SocketOptionName.IPv6Only,
+                                           endpoint.IPv6Only ? 1 : 0);
                 }
                 catch (SocketException ex)
                 {
