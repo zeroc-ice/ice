@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.Hash
                     seenProxy = new Dictionary<int, IObjectPrx>();
                     for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                     {
-                        string proxyString = $"ice+tcp://{rand.Next(100)}:{rand.Next(65536)}/{i}";
+                        string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}";
 
                         var obj = IObjectPrx.Parse(proxyString, communicator);
 
@@ -98,7 +98,7 @@ namespace ZeroC.Ice.Test.Hash
                 seenProxy = new Dictionary<int, IObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                 {
-                    string proxyString = $"ice+tcp://{rand.Next(100)}:{rand.Next(65536)}/{i}#facet";
+                    string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}#facet";
 
                     var obj = IObjectPrx.Parse(proxyString, communicator);
 
