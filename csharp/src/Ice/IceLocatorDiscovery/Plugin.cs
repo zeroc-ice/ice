@@ -166,11 +166,11 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         var sb = new StringBuilder();
                         sb.Append("received Ice locator with different instance name:\n")
-                         .Append("using = `").Append(_locator.Identity.Category).Append("'\n")
-                         .Append("received = `").Append(locator.Identity.Category).Append("'\n")
-                         .Append("This is typically the case if multiple Ice locators with different ")
-                         .Append("instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ")
-                         .Append("is not set.");
+                          .Append("using = `").Append(_locator.Identity.Category).Append("'\n")
+                          .Append("received = `").Append(locator.Identity.Category).Append("'\n")
+                          .Append("This is typically the case if multiple Ice locators with different ")
+                          .Append("instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ")
+                          .Append("is not set.");
                         locator.Communicator.Logger.Warning(sb.ToString());
                         return;
                     }
@@ -179,8 +179,8 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         var sb = new StringBuilder();
                         sb.Append("ignoring Ice locator with different protocol:\n")
-                         .Append("using = `").Append(_locator.Protocol).Append("'\n")
-                         .Append("received = `").Append(locator.Protocol).Append("'\n");
+                          .Append("using = `").Append(_locator.Protocol).Append("'\n")
+                          .Append("received = `").Append(locator.Protocol).Append("'\n");
                         locator.Communicator.Logger.Warning(sb.ToString());
                         return;
                     }
@@ -285,15 +285,15 @@ namespace ZeroC.IceLocatorDiscovery
                                 // All the lookup calls failed propagate the error to the requests.
                                 if (_traceLevel > 0)
                                 {
-                                    var s = new StringBuilder("locator lookup failed:\nlookup = ");
-                                    s.Append(_lookup);
+                                    var sb = new StringBuilder("locator lookup failed:\nlookup = ");
+                                    sb.Append(_lookup);
                                     if (_instanceName.Length > 0)
                                     {
-                                        s.Append("\ninstance name = ").Append(_instanceName);
+                                        sb.Append("\ninstance name = ").Append(_instanceName);
                                     }
-                                    s.Append("\nwith lookup proxy `{_lookup}':\n");
-                                    s.Append(ex);
-                                    _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
+                                    sb.Append("\nwith lookup proxy `{_lookup}':\n");
+                                    sb.Append(ex);
+                                    _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
                                 }
                                 return _voidLocator;
                             }
@@ -321,13 +321,13 @@ namespace ZeroC.IceLocatorDiscovery
                     // Locator lookup timeout and no more retries
                     if (_traceLevel > 0)
                     {
-                        var s = new StringBuilder("locator lookup timed out:\nlookup = ");
-                        s.Append(_lookup);
+                        var sb = new StringBuilder("locator lookup timed out:\nlookup = ");
+                        sb.Append(_lookup);
                         if (_instanceName.Length > 0)
                         {
-                            s.Append("\ninstance name = ").Append(_instanceName);
+                            sb.Append("\ninstance name = ").Append(_instanceName);
                         }
-                        _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
+                        _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
                     }
 
                     _nextRetry = Time.Elapsed + _retryDelay;

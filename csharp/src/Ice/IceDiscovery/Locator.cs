@@ -48,7 +48,7 @@ namespace ZeroC.IceDiscovery
                     _adapters.Remove(adapterId);
                 }
             }
-            return new ValueTask();
+            return default;
         }
 
         public ValueTask SetReplicatedAdapterDirectProxyAsync(
@@ -96,8 +96,7 @@ namespace ZeroC.IceDiscovery
         }
 
         // IceDiscovery does not use the server's Process.
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx process, Current current) =>
-            new ValueTask(Task.CompletedTask);
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx process, Current current) => default;
 
         internal (IObjectPrx? Proxy, bool IsReplicaGroup) FindAdapter(string adapterId)
         {
