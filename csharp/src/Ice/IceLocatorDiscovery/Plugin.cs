@@ -96,7 +96,8 @@ namespace ZeroC.IceLocatorDiscovery
 
         public async ValueTask<OutgoingResponseFrame> DispatchAsync(
             IncomingRequestFrame incomingRequest,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             ILocatorPrx? locator = null;
             Exception? exception = null;
@@ -108,7 +109,8 @@ namespace ZeroC.IceLocatorDiscovery
                 {
                     try
                     {
-                        return await newLocator.ForwardAsync(false, incomingRequest).ConfigureAwait(false);
+                        return
+                            await newLocator.ForwardAsync(false, incomingRequest, cancel: cancel).ConfigureAwait(false);
                     }
                     catch (ObjectNotExistException)
                     {

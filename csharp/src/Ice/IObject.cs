@@ -24,7 +24,7 @@ namespace ZeroC.Ice
             Current current,
             CancellationToken cancel)
         {
-            // TODO: switch to abstract method (but doesn't work as of .NET 5 preview 8).
+            // TODO: switch to abstract method (but doesn't work as of .NET 5 RC1).
             Debug.Assert(false);
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
