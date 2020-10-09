@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 {
                     socket.SetSocketOption(SocketOptionLevel.IPv6,
                                            SocketOptionName.IPv6Only,
-                                           endpoint.IPv6Only ? 1 : 0);
+                                           endpoint.IsIPv6Only ? 1 : 0);
                 }
                 catch (SocketException ex)
                 {
