@@ -120,7 +120,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Functional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Handle.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h" />

@@ -6,7 +6,6 @@
 #define ICE_SLICED_DATA_H
 
 #include <Ice/SlicedDataF.h>
-#include <Ice/GCObject.h>
 #include <Ice/Value.h>
 
 namespace Ice

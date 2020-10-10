@@ -5,7 +5,6 @@
 #include "Gen.h"
 #include <Slice/Util.h>
 #include "CPlusPlusUtil.h"
-#include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/FileTracker.h>
@@ -838,7 +837,6 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         H << "\n#include <Ice/Proxy.h>";
         H << "\n#include <Ice/Object.h>";
-        H << "\n#include <Ice/GCObject.h>";
         H << "\n#include <Ice/Value.h>";
         H << "\n#include <Ice/Incoming.h>";
         if(p->hasContentsWithMetadata("amd"))
