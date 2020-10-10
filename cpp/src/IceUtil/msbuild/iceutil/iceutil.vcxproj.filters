@@ -116,9 +116,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\MutexPtrTryLock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceUtil\Options.h">
       <Filter>Header Files</Filter>
     </ClInclude>
