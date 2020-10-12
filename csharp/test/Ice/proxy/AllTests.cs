@@ -140,6 +140,10 @@ namespace ZeroC.Ice.Test.Proxy
                 "id:opaque -t -1 -v abcd", // -t must be >= 0
                 "id:opaque -t 99 -v x?c", // invalid char in v
                 "id:opaque -t 99 -v xc", // invalid length for base64 input
+                "ice+tcp://0.0.0.0/identity#facet", // Invalid Any IPv4 address in proxy endpoint
+                "ice+tcp://[::0]/identity#facet", // Invalid Any IPv6 address in proxy endpoint
+                "identity:tcp -h 0.0.0.0", // Invalid Any IPv4 address in proxy endpoint
+                "identity:tcp -h [::0]", // Invalid Any IPv6 address in proxy endpoint
             };
 
             foreach (string str in badProxyArray)

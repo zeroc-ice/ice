@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -115,7 +116,8 @@ namespace ZeroC.Ice
             LogMessageType[] types,
             string[] categories,
             int messageMax,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             if (prx == null)
             {
@@ -178,7 +180,7 @@ namespace ZeroC.Ice
             logForwarder.Queue("init", _logger, prx => prx.InitAsync(_logger.Prefix, initLogMessages.ToArray()));
         }
 
-        public bool DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current)
+        public bool DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current, CancellationToken cancel)
         {
             if (remoteLogger == null)
             {
@@ -202,10 +204,12 @@ namespace ZeroC.Ice
             return found;
         }
 
-        public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] types,
-                                                        string[] categories,
-                                                        int messageMax,
-                                                        Current current)
+        public (IEnumerable<LogMessage>, string) GetLog(
+            LogMessageType[] types,
+            string[] categories,
+            int messageMax,
+            Current current,
+            CancellationToken cancel)
         {
             LinkedList<LogMessage> logMessages;
             lock (_mutex)

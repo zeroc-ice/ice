@@ -554,16 +554,16 @@ namespace ZeroC.Ice
                 }
 
                 // Dispatch the request and get the response
-                var current = new Current(adapter, request, stream, fin, this, cancel);
+                var current = new Current(adapter, request, stream, fin, this);
                 if (adapter.TaskScheduler != null)
                 {
-                    (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, current),
+                    (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, current, cancel),
                                                     cancel,
                                                     adapter.TaskScheduler).ConfigureAwait(false);
                 }
                 else
                 {
-                    (response, fin) = await adapter.DispatchAsync(request, current).ConfigureAwait(false);
+                    (response, fin) = await adapter.DispatchAsync(request, current, cancel).ConfigureAwait(false);
                 }
 
                 if (stream.IsBidirectional)

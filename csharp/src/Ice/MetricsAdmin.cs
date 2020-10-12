@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using System.Threading;
 using ZeroC.IceMX;
 
 namespace ZeroC.Ice
@@ -438,7 +438,7 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private Dictionary<string, MetricsView> _views = new Dictionary<string, MetricsView>();
 
-        public void DisableMetricsView(string name, Current current)
+        public void DisableMetricsView(string name, Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -448,7 +448,7 @@ namespace ZeroC.Ice
             UpdateViews();
         }
 
-        public void EnableMetricsView(string name, Current current)
+        public void EnableMetricsView(string name, Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -458,7 +458,11 @@ namespace ZeroC.Ice
             UpdateViews();
         }
 
-        public IEnumerable<MetricsFailures> GetMapMetricsFailures(string viewName, string mapName, Current current)
+        public IEnumerable<MetricsFailures> GetMapMetricsFailures(
+            string viewName,
+            string mapName,
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -467,7 +471,12 @@ namespace ZeroC.Ice
             }
         }
 
-        public MetricsFailures GetMetricsFailures(string viewName, string mapName, string id, Current current)
+        public MetricsFailures GetMetricsFailures(
+            string viewName,
+            string mapName,
+            string id,
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -477,7 +486,10 @@ namespace ZeroC.Ice
             }
         }
 
-        public (IReadOnlyDictionary<string, Metrics?[]>, long) GetMetricsView(string viewName, Current current)
+        public (IReadOnlyDictionary<string, Metrics?[]>, long) GetMetricsView(
+            string viewName,
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -492,7 +504,9 @@ namespace ZeroC.Ice
             }
         }
 
-        public (IEnumerable<string>, IEnumerable<string>) GetMetricsViewNames(Current current)
+        public (IEnumerable<string>, IEnumerable<string>) GetMetricsViewNames(
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {

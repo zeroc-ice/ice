@@ -308,18 +308,15 @@ namespace ZeroC.Ice
         }
 
         // Only for use by UdpEndpoint.
-        internal UdpTransceiver(
-            Communicator communicator,
-            string host,
-            ushort port,
-            string multicastInterface)
+        internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator)
         {
             _communicator = communicator;
-            _addr = Network.GetAddressForServerEndpoint(host, port, Network.EnableBoth, communicator.PreferIPv6);
-            _multicastInterface = multicastInterface;
+            _addr = Network.GetAddressForServerEndpoint(
+                endpoint.Host, endpoint.Port, Network.EnableBoth, communicator.PreferIPv6);
+            _multicastInterface = endpoint.MulticastInterface;
             _incoming = true;
 
-            Socket = Network.CreateServerSocket(true, _addr.AddressFamily);
+            Socket = Network.CreateServerSocket(endpoint, _addr.AddressFamily);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);

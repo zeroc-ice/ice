@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -9,28 +10,26 @@ namespace ZeroC.Ice.Test.AMI
     {
         private readonly object _mutex = new object();
 
-        public void
-        Op(Current current)
+        public void Op(Current current, CancellationToken cancel)
         {
         }
 
-        public int OpWithResult(Current current) => 15;
+        public int OpWithResult(Current current, CancellationToken cancel) => 15;
 
-        public void OpWithUE(Current current) => throw new TestIntfException();
+        public void OpWithUE(Current current, CancellationToken cancel) => throw new TestIntfException();
 
-        public void
-        OpWithPayload(byte[] seq, Current current)
+        public void OpWithPayload(byte[] seq, Current current, CancellationToken cancel)
         {
         }
 
-        public void
-        Close(CloseMode mode, Current current) => current.Connection.Close((ConnectionClose)(int)mode);
+        public void Close(CloseMode mode, Current current, CancellationToken cancel) =>
+            current.Connection.Close((ConnectionClose)(int)mode);
 
-        public void Sleep(int ms, Current current)
+        public void Sleep(int ms, Current current, CancellationToken cancel)
         {
             try
             {
-                Task.Delay(ms, current.CancellationToken).Wait();
+                Task.Delay(ms, cancel).Wait(cancel);
                 // Cancellation isn't supported with Ice1
                 TestHelper.Assert(!current.Context.ContainsKey("cancel") ||
                                   current.Context["cancel"] == "mightSucceed" ||
@@ -43,7 +42,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public void Shutdown(Current current)
+        public void Shutdown(Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -57,24 +56,25 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public bool SupportsAMD(Current current) => true;
+        public bool SupportsAMD(Current current, CancellationToken cancel) => true;
 
-        public bool SupportsFunctionalTests(Current current) => false;
+        public bool SupportsFunctionalTests(Current current, CancellationToken cancel) => false;
 
-        public async ValueTask OpAsyncDispatchAsync(Current current) => await Task.Delay(10);
+        public async ValueTask OpAsyncDispatchAsync(Current current, CancellationToken cancel) =>
+            await Task.Delay(10, cancel);
 
-        public async ValueTask<int> OpWithResultAsyncDispatchAsync(Current current)
+        public async ValueTask<int> OpWithResultAsyncDispatchAsync(Current current, CancellationToken cancel)
         {
-            await Task.Delay(10);
-            return await Self(current).OpWithResultAsync();
+            await Task.Delay(10, cancel);
+            return await Self(current).OpWithResultAsync(cancel: cancel);
         }
 
-        public async ValueTask OpWithUEAsyncDispatchAsync(Current current)
+        public async ValueTask OpWithUEAsyncDispatchAsync(Current current, CancellationToken cancel)
         {
-            await Task.Delay(10);
+            await Task.Delay(10, cancel);
             try
             {
-                await Self(current).OpWithUEAsync();
+                await Self(current).OpWithUEAsync(cancel: cancel);
             }
             catch (RemoteException ex)
             {
@@ -86,7 +86,7 @@ namespace ZeroC.Ice.Test.AMI
         private ITestIntfPrx Self(Current current) =>
             current.Adapter.CreateProxy(current.Identity, ITestIntfPrx.Factory);
 
-        public ValueTask StartDispatchAsync(Current current)
+        public ValueTask StartDispatchAsync(Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -107,7 +107,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public void FinishDispatch(Current current)
+        public void FinishDispatch(Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -123,13 +123,12 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public int Set(int newValue, Current current)
+        public int Set(int newValue, Current current, CancellationToken cancel)
         {
             int oldValue = _value;
             _value = newValue;
             return oldValue;
         }
-
         private bool _shutdown;
         private TaskCompletionSource<object?>? _pending;
         private int _value;
@@ -137,6 +136,6 @@ namespace ZeroC.Ice.Test.AMI
 
     public class TestIntf2 : Outer.Inner.ITestIntf
     {
-        public (int, int) Op(int i, Current current) => (i, i);
+        public (int, int) Op(int i, Current current, CancellationToken cancel) => (i, i);
     }
 }

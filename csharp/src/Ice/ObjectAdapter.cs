@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ZeroC.Ice.Instrumentation;
@@ -884,7 +885,8 @@ namespace ZeroC.Ice
 
         internal async ValueTask<(OutgoingResponseFrame, bool)> DispatchAsync(
             IncomingRequestFrame request,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             IDispatchObserver? dispatchObserver = Communicator.Observer?.GetDispatchObserver(current,
                                                                                              current.StreamId,
@@ -906,11 +908,11 @@ namespace ZeroC.Ice
                     if (i < Interceptors.Count)
                     {
                         DispatchInterceptor interceptor = Interceptors[i++];
-                        return interceptor(request, current, (request, current) => DispatchAsync(i));
+                        return interceptor(request, current, (request, current, cancel) => DispatchAsync(i), cancel);
                     }
                     else
                     {
-                        return servant.DispatchAsync(request, current);
+                        return servant.DispatchAsync(request, current, cancel);
                     }
                 }
 

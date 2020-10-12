@@ -124,7 +124,7 @@ namespace ZeroC.Ice
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
         {
-            var transceiver = new UdpTransceiver(Communicator, Host, Port, MulticastInterface);
+            var transceiver = new UdpTransceiver(this, Communicator);
             try
             {
                 if (Communicator.TraceLevels.Transport >= 2)

@@ -2,16 +2,17 @@
 
 using ZeroC.Ice;
 using Test;
+using System.Threading;
 
 namespace ZeroC.Glacier2.Test.Router
 {
     public sealed class Callback : ICallback
     {
-        public void InitiateCallback(ICallbackReceiverPrx? proxy, Current current)
+        public void InitiateCallback(ICallbackReceiverPrx? proxy, Current current, CancellationToken cancel)
         {
             try
             {
-                proxy!.Callback(current.Context);
+                proxy!.Callback(current.Context, cancel: cancel);
             }
             catch (DispatchException ex)
             {
@@ -19,11 +20,11 @@ namespace ZeroC.Glacier2.Test.Router
                 throw;
             }
         }
-        public void InitiateCallbackEx(ICallbackReceiverPrx? proxy, Current current)
+        public void InitiateCallbackEx(ICallbackReceiverPrx? proxy, Current current, CancellationToken cancel)
         {
             try
             {
-                proxy!.CallbackEx(current.Context);
+                proxy!.CallbackEx(current.Context, cancel: cancel);
             }
             catch (RemoteException ex)
             {
@@ -32,7 +33,8 @@ namespace ZeroC.Glacier2.Test.Router
             }
         }
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
     }
 
     public sealed class CallbackReceiver : ICallbackReceiver
@@ -42,7 +44,7 @@ namespace ZeroC.Glacier2.Test.Router
 
         public CallbackReceiver() => _callback = false;
 
-        public void Callback(Current current)
+        public void Callback(Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -52,9 +54,9 @@ namespace ZeroC.Glacier2.Test.Router
             }
         }
 
-        public void CallbackEx(Current current)
+        public void CallbackEx(Current current, CancellationToken cancel)
         {
-            Callback(current);
+            Callback(current, cancel);
             throw new CallbackException(3.14, "3.14");
         }
 

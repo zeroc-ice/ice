@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using Test;
+using System.Threading;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
@@ -11,25 +12,26 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
     {
         private class Relay : IRelay
         {
-            public void KnownPreservedAsBase(Current current) =>
+            public void KnownPreservedAsBase(Current current, CancellationToken cancel) =>
                 throw new KnownPreservedDerived("base", "preserved", "derived");
 
-            public void KnownPreservedAsKnownPreserved(Current current) =>
+            public void KnownPreservedAsKnownPreserved(Current current, CancellationToken cancel) =>
                 throw new KnownPreservedDerived("base", "preserved", "derived");
 
-            public void UnknownPreservedAsBase(Current current)
+            public void UnknownPreservedAsBase(Current current, CancellationToken cancel)
             {
                 var p = new PreservedClass("bc", "pc");
                 throw new Preserved2("base", "preserved", "derived", p, p);
             }
 
-            public void UnknownPreservedAsKnownPreserved(Current current)
+            public void UnknownPreservedAsKnownPreserved(Current current, CancellationToken cancel)
             {
                 var p = new PreservedClass("bc", "pc");
                 throw new Preserved2("base", "preserved", "derived", p, p);
             }
 
-            public void ClientPrivateException(Current current) => throw new ClientPrivateException("ClientPrivate");
+            public void ClientPrivateException(Current current, CancellationToken cancel) =>
+                throw new ClientPrivateException("ClientPrivate");
         }
 
         public static ITestIntfPrx Run(TestHelper helper)

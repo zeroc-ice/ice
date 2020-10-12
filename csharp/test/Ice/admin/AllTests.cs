@@ -616,7 +616,7 @@ namespace ZeroC.Ice.Test.Admin
             private string? _prefix;
             private int _receivedCalls;
 
-            public void Init(string prefix, LogMessage[] messages, Current current)
+            public void Init(string prefix, LogMessage[] messages, Current current, CancellationToken cancel)
             {
                 lock (_mutex)
                 {
@@ -630,7 +630,7 @@ namespace ZeroC.Ice.Test.Admin
                 }
             }
 
-            public void Log(LogMessage message, Current current)
+            public void Log(LogMessage message, Current current, CancellationToken cancel)
             {
                 lock (_mutex)
                 {

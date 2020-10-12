@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -7,7 +8,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public sealed class TestIntf : ITestIntf
     {
-        public void Transient(Current current)
+        public void Transient(Current current, CancellationToken cancel)
         {
             bool ice1 = TestHelper.GetTestProtocol(current.Communicator.GetProperties()) == Protocol.Ice1;
             var transport = TestHelper.GetTestTransport(current.Communicator.GetProperties());
@@ -18,11 +19,11 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             adapter.Activate();
         }
 
-        public void Deactivate(Current current)
+        public void Deactivate(Current current, CancellationToken cancel)
         {
             _ = current.Adapter.DisposeAsync().AsTask();
-            System.Threading.Thread.Sleep(100);
-            Task.Delay(100).ContinueWith(t => current.Communicator.ShutdownAsync(), TaskScheduler.Current);
+            Thread.Sleep(100);
+            Task.Delay(100, cancel).ContinueWith(t => current.Communicator.ShutdownAsync(), TaskScheduler.Current);
         }
     }
 }

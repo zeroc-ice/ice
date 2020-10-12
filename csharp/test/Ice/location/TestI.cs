@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Location
@@ -15,28 +16,28 @@ namespace ZeroC.Ice.Test.Location
             _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
-        public void Shutdown(Current current) => _adapter1.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => _adapter1.Communicator.ShutdownAsync();
 
-        public IHelloPrx GetHello(Current current) =>
+        public IHelloPrx GetHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
 
-        public IHelloPrx GetReplicatedHello(Current current) =>
+        public IHelloPrx GetReplicatedHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateProxy("hello", IHelloPrx.Factory);
 
-        public void MigrateHello(Current current)
+        public void MigrateHello(Current current, CancellationToken cancel)
         {
             var id = Identity.Parse("hello");
 
             IObject? servant = _adapter1.Remove(id);
             if (servant != null)
             {
-                _registry.AddObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current);
+                _registry.AddObject(_adapter2.Add(id, servant, IObjectPrx.Factory), current, cancel);
             }
             else
             {
                 servant = _adapter2.Remove(id);
                 TestHelper.Assert(servant != null);
-                _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
+                _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current, cancel);
             }
         }
 

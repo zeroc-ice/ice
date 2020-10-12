@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.UDP
@@ -17,7 +18,7 @@ namespace ZeroC.Ice.Test.UDP
 
             public PingReplyI() => _stopwatch.Start();
 
-            public void Reply(Current current)
+            public void Reply(Current current, CancellationToken cancel)
             {
                 lock (_mutex)
                 {
@@ -44,7 +45,7 @@ namespace ZeroC.Ice.Test.UDP
                         TimeSpan delay = end - _stopwatch.Elapsed;
                         if (delay > TimeSpan.Zero)
                         {
-                            System.Threading.Monitor.Wait(_mutex, delay);
+                            Monitor.Wait(_mutex, delay);
                         }
                         else
                         {
