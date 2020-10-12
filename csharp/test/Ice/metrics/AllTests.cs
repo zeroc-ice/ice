@@ -606,16 +606,16 @@ namespace ZeroC.Ice.Test.Metrics
                 while (true)
                 {
                     sm1 = (ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                    if (sm1.Failures >= 2)
+                    if (sm1.Failures >= 5)
                     {
                         break;
                     }
                     Thread.Sleep(10);
                 }
-                TestHelper.Assert(cm1.Failures == 2 && sm1.Failures >= 2);
+                TestHelper.Assert(cm1.Failures == 5 && sm1.Failures >= 5);
 
                 CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectionTimeoutException", 1, output);
-                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 1, output);
+                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 4, output);
                 CheckFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
 
                 IMetricsPrx m = metrics.Clone(connectionId: "Con1");
@@ -691,9 +691,9 @@ namespace ZeroC.Ice.Test.Metrics
 
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
-                TestHelper.Assert(m1.Total == 2 && m1.Failures == 2);
+                TestHelper.Assert(m1.Total == 5 && m1.Failures == 5);
 
-                CheckFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "ZeroC.Ice.ConnectTimeoutException", 2, output);
+                CheckFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "ZeroC.Ice.ConnectTimeoutException", 5, output);
 
                 Action c = () => Connect(metrics);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
@@ -777,11 +777,11 @@ namespace ZeroC.Ice.Test.Metrics
                         m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][1]!;
                     }
 
-                    TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 2 &&
-                        (!dnsException || m1.Failures == 2));
+                    TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 5 &&
+                        (!dnsException || m1.Failures == 5));
                     if (dnsException)
                     {
-                        CheckFailure(clientMetrics, "EndpointLookup", m1.Id, "ZeroC.Ice.DNSException", 2, output);
+                        CheckFailure(clientMetrics, "EndpointLookup", m1.Id, "ZeroC.Ice.DNSException", 5, output);
                     }
                 }
                 // TODO: ice2 version
@@ -886,12 +886,12 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
             if (ice1)
             {
-                TestHelper.Assert(dm1.Size == (47 + protocolRequestSizeAdjustment) && dm1.ReplySize == 40);
+                TestHelper.Assert(dm1.Size == 47 && dm1.ReplySize == 40);
             }
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == (47 + protocolRequestSizeAdjustment) && dm1.ReplySize == 233);
+                TestHelper.Assert(dm1.Size == 43 && dm1.ReplySize == 233);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
@@ -1076,7 +1076,7 @@ namespace ZeroC.Ice.Test.Metrics
             if (ice1) // TODO: enable ice2
             {
                 im1 = (InvocationMetrics)map["opWithUserException"];
-                TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
+                TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
                 TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
                 rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
                 TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
@@ -1096,7 +1096,7 @@ namespace ZeroC.Ice.Test.Metrics
                 {
                     TestHelper.Assert(rim1.Size == 72 && rim1.ReplySize > 7);
                 }
-                CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
+                CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
                 im1 = (InvocationMetrics)map["opWithRequestFailedException"];
                 TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
@@ -1126,16 +1126,14 @@ namespace ZeroC.Ice.Test.Metrics
                 {
                     TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize > 7);
                 }
-                CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
+                CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
                 if (!collocated)
                 {
                     im1 = (InvocationMetrics)map["fail"];
-                    TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 2 && im1.Remotes.Length == 1);
+                    TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 8 && im1.Remotes.Length == 1);
                     rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
-                    TestHelper.Assert(rim1.Current == 0);
-                    TestHelper.Assert(rim1.Total == 4);
-                    TestHelper.Assert(rim1.Failures == 4);
+                    TestHelper.Assert(rim1.Current == 0 && rim1.Total == 10 && rim1.Failures == 10);
                     CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ConnectionLostException", 2, output);
                 }
             }

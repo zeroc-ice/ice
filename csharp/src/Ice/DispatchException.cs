@@ -9,8 +9,9 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new exception.</summary>
         /// <param name="current">The dispatch current object.</param>
-        public DispatchException(Current current)
-            : this(current.Identity, current.Facet, current.Operation)
+        /// <param name="retryPolicy">The retry policy for the exception.</param>
+        public DispatchException(Current current, RetryPolicy retryPolicy = default)
+            : this(current.Identity, current.Facet, current.Operation, retryPolicy)
         {
         }
 
@@ -24,8 +25,9 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new exception.</summary>
         /// <param name="current">The dispatch current object.</param>
-        public ObjectNotExistException(Current current)
-            : base(current)
+        /// <param name="retryPolicy">The retry policy for the exception.</param>
+        public ObjectNotExistException(Current current, RetryPolicy retryPolicy = default)
+            : base(current, retryPolicy)
         {
         }
 

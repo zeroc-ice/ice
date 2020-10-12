@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -186,8 +187,8 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync(cancel: default);
-                return (task.IsCompleted ? task.Result : task.AsTask().Result) as Connection;
+                ValueTask<Connection?> task = prx.GetConnectionAsync(cancel: default);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
             {
@@ -203,7 +204,9 @@ namespace ZeroC.Ice
             this IObjectPrx prx,
             CancellationToken cancel = default)
         {
-            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
+            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(
+                ImmutableList<IConnector>.Empty,
+                cancel).ConfigureAwait(false);
             return handler as Connection;
         }
 
@@ -325,83 +328,206 @@ namespace ZeroC.Ice
                 int retryCount = 0;
                 try
                 {
-                    while (true)
+                    IncomingResponseFrame? response = null;
+                    Exception? lastException = null;
+                    List<IConnector>? excludedConnectors = null;
+                    while (retryCount < reference.Communicator.RetryMaxAttempts)
                     {
                         IRequestHandler? handler = null;
                         var progressWrapper = new ProgressWrapper(progress);
+                        RetryPolicy retryPolicy = RetryPolicy.NoRetry;
                         try
                         {
-                            // Get the request handler, this will eventually establish a connection if needed.
-                            handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
+                            // Get the request handler and establish a connection if needed.
+                            handler = await reference.GetRequestHandlerAsync(
+                                excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
+                                cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            IncomingResponseFrame response =
-                                await handler.SendRequestAsync(request,
-                                                               oneway,
-                                                               synchronous,
-                                                               observer,
-                                                               progressWrapper,
-                                                               cancel).ConfigureAwait(false);
-
-                            if (response.ResultType == ResultType.Failure)
+                            response = await handler.SendRequestAsync(request,
+                                                                      oneway,
+                                                                      synchronous,
+                                                                      observer,
+                                                                      progressWrapper,
+                                                                      cancel).ConfigureAwait(false);
+                            lastException = null;
+                            if (response.ResultType != ResultType.Failure)
                             {
-                                observer?.RemoteException();
-
-                                // TODO: revisit
-                                // We throw here the 1.1 system exceptions, as they are used for retries
-                                response.ThrowIfSystemException(proxy.Communicator);
+                                return response;
                             }
-
-                            return response;
+                            // retry below
                         }
-                        catch (RetryException)
+                        catch (InvalidRequestHandlerException)
                         {
-                            // Clear the proxy's cached request handler if connection caching is enabled
+                            // TODO temporary, this is already fixed in the transport refactoring branch
+                            // Not a retry, we try to send the request using a handler that was no longer valid
                             if (reference.IsConnectionCached)
                             {
-                                proxy.IceReference.ClearRequestHandler(handler!);
+                                reference.ClearRequestHandler(handler!);
                             }
+                            continue;
                         }
-                        catch (OperationCanceledException)
+                        catch (NoEndpointException ex)
                         {
-                            throw; // Don't retry cancelled operations
-                        }
-                        catch (Exception ex)
-                        {
-                            // Clear the proxy's cached request handler if connection caching is enabled
-                            if (reference.IsConnectionCached && handler != null)
+                            // The reference has no endpoints or the last exception asked to retry using a different
+                            // replica, but we already tried all known replicas.
+                            if (response == null && lastException == null)
                             {
-                                proxy.IceReference.ClearRequestHandler(handler);
+                                lastException = ex;
+                            }
+                            break;
+                        }
+                        catch (ConnectionClosedByPeerException ex)
+                        {
+                            // Always retry a gracefully close connection. Don't exclude the connector after a
+                            // graceful close connection, in case it is the only connector available.
+                            lastException = ex;
+                            retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                        }
+                        catch (TransportException ex)
+                        {
+                            if (handler is Connection connection)
+                            {
+                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
                             }
 
-                            // TODO: revisit retry logic
-                            // We only retry after failing with an ObjectNotExistException or a local exception.
-                            int delay = reference.CheckRetryAfterException(ex,
-                                                                           progressWrapper.IsSent,
-                                                                           request.IsIdempotent,
-                                                                           ref retryCount);
-                            if (delay > 0)
+                            // Retry transport exceptions if the request is idempotent or was not send
+                            if (request.IsIdempotent || !progressWrapper.IsSent)
+                            {
+                                lastException = ex;
+                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+
+                        if (lastException == null)
+                        {
+                            Debug.Assert(response != null && response.ResultType == ResultType.Failure);
+                            observer?.RemoteException();
+                            if (response.ReadIce1SystemException(proxy.Communicator) is Exception systemException &&
+                                systemException is ObjectNotExistException one)
+                            {
+                                // 1.1 System exceptions
+                                lastException = systemException;
+                                if (reference.RouterInfo != null && one.Operation == "ice_add_proxy")
+                                {
+                                    // If we have a router, an ObjectNotExistException with an operation name
+                                    // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy
+                                    // (for example, because it was evicted by the router). In this case, we must
+                                    // *always* retry, so that the missing proxy is added to the router.
+                                    reference.RouterInfo.ClearCache(reference);
+                                    retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                                }
+                                else if (reference.IsIndirect)
+                                {
+                                    if (reference.IsWellKnown)
+                                    {
+                                        reference.LocatorInfo?.ClearCache(reference);
+                                    }
+                                    retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                                }
+                            }
+                            else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
+                                                                        out ReadOnlyMemory<byte> value))
+                            {
+                                retryPolicy = value.Read(istr => new RetryPolicy(istr));
+                            }
+                        }
+
+                        if (retryPolicy.Retryable == Retryable.No)
+                        {
+                            break; // We cannot retry
+                        }
+                        else if (++retryCount < reference.Communicator.RetryMaxAttempts)
+                        {
+                            if (retryCount == 1)
+                            {
+                                if (request.Size > reference.Communicator.RetryRequestSizeMax)
+                                {
+                                    if (reference.Communicator.TraceLevels.Retry >= 1)
+                                    {
+                                        reference.Communicator.Logger.Trace(
+                                            reference.Communicator.TraceLevels.RetryCategory,
+                                            "cannot retry operation call: it exceeds Ice.RetryRequestSizeMax");
+                                    }
+                                    break;
+                                }
+
+                                if (!reference.Communicator.IncRetryBufferSize(request.Size))
+                                {
+                                    if (reference.Communicator.TraceLevels.Retry >= 1)
+                                    {
+                                        reference.Communicator.Logger.Trace(
+                                            reference.Communicator.TraceLevels.RetryCategory,
+                                            "cannot retry operation call: it exceeds Ice.RetryBufferSizeMax");
+                                    }
+                                    break;
+                                }
+                            }
+
+                            if (handler is Connection connection)
+                            {
+                                if (retryPolicy.Retryable == Retryable.OtherReplica)
+                                {
+                                    excludedConnectors ??= new List<IConnector>();
+                                    excludedConnectors.Add(connection.Connector);
+                                    if (reference.Communicator.TraceLevels.Retry >= 1)
+                                    {
+                                        reference.Communicator.Logger.Trace(
+                                            reference.Communicator.TraceLevels.RetryCategory,
+                                            $"excluding connector\n{connection.Connector}");
+                                    }
+                                }
+
+                                if (reference.IsConnectionCached)
+                                {
+                                    reference.ClearRequestHandler(handler);
+                                }
+                            }
+
+                            if (reference.Communicator.TraceLevels.Retry >= 1)
+                            {
+                                reference.Communicator.Logger.Trace(
+                                    reference.Communicator.TraceLevels.RetryCategory,
+                                    "retrying operation call: because of exception");
+                            }
+
+                            if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
                             {
                                 // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
                                 using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                                     cancel,
                                     proxy.Communicator.CancellationToken);
-                                await Task.Delay(delay, tokenSource.Token).ConfigureAwait(false);
+                                await Task.Delay(retryPolicy.Delay, tokenSource.Token).ConfigureAwait(false);
                             }
-
                             observer?.Retried();
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw;
+
+                    // No more retries return the response
+                    if (lastException != null)
+                    {
+                        observer?.Failed(lastException.GetType().FullName ?? "System.Exception");
+                        throw ExceptionUtil.Throw(lastException);
+                    }
+                    else
+                    {
+                        observer?.Failed("System.Exception"); // TODO cleanup observer logic
+                        Debug.Assert(response != null && response.ResultType == ResultType.Failure);
+                        return response;
+                    }
                 }
                 finally
                 {
-                    // Use IDisposable for observers, this will allow using "using".
+                    if (retryCount > 0)
+                    {
+                        reference.Communicator.DecRetryBufferSize(request.Size);
+                    }
+                    // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
             }

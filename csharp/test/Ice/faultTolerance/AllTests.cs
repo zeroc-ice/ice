@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
@@ -49,7 +50,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 if (helper.Protocol == Protocol.Ice1)
                 {
                     string transport = helper.Transport;
-                    for (int i = 1; i < ports.Count; ++i)
+                    for (int i = 0; i < ports.Count; ++i)
                     {
                         sb.Append($": {transport} -h ");
                         sb.Append(helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host);
@@ -60,9 +61,9 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 else
                 {
                     sb.Append("?alt-endpoint=");
-                    for (int i = 1; i < ports.Count; ++i)
+                    for (int i = 0; i < ports.Count; ++i)
                     {
-                        if (i > 1)
+                        if (i > 0)
                         {
                             sb.Append(',');
                         }
@@ -78,136 +79,45 @@ namespace ZeroC.Ice.Test.FaultTolerance
             output.WriteLine("ok");
 
             int oldPid = 0;
-            bool ami = false;
             for (int i = 1, j = 0; i <= ports.Count; ++i, ++j)
             {
-                if (j > 3)
-                {
-                    j = 0;
-                    ami = !ami;
-                }
 
-                if (!ami)
+                output.Write($"testing server #{i}... ");
+                output.Flush();
+                int pid = obj.Pid();
+                TestHelper.Assert(pid != oldPid);
+                output.WriteLine("ok");
+                oldPid = pid;
+
+                using var cancel = new CancellationTokenSource(100);
+                if (i % 2 == 0)
                 {
-                    output.Write("testing server #" + i + "... ");
+                    output.Write($"shutting down server #{i}... ");
                     output.Flush();
-                    int pid = obj.Pid();
-                    TestHelper.Assert(pid != oldPid);
+                    obj.Shutdown(cancel: cancel.Token);
                     output.WriteLine("ok");
-                    oldPid = pid;
                 }
                 else
                 {
-                    output.Write("testing server #" + i + " with AMI... ");
+                    output.Write($"aborting server #{i}... ");
                     output.Flush();
-                    int pid = obj.PidAsync().Result;
-                    TestHelper.Assert(pid != oldPid);
-                    output.WriteLine("ok");
-                    oldPid = pid;
-                }
-
-                if (j == 0)
-                {
-                    if (!ami)
+                    try
                     {
-                        output.Write("shutting down server #" + i + "... ");
-                        output.Flush();
-                        obj.Shutdown();
+                        obj.Abort(cancel: cancel.Token);
+                        TestHelper.Assert(false);
+                    }
+                    catch (ConnectionLostException)
+                    {
                         output.WriteLine("ok");
                     }
-                    else
+                    catch (ConnectFailedException)
                     {
-                        output.Write("shutting down server #" + i + " with AMI... ");
-                        obj.ShutdownAsync().Wait();
                         output.WriteLine("ok");
                     }
-                }
-                else if (j == 1 || i + 1 > ports.Count)
-                {
-                    if (!ami)
+                    catch (TransportException)
                     {
-                        output.Write("aborting server #" + i + "... ");
-                        output.Flush();
-                        try
-                        {
-                            obj.Abort();
-                            TestHelper.Assert(false);
-                        }
-                        catch (ConnectionLostException)
-                        {
-                            output.WriteLine("ok");
-                        }
-                        catch (ConnectFailedException)
-                        {
-                            output.WriteLine("ok");
-                        }
-                        catch (TransportException)
-                        {
-                            output.WriteLine("ok");
-                        }
-                    }
-                    else
-                    {
-                        output.Write($"aborting server #{i} with AMI... ");
-                        output.Flush();
-                        try
-                        {
-                            obj.AbortAsync().Wait();
-                            TestHelper.Assert(false);
-                        }
-                        catch (AggregateException ex)
-                        {
-                            TestHelper.Assert(ex.InnerException != null);
-                            ExceptAbortI(ex.InnerException, output);
-                        }
                         output.WriteLine("ok");
                     }
-                }
-                else if (j == 2 || j == 3)
-                {
-                    if (!ami)
-                    {
-                        output.Write($"aborting server #{i} and #{i + 1} with idempotent call... ");
-                        output.Flush();
-                        try
-                        {
-                            obj.IdempotentAbort();
-                            TestHelper.Assert(false);
-                        }
-                        catch (ConnectionLostException)
-                        {
-                            output.WriteLine("ok");
-                        }
-                        catch (ConnectFailedException)
-                        {
-                            output.WriteLine("ok");
-                        }
-                        catch (TransportException)
-                        {
-                            output.WriteLine("ok");
-                        }
-                    }
-                    else
-                    {
-                        output.Write($"aborting server #{i} and #{i + 1} with idempotent AMI call... ");
-                        output.Flush();
-                        try
-                        {
-                            obj.IdempotentAbortAsync().Wait();
-                            TestHelper.Assert(false);
-                        }
-                        catch (AggregateException ex)
-                        {
-                            TestHelper.Assert(ex.InnerException != null);
-                            ExceptAbortI(ex.InnerException, output);
-                        }
-                        output.WriteLine("ok");
-                    }
-                    ++i;
-                }
-                else
-                {
-                    TestHelper.Assert(false);
                 }
             }
 
@@ -215,7 +125,8 @@ namespace ZeroC.Ice.Test.FaultTolerance
             output.Flush();
             try
             {
-                obj.IcePing();
+                using var cancel = new CancellationTokenSource(100);
+                obj.IcePing(cancel: cancel.Token);
                 TestHelper.Assert(false);
             }
             catch

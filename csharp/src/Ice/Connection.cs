@@ -453,7 +453,7 @@ namespace ZeroC.Ice
                 // send the request again.
                 if (_exception != null)
                 {
-                    throw new RetryException(_exception);
+                    throw new InvalidRequestHandlerException(_exception);
                 }
                 cancel.ThrowIfCancellationRequested();
 
