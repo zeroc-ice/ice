@@ -1311,6 +1311,7 @@ namespace ZeroC.Ice
 
             Debug.Assert(location.Count == 0 || location[0].Length > 0); // first segment cannot be empty
             Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
+            Debug.Assert(invocationTimeout != TimeSpan.Zero);
         }
 
         // Constructor for fixed references.
@@ -1366,6 +1367,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
+            Debug.Assert(invocationTimeout != TimeSpan.Zero);
         }
     }
 }
