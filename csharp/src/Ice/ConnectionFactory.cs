@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -32,7 +33,7 @@ namespace ZeroC.Ice
         // We keep a map of the connectors that has recently result in a failed connection attempt, this is used to
         // influence the selection of connectors when creating new connections, connectors with recent failures
         // are tried last this avoids retries choosing always connectors that have already result in a connect failure.
-        private readonly Dictionary<IConnector, DateTime> _connectFailures = new ();
+        private readonly ConcurrentDictionary<IConnector, DateTime> _connectFailures = new ();
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
@@ -78,6 +79,8 @@ namespace ZeroC.Ice
             _communicator = communicator;
             AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
+
+        internal void AddHintFailure(IConnector connector) => _connectFailures[connector] = DateTime.Now;
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
@@ -159,11 +162,12 @@ namespace ZeroC.Ice
 
                 // Purge expired hint failures
                 DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
-                var expiredFailures = _connectFailures.Where(entry => entry.Value <= expirationDate).Select(
-                    entry => entry.Key).ToList();
-                foreach (IConnector expired in expiredFailures)
+                foreach ((IConnector connector, DateTime date) in _connectFailures)
                 {
-                    _connectFailures.Remove(expired);
+                    if (date <= expirationDate)
+                    {
+                        _ = _connectFailures.TryRemove(connector, out DateTime _);
+                    }
                 }
 
                 // Exclude connectors that where already tried, order the remaining connectors moving connectors with
@@ -173,7 +177,7 @@ namespace ZeroC.Ice
 
                 if (connectors.Count == 0)
                 {
-                    throw new NoMoreReplicasException();
+                    throw new NoEndpointException();
                 }
             }
 
@@ -300,14 +304,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void SetHintFailure(IConnector connector)
-        {
-            lock (_mutex)
-            {
-                _connectFailures[connector] = DateTime.Now;
-            }
-        }
-
         internal void SetRouterInfo(RouterInfo routerInfo)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
@@ -429,7 +425,7 @@ namespace ZeroC.Ice
                         bool last = i == connectors.Count - 1;
 
                         TraceLevels traceLevels = _communicator.TraceLevels;
-                        SetHintFailure(connector);
+                        _connectFailures[connector] = DateTime.Now;
 
                         if (traceLevels.Transport >= 2)
                         {

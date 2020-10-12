@@ -70,17 +70,16 @@ namespace ZeroC.Ice
     public class NoEndpointException : Exception
     {
         /// <summary>Constructs a new instance of the <see cref="NoEndpointException"/> class.</summary>
+        public NoEndpointException()
+        {
+        }
+
+        /// <summary>Constructs a new instance of the <see cref="NoEndpointException"/> class.</summary>
         /// <param name="stringifiedProxy">The stringified proxy that was the cause of this exception.</param>
         public NoEndpointException(string stringifiedProxy)
             : base($"could not find the endpoints for proxy `{stringifiedProxy}'")
         {
         }
-    }
-
-    /// <summary>This exception reports that an exception asked for retry using a different replica but all known
-    /// replicas have been already used.</summary>
-    public class NoMoreReplicasException : Exception
-    {
     }
 
     /// <summary>This exception reports an error from the transport layer.</summary>

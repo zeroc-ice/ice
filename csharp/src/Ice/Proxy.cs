@@ -366,10 +366,14 @@ namespace ZeroC.Ice
                             }
                             continue;
                         }
-                        catch (NoMoreReplicasException)
+                        catch (NoEndpointException ex)
                         {
-                            // The last exception asked to retry using a different replica, but we already tried all
-                            // known replicas.
+                            // The reference has no endpoints or the last exception asked to retry using a different
+                            // replica, but we already tried all known replicas.
+                            if (response == null && lastException == null)
+                            {
+                                lastException = ex;
+                            }
                             break;
                         }
                         catch (ConnectionClosedByPeerException ex)
@@ -379,11 +383,23 @@ namespace ZeroC.Ice
                             lastException = ex;
                             retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
                         }
-                        catch (TransportException ex) when (request.IsIdempotent || !progressWrapper.IsSent)
+                        catch (TransportException ex)
                         {
+                            if (handler is Connection connection)
+                            {
+                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
+                            }
+
                             // Retry transport exceptions if the request is idempotent or was not send
-                            lastException = ex;
-                            retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                            if (request.IsIdempotent || !progressWrapper.IsSent)
+                            {
+                                lastException = ex;
+                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
 
                         if (lastException == null)
