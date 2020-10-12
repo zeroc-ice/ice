@@ -90,7 +90,6 @@ namespace ZeroC.Ice
             IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
         {
-            Console.WriteLine($"Create connection connectionId: {connectionId}");
             Debug.Assert(endpoints.Count > 0);
             lock (_mutex)
             {

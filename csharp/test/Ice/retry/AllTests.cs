@@ -310,7 +310,7 @@ namespace ZeroC.Ice.Test.Retry
                     byte[] data = Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray();
 
                     // Use two connections to simulate two concurrent retries, the first should succeed
-                    // and the second should fail because the buffer size max
+                    // and the second should fail because the buffer size max.
                     Task t1 = retry2.Clone(connectionId: "conn-1").OpWithDataAsync(2, 1000, data);
                     Thread.Sleep(100); // Ensure the first request it is send before the second request
                     Task t2 = retry2.Clone(connectionId: "conn-2").OpWithDataAsync(2, 0, data);
