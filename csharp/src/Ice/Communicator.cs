@@ -504,7 +504,7 @@ namespace ZeroC.Ice
                 }
                 RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
 
-                RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024;
+                RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024 * 100;
                 RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
 
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
