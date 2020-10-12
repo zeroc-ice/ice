@@ -38,7 +38,8 @@ namespace ZeroC.Ice
             {
                 if (Network.IsMulticast(_addr))
                 {
-                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, false);
+                    Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
                     MulticastAddress = _addr;
                     if (OperatingSystem.IsWindows())
