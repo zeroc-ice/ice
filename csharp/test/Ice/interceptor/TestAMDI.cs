@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
-    public sealed class MyObjectAsync : IMyObjectAsync
+    public sealed class AsyncMyObject : IAsyncMyObject
     {
         public ValueTask<int> AddAsync(int x, int y, Current current, CancellationToken cancel) =>
             new ValueTask<int>(x + y);
