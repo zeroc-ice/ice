@@ -2520,7 +2520,7 @@ bool
 Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
-    string name = interfaceName(p) + (_generateAllAsync ? "Async" : "");
+    string name = interfaceName(p, _generateAllAsync);
     string ns = getNamespace(p);
 
     _out << sp;
@@ -2537,7 +2537,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for(InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
         {
-            _out << getUnqualified(getNamespace(*q) + "." + (interfaceName(*q) + (_generateAllAsync ? "Async" : "")), ns);
+            _out << getUnqualified(getNamespace(*q) + "." + interfaceName(*q, _generateAllAsync), ns);
             if(++q != bases.end())
             {
                 _out << ", ";
