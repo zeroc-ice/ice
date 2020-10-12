@@ -12,9 +12,6 @@ namespace ZeroC.Ice
         /// <summary>The object adapter.</summary>
         public ObjectAdapter Adapter { get; }
 
-        /// <summary>A cancellation token that is notified of cancellation when the dispatch is cancelled.</summary>
-        public CancellationToken CancellationToken { get; }
-
         /// <summary>The communicator.</summary>
         public Communicator Communicator => Adapter.Communicator;
 
@@ -55,11 +52,9 @@ namespace ZeroC.Ice
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
             bool oneway,
-            CancellationToken cancel,
             Connection? connection = null)
         {
             Adapter = adapter;
-            CancellationToken = cancel;
             Connection = connection;
             IsOneway = oneway;
             IncomingRequestFrame = incomingRequestFrame;

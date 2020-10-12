@@ -28,7 +28,7 @@ namespace ZeroC.Ice
         {
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
-            ostr.WriteByte((byte)ResultType.Success);
+            ostr.Write(ResultType.Success);
             _ = ostr.WriteEmptyEncapsulation(current.Encoding);
             return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, ostr.Tail);
         }
@@ -145,9 +145,7 @@ namespace ZeroC.Ice
                         // Read the reply status byte immediately after the encapsulation header; + 2 corresponds to the
                         // encoding in the header.
                         byte b = response.Payload[1 + sizeLength + 2];
-                        ReplyStatus replyStatus = b >= 1 && b <= 7 ? (ReplyStatus)b :
-                            throw new InvalidDataException(
-                                $"received ice2 response frame with invalid reply status `{b}'");
+                        ReplyStatus replyStatus = b.AsReplyStatus();
 
                         buffer[0] = b;
                         if (replyStatus == ReplyStatus.UserException)
@@ -267,7 +265,7 @@ namespace ZeroC.Ice
                 if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
                 {
                     // The first byte of the encapsulation data is the actual ReplyStatus
-                    ostr.WriteByte((byte)replyStatus);
+                    ostr.Write(replyStatus);
                 }
                 hasEncapsulation = true;
             }
@@ -275,7 +273,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(Protocol == Protocol.Ice1 && (byte)replyStatus > (byte)ReplyStatus.UserException);
                 ostr = new OutputStream(Ice1Definitions.Encoding, Data); // not an encapsulation
-                ostr.WriteByte((byte)replyStatus);
+                ostr.Write(replyStatus);
                 hasEncapsulation = false;
             }
 

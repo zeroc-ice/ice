@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -9,7 +10,8 @@ namespace ZeroC.Ice.Test.NetworkProxy
     {
         public class TestIntf : ITestIntf
         {
-            public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+            public void Shutdown(Current current, CancellationToken cancel) =>
+                current.Adapter.Communicator.ShutdownAsync();
         }
 
         public override async Task RunAsync(string[] args)

@@ -42,27 +42,27 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         // Override the Object "pseudo" operations to verify the operation mode.
-        public bool IceIsA(string id, Current current)
+        public bool IceIsA(string id, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
             return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
-        public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
+        public void IcePing(Current current, CancellationToken cancel) => TestHelper.Assert(current.IsIdempotent);
 
-        public IEnumerable<string> IceIds(Current current)
+        public IEnumerable<string> IceIds(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
             return typeof(IMyDerivedClass).GetAllIceTypeIds();
         }
 
-        public string IceId(Current current)
+        public string IceId(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
             return typeof(IMyDerivedClass).GetIceTypeId()!;
         }
 
-        public ValueTask ShutdownAsync(Current current)
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             while (_opVoidThread != null)
             {
@@ -74,9 +74,10 @@ namespace ZeroC.Ice.Test.Operations
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<bool> SupportsCompressAsync(Current current) => new ValueTask<bool>(true);
+        public ValueTask<bool> SupportsCompressAsync(Current current, CancellationToken cancel) =>
+            new ValueTask<bool>(true);
 
-        public ValueTask OpVoidAsync(Current current)
+        public ValueTask OpVoidAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(!current.IsIdempotent);
 
@@ -91,13 +92,14 @@ namespace ZeroC.Ice.Test.Operations
             return new ValueTask(_opVoidThread.Task);
         }
 
-        public ValueTask<(bool, bool)> OpBoolAsync(bool p1, bool p2, Current current) =>
+        public ValueTask<(bool, bool)> OpBoolAsync(bool p1, bool p2, Current current, CancellationToken cancel) =>
             new ValueTask<(bool, bool)>((p2, p1));
 
         public ValueTask<(ReadOnlyMemory<bool>, ReadOnlyMemory<bool>)> OpBoolSAsync(
             bool[] p1,
             bool[] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             bool[] p3 = new bool[p1.Length + p2.Length];
             Array.Copy(p1, p3, p1.Length);
@@ -115,7 +117,8 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<(IEnumerable<IEnumerable<bool>>, IEnumerable<IEnumerable<bool>>)> OpBoolSSAsync(
             bool[][] p1,
             bool[][] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             bool[][] p3 = new bool[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -130,18 +133,20 @@ namespace ZeroC.Ice.Test.Operations
             return new ((r, p3));
         }
 
-        public ValueTask<(byte, byte)> OpByteAsync(byte p1, byte p2, Current current) =>
+        public ValueTask<(byte, byte)> OpByteAsync(byte p1, byte p2, Current current, CancellationToken cancel) =>
             new ValueTask<(byte, byte)>((p1, (byte)(p1 ^ p2)));
 
         public ValueTask<(IReadOnlyDictionary<byte, bool>, IReadOnlyDictionary<byte, bool>)> OpByteBoolDAsync(
             Dictionary<byte, bool> p1,
             Dictionary<byte, bool> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p1));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> OpByteSAsync(
             byte[] p1,
             byte[] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             byte[] p3 = new byte[p1.Length];
             for (int i = 0; i < p1.Length; i++)
@@ -159,7 +164,8 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<(IEnumerable<IEnumerable<byte>>, IEnumerable<IEnumerable<byte>>)> OpByteSSAsync(
             byte[][] p1,
             byte[][] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             byte[][] p3 = new byte[p1.Length][];
             for (int i = 0; i < p1.Length; i++)
@@ -174,13 +180,18 @@ namespace ZeroC.Ice.Test.Operations
             return new ((r, p3));
         }
 
-        public ValueTask<(double, float, double)> OpFloatDoubleAsync(float p1, double p2, Current current) =>
+        public ValueTask<(double, float, double)> OpFloatDoubleAsync(
+            float p1,
+            double p2,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<(double, float, double)>((p2, p1, p2));
 
         public ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<float>, ReadOnlyMemory<double>)> OpFloatDoubleSAsync(
             float[] p1,
             double[] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             float[] p3 = p1;
 
@@ -203,7 +214,8 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<(IEnumerable<IEnumerable<double>>, IEnumerable<IEnumerable<float>>, IEnumerable<IEnumerable<double>>)> OpFloatDoubleSSAsync(
             float[][] p1,
             double[][] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             float[][] p3 = p1;
 
@@ -230,43 +242,60 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<(IReadOnlyDictionary<long, float>, IReadOnlyDictionary<long, float>)> OpLongFloatDAsync(
             Dictionary<long, float> p1,
             Dictionary<long, float> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p1));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<ulong, float>, IReadOnlyDictionary<ulong, float>)> OpULongFloatDAsync(
             Dictionary<ulong, float> p1,
             Dictionary<ulong, float> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p1));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
 
-        public ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)> OpMyClassAsync(IMyClassPrx? p1, Current current) =>
+        public ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)> OpMyClassAsync(
+            IMyClassPrx? p1,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)>((
                 current.Adapter.CreateProxy(current.Identity, IMyClassPrx.Factory),
                 p1,
                 current.Adapter.CreateProxy("noSuchIdentity", IMyClassPrx.Factory)));
 
-        public ValueTask<(MyEnum, MyEnum)> OpMyEnumAsync(MyEnum p1, Current current) =>
+        public ValueTask<(MyEnum, MyEnum)> OpMyEnumAsync(MyEnum p1, Current current, CancellationToken cancel) =>
             new ValueTask<(MyEnum, MyEnum)>((MyEnum.enum3, p1));
 
         public ValueTask<(IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>)> OpShortIntDAsync(
             Dictionary<short, int> p1,
             Dictionary<short, int> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p1));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<ushort, uint>, IReadOnlyDictionary<ushort, uint>)> OpUShortUIntDAsync(
             Dictionary<ushort, uint> p1,
             Dictionary<ushort, uint> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p1));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
 
-        public ValueTask<(long, short, int, long)> OpShortIntLongAsync(short p1, int p2, long p3, Current current) =>
+        public ValueTask<(long, short, int, long)> OpShortIntLongAsync(
+            short p1,
+            int p2,
+            long p3,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<(long, short, int, long)>((p3, p1, p2, p3));
 
         public ValueTask<(ulong, ushort, uint, ulong)> OpUShortUIntULongAsync(
-            ushort p1, uint p2, ulong p3, Current current) =>
+            ushort p1,
+            uint p2,
+            ulong p3,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<(ulong, ushort, uint, ulong)>((p3, p1, p2, p3));
 
-        public ValueTask<int> OpVarIntAsync(int v, Current current) => new ValueTask<int>(v);
-        public ValueTask<uint> OpVarUIntAsync(uint v, Current current) => new ValueTask<uint>(v);
-        public ValueTask<long> OpVarLongAsync(long v, Current current) => new ValueTask<long>(v);
-        public ValueTask<ulong> OpVarULongAsync(ulong v, Current current) => new ValueTask<ulong>(v);
+        public ValueTask<int> OpVarIntAsync(int v, Current current, CancellationToken cancel) => new ValueTask<int>(v);
+        public ValueTask<uint> OpVarUIntAsync(uint v, Current current, CancellationToken cancel) => new ValueTask<uint>(v);
+        public ValueTask<long> OpVarLongAsync(long v, Current current, CancellationToken cancel) => new ValueTask<long>(v);
+        public ValueTask<ulong> OpVarULongAsync(ulong v, Current current, CancellationToken cancel) =>
+            new ValueTask<ulong>(v);
 
         public ValueTask<(ReadOnlyMemory<long>,
                           ReadOnlyMemory<short>,
@@ -275,7 +304,8 @@ namespace ZeroC.Ice.Test.Operations
             short[] p1,
             int[] p2,
             long[] p3,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             short[] p4 = p1;
             int[] p5 = new int[p2.Length];
@@ -291,7 +321,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(ReadOnlyMemory<ulong>, ReadOnlyMemory<ushort>, ReadOnlyMemory<uint>, ReadOnlyMemory<ulong>)>
-        OpUShortUIntULongSAsync(ushort[] p1, uint[] p2, ulong[] p3, Current current)
+        OpUShortUIntULongSAsync(ushort[] p1, uint[] p2, ulong[] p3, Current current, CancellationToken cancel)
         {
             ushort[]? p4 = p1;
             uint[] p5 = new uint[p2.Length];
@@ -307,7 +337,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<long>, IEnumerable<int>, IEnumerable<long>)>
-        OpVarIntVarLongSAsync(int[] p1, long[] p2, Current current)
+        OpVarIntVarLongSAsync(int[] p1, long[] p2, Current current, CancellationToken cancel)
         {
             int[] p4 = new int[p1.Length];
             for (int i = 0; i < p1.Length; i++)
@@ -323,7 +353,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<ulong>, IEnumerable<uint>, IEnumerable<ulong>)>
-        OpVarUIntVarULongSAsync(uint[] p1, ulong[] p2, Current current)
+        OpVarUIntVarULongSAsync(uint[] p1, ulong[] p2, Current current, CancellationToken cancel)
         {
             uint[] p4 = new uint[p1.Length];
             for (int i = 0; i < p1.Length; i++)
@@ -339,7 +369,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IEnumerable<long>>, IEnumerable<IEnumerable<short>>, IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<long>>)>
-        OpShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Current current)
+        OpShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Current current, CancellationToken cancel)
         {
             short[][] p4 = p1;
 
@@ -356,7 +386,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IEnumerable<ulong>>, IEnumerable<IEnumerable<ushort>>, IEnumerable<IEnumerable<uint>>, IEnumerable<IEnumerable<ulong>>)>
-        OpUShortUIntULongSSAsync(ushort[][] p1, uint[][] p2, ulong[][] p3, Current current)
+        OpUShortUIntULongSSAsync(ushort[][] p1, uint[][] p2, ulong[][] p3, Current current, CancellationToken cancel)
         {
             ushort[][] p4 = p1;
 
@@ -374,25 +404,38 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(string, string)>
-        OpStringAsync(string p1, string p2, Current current) =>
+        OpStringAsync(string p1, string p2, Current current, CancellationToken cancel) =>
             new ValueTask<(string, string)>(($"{p1} {p2}", $"{p2} {p1}"));
 
         public ValueTask<(IReadOnlyDictionary<string, MyEnum>, IReadOnlyDictionary<string, MyEnum>)>
-        OpStringMyEnumDAsync(Dictionary<string, MyEnum> p1, Dictionary<string, MyEnum> p2, Current current) =>
+        OpStringMyEnumDAsync(
+            Dictionary<string, MyEnum> p1,
+            Dictionary<string, MyEnum> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<MyEnum, string>, IReadOnlyDictionary<MyEnum, string>)>
-        OpMyEnumStringDAsync(Dictionary<MyEnum, string> p1, Dictionary<MyEnum, string> p2, Current current) =>
+        OpMyEnumStringDAsync(
+            Dictionary<MyEnum, string> p1,
+            Dictionary<MyEnum, string> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<MyStruct, MyEnum>, IReadOnlyDictionary<MyStruct, MyEnum>)>
         OpMyStructMyEnumDAsync(
             Dictionary<MyStruct, MyEnum> p1,
             Dictionary<MyStruct, MyEnum> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p1));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<byte, bool>>, IEnumerable<IReadOnlyDictionary<byte, bool>>)>
-        OpByteBoolDSAsync(Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Current current)
+        OpByteBoolDSAsync(
+            Dictionary<byte, bool>[] p1,
+            Dictionary<byte, bool>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -407,7 +450,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<short, int>>, IEnumerable<IReadOnlyDictionary<short, int>>)>
-        OpShortIntDSAsync(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
+        OpShortIntDSAsync(
+            Dictionary<short, int>[] p1,
+            Dictionary<short, int>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -422,7 +469,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<ushort, uint>>, IEnumerable<IReadOnlyDictionary<ushort, uint>>)>
-        OpUShortUIntDSAsync(Dictionary<ushort, uint>[] p1, Dictionary<ushort, uint>[] p2, Current current)
+        OpUShortUIntDSAsync(
+            Dictionary<ushort, uint>[] p1,
+            Dictionary<ushort, uint>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<ushort, uint>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -437,7 +488,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<long, float>>, IEnumerable<IReadOnlyDictionary<long, float>>)>
-        OpLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
+        OpLongFloatDSAsync(
+            Dictionary<long, float>[] p1,
+            Dictionary<long, float>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -452,7 +507,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<ulong, float>>, IEnumerable<IReadOnlyDictionary<ulong, float>>)>
-        OpULongFloatDSAsync(Dictionary<ulong, float>[] p1, Dictionary<ulong, float>[] p2, Current current)
+        OpULongFloatDSAsync(
+            Dictionary<ulong, float>[] p1,
+            Dictionary<ulong, float>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<ulong, float>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -467,7 +526,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<string, string>>, IEnumerable<IReadOnlyDictionary<string, string>>)>
-        OpStringStringDSAsync(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
+        OpStringStringDSAsync(
+            Dictionary<string, string>[] p1,
+            Dictionary<string, string>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -482,7 +545,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<string, MyEnum>>, IEnumerable<IReadOnlyDictionary<string, MyEnum>>)>
-        OpStringMyEnumDSAsync(Dictionary<string, MyEnum>[] p1, Dictionary<string, MyEnum>[] p2, Current current)
+        OpStringMyEnumDSAsync(
+            Dictionary<string, MyEnum>[] p1,
+            Dictionary<string, MyEnum>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<string, MyEnum>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -497,7 +564,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<MyEnum, string>>, IEnumerable<IReadOnlyDictionary<MyEnum, string>>)>
-        OpMyEnumStringDSAsync(Dictionary<MyEnum, string>[] p1, Dictionary<MyEnum, string>[] p2, Current current)
+        OpMyEnumStringDSAsync(
+            Dictionary<MyEnum, string>[] p1,
+            Dictionary<MyEnum, string>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<MyEnum, string>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -512,9 +583,11 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<MyStruct, MyEnum>>, IEnumerable<IReadOnlyDictionary<MyStruct, MyEnum>>)>
-        OpMyStructMyEnumDSAsync(Dictionary<MyStruct, MyEnum>[] p1,
-                                Dictionary<MyStruct, MyEnum>[] p2,
-                                Current current)
+        OpMyStructMyEnumDSAsync(
+            Dictionary<MyStruct, MyEnum>[] p1,
+            Dictionary<MyStruct, MyEnum>[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             var p3 = new Dictionary<MyStruct, MyEnum>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -529,56 +602,101 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IReadOnlyDictionary<byte, byte[]>, IReadOnlyDictionary<byte, byte[]>)>
-        OpByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Current current) =>
+        OpByteByteSDAsync(
+            Dictionary<byte, byte[]> p1,
+            Dictionary<byte, byte[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<bool, bool[]>, IReadOnlyDictionary<bool, bool[]>)>
-        OpBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current) =>
+        OpBoolBoolSDAsync(
+            Dictionary<bool, bool[]> p1,
+            Dictionary<bool, bool[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<short, short[]>, IReadOnlyDictionary<short, short[]>)>
-        OpShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current) =>
+        OpShortShortSDAsync(
+            Dictionary<short, short[]> p1,
+            Dictionary<short, short[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<ushort, ushort[]>, IReadOnlyDictionary<ushort, ushort[]>)>
-        OpUShortUShortSDAsync(Dictionary<ushort, ushort[]> p1, Dictionary<ushort, ushort[]> p2, Current current) =>
+        OpUShortUShortSDAsync(
+            Dictionary<ushort, ushort[]> p1,
+            Dictionary<ushort, ushort[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<int, int[]>, IReadOnlyDictionary<int, int[]>)>
-        OpIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Current current) =>
+        OpIntIntSDAsync(
+            Dictionary<int, int[]> p1,
+            Dictionary<int, int[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<uint, uint[]>, IReadOnlyDictionary<uint, uint[]>)>
-        OpUIntUIntSDAsync(Dictionary<uint, uint[]> p1, Dictionary<uint, uint[]> p2, Current current) =>
+        OpUIntUIntSDAsync(
+            Dictionary<uint, uint[]> p1,
+            Dictionary<uint, uint[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<long, long[]>, IReadOnlyDictionary<long, long[]>)>
-        OpLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current) =>
+        OpLongLongSDAsync(
+            Dictionary<long, long[]> p1,
+            Dictionary<long, long[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<ulong, ulong[]>, IReadOnlyDictionary<ulong, ulong[]>)>
-        OpULongULongSDAsync(Dictionary<ulong, ulong[]> p1, Dictionary<ulong, ulong[]> p2, Current current) =>
+        OpULongULongSDAsync(
+            Dictionary<ulong, ulong[]> p1,
+            Dictionary<ulong, ulong[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<string, float[]>, IReadOnlyDictionary<string, float[]>)>
-        OpStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current) =>
+        OpStringFloatSDAsync(
+            Dictionary<string, float[]> p1,
+            Dictionary<string, float[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<string, double[]>, IReadOnlyDictionary<string, double[]>)>
-        OpStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current) =>
+        OpStringDoubleSDAsync(
+            Dictionary<string, double[]> p1,
+            Dictionary<string, double[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>)>
-        OpStringStringSDAsync(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current) =>
+        OpStringStringSDAsync(
+            Dictionary<string, string[]> p1,
+            Dictionary<string, string[]> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<MyEnum, MyEnum[]>, IReadOnlyDictionary<MyEnum, MyEnum[]>)>
         OpMyEnumMyEnumSDAsync(
             Dictionary<MyEnum, MyEnum[]> p1,
             Dictionary<MyEnum, MyEnum[]> p2,
-            Current current) => new ((MergeDictionaries(p1, p2), p2));
+            Current current,
+            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p2));
 
-        public ValueTask<ReadOnlyMemory<int>> OpIntSAsync(int[] s, Current current)
+        public ValueTask<ReadOnlyMemory<int>> OpIntSAsync(int[] s, Current current, CancellationToken cancel)
         {
             int[] r = new int[s.Length];
             for (int i = 0; i < s.Length; ++i)
@@ -589,11 +707,12 @@ namespace ZeroC.Ice.Test.Operations
             return new (r);
         }
 
-        public ValueTask<IReadOnlyDictionary<string, string>> OpContextAsync(Current current) =>
+        public ValueTask<IReadOnlyDictionary<string, string>> OpContextAsync(
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<IReadOnlyDictionary<string, string>>(current.Context);
 
-        public ValueTask
-        OpByteSOnewayAsync(byte[] s, Current current)
+        public ValueTask OpByteSOnewayAsync(byte[] s, Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -602,8 +721,7 @@ namespace ZeroC.Ice.Test.Operations
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<int>
-        OpByteSOnewayCallCountAsync(Current current)
+        public ValueTask<int> OpByteSOnewayCallCountAsync(Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -613,8 +731,7 @@ namespace ZeroC.Ice.Test.Operations
             }
         }
 
-        public ValueTask
-        OpDoubleMarshalingAsync(double p1, double[] p2, Current current)
+        public ValueTask OpDoubleMarshalingAsync(double p1, double[] p2, Current current, CancellationToken cancel)
         {
             double d = 1278312346.0 / 13.0;
             TestHelper.Assert(p1 == d);
@@ -625,8 +742,11 @@ namespace ZeroC.Ice.Test.Operations
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<(IEnumerable<string>, IEnumerable<string>)>
-        OpStringSAsync(string[] p1, string[] p2, Current current)
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> OpStringSAsync(
+            string[] p1,
+            string[] p2,
+            Current current,
+            CancellationToken cancel)
         {
             string[] p3 = new string[p1.Length + p2.Length];
             Array.Copy(p1, p3, p1.Length);
@@ -643,7 +763,8 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<(IEnumerable<IEnumerable<string>>, IEnumerable<IEnumerable<string>>)> OpStringSSAsync(
             string[][] p1,
             string[][] p2,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             string[][] p3 = new string[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -657,7 +778,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IEnumerable<IEnumerable<IEnumerable<string>>>, IEnumerable<IEnumerable<IEnumerable<string>>>)>
-        OpStringSSSAsync(string[][][] p1, string[][][] p2, Current current)
+        OpStringSSSAsync(string[][][] p1, string[][][] p2, Current current, CancellationToken cancel)
         {
             string[][][] p3 = new string[p1.Length + p2.Length][][];
             Array.Copy(p1, p3, p1.Length);
@@ -672,67 +793,94 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)>
-        OpStringStringDAsync(Dictionary<string, string> p1, Dictionary<string, string> p2, Current current) =>
+        OpStringStringDAsync(
+            Dictionary<string, string> p1,
+            Dictionary<string, string> p2,
+            Current current,
+            CancellationToken cancel) =>
             new ((MergeDictionaries(p1, p2), p1));
 
-        public ValueTask<(Structure, Structure)> OpStructAsync(Structure p1, Structure p2, Current current)
+        public ValueTask<(Structure, Structure)> OpStructAsync(
+            Structure p1,
+            Structure p2,
+            Current current,
+            CancellationToken cancel)
         {
             Structure p3 = p1;
             p3.S.S = "a new string";
             return new ((p2, p3));
         }
 
-        public ValueTask OpIdempotentAsync(Current current)
+        public ValueTask OpIdempotentAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
             return new ValueTask(Task.CompletedTask);
         }
 
         // "return" exception when called two-way, otherwise succeeds.
-        public ValueTask OpOnewayAsync(Current current) => throw new SomeException();
+        public ValueTask OpOnewayAsync(Current current, CancellationToken cancel) => throw new SomeException();
 
         // "return" exception when called two-way, otherwise succeeds.
-        public ValueTask OpOnewayMetadataAsync(Current current) => throw new SomeException();
+        public ValueTask OpOnewayMetadataAsync(Current current, CancellationToken cancel) => throw new SomeException();
 
-        public ValueTask OpDerivedAsync(Current current) => new ValueTask(Task.CompletedTask);
+        public ValueTask OpDerivedAsync(Current current, CancellationToken cancel) =>
+            new ValueTask(Task.CompletedTask);
 
-        public ValueTask<byte> OpByte1Async(byte value, Current current) => new ValueTask<byte>(value);
+        public ValueTask<byte> OpByte1Async(byte value, Current current, CancellationToken cancel) =>
+            new ValueTask<byte>(value);
 
-        public ValueTask<short> OpShort1Async(short value, Current current) => new ValueTask<short>(value);
-        public ValueTask<int> OpInt1Async(int value, Current current) => new ValueTask<int>(value);
-        public ValueTask<long> OpLong1Async(long value, Current current) => new ValueTask<long>(value);
+        public ValueTask<short> OpShort1Async(short value, Current current, CancellationToken cancel) =>
+            new ValueTask<short>(value);
+        public ValueTask<int> OpInt1Async(int value, Current current, CancellationToken cancel) =>
+            new ValueTask<int>(value);
+        public ValueTask<long> OpLong1Async(long value, Current current, CancellationToken cancel) =>
+            new ValueTask<long>(value);
 
-        public ValueTask<ushort> OpUShort1Async(ushort value, Current current) => new ValueTask<ushort>(value);
-        public ValueTask<uint> OpUInt1Async(uint value, Current current) => new ValueTask<uint>(value);
-        public ValueTask<ulong> OpULong1Async(ulong value, Current current) => new ValueTask<ulong>(value);
+        public ValueTask<ushort> OpUShort1Async(ushort value, Current current, CancellationToken cancel) =>
+            new ValueTask<ushort>(value);
+        public ValueTask<uint> OpUInt1Async(uint value, Current current, CancellationToken cancel) =>
+            new ValueTask<uint>(value);
+        public ValueTask<ulong> OpULong1Async(ulong value, Current current, CancellationToken cancel) =>
+            new ValueTask<ulong>(value);
 
-        public ValueTask<float> OpFloat1Async(float value, Current current) => new ValueTask<float>(value);
+        public ValueTask<float> OpFloat1Async(float value, Current current, CancellationToken cancel) =>
+            new ValueTask<float>(value);
 
-        public ValueTask<double> OpDouble1Async(double value, Current current) => new ValueTask<double>(value);
+        public ValueTask<double> OpDouble1Async(double value, Current current, CancellationToken cancel) =>
+            new ValueTask<double>(value);
 
-        public ValueTask<string> OpString1Async(string value, Current current) => new ValueTask<string>(value);
+        public ValueTask<string> OpString1Async(string value, Current current, CancellationToken cancel) =>
+            new ValueTask<string>(value);
 
-        public ValueTask<IEnumerable<string>> OpStringS1Async(string[] value, Current current) =>
+        public ValueTask<IEnumerable<string>> OpStringS1Async(
+            string[] value,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<IEnumerable<string>>(value);
 
         public ValueTask<IReadOnlyDictionary<byte, bool>> OpByteBoolD1Async(
             Dictionary<byte, bool> value,
-            Current current) => new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
+            Current current,
+            CancellationToken cancel) => new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
 
-        public ValueTask<IEnumerable<string>> OpStringS2Async(string[] value, Current current) =>
+        public ValueTask<IEnumerable<string>> OpStringS2Async(
+            string[] value,
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<IEnumerable<string>>(value);
 
         public ValueTask<IReadOnlyDictionary<byte, bool>> OpByteBoolD2Async(
             Dictionary<byte, bool> value,
-            Current current) => new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
+            Current current,
+            CancellationToken cancel) => new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
 
-        public ValueTask<MyClass1?> OpMyClass1Async(MyClass1? value, Current current) =>
+        public ValueTask<MyClass1?> OpMyClass1Async(MyClass1? value, Current current, CancellationToken cancel) =>
             new ValueTask<MyClass1?>(value);
 
-        public ValueTask<MyStruct1> OpMyStruct1Async(MyStruct1 value, Current current) =>
+        public ValueTask<MyStruct1> OpMyStruct1Async(MyStruct1 value, Current current, CancellationToken cancel) =>
             new ValueTask<MyStruct1>(value);
 
-        public ValueTask<IEnumerable<string>> OpStringLiteralsAsync(Current current)
+        public ValueTask<IEnumerable<string>> OpStringLiteralsAsync(Current current, CancellationToken cancel)
         {
             return new ValueTask<IEnumerable<string>>(new string[]
             {
@@ -772,7 +920,7 @@ namespace ZeroC.Ice.Test.Operations
             });
         }
 
-        public ValueTask<IEnumerable<string>> OpWStringLiteralsAsync(Current current)
+        public ValueTask<IEnumerable<string>> OpWStringLiteralsAsync(Current current, CancellationToken cancel)
         {
             return new ValueTask<IEnumerable<string>>(new string[]
             {
@@ -813,42 +961,53 @@ namespace ZeroC.Ice.Test.Operations
             });
         }
 
-        public async ValueTask<IMyClass.OpMStruct1MarshaledReturnValue> OpMStruct1Async(Current current)
+        public async ValueTask<IMyClass.OpMStruct1MarshaledReturnValue> OpMStruct1Async(Current current, CancellationToken cancel)
         {
-            await Task.Delay(0);
+            await Task.Delay(0, cancel);
             return new IMyClass.OpMStruct1MarshaledReturnValue(
                 new Structure(null, MyEnum.enum1, new AnotherStruct("")), current);
         }
 
-        public async ValueTask<IMyClass.OpMStruct2MarshaledReturnValue> OpMStruct2Async(Structure p1, Current current)
+        public async ValueTask<IMyClass.OpMStruct2MarshaledReturnValue> OpMStruct2Async(
+            Structure p1,
+            Current current,
+            CancellationToken cancel)
         {
-            await Task.Delay(0);
+            await Task.Delay(0, cancel);
             return new IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<IMyClass.OpMSeq1MarshaledReturnValue> OpMSeq1Async(Current current)
+        public async ValueTask<IMyClass.OpMSeq1MarshaledReturnValue> OpMSeq1Async(
+            Current current,
+            CancellationToken cancel)
         {
-            await Task.Delay(0);
+            await Task.Delay(0, cancel);
             return new IMyClass.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
         }
 
-        public async ValueTask<IMyClass.OpMSeq2MarshaledReturnValue> OpMSeq2Async(string[] p1, Current current)
+        public async ValueTask<IMyClass.OpMSeq2MarshaledReturnValue> OpMSeq2Async(
+            string[] p1,
+            Current current,
+            CancellationToken cancel)
         {
-            await Task.Delay(0);
+            await Task.Delay(0, cancel);
             return new IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<IMyClass.OpMDict1MarshaledReturnValue> OpMDict1Async(Current current)
+        public async ValueTask<IMyClass.OpMDict1MarshaledReturnValue> OpMDict1Async(
+            Current current,
+            CancellationToken cancel)
         {
-            await Task.Delay(0);
+            await Task.Delay(0, cancel);
             return new IMyClass.OpMDict1MarshaledReturnValue(new Dictionary<string, string>(), current);
         }
 
         public async ValueTask<IMyClass.OpMDict2MarshaledReturnValue> OpMDict2Async(
             Dictionary<string, string> p1,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
-            await Task.Delay(0);
+            await Task.Delay(0, cancel);
             return new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
         }
 

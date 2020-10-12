@@ -8,7 +8,12 @@ namespace ZeroC.Ice.Test.ACM
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx CreateObjectAdapter(int timeout, string? close, string? heartbeat, Current current)
+        public IRemoteObjectAdapterPrx CreateObjectAdapter(
+            int timeout,
+            string? close,
+            string? heartbeat,
+            Current current,
+            CancellationToken cancel)
         {
             Communicator communicator = current.Adapter.Communicator;
             string transport = communicator.GetProperty("Test.Transport")!;
@@ -41,7 +46,8 @@ namespace ZeroC.Ice.Test.ACM
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
-        public void Shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            _ = current.Adapter.Communicator.ShutdownAsync();
 
     }
 
@@ -57,16 +63,16 @@ namespace ZeroC.Ice.Test.ACM
             _adapter.Activate();
         }
 
-        public ITestIntfPrx GetTestIntf(Current current) => _testIntf;
+        public ITestIntfPrx GetTestIntf(Current current, CancellationToken cancel) => _testIntf;
 
-        public void Deactivate(Current current) => _adapter.Dispose();
+        public void Deactivate(Current current, CancellationToken cancel) => _adapter.Dispose();
     }
 
     public class TestIntf : ITestIntf
     {
         private HeartbeatCallback? _callback;
         private readonly object _mutex = new object();
-        public void Sleep(int delay, Current current)
+        public void Sleep(int delay, Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -74,7 +80,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public void InterruptSleep(Current current)
+        public void InterruptSleep(Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -108,13 +114,13 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public void StartHeartbeatCount(Current current)
+        public void StartHeartbeatCount(Current current, CancellationToken cancel)
         {
             _callback = new HeartbeatCallback();
             current.Connection!.HeartbeatReceived += (sender, args) => _callback.Heartbeat();
         }
 
-        public void WaitForHeartbeatCount(int count, Current current)
+        public void WaitForHeartbeatCount(int count, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_callback != null);
             _callback.WaitForCount(count);

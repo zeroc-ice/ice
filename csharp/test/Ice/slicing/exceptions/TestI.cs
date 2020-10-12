@@ -1,68 +1,108 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
     public sealed class TestIntf : ITestIntf
     {
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(
+            Current current,
+            CancellationToken cancel) => current.Adapter.Communicator.ShutdownAsync();
 
-        public void BaseAsBase(Current current) => throw new Base("Base.b");
+        public void BaseAsBase(
+            Current current,
+            CancellationToken cancel) => throw new Base("Base.b");
 
-        public void UnknownDerivedAsBase(Current current) =>
+        public void UnknownDerivedAsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
 
-        public void KnownDerivedAsBase(Current current) => throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
+        public void KnownDerivedAsBase(
+            Current current,
+            CancellationToken cancel) => throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-        public void KnownDerivedAsKnownDerived(Current current) =>
+        public void KnownDerivedAsKnownDerived(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
 
-        public void UnknownIntermediateAsBase(Current current) =>
+        public void UnknownIntermediateAsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
 
-        public void KnownIntermediateAsBase(Current current) =>
+        public void KnownIntermediateAsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-        public void KnownMostDerivedAsBase(Current current) =>
+        public void KnownMostDerivedAsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public void KnownIntermediateAsKnownIntermediate(Current current) =>
+        public void KnownIntermediateAsKnownIntermediate(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
 
-        public void KnownMostDerivedAsKnownIntermediate(Current current) =>
+        public void KnownMostDerivedAsKnownIntermediate(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public void KnownMostDerivedAsKnownMostDerived(Current current) =>
+        public void KnownMostDerivedAsKnownMostDerived(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
 
-        public void UnknownMostDerived1AsBase(Current current) =>
+        public void UnknownMostDerived1AsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-        public void UnknownMostDerived1AsKnownIntermediate(Current current) =>
+        public void UnknownMostDerived1AsKnownIntermediate(
+            Current current,
+            CancellationToken cancel) =>
             throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
-        public void UnknownMostDerived2AsBase(Current current) =>
+        public void UnknownMostDerived2AsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-        public void UnknownMostDerived2AsBaseCompact(Current current) =>
+        public void UnknownMostDerived2AsBaseCompact(
+            Current current,
+            CancellationToken cancel) =>
             throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
-        public void KnownPreservedAsBase(Current current) =>
+        public void KnownPreservedAsBase(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void KnownPreservedAsKnownPreserved(Current current) =>
+        public void KnownPreservedAsKnownPreserved(
+            Current current,
+            CancellationToken cancel) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void ServerPrivateException(Current current) => throw new ServerPrivateException("ServerPrivate");
+        public void ServerPrivateException(
+            Current current,
+            CancellationToken cancel) => throw new ServerPrivateException("ServerPrivate");
 
-        public void RelayKnownPreservedAsBase(IRelayPrx? r, Current current)
+        public void RelayKnownPreservedAsBase(
+            IRelayPrx? r,
+            Current current,
+            CancellationToken cancel)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.KnownPreservedAsBase();
+                p.KnownPreservedAsBase(cancel: cancel);
             }
             catch (RemoteException ex)
             {
@@ -73,13 +113,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void RelayKnownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
+        public void RelayKnownPreservedAsKnownPreserved(
+            IRelayPrx? r,
+            Current current,
+            CancellationToken cancel)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.KnownPreservedAsKnownPreserved();
+                p.KnownPreservedAsKnownPreserved(cancel: cancel);
             }
             catch (RemoteException ex)
             {
@@ -90,13 +133,13 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void RelayClientPrivateException(IRelayPrx? r, Current current)
+        public void RelayClientPrivateException(IRelayPrx? r, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.ClientPrivateException();
+                p.ClientPrivateException(cancel: cancel);
             }
             catch (RemoteException ex)
             {
@@ -107,25 +150,25 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void UnknownPreservedAsBase(Current current)
+        public void UnknownPreservedAsBase(Current current, CancellationToken cancel)
         {
             var p = new SPreservedClass("bc", "spc");
             throw new SPreserved2("base", "preserved", "derived", p, p);
         }
 
-        public void UnknownPreservedAsKnownPreserved(Current current)
+        public void UnknownPreservedAsKnownPreserved(Current current, CancellationToken cancel)
         {
             var p = new SPreservedClass("bc", "spc");
             throw new SPreserved2("base", "preserved", "derived", p, p);
         }
 
-        public void RelayUnknownPreservedAsBase(IRelayPrx? r, Current current)
+        public void RelayUnknownPreservedAsBase(IRelayPrx? r, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.UnknownPreservedAsBase();
+                p.UnknownPreservedAsBase(cancel: cancel);
             }
             catch (RemoteException ex)
             {
@@ -136,13 +179,13 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             TestHelper.Assert(false);
         }
 
-        public void RelayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
+        public void RelayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(r != null);
             IRelayPrx p = r.Clone(fixedConnection: current.Connection);
             try
             {
-                p.UnknownPreservedAsKnownPreserved();
+                p.UnknownPreservedAsKnownPreserved(cancel: cancel);
             }
             catch (RemoteException ex)
             {

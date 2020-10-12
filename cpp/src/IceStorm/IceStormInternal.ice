@@ -11,7 +11,8 @@
 #include <IceStorm/Election.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
-#include <Ice/RequestEncoding.ice>
+#include <Ice/Context.ice>
+#include <Ice/Ice1Definitions.ice> // for Ice::OperationMode
 
 [[cpp:include:deque]]
 

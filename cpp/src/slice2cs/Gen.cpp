@@ -454,7 +454,7 @@ vector<string>
 getInvocationArgsAMI(const OperationPtr& op,
                      const string& context = "",
                      const string& progress = "null",
-                     const string cancelationToken = "global::System.Threading.CancellationToken.None",
+                     const string cancellationToken = "global::System.Threading.CancellationToken.None",
                      const string& async = "true")
 {
     vector<string> args = getNames(op->params());
@@ -469,7 +469,7 @@ getInvocationArgsAMI(const OperationPtr& op,
     }
 
     args.push_back(progress);
-    args.push_back(cancelationToken);
+    args.push_back(cancellationToken);
     args.push_back(async);
 
     return args;
@@ -947,9 +947,9 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
             _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
                  << "\">Sent progress provider.</param>";
         }
-        _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-             << "\">A cancellation token that receives the cancellation requests.</param>";
     }
+    _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
+         << "\">A cancellation token that receives the cancellation requests.</param>";
 
     if(dispatch && p->hasMarshaledResult())
     {
@@ -1845,17 +1845,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     MemberList dataMembers = p->dataMembers();
 
+    emitEqualityOperators(name);
+    _out << sp;
+
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
-    if(partialInitialize)
-    {
-        _out << sp;
-        _out << nl << "/// <summary>The constructor calls the Initialize partial method after initializing "
-             << "the data members.</summary>";
-        _out << nl << "partial void Initialize();";
-    }
-
-    _out << sp;
     _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
     for (const auto& member : dataMembers)
     {
@@ -1938,8 +1932,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public readonly override bool Equals(object? other) => other is " << name
         << " value && this.Equals(value);";
 
-    emitEqualityOperators(name);
-
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
     _out << nl << "public readonly override int GetHashCode()";
@@ -1960,6 +1952,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     writeMarshalDataMembers(dataMembers, ns, 0);
     _out << eb;
+
+    if (partialInitialize)
+    {
+        _out << sp;
+        _out << nl << "/// <summary>The constructor calls the Initialize partial method after initializing "
+             << "the fields.</summary>";
+        _out << nl << "partial void Initialize();";
+    }
+
     _out << eb;
 }
 
@@ -1996,7 +1997,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         else
         {
             _out << ',';
+            _out << sp;
         }
+
+        writeTypeDocComment(en, getDeprecateReason(en, 0, "enumerator"));
         _out << nl << fixId(en->name());
         if (p->explicitValue())
         {
@@ -2035,17 +2039,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     _out << sp;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << name << " value) =>";
-    _out.inc();
-    if (p->underlying())
-    {
-        _out << nl << "ostr.Write" << builtinSuffix(p->underlying()) << "((" << underlying << ")value);";
-    }
-    else
-    {
-        _out << nl << "ostr.WriteSize((int)value);";
-    }
-    _out.dec();
+    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name()
+        << ";";
 
     _out << sp;
     _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";
@@ -2089,9 +2084,17 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name()
-        << ";";
-
+    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << name << " value) =>";
+    _out.inc();
+    if (p->underlying())
+    {
+        _out << nl << "ostr.Write" << builtinSuffix(p->underlying()) << "((" << underlying << ")value);";
+    }
+    else
+    {
+        _out << nl << "ostr.WriteSize((int)value);";
+    }
+    _out.dec();
     _out << eb;
 }
 
@@ -2668,24 +2671,32 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _out << sp;
-    _out << nl << "string ZeroC.Ice.IObject.IceId(ZeroC.Ice.Current current) => _iceTypeId;";
+    _out << nl << "string ZeroC.Ice.IObject.IceId("
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) => _iceTypeId;";
     _out << sp;
     _out << nl << "global::System.Collections.Generic.IEnumerable<string> "
-         << "ZeroC.Ice.IObject.IceIds(ZeroC.Ice.Current current) => _iceAllTypeIds;";
+         << "ZeroC.Ice.IObject.IceIds(ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) => _iceAllTypeIds;";
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> ZeroC.Ice.IObject"
-         << ".DispatchAsync(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current) =>";
+         << ".DispatchAsync("
+         << "ZeroC.Ice.IncomingRequestFrame request, "
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) =>";
     _out.inc();
-    _out << nl << "DispatchAsync(this, request, current);";
+    _out << nl << "DispatchAsync(this, request, current, cancel);";
     _out.dec();
 
     _out << sp;
     _out << nl << "// This protected static DispatchAsync allows a derived class to override the instance DispatchAsync";
     _out << nl << "// and reuse the generated implementation.";
     _out << nl << "protected static global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> "
-        << "DispatchAsync(" << fixId(name) << " servant, "
-        << "ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current) =>";
+         << "DispatchAsync(" << fixId(name) << " servant, "
+         << "ZeroC.Ice.IncomingRequestFrame request, "
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) =>";
     _out.inc();
     _out << nl << "current.Operation switch";
     _out << sb;
@@ -2701,7 +2712,8 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     for(const auto& opName : allOpNames)
     {
-        _out << nl << "\"" << opName.first << "\" => " << "servant.IceD" << opName.second << "Async(request, current),";
+        _out << nl << "\"" << opName.first << "\" => " << "servant.IceD" << opName.second
+             << "Async(request, current, cancel),";
     }
 
     _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException(current.Identity, current.Facet, "
@@ -2812,6 +2824,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
                         return paramTypeStr(param, false) + " " + paramName(param);
                      });
     _out << ("ZeroC.Ice.Current " + getEscapedParamName(operation, "current"));
+    _out << ("global::System.Threading.CancellationToken " + getEscapedParamName(operation, "cancel"));
     _out << epar << ';';
 }
 
@@ -2835,7 +2848,10 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << "async ";
     }
     _out << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame>";
-    _out << " " << internalName << "(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current)";
+    _out << " " << internalName << "("
+         << "ZeroC.Ice.IncomingRequestFrame request, "
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel)";
     _out << sb;
 
     if (!isIdempotent(operation))
@@ -2870,7 +2886,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << paramName(params.front(), "iceP_");
             }
-            _out << "current" << epar << ".ConfigureAwait(false);";
+            _out << "current" << "cancel" << epar << ".ConfigureAwait(false);";
             _out << nl << "return returnValue.Response;";
         }
         else
@@ -2885,7 +2901,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << paramName(params.front(), "iceP_");
             }
-            _out << "current" << epar << ".Response);";
+            _out << "current" << "cancel" << epar << ".Response);";
         }
         _out << eb;
     }
@@ -2910,7 +2926,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << paramName(params.front(), "iceP_");
         }
-        _out << "current" << epar;
+        _out << "current" << "cancel" << epar;
         if (amd)
         {
             _out << ".ConfigureAwait(false)";

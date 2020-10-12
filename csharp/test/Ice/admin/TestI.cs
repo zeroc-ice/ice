@@ -1,13 +1,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Admin
 {
     public class TestFacet : ITestFacet
     {
-        public void Op(Current current)
+        public void Op(Current current, CancellationToken cancel)
         {
         }
     }
@@ -19,33 +20,40 @@ namespace ZeroC.Ice.Test.Admin
 
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
-        public IObjectPrx? GetAdmin(Current current) => _communicator.GetAdmin();
+        public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) => _communicator.GetAdmin();
 
-        public IReadOnlyDictionary<string, string> GetChanges(Current current) =>
+        public IReadOnlyDictionary<string, string> GetChanges(Current current, CancellationToken cancel) =>
             new Dictionary<string, string>(_changes!);
 
-        public void Print(string message, Current current) => _communicator.Logger.Print(message);
+        public void Print(string message, Current current, CancellationToken cancel) =>
+            _communicator.Logger.Print(message);
 
-        public void Trace(string category, string message, Current current) =>
+        public void Trace(string category, string message, Current current, CancellationToken cancel) =>
             _communicator.Logger.Trace(category, message);
 
-        public void Warning(string message, Current current) => _communicator.Logger.Warning(message);
+        public void Warning(string message, Current current, CancellationToken cancel) =>
+            _communicator.Logger.Warning(message);
 
-        public void Error(string message, Current current) => _communicator.Logger.Error(message);
+        public void Error(string message, Current current, CancellationToken cancel) =>
+            _communicator.Logger.Error(message);
 
-        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => _ = _communicator.ShutdownAsync();
 
         // Note that we are executing in a thread of the *main* communicator, not the one that is being shut down.
-        public void WaitForShutdown(Current current) => _communicator.WaitForShutdownAsync().Wait();
+        public void WaitForShutdown(Current current, CancellationToken cancel) =>
+            _communicator.WaitForShutdownAsync().Wait(cancel);
 
-        public void Destroy(Current current) => _communicator.Dispose();
+        public void Destroy(Current current, CancellationToken cancel) => _communicator.Dispose();
 
         public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }
 
     public class RemoteCommunicatorFactoryI : IRemoteCommunicatorFactory
     {
-        public IRemoteCommunicatorPrx CreateCommunicator(Dictionary<string, string> props, Current current)
+        public IRemoteCommunicatorPrx CreateCommunicator(
+            Dictionary<string, string> props,
+            Current current,
+            CancellationToken cancel)
         {
             // Prepare the property set using the given properties.
             ILogger? logger = null;
@@ -81,7 +89,7 @@ namespace ZeroC.Ice.Test.Admin
             return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => current.Adapter.Communicator.ShutdownAsync();
 
         private class NullLogger : ILogger
         {
