@@ -36,7 +36,7 @@ namespace ZeroC.Ice
                         // frame indicates a stream reset so reset the stream in this case.
                         if (frame == null)
                         {
-                            stream.ReceivedReset();
+                            stream.ReceivedReset(0);
                         }
                         else
                         {

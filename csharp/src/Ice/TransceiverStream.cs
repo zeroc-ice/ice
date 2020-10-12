@@ -50,7 +50,7 @@ namespace ZeroC.Ice
         protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
-        internal event Action? Reset;
+        internal event Action<long>? Reset;
 
         private protected bool IsStarted => _id != -1;
         private long _id = -1;
@@ -74,7 +74,8 @@ namespace ZeroC.Ice
         protected abstract ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
 
         /// <summary>Resets the stream.</summary>
-        protected abstract ValueTask ResetAsync();
+        /// <param name="errorCode">The error code indicating the reason of the reset to transmit to the peer.</param>
+        protected abstract ValueTask ResetAsync(long errorCode);
 
         /// <summary>Sends data from the given buffer and returns once the buffer is sent.</summary>
         /// <param name="buffer">The buffer with the data to send.</param>
@@ -145,7 +146,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void ReceivedReset() => Reset?.Invoke();
+        internal void ReceivedReset(long errorCode) => Reset?.Invoke(errorCode);
 
         internal virtual async ValueTask ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
@@ -160,7 +161,7 @@ namespace ZeroC.Ice
 
             if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceFrame(data, (byte)frameType);
+                TraceFrame(data, frameType);
             }
 
             if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
@@ -217,7 +218,10 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                await ResetAsync().ConfigureAwait(false);
+                if (_transceiver.Endpoint.Protocol != Protocol.Ice1)
+                {
+                    await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
+                }
                 throw;
             }
         }
@@ -302,9 +306,9 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                if (IsStarted)
+                if (IsStarted && _transceiver.Endpoint.Protocol != Protocol.Ice1)
                 {
-                    await ResetAsync().ConfigureAwait(false);
+                    await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
                 }
                 throw;
             }

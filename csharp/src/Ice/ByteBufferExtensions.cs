@@ -254,6 +254,19 @@ namespace ZeroC.Ice
 
         internal static int ReadVarLongLength(this byte b) => 1 << (b & 0x03);
 
+        internal static (ulong Value, int ValueLength) ReadVarULong(this ReadOnlySpan<byte> buffer)
+        {
+            ulong value = (buffer[0] & 0x03) switch
+            {
+                0 => (uint)buffer[0] >> 2,
+                1 => (uint)BitConverter.ToUInt16(buffer) >> 2,
+                2 => BitConverter.ToUInt32(buffer) >> 2,
+                _ => BitConverter.ToUInt64(buffer) >> 2
+            };
+
+            return (value, buffer[0].ReadVarLongLength());
+        }
+
         internal static void WriteEncapsulationSize(this Span<byte> buffer, int size, Encoding encoding)
         {
             if (encoding == Encoding.V20)

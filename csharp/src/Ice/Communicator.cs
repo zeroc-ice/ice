@@ -496,6 +496,21 @@ namespace ZeroC.Ice
                     IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30),
                     PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
                 };
+                if (SlicOptions.MaxBidirectionalStreams < 1)
+                {
+                    throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
+                        "value for Ice.Slic.MaxBidirectionalStreams");
+                }
+                if (SlicOptions.MaxUnidirectionalStreams < 1)
+                {
+                    throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
+                        "value for Ice.Slic.MaxUnidirectionalStreams");
+                }
+                if (SlicOptions.PacketSize < 1024)
+                {
+                    throw new InvalidConfigurationException($"{SlicOptions.PacketSize} is not a valid " +
+                        "value for Ice.Slic.PacketSize");
+                }
 
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;

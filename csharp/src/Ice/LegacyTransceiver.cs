@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -187,7 +188,9 @@ namespace ZeroC.Ice
 
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceFrame(0, new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.ValidateConnection);
+                TraceFrame(0,
+                           ImmutableList<ArraySegment<byte>>.Empty,
+                           (byte)Ice1Definitions.FrameType.ValidateConnection);
             }
         }
 
@@ -222,7 +225,7 @@ namespace ZeroC.Ice
         internal override ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
             // With Ice1, the connection validation message is only sent by the server to the client. So here we
-            // we only expect the conneciton validation message for an outgoing connection and just return the
+            // only expect the connection validation message for an outgoing connection and just return the
             // control stream immediately for an incoming connection.
             if (IsIncoming)
             {

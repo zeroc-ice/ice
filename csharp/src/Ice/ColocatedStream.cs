@@ -38,8 +38,9 @@ namespace ZeroC.Ice
             // This is never called because we override the default ReceiveFrameAsync implementation
             throw new NotImplementedException();
 
-        protected override ValueTask ResetAsync() =>
+        protected override ValueTask ResetAsync(long errorCode) =>
             // A null frame indicates a stream reset.
+            // TODO: Provide the error code?
             _transceiver.SendFrameAsync(Id, frame: null, fin: true, CancellationToken.None);
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel)

@@ -529,7 +529,10 @@ namespace ZeroC.Ice
                 if (stream.IsBidirectional)
                 {
                     // Be notified if the peer resets the stream to cancel the dispatch.
-                    stream.Reset += () => cancelSource.Cancel();
+                    // TODO: the error code is ignored here as we can't provide it to the CancelationTokenSource. We
+                    // could consider setting the error code into Ice.Current to allow the user to figure out the
+                    // reason of the stream reset.
+                    stream.Reset += (long errorCode) => cancelSource.Cancel();
                 }
 
                 // Receives the request frame from the stream
@@ -636,7 +639,6 @@ namespace ZeroC.Ice
             }
             else if (_state == ConnectionState.Active)
             {
-                Debug.Assert(state > ConnectionState.Active);
                 _monitor?.Remove(this);
             }
 

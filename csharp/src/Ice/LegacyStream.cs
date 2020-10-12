@@ -35,7 +35,7 @@ namespace ZeroC.Ice
             // This is never called because we override the default ReceiveFrameAsync implementation
             throw new NotImplementedException();
 
-        protected override ValueTask ResetAsync() =>
+        protected override ValueTask ResetAsync(long errorCode) =>
             // Stream reset is not supported with Ice1
             new ValueTask();
 

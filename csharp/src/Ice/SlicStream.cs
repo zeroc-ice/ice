@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
+using ZeroC.Ice.Slic;
+
 namespace ZeroC.Ice
 {
     /// <summary>The stream implementation for Slic.</summary>
@@ -100,11 +102,14 @@ namespace ZeroC.Ice
             return _receivedEndOfStream;
         }
 
-        protected override async ValueTask ResetAsync() =>
+        protected override async ValueTask ResetAsync(long errorCode) =>
             await _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamReset, ostr =>
                 {
                     ostr.WriteVarLong(Id);
-                    ostr.WriteVarLong(0); // TODO: reason code or remove?
+                    checked
+                    {
+                        new StreamResetBody((ulong)errorCode).IceWrite(ostr);
+                    }
                     return Id;
                 }).ConfigureAwait(false);
 
@@ -187,7 +192,7 @@ namespace ZeroC.Ice
                 {
                     Debug.Assert(!IsIncoming);
 
-                    // If the outgoing stream isn't started, it's the first Send call. Wwe need to ensure we
+                    // If the outgoing stream isn't started, it's the first Send call. We need to ensure we
                     // don't open more streams to the peer than it allows so we first wait on the semaphores.
                     // The wait on the semaphore provides FIFO guarantee to ensure that the sending of
                     // requests will be serialized.
