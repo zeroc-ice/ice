@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Exceptions
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
             ObjectAdapter adapter3 = communicator.CreateObjectAdapter("TestAdapter3");
-            var obj = new ThrowerAsync();
+            var obj = new AsyncThrower();
             adapter.Add("thrower", obj);
             adapter2.Add("thrower", obj);
             adapter3.Add("thrower", obj);

@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Exceptions
 {
     public class AsyncThrower : IAsyncThrower
     {
-        public ThrowerAsync()
+        public AsyncThrower()
         {
         }
 
