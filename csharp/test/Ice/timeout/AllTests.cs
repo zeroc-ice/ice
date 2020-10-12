@@ -109,8 +109,7 @@ namespace ZeroC.Ice.Test.Timeout
                 Connection? connection = timeout.GetConnection();
                 try
                 {
-                    using var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
-                    timeout.SleepAsync(1000, cancel: timeoutTokenSource.Token).Wait();
+                    timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).SleepAsync(1000).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
@@ -121,8 +120,7 @@ namespace ZeroC.Ice.Test.Timeout
                 TestHelper.Assert(connection == timeout.GetConnection());
                 try
                 {
-                    using var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(1000));
-                    timeout.SleepAsync(100, cancel: timeoutTokenSource.Token).Wait();
+                    timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(1000)).SleepAsync(100).Wait();
                 }
                 catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
                 {

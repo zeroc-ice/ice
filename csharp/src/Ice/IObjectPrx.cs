@@ -132,6 +132,9 @@ namespace ZeroC.Ice
         /// <summary>The invocation mode of this proxy. Only useful for ice1 proxies.</summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
 
+        /// <summary>The invocation timeout of this proxy.</summary>
+        public TimeSpan InvocationTimeout => IceReference.InvocationTimeout;
+
         /// <summary>Indicates whether or not this proxy caches its connection.</summary>
         /// <value>True when the proxy caches its connection; otherwise, false.</value>
         public bool IsConnectionCached => IceReference.IsConnectionCached;

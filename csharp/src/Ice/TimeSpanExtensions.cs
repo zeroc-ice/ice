@@ -2,6 +2,7 @@
 
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace ZeroC.Ice
@@ -50,6 +51,34 @@ namespace ZeroC.Ice
             }
 
             return message.ToString(CultureInfo.InvariantCulture);
+        }
+
+        internal static TimeSpan Parse(string s)
+        {
+            if (s == "infinite")
+            {
+                return Timeout.InfiniteTimeSpan;
+            }
+
+            // Match an integer followed letters
+            Match match = Regex.Match(s, @"^([0-9]+)([a-z]+)$");
+
+            if (!match.Success)
+            {
+                throw new FormatException($"the value `{s}' is not a TimeSpan");
+            }
+
+            int value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            string unit = match.Groups[2].Value;
+            return unit switch
+            {
+                "ms" => TimeSpan.FromMilliseconds(value),
+                "s" => TimeSpan.FromSeconds(value),
+                "m" => TimeSpan.FromMinutes(value),
+                "h" => TimeSpan.FromHours(value),
+                "d" => TimeSpan.FromDays(value),
+                _ => throw new FormatException($"unknown time unit `{unit}'"),
+            };
         }
     }
 }

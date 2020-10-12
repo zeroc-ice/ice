@@ -25,6 +25,8 @@ namespace ZeroC.Ice.Test.Proxy
             {
                 "ice -t:tcp -h localhost -p 10000",
                 "ice+tcp:ssl -h localhost -p 10000",
+                "ice+tcp --invocationTimeout 1s:ssl -h localhost -p 10000",
+                "ice+tcp --invocationTimeout 100ms:ssl -h localhost -p 10000"
             };
 
             // ice2 proxies
@@ -35,6 +37,8 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp://host.zeroc.com:1000/loc0/loc1/category/name",
                 "ice+tcp://host.zeroc.com/category/name%20with%20space",
                 "ice+ws://host.zeroc.com//identity",
+                "ice+ws://host.zeroc.com//identity?invocation-timeout=100ms",
+                "ice+ws://host.zeroc.com//identity?invocation-timeout=1s",
                 "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com",
                 "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com:10000",
                 "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000,host2,host3,host4",
@@ -116,6 +120,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+ws://host.zeroc.com//identity?protocol=ice1", // invalid protocol
                 "ice+tcp://host.zeroc.com/identity?alt-endpoint=host2?protocol=ice2", // protocol option in alt-endpoint
                 "ice+tcp://host.zeroc.com/identity?foo=bar", // unknown option
+                "ice+tcp://host.zeroc.com/identity?invocation-timeout=0s", // 0 is not a valid invocation timeout
 
                 "",
                 "\"\"",
@@ -144,6 +149,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp://[::0]/identity#facet", // Invalid Any IPv6 address in proxy endpoint
                 "identity:tcp -h 0.0.0.0", // Invalid Any IPv4 address in proxy endpoint
                 "identity:tcp -h [::0]", // Invalid Any IPv6 address in proxy endpoint
+                "identity --invocationTimeout 0s:tcp -h localhost [::0]", // 0 is not a valid invocation timeout
             };
 
             foreach (string str in badProxyArray)
@@ -576,6 +582,13 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.SetProperty(property, "1s");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
             TestHelper.Assert(b1.LocatorCacheTimeout == TimeSpan.FromSeconds(1));
+            communicator.SetProperty(property, "");
+
+            property = propertyPrefix + ".InvocationTimeout";
+            TestHelper.Assert(b1.InvocationTimeout == TimeSpan.FromSeconds(60));
+            communicator.SetProperty(property, "1s");
+            b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
+            TestHelper.Assert(b1.InvocationTimeout == TimeSpan.FromSeconds(1));
             communicator.SetProperty(property, "");
 
             communicator.SetProperty(propertyPrefix, helper.GetTestProxy("test", 0));

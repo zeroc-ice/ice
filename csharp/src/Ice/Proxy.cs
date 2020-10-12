@@ -55,6 +55,7 @@ namespace ZeroC.Ice
         /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
+        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -79,6 +80,7 @@ namespace ZeroC.Ice
             Identity? identity = null,
             string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -98,6 +100,7 @@ namespace ZeroC.Ice
                                            identity,
                                            identityAndFacet,
                                            invocationMode,
+                                           invocationTimeout,
                                            location,
                                            locator,
                                            locatorCacheTimeout,
@@ -123,6 +126,7 @@ namespace ZeroC.Ice
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
+        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -143,6 +147,7 @@ namespace ZeroC.Ice
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -163,6 +168,7 @@ namespace ZeroC.Ice
                                                      identity: null,
                                                      identityAndFacet: null,
                                                      invocationMode,
+                                                     invocationTimeout,
                                                      location,
                                                      locator,
                                                      locatorCacheTimeout,
@@ -325,6 +331,16 @@ namespace ZeroC.Ice
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
                                                                                      request.Operation,
                                                                                      request.Context);
+                CancellationTokenSource? linkedCancelationSource = null;
+                CancellationTokenSource? invocationTimeoutSource = null;
+                if (reference.InvocationTimeout != Timeout.InfiniteTimeSpan)
+                {
+                    invocationTimeoutSource = new CancellationTokenSource(reference.InvocationTimeout);
+                    linkedCancelationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                        cancel,
+                        invocationTimeoutSource.Token);
+                }
+
                 int retryCount = 0;
                 try
                 {
@@ -344,12 +360,14 @@ namespace ZeroC.Ice
                                 cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            response = await handler.SendRequestAsync(request,
-                                                                      oneway,
-                                                                      synchronous,
-                                                                      observer,
-                                                                      progressWrapper,
-                                                                      cancel).ConfigureAwait(false);
+                            response = await handler.SendRequestAsync(
+                                request,
+                                oneway,
+                                synchronous,
+                                observer,
+                                progressWrapper,
+                                linkedCancelationSource?.Token ?? cancel).ConfigureAwait(false);
+
                             lastException = null;
                             if (response.ResultType != ResultType.Failure)
                             {
@@ -527,6 +545,9 @@ namespace ZeroC.Ice
                     {
                         reference.Communicator.DecRetryBufferSize(request.Size);
                     }
+
+                    invocationTimeoutSource?.Dispose();
+                    linkedCancelationSource?.Dispose();
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }

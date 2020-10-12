@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -182,9 +181,10 @@ namespace ZeroC.Ice
         {
             "EndpointSelection",
             "ConnectionCached",
-            "PreferNonSecure",
+            "InvocationTimeout",
             "LocatorCacheTimeout",
             "Locator",
+            "PreferNonSecure",
             "Router",
             "Context\\..*"
         };
@@ -449,6 +449,13 @@ namespace ZeroC.Ice
 
                 TraceLevels = new TraceLevels(this);
 
+                DefaultInvocationTimeout =
+                    GetPropertyAsTimeSpan("Ice.DefaultInvocationTimeout") ?? TimeSpan.FromSeconds(60);
+                if (DefaultInvocationTimeout == TimeSpan.Zero)
+                {
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.DefaultInvocationTimeout");
+                }
+
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 DefaultEndpointSelection = endpointSelection switch
                 {
@@ -503,7 +510,6 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
                 }
                 RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
-
                 RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024 * 100;
                 RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
 
