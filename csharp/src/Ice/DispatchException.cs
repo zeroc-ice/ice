@@ -64,7 +64,6 @@ namespace ZeroC.Ice
                    identity,
                    facet,
                    operation,
-                   default,
                    innerException)
         {
         }

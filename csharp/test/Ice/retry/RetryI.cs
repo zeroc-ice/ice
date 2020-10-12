@@ -34,7 +34,7 @@ namespace ZeroC.Ice.Test.Retry
             return counter;
         }
 
-        public int OpAfterDelay(int retries, int delay, Current current)
+        public int OpAfterDelay(int retries, int delay, Current current, CancellationToken cancel)
         {
             if (retries > _counter)
             {
@@ -62,7 +62,7 @@ namespace ZeroC.Ice.Test.Retry
     {
         private bool _fail;
         public Replicated(bool fail) => _fail = fail;
-        public void OtherReplica(Current current)
+        public void OtherReplica(Current current, CancellationToken cancel)
         {
             if (_fail)
             {
@@ -73,6 +73,7 @@ namespace ZeroC.Ice.Test.Retry
 
     public sealed class NonReplicated : INonReplicated
     {
-        public void OtherReplica(Current current) => throw new SystemFailure(RetryPolicy.OtherReplica);
+        public void OtherReplica(Current current, CancellationToken cancel) =>
+            throw new SystemFailure(RetryPolicy.OtherReplica);
     }
 }

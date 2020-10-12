@@ -93,7 +93,7 @@ namespace ZeroC.Ice
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="retryPolicy">The retry policy for the exception.</param>
         /// <param name="innerException">The inner exception.</param>
-        protected internal RemoteException(string? message, RetryPolicy retryPolicy = default, Exception? innerException = null)
+        protected internal RemoteException(string? message, Exception? innerException = null, RetryPolicy retryPolicy = default)
             : base(message, innerException)
         {
             RetryPolicy = retryPolicy;

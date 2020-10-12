@@ -1642,7 +1642,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             if (i == 0)
             {
-                // Insert retry policy last
+                // Add retryPolicy last
                 allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
                 baseParamNames.push_back(retryPolicyParamName);
             }
@@ -1659,12 +1659,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 CommentInfo comment = processComment(member, "");
                 writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
             }
-            _out << nl << "/// <param name=\"" << retryPolicyParamName
-                 << "\">The retry policy for the exception.</param>";
+
             if (i > 1)
             {
                 _out << nl << "/// <param name=\"" << innerExceptionParamName
                      << "\">The exception that is the cause of the current exception.</param>";
+            }
+            if (i != 1)
+            {
+                _out << nl << "/// <param name=\"" << retryPolicyParamName
+                     << "\">The retry policy for the exception.</param>";
             }
             _out << nl << "public " << name << spar << allParameters << epar;
             _out.inc();
@@ -1685,25 +1689,24 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if (i == 0)
         {
+            if (allParameters.size() > 0)
+            {
+                allParameters.erase(prev(allParameters.end()));
+                baseParamNames.erase(prev(baseParamNames.end()));
+            }
             // Insert message first
             allParameters.insert(allParameters.cbegin(), "string? " + messageParamName);
             baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
-            // Add retry policy if not already added
-            if (allParameters.size() == 1)
-            {
-                // Insert retry policy last
-                allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
-                baseParamNames.push_back(retryPolicyParamName);
-            }
         }
-        else if (i == 1)
+
+        if (i == 1)
         {
-            // Remove RetryPolicy default
-            allParameters.erase(prev(allParameters.end()));
-            allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName);
-            // Add innerException last
-            allParameters.push_back("global::System.Exception? " + innerExceptionParamName);
+            // Add innerException and retryPolicy last
+            allParameters.push_back("global::System.Exception? " + innerExceptionParamName + " = null");
             baseParamNames.push_back(innerExceptionParamName);
+
+            allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
+            baseParamNames.push_back(retryPolicyParamName);
         }
     }
 
