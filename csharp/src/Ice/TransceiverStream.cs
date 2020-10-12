@@ -142,7 +142,7 @@ namespace ZeroC.Ice
             else
             {
                 var istr = new InputStream(data, Ice2Definitions.Encoding);
-                return ((istr.ReadVarLong(), istr.ReadVarLong()), istr.ReadString());
+                return (((long)istr.ReadVarULong(), (long)istr.ReadVarULong()), istr.ReadString());
             }
         }
 
@@ -251,8 +251,8 @@ namespace ZeroC.Ice
                 ostr.WriteByte((byte)Ice2Definitions.FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
-                ostr.WriteVarLong(streamIds.Bidirectional);
-                ostr.WriteVarLong(streamIds.Unidirectional);
+                ostr.WriteVarULong((ulong)streamIds.Bidirectional);
+                ostr.WriteVarULong((ulong)streamIds.Unidirectional);
                 ostr.WriteString(reason);
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
@@ -324,7 +324,7 @@ namespace ZeroC.Ice
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_transceiver.Endpoint.Protocol == Protocol.Ice2);
 
-            // Read the Ice2 protocol header (byte frameType, varuint size)
+            // Read the Ice2 protocol header (byte frameType, varulong size)
             ArraySegment<byte> buffer = new byte[256];
             bool fin = await ReceiveAsync(buffer.Slice(0, 2), cancel).ConfigureAwait(false);
             var frameType = (Ice2Definitions.FrameType)buffer[0];
@@ -333,7 +333,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
             }
 
-            // Read the remainder of the varint size if needed.
+            // Read the remainder of the size if needed.
             int sizeLength = buffer[1].ReadSizeLength20();
             if (sizeLength > 1)
             {

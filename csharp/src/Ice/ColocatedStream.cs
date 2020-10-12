@@ -18,18 +18,15 @@ namespace ZeroC.Ice
         {
             base.Dispose(disposing);
 
-            if (disposing && !IsIncoming && IsStarted)
+            if (disposing)
             {
-                if (IsBidirectional)
+                if (IsIncoming && !IsBidirectional && !IsControl)
+                {
+                    _transceiver.PeerUnidirectionalSerializeSemaphore?.Release();
+                }
+                else if (!IsIncoming && IsBidirectional && IsStarted)
                 {
                     _transceiver.BidirectionalSerializeSemaphore?.Release();
-                }
-                else if (!IsControl)
-                {
-                    // TODO: this is most likely not correct! The semaphore needs to be released only once the
-                    // dispatch completes, not once the client invocation sending completes. We need to add a
-                    // test for oneway serialization and fix this.
-                    _transceiver.UnidirectionalSerializeSemaphore?.Release();
                 }
             }
         }

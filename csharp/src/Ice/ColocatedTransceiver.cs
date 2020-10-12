@@ -12,8 +12,9 @@ namespace ZeroC.Ice
     internal class ColocatedTransceiver : MultiStreamTransceiver
     {
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
-        internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
         internal readonly object Mutex = new ();
+        internal AsyncSemaphore? PeerUnidirectionalSerializeSemaphore { get; private set; }
+        internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
 
         private readonly long _id;
         private long _nextBidirectionalId;
@@ -72,7 +73,17 @@ namespace ZeroC.Ice
 
         public override TransceiverStream CreateStream(bool bidirectional) => new ColocatedStream(bidirectional, this);
 
-        public override ValueTask InitializeAsync(CancellationToken cancel) => default;
+        public async override ValueTask InitializeAsync(CancellationToken cancel)
+        {
+            // Send our unidirectional semaphore to the peer. The peer will decrease the semaphore when the stream is
+            // disposed.
+            await _writer.WriteAsync((-1, UnidirectionalSerializeSemaphore, false), cancel);
+            (_, object? semaphore, _) = await _reader.ReadAsync(cancel);
+
+            // Get the peer's unidirectional semaphore and keep track of it to be able to release it once a
+            // unidirectional stream is disposed.
+            PeerUnidirectionalSerializeSemaphore = (AsyncSemaphore?)semaphore;
+        }
 
         public override Task PingAsync(CancellationToken cancel) => Task.CompletedTask;
 
@@ -91,7 +102,7 @@ namespace ZeroC.Ice
             _writer = writer;
             _reader = reader;
 
-            if (!isIncoming && endpoint.Adapter.SerializeDispatch)
+            if (endpoint.Adapter.SerializeDispatch)
             {
                 BidirectionalSerializeSemaphore = new AsyncSemaphore(1);
                 UnidirectionalSerializeSemaphore = new AsyncSemaphore(1);

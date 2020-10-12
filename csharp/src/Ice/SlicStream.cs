@@ -57,7 +57,7 @@ namespace ZeroC.Ice
                     Interlocked.Decrement(ref _transceiver.UnidirectionalStreamCount);
                     _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamUnidirectionalFin, null);
                 }
-                else if (!IsIncoming && IsBidirectional && IsStarted)
+                else if (!IsIncoming && IsStarted && IsBidirectional)
                 {
                     _transceiver.BidirectionalStreamSemaphore!.Release();
                 }
