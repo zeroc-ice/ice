@@ -71,7 +71,7 @@ Slice::interfaceName(const InterfaceDeclPtr& decl, bool isAsync)
     {
         if (isAsync)
         {
-            // We remove the 'I' prefix, so we can add a fully 'IAsync' prefix instead.
+            // We remove the 'I' prefix, and replace it with the full 'IAsync' prefix.
             return "IAsync" + name.substr(1);
         }
         return name;
