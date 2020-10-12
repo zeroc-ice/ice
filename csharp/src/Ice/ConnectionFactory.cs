@@ -30,10 +30,10 @@ namespace ZeroC.Ice
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _disposeTask;
-        // We keep a map of the connectors that has recently result in a failed connection attempt, this is used to
+        // We keep a map of the connectors that recently result in a transport failure, this is used to
         // influence the selection of connectors when creating new connections, connectors with recent failures
         // are tried last this avoids retries choosing always connectors that have already result in a connect failure.
-        private readonly ConcurrentDictionary<IConnector, DateTime> _connectFailures = new ();
+        private readonly ConcurrentDictionary<IConnector, DateTime> _transportFailures = new ();
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
@@ -80,7 +80,7 @@ namespace ZeroC.Ice
             AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
 
-        internal void AddHintFailure(IConnector connector) => _connectFailures[connector] = DateTime.Now;
+        internal void AddHintFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
@@ -90,6 +90,7 @@ namespace ZeroC.Ice
             IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
         {
+            Console.WriteLine($"Create connection connectionId: {connectionId}");
             Debug.Assert(endpoints.Count > 0);
             lock (_mutex)
             {
@@ -162,18 +163,18 @@ namespace ZeroC.Ice
 
                 // Purge expired hint failures
                 DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
-                foreach ((IConnector connector, DateTime date) in _connectFailures)
+                foreach ((IConnector connector, DateTime date) in _transportFailures)
                 {
                     if (date <= expirationDate)
                     {
-                        _ = _connectFailures.TryRemove(connector, out DateTime _);
+                        _ = _transportFailures.TryRemove(connector, out DateTime _);
                     }
                 }
 
                 // Exclude connectors that where already tried, order the remaining connectors moving connectors with
                 // recent failures to the end of the list.
                 connectors = connectors.Where(item => !excludedConnectors.Contains(item.Connector)).OrderBy(
-                    item => _connectFailures.TryGetValue(item.Connector, out DateTime value) ? value : default).ToList();
+                    item => _transportFailures.TryGetValue(item.Connector, out DateTime value) ? value : default).ToList();
 
                 if (connectors.Count == 0)
                 {
@@ -425,7 +426,7 @@ namespace ZeroC.Ice
                         bool last = i == connectors.Count - 1;
 
                         TraceLevels traceLevels = _communicator.TraceLevels;
-                        _connectFailures[connector] = DateTime.Now;
+                        _transportFailures[connector] = DateTime.Now;
 
                         if (traceLevels.Transport >= 2)
                         {

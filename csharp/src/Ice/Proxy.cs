@@ -325,12 +325,13 @@ namespace ZeroC.Ice
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
                                                                                      request.Operation,
                                                                                      request.Context);
+                int retryCount = 0;
                 try
                 {
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
                     List<IConnector>? excludedConnectors = null;
-                    for (int retryCount = 0; retryCount < reference.Communicator.RetryMaxAttempts;)
+                    while (retryCount < reference.Communicator.RetryMaxAttempts)
                     {
                         IRequestHandler? handler = null;
                         var progressWrapper = new ProgressWrapper(progress);
@@ -442,6 +443,31 @@ namespace ZeroC.Ice
                         }
                         else if (++retryCount < reference.Communicator.RetryMaxAttempts)
                         {
+                            if (retryCount == 1)
+                            {
+                                if (request.Size > reference.Communicator.RetryRequestSizeMax)
+                                {
+                                    if (reference.Communicator.TraceLevels.Retry >= 1)
+                                    {
+                                        reference.Communicator.Logger.Trace(
+                                            reference.Communicator.TraceLevels.RetryCategory,
+                                            "cannot retry operation call: it exceeds Ice.RetryRequestSizeMax");
+                                    }
+                                    break;
+                                }
+
+                                if (!reference.Communicator.IncRetryBufferSize(request.Size))
+                                {
+                                    if (reference.Communicator.TraceLevels.Retry >= 1)
+                                    {
+                                        reference.Communicator.Logger.Trace(
+                                            reference.Communicator.TraceLevels.RetryCategory,
+                                            "cannot retry operation call: it exceeds Ice.RetryBufferSizeMax");
+                                    }
+                                    break;
+                                }
+                            }
+
                             if (handler is Connection connection)
                             {
                                 if (retryPolicy.Retryable == Retryable.OtherReplica)
@@ -497,6 +523,10 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
+                    if (retryCount > 0)
+                    {
+                        reference.Communicator.DecRetryBufferSize(request.Size);
+                    }
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }

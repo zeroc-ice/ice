@@ -1,9 +1,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Retry
@@ -267,6 +270,67 @@ namespace ZeroC.Ice.Test.Retry
                     }
                     output.WriteLine("ok");
                 }
+            }
+
+            if (!colocated)
+            {
+                output.Write("testing retry request size max... ");
+                output.Flush();
+                {
+                    Dictionary<string, string>? properties = communicator.GetProperties();
+                    properties["Ice.RetryRequestSizeMax"] = "1024";
+                    using var communicator2 = new Communicator(properties);
+                    var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
+
+                    byte[] data = Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray();
+
+                    retry1.OpWithData(1, 0, data); // Succeed no retry request size limit
+
+                    try
+                    {
+                        retry2.OpWithData(1, 0, data); // Fails because retry request size limit
+                        TestHelper.Assert(false);
+                    }
+                    catch (SystemFailure)
+                    {
+                        // Expected
+                        retry2.OpWithData(0, 0, Array.Empty<byte>()); // Reset the counter
+                    }
+                }
+                output.WriteLine("ok");
+
+                output.Write("testing retry buffer size max... ");
+                output.Flush();
+                {
+                    Dictionary<string, string>? properties = communicator.GetProperties();
+                    properties["Ice.RetryBufferSizeMax"] = "2048";
+                    using var communicator2 = new Communicator(properties);
+                    var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
+
+                    byte[] data = Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray();
+
+                    // Use two connections to simulate two concurrent retries, the first should succeed
+                    // and the second should fail because the buffer size max
+                    Task t1 = retry2.Clone(connectionId: "conn-1").OpWithDataAsync(2, 1000, data);
+                    Thread.Sleep(100); // Ensure the first request it is send before the second request
+                    Task t2 = retry2.Clone(connectionId: "conn-2").OpWithDataAsync(2, 0, data);
+
+                    // T1 succeed, T2 Fail because buffer size max
+                    t1.Wait();
+                    try
+                    {
+                        t2.Wait();
+                        TestHelper.Assert(false);
+                    }
+                    catch (AggregateException ex)
+                    {
+                        // expected
+                        TestHelper.Assert(ex.InnerException is SystemFailure);
+                        retry2.OpWithData(0, 0, Array.Empty<byte>()); // Reset the counter
+                    }
+                    retry2.Clone(connectionId: "conn-1").OpWithData(2, 100, data);
+                }
+                output.WriteLine("ok");
             }
             return retry1;
         }

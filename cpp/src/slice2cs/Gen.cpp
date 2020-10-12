@@ -1635,8 +1635,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "private readonly string[] _iceAllTypeIds = ZeroC.Ice.TypeExtensions.GetAllIceTypeIds(typeof("
          << name << "));";
 
-    // Up to 3 "one-shot" constructors
-    for (int i = 0; i < 3; i++)
+    // Up to 2 "one-shot" constructors
+    for (int i = 0; i < 2; i++)
     {
         if (allParameters.size() > 0)
         {
@@ -1660,16 +1660,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
             }
 
-            if (i > 1)
+            if (i > 0)
             {
                 _out << nl << "/// <param name=\"" << innerExceptionParamName
                      << "\">The exception that is the cause of the current exception.</param>";
             }
-            if (i != 1)
-            {
-                _out << nl << "/// <param name=\"" << retryPolicyParamName
-                     << "\">The retry policy for the exception.</param>";
-            }
+            _out << nl << "/// <param name=\"" << retryPolicyParamName
+                 << "\">The retry policy for the exception.</param>";
             _out << nl << "public " << name << spar << allParameters << epar;
             _out.inc();
             if (baseParamNames.size() > 0)
@@ -1697,10 +1694,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             // Insert message first
             allParameters.insert(allParameters.cbegin(), "string? " + messageParamName);
             baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
-        }
 
-        if (i == 1)
-        {
             // Add innerException and retryPolicy last
             allParameters.push_back("global::System.Exception? " + innerExceptionParamName + " = null");
             baseParamNames.push_back(innerExceptionParamName);

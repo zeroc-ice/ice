@@ -55,6 +55,15 @@ namespace ZeroC.Ice.Test.Retry
         public void Shutdown(Current current, CancellationToken cancel) =>
             current.Adapter.Communicator.ShutdownAsync();
 
+        public void OpWithData(int retries, int delay, byte[] data, Current current, CancellationToken cancel)
+        {
+            if (retries > _counter++)
+            {
+                throw new SystemFailure(RetryPolicy.AfterDelay(TimeSpan.FromMilliseconds(delay)));
+            }
+            _counter = 0;
+        }
+
         private int _counter;
     }
 

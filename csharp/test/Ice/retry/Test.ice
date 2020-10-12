@@ -13,6 +13,8 @@ exception SystemFailure
 {
 }
 
+sequence<byte> ByteSeq;
+
 interface Retry
 {
     void op(bool kill);
@@ -23,6 +25,8 @@ interface Retry
     int opAfterDelay(int retries, int delay);
 
     idempotent void sleep(int delay);
+
+    void opWithData(int retries, int delay, ByteSeq data);
 
     idempotent void shutdown();
 }

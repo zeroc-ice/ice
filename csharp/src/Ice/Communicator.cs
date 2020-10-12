@@ -146,10 +146,6 @@ namespace ZeroC.Ice
         /// was not set during communicator initialization.</summary>
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
-        /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
-        /// invocation. It must be a number greater than 0.</summary>
-        public int RetryMaxAttempts { get; }
-
         /// <summary>The output mode or format for ToString on Ice proxies when the protocol is ice1. See
         /// <see cref="Ice.ToStringMode"/>.</summary>
         public ToStringMode ToStringMode { get; }
@@ -167,6 +163,12 @@ namespace ZeroC.Ice
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
+
+        /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
+        /// invocation. It must be a number greater than 0.</summary>
+        internal int RetryMaxAttempts { get; }
+        internal int RetryBufferSizeMax { get; }
+        internal int RetryRequestSizeMax { get; }
         internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -219,6 +221,7 @@ namespace ZeroC.Ice
         private static bool _printProcessIdDone;
         private readonly ConcurrentDictionary<string, Func<string?, RemoteException>?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, Func<string?, RemoteException>?>();
+        private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
@@ -500,6 +503,9 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
                 }
                 RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
+
+                RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024;
+                RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
 
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
                 WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
@@ -1068,6 +1074,15 @@ namespace ZeroC.Ice
         internal void AddInvocationInterceptor(InvocationInterceptor[] interceptors) =>
             _invocationInterceptors.AddRange(interceptors);
 
+        internal void DecRetryBufferSize(int size)
+        {
+            lock (_mutex)
+            {
+                Debug.Assert(size >= _retryBufferSize);
+                _retryBufferSize -= size;
+            }
+        }
+
         // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.
         internal (IEndpointFactory Factory, Transport Transport)? FindEndpointFactory(string transportName) =>
             _transportNameToEndpointFactory.TryGetValue(transportName,
@@ -1185,6 +1200,19 @@ namespace ZeroC.Ice
             {
                 return null;
             }
+        }
+
+        internal bool IncRetryBufferSize(int size)
+        {
+            lock (_mutex)
+            {
+                if (size + _retryBufferSize < RetryBufferSizeMax)
+                {
+                    _retryBufferSize += size;
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal OutgoingConnectionFactory OutgoingConnectionFactory { get; }
