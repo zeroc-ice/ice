@@ -66,7 +66,7 @@ Slice::interfaceName(const InterfaceDeclPtr& decl, bool isAsync)
     string name = normalizeCase(decl) ? pascalCase(decl->name()) : decl->name();
 
     // Check if the interface already follows the 'I' prefix convention.
-    if (name.size() > 2 && name.at(0) == 'I' && isupper(name.at(1)))
+    if (name.size() >= 2 && name.at(0) == 'I' && isupper(name.at(1)))
     {
         if (isAsync)
         {
