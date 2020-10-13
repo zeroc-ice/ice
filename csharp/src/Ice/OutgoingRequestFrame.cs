@@ -92,6 +92,7 @@ namespace ZeroC.Ice
         /// <returns>A new OutgoingRequestFrame.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last",
             Justification = "Delegates and lambda function should be the pass as the last argument")]
+        // TODO move cancellation token to the end?
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -138,6 +139,7 @@ namespace ZeroC.Ice
         /// <returns>A new OutgoingRequestFrame.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last",
                     Justification = "Delegates and lambda function should be the pass as the last argument")]
+        // TODO move cancellation token to the end?
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
