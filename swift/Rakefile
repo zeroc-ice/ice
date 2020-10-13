@@ -143,12 +143,8 @@ def create_platform_targets(project, platform, bindist)
 
         excludes = {
             "Ice" => ["Application.cpp",
-                      "AsyncResult.cpp",
-                      "AsyncResult.cpp",
                       "ConvertUTF.cpp",
                       "DLLMain.cpp",
-                      "GCObject.cpp",
-                      "ResponseHandler.cpp",
                       "SystemdJournal.cpp",
                       "Unicode.cpp"],
             "IceSSL" => ["OpenSSL*", "SChannel*"]

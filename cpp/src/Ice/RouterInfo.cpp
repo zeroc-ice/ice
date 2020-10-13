@@ -6,7 +6,6 @@
 #include <Ice/Router.h>
 #include <Ice/LocalException.h>
 #include <Ice/Connection.h> // For ice_connection()->timeout().
-#include <Ice/Functional.h>
 #include <Ice/Reference.h>
 
 using namespace std;

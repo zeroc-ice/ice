@@ -11,7 +11,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Reference.h>
-#include <Ice/Functional.h>
 #include <Ice/Properties.h>
 #include <Ice/Comparable.h>
 #include <iterator>

@@ -79,7 +79,6 @@
 		0CD810B699CB5FD8DAB7069B /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506198E4954C7DD2DBB06D68 /* TestCommon.framework */; };
 		0D33CFE240C90BBF6053CEFB /* Initialize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C397C8BB012C0E3E0F95E05 /* Initialize.swift */; };
 		0D5FA00DDDCCCEF9FEEE7853 /* TestAMD.ice in Sources */ = {isa = PBXBuildFile; fileRef = 18E51411C5C927E7D4249630 /* TestAMD.ice */; };
-		0D6053BFE68E792796030C02 /* ImplicitContextF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C12C3AC42D0B0B44BA52C1AA /* ImplicitContextF.cpp */; };
 		0D9FFE4CE63C449CE244298A /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 039A0EE4EE8A9210988E9B5E /* Ice.framework */; };
 		0DE362CF326A389D7E5346AA /* ProcessF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1DC517C2259276E82257EE97 /* ProcessF.ice */; };
 		0DF094FC8E9D00C2A316A556 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C21F53599CA633A216CEE2DA /* PromiseKit.framework */; };
@@ -132,7 +131,6 @@
 		1503E542A27E05868863C7BA /* TestI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F246D1CC0753966A0E17F0 /* TestI.swift */; };
 		150CD92E30B106BAE56A2738 /* IceInfo.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3486738FA22F7635EDA68D14 /* IceInfo.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1532187F74874FE7244F3DB5 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C1EED277D4DCB533E96675 /* AllTests.swift */; };
-		154541442C8BED0CE9B4DA48 /* InstrumentationF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35C1D6D28E3A4E40CE5FEB93 /* InstrumentationF.cpp */; };
 		155C0F8BEA1E08CD06031E4B /* ServantLocatorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00754B307820E83BD772F603 /* ServantLocatorI.swift */; };
 		15B4FAB27080617BD5732B48 /* IceStorm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C31FC113BDC35DD628F576E6 /* IceStorm.framework */; };
 		15C44CF02388CBD551E02ECF /* DispatchException.ice in Sources */ = {isa = PBXBuildFile; fileRef = 9AADFC0D9D9C3109458F14BB /* DispatchException.ice */; };
@@ -142,7 +140,6 @@
 		16355118678819C870E4C31F /* RouterInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0B942B456B1E4EE517FB764 /* RouterInfo.cpp */; };
 		16BA6A6F093E7F0E44308220 /* ProxyEncoding.ice in Sources */ = {isa = PBXBuildFile; fileRef = E7B4E42CDA70361A70789290 /* ProxyEncoding.ice */; };
 		16C512831BFA165BCFB0D17A /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D944E0809B85A66C187EE09 /* Client.swift */; };
-		16F90E73C5523161025FA660 /* ServantLocatorF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F185C8BD6EC406D94C1A9B4C /* ServantLocatorF.cpp */; };
 		17167349FA54905BBE301DC1 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506198E4954C7DD2DBB06D68 /* TestCommon.framework */; };
 		17430E49BF1B48DE6ACFC833 /* Glacier2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1A857351582C90B25768BA /* Glacier2.framework */; };
 		17C31131693F7AF558FFF07D /* IceImpl.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 414441CC202D45B5F6094ED6 /* IceImpl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -182,7 +179,6 @@
 		1EF54D8DDC5E83A735CF43E6 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = 33128D10105CE8FFF7FC1D14 /* Test.ice */; };
 		1F28BBE918BEDF9CD494B28F /* PluginI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0D0898863CD3979489CF6EFD /* PluginI.cpp */; };
 		1F5FA7FC640EBD12526E2014 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67F48A6AF44B7BDA9A9CD4A5 /* AllTests.swift */; };
-		1F887393785B437BF534015D /* CommunicatorF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A790BB9CE4A79FF29DC959D7 /* CommunicatorF.cpp */; };
 		1FBB985B15A50DDEA05B67F5 /* ImplicitContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E8372775F86F88E6DE6E0B4 /* ImplicitContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2035887941DBA090A19C7E06 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1E5B72B0FDB795AADF15356 /* PromiseKit.framework */; };
 		204E4276833B8EF70CA63F22 /* CollocatedRequestHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1A4DF56B49BA3C4A6619B85 /* CollocatedRequestHandler.cpp */; };
@@ -326,7 +322,6 @@
 		359BC22A096A56FC8D6C8ED0 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94776C64570244D19F9EA2C9 /* Logger.mm */; };
 		35E31C69B63025D29E7A68CB /* Options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EFD586660A2DDC138DFEC4C4 /* Options.cpp */; };
 		3644C675D97083DBEE7670E3 /* Glacier2.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CC1A857351582C90B25768BA /* Glacier2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		36940CD8ACB552A2E564C554 /* ConnectionF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABA5BB3B48A0338F4FDD9623 /* ConnectionF.cpp */; };
 		36D044D2568257CF56537CA1 /* TestAMDI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D502297A6F92EC2E821686CB /* TestAMDI.swift */; };
 		36E5170669F1C0FD584766D3 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = 2105F0B6819356EAE6FD1080 /* Test.ice */; };
 		3704A17490B5C09E9FA47E41 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092AFBA60249431D301FCA0 /* Client.swift */; };
@@ -455,7 +450,6 @@
 		4B7303366AF454A1D87B5BE1 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183D64E6F020FE66D3BB8B7C /* Server.swift */; };
 		4BC1B2A9253DEA11E7A8E132 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62FA14293DD40CE7F40C0DC0 /* AllTests.swift */; };
 		4BD0B61557169D957FA1B4CF /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451EA5B17C9992329644421C /* Client.swift */; };
-		4BE3E32EC15F7A61DA979EA5 /* EndpointF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76FC60983E05EE5848BD6EC9 /* EndpointF.cpp */; };
 		4C086141FFA5CBE1222C7BDA /* Descriptor.ice in Sources */ = {isa = PBXBuildFile; fileRef = 5B502AE26D847F2F9931EDFF /* Descriptor.ice */; };
 		4C120DD8409A532F563B0C1F /* IceLocatorDiscovery.ice in Sources */ = {isa = PBXBuildFile; fileRef = 63ED9BABCA198D43397DDB63 /* IceLocatorDiscovery.ice */; };
 		4CBF00E343D383C450E77AAA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B42BF3CC754FF6E12AE2513C /* UIKit.framework */; };
@@ -470,7 +464,6 @@
 		4F5E5B6764515AFA6CD77B83 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C23C86D49BD3FE9E51EBF7D5 /* Cocoa.framework */; };
 		4F91AD95447522DACEDBC5BF /* BuiltinSequences.ice in Sources */ = {isa = PBXBuildFile; fileRef = 75ECC9B854D245E4D8DC7AD6 /* BuiltinSequences.ice */; };
 		4FD06F825384AE624BF5EDE2 /* ObjectAdapterI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31266DB97E6F2CC8F5C039CA /* ObjectAdapterI.swift */; };
-		4FD9E49B70BE5DCC1EC93A16 /* ServantLocatorF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F185C8BD6EC406D94C1A9B4C /* ServantLocatorF.cpp */; };
 		4FF942C6F1DD12720CF850D0 /* OutputUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81785A4948C8B697F6BD0CBE /* OutputUtil.cpp */; };
 		4FFEE782099EE9CFB081C26E /* Connection.mm in Sources */ = {isa = PBXBuildFile; fileRef = C1F1F818B55F5A1D6C2C6D33 /* Connection.mm */; };
 		5010F006A2D73875EC52B1C3 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C255E8A5737AF964BA4507 /* Server.swift */; };
@@ -562,7 +555,6 @@
 		5FCB5B144DDEAED0DA589375 /* ProcessF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1DC517C2259276E82257EE97 /* ProcessF.ice */; };
 		5FCDFBDCD1ADE018774240A8 /* Instrumentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4BCB3FCB4B1FF4812BB0297 /* Instrumentation.cpp */; };
 		5FF45E13A30522BCD46F0690 /* ServantLocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 286E59C37340F775F544074C /* ServantLocator.cpp */; };
-		601DEDDBF18A9A1E994A0BA3 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99285F9B328DE0AFAA313B17 /* Version.cpp */; };
 		605DCA101B5E3F451FF5EF1E /* PropertiesAdminI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26831D19E07217449DCC7B0 /* PropertiesAdminI.swift */; };
 		605FFA064B7C4752CEE4FABA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8720C0865B0D1E3F13F3275 /* Foundation.framework */; };
 		60D0FFA8D77CF088F0E3824C /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C21F53599CA633A216CEE2DA /* PromiseKit.framework */; };
@@ -596,7 +588,6 @@
 		64AF879436C5718EE85607B8 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D4CBC3D9D612B771BEA776E /* TestCommon.framework */; };
 		654ECF024402E4BD93542949 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D39A3B7E6C346E891DE2DB /* Ice.framework */; };
 		655470EB92C723704EB23536 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2341EDE9FAB80F73FE9E575F /* Client.swift */; };
-		6563F222A678218899658EA1 /* ObjectAdapterF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFB006DFE70E501A02CB3DE4 /* ObjectAdapterF.cpp */; };
 		656B512FF457B4EAC93DD059 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61DA7256C8936207A440CE24 /* CFNetwork.framework */; };
 		657D8C217C86B021CE2F40C8 /* IceImpl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CFA3AE0820F8290322C4FFB /* IceImpl.framework */; };
 		667C35E9549555CD5C6DC546 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = A874454811AD645D19DDEBF6 /* Test.ice */; };
@@ -671,7 +662,6 @@
 		702BDBEF149F95C5B11AB45B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8720C0865B0D1E3F13F3275 /* Foundation.framework */; };
 		7043C26DDC965D70C88ECC24 /* Forward.ice in Sources */ = {isa = PBXBuildFile; fileRef = 6E2D0426EA3B8F5ACAA49D7A /* Forward.ice */; };
 		7054F380CE96840E9D69C754 /* CountDownLatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED611DA4CFAF9264C66030AA /* CountDownLatch.cpp */; };
-		70649A6DCA512987665C5B73 /* ObjectAdapterF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFB006DFE70E501A02CB3DE4 /* ObjectAdapterF.cpp */; };
 		707873406E8CA8ADF0E24A57 /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DACD03356B731588C4116B53 /* Random.cpp */; };
 		707CA6BCFFC7781EFB93E513 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C23C86D49BD3FE9E51EBF7D5 /* Cocoa.framework */; };
 		70A68F75D29A023419EB95D5 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D39A3B7E6C346E891DE2DB /* Ice.framework */; };
@@ -767,7 +757,6 @@
 		80FF4C91E701699CB972A3BF /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C21F53599CA633A216CEE2DA /* PromiseKit.framework */; };
 		812F937E8B22597B95430566 /* SliceEscape.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = E66ECF881514978EEEFC39B7 /* SliceEscape.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		813DFE6B4308B0C4A495E1C5 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E5904A86E5B04C4B008B80C /* Client.swift */; };
-		818481A92AEF1F98FC7CAFCD /* EndpointF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76FC60983E05EE5848BD6EC9 /* EndpointF.cpp */; };
 		819295C7CC91132E452A1DC2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8720C0865B0D1E3F13F3275 /* Foundation.framework */; };
 		81F05162FA88B8981819CC85 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D4CBC3D9D612B771BEA776E /* TestCommon.framework */; };
 		821AB9C562AE87F96C2E333B /* RemoteLogger.ice in Sources */ = {isa = PBXBuildFile; fileRef = 0B94A6B088150DAA8261CF12 /* RemoteLogger.ice */; };
@@ -795,7 +784,6 @@
 		85B9DBD2F84F3D8999108168 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B43F465B7692103C7FD342 /* AllTests.swift */; };
 		85BFC5C089E8CD4E75ED4278 /* TestAMDI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0738273826A08A5E8AD4B39 /* TestAMDI.swift */; };
 		85F03A74F559A112AAFAA4FD /* TestAMD.ice in Sources */ = {isa = PBXBuildFile; fileRef = 7739A555D870B1B008618CCB /* TestAMD.ice */; };
-		86066193E5AA4BC6FB06AA13 /* LoggerF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF6201C8337E3B0C6F3E2D0B /* LoggerF.cpp */; };
 		8610D704D20DCF32A5EE30F2 /* InputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD2A8250C739520E0D0141C /* InputStream.swift */; };
 		86875433E47824B5D3D3763E /* ServerAMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = F61729C8FAE69758AF459773 /* ServerAMD.swift */; };
 		86D997AA3E9B4E9940B852BE /* Clash.ice in Sources */ = {isa = PBXBuildFile; fileRef = 4C4B91FE917FA17BE6A9D6C7 /* Clash.ice */; };
@@ -807,7 +795,6 @@
 		881D262A0BCDD3180318CAA4 /* Context.ice in Sources */ = {isa = PBXBuildFile; fileRef = 76D6FAC70CAD6C3174DD6EE7 /* Context.ice */; };
 		883349BB4A43516ABA692B37 /* BuiltinSequences.ice in Sources */ = {isa = PBXBuildFile; fileRef = 75ECC9B854D245E4D8DC7AD6 /* BuiltinSequences.ice */; };
 		8875260E9538422193C33A3C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964D3D246D43B5D5D6E6A1CF /* Logger.swift */; };
-		8875CF5EB24CB923FA13BE73 /* ImplicitContextF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C12C3AC42D0B0B44BA52C1AA /* ImplicitContextF.cpp */; };
 		88996C2DBABA2359A80EA9BC /* Collocated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C94592CED64B7E6FE0B4DAE /* Collocated.swift */; };
 		88C9EA189286AA6B7982FB2C /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 06E6CB137B28A7E4E0CE7DB6 /* Exception.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88EC0925E0E8CBBF678D9575 /* TestAMD.ice in Sources */ = {isa = PBXBuildFile; fileRef = A0668CC385381661B20DAA00 /* TestAMD.ice */; };
@@ -885,7 +872,6 @@
 		955FB6D8B2C6BCBE8AA852F8 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834D6C928D213EF586C8685A /* AllTests.swift */; };
 		95958C7DFAAD85784D882DEC /* RecMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B01E1484459B5C806DFB92DB /* RecMutex.cpp */; };
 		96008DDA886C0523AF662816 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = A4F12DA47C1BDC31F0949C25 /* Test.ice */; };
-		960DA6037EB8E6383DEE0143 /* LoggerF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF6201C8337E3B0C6F3E2D0B /* LoggerF.cpp */; };
 		96995456FBF1D907C45EC742 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D4CBC3D9D612B771BEA776E /* TestCommon.framework */; };
 		96A0022ED761704BD0CDAA93 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D4CBC3D9D612B771BEA776E /* TestCommon.framework */; };
 		96A3DF61B4116C4065ED2B5C /* Encoding.ice in Sources */ = {isa = PBXBuildFile; fileRef = 48B236822D86AB29AD4C5AF1 /* Encoding.ice */; };
@@ -911,7 +897,6 @@
 		9AC3FC1731A7F417D12F4468 /* TcpEndpointI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F003C383ADC6292B560C0317 /* TcpEndpointI.cpp */; };
 		9AE9622EBC240E5831029446 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C21F53599CA633A216CEE2DA /* PromiseKit.framework */; };
 		9B71D9DC1818C260E0A7C997 /* TraceUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 726060C19BA07DDC3CFE3B55 /* TraceUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9B7AEE20CF0711BAE71FD8DD /* InstrumentationF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35C1D6D28E3A4E40CE5FEB93 /* InstrumentationF.cpp */; };
 		9B7FBE81A512671D2D3BEB89 /* ValueFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56427F660723DDEB0DB69C03 /* ValueFactory.swift */; };
 		9B97A38B25233B9D6E3DCA03 /* LocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 91D66D8FA1E21A48FC113F20 /* LocatorF.ice */; };
 		9BDACD917EC48CBC541766D7 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C21F53599CA633A216CEE2DA /* PromiseKit.framework */; };
@@ -976,7 +961,6 @@
 		A68A46E26C8C309661B9262A /* ServerPrivateAMD.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1CF21EED4EEF33793C75CD3F /* ServerPrivateAMD.ice */; };
 		A6AC0D352601D3D639B3DAA0 /* ServerAMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = F61729C8FAE69758AF459773 /* ServerAMD.swift */; };
 		A6BA162A6B3473324EE2C36A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C23C86D49BD3FE9E51EBF7D5 /* Cocoa.framework */; };
-		A70B689B773BB4A39A39DF75 /* PropertiesF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBBF11CA0EFA16BE869B0BB /* PropertiesF.cpp */; };
 		A71EDB7079B2FE5B276CAFF5 /* Connection.h in Headers */ = {isa = PBXBuildFile; fileRef = F7DB3AC4BA3FBD131E71793F /* Connection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A768E1FAD21037D3BC836AA3 /* Transceiver.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF6DB28CDF70FB854EE287F6 /* Transceiver.mm */; };
 		A773636E5F009B572DCFC3DE /* ServerAMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B19661B2EA979362F169A0C /* ServerAMD.swift */; };
@@ -991,7 +975,6 @@
 		A8EDEE7960AC64081A622A55 /* SecureTransportPluginI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DF01CA37BE06A097F182845 /* SecureTransportPluginI.cpp */; };
 		A92BE0B2D6E3DB794A775C40 /* FactoryTableInit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D833D801810E5DC2D470DF11 /* FactoryTableInit.cpp */; };
 		A948E072D9D5536F38184EB7 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8C206BB2938B1B07631379DF /* Test.ice */; };
-		A95EF8A32DFF94F8421FF86C /* PropertiesF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBBF11CA0EFA16BE869B0BB /* PropertiesF.cpp */; };
 		A9654A87BEEB2191EFF635B6 /* IceProperties.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = B818230534CBC0F219509F38 /* IceProperties.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A969010EF91C91B0F2C36924 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C23C86D49BD3FE9E51EBF7D5 /* Cocoa.framework */; };
 		A9768D3872027920BA48A1D9 /* Collocated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E73DB34AC7121F9A84D1B1 /* Collocated.swift */; };
@@ -1013,7 +996,6 @@
 		AD3C19DF3954B115E838656E /* ServerAMD.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AB9F247D95E25758A252B2 /* ServerAMD.swift */; };
 		AD4BAAEDE2A9D3B64C3AD2B0 /* ObjectAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6709D2066FE4EFB142FC721 /* ObjectAdapter.cpp */; };
 		AD532372C3646B22F29A60A0 /* IceGrid.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 613D9328443A485ADA6F4D17 /* IceGrid.framework */; };
-		AD8602598583EF49719E6EDD /* PluginF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43F7428C565A64E78CB0D74 /* PluginF.cpp */; };
 		AD890089D8A245E8739C8CDF /* ServerPrivateAMD.ice in Sources */ = {isa = PBXBuildFile; fileRef = BC7DE68CD06BF8533C179EEC /* ServerPrivateAMD.ice */; };
 		ADC54505CF62CE7ACE60FF14 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = 2F7A0C0DA8F4116CD0C1F04F /* Test.ice */; };
 		ADEEE4DF9F13C4E8880F499F /* ConnectionRequestHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E3442ECAB97C59E6214561 /* ConnectionRequestHandler.cpp */; };
@@ -1031,7 +1013,6 @@
 		B044951DDA16F80496FDE439 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A8555569D3C7A89C864890 /* Server.swift */; };
 		B053687681274B6E7CAF8C5D /* Forward.ice in Sources */ = {isa = PBXBuildFile; fileRef = 6E2D0426EA3B8F5ACAA49D7A /* Forward.ice */; };
 		B071C40B3D68C06D7CFB444C /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506198E4954C7DD2DBB06D68 /* TestCommon.framework */; };
-		B098A740955E1F026C9A4E96 /* PluginF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F43F7428C565A64E78CB0D74 /* PluginF.cpp */; };
 		B0A67F0EE4BE24D18E109C7F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8720C0865B0D1E3F13F3275 /* Foundation.framework */; };
 		B0AA8BDD0F2AE8D06A5AA539 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5166F8CC1B7E1202D2AEA91D /* AllTests.swift */; };
 		B17126829921D5FBEB9CC447 /* IceServantLocator.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = EF695FC988FD18EB30255882 /* IceServantLocator.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1047,7 +1028,6 @@
 		B224AA299B4E5DA35191957B /* ProxyEncoding.ice in Sources */ = {isa = PBXBuildFile; fileRef = E7B4E42CDA70361A70789290 /* ProxyEncoding.ice */; };
 		B258024AB4B469CA5AFF7B61 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 506198E4954C7DD2DBB06D68 /* TestCommon.framework */; };
 		B26C770457E898C0648F704B /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E623A6BEB7C70F1383B123D /* Client.swift */; };
-		B28B8B1A7FC2E8C1E979630A /* ConnectionF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABA5BB3B48A0338F4FDD9623 /* ConnectionF.cpp */; };
 		B2A557650EE567327235A2C0 /* StreamSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BDEA70BC7656E266A85740B /* StreamSocket.cpp */; };
 		B2C9BFB83E9D095FD410334B /* TestAMDI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7A28BADFEBCC634F934025 /* TestAMDI.swift */; };
 		B2EA7D68CFECF669B99EC3C8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8720C0865B0D1E3F13F3275 /* Foundation.framework */; };
@@ -1063,7 +1043,6 @@
 		B4EF35D2759276C1829BDEDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8720C0865B0D1E3F13F3275 /* Foundation.framework */; };
 		B57BE88D10D50205D94304F1 /* InputStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6F18F6188C69976A4A0FA9A4 /* InputStream.cpp */; };
 		B595B92CA784794320BC1EDB /* IceServices.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8BE40817E424FB92D46D7AFB /* IceServices.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		B5AB91B11FFA207B885B05E0 /* CommunicatorF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A790BB9CE4A79FF29DC959D7 /* CommunicatorF.cpp */; };
 		B605793213A88A410F4CDF6C /* LaunchScreen.storyboard in Sources */ = {isa = PBXBuildFile; fileRef = FBE73D1A3FF238DECAAEEED5 /* LaunchScreen.storyboard */; };
 		B62BF5A18396D01B3001EF3E /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1E5B72B0FDB795AADF15356 /* PromiseKit.framework */; };
 		B62EC444CDFF4DF87B50E60F /* ConnectorI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF0C9138333BA780F8B95346 /* ConnectorI.cpp */; };
@@ -1212,7 +1191,6 @@
 		D07AD33B5682F8FD9BBE7AAA /* ObjectPrx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0DA5A232A0BAC15273930B12 /* ObjectPrx.mm */; };
 		D08E6FFC753339CBDFCAA960 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBEF940536055397256CB16F /* Timer.cpp */; };
 		D0A6E68BD710F147C474A0F0 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC62C72D1B7C2E1850E702F /* Client.swift */; };
-		D135C698D3ED3399504F2128 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99285F9B328DE0AFAA313B17 /* Version.cpp */; };
 		D165A4BBE158939023C25366 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 039A0EE4EE8A9210988E9B5E /* Ice.framework */; };
 		D1B52417E61FF49DD9AD05D1 /* IceProperties.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CA9249A8EC825B283D160111 /* IceProperties.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D1C29CDBFF1C1906754D18BF /* ObjectAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A85948C2F90EDBD6CD7734 /* ObjectAdapter.swift */; };
@@ -3797,7 +3775,6 @@
 		33128D10105CE8FFF7FC1D14 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/interceptor/Test.ice; sourceTree = "<group>"; };
 		345386F1F5ED15C6CEABD96F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/IceStorm/Info.plist; sourceTree = "<group>"; };
 		3486738FA22F7635EDA68D14 /* IceInfo.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInfo.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		35C1D6D28E3A4E40CE5FEB93 /* InstrumentationF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = InstrumentationF.cpp; path = ../cpp/src/Ice/InstrumentationF.cpp; sourceTree = "<group>"; };
 		36A5A78213B5A111E6E0987C /* UnsupportedAdminFacet.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = UnsupportedAdminFacet.mm; path = src/IceImpl/UnsupportedAdminFacet.mm; sourceTree = "<group>"; };
 		36B48178A7C83E8B86AE5FCF /* WSEndpoint.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = WSEndpoint.cpp; path = ../cpp/src/Ice/WSEndpoint.cpp; sourceTree = "<group>"; };
 		372423A789BE5BF548281673 /* Version.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Version.swift; path = src/Ice/Version.swift; sourceTree = "<group>"; };
@@ -3856,7 +3833,6 @@
 		4F132D45DC7D51CC475D05D3 /* IceDefaultServant.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceDefaultServant.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F9AEF4725CD3A7E769DC4EC /* libIceLocatorDiscovery C++ macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceLocatorDiscovery C++ macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA0319E2096F1E84D1DBC78 /* IceSlicingObjects.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceSlicingObjects.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FBBF11CA0EFA16BE869B0BB /* PropertiesF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertiesF.cpp; path = ../cpp/src/Ice/PropertiesF.cpp; sourceTree = "<group>"; };
 		4FC7F8F574E0B1413C0F0297 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/optional/Server.swift; sourceTree = "<group>"; };
 		506198E4954C7DD2DBB06D68 /* TestCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		50A4A0EE2D4C2F3A4DFC7846 /* IceUtil.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IceUtil.mm; path = src/IceImpl/IceUtil.mm; sourceTree = "<group>"; };
@@ -3960,7 +3936,6 @@
 		76BB608F5476ED12DD681EB4 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/timeout/TestI.swift; sourceTree = "<group>"; };
 		76D6FAC70CAD6C3174DD6EE7 /* Context.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Context.ice; path = ../slice/Ice/Context.ice; sourceTree = "<group>"; };
 		76D9E1D6F0A7034B6456B949 /* TraceUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TraceUtil.cpp; path = ../cpp/src/Ice/TraceUtil.cpp; sourceTree = "<group>"; };
-		76FC60983E05EE5848BD6EC9 /* EndpointF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointF.cpp; path = ../cpp/src/Ice/EndpointF.cpp; sourceTree = "<group>"; };
 		76FFA8E63488D678AB941264 /* IceInheritance.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritance.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		772077964AE5149C4C367B8D /* EndpointInfo.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointInfo.cpp; path = ../cpp/src/IceIAP/EndpointInfo.cpp; sourceTree = "<group>"; };
 		7739A555D870B1B008618CCB /* TestAMD.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = TestAMD.ice; path = test/Ice/proxy/TestAMD.ice; sourceTree = "<group>"; };
@@ -4033,7 +4008,6 @@
 		9893F43CD36DAB89F2DC9F71 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/binding/Client.swift; sourceTree = "<group>"; };
 		98BB2167B8E7ACCB3DB10DDC /* IceUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceUtil.h; path = src/IceImpl/IceUtil.h; sourceTree = "<group>"; };
 		99077E10C82EAC1103E75A40 /* Endpoint.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Endpoint.mm; path = src/IceImpl/Endpoint.mm; sourceTree = "<group>"; };
-		99285F9B328DE0AFAA313B17 /* Version.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Version.cpp; path = ../cpp/src/Ice/Version.cpp; sourceTree = "<group>"; };
 		993F1D81C5E73D1B2D5723AD /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/adapterDeactivation/TestI.swift; sourceTree = "<group>"; };
 		99819A34067F57EABB6998BA /* Metrics.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Metrics.ice; path = ../slice/Ice/Metrics.ice; sourceTree = "<group>"; };
 		999BF3F06BB9624C32B21990 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/timeout/Test.ice; sourceTree = "<group>"; };
@@ -4069,16 +4043,13 @@
 		A5B36292652C486942899931 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/info/Client.swift; sourceTree = "<group>"; };
 		A5B6F9ACC92C54200566DD1F /* SSLEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SSLEngine.cpp; path = ../cpp/src/IceSSL/SSLEngine.cpp; sourceTree = "<group>"; };
 		A6709D2066FE4EFB142FC721 /* ObjectAdapter.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapter.cpp; path = ../cpp/src/Ice/ObjectAdapter.cpp; sourceTree = "<group>"; };
-		A790BB9CE4A79FF29DC959D7 /* CommunicatorF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CommunicatorF.cpp; path = ../cpp/src/Ice/CommunicatorF.cpp; sourceTree = "<group>"; };
 		A874454811AD645D19DDEBF6 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/enums/Test.ice; sourceTree = "<group>"; };
 		A9625DDD575B6AC2F770F523 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/ami/Server.swift; sourceTree = "<group>"; };
-		ABA5BB3B48A0338F4FDD9623 /* ConnectionF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionF.cpp; path = ../cpp/src/Ice/ConnectionF.cpp; sourceTree = "<group>"; };
 		ABE9A9ED84FEFB952A5CBCCE /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/adapterDeactivation/AllTests.swift; sourceTree = "<group>"; };
 		AD98C53C35CD682E22762871 /* PermissionsVerifier.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = PermissionsVerifier.ice; path = ../slice/Glacier2/PermissionsVerifier.ice; sourceTree = "<group>"; };
 		ADD2D8ED51537E0DD822CECF /* IceSSL_EndpointInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IceSSL_EndpointInfo.swift; path = src/Ice/IceSSL_EndpointInfo.swift; sourceTree = "<group>"; };
 		AE5E1C2C92BB20F1F633B31A /* Exception.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Exception.cpp; path = ../cpp/src/Ice/Exception.cpp; sourceTree = "<group>"; };
 		AE92C1060E205E83A1EC6312 /* CommunicatorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CommunicatorI.cpp; path = ../cpp/src/Ice/CommunicatorI.cpp; sourceTree = "<group>"; };
-		AFB006DFE70E501A02CB3DE4 /* ObjectAdapterF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapterF.cpp; path = ../cpp/src/Ice/ObjectAdapterF.cpp; sourceTree = "<group>"; };
 		AFD51F96F4C766CBB9F52567 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/ami/Test.ice; sourceTree = "<group>"; };
 		AFDA29082D13B715569EC4AF /* OpaqueEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = OpaqueEndpointI.cpp; path = ../cpp/src/Ice/OpaqueEndpointI.cpp; sourceTree = "<group>"; };
 		B01B998A1F3FB4F003093817 /* CtrlCHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CtrlCHandler.cpp; path = ../cpp/src/IceUtil/CtrlCHandler.cpp; sourceTree = "<group>"; };
@@ -4124,7 +4095,6 @@
 		C05EC3404022026D5E74E4F4 /* TraceLevels.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TraceLevels.cpp; path = ../cpp/src/Ice/TraceLevels.cpp; sourceTree = "<group>"; };
 		C0738273826A08A5E8AD4B39 /* TestAMDI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestAMDI.swift; path = test/Ice/slicing/objects/TestAMDI.swift; sourceTree = "<group>"; };
 		C0E7C6D2B69883F1BA68282B /* certs */ = {isa = PBXFileReference; includeInIndex = 1; name = certs; path = ../certs; sourceTree = "<group>"; };
-		C12C3AC42D0B0B44BA52C1AA /* ImplicitContextF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ImplicitContextF.cpp; path = ../cpp/src/Ice/ImplicitContextF.cpp; sourceTree = "<group>"; };
 		C1A4DF56B49BA3C4A6619B85 /* CollocatedRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CollocatedRequestHandler.cpp; path = ../cpp/src/Ice/CollocatedRequestHandler.cpp; sourceTree = "<group>"; };
 		C1E5B72B0FDB795AADF15356 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = ../Carthage/Build/Mac/PromiseKit.framework; sourceTree = "<group>"; };
 		C1F1F818B55F5A1D6C2C6D33 /* Connection.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Connection.mm; path = src/IceImpl/Connection.mm; sourceTree = "<group>"; };
@@ -4227,7 +4197,6 @@
 		ED611DA4CFAF9264C66030AA /* CountDownLatch.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CountDownLatch.cpp; path = ../cpp/src/Ice/CountDownLatch.cpp; sourceTree = "<group>"; };
 		EE12D4B1F6D04C28EDA75F03 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/adapterDeactivation/Server.swift; sourceTree = "<group>"; };
 		EEC9734D2DEC80C450BFCEAB /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/operations/Client.swift; sourceTree = "<group>"; };
-		EF6201C8337E3B0C6F3E2D0B /* LoggerF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LoggerF.cpp; path = ../cpp/src/Ice/LoggerF.cpp; sourceTree = "<group>"; };
 		EF695FC988FD18EB30255882 /* IceServantLocator.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceServantLocator.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF7CBD4B37A8B308BE8C9563 /* IceSSL_ConnectionInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IceSSL_ConnectionInfo.swift; path = src/Ice/IceSSL_ConnectionInfo.swift; sourceTree = "<group>"; };
 		EF8241F4DF07CE926914DB59 /* Glacier2Swift.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Glacier2Swift.h; path = src/Glacier2/Glacier2Swift.h; sourceTree = "<group>"; };
@@ -4235,14 +4204,12 @@
 		EFD586660A2DDC138DFEC4C4 /* Options.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Options.cpp; path = ../cpp/src/IceUtil/Options.cpp; sourceTree = "<group>"; };
 		F003C383ADC6292B560C0317 /* TcpEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TcpEndpointI.cpp; path = ../cpp/src/Ice/TcpEndpointI.cpp; sourceTree = "<group>"; };
 		F1533FD595E2CA3B1248E640 /* ProtocolPluginFacade.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ProtocolPluginFacade.cpp; path = ../cpp/src/Ice/ProtocolPluginFacade.cpp; sourceTree = "<group>"; };
-		F185C8BD6EC406D94C1A9B4C /* ServantLocatorF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ServantLocatorF.cpp; path = ../cpp/src/Ice/ServantLocatorF.cpp; sourceTree = "<group>"; };
 		F1C500736CDCD304209894F6 /* UtilException.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = UtilException.cpp; path = ../cpp/src/IceUtil/UtilException.cpp; sourceTree = "<group>"; };
 		F2D876128721918D4622F398 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/IceSSL/configuration/Test.ice; sourceTree = "<group>"; };
 		F356C89D5863DC4CF47534AE /* TestAMDI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestAMDI.swift; path = test/Ice/optional/TestAMDI.swift; sourceTree = "<group>"; };
 		F38262518F94B2CC00A97A24 /* libIce C++ macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIce C++ macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3C255E8A5737AF964BA4507 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/acm/Server.swift; sourceTree = "<group>"; };
 		F42B1EE29D65F08AB41D88F9 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/ami/TestI.swift; sourceTree = "<group>"; };
-		F43F7428C565A64E78CB0D74 /* PluginF.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PluginF.cpp; path = ../cpp/src/Ice/PluginF.cpp; sourceTree = "<group>"; };
 		F4772135808725C379A68292 /* Instance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Instance.cpp; path = ../cpp/src/IceSSL/Instance.cpp; sourceTree = "<group>"; };
 		F4F97AF38F069C1FEEF310C7 /* OutgoingAsync.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = OutgoingAsync.cpp; path = ../cpp/src/Ice/OutgoingAsync.cpp; sourceTree = "<group>"; };
 		F5027170032A3227A82A4DA9 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/location/Server.swift; sourceTree = "<group>"; };
@@ -5830,11 +5797,9 @@
 				87882DBCDB297825C7C77B8D /* Buffer.cpp */,
 				C1A4DF56B49BA3C4A6619B85 /* CollocatedRequestHandler.cpp */,
 				71DC0DF3C8F3BA6D4B1EDC3C /* Communicator.cpp */,
-				A790BB9CE4A79FF29DC959D7 /* CommunicatorF.cpp */,
 				AE92C1060E205E83A1EC6312 /* CommunicatorI.cpp */,
 				02CA3A358E659CFC5813E2FF /* Cond.cpp */,
 				2588545469BDB4B47BCB5D8B /* Connection.cpp */,
-				ABA5BB3B48A0338F4FDD9623 /* ConnectionF.cpp */,
 				31085579583C98771617EAA7 /* ConnectionFactory.cpp */,
 				B8BA67179F53AFAA5437CB7D /* ConnectionI.cpp */,
 				E1E3442ECAB97C59E6214561 /* ConnectionRequestHandler.cpp */,
@@ -5846,7 +5811,6 @@
 				453C14760B2786837CAD5819 /* DispatchInterceptor.cpp */,
 				58255CDBDB0719EE100F6211 /* DynamicLibrary.cpp */,
 				C82774D508BA7014A00ACA78 /* Endpoint.cpp */,
-				76FC60983E05EE5848BD6EC9 /* EndpointF.cpp */,
 				803CD8DBD2A8678F56285564 /* EndpointFactory.cpp */,
 				04E8637C0F376D5D04CA378B /* EndpointFactoryManager.cpp */,
 				02258BBBCFB277BC1D5D7100 /* EndpointI.cpp */,
@@ -5857,7 +5821,6 @@
 				EB76035F688A13CF749A87D5 /* HttpParser.cpp */,
 				01092A4F9C7206BCA541CD10 /* IconvStringConverter.cpp */,
 				7206791E64C1CAB7F600F802 /* ImplicitContext.cpp */,
-				C12C3AC42D0B0B44BA52C1AA /* ImplicitContextF.cpp */,
 				F980C02FDEB30DC038377E4A /* ImplicitContextI.cpp */,
 				26A3ED61EB430FE064589D3A /* Incoming.cpp */,
 				014FE85DC33F0F5F78E538D7 /* IncomingAsync.cpp */,
@@ -5865,7 +5828,6 @@
 				6F18F6188C69976A4A0FA9A4 /* InputStream.cpp */,
 				80EEDC17A27646F7C12DC19E /* Instance.cpp */,
 				D4BCB3FCB4B1FF4812BB0297 /* Instrumentation.cpp */,
-				35C1D6D28E3A4E40CE5FEB93 /* InstrumentationF.cpp */,
 				D48E7F18454C5B24596131BA /* InstrumentationI.cpp */,
 				DF2B64F835748BFB984A46F7 /* IPEndpointI.cpp */,
 				BE42316374198C857376D2F4 /* LocalException.cpp */,
@@ -5873,7 +5835,6 @@
 				5DE82B29EAC93E2FD981DFD6 /* LocatorInfo.cpp */,
 				DE186124B053F54D261EA503 /* Logger.cpp */,
 				641CFAC96046F828128C0F2F /* LoggerAdminI.cpp */,
-				EF6201C8337E3B0C6F3E2D0B /* LoggerF.cpp */,
 				96848D799BF1C11C369340BC /* LoggerI.cpp */,
 				9A37E41B0D78CA94D2FFEFB4 /* LoggerUtil.cpp */,
 				756246E83E5D307BE0E10294 /* MetricsAdminI.cpp */,
@@ -5882,7 +5843,6 @@
 				07BA376199D94FFE638AADAF /* NetworkProxy.cpp */,
 				1F5D72EF07DFDB573DBC4109 /* Object.cpp */,
 				A6709D2066FE4EFB142FC721 /* ObjectAdapter.cpp */,
-				AFB006DFE70E501A02CB3DE4 /* ObjectAdapterF.cpp */,
 				7368AEC082897B8FCC89C88D /* ObjectAdapterFactory.cpp */,
 				DBD966600E314565EEA7B417 /* ObjectAdapterI.cpp */,
 				905BBB5B1C8BC8C1B1444BA6 /* ObjectFactory.cpp */,
@@ -5892,11 +5852,9 @@
 				F4F97AF38F069C1FEEF310C7 /* OutgoingAsync.cpp */,
 				869B7301DB0245BF25137B04 /* OutputStream.cpp */,
 				CA9DFF406FCEC6A67FB9E4B5 /* Plugin.cpp */,
-				F43F7428C565A64E78CB0D74 /* PluginF.cpp */,
 				9A23EB1390AD0D846CF9F2C2 /* PluginManagerI.cpp */,
 				14A5BF42273EF20048980669 /* Properties.cpp */,
 				81334F553C2E16FBC2CD8883 /* PropertiesAdminI.cpp */,
-				4FBBF11CA0EFA16BE869B0BB /* PropertiesF.cpp */,
 				2752A0E071F45B32FFD09A8E /* PropertiesI.cpp */,
 				CE522FB13D46D5EC94DF5901 /* PropertyNames.cpp */,
 				6A415A5997D624100725B1D8 /* Protocol.cpp */,
@@ -5913,7 +5871,6 @@
 				B0B942B456B1E4EE517FB764 /* RouterInfo.cpp */,
 				1CE08AA59DE74E59C93FAB21 /* Selector.cpp */,
 				286E59C37340F775F544074C /* ServantLocator.cpp */,
-				F185C8BD6EC406D94C1A9B4C /* ServantLocatorF.cpp */,
 				C6081CC4E8FB0206FC688AB2 /* ServantManager.cpp */,
 				E95811B7B6BA237AE12373B6 /* Service.cpp */,
 				4868245FDBBA16FAB3922A77 /* SHA1.cpp */,
@@ -5938,7 +5895,6 @@
 				0B240A8CED79AC42BC48F09E /* Value.cpp */,
 				971D74619547F0F02ED5ADF8 /* ValueFactory.cpp */,
 				017E6DD03B79366676B9CB4E /* ValueFactoryManagerI.cpp */,
-				99285F9B328DE0AFAA313B17 /* Version.cpp */,
 				E994756AFEAF96C351428576 /* WSAcceptor.cpp */,
 				B676B84E753A0B5A3C4A9755 /* WSConnector.cpp */,
 				36B48178A7C83E8B86AE5FCF /* WSEndpoint.cpp */,
@@ -11569,11 +11525,9 @@
 				883349BB4A43516ABA692B37 /* BuiltinSequences.ice in Sources */,
 				945ACB8E4EB4F0995EA36C29 /* CollocatedRequestHandler.cpp in Sources */,
 				8C9CA3A6A7E80FFE4E04245E /* Communicator.cpp in Sources */,
-				1F887393785B437BF534015D /* CommunicatorF.cpp in Sources */,
 				DCC4A3E64992370FFD9EB228 /* CommunicatorI.cpp in Sources */,
 				06EC20E22A772CE3C6EB1847 /* Cond.cpp in Sources */,
 				08CCD70B9B3976E76A1D61C3 /* Connection.cpp in Sources */,
-				36940CD8ACB552A2E564C554 /* ConnectionF.cpp in Sources */,
 				332997B1580F2BAD47D8E794 /* ConnectionFactory.cpp in Sources */,
 				A196CA10FABB7EFC28CC2AC7 /* ConnectionI.cpp in Sources */,
 				ADEEE4DF9F13C4E8880F499F /* ConnectionRequestHandler.cpp in Sources */,
@@ -11590,7 +11544,6 @@
 				EEB7166C041412339A1CAA26 /* DynamicLibrary.cpp in Sources */,
 				FA1311E5EAD49CAE22892006 /* Encoding.ice in Sources */,
 				6FB2F0A05FDEDF83C3D6F17C /* Endpoint.cpp in Sources */,
-				818481A92AEF1F98FC7CAFCD /* EndpointF.cpp in Sources */,
 				E1B232F413C552ABCB5ADC06 /* EndpointFactory.cpp in Sources */,
 				74E87B5011FF72C2614F4E20 /* EndpointFactoryManager.cpp in Sources */,
 				D5005DB43C0C0680C7BFD687 /* EndpointI.cpp in Sources */,
@@ -11605,7 +11558,6 @@
 				002E92D2A5F4BC6C040E356F /* IconvStringConverter.cpp in Sources */,
 				F47EFFB498EF4242EBFFC22C /* Identity.ice in Sources */,
 				F88D38C949111342900DA737 /* ImplicitContext.cpp in Sources */,
-				8875CF5EB24CB923FA13BE73 /* ImplicitContextF.cpp in Sources */,
 				01BD87E04F3E865A34807FA6 /* ImplicitContextI.cpp in Sources */,
 				82AFAE8DF4CDAAF1BFAA5286 /* Incoming.cpp in Sources */,
 				7220F9303822BF845E02219D /* IncomingAsync.cpp in Sources */,
@@ -11614,7 +11566,6 @@
 				63795F5196C8E000550F7271 /* InputUtil.cpp in Sources */,
 				F242C8D8EFC13FFEE8D08744 /* Instance.cpp in Sources */,
 				5FCDFBDCD1ADE018774240A8 /* Instrumentation.cpp in Sources */,
-				154541442C8BED0CE9B4DA48 /* InstrumentationF.cpp in Sources */,
 				C8FE40DBE641821BFBCAB222 /* InstrumentationI.cpp in Sources */,
 				2D809E1D504A86BDF708C5F8 /* IPEndpointI.cpp in Sources */,
 				DED3AC875E160004A06B0AE9 /* LocalException.cpp in Sources */,
@@ -11624,7 +11575,6 @@
 				CF6233C001D88C462A45A740 /* LocatorInfo.cpp in Sources */,
 				387893E81BF8398DD0FC9E3A /* Logger.cpp in Sources */,
 				FB235C4095CE026B0553EF4A /* LoggerAdminI.cpp in Sources */,
-				960DA6037EB8E6383DEE0143 /* LoggerF.cpp in Sources */,
 				D2936EF6909E20FC0AB5C63C /* LoggerI.cpp in Sources */,
 				CE6B77ECC71D78F2FCEE7163 /* LoggerUtil.cpp in Sources */,
 				46F1FF0396B556FAB0012D5F /* Metrics.ice in Sources */,
@@ -11636,7 +11586,6 @@
 				E6561F1B5F3851467380494F /* Notifications.mm in Sources */,
 				07C02ACCAC3862C531649618 /* Object.cpp in Sources */,
 				AD4BAAEDE2A9D3B64C3AD2B0 /* ObjectAdapter.cpp in Sources */,
-				6563F222A678218899658EA1 /* ObjectAdapterF.cpp in Sources */,
 				6392FFEDDC68AFEC972759AB /* ObjectAdapterFactory.cpp in Sources */,
 				74B8E72ED748DF37245462F9 /* ObjectAdapterI.cpp in Sources */,
 				56CA853AF87EAA86FCF86E96 /* ObjectFactory.cpp in Sources */,
@@ -11648,14 +11597,12 @@
 				CB8C194C479AC1EC65337F6D /* OutputStream.cpp in Sources */,
 				4FF942C6F1DD12720CF850D0 /* OutputUtil.cpp in Sources */,
 				29AE2D025062134C3B0D7772 /* Plugin.cpp in Sources */,
-				AD8602598583EF49719E6EDD /* PluginF.cpp in Sources */,
 				624A979B4EE33BB9B78B4A78 /* PluginManagerI.cpp in Sources */,
 				D694C57A4E192767AEA7F2C0 /* Process.ice in Sources */,
 				6DA4B933F3583B342F07452B /* ProcessF.ice in Sources */,
 				F9D6C2A8C6B1C2CE226F98F3 /* Properties.cpp in Sources */,
 				FE6C2344043039D3FAF16DDF /* PropertiesAdmin.ice in Sources */,
 				378E22BBF70886B9C2B55D87 /* PropertiesAdminI.cpp in Sources */,
-				A95EF8A32DFF94F8421FF86C /* PropertiesF.cpp in Sources */,
 				A0AD0F4594D1279CA0142842 /* PropertiesI.cpp in Sources */,
 				DA0CFD01B10FD355DA5CCF07 /* PropertyNames.cpp in Sources */,
 				3208E0C03E4B7C2682DB1A65 /* Protocol.cpp in Sources */,
@@ -11679,7 +11626,6 @@
 				E1F9807108CA9FF0E54D8005 /* RouterInfo.cpp in Sources */,
 				13F3C57DA60A64921498873E /* Selector.cpp in Sources */,
 				2A64FF948A9B019D88B4A9A5 /* ServantLocator.cpp in Sources */,
-				16F90E73C5523161025FA660 /* ServantLocatorF.cpp in Sources */,
 				520392F6A4C63AAC33475DBD /* ServantManager.cpp in Sources */,
 				A7882BC4332809289C126B78 /* Service.cpp in Sources */,
 				68DCFF06A2E5AEEC3D6842EB /* SHA1.cpp in Sources */,
@@ -11711,7 +11657,6 @@
 				48363FF01BCB6391EB83D475 /* Value.cpp in Sources */,
 				E478920A2D5F4CFD4F9C0499 /* ValueFactory.cpp in Sources */,
 				9D3E0ADFA08312743CA198FD /* ValueFactoryManagerI.cpp in Sources */,
-				601DEDDBF18A9A1E994A0BA3 /* Version.cpp in Sources */,
 				693D0B6BF09EBB36D1EFB20B /* WSAcceptor.cpp in Sources */,
 				B6958B095DD0B1AC7E2B5878 /* WSConnector.cpp in Sources */,
 				E577CD106D0FED75CEBFC361 /* WSEndpoint.cpp in Sources */,
@@ -12372,11 +12317,9 @@
 				4F91AD95447522DACEDBC5BF /* BuiltinSequences.ice in Sources */,
 				204E4276833B8EF70CA63F22 /* CollocatedRequestHandler.cpp in Sources */,
 				DF0BA98A34DBE4897FB23D53 /* Communicator.cpp in Sources */,
-				B5AB91B11FFA207B885B05E0 /* CommunicatorF.cpp in Sources */,
 				4761267941776618604DA7A6 /* CommunicatorI.cpp in Sources */,
 				F5480A90C1BEB4DE862D2DBE /* Cond.cpp in Sources */,
 				C67D49940FE7B5309A88922E /* Connection.cpp in Sources */,
-				B28B8B1A7FC2E8C1E979630A /* ConnectionF.cpp in Sources */,
 				C759546D9136903CB0F9FE1F /* ConnectionFactory.cpp in Sources */,
 				52C59F15C3046ACC4277A6F3 /* ConnectionI.cpp in Sources */,
 				A59BBFCF227808C89470DFA6 /* ConnectionRequestHandler.cpp in Sources */,
@@ -12393,7 +12336,6 @@
 				CCBCA03A9364A3913C3F75B5 /* DynamicLibrary.cpp in Sources */,
 				3839A431DC7B3F4624C160AC /* Encoding.ice in Sources */,
 				1122ABDAE15CBA9135BB23C2 /* Endpoint.cpp in Sources */,
-				4BE3E32EC15F7A61DA979EA5 /* EndpointF.cpp in Sources */,
 				92EACD09191579A919614621 /* EndpointFactory.cpp in Sources */,
 				D3A17E3E9C154541C825B8CD /* EndpointFactoryManager.cpp in Sources */,
 				C0C8980547C4E98178FC9E3B /* EndpointI.cpp in Sources */,
@@ -12408,7 +12350,6 @@
 				CA9FB873292B40B56329B6E3 /* IconvStringConverter.cpp in Sources */,
 				C18CA6828D5684824A0D48E3 /* Identity.ice in Sources */,
 				09C68724CCAC02701161C72A /* ImplicitContext.cpp in Sources */,
-				0D6053BFE68E792796030C02 /* ImplicitContextF.cpp in Sources */,
 				8D78084DFB567271241DAB12 /* ImplicitContextI.cpp in Sources */,
 				064DEF2AF31164923DD3D988 /* Incoming.cpp in Sources */,
 				2078ADF034FF02B8A3E877BF /* IncomingAsync.cpp in Sources */,
@@ -12417,7 +12358,6 @@
 				615CDDC91195443995AAFCB5 /* InputUtil.cpp in Sources */,
 				945A8A758FAC58FB4193C785 /* Instance.cpp in Sources */,
 				E1A8FD53F8EFABD259087AD6 /* Instrumentation.cpp in Sources */,
-				9B7AEE20CF0711BAE71FD8DD /* InstrumentationF.cpp in Sources */,
 				E95A8126C597BB1995432F43 /* InstrumentationI.cpp in Sources */,
 				6E3F7ADA5FC869102A224214 /* IPEndpointI.cpp in Sources */,
 				7258B1FB0E493BE93C5B1422 /* LocalException.cpp in Sources */,
@@ -12427,7 +12367,6 @@
 				DD5F4367BA80E6DEA3CF653C /* LocatorInfo.cpp in Sources */,
 				447880509373DFA113AB29D4 /* Logger.cpp in Sources */,
 				AF4659B8C2C8F707AFD5F80C /* LoggerAdminI.cpp in Sources */,
-				86066193E5AA4BC6FB06AA13 /* LoggerF.cpp in Sources */,
 				3D38D84B687C8E4DD4A1CE00 /* LoggerI.cpp in Sources */,
 				7DF5C11B29FE56E08523AC4D /* LoggerUtil.cpp in Sources */,
 				90C2D23983FAD29598956A2C /* Metrics.ice in Sources */,
@@ -12438,7 +12377,6 @@
 				DA6A3349D102443CE61ECC1F /* NetworkProxy.cpp in Sources */,
 				7C2FF8F4B99A5B111D713D78 /* Object.cpp in Sources */,
 				331C1E36748DB3C78A0D44E6 /* ObjectAdapter.cpp in Sources */,
-				70649A6DCA512987665C5B73 /* ObjectAdapterF.cpp in Sources */,
 				D2DE16E3A4B87E6E8018862C /* ObjectAdapterFactory.cpp in Sources */,
 				188FE79B9D39B55F33EA20B2 /* ObjectAdapterI.cpp in Sources */,
 				34F2DF9CD616C44715E6FA30 /* ObjectFactory.cpp in Sources */,
@@ -12450,14 +12388,12 @@
 				4016BC208970138F76009796 /* OutputStream.cpp in Sources */,
 				E7666A0A3D28DC964A40BC06 /* OutputUtil.cpp in Sources */,
 				EC7FB92E23A7094BCB987861 /* Plugin.cpp in Sources */,
-				B098A740955E1F026C9A4E96 /* PluginF.cpp in Sources */,
 				D52B9F30FD6661486B852DED /* PluginManagerI.cpp in Sources */,
 				E385899DB1E9CB8B18E48C0D /* Process.ice in Sources */,
 				0DE362CF326A389D7E5346AA /* ProcessF.ice in Sources */,
 				644C83C18C2C017F34CA01C9 /* Properties.cpp in Sources */,
 				72EE2C80E5C7C58EB96ABDA9 /* PropertiesAdmin.ice in Sources */,
 				DD89FC4FC6941089DE672A0E /* PropertiesAdminI.cpp in Sources */,
-				A70B689B773BB4A39A39DF75 /* PropertiesF.cpp in Sources */,
 				63E994E186AAE7678E049F5A /* PropertiesI.cpp in Sources */,
 				801650D54CA398BF307C27E4 /* PropertyNames.cpp in Sources */,
 				278C0CB7D8113B71E4D59F48 /* Protocol.cpp in Sources */,
@@ -12481,7 +12417,6 @@
 				16355118678819C870E4C31F /* RouterInfo.cpp in Sources */,
 				E2321828DBF1A73A519E57A6 /* Selector.cpp in Sources */,
 				5FF45E13A30522BCD46F0690 /* ServantLocator.cpp in Sources */,
-				4FD9E49B70BE5DCC1EC93A16 /* ServantLocatorF.cpp in Sources */,
 				3F3E1E44E347E825CF7611CF /* ServantManager.cpp in Sources */,
 				6E5AEA3792E9C966C36D70FA /* Service.cpp in Sources */,
 				0E191DB4DEED2D2195E36BA6 /* SHA1.cpp in Sources */,
@@ -12513,7 +12448,6 @@
 				D95A49A3373961CC02B5A39E /* Value.cpp in Sources */,
 				CF3E05815DA2B59FD8B3DBEF /* ValueFactory.cpp in Sources */,
 				6E7315716B2B19BFD5BB37B6 /* ValueFactoryManagerI.cpp in Sources */,
-				D135C698D3ED3399504F2128 /* Version.cpp in Sources */,
 				E502ABFFCCDE40C3291F6784 /* WSAcceptor.cpp in Sources */,
 				939BD16D02A9BB093CAFCE36 /* WSConnector.cpp in Sources */,
 				402D24F75BA39E8BE26C7927 /* WSEndpoint.cpp in Sources */,

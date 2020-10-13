@@ -12,7 +12,6 @@
 #include <Thread.h>
 #include <Types.h>
 #include <Util.h>
-#include <Ice/ConnectionAsync.h>
 
 using namespace std;
 using namespace IcePy;

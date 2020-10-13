@@ -13,7 +13,6 @@
 #include <Ice/Router.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
-#include <Ice/Functional.h>
 #include <Ice/ConnectionI.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/LoggerUtil.h>
