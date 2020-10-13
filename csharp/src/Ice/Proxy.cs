@@ -326,6 +326,7 @@ namespace ZeroC.Ice
                                                                                      request.Operation,
                                                                                      request.Context);
                 int retryCount = 0;
+                bool increasedRetryBufferSize = false;
                 try
                 {
                     IncomingResponseFrame? response = null;
@@ -458,6 +459,7 @@ namespace ZeroC.Ice
 
                                 if (!reference.Communicator.IncRetryBufferSize(request.Size))
                                 {
+                                    increasedRetryBufferSize = true;
                                     if (reference.Communicator.TraceLevels.Retry >= 1)
                                     {
                                         reference.Communicator.Logger.Trace(
@@ -523,7 +525,7 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    if (retryCount > 0)
+                    if (retryCount > 0 && increasedRetryBufferSize)
                     {
                         reference.Communicator.DecRetryBufferSize(request.Size);
                     }
