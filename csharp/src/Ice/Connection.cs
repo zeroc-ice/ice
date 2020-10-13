@@ -133,16 +133,22 @@ namespace ZeroC.Ice
 
         /// <summary>Manually closes the connection using the specified closure mode.</summary>
         /// <param name="mode">Determines how the connection will be closed.</param>
-        public void Close(ConnectionClose mode)
+        public void Close(ConnectionClose mode) =>
+            // TODO: Temporary, remove by just making public GoAwayAsync and AbortAsync.
+            CloseAsync(mode);
+
+        /// <summary>Manually closes asynchronously the connection using the specified closure mode.</summary>
+        /// <param name="mode">Determines how the connection will be closed.</param>
+        public Task CloseAsync(ConnectionClose mode)
         {
             if (mode == ConnectionClose.Forcefully)
             {
-                _ = AbortAsync(new ConnectionClosedLocallyException("connection closed forcefully"));
+                return AbortAsync(new ConnectionClosedLocallyException("connection closed forcefully"));
             }
             else
             {
                 Debug.Assert(mode == ConnectionClose.Gracefully);
-                _ = GoAwayAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
+                return GoAwayAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
             }
         }
 

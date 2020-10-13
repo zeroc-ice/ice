@@ -42,6 +42,7 @@ interface TestIntf
     [amd] void opWithUEAsyncDispatch();
 
     int set(int value);
+    [oneway] void setOneway(int previous, int value);
 }
 
 module Outer::Inner

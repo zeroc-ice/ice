@@ -6,15 +6,15 @@ namespace ZeroC.Ice
     {
         internal enum FrameType : byte
         {
-            Initialize = 0x01,
-            InitializeAck = 0x02,
-            Version = 0x03,
-            Ping = 0x04,
-            Pong = 0x05,
-            Stream = 0x06,
-            StreamLast = 0x07,
-            StreamReset = 0x08,
-            StreamUnidirectionalFin = 0x09,
+            Initialize = 1,
+            InitializeAck = 2,
+            Version = 3,
+            Ping = 4,
+            Pong = 5,
+            Stream = 6,
+            StreamLast = 7,
+            StreamReset = 8,
+            StreamUnidirectionalFin = 9,
         }
 
         // The header below is a sentinel header used to reserve space in the protocol frame to avoid

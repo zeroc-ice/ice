@@ -533,9 +533,8 @@ namespace ZeroC.Ice.Test.AMI
                             TestHelper.Assert(previous == expected);
                             expected = j;
                         }
-                        serialized.GetConnection().Close(ConnectionClose.Gracefully);
+                        await serialized.GetConnection().CloseAsync(ConnectionClose.Gracefully);
                     }
-                    output.WriteLine("ok");
                 }
                 catch (ObjectNotExistException)
                 {
@@ -546,6 +545,40 @@ namespace ZeroC.Ice.Test.AMI
                     output.WriteLine($"unexpected exception {ex}");
                     TestHelper.Assert(false);
                 }
+
+                try
+                {
+                    var tasks = new Task[20];
+                    serialized.Set(-1);
+                    var context = new Dictionary<string, string>();
+                    for (int i = 0; i < 50; ++i)
+                    {
+                        // Async serialization only works once the connection is established and if there's no retries
+                        serialized.IcePing();
+                        for (int j = 0; j < tasks.Length; ++j)
+                        {
+                            context["value"] = (i * tasks.Length + j).ToString(); // This is for debugging
+                            tasks[j] = serialized.SetOnewayAsync(i * tasks.Length + j - 1,
+                                                                 i * tasks.Length + j,
+                                                                 context);
+                        }
+                        for (int j = 0; j < tasks.Length; ++j)
+                        {
+                            await tasks[j].ConfigureAwait(false);
+                        }
+                        await serialized.GetConnection().CloseAsync(ConnectionClose.Gracefully);
+                    }
+                }
+                catch (ObjectNotExistException)
+                {
+                    output.WriteLine("not supported");
+                }
+                catch (Exception ex)
+                {
+                    output.WriteLine($"unexpected exception {ex}");
+                    TestHelper.Assert(false);
+                }
+                output.WriteLine("ok");
             }).Wait();
 
             output.Write("testing async Task cancellation... ");
@@ -751,10 +784,9 @@ namespace ZeroC.Ice.Test.AMI
                     p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
                     Connection con = p.GetConnection();
                     var cb = new CallbackBase();
-                    Task t = p.StartDispatchAsync(
-                        progress: new Progress(sentSynchronously => cb.Called()));
+                    Task t = p.StartDispatchAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
-                    con.Close(ConnectionClose.Gracefully);
+                    _ = con.CloseAsync(ConnectionClose.Gracefully);
                     try
                     {
                         t.Wait();
@@ -772,7 +804,7 @@ namespace ZeroC.Ice.Test.AMI
                     cb = new CallbackBase();
                     con.Closed += (sender, args) => cb.Called();
                     t = p.SleepAsync(100);
-                    p.Close(CloseMode.Gracefully); // Close is delayed until sleep completes.
+                    _ = p.CloseAsync(CloseMode.Gracefully); // Close is delayed until sleep completes.
                     cb.Check();
                     t.Wait();
                 }

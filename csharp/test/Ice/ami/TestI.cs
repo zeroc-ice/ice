@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.AMI
         }
 
         public void Close(CloseMode mode, Current current, CancellationToken cancel) =>
-            current.Connection.Close((ConnectionClose)(int)mode);
+            _ = current.Connection.CloseAsync((ConnectionClose)(int)mode);
 
         public void Sleep(int ms, Current current, CancellationToken cancel)
         {
@@ -129,6 +129,17 @@ namespace ZeroC.Ice.Test.AMI
             _value = newValue;
             return oldValue;
         }
+
+        public void SetOneway(int previousValue, int newValue, Current current, CancellationToken cancel)
+        {
+            if (_value != previousValue)
+            {
+                System.Console.Error.WriteLine($"previous value `{_value}' is not the expected value `{previousValue}'");
+            }
+            TestHelper.Assert(_value == previousValue);
+            _value = newValue;
+        }
+
         private bool _shutdown;
         private TaskCompletionSource<object?>? _pending;
         private int _value;
