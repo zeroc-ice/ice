@@ -326,6 +326,13 @@ namespace ZeroC.Ice
                                                                                      request.Operation,
                                                                                      request.Context);
                 int retryCount = 0;
+                // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
+                // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
+                // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
+                int requestSize = request.Size;
+                bool releaseRequestAfterSent =
+                    requestSize > reference.Communicator.RetryRequestSizeMax ||
+                    !reference.Communicator.IncRetryBufferSize(requestSize);
                 try
                 {
                     IncomingResponseFrame? response = null;
@@ -334,7 +341,18 @@ namespace ZeroC.Ice
                     while (retryCount < reference.Communicator.RetryMaxAttempts)
                     {
                         IRequestHandler? handler = null;
-                        var progressWrapper = new ProgressWrapper(progress);
+                        var progressWrapper = new ProgressWrapper(
+                            sentSynchronously =>
+                            {
+                                if (releaseRequestAfterSent)
+                                {
+                                    // TODO release the request
+                                }
+                                if (progress != null)
+                                {
+                                    Task.Run(() => progress.Report(sentSynchronously));
+                                }
+                            });
                         RetryPolicy retryPolicy = RetryPolicy.NoRetry;
                         try
                         {
@@ -351,7 +369,7 @@ namespace ZeroC.Ice
                                                                       progressWrapper,
                                                                       cancel).ConfigureAwait(false);
                             lastException = null;
-                            if (response.ResultType != ResultType.Failure)
+                            if (releaseRequestAfterSent || response.ResultType != ResultType.Failure)
                             {
                                 return response;
                             }
@@ -391,7 +409,7 @@ namespace ZeroC.Ice
                                 reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
                             }
 
-                            // Retry transport exceptions if the request is idempotent or was not send
+                            // Retry transport exceptions if the request is idempotent or it was not sent
                             if (request.IsIdempotent || !progressWrapper.IsSent)
                             {
                                 lastException = ex;
@@ -405,7 +423,9 @@ namespace ZeroC.Ice
 
                         if (lastException == null)
                         {
-                            Debug.Assert(response != null && response.ResultType == ResultType.Failure);
+                            Debug.Assert(response != null &&
+                                         response.ResultType == ResultType.Failure &&
+                                         !releaseRequestAfterSent);
                             observer?.RemoteException();
                             if (response.ReadIce1SystemException(proxy.Communicator) is Exception systemException &&
                                 systemException is ObjectNotExistException one)
@@ -437,37 +457,12 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        if (retryPolicy.Retryable == Retryable.No)
+                        if (releaseRequestAfterSent || retryPolicy.Retryable == Retryable.No)
                         {
                             break; // We cannot retry
                         }
                         else if (++retryCount < reference.Communicator.RetryMaxAttempts)
                         {
-                            if (retryCount == 1)
-                            {
-                                if (request.Size > reference.Communicator.RetryRequestSizeMax)
-                                {
-                                    if (reference.Communicator.TraceLevels.Retry >= 1)
-                                    {
-                                        reference.Communicator.Logger.Trace(
-                                            reference.Communicator.TraceLevels.RetryCategory,
-                                            "cannot retry operation call: it exceeds Ice.RetryRequestSizeMax");
-                                    }
-                                    break;
-                                }
-
-                                if (!reference.Communicator.IncRetryBufferSize(request.Size))
-                                {
-                                    if (reference.Communicator.TraceLevels.Retry >= 1)
-                                    {
-                                        reference.Communicator.Logger.Trace(
-                                            reference.Communicator.TraceLevels.RetryCategory,
-                                            "cannot retry operation call: it exceeds Ice.RetryBufferSizeMax");
-                                    }
-                                    break;
-                                }
-                            }
-
                             if (handler is Connection connection)
                             {
                                 if (retryPolicy.Retryable == Retryable.OtherReplica)
@@ -523,10 +518,11 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    if (retryCount > 0)
+                    if (!releaseRequestAfterSent)
                     {
-                        reference.Communicator.DecRetryBufferSize(request.Size);
+                        reference.Communicator.DecRetryBufferSize(requestSize);
                     }
+                    // TODO release the request memory if not already done after sent
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
@@ -573,18 +569,15 @@ namespace ZeroC.Ice
         private class ProgressWrapper : IProgress<bool>
         {
             internal bool IsSent { get; private set; }
-            private readonly IProgress<bool>? _progress;
+            private readonly Action<bool> _progress;
 
             public void Report(bool sentSynchronously)
             {
-                if (_progress != null)
-                {
-                    Task.Run(() => _progress.Report(sentSynchronously));
-                }
+                _progress(sentSynchronously);
                 IsSent = true;
             }
 
-            internal ProgressWrapper(IProgress<bool>? progress) => _progress = progress;
+            internal ProgressWrapper(Action<bool> progress) => _progress = progress;
         }
     }
 }
