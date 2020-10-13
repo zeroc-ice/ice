@@ -9,7 +9,7 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/ProcessF.ice>
+#include <Ice/Process.ice>
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>

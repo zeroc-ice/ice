@@ -9,7 +9,6 @@
         "Ice/LocatorF.ice",
         "Ice/Metrics.ice",
         "Ice/Process.ice",
-        "Ice/ProcessF.ice",
         "Ice/PropertiesAdmin.ice",
         "Ice/RemoteLogger.ice",
         "Ice/Router.ice",
