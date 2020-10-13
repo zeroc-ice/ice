@@ -23,13 +23,13 @@ namespace ZeroC.Ice.Test.Metrics
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("metrics", new MetricsAsync());
+            adapter.Add("metrics", new AsyncMetrics());
             await adapter.ActivateAsync();
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
             ObjectAdapter adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
-            adapter2.Add("metrics", new MetricsAsync());
+            adapter2.Add("metrics", new AsyncMetrics());
             await adapter2.ActivateAsync();
 
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));

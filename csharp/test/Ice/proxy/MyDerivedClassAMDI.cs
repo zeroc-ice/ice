@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Proxy
 {
-    public sealed class MyDerivedClassAsync : IMyDerivedClassAsync
+    public sealed class AsyncMyDerivedClass : IAsyncMyDerivedClass
     {
         public ValueTask<IObjectPrx?> EchoAsync(IObjectPrx? obj, Current c, CancellationToken cancel) =>
             new ValueTask<IObjectPrx?>(obj);

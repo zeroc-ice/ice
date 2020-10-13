@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Metrics
 {
-    public sealed class MetricsAsync : IMetricsAsync
+    public sealed class AsyncMetrics : IAsyncMetrics
     {
         public ValueTask OpAsync(Current current, CancellationToken cancel) => default;
 

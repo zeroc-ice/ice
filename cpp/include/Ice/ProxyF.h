@@ -6,7 +6,6 @@
 #define ICE_PROXY_F_H
 
 #include <Ice/Config.h>
-#include <Ice/ProxyHandle.h>
 
 namespace Ice
 {

@@ -35,8 +35,8 @@ std::string paramName(const MemberPtr& param, const std::string& prefix = "");
 std::string paramTypeStr(const MemberPtr& param, bool readOnly = false);
 
 std::string fieldName(const MemberPtr&);
-std::string interfaceName(const InterfaceDeclPtr&);
-std::string interfaceName(const InterfaceDefPtr&);
+std::string interfaceName(const InterfaceDeclPtr&, bool isAsync = false);
+std::string interfaceName(const InterfaceDefPtr&, bool isAsync = false);
 
 std::string helperName(const TypePtr&, const std::string&);
 

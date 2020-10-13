@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
-    public sealed class MyDerivedClassAsync : IMyDerivedClassAsync
+    public sealed class AsyncMyDerivedClass : IAsyncMyDerivedClass
     {
         private readonly object _mutex = new object();
         private int _opByteSOnewayCallCount;

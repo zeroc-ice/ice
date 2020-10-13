@@ -326,6 +326,7 @@ namespace ZeroC.Ice
                                                                                      request.Operation,
                                                                                      request.Context);
                 int retryCount = 0;
+
                 // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
                 // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
                 // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
