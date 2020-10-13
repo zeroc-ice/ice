@@ -457,7 +457,8 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        if (releaseRequestAfterSent || retryPolicy.Retryable == Retryable.No)
+                        if ((progressWrapper.IsSent && releaseRequestAfterSent) ||
+                            retryPolicy.Retryable == Retryable.No)
                         {
                             break; // We cannot retry
                         }
