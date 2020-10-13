@@ -5,14 +5,10 @@ Identity.d.ts
 Identity.js
 Locator.d.ts
 Locator.js
-LocatorF.d.ts
-LocatorF.js
 Metrics.d.ts
 Metrics.js
 Process.d.ts
 Process.js
-ProcessF.d.ts
-ProcessF.js
 PropertiesAdmin.d.ts
 PropertiesAdmin.js
 RemoteLogger.d.ts

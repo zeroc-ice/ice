@@ -10,7 +10,7 @@
         "Ice/Process.ice",
         "Ice/PropertiesAdmin.ice",
         "Ice/RemoteLogger.ice",
-        "Ice/Router.ice",
+        "Ice/Router.ice"
     ],
 
     "common": [
