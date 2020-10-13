@@ -17,8 +17,6 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BatchRequestQueueF.h>
-//#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
-//#include <Ice/LocatorF.h> // Can't include LocatorF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/OutgoingAsync.h>
