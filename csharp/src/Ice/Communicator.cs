@@ -1078,7 +1078,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                Debug.Assert(size >= _retryBufferSize);
+                Debug.Assert(size <= _retryBufferSize);
                 _retryBufferSize -= size;
             }
         }
