@@ -450,10 +450,10 @@ namespace ZeroC.Ice
                 TraceLevels = new TraceLevels(this);
 
                 DefaultInvocationTimeout =
-                    GetPropertyAsTimeSpan("Ice.DefaultInvocationTimeout") ?? TimeSpan.FromSeconds(60);
+                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? TimeSpan.FromSeconds(60);
                 if (DefaultInvocationTimeout == TimeSpan.Zero)
                 {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.DefaultInvocationTimeout");
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";

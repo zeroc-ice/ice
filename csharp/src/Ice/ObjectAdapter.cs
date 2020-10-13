@@ -1092,7 +1092,6 @@ namespace ZeroC.Ice
                                      facet: facet,
                                      identity: identity,
                                      invocationMode: _invocationMode,
-                                     invocationTimeout: Communicator.DefaultInvocationTimeout,
                                      location: location,
                                      protocol: _publishedEndpoints.Count > 0 ?
                                                _publishedEndpoints[0].Protocol : Protocol);

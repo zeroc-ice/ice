@@ -219,8 +219,9 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                 compress: false,
                                                                 format: default,
                                                                 context: null,
+                                                                cancel: default,
                                                                 token,
-                                                                Token.IceWriter);
+                                                                writer: Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
                     request.AddBinaryContextEntry(
@@ -257,6 +258,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                             compress: false,
                                                             format: default,
                                                             context: null,
+                                                            cancel: default,
                                                             token,
                                                             Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
@@ -275,6 +277,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                             compress: false,
                                                             format: default,
                                                             context: null,
+                                                            cancel: default,
                                                             token,
                                                             Token.IceWriter);
 
@@ -297,6 +300,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                             compress: false,
                                                             format: default,
                                                             context: null,
+                                                            cancel: default,
                                                             token,
                                                             Token.IceWriter);
                 try

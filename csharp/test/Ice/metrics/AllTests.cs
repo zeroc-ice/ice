@@ -1149,7 +1149,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else
             {
-                TestAttribute(clientMetrics, clientProps, update, "Invocation", "id", $"ice:metrics [op]", op, output);
+                TestAttribute(clientMetrics, clientProps, update, "Invocation", "id", $"ice:metrics?invocation-timeout=1m [op]", op, output);
             }
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
@@ -1165,8 +1165,14 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else
             {
-                TestAttribute(clientMetrics, clientProps, update, "Invocation", "proxy", $"{endpoint}/metrics", op,
-                    output);
+                TestAttribute(clientMetrics,
+                              clientProps,
+                              update,
+                              "Invocation",
+                              "proxy",
+                              $"{endpoint}/metrics?invocation-timeout=1m",
+                              op,
+                              output);
             }
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);

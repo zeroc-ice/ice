@@ -87,7 +87,7 @@ namespace ZeroC.Ice
             string facet;
             Identity identity;
             InvocationMode invocationMode = InvocationMode.Twoway;
-            TimeSpan? invocationTimeout;
+            TimeSpan? invocationTimeout = null;
             IReadOnlyList<string> location;
             Protocol protocol;
 
@@ -138,7 +138,7 @@ namespace ZeroC.Ice
                 protocol = Protocol.Ice1;
                 string location0;
 
-                (identity, facet, invocationMode, invocationTimeout, encoding, location0, endpoints) =
+                (identity, facet, invocationMode, encoding, location0, endpoints) =
                     Ice1Parser.ParseProxy(proxyString, communicator);
 
                 // 0 or 1 segment
@@ -461,12 +461,6 @@ namespace ZeroC.Ice
                         break;
                 }
 
-                if (InvocationTimeout != Communicator.DefaultInvocationTimeout)
-                {
-                    sb.Append(" --invocationTimeout ");
-                    sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
-                }
-
                 // Always print the encoding version to ensure a stringified proxy will convert back to a proxy with the
                 // same encoding with StringToProxy. (Only needed for backwards compatibility).
                 sb.Append(" -e ");
@@ -555,12 +549,9 @@ namespace ZeroC.Ice
                     sb.Append(Encoding);
                 }
 
-                if (InvocationTimeout != Communicator.DefaultInvocationTimeout)
-                {
-                    StartQueryOption(sb, ref firstOption);
-                    sb.Append("invocation-timeout=");
-                    sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
-                }
+                StartQueryOption(sb, ref firstOption);
+                sb.Append("invocation-timeout=");
+                sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
 
                 if (Endpoints.Count > 1)
                 {
@@ -651,7 +642,6 @@ namespace ZeroC.Ice
                                      proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
                                      identity,
                                      proxyData.InvocationMode,
-                                     istr.Communicator!.DefaultInvocationTimeout,
                                      location: location0.Length > 0 ?
                                         ImmutableArray.Create(location0) : ImmutableArray<string>.Empty,
                                      proxyData.Protocol);
@@ -695,7 +685,6 @@ namespace ZeroC.Ice
                                      proxyData.Facet ?? "",
                                      proxyData.Identity,
                                      proxyData.InvocationMode ?? InvocationMode.Twoway,
-                                     istr.Communicator!.DefaultInvocationTimeout,
                                      (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
                                      protocol);
             }
@@ -709,7 +698,6 @@ namespace ZeroC.Ice
             string facet,
             Identity identity,
             InvocationMode invocationMode,
-            TimeSpan invocationTimeout,
             IReadOnlyList<string> location, // already a copy provided by Ice
             Protocol protocol)
             : this(cacheConnection: true,
@@ -722,7 +710,7 @@ namespace ZeroC.Ice
                    facet: facet,
                    identity: identity,
                    invocationMode: invocationMode,
-                   invocationTimeout: invocationTimeout,
+                   invocationTimeout: communicator.DefaultInvocationTimeout,
                    location: location,
                    locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
@@ -796,6 +784,11 @@ namespace ZeroC.Ice
                         $"{nameof(invocationMode)} applies only to ice1 proxies",
                         nameof(invocationMode));
                 }
+            }
+
+            if (invocationTimeout != null && invocationTimeout.Value == TimeSpan.Zero)
+            {
+                throw new ArgumentException("0 is not a valid value for invocationTimeout", nameof(invocationTimeout));
             }
 
             if (identityAndFacet != null && facet != null)
@@ -1198,11 +1191,17 @@ namespace ZeroC.Ice
             var properties = new Dictionary<string, string>
             {
                 [prefix] = ToString(),
-                [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
-                [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
-                [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
-                [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
+                [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "1" : "0",
+                [$"{prefix}.EndpointSelection"] = EndpointSelection.ToString(),
+                [$"{prefix}.LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
+                [$"{prefix}.PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
+
+            if (Protocol == Protocol.Ice1)
+            {
+                // For Ice2 the invocation timeout is included in the URI
+                properties[$"{prefix}.InvocationTimeout"] = TimeSpanExtensions.ToPropertyString(InvocationTimeout);
+            }
 
             if (RouterInfo != null)
             {

@@ -178,7 +178,6 @@ namespace ZeroC.Ice
         internal static (Identity Identity,
                          string Facet,
                          InvocationMode InvocationMode,
-                         TimeSpan? invocationTimeout,
                          Encoding Encoding,
                          string Location0,
                          IReadOnlyList<Endpoint> Endpoints) ParseProxy(string s, Communicator communicator)
@@ -223,7 +222,6 @@ namespace ZeroC.Ice
 
             string facet = "";
             InvocationMode invocationMode = InvocationMode.Twoway;
-            TimeSpan? invocationTimeout = null;
             Encoding encoding = Ice1Definitions.Encoding;
 
             while (true)
@@ -251,6 +249,10 @@ namespace ZeroC.Ice
                 }
 
                 string option = s[beg..end];
+                if (option.Length != 2 || option[0] != '-')
+                {
+                    throw new FormatException("expected a proxy option but found `{option}' in `{s}'");
+                }
 
                 // Check for the presence of an option argument. The argument may be enclosed in single or double
                 // quotation marks.
@@ -285,9 +287,9 @@ namespace ZeroC.Ice
                     }
                 }
 
-                switch (option)
+                switch (option[1])
                 {
-                    case "-f":
+                    case 'f':
                         if (argument == null)
                         {
                             throw new FormatException($"no argument provided for -f option in `{s}'");
@@ -295,7 +297,7 @@ namespace ZeroC.Ice
                         facet = StringUtil.UnescapeString(argument, 0, argument.Length, "");
                         break;
 
-                    case "-t":
+                    case 't':
                         if (argument != null)
                         {
                             throw new FormatException(
@@ -304,7 +306,7 @@ namespace ZeroC.Ice
                         invocationMode = InvocationMode.Twoway;
                         break;
 
-                    case "-o":
+                    case 'o':
                         if (argument != null)
                         {
                             throw new FormatException(
@@ -313,7 +315,7 @@ namespace ZeroC.Ice
                         invocationMode = InvocationMode.Oneway;
                         break;
 
-                    case "-O":
+                    case 'O':
                         if (argument != null)
                         {
                             throw new FormatException(
@@ -323,7 +325,7 @@ namespace ZeroC.Ice
                         invocationMode = InvocationMode.BatchOneway;
                         break;
 
-                    case "-d":
+                    case 'd':
                         if (argument != null)
                         {
                             throw new FormatException(
@@ -332,7 +334,7 @@ namespace ZeroC.Ice
                         invocationMode = InvocationMode.Datagram;
                         break;
 
-                    case "-D":
+                    case 'D':
                         if (argument != null)
                         {
                             throw new FormatException(
@@ -341,7 +343,7 @@ namespace ZeroC.Ice
                         invocationMode = InvocationMode.BatchDatagram;
                         break;
 
-                    case "-s":
+                    case 's':
                         if (argument != null)
                         {
                             throw new FormatException(
@@ -351,7 +353,7 @@ namespace ZeroC.Ice
                             $"while parsing `{s}': the `-s' proxy option no longer has any effect");
                         break;
 
-                    case "-e":
+                    case 'e':
                         if (argument == null)
                         {
                             throw new FormatException($"no argument provided for -e option in `{s}'");
@@ -359,7 +361,7 @@ namespace ZeroC.Ice
                         encoding = Encoding.Parse(argument);
                         break;
 
-                    case "-p":
+                    case 'p':
                         if (argument == null)
                         {
                             throw new FormatException($"no argument provided for -p option in `{s}'");
@@ -370,41 +372,14 @@ namespace ZeroC.Ice
                         }
                         break;
 
-                    case "--invocationTimeout":
-                        if (argument == null)
-                        {
-                            throw new FormatException($"no argument provided for --invocationTimeout option in `{s}'");
-                        }
-                        try
-                        {
-                            invocationTimeout = TimeSpanExtensions.Parse(argument);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new FormatException($"invalid value for --invocationTimeout option in `{s}'", ex);
-                        }
-
-                        if (invocationTimeout == TimeSpan.Zero)
-                        {
-                            throw new FormatException($"invalid value for --invocationTimeout option in `{s}'");
-                        }
-                        break;
-
                     default:
-                        throw new FormatException($"unknown option `{option}' in `{s}'");
+                        throw new FormatException("unknown option `{option}' in `{s}'");
                 }
             }
 
             if (beg == -1)
             {
-                return (
-                    identity,
-                    facet,
-                    invocationMode,
-                    invocationTimeout,
-                    encoding,
-                    Location0: "",
-                    ImmutableArray<Endpoint>.Empty);
+                return (identity, facet, invocationMode, encoding, Location0: "", ImmutableArray<Endpoint>.Empty);
             }
 
             var endpoints = new List<Endpoint>();
@@ -465,7 +440,7 @@ namespace ZeroC.Ice
                 }
 
                 Debug.Assert(endpoints.Count > 0);
-                return (identity, facet, invocationMode, invocationTimeout, encoding, Location0: "", endpoints);
+                return (identity, facet, invocationMode, encoding, Location0: "", endpoints);
             }
             else if (s[beg] == '@')
             {
@@ -510,14 +485,7 @@ namespace ZeroC.Ice
                     throw new FormatException($"empty location in proxy `{s}'");
                 }
 
-                return (
-                    identity,
-                    facet,
-                    invocationMode,
-                    invocationTimeout,
-                    encoding,
-                    location0,
-                    ImmutableArray<Endpoint>.Empty);
+                return (identity, facet, invocationMode, encoding, location0, ImmutableArray<Endpoint>.Empty);
             }
 
             throw new FormatException($"malformed proxy `{s}'");

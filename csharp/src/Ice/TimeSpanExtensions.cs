@@ -60,7 +60,7 @@ namespace ZeroC.Ice
                 return Timeout.InfiniteTimeSpan;
             }
 
-            // Match an integer followed letters
+            // Match an integer followed by one or more letters
             Match match = Regex.Match(s, @"^([0-9]+)([a-z]+)$");
 
             if (!match.Success)

@@ -348,7 +348,14 @@ namespace ZeroC.Ice.Test.Tagged
             initial.OpVoid();
 
             var requestFrame = OutgoingRequestFrame.WithArgs(
-                initial, "opVoid", idempotent: false, compress: false, format: default, context: null, (15, "test"),
+                initial,
+                "opVoid",
+                idempotent: false,
+                compress: false,
+                format: default,
+                context: null,
+                cancel: default,
+                (15, "test"),
                 (OutputStream ostr, in (int n, string s) value) =>
                 {
                     ostr.WriteTaggedInt(1, value.n);
@@ -490,7 +497,9 @@ namespace ZeroC.Ice.Test.Tagged
                     idempotent: false,
                     compress: false,
                     format: default,
-                    context: null, p1,
+                    context: null,
+                    cancel: default,
+                    p1,
                     (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -530,7 +539,9 @@ namespace ZeroC.Ice.Test.Tagged
                     idempotent: false,
                     compress: false,
                     format: default,
-                    context: null, p1,
+                    context: null,
+                    cancel: default,
+                    p1,
                     (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -570,7 +581,9 @@ namespace ZeroC.Ice.Test.Tagged
                     idempotent: false,
                     compress: false,
                     format: default,
-                    context: null, p1,
+                    context: null,
+                    cancel: default,
+                    p1,
                     (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -611,6 +624,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(1, p1));
 
@@ -651,6 +665,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, long? p1) => ostr.WriteTaggedLong(1, p1));
 
@@ -691,6 +706,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(1, p1));
 
@@ -732,6 +748,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(1, p1));
 
@@ -775,6 +792,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, string? p1) => ostr.WriteTaggedString(1, p1));
 
@@ -816,6 +834,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(1, (int?)p1));
 
@@ -854,6 +873,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(1, p1, 1));
 
@@ -893,6 +913,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(1, p1, 4));
 
@@ -936,6 +957,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, VarStruct? p1) =>
                     {
@@ -1000,6 +1022,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedArray(1, p1));
 
@@ -1038,6 +1061,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedArray(1, p1));
 
@@ -1076,6 +1100,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, short[]? p1) => ostr.WriteTaggedArray(1, p1));
 
@@ -1112,7 +1137,9 @@ namespace ZeroC.Ice.Test.Tagged
                     idempotent: false,
                     compress: false,
                     format: default,
-                    context: null, p1,
+                    context: null,
+                    cancel: default,
+                    p1,
                     (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1149,6 +1176,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, long[]? p1) => ostr.WriteTaggedArray(1, p1));
 
@@ -1186,6 +1214,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, float[]? p1) => ostr.WriteTaggedArray(1, p1));
 
@@ -1223,6 +1252,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, double[]? p1) => ostr.WriteTaggedArray(1, p1));
 
@@ -1261,6 +1291,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, string[]? p1) =>
                         ostr.WriteTaggedSequence(1, p1, (ost, s) => ostr.WriteString(s)));
@@ -1300,6 +1331,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, SmallStruct[]? p1) => ostr.WriteTaggedSequence(1, p1, 1,
                         (ostr, st) => ostr.WriteStruct(st)));
@@ -1344,6 +1376,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, List<SmallStruct>? p1) => ostr.WriteTaggedSequence(1, p1, 1,
                         (ostr, st) => ostr.WriteStruct(st)));
@@ -1393,6 +1426,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, FixedStruct[]? p1) => ostr.WriteTaggedSequence(1, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
@@ -1437,6 +1471,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, LinkedList<FixedStruct>? p1) => ostr.WriteTaggedSequence(1, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
@@ -1485,6 +1520,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, VarStruct[]? p1) =>
                         ostr.WriteTaggedSequence(1, p1, (ostr, vs) => ostr.WriteStruct(vs)));
@@ -1555,7 +1591,9 @@ namespace ZeroC.Ice.Test.Tagged
                     idempotent: false,
                     compress: false,
                     format: default,
-                    context: null, p1,
+                    context: null,
+                    cancel: default,
+                    p1,
                     (OutputStream ostr, Dictionary<int, int>? p1) => ostr.WriteTaggedDictionary(1, p1, 8,
                         (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteInt(v)));
 
@@ -1601,6 +1639,7 @@ namespace ZeroC.Ice.Test.Tagged
                     compress: false,
                     format: default,
                     context: null,
+                    cancel: default,
                     p1,
                     (OutputStream ostr, Dictionary<string, int>? p1) =>
                     {

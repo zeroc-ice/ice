@@ -32,18 +32,21 @@ namespace ZeroC.Ice.Test.Invoke
                     TestHelper.Assert(response.ResultType == ResultType.Success);
                 }
 
+                request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
                 response = cl.Invoke(request, oneway: false);
                 if (ice1)
                 {
                     TestHelper.Assert(response.ResultType == ResultType.Failure);
                 }
 
+                request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
                 response = oneway.Invoke(request, oneway: true);
                 if (ice1)
                 {
                     TestHelper.Assert(response.ResultType == ResultType.Success);
                 }
 
+                request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
                 response = oneway.Invoke(request, oneway: false);
                 if (ice1)
                 {
@@ -56,6 +59,7 @@ namespace ZeroC.Ice.Test.Invoke
                                                         compress: false,
                                                         format: default,
                                                         context: null,
+                                                        cancel: default,
                                                         TestString,
                                                         OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
@@ -118,6 +122,7 @@ namespace ZeroC.Ice.Test.Invoke
                                                         compress: false,
                                                         format: default,
                                                         context: null,
+                                                        cancel: default,
                                                         TestString,
                                                         OutputStream.IceWriterFromString);
 
