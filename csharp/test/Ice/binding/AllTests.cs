@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Test;
 
 namespace ZeroC.Ice.Test.Binding
@@ -436,36 +437,7 @@ namespace ZeroC.Ice.Test.Binding
                 catch (ConnectFailedException)
                 {
                 }
-
-                IReadOnlyList<Endpoint> endpoints = obj.Endpoints;
-
                 adapters.Clear();
-
-                // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
-                if (ice1)
-                {
-                    // Now, re-activate the adapters with the same endpoints in the opposite order.
-                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter36", endpoints[2].ToString()));
-                    for (int i = 0; i < 3; i++)
-                    {
-                        TestHelper.Assert(obj.GetAdapterName() == "Adapter36");
-                    }
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-
-                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter35", endpoints[1].ToString()));
-                    for (int i = 0; i < 3; i++)
-                    {
-                        TestHelper.Assert(obj.GetAdapterName() == "Adapter35");
-                    }
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-
-                    adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter34", endpoints[0].ToString()));
-                    for (int i = 0; i < 3; i++)
-                    {
-                        TestHelper.Assert(obj.GetAdapterName() == "Adapter34");
-                    }
-                    Deactivate(com, adapters);
-                }
             }
             output.WriteLine("ok");
 
@@ -819,160 +791,196 @@ namespace ZeroC.Ice.Test.Binding
                 output.Write("testing ipv4 & ipv6 connections... ");
                 output.Flush();
 
-                var ipv4 = new Dictionary<string, string>()
-                {
-                    { "IPv4", "1" },
-                    { "IPv6", "0" }
-                    };
-
-                var ipv6 = new Dictionary<string, string>()
-                {
-                    { "IPv4", "0" },
-                    { "IPv6", "1" }
-                };
-
-                var bothPreferIPv4 = new Dictionary<string, string>()
-                {
-                    { "IPv4", "1" },
-                    { "IPv6", "1" },
-                    { "PreferIPv6Address", "0" }
-                };
-
-                var bothPreferIPv6 = new Dictionary<string, string>()
-                {
-                    { "IPv4", "1" },
-                    { "IPv6", "1" },
-                    { "PreferIPv6Address", "1" }
-                };
-
-                Dictionary<string, string>[] clientProps =
-                {
-                    ipv4, ipv6, bothPreferIPv4, bothPreferIPv6
-                };
-
                 Func<string, string> getEndpoint = host =>
-                    TestHelper.GetTestEndpoint(new Dictionary<string, string>(communicator.GetProperties())
-                    {
-                        ["Test.Host"] = host
-                    },
-                    2,
-                    "tcp");
+                    TestHelper.GetTestEndpoint(
+                        new Dictionary<string, string>(communicator.GetProperties())
+                        {
+                            ["Test.Host"] = host
+                        },
+                        2,
+                        "tcp");
 
-                var anyipv4 = new Dictionary<string, string>(ipv4)
+                 Func<string, string, string> getProxy = (identity, host) =>
+                    TestHelper.GetTestProxy(
+                        identity,
+                        new Dictionary<string, string>(communicator.GetProperties())
+                        {
+                            ["Test.Host"] = host
+                        },
+                        2,
+                        "tcp");
+
+                var anyipv4 = new Dictionary<string, string>()
                 {
                     ["Adapter.Endpoints"] = getEndpoint("0.0.0.0"),
                     ["Adapter.PublishedEndpoints"] = getEndpoint("127.0.0.1")
                 };
 
-                var anyipv6 = new Dictionary<string, string>(ipv6)
+                var anyipv6 = new Dictionary<string, string>()
                 {
                     ["Adapter.Endpoints"] = getEndpoint("::0"),
                     ["Adapter.PublishedEndpoints"] = getEndpoint("::1")
                 };
 
-                var anyboth = new Dictionary<string, string>()
+                var anyipv46 = new Dictionary<string, string>()
                 {
-                    { "IPv4", "1" },
-                    { "IPv6", "1"},
+                    ["Adapter.Endpoints"] = getEndpoint("::0"),
+                    ["Adapter.PublishedEndpoints"] = getEndpoint("127.0.0.1")
+                };
+
+                var anylocalhost = new Dictionary<string, string>()
+                {
                     { "Adapter.Endpoints", getEndpoint("::0")},
                     { "Adapter.PublishedEndpoints", getEndpoint("localhost") }
                 };
 
-                var localipv4 = new Dictionary<string, string>(ipv4)
+                var localipv4 = new Dictionary<string, string>()
                 {
                     ["Adapter.Endpoints"] = getEndpoint("127.0.0.1")
                 };
 
-                var localipv6 = new Dictionary<string, string>(ipv6)
+                var localipv6 = new Dictionary<string, string>()
                 {
                     ["Adapter.Endpoints"] = getEndpoint("::1")
                 };
 
-                Dictionary<string, string>[] serverProps =
+                var localhost = new Dictionary<string, string>()
+                {
+                    ["Adapter.Endpoints"] = getEndpoint("localhost")
+                };
+
+                var serverProps = new Dictionary<string, string>[]
                 {
                     anyipv4,
                     anyipv6,
-                    anyboth,
+                    anyipv46,
+                    anylocalhost,
                     localipv4,
-                    localipv6
+                    localipv6,
+                    localhost
                 };
 
-                bool ipv6NotSupported = false;
                 foreach (Dictionary<string, string> p in serverProps)
                 {
-                    var serverCommunicator = new Communicator(p);
-                    ObjectAdapter oa;
-                    try
-                    {
-                        oa = serverCommunicator.CreateObjectAdapter("Adapter");
-                        oa.Activate();
-                    }
-                    catch (DNSException)
-                    {
-                        serverCommunicator.Dispose();
-                        continue; // IP version not supported.
-                    }
-                    catch (TransportException)
-                    {
-                        if (p == ipv6)
-                        {
-                            ipv6NotSupported = true;
-                        }
-                        serverCommunicator.Dispose();
-                        continue; // IP version not supported.
-                    }
+                    using var serverCommunicator = new Communicator(p);
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapter("Adapter");
+                    oa.Activate();
 
                     IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
                     try
                     {
+                        using var clientCommunicator = new Communicator();
+                        prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
                         prx.IcePing();
+                        TestHelper.Assert(false);
                     }
-                    catch (DNSException) // TODO: is this really an expected exception?
+                    catch (ObjectNotExistException)
                     {
-                        serverCommunicator.Dispose();
-                        continue;
+                        // Expected. OA is reachable but there's no "dummy" object
                     }
-                    catch (ObjectNotExistException) // TODO: is this really an expected exception?
+                }
+
+                // Test IPv6 dual mode socket
+                {
+                    using Communicator serverCommunicator = new Communicator();
+                    string endpoint = getEndpoint("::0");
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
+                    oa.Activate();
+
+                    try
                     {
-                        serverCommunicator.Dispose();
-                        continue;
+                        using ObjectAdapter ipv4OA =
+                            serverCommunicator.CreateObjectAdapterWithEndpoints(getEndpoint("0.0.0.0"));
+                        ipv4OA.Activate();
+                        TestHelper.Assert(false);
+                    }
+                    catch (TransportException)
+                    {
+                        // Expected. ::0 is a dual-mode socket so binding 0.0.0.0 will fail
                     }
 
-                    string strPrx = prx.ToString()!;
-                    foreach (Dictionary<string, string> q in clientProps)
+                    try
                     {
-                        var clientCommunicator = new Communicator(q);
-                        prx = IObjectPrx.Parse(strPrx, clientCommunicator);
-                        try
-                        {
-                            prx.IcePing();
-                            TestHelper.Assert(false);
-                        }
-                        catch (ObjectNotExistException)
-                        {
-                            // Expected, no object registered.
-                        }
-                        catch (DNSException)
-                        {
-                            // Expected if no IPv4 or IPv6 address is
-                            // associated to localhost or if trying to connect
-                            // to an any endpoint with the wrong IP version,
-                            // e.g.: resolving an IPv4 address when only IPv6
-                            // is enabled fails with a DNS exception.
-                        }
-                        catch (TransportException)
-                        {
-                            TestHelper.Assert((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
-                                (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
-                                (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
-                                (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
-                                (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
-                                (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
-                                (p == bothPreferIPv6 && q == ipv6));
-                        }
-                        clientCommunicator.Dispose();
+                        using Communicator clientCommunicator = new Communicator();
+                        var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
+                        prx.IcePing();
                     }
-                    serverCommunicator.Dispose();
+                    catch (ObjectNotExistException)
+                    {
+                        // Expected, no object registered.
+                    }
+                }
+
+                // Test IPv6 only socket
+                {
+                    using Communicator serverCommunicator = new Communicator();
+                    string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
+                    oa.Activate();
+
+                    // Returned endpoints must be IPv6
+                    {
+                        IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
+                        TestHelper.Assert(prx.Endpoints.Count > 0);
+                        TestHelper.Assert(prx.Endpoints.All(e => e.Host.Contains(":")));
+                    }
+
+                    // 0.0.0.0 can still be bound if ::0 is IPv6 only
+                    {
+                        string ipv4Endpoint = getEndpoint("0.0.0.0");
+                        using ObjectAdapter ipv4OA = serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
+                        ipv4OA.Activate();
+                    }
+
+                    try
+                    {
+                        using Communicator clientCommunicator = new Communicator();
+                        var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
+                        prx.IcePing();
+                        TestHelper.Assert(false);
+                    }
+                    catch (ConnectionRefusedException)
+                    {
+                        // Expected, server socket is IPv6 only.
+                    }
+                }
+
+                // Listen on IPv4 loopback with IPv6 dual mode socket
+                {
+                    using Communicator serverCommunicator = new Communicator();
+                    string endpoint = getEndpoint("::ffff:127.0.0.1");
+                    ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
+                    oa.Activate();
+
+                    try
+                    {
+                        string ipv4Endpoint = getEndpoint("127.0.0.1");
+                        using ObjectAdapter ipv4OA = serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
+                        ipv4OA.Activate();
+                        TestHelper.Assert(false);
+                    }
+                    catch (TransportException)
+                    {
+                        // Expected. 127.0.0.1 is already in use
+                    }
+
+                    // Returned endpoint must be IPv6
+                    {
+                        IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
+                        TestHelper.Assert(prx.Endpoints.Count == 1);
+                        TestHelper.Assert(prx.Endpoints.All(e => e.Host.Contains(":")));
+                    }
+
+                    try
+                    {
+                        using Communicator clientCommunicator = new Communicator();
+                        var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
+                        prx.IcePing();
+                    }
+                    catch (ObjectNotExistException)
+                    {
+                        // Expected, no object registered.
+                    }
                 }
 
                 output.WriteLine("ok");

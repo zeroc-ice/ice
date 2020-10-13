@@ -51,8 +51,7 @@ namespace ZeroC.Ice
     /// <summary>This exception reports an attempt to use a destroyed communicator.</summary>
     public class CommunicatorDisposedException : ObjectDisposedException
     {
-        /// <summary>Constructs a new instance of the <see cref="CommunicatorDisposedException"/> class with a specified
-        /// error message.</summary>
+        /// <summary>Constructs a new instance of the <see cref="CommunicatorDisposedException"/> class.</summary>
         public CommunicatorDisposedException()
             : base("")
         {
@@ -70,6 +69,11 @@ namespace ZeroC.Ice
     /// <summary>This exception reports that a proxy's endpoints could not be resolved.</summary>
     public class NoEndpointException : Exception
     {
+        /// <summary>Constructs a new instance of the <see cref="NoEndpointException"/> class.</summary>
+        public NoEndpointException()
+        {
+        }
+
         /// <summary>Constructs a new instance of the <see cref="NoEndpointException"/> class.</summary>
         /// <param name="stringifiedProxy">The stringified proxy that was the cause of this exception.</param>
         public NoEndpointException(string stringifiedProxy)
@@ -292,13 +296,14 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This is a purely Ice-internal exception used for retries.</summary>
-    public class RetryException : Exception
+    /// <summary>This exception indicates that an attempt was made to send a request using an
+    /// <see cref="IRequestHandler"/> that is no longer valid.</summary>
+    public class InvalidRequestHandlerException : Exception
     {
-        /// <summary>Constructs a new instance of the <see cref="RetryException"/> class with a reference to the inner
+        /// <summary>Constructs a new instance of the <see cref="InvalidRequestHandlerException"/> class with a reference to the inner
         /// exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        internal RetryException(Exception innerException)
+        internal InvalidRequestHandlerException(Exception innerException)
             : base("", innerException)
         {
         }

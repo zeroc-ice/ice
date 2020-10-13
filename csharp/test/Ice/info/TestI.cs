@@ -1,15 +1,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Info
 {
     public class TestIntf : ITestIntf
     {
-        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
 
-        public IReadOnlyDictionary<string, string> GetEndpointInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> GetEndpointInfoAsContext(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
@@ -32,7 +34,9 @@ namespace ZeroC.Ice.Test.Info
             return ctx;
         }
 
-        public IReadOnlyDictionary<string, string> GetConnectionInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> GetConnectionInfoAsContext(
+            Current current,
+            CancellationToken cancel)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>

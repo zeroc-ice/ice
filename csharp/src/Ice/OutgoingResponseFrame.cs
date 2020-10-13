@@ -310,6 +310,17 @@ namespace ZeroC.Ice
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
+            else if (Encoding == Encoding.V20 && exception.RetryPolicy.Retryable != Retryable.No)
+            {
+                AddBinaryContextEntry((int)BinaryContext.RetryPolicy, exception.RetryPolicy, (ostr, retryPolicy) =>
+                {
+                    ostr.Write(retryPolicy.Retryable);
+                    if (retryPolicy.Retryable == Retryable.AfterDelay)
+                    {
+                        ostr.WriteVarUInt((uint)retryPolicy.Delay.TotalMilliseconds);
+                    }
+                });
+            }
         }
 
         internal OutgoingResponseFrame(

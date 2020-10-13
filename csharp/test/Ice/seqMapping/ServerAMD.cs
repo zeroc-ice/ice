@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.SeqMapping
             await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("test", new MyClassAsync());
+            adapter.Add("test", new AsyncMyClass());
             await adapter.ActivateAsync();
             ServerReady();
             await communicator.WaitForShutdownAsync();

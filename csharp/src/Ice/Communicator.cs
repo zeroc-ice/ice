@@ -163,7 +163,12 @@ namespace ZeroC.Ice
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
-        internal int[] RetryIntervals { get; }
+
+        /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
+        /// invocation. It must be a number greater than 0.</summary>
+        internal int RetryMaxAttempts { get; }
+        internal int RetryBufferSizeMax { get; }
+        internal int RetryRequestSizeMax { get; }
         internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -210,13 +215,13 @@ namespace ZeroC.Ice
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
-        private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
-            new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
+
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
         private readonly ConcurrentDictionary<string, Func<string?, RemoteException>?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, Func<string?, RemoteException>?>();
+        private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
@@ -491,6 +496,17 @@ namespace ZeroC.Ice
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
+                RetryMaxAttempts = GetPropertyAsInt("Ice.RetryMaxAttempts") ?? 5;
+
+                if (RetryMaxAttempts <= 0)
+                {
+                    throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
+                }
+                RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
+
+                RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024 * 100;
+                RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
+
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
                 WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
                 WarnDispatch = GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
@@ -508,29 +524,6 @@ namespace ZeroC.Ice
                 ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
                 _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
-
-                string[]? arr = GetPropertyAsList("Ice.RetryIntervals");
-
-                if (arr == null)
-                {
-                    RetryIntervals = new int[] { 0 };
-                }
-                else
-                {
-                    RetryIntervals = new int[arr.Length];
-                    for (int i = 0; i < arr.Length; i++)
-                    {
-                        int v = int.Parse(arr[i], CultureInfo.InvariantCulture);
-                        // If -1 is the first value, no retry and wait intervals.
-                        if (i == 0 && v == -1)
-                        {
-                            RetryIntervals = Array.Empty<int>();
-                            break;
-                        }
-
-                        RetryIntervals[i] = v > 0 ? v : 0;
-                    }
-                }
 
                 PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
@@ -1081,6 +1074,15 @@ namespace ZeroC.Ice
         internal void AddInvocationInterceptor(InvocationInterceptor[] interceptors) =>
             _invocationInterceptors.AddRange(interceptors);
 
+        internal void DecRetryBufferSize(int size)
+        {
+            lock (_mutex)
+            {
+                Debug.Assert(size <= _retryBufferSize);
+                _retryBufferSize -= size;
+            }
+        }
+
         // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.
         internal (IEndpointFactory Factory, Transport Transport)? FindEndpointFactory(string transportName) =>
             _transportNameToEndpointFactory.TryGetValue(transportName,
@@ -1182,14 +1184,8 @@ namespace ZeroC.Ice
                 locator = locator.Clone(clearLocator: true, encoding: encoding);
             }
 
-            return _locatorInfoMap.GetOrAdd(locator, locatorKey =>
-            {
-                // Rely on locator identity and encoding for the adapter table. We want to have only one table per
-                // locator and encoding (not one per locator proxy).
-                LocatorTable table =
-                    _locatorTableMap.GetOrAdd((locatorKey.Identity, locatorKey.Encoding), key => new LocatorTable());
-                return new LocatorInfo(locatorKey, table, _backgroundLocatorCacheUpdates);
-            });
+            return _locatorInfoMap.GetOrAdd(locator,
+                                            locator => new LocatorInfo(locator, _backgroundLocatorCacheUpdates));
         }
 
         internal RouterInfo? GetRouterInfo(IRouterPrx? router)
@@ -1204,6 +1200,19 @@ namespace ZeroC.Ice
             {
                 return null;
             }
+        }
+
+        internal bool IncRetryBufferSize(int size)
+        {
+            lock (_mutex)
+            {
+                if (size + _retryBufferSize < RetryBufferSizeMax)
+                {
+                    _retryBufferSize += size;
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal OutgoingConnectionFactory OutgoingConnectionFactory { get; }

@@ -17,7 +17,6 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BatchRequestQueueF.h>
-#include <Ice/AsyncResult.h>
 #include <Ice/Current.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/OutgoingAsync.h>

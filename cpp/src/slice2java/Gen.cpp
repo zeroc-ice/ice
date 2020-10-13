@@ -4,7 +4,6 @@
 
 #include <Gen.h>
 #include <Slice/Util.h>
-#include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>

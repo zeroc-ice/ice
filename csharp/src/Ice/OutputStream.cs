@@ -1413,8 +1413,6 @@ namespace ZeroC.Ice
         private void RewriteFixedLengthSize11(int size, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
-            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
-                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
 
             Span<byte> data = stackalloc byte[4];
             MemoryMarshal.Write(data, ref size);
@@ -1428,9 +1426,6 @@ namespace ZeroC.Ice
         internal void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
-            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
-                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
-
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
 
             Span<byte> data = stackalloc byte[sizeLength];

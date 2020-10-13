@@ -79,8 +79,7 @@ class ICE_API Shared
 public:
 
     //
-    // Flag constant used by the Shared class. Derived classes
-    // such as GCObject define more flag constants.
+    // Flag constant used by the Shared class.
     //
     static const unsigned char NoDelete;
 

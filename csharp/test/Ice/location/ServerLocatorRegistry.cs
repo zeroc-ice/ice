@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -12,7 +13,11 @@ namespace ZeroC.Ice.Test.Location
         private readonly object _mutex = new object();
         private readonly Dictionary<Identity, IObjectPrx> _objects = new Dictionary<Identity, IObjectPrx>();
 
-        public ValueTask SetAdapterDirectProxyAsync(string adapter, IObjectPrx? obj, Current current)
+        public ValueTask SetAdapterDirectProxyAsync(
+            string adapter,
+            IObjectPrx? obj,
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -32,7 +37,8 @@ namespace ZeroC.Ice.Test.Location
             string adapter,
             string replica,
             IObjectPrx? obj,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -50,10 +56,13 @@ namespace ZeroC.Ice.Test.Location
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? proxy, Current current) =>
-            new ValueTask(Task.CompletedTask);
+        public ValueTask SetServerProcessProxyAsync(
+            string id,
+            IProcessPrx? proxy,
+            Current current,
+            CancellationToken cancel) => default;
 
-        public void AddObject(IObjectPrx? obj, Current current)
+        public void AddObject(IObjectPrx? obj, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(obj != null);
             AddObject(obj);

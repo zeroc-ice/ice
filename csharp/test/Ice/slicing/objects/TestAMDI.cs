@@ -2,35 +2,38 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Objects
 {
-    public sealed class TestIntfAsync : ITestIntfAsync
+    public sealed class AsyncTestIntf : IAsyncTestIntf
     {
-        public ValueTask ShutdownAsync(Current current)
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<AnyClass?> SBaseAsObjectAsync(Current current) =>
+        public ValueTask<AnyClass?> SBaseAsObjectAsync(Current current, CancellationToken cancel) =>
             new ValueTask<AnyClass?>(new SBase("SBase.sb"));
 
-        public ValueTask<SBase?> SBaseAsSBaseAsync(Current current) =>
+        public ValueTask<SBase?> SBaseAsSBaseAsync(Current current, CancellationToken cancel) =>
             new ValueTask<SBase?>(new SBase("SBase.sb"));
 
-        public ValueTask<SBase?> SBSKnownDerivedAsSBaseAsync(Current current) =>
+        public ValueTask<SBase?> SBSKnownDerivedAsSBaseAsync(Current current, CancellationToken cancel) =>
             new ValueTask<SBase?>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
-        public ValueTask<SBSKnownDerived?> SBSKnownDerivedAsSBSKnownDerivedAsync(Current current) =>
+        public ValueTask<SBSKnownDerived?> SBSKnownDerivedAsSBSKnownDerivedAsync(
+            Current current,
+            CancellationToken cancel) =>
             new ValueTask<SBSKnownDerived?>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
 
-        public ValueTask<SBase?> SBSUnknownDerivedAsSBaseAsync(Current current) =>
+        public ValueTask<SBase?> SBSUnknownDerivedAsSBaseAsync(Current current, CancellationToken cancel) =>
             new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
-        public ValueTask CUnknownAsSBaseAsync(SBase? cUnknown, Current current)
+        public ValueTask CUnknownAsSBaseAsync(SBase? cUnknown, Current current, CancellationToken cancel)
         {
             if (cUnknown!.Sb != "CUnknown.sb")
             {
@@ -39,17 +42,17 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ValueTask();
         }
 
-        public ValueTask<SBase?> SBSUnknownDerivedAsSBaseCompactAsync(Current current) =>
+        public ValueTask<SBase?> SBSUnknownDerivedAsSBaseCompactAsync(Current current, CancellationToken cancel) =>
             new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
 
-        public ValueTask<AnyClass?> SUnknownAsObjectAsync(Current current)
+        public ValueTask<AnyClass?> SUnknownAsObjectAsync(Current current, CancellationToken cancel)
         {
             var su = new SUnknown("SUnknown.su", null);
             su.Cycle = su;
             return new ValueTask<AnyClass?>(su);
         }
 
-        public ValueTask CheckSUnknownAsync(AnyClass? obj, Current current)
+        public ValueTask CheckSUnknownAsync(AnyClass? obj, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(obj != null);
             var su = (SUnknown)obj;
@@ -57,7 +60,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<B?> OneElementCycleAsync(Current current)
+        public ValueTask<B?> OneElementCycleAsync(Current current, CancellationToken cancel)
         {
             var b = new B();
             b.Sb = "B1.sb";
@@ -65,7 +68,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new (b);
         }
 
-        public ValueTask<B?> TwoElementCycleAsync(Current current)
+        public ValueTask<B?> TwoElementCycleAsync(Current current, CancellationToken cancel)
         {
             var b1 = new B();
             b1.Sb = "B1.sb";
@@ -76,7 +79,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new (b1);
         }
 
-        public ValueTask<B?> D1AsBAsync(Current current)
+        public ValueTask<B?> D1AsBAsync(Current current, CancellationToken cancel)
         {
             var d1 = new D1();
             d1.Sb = "D1.sb";
@@ -91,7 +94,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new (d1);
         }
 
-        public ValueTask<D1?> D1AsD1Async(Current current)
+        public ValueTask<D1?> D1AsD1Async(Current current, CancellationToken cancel)
         {
             var d1 = new D1();
             d1.Sb = "D1.sb";
@@ -106,7 +109,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new (d1);
         }
 
-        public ValueTask<B?> D2AsBAsync(Current current)
+        public ValueTask<B?> D2AsBAsync(Current current, CancellationToken cancel)
         {
             var d2 = new D2();
             d2.Sb = "D2.sb";
@@ -121,7 +124,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new (d2);
         }
 
-        public ValueTask<(B?, B?)> ParamTest1Async(Current current)
+        public ValueTask<(B?, B?)> ParamTest1Async(Current current, CancellationToken cancel)
         {
             var d1 = new D1();
             d1.Sb = "D1.sb";
@@ -136,7 +139,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((d1, d2));
         }
 
-        public ValueTask<(B?, B?)> ParamTest2Async(Current current)
+        public ValueTask<(B?, B?)> ParamTest2Async(Current current, CancellationToken cancel)
         {
             var d1 = new D1();
             d1.Sb = "D1.sb";
@@ -151,7 +154,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((d2, d1));
         }
 
-        public ValueTask<(B?, B?, B?)> ParamTest3Async(Current current)
+        public ValueTask<(B?, B?, B?)> ParamTest3Async(Current current, CancellationToken cancel)
         {
             var d2 = new D2();
             d2.Sb = "D2.sb (p1 1)";
@@ -180,7 +183,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((d3, d2, d4));
         }
 
-        public ValueTask<(B?, B?)> ParamTest4Async(Current current)
+        public ValueTask<(B?, B?)> ParamTest4Async(Current current, CancellationToken cancel)
         {
             var d4 = new D4();
             d4.Sb = "D4.sb (1)";
@@ -192,7 +195,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((d4.P2, d4));
         }
 
-        public ValueTask<(B?, B?, B?)> ReturnTest1Async(Current current)
+        public ValueTask<(B?, B?, B?)> ReturnTest1Async(Current current, CancellationToken cancel)
         {
             var d1 = new D1();
             d1.Sb = "D1.sb";
@@ -207,7 +210,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((d2, d2, d1));
         }
 
-        public ValueTask<(B?, B?, B?)> ReturnTest2Async(Current current)
+        public ValueTask<(B?, B?, B?)> ReturnTest2Async(Current current, CancellationToken cancel)
         {
             var d1 = new D1();
             d1.Sb = "D1.sb";
@@ -222,13 +225,15 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((d1, d1, d2));
         }
 
-        public ValueTask<B?> ReturnTest3Async(B? p1, B? p2, Current current) => new (p1);
+        public ValueTask<B?> ReturnTest3Async(B? p1, B? p2, Current current, CancellationToken cancel) => new (p1);
 
-        public ValueTask<SS3> SequenceTestAsync(SS1? p1, SS2? p2, Current current) => new (new SS3(p1, p2));
+        public ValueTask<SS3> SequenceTestAsync(SS1? p1, SS2? p2, Current current, CancellationToken cancel) =>
+            new (new SS3(p1, p2));
 
         public ValueTask<(IReadOnlyDictionary<int, B?>, IReadOnlyDictionary<int, B?>)> DictionaryTestAsync(
             Dictionary<int, B?> bin,
-            Current current)
+            Current current,
+            CancellationToken cancel)
         {
             var bout = new Dictionary<int, B?>();
             int i;
@@ -258,12 +263,12 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ((r, bout));
         }
 
-        public ValueTask<PBase?> ExchangePBaseAsync(PBase? pb, Current current) => new (pb);
+        public ValueTask<PBase?> ExchangePBaseAsync(PBase? pb, Current current, CancellationToken cancel) => new (pb);
 
-        public ValueTask<Preserved?> PBSUnknownAsPreservedAsync(Current current) =>
+        public ValueTask<Preserved?> PBSUnknownAsPreservedAsync(Current current, CancellationToken cancel) =>
             new (new PSUnknown(5, "preserved", "unknown", null, new MyClass(15)));
 
-        public ValueTask CheckPBSUnknownAsync(Preserved? p, Current current)
+        public ValueTask CheckPBSUnknownAsync(Preserved? p, Current current, CancellationToken cancel)
         {
             var pu = p as PSUnknown;
             TestHelper.Assert(pu != null);
@@ -275,7 +280,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<Preserved?> PBSUnknownAsPreservedWithGraphAsync(Current current)
+        public ValueTask<Preserved?> PBSUnknownAsPreservedWithGraphAsync(Current current, CancellationToken cancel)
         {
             var graph = new PNode();
             graph.Next = new PNode();
@@ -286,7 +291,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new (r);
         }
 
-        public ValueTask CheckPBSUnknownWithGraphAsync(Preserved? p, Current current)
+        public ValueTask CheckPBSUnknownWithGraphAsync(Preserved? p, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(p is PSUnknown);
             var pu = (PSUnknown)p;
@@ -299,14 +304,14 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<Preserved?> PBSUnknown2AsPreservedWithGraphAsync(Current current)
+        public ValueTask<Preserved?> PBSUnknown2AsPreservedWithGraphAsync(Current current, CancellationToken cancel)
         {
             var r = new PSUnknown2(5, "preserved", null);
             r.Pb = r;
             return new ValueTask<Preserved?>(r);
         }
 
-        public ValueTask CheckPBSUnknown2WithGraphAsync(Preserved? p, Current current)
+        public ValueTask CheckPBSUnknown2WithGraphAsync(Preserved? p, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(p is PSUnknown2);
             var pu = (PSUnknown2)p;
@@ -316,16 +321,16 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<PNode?> ExchangePNodeAsync(PNode? pn, Current current) => new (pn);
+        public ValueTask<PNode?> ExchangePNodeAsync(PNode? pn, Current current, CancellationToken cancel) => new (pn);
 
-        public ValueTask ThrowBaseAsBaseAsync(Current current)
+        public ValueTask ThrowBaseAsBaseAsync(Current current, CancellationToken cancel)
         {
             var b = new B("sb", null);
             b.Pb = b;
             throw new BaseException("sbe", b);
         }
 
-        public ValueTask ThrowDerivedAsBaseAsync(Current current)
+        public ValueTask ThrowDerivedAsBaseAsync(Current current, CancellationToken cancel)
         {
             var b = new B("sb1", null);
             b.Pb = b;
@@ -337,7 +342,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             throw new DerivedException("sbe", b, "sde1", d);
         }
 
-        public ValueTask ThrowDerivedAsDerivedAsync(Current current)
+        public ValueTask ThrowDerivedAsDerivedAsync(Current current, CancellationToken cancel)
         {
             var b = new B("sb1", null);
             b.Pb = b;
@@ -349,7 +354,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             throw new DerivedException("sbe", b, "sde1", d);
         }
 
-        public ValueTask ThrowUnknownDerivedAsBaseAsync(Current current)
+        public ValueTask ThrowUnknownDerivedAsBaseAsync(Current current, CancellationToken cancel)
         {
             var d2 = new D2();
             d2.Sb = "sb d2";
@@ -360,7 +365,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             throw new UnknownDerivedException("sbe", d2, "sude", d2);
         }
 
-        public ValueTask ThrowPreservedExceptionAsync(Current current)
+        public ValueTask ThrowPreservedExceptionAsync(Current current, CancellationToken cancel)
         {
             var ue = new PSUnknownException();
             ue.P = new PSUnknown2(5, "preserved", null);
@@ -368,7 +373,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             throw ue;
         }
 
-        public ValueTask<Forward?> UseForwardAsync(Current current)
+        public ValueTask<Forward?> UseForwardAsync(Current current, CancellationToken cancel)
         {
             var f = new Forward();
             f.H = new Hidden();

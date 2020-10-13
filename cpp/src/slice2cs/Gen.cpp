@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Gen.h>
@@ -454,7 +453,7 @@ vector<string>
 getInvocationArgsAMI(const OperationPtr& op,
                      const string& context = "",
                      const string& progress = "null",
-                     const string cancelationToken = "global::System.Threading.CancellationToken.None",
+                     const string cancellationToken = "global::System.Threading.CancellationToken.None",
                      const string& async = "true")
 {
     vector<string> args = getNames(op->params());
@@ -469,7 +468,7 @@ getInvocationArgsAMI(const OperationPtr& op,
     }
 
     args.push_back(progress);
-    args.push_back(cancelationToken);
+    args.push_back(cancellationToken);
     args.push_back(async);
 
     return args;
@@ -947,9 +946,9 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
             _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
                  << "\">Sent progress provider.</param>";
         }
-        _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-             << "\">A cancellation token that receives the cancellation requests.</param>";
     }
+    _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
+         << "\">A cancellation token that receives the cancellation requests.</param>";
 
     if(dispatch && p->hasMarshaledResult())
     {
@@ -1607,6 +1606,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     string messageParamName = getEscapedParamName(p, "message");
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
+    string retryPolicyParamName = getEscapedParamName(p, "retryPolicy");
 
     bool hasPublicParameterlessCtor = true;
     vector<string> allParameters;
@@ -1634,27 +1634,38 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "private readonly string[] _iceAllTypeIds = ZeroC.Ice.TypeExtensions.GetAllIceTypeIds(typeof("
          << name << "));";
 
-    // Up to 3 "one-shot" constructors
-    for (int i = 0; i < 3; i++)
+    // Up to 2 "one-shot" constructors
+    for (int i = 0; i < 2; i++)
     {
         if (allParameters.size() > 0)
         {
+            if (i == 0)
+            {
+                // Add retryPolicy last
+                allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
+                baseParamNames.push_back(retryPolicyParamName);
+            }
             _out << sp;
             _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
+
             if (i > 0)
             {
-                _out << nl << "/// <param name=\"message\">Message that describes the exception.</param>";
+                _out << nl << "/// <param name=\"" << messageParamName
+                     << "\">Message that describes the exception.</param>";
             }
             for (const auto& member : p->allDataMembers())
             {
                 CommentInfo comment = processComment(member, "");
                 writeDocCommentLines(_out, comment.summaryLines, "param", "name", paramName(member));
             }
-            if (i > 1)
+
+            if (i > 0)
             {
-                _out << nl << "/// <param name=\"innerException\">The exception that is the cause of the current "
-                     << "exception.</param>";
+                _out << nl << "/// <param name=\"" << innerExceptionParamName
+                     << "\">The exception that is the cause of the current exception.</param>";
             }
+            _out << nl << "/// <param name=\"" << retryPolicyParamName
+                 << "\">The retry policy for the exception.</param>";
             _out << nl << "public " << name << spar << allParameters << epar;
             _out.inc();
             if (baseParamNames.size() > 0)
@@ -1666,23 +1677,29 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             for (const auto& member : dataMembers)
             {
-                    string memberName = fixId(fieldName(member), Slice::ExceptionType);
-                    _out << nl << "this." << memberName << " = " << fixId(member->name()) << ';';
+                string memberName = fixId(fieldName(member), Slice::ExceptionType);
+                _out << nl << "this." << memberName << " = " << fixId(member->name()) << ';';
             }
             _out << eb;
         }
 
         if (i == 0)
         {
+            if (allParameters.size() > 0)
+            {
+                allParameters.erase(prev(allParameters.end()));
+                baseParamNames.erase(prev(baseParamNames.end()));
+            }
             // Insert message first
             allParameters.insert(allParameters.cbegin(), "string? " + messageParamName);
             baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
-        }
-        else if (i == 1)
-        {
-            // Also add innerException
-            allParameters.push_back("global::System.Exception? " + innerExceptionParamName);
+
+            // Add innerException and retryPolicy last
+            allParameters.push_back("global::System.Exception? " + innerExceptionParamName + " = null");
             baseParamNames.push_back(innerExceptionParamName);
+
+            allParameters.push_back("ZeroC.Ice.RetryPolicy " + retryPolicyParamName + " = default");
+            baseParamNames.push_back(retryPolicyParamName);
         }
     }
 
@@ -1691,7 +1708,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         _out << sp;
         _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
-        _out << nl << "public " << name << "()";
+        _out << nl << "/// <param name=\"" << retryPolicyParamName << "\">The retry policy for the exception.</param>";
+        _out << nl << "public " << name << "(ZeroC.Ice.RetryPolicy retryPolicy = default)";
+        _out.inc();
+        _out << nl << ": base(retryPolicy)";
+        _out.dec();
         _out << sb;
         writeDataMemberDefaultValues(dataMembers, ns, Slice::ExceptionType);
         _out << eb;
@@ -2520,7 +2541,7 @@ bool
 Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
-    string name = interfaceName(p) + (_generateAllAsync ? "Async" : "");
+    string name = interfaceName(p, _generateAllAsync);
     string ns = getNamespace(p);
 
     _out << sp;
@@ -2537,7 +2558,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for(InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
         {
-            _out << getUnqualified(getNamespace(*q) + "." + (interfaceName(*q) + (_generateAllAsync ? "Async" : "")), ns);
+            _out << getUnqualified(getNamespace(*q) + "." + interfaceName(*q, _generateAllAsync), ns);
             if(++q != bases.end())
             {
                 _out << ", ";
@@ -2646,24 +2667,32 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _out << sp;
-    _out << nl << "string ZeroC.Ice.IObject.IceId(ZeroC.Ice.Current current) => _iceTypeId;";
+    _out << nl << "string ZeroC.Ice.IObject.IceId("
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) => _iceTypeId;";
     _out << sp;
     _out << nl << "global::System.Collections.Generic.IEnumerable<string> "
-         << "ZeroC.Ice.IObject.IceIds(ZeroC.Ice.Current current) => _iceAllTypeIds;";
+         << "ZeroC.Ice.IObject.IceIds(ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) => _iceAllTypeIds;";
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> ZeroC.Ice.IObject"
-         << ".DispatchAsync(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current) =>";
+         << ".DispatchAsync("
+         << "ZeroC.Ice.IncomingRequestFrame request, "
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) =>";
     _out.inc();
-    _out << nl << "DispatchAsync(this, request, current);";
+    _out << nl << "DispatchAsync(this, request, current, cancel);";
     _out.dec();
 
     _out << sp;
     _out << nl << "// This protected static DispatchAsync allows a derived class to override the instance DispatchAsync";
     _out << nl << "// and reuse the generated implementation.";
     _out << nl << "protected static global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> "
-        << "DispatchAsync(" << fixId(name) << " servant, "
-        << "ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current) =>";
+         << "DispatchAsync(" << fixId(name) << " servant, "
+         << "ZeroC.Ice.IncomingRequestFrame request, "
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) =>";
     _out.inc();
     _out << nl << "current.Operation switch";
     _out << sb;
@@ -2679,7 +2708,8 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     for(const auto& opName : allOpNames)
     {
-        _out << nl << "\"" << opName.first << "\" => " << "servant.IceD" << opName.second << "Async(request, current),";
+        _out << nl << "\"" << opName.first << "\" => " << "servant.IceD" << opName.second
+             << "Async(request, current, cancel),";
     }
 
     _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException(current.Identity, current.Facet, "
@@ -2790,6 +2820,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
                         return paramTypeStr(param, false) + " " + paramName(param);
                      });
     _out << ("ZeroC.Ice.Current " + getEscapedParamName(operation, "current"));
+    _out << ("global::System.Threading.CancellationToken " + getEscapedParamName(operation, "cancel"));
     _out << epar << ';';
 }
 
@@ -2813,7 +2844,10 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         _out << "async ";
     }
     _out << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame>";
-    _out << " " << internalName << "(ZeroC.Ice.IncomingRequestFrame request, ZeroC.Ice.Current current)";
+    _out << " " << internalName << "("
+         << "ZeroC.Ice.IncomingRequestFrame request, "
+         << "ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel)";
     _out << sb;
 
     if (!isIdempotent(operation))
@@ -2848,7 +2882,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << paramName(params.front(), "iceP_");
             }
-            _out << "current" << epar << ".ConfigureAwait(false);";
+            _out << "current" << "cancel" << epar << ".ConfigureAwait(false);";
             _out << nl << "return returnValue.Response;";
         }
         else
@@ -2863,7 +2897,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 _out << paramName(params.front(), "iceP_");
             }
-            _out << "current" << epar << ".Response);";
+            _out << "current" << "cancel" << epar << ".Response);";
         }
         _out << eb;
     }
@@ -2888,7 +2922,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << paramName(params.front(), "iceP_");
         }
-        _out << "current" << epar;
+        _out << "current" << "cancel" << epar;
         if (amd)
         {
             _out << ".ConfigureAwait(false)";

@@ -1,36 +1,40 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Metrics
 {
-    public sealed class MetricsAsync : IMetricsAsync
+    public sealed class AsyncMetrics : IAsyncMetrics
     {
-        public ValueTask OpAsync(Current current) => new ValueTask(Task.CompletedTask);
+        public ValueTask OpAsync(Current current, CancellationToken cancel) => default;
 
-        public ValueTask FailAsync(Current current)
+        public ValueTask FailAsync(Current current, CancellationToken cancel)
         {
             current.Connection!.Close(ConnectionClose.Forcefully);
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
-        public ValueTask OpWithUserExceptionAsync(Current current) => throw new UserEx("custom UserEx message");
+        public ValueTask OpWithUserExceptionAsync(Current current, CancellationToken cancel) =>
+            throw new UserEx("custom UserEx message");
 
-        public ValueTask OpWithRequestFailedExceptionAsync(Current current) =>
+        public ValueTask OpWithRequestFailedExceptionAsync(Current current, CancellationToken cancel) =>
             throw new ObjectNotExistException(current);
 
-        public ValueTask OpWithLocalExceptionAsync(Current current) =>
+        public ValueTask OpWithLocalExceptionAsync(Current current, CancellationToken cancel) =>
             throw new InvalidConfigurationException("fake");
 
-        public ValueTask OpWithUnknownExceptionAsync(Current current) => throw new ArgumentOutOfRangeException();
+        public ValueTask OpWithUnknownExceptionAsync(Current current, CancellationToken cancel) =>
+            throw new ArgumentOutOfRangeException();
 
-        public ValueTask OpByteSAsync(byte[] bs, Current current) => new ValueTask(Task.CompletedTask);
+        public ValueTask OpByteSAsync(byte[] bs, Current current, CancellationToken cancel) =>
+            new ValueTask(Task.CompletedTask);
 
-        public ValueTask<IObjectPrx?> GetAdminAsync(Current current) =>
+        public ValueTask<IObjectPrx?> GetAdminAsync(Current current, CancellationToken cancel) =>
             new ValueTask<IObjectPrx?>(current.Adapter.Communicator.GetAdmin());
 
-        public ValueTask ShutdownAsync(Current current)
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);

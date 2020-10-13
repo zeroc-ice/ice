@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Tagged
             await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("initial", new InitialAsync());
+            adapter.Add("initial", new AsyncInitial());
             await adapter.ActivateAsync();
             ServerReady();
             await communicator.WaitForShutdownAsync();

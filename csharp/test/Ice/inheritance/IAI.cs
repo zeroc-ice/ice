@@ -1,9 +1,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
+
 namespace ZeroC.Ice.Test.Inheritance
 {
-    public sealed class IA : MA.IIA
+    public sealed class A : MA.IA
     {
-        public MA.IIAPrx? Iaop(MA.IIAPrx? p, Current current) => p;
+        public MA.IAPrx? Iaop(MA.IAPrx? p, Current current, CancellationToken cancel) => p;
     }
 }

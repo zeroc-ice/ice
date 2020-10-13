@@ -44,7 +44,7 @@ namespace ZeroC.IceBox
             _traceServiceObserver = _communicator.GetPropertyAsInt("IceBox.Trace.ServiceObserver") ?? 0;
         }
 
-        public void AddObserver(IServiceObserverPrx? observer, Current current)
+        public void AddObserver(IServiceObserverPrx? observer, Current current, CancellationToken cancel)
         {
             // Null observers and duplicate registrations are ignored
             if (observer != null)
@@ -79,7 +79,7 @@ namespace ZeroC.IceBox
                 {
                     try
                     {
-                        await observer.ServicesStartedAsync(services).ConfigureAwait(false);
+                        await observer.ServicesStartedAsync(services, cancel: cancel).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
@@ -89,9 +89,9 @@ namespace ZeroC.IceBox
             }
         }
 
-        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => _ = _communicator.ShutdownAsync();
 
-        public void StartService(string name, Current current)
+        public void StartService(string name, Current current, CancellationToken cancel)
         {
             ServiceInfo? info;
             lock (_mutex)
@@ -142,7 +142,7 @@ namespace ZeroC.IceBox
             }
         }
 
-        public void StopService(string name, Current current)
+        public void StopService(string name, Current current, CancellationToken cancel)
         {
             ServiceInfo? info;
             lock (_mutex)

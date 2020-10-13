@@ -17,7 +17,6 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
-#include <Ice/Functional.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>

@@ -453,7 +453,7 @@ namespace ZeroC.Ice
                 // send the request again.
                 if (_exception != null)
                 {
-                    throw new RetryException(_exception);
+                    throw new InvalidRequestHandlerException(_exception);
                 }
                 cancel.ThrowIfCancellationRequested();
 
@@ -654,16 +654,20 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask DispatchAsync(IncomingRequestFrame request, long streamId, Current current)
+        private async ValueTask DispatchAsync(
+            IncomingRequestFrame request,
+            long streamId,
+            Current current,
+            CancellationToken cancel)
         {
             OutgoingResponseFrame response =
-                await current.Adapter.DispatchAsync(request, streamId, current).ConfigureAwait(false);
+                await current.Adapter.DispatchAsync(request, streamId, current, cancel).ConfigureAwait(false);
 
             if (!current.IsOneway)
             {
                 try
                 {
-                    await BinaryConnection.SendAsync(streamId, response, fin: true, cancel: current.CancellationToken);
+                    await BinaryConnection.SendAsync(streamId, response, fin: true, cancel: cancel);
                 }
                 catch (OperationCanceledException)
                 {
@@ -772,9 +776,8 @@ namespace ZeroC.Ice
                                 var current = new Current(_adapter,
                                                           requestFrame,
                                                           oneway: fin,
-                                                          cancel: cancellationToken,
                                                           this);
-                                incoming = () => DispatchAsync(requestFrame, streamId, current);
+                                incoming = () => DispatchAsync(requestFrame, streamId, current, cancellationToken);
                                 ++_dispatchCount;
                             }
                         }
