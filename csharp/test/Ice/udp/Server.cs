@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Test;
@@ -46,8 +45,8 @@ namespace ZeroC.Ice.Test.UDP
             if (communicator.GetProperty("Ice.PreferIPv6Address") == "1")
             {
                 endpoint.Append("udp -h \"ff15::1:1\"");
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                if (OperatingSystem.IsWindows() ||
+                    OperatingSystem.IsMacOS())
                 {
                     endpoint.Append(" --interface \"::1\"");
                 }
@@ -55,8 +54,8 @@ namespace ZeroC.Ice.Test.UDP
             else
             {
                 endpoint.Append("udp -h 239.255.1.1");
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                if (OperatingSystem.IsWindows() ||
+                    OperatingSystem.IsMacOS())
                 {
                     endpoint.Append(" --interface 127.0.0.1");
                 }

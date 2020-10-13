@@ -105,7 +105,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
             var store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
             bool isAdministrator = false;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (OperatingSystem.IsWindows())
             {
                 try
                 {
@@ -616,7 +616,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             catch
                             {
                                 // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
-                                TestHelper.Assert(RuntimeInformation.IsOSPlatform(OSPlatform.OSX));
+                                TestHelper.Assert(OperatingSystem.IsMacOS());
                             }
                             fact.DestroyServer(server);
                         }
@@ -729,7 +729,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             catch (TransportException ex)
                             {
                                 // macOS catalina does not check the certificate common name
-                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                                if (!OperatingSystem.IsMacOS())
                                 {
                                     Console.WriteLine(ex.ToString());
                                     TestHelper.Assert(false);
@@ -811,7 +811,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     certStore.Open(OpenFlags.ReadWrite);
                     var certs = new X509Certificate2Collection();
                     X509KeyStorageFlags storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    if (OperatingSystem.IsMacOS())
                     {
                         // On macOS, we need to mark the key exportable because the addition of the key to the cert
                         // store requires to move the key from on keychain to another (which requires the Exportable
@@ -1108,7 +1108,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
                 Console.Out.WriteLine("ok");
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isAdministrator)
+                if (OperatingSystem.IsWindows() && isAdministrator)
                 {
                     // LocalMachine certificate store is not supported on non Windows platforms.
                     Console.Out.Write("testing multiple CA certificates... ");
@@ -1243,7 +1243,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
             finally
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && isAdministrator)
+                if (OperatingSystem.IsWindows() && isAdministrator)
                 {
                     store.Remove(caCert1);
                     store.Remove(caCert2);
