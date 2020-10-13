@@ -208,7 +208,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             output.Flush();
             {
                 string multicast;
-                if (communicator.GetProperty("Ice.PreferIPv6Address") == "1")
+                if (helper.Host.Contains(":"))
                 {
                     multicast = "\"ff15::1\"";
                 }
@@ -233,14 +233,10 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 }
                 {
                     Dictionary<string, string> properties = communicator.GetProperties();
-                    string intf = communicator.GetProperty("IceDiscovery.Interface") ?? "";
-                    if (intf.Length > 0)
-                    {
-                        intf = $" --interface \"{intf}\"";
-                    }
-                    string port = communicator.GetProperty("IceDiscovery.Port") ?? "";
+                    string port = $"{helper.BasePort + 10}";
+                    string intf = helper.Host;
                     properties["IceDiscovery.Lookup"] =
-                        $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
+                        $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} --interface {intf}";
                     using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();

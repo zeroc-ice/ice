@@ -96,16 +96,14 @@ namespace ZeroC.Ice
             string host,
             int port,
             int ipVersion,
-            EndpointSelectionType selType,
-            bool preferIPv6)
+            EndpointSelectionType selType)
         {
             try
             {
                 ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
                                                                             port,
                                                                             ipVersion,
-                                                                            selType,
-                                                                            preferIPv6);
+                                                                            selType);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -120,7 +118,6 @@ namespace ZeroC.Ice
             int port,
             int ipVersion,
             EndpointSelectionType selType,
-            bool preferIPv6,
             CancellationToken cancel = default)
         {
             Debug.Assert(host.Length > 0);
@@ -172,17 +169,6 @@ namespace ZeroC.Ice
                         addrs = addrs.Shuffle();
                     }
 
-                    if (ipVersion == EnableBoth)
-                    {
-                        if (preferIPv6)
-                        {
-                            return addrs.OrderByDescending(addr => addr.AddressFamily);
-                        }
-                        else
-                        {
-                            return addrs.OrderBy(addr => addr.AddressFamily);
-                        }
-                    }
                     return addrs;
                 }
                 catch (DNSException)
@@ -209,15 +195,14 @@ namespace ZeroC.Ice
             int port,
             int ipVersion,
             EndpointSelectionType selType,
-            bool preferIPv6,
             CancellationToken cancel)
         {
             Debug.Assert(host.Length > 0);
 
-            return await GetAddressesAsync(host, port, ipVersion, selType, preferIPv6, cancel).ConfigureAwait(false);
+            return await GetAddressesAsync(host, port, ipVersion, selType, cancel).ConfigureAwait(false);
         }
 
-        internal static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion, bool preferIPv6)
+        internal static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion)
         {
             // TODO: Fix this method to be asynchronous.
 
@@ -229,8 +214,7 @@ namespace ZeroC.Ice
                 ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
                                                                             port,
                                                                             ipVersion,
-                                                                            EndpointSelectionType.Ordered,
-                                                                            preferIPv6);
+                                                                            EndpointSelectionType.Ordered);
                 return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
             }
             catch (AggregateException ex)
@@ -264,17 +248,16 @@ namespace ZeroC.Ice
             return hosts;
         }
 
-        internal static List<string> GetInterfacesForMulticast(string intf, int ipVersion)
+        internal static List<string> GetInterfacesForMulticast(string? intf, int ipVersion)
         {
             var interfaces = new List<string>();
-            if (IsWildcard(intf, ipVersion))
+
+            if (intf == null || IsWildcard(intf, ipVersion))
             {
-                foreach (IPAddress a in GetLocalAddresses(ipVersion, true, true))
-                {
-                    interfaces.Add(a.ToString());
-                }
+                interfaces.AddRange(GetLocalAddresses(ipVersion, true, true).Select(i => i.ToString()));
             }
-            if (interfaces.Count == 0)
+
+            if (intf != null && interfaces.Count == 0)
             {
                 interfaces.Add(intf);
             }
@@ -334,10 +317,12 @@ namespace ZeroC.Ice
                 {
                     goto repeatGetHostByName;
                 }
+                // TODO: is there a better host to use?
                 throw new DNSException("0.0.0.0", ex);
             }
             catch (Exception ex)
             {
+                // TODO: is there a better host to use?
                 throw new DNSException("0.0.0.0", ex);
             }
 
@@ -435,7 +420,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static void SetMulticastGroup(Socket s, IPAddress group, string iface)
+        internal static void SetMulticastGroup(Socket s, IPAddress group, string? iface)
         {
             var indexes = new HashSet<int>();
             foreach (string intf in GetInterfacesForMulticast(iface, GetIPVersion(group)))
@@ -546,10 +531,7 @@ namespace ZeroC.Ice
 
         private static IPAddress? GetInterfaceAddress(string iface, AddressFamily family)
         {
-            if (iface.Length == 0)
-            {
-                return null;
-            }
+            Debug.Assert(iface.Length > 0);
 
             // The iface parameter must either be an IP address, an index or the name of an interface. If it's an index
             // we just return it. If it's an IP addess we search for an interface which has this IP address. If it's a

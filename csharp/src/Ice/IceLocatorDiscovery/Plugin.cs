@@ -381,25 +381,30 @@ namespace ZeroC.IceLocatorDiscovery
 
         public void Initialize(PluginInitializationContext context)
         {
-            string address = _communicator.GetProperty($"{_name}.Address") ??
-                (_communicator.PreferIPv6 ? "ff15::1" : "239.255.0.1");
+            const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
+            const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
 
-            int port = _communicator.GetPropertyAsInt($"{_name}.Port") ?? 4061;
-            string intf = _communicator.GetProperty($"{_name}.Interface") ?? "";
-
-            string lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup") ?? "";
-            if (lookupEndpoints.Length == 0)
+            string lookupEndpoints;
+            if (_communicator.GetProperty($"{_name}.Lookup") is string prop)
             {
-                int ipVersion = _communicator.PreferIPv6 ? Network.EnableIPv6 : Network.EnableIPv4;
-                List<string> interfaces = Network.GetInterfacesForMulticast(intf, ipVersion);
-                lookupEndpoints = string.Join(":", interfaces.Select(
-                    intf => $"udp -h \"{address}\" -p {port} --interface \"{intf}\""));
+                lookupEndpoints = prop;
+            }
+            else
+            {
+
+                List<string> endpoints = new ();
+                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
+                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
+
+                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
+                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
+
+                lookupEndpoints = string.Join(":", endpoints);
             }
 
             if (_communicator.GetProperty($"{_name}.Reply.Endpoints") == null)
             {
-                _communicator.SetProperty($"{_name}.Reply.Endpoints",
-                    intf.Length == 0 ? "udp -h *" : $"udp -h \"{intf}\"");
+                _communicator.SetProperty($"{_name}.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
 
             if (_communicator.GetProperty($"{_name}.Locator.Endpoints") == null)

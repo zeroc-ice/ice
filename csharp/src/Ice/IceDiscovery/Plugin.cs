@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
@@ -42,44 +43,35 @@ namespace ZeroC.IceDiscovery
 
         public void Initialize(PluginInitializationContext context)
         {
-            string address = _communicator.GetProperty("IceDiscovery.Address") ??
-                (_communicator.PreferIPv6 ? "ff15::1" : "239.255.0.1");
-
-            int port = _communicator.GetPropertyAsInt("IceDiscovery.Port") ?? 4061;
-            string intf = _communicator.GetProperty("IceDiscovery.Interface") ?? "";
+            const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
+            const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
 
             if (_communicator.GetProperty("IceDiscovery.Multicast.Endpoints") == null)
             {
-                if (intf.Length > 0)
-                {
-                    _communicator.SetProperty("IceDiscovery.Multicast.Endpoints",
-                                              $"udp -h \"{address}\" -p {port} --interface \"{intf}\"");
-                }
-                else
-                {
-                    _communicator.SetProperty("IceDiscovery.Multicast.Endpoints", $"udp -h \"{address}\" -p {port}");
-                }
+                _communicator.SetProperty("IceDiscovery.Multicast.Endpoints",
+                                          $"{defaultIPv4Endpoint}:{defaultIPv6Endpoint}");
             }
 
-            string lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup") ?? "";
-            if (lookupEndpoints.Length == 0)
+            string lookupEndpoints;
+            if (_communicator.GetProperty("IceDiscovery.Lookup") is string prop)
             {
-                int ipVersion = _communicator.PreferIPv6 ? Network.EnableIPv6 : Network.EnableIPv4;
-                List<string> interfaces = Network.GetInterfacesForMulticast(intf, ipVersion);
-                foreach (string p in interfaces)
-                {
-                    if (p != interfaces[0])
-                    {
-                        lookupEndpoints += ":";
-                    }
-                    lookupEndpoints += $"udp -h \"{address}\" -p {port} --interface \"{p}\"";
-                }
+                lookupEndpoints = prop;
+            }
+            else
+            {
+                List<string> endpoints = new ();
+                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
+                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
+
+                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
+                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
+
+                lookupEndpoints = string.Join(":", endpoints);
             }
 
             if (_communicator.GetProperty("IceDiscovery.Reply.Endpoints") == null)
             {
-                _communicator.SetProperty("IceDiscovery.Reply.Endpoints",
-                    intf.Length == 0 ? "udp -h *" : $"udp -h \"{intf}\"");
+                _communicator.SetProperty("IceDiscovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
 
             if (_communicator.GetProperty("IceDiscovery.Locator.Endpoints") == null)
@@ -92,7 +84,7 @@ namespace ZeroC.IceDiscovery
             _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
 
             // Setup locator registry.
-            var locatorRegistry = new LocatorRegistry();
+            LocatorRegistry locatorRegistry = new ();
             ILocatorRegistryPrx locatorRegistryPrx =
                 _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 
@@ -100,7 +92,7 @@ namespace ZeroC.IceDiscovery
                 ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", _communicator).Clone(clearRouter: true);
 
             // Add lookup Ice object
-            var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator, _replyAdapter);
+            Lookup lookup = new (locatorRegistry, lookupPrx, _communicator, _replyAdapter);
             _multicastAdapter.Add("IceDiscovery/Lookup", lookup);
 
             // Setup locator on the communicator.

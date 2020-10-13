@@ -3092,6 +3092,13 @@ class Driver:
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
+        initData.properties.setProperty("IceDiscovery.Multicast.Endpoints",
+            "udp -h 239.255.0.1 -p 4061 --interface 127.0.0.1:udp -h \"ff15::1\" -p 4061 --interface \"::1\" ")
+        initData.properties.setProperty("IceDiscovery.Lookup",
+            "udp -h 239.255.0.1 -p 4061 --interface 127.0.0.1:udp -h \"ff15::1\" -p 4061 --interface \"::1\" ")
+        initData.properties.setProperty("IceDiscovery.Reply.Endpoints",
+                                        "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0")
+
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
         # initData.properties.setProperty("Ice.Trace.Protocol", "1")
