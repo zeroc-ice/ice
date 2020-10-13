@@ -61,16 +61,27 @@ Slice::fieldName(const MemberPtr& member)
 }
 
 std::string
-Slice::interfaceName(const InterfaceDeclPtr& decl)
+Slice::interfaceName(const InterfaceDeclPtr& decl, bool isAsync)
 {
     string name = normalizeCase(decl) ? pascalCase(decl->name()) : decl->name();
-    return name.find("II") == 0 ? name : "I" + name;
+
+    // Check if the interface already follows the 'I' prefix convention.
+    if (name.size() > 2 && name.at(0) == 'I' && isupper(name.at(1)))
+    {
+        if (isAsync)
+        {
+            // We remove the 'I' prefix, and replace it with the full 'IAsync' prefix.
+            return "IAsync" + name.substr(1);
+        }
+        return name;
+    }
+    return string("I") + (isAsync ? "Async" : "") + name;
 }
 
 std::string
-Slice::interfaceName(const InterfaceDefPtr& def)
+Slice::interfaceName(const InterfaceDefPtr& def, bool isAsync)
 {
-    return interfaceName(def->declaration());
+    return interfaceName(def->declaration(), isAsync);
 }
 
 std::string
