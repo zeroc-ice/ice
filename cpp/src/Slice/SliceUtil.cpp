@@ -792,45 +792,43 @@ bool Slice::opCompressReturn(const OperationPtr& op)
 string Slice::getDeprecateReason(const ContainedPtr& p, bool checkContainer)
 {
     // Check if there was `deprecate` metadata directly on the entity.
-    auto deprecateMsg = p->findMetadata("deprecate");
+    auto reason = p->findMetadata("deprecate");
     // If the entity wasn't directly deprecated, check if it's container is.
-    if (!deprecateMsg && checkContainer)
+    if (!reason && checkContainer)
     {
         if (ContainedPtr p2 = ContainedPtr::dynamicCast(p->container()))
         {
-            deprecateMsg = p2->findMetadata("deprecate");
+            reason = p2->findMetadata("deprecate");
         }
     }
 
-    if (deprecateMsg)
+    if (reason)
     {
-        if (deprecateMsg->empty())
+        if (reason->empty())
         {
             return "This " + p->kindOf() + " has been deprecated";
         }
-        return *deprecateMsg;
+        return *reason;
     }
     return "";
 }
 
 pair<string, string> Slice::parseMetadata(const string& metadata)
 {
-    // Check if the metadata has any arguments.
-    auto argumentStart = metadata.find("(");
-    if (argumentStart == string::npos)
+    auto start = metadata.find("(");
+    if (start == string::npos)
     {
         return make_pair(metadata, "");
     }
-    else
+
+    // We subtract 1 under the assumption that it ends with a ')' which shouldn't be included.
+    auto length = metadata.length() - start - 1;
+    if (!metadata.ends_with(')')
     {
-        // Make sure the parentheses are balanced. For metadata with arguments, the final character must be ')'.
-        auto argumentEnd = metadata.length() - 1;
-        if (metadata.at(argumentEnd) != ')')
-        {
-            unit->error("missing closing parentheses for metadata arguments");
-        }
-        return make_pair(metadata.substr(0, argumentStart), metadata.substr(argumentStart + 1, argumentEnd));
+        unit->error("missing closing parentheses for metadata arguments");
+        length += 1;
     }
+    return make_pair(metadata.substr(0, start), metadata.subst(start + 1, length))
 }
 
 map<string, string> Slice::parseMetadata(const StringList& metadata)
@@ -851,9 +849,5 @@ bool Slice::hasMetadata(const string& directive, const map<string, string>& meta
 optional<string> Slice::findMetadata(const string& directive, const map<string, string>& metadata)
 {
     auto match = metadata.find(directive);
-    if (match != metadata.end())
-    {
-        return match->second;
-    }
-    return nullopt;
+    return match != metadata.end() : match->second : nullopt;
 }
