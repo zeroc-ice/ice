@@ -287,7 +287,14 @@ namespace ZeroC.Ice
             int sizeLength = buffer.Length;
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
 
-            if (size < 0 || size > 1_073_741_823) // 2^30 -1
+            (uint encodedSize, uint maxSize) = sizeLength switch
+            {
+                1 => (0x00u, 63u), // 2^6 - 1
+                2 => (0x01u, 16_383u), // 2^14 - 1
+                _ => (0x02u, 1_073_741_823u) // 2^30 - 1
+            };
+
+            if (size < 0 || size > maxSize)
             {
                 throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
             }
@@ -296,22 +303,8 @@ namespace ZeroC.Ice
             uint v = (uint)size;
             v <<= 2;
 
-            uint encodedSize = sizeLength switch
-            {
-                1 => 0x00,
-                2 => 0x01,
-                _ => 0x02
-            };
             v |= encodedSize;
             MemoryMarshal.Write(uintBuf, ref v);
-            for (int i = sizeLength; i < 4; ++i)
-            {
-                if (uintBuf[i] != 0)
-                {
-                    throw new ArgumentOutOfRangeException($"size `{size}' does not fit in {sizeLength} bytes",
-                        nameof(size));
-                }
-            }
             uintBuf.Slice(0, sizeLength).CopyTo(buffer);
         }
 
@@ -320,10 +313,7 @@ namespace ZeroC.Ice
         /// <param name="value">The value to write.</param>
         internal static void WriteFixedLengthVarLong(this Span<byte> buffer, long value)
         {
-            if (buffer.Length < OutputStream.GetVarLongLength(value))
-            {
-                throw new ArgumentOutOfRangeException($"value does not fit in {buffer.Length} bytes", nameof(value));
-            }
+            Debug.Assert(buffer.Length >= OutputStream.GetVarLongLength(value));
 
             Span<byte> longBuf = stackalloc byte[8];
             long v = value;

@@ -163,7 +163,10 @@ namespace ZeroC.Ice
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
 
-        /// <summary>Returns an acceptor for this endpoint.</summary>
+        /// <summary>Returns an acceptor for this endpoint. An acceptor listens for connection establishment requests
+        /// from clients and creates a new connection for each client. This is typically used to implement a
+        /// stream-based transport. Datagram transports don't implement this method but instead implement the
+        /// <see cref="CreateDatagramServerConnection"/> method.</summary>
         /// <param name="manager">The connection manager to manage connections created by the acceptor.</param>
         /// <param name="adapter">The object adapter associated to the acceptor.</param>
         /// <returns>An acceptor for this endpoint.</returns>
@@ -178,8 +181,11 @@ namespace ZeroC.Ice
             EndpointSelectionType endpointSelection,
             CancellationToken cancel);
 
-        /// <summary>Creates a datagram server side connection for this endpoint.</summary>
-        /// <returns>The server side transceiver and the bound endpoint</returns>
+        /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.
+        /// Unlike stream-based transports, datagram endpoints don't support an acceptor responsible for accepting new
+        /// connections but implement this method to provide a connection responsible for receiving datagrams from
+        /// clients.</summary>
+        /// <returns>The datagram server side connection.</returns>
         public abstract Connection CreateDatagramServerConnection(ObjectAdapter adapter);
 
         /// <summary>Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on

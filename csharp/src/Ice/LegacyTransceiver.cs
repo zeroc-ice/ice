@@ -282,8 +282,8 @@ namespace ZeroC.Ice
 
         internal override ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            // With Ice1, the connection validation message is only sent by the server to the client. So here we
-            // we only expect the conneciton validation message for an incoming connection and just return the
+            // With Ice1, the connection validation message is only sent by the server to the client. So here
+            // we only expect the connection validation message for an incoming connection and just return the
             // control stream immediately for an outgoing connection.
             if (IsIncoming)
             {

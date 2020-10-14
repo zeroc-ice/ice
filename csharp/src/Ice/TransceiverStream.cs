@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace ZeroC.Ice
 {
     /// <summary>The TransceiverStream abstract base class to be overridden by multi-stream transport implementations.
-    /// </summary>
+    /// There's an instance of this class for each active stream managed by the multi-stream transceiver.</summary>
     public abstract class TransceiverStream : IDisposable
     {
         /// <summary>The stream ID. If the stream ID hasn't been assigned yet, an exception is thrown. Assigning the
