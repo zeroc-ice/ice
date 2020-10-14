@@ -223,33 +223,20 @@ namespace ZeroC.Ice
         /// proxy can have different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// twoway request.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            bool oneway = false,
-            CancellationToken cancel = default)
+            bool oneway = false)
         {
-            CancellationTokenSource? cancellationSource = cancel.CanBeCanceled ?
-                CancellationTokenSource.CreateLinkedTokenSource(cancel, request.CancellationToken) : null;
             try
             {
-                return InvokeWithInterceptorsAsync(proxy,
-                                                   request,
-                                                   oneway,
-                                                   synchronous: true,
-                                                   progress: null,
-                                                   cancellationSource?.Token ?? request.CancellationToken).Result;
+                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true).Result;
             }
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
                 throw ExceptionUtil.Throw(ex.InnerException);
-            }
-            finally
-            {
-                cancellationSource?.Dispose();
             }
         }
 
@@ -261,31 +248,13 @@ namespace ZeroC.Ice
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
         /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
-        public static async Task<IncomingResponseFrame> InvokeAsync(
+        public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway = false,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default)
-        {
-            CancellationTokenSource? cancellationSource = cancel.CanBeCanceled ?
-                CancellationTokenSource.CreateLinkedTokenSource(cancel, request.CancellationToken) : null;
-            try
-            {
-                return await InvokeWithInterceptorsAsync(proxy,
-                                                         request,
-                                                         oneway,
-                                                         synchronous: false,
-                                                         progress,
-                                                         cancellationSource?.Token ?? request.CancellationToken);
-            }
-            finally
-            {
-                cancellationSource?.Dispose();
-            }
-        }
+            IProgress<bool>? progress = null) =>
+                InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
@@ -311,10 +280,9 @@ namespace ZeroC.Ice
             IncomingResponseFrame response;
             try
             {
-                response = await proxy.InvokeWithInterceptorsAsync(forwardedRequest,
-                                                                   oneway,
-                                                                   synchronous: false,
-                                                                   progress).ConfigureAwait(false);
+                response = await proxy.InvokeAsync(forwardedRequest,
+                                                   oneway,
+                                                   progress).ConfigureAwait(false);
             }
             catch (DispatchException ex)
             {
@@ -571,13 +539,12 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
-            IProgress<bool>? progress = null,
-            CancellationToken? cancel = null)
+            IProgress<bool>? progress = null)
         {
             return InvokeWithInterceptorsAsync(proxy,
                                                request,
@@ -585,7 +552,7 @@ namespace ZeroC.Ice
                                                synchronous,
                                                0,
                                                progress,
-                                               cancel ?? request.CancellationToken);
+                                               request.CancellationToken);
 
             static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,

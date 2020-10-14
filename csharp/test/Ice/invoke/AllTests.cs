@@ -59,7 +59,6 @@ namespace ZeroC.Ice.Test.Invoke
                                                         compress: false,
                                                         format: default,
                                                         context: null,
-                                                        cancel: default,
                                                         TestString,
                                                         OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
@@ -122,7 +121,6 @@ namespace ZeroC.Ice.Test.Invoke
                                                         compress: false,
                                                         format: default,
                                                         context: null,
-                                                        cancel: default,
                                                         TestString,
                                                         OutputStream.IceWriterFromString);
 

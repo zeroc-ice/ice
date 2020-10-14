@@ -2237,11 +2237,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                      << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
                      << nl << "format: " << opFormatTypeToString(operation) << ","
                      << nl << "context,"
-                     << nl << "cancel,"
                      << nl << (inValue ? "in " : "") << "args,"
                      << nl;
                 writeOutgoingRequestWriter(operation);
-                _out << ");";
+                _out << "," << nl << "cancel);";
                 _out.dec();
             }
             _out.dec();

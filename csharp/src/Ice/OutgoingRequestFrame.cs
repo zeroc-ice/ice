@@ -16,8 +16,7 @@ namespace ZeroC.Ice
 
         /// <summary>A cancellation token that receives the cancellation requests. The cancellation token takes into
         /// account the invocation timeout and the cancellation token provided by the application.</summary>
-        public CancellationToken CancellationToken =>
-            _linkedCancelationSource?.Token ?? _invocationTimeoutCancelationSource.Token;
+        public CancellationToken CancellationToken { get; }
 
         /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
         /// the same as Context's entries.</summary>
@@ -62,9 +61,9 @@ namespace ZeroC.Ice
 
         private Dictionary<string, string>? _contextOverride;
         private readonly ArraySegment<byte> _defaultBinaryContext;
-        private readonly CancellationTokenSource? _linkedCancelationSource;
         private readonly IReadOnlyDictionary<string, string> _initialContext;
-        private readonly CancellationTokenSource _invocationTimeoutCancelationSource;
+        private readonly CancellationTokenSource? _invocationTimeoutCancellationSource;
+        private readonly CancellationTokenSource? _linkedCancellationSource;
 
         // When true, we always write Context in slot 0 of the binary context. This field is always false when
         // _defaultBinaryContext is empty.
@@ -73,8 +72,8 @@ namespace ZeroC.Ice
         /// <inheritdoc/>
         public void Dispose()
         {
-            _invocationTimeoutCancelationSource.Dispose();
-            _linkedCancelationSource?.Dispose();
+            _invocationTimeoutCancellationSource?.Dispose();
+            _linkedCancellationSource?.Dispose();
         }
 
         /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with a single non-struct
@@ -89,14 +88,11 @@ namespace ZeroC.Ice
         /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last",
-            Justification = "Delegates and lambda function should be the pass as the last argument")]
-        // TODO move cancellation token to the end?
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -104,9 +100,9 @@ namespace ZeroC.Ice
             bool compress,
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
-            CancellationToken cancel,
             T args,
-            OutputStreamWriter<T> writer)
+            OutputStreamWriter<T> writer,
+            CancellationToken cancel = default)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
@@ -136,14 +132,11 @@ namespace ZeroC.Ice
         /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last",
-                    Justification = "Delegates and lambda function should be the pass as the last argument")]
-        // TODO move cancellation token to the end?
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -151,9 +144,9 @@ namespace ZeroC.Ice
             bool compress,
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
-            CancellationToken cancel,
             in T args,
-            OutputStreamValueWriter<T> writer) where T : struct
+            OutputStreamValueWriter<T> writer,
+            CancellationToken cancel = default) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
@@ -315,14 +308,20 @@ namespace ZeroC.Ice
             Operation = operation;
             IsIdempotent = idempotent;
 
+            Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
             Deadline = DateTime.UtcNow + proxy.InvocationTimeout;
-            _invocationTimeoutCancelationSource = new CancellationTokenSource(proxy.InvocationTimeout);
-            if (cancel.CanBeCanceled)
+            if (proxy.InvocationTimeout != Timeout.InfiniteTimeSpan)
             {
-                _linkedCancelationSource = CancellationTokenSource.CreateLinkedTokenSource(
-                    _invocationTimeoutCancelationSource.Token,
-                    cancel);
+                _invocationTimeoutCancellationSource = new CancellationTokenSource(proxy.InvocationTimeout);
+                if (cancel.CanBeCanceled)
+                {
+                    _linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                        _invocationTimeoutCancellationSource.Token,
+                        cancel);
+                }
             }
+            CancellationToken =
+                _linkedCancellationSource?.Token ?? _invocationTimeoutCancellationSource?.Token ?? cancel;
 
             if (context != null)
             {

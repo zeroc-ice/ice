@@ -176,8 +176,7 @@ namespace ZeroC.Ice.Test.Timeout
                 ITimeoutPrx proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory);
                 try
                 {
-                    using var timeoutTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
-                    proxy.SleepAsync(500, cancel: timeoutTokenSource.Token).Wait();
+                    proxy.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).SleepAsync(500).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
