@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -130,7 +129,7 @@ namespace ZeroC.Ice.Test.Threading
                                         TaskCreationOptions.None, schedulers.ExclusiveScheduler).Unwrap();
             output.WriteLine("ok");
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!OperatingSystem.IsWindows())
             {
                 // TODO enable Windows once we investigate why this tests hang
                 // see: https://github.com/zeroc-ice/ice/issues/968

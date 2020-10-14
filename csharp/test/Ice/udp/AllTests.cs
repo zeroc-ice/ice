@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Test;
@@ -165,7 +164,7 @@ namespace ZeroC.Ice.Test.UDP
             }
             sb.Append(" -p ");
             sb.Append(helper.BasePort + 10);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS())
             {
                 string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                 sb.Append($" --interface {intf}");
@@ -196,7 +195,7 @@ namespace ZeroC.Ice.Test.UDP
             }
 
             // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (!OperatingSystem.IsMacOS())
             {
                 Console.Out.Write("testing udp bi-dir connection... ");
                 Console.Out.Flush();
