@@ -201,7 +201,7 @@ namespace ZeroC.Ice
             {
                 MulticastInterface = argument ?? throw new FormatException(
                     $"no argument provided for --interface option in endpoint `{endpointString}'");
-                // TODO: should we do anything for ::0 and 0.0.0.0?
+
                 if (MulticastInterface == "*")
                 {
                     if (oaEndpoint)

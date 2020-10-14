@@ -52,12 +52,8 @@ namespace ZeroC.IceDiscovery
                                           $"{defaultIPv4Endpoint}:{defaultIPv6Endpoint}");
             }
 
-            string lookupEndpoints;
-            if (_communicator.GetProperty("IceDiscovery.Lookup") is string prop)
-            {
-                lookupEndpoints = prop;
-            }
-            else
+            string? lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup");
+            if (lookupEndpoints == null)
             {
                 List<string> endpoints = new ();
                 List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);

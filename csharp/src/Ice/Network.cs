@@ -317,13 +317,11 @@ namespace ZeroC.Ice
                 {
                     goto repeatGetHostByName;
                 }
-                // TODO: is there a better host to use?
-                throw new DNSException("0.0.0.0", ex);
+                throw new TransportException("error retrieving local network interface IP addresses", ex);
             }
             catch (Exception ex)
             {
-                // TODO: is there a better host to use?
-                throw new DNSException("0.0.0.0", ex);
+                throw new TransportException("error retrieving local network interface IP addresses", ex);
             }
 
             return addresses.ToArray();

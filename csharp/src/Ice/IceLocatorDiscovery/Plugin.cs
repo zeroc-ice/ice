@@ -384,12 +384,8 @@ namespace ZeroC.IceLocatorDiscovery
             const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
             const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
 
-            string lookupEndpoints;
-            if (_communicator.GetProperty($"{_name}.Lookup") is string prop)
-            {
-                lookupEndpoints = prop;
-            }
-            else
+            string? lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup");
+            if (lookupEndpoints == null)
             {
 
                 List<string> endpoints = new ();
