@@ -17,7 +17,7 @@ namespace ZeroC.Ice
         /// <summary>A cancellation token that receives the cancellation requests. The cancellation token takes into
         /// account the invocation timeout and the cancellation token provided by the application.</summary>
         public CancellationToken CancellationToken =>
-            _linkedCancelationSource?.Token ?? _invocationTimeoutCancelationSource.Token;
+            _linkedCancellationSource?.Token ?? _invocationTimeoutCancellationSource.Token;
 
         /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
         /// the same as Context's entries.</summary>
@@ -58,9 +58,9 @@ namespace ZeroC.Ice
 
         private Dictionary<string, string>? _contextOverride;
         private readonly ArraySegment<byte> _defaultBinaryContext;
-        private readonly CancellationTokenSource? _linkedCancelationSource;
         private readonly IReadOnlyDictionary<string, string> _initialContext;
-        private readonly CancellationTokenSource _invocationTimeoutCancelationSource;
+        private readonly CancellationTokenSource _invocationTimeoutCancellationSource;
+        private readonly CancellationTokenSource? _linkedCancellationSource;
 
         // When true, we always write Context in slot 0 of the binary context. This field is always false when
         // _defaultBinaryContext is empty.
@@ -69,8 +69,8 @@ namespace ZeroC.Ice
         /// <inheritdoc/>
         public void Dispose()
         {
-            _invocationTimeoutCancelationSource.Dispose();
-            _linkedCancelationSource?.Dispose();
+            _invocationTimeoutCancellationSource.Dispose();
+            _linkedCancellationSource?.Dispose();
         }
 
         /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with a single non-struct
@@ -311,11 +311,11 @@ namespace ZeroC.Ice
             Operation = operation;
             IsIdempotent = idempotent;
 
-            _invocationTimeoutCancelationSource = new CancellationTokenSource(proxy.InvocationTimeout);
+            _invocationTimeoutCancellationSource = new CancellationTokenSource(proxy.InvocationTimeout);
             if (cancel.CanBeCanceled)
             {
-                _linkedCancelationSource = CancellationTokenSource.CreateLinkedTokenSource(
-                    _invocationTimeoutCancelationSource.Token,
+                _linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                    _invocationTimeoutCancellationSource.Token,
                     cancel);
             }
 

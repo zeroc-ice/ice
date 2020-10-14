@@ -344,21 +344,8 @@ namespace ZeroC.Ice
         /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <returns>The operation's return value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader)
-        {
-            try
-            {
-                IncomingResponseFrame response = this.InvokeWithInterceptorsAsync(request,
-                                                                                  oneway: false,
-                                                                                  synchronous: true).Result;
-                return response.ReadReturnValue(Communicator, reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
+        protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader) =>
+            this.Invoke(request, oneway: false).ReadReturnValue(Communicator, reader);
 
         /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
@@ -367,20 +354,10 @@ namespace ZeroC.Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void IceInvoke(OutgoingRequestFrame request, bool oneway)
         {
-            try
+            IncomingResponseFrame response = this.Invoke(request, oneway);
+            if (!oneway)
             {
-                IncomingResponseFrame response = this.InvokeWithInterceptorsAsync(request,
-                                                                                  oneway,
-                                                                                  synchronous: true).Result;
-                if (!oneway)
-                {
-                    response.ReadVoidReturnValue(Communicator);
-                }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
+                response.ReadVoidReturnValue(Communicator);
             }
         }
 
@@ -397,12 +374,7 @@ namespace ZeroC.Ice
             InputStreamReader<T> reader,
             IProgress<bool>? progress)
         {
-            return ReadResponseAsync(this.InvokeWithInterceptorsAsync(request,
-                                                                      oneway: false,
-                                                                      synchronous: false,
-                                                                      progress),
-                                     reader,
-                                     Communicator);
+            return ReadResponseAsync(this.InvokeAsync(request, oneway: false, progress), reader, Communicator);
 
             static async Task<T> ReadResponseAsync(
                 Task<IncomingResponseFrame> task,
@@ -423,10 +395,7 @@ namespace ZeroC.Ice
             bool oneway,
             IProgress<bool>? progress)
         {
-            Task<IncomingResponseFrame> response = this.InvokeWithInterceptorsAsync(request,
-                                                                                    oneway,
-                                                                                    synchronous: false,
-                                                                                    progress);
+            Task<IncomingResponseFrame> response = this.InvokeAsync(request, oneway, progress);
             return oneway ? Task.CompletedTask : ReadResponseAsync(response, Communicator);
 
             static async Task ReadResponseAsync(
