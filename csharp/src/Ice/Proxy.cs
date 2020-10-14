@@ -280,10 +280,9 @@ namespace ZeroC.Ice
             IncomingResponseFrame response;
             try
             {
-                response = await proxy.InvokeWithInterceptorsAsync(forwardedRequest,
-                                                                   oneway,
-                                                                   synchronous: false,
-                                                                   progress).ConfigureAwait(false);
+                response = await proxy.InvokeAsync(forwardedRequest,
+                                                   oneway,
+                                                   progress).ConfigureAwait(false);
             }
             catch (DispatchException ex)
             {
@@ -540,13 +539,12 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
-            IProgress<bool>? progress = null,
-            CancellationToken? cancel = null)
+            IProgress<bool>? progress = null)
         {
             return InvokeWithInterceptorsAsync(proxy,
                                                request,
@@ -554,7 +552,7 @@ namespace ZeroC.Ice
                                                synchronous,
                                                0,
                                                progress,
-                                               cancel ?? request.CancellationToken);
+                                               request.CancellationToken);
 
             static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,

@@ -220,7 +220,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                 format: default,
                                                                 context: null,
                                                                 token,
-                                                                writer: Token.IceWriter);
+                                                                Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
                     request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
                     request.AddBinaryContextEntry(

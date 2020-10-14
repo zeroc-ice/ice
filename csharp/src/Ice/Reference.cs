@@ -187,8 +187,7 @@ namespace ZeroC.Ice
                 if (invocationTimeout == null)
                 {
                     property = $"{propertyPrefix}.InvocationTimeout";
-                    invocationTimeout =
-                        communicator.GetPropertyAsTimeSpan(property) ?? communicator.DefaultInvocationTimeout;
+                    invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
                     if (invocationTimeout == TimeSpan.Zero)
                     {
                         throw new InvalidConfigurationException($"0 is not a valid value for property `{property}'");
