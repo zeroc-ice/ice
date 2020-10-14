@@ -111,8 +111,7 @@ namespace ZeroC.Ice
                         Socket.Bind(_sourceAddr);
                     }
 
-                    // TODO: fix to use the cancellable ConnectAsync with 5.0
-                    await Socket.ConnectAsync(_addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_addr, cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

@@ -519,7 +519,7 @@ namespace ZeroC.Ice.Test.AMI
                             TestHelper.Assert(previous == expected);
                             expected = j;
                         }
-                        await serialized.GetConnection().CloseAsync(ConnectionClose.Gracefully);
+                        await serialized.GetConnection().GoAwayAsync();
                     }
                 }
                 catch (ObjectNotExistException)
@@ -552,7 +552,7 @@ namespace ZeroC.Ice.Test.AMI
                         {
                             await tasks[j].ConfigureAwait(false);
                         }
-                        await serialized.GetConnection().CloseAsync(ConnectionClose.Gracefully);
+                        await serialized.GetConnection().GoAwayAsync();
                     }
                 }
                 catch (ObjectNotExistException)
@@ -772,7 +772,7 @@ namespace ZeroC.Ice.Test.AMI
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
-                    _ = con.CloseAsync(ConnectionClose.Gracefully);
+                    _ = con.GoAwayAsync();
                     try
                     {
                         t.Wait();
@@ -807,7 +807,7 @@ namespace ZeroC.Ice.Test.AMI
                     Task t = p.StartDispatchAsync(
                         progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
-                    con.Close(ConnectionClose.Forcefully);
+                    con.AbortAsync();
                     try
                     {
                         t.Wait();

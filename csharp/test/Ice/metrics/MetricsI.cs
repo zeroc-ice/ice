@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public void Fail(Current current, CancellationToken cancel) =>
-            current.Connection.CloseAsync(ConnectionClose.Forcefully);
+            current.Connection.AbortAsync();
 
         public void OpWithUserException(Current current, CancellationToken cancel) =>
             throw new UserEx("custom UserEx message");

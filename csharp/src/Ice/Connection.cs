@@ -11,17 +11,6 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Determines the behavior when manually closing a connection.</summary>
-    public enum ConnectionClose
-    {
-        /// <summary>Close the connection immediately without sending a GoAway protocol message to the peer
-        /// and waiting for the peer to acknowledge it.</summary>
-        Forcefully,
-        /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations
-        /// to complete, just wait for pending dispatch to complete.</summary>
-        Gracefully,
-    }
-
     /// <summary>The state of an Ice connection.</summary>
     public enum ConnectionState : byte
     {
@@ -131,26 +120,10 @@ namespace ZeroC.Ice
         private readonly object _mutex = new ();
         private volatile ConnectionState _state; // The current state.
 
-        /// <summary>Manually closes the connection using the specified closure mode.</summary>
-        /// <param name="mode">Determines how the connection will be closed.</param>
-        public void Close(ConnectionClose mode) =>
-            // TODO: Temporary, remove by just making public GoAwayAsync and AbortAsync.
-            CloseAsync(mode);
-
-        /// <summary>Manually closes asynchronously the connection using the specified closure mode.</summary>
-        /// <param name="mode">Determines how the connection will be closed.</param>
-        public Task CloseAsync(ConnectionClose mode)
-        {
-            if (mode == ConnectionClose.Forcefully)
-            {
-                return AbortAsync(new ConnectionClosedLocallyException("connection closed forcefully"));
-            }
-            else
-            {
-                Debug.Assert(mode == ConnectionClose.Gracefully);
-                return GoAwayAsync(new ConnectionClosedLocallyException("connection closed gracefully"));
-            }
-        }
+        /// <summary>Aborts the connection.</summary>
+        /// <param name="message">A description of the connection abortion reason.</param>
+        public Task AbortAsync(string? message = null) =>
+            AbortAsync(new ConnectionClosedLocallyException(message ?? "connection closed forcefully"));
 
         /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
         /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
@@ -182,6 +155,12 @@ namespace ZeroC.Ice
             remove => _closed -= value;
         }
 
+        /// <summary>Gracefully closes the connection by sending a GoAway frame to the peer.</summary>
+        /// <param name="message">The message transmitted to the peer with the GoAway frame.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public Task GoAwayAsync(string? message = null, CancellationToken cancel = default) =>
+            GoAwayAsync(new ConnectionClosedLocallyException(message ?? "connection closed gracefully"), cancel);
+
         /// <summary>This event is raised when the connection receives a ping frame. The connection object is
         /// passed as the event sender argument.</summary>
         public event EventHandler? PingReceived
@@ -191,6 +170,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Sends a ping frame.</summary>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public void Ping(CancellationToken cancel = default)
         {
             try
@@ -268,7 +248,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async Task GoAwayAsync(Exception exception)
+        internal async Task GoAwayAsync(Exception exception, CancellationToken cancel = default)
         {
             try
             {
@@ -283,7 +263,7 @@ namespace ZeroC.Ice
                     }
                     goAwayTask = _closeTask ?? AbortAsync(exception);
                 }
-                await goAwayTask.ConfigureAwait(false);
+                await goAwayTask.WaitAsync(cancel).ConfigureAwait(false);
             }
             catch
             {

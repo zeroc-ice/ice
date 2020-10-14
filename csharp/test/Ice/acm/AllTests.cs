@@ -537,7 +537,7 @@ namespace ZeroC.Ice.Test.ACM
                 con.Closed += (sender, args) => t1.SetResult(null);
                 con.Closed += (sender, args) => t2.SetResult(null);
 
-                con.Close(ConnectionClose.Gracefully);
+                con.GoAwayAsync();
                 TestHelper.Assert(t1.Task.Result == null);
                 TestHelper.Assert(t2.Task.Result == null);
 

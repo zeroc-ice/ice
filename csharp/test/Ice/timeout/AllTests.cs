@@ -154,11 +154,11 @@ namespace ZeroC.Ice.Test.Timeout
 
                 var semaphore = new System.Threading.SemaphoreSlim(0);
                 connection.Closed += (sender, args) => semaphore.Release();
-                connection.Close(ConnectionClose.Gracefully);
+                connection.GoAwayAsync();
                 TestHelper.Assert(semaphore.Wait(500));
 
                 connection2.Closed += (sender, args) => semaphore.Release();
-                connection2.Close(ConnectionClose.Gracefully);
+                connection2.GoAwayAsync();
                 TestHelper.Assert(!semaphore.Wait(500));
 
                 controller.ResumeAdapter();

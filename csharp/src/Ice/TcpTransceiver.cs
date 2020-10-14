@@ -42,8 +42,7 @@ namespace ZeroC.Ice
                     }
 
                     // Connect to the server or proxy server.
-                    // TODO: use the cancelable ConnectAsync with 5.0
-                    await Socket.ConnectAsync(_proxy?.Address ?? _addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_proxy?.Address ?? _addr, cancel).ConfigureAwait(false);
 
                     _desc = Network.SocketToString(Socket, _proxy, _addr);
 

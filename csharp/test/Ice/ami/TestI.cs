@@ -22,8 +22,17 @@ namespace ZeroC.Ice.Test.AMI
         {
         }
 
-        public void Close(CloseMode mode, Current current, CancellationToken cancel) =>
-            _ = current.Connection.CloseAsync((ConnectionClose)(int)mode);
+        public void Close(CloseMode mode, Current current, CancellationToken cancel)
+        {
+            if (mode == CloseMode.Gracefully)
+            {
+                current.Connection.GoAwayAsync(cancel: cancel);
+            }
+            else
+            {
+                current.Connection.AbortAsync();
+            }
+        }
 
         public void Sleep(int ms, Current current, CancellationToken cancel)
         {

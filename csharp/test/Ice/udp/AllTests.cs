@@ -125,7 +125,7 @@ namespace ZeroC.Ice.Test.UDP
                 // DatagramLimitException will be throw when try to send a packet bigger than that.
                 TestHelper.Assert(seq.Length > 16384);
             }
-            obj.GetConnection().Close(ConnectionClose.Gracefully);
+            obj.GetConnection().GoAwayAsync();
             communicator.SetProperty("Ice.UDP.SndSize", "64K");
             seq = new byte[50000];
             try
