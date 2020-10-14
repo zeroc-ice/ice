@@ -219,7 +219,6 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                 compress: false,
                                                                 format: default,
                                                                 context: null,
-                                                                cancel: default,
                                                                 token,
                                                                 writer: Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
@@ -258,7 +257,6 @@ namespace ZeroC.Ice.Test.Interceptor
                                                             compress: false,
                                                             format: default,
                                                             context: null,
-                                                            cancel: default,
                                                             token,
                                                             Token.IceWriter);
                     request.AddBinaryContextEntry(1, token, Token.IceWriter);
@@ -277,7 +275,6 @@ namespace ZeroC.Ice.Test.Interceptor
                                                             compress: false,
                                                             format: default,
                                                             context: null,
-                                                            cancel: default,
                                                             token,
                                                             Token.IceWriter);
 
@@ -300,7 +297,6 @@ namespace ZeroC.Ice.Test.Interceptor
                                                             compress: false,
                                                             format: default,
                                                             context: null,
-                                                            cancel: default,
                                                             token,
                                                             Token.IceWriter);
                 try

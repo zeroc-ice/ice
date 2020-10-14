@@ -85,14 +85,11 @@ namespace ZeroC.Ice
         /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last",
-            Justification = "Delegates and lambda function should be the pass as the last argument")]
-        // TODO move cancellation token to the end?
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -100,9 +97,9 @@ namespace ZeroC.Ice
             bool compress,
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
-            CancellationToken cancel,
             T args,
-            OutputStreamWriter<T> writer)
+            OutputStreamWriter<T> writer,
+            CancellationToken cancel = default)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
@@ -132,14 +129,11 @@ namespace ZeroC.Ice
         /// instances.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last",
-                    Justification = "Delegates and lambda function should be the pass as the last argument")]
-        // TODO move cancellation token to the end?
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
@@ -147,9 +141,9 @@ namespace ZeroC.Ice
             bool compress,
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
-            CancellationToken cancel,
             in T args,
-            OutputStreamValueWriter<T> writer) where T : struct
+            OutputStreamValueWriter<T> writer,
+            CancellationToken cancel = default) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),

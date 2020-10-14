@@ -56,9 +56,9 @@ namespace ZeroC.Ice
                     compress: false,
                     format: default,
                     context,
-                    cancel,
                     id,
-                    OutputStream.IceWriterFromString);
+                    OutputStream.IceWriterFromString,
+                    cancel);
 
             /// <summary>Creates an <see cref="OutgoingRequestFrame"/> for operation ice_ping.</summary>
             /// <param name="proxy">Proxy to the target Ice Object.</param>
