@@ -234,7 +234,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 {
                     Dictionary<string, string> properties = communicator.GetProperties();
                     string port = $"{helper.BasePort + 10}";
-                    string intf = helper.Host;
+                    string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                     properties["IceDiscovery.Lookup"] =
                         $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} --interface {intf}";
                     using var comm = new Communicator(properties);
