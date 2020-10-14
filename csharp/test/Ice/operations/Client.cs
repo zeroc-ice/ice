@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Threading.Tasks;
 using Test;
 
@@ -11,20 +10,7 @@ namespace ZeroC.Ice.Test.Operations
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            var myClass = AllTests.Run(this);
-
-            Console.Out.Write("testing server shutdown... ");
-            Console.Out.Flush();
-            await myClass.ShutdownAsync();
-            try
-            {
-                await myClass.IcePingAsync();
-                Assert(false);
-            }
-            catch
-            {
-                 Console.Out.WriteLine("ok");
-            }
+            await AllTests.Run(this).ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
