@@ -278,7 +278,8 @@ namespace ZeroC.Ice
                     proxyOptions.InvocationTimeout = TimeSpanExtensions.Parse(value);
                     if (proxyOptions.InvocationTimeout.Value == TimeSpan.Zero)
                     {
-                        throw new FormatException($"invalid value for invocation-timeout option in `{uriString}'");
+                        throw new FormatException(
+                            $"0 is not a valid value for invocation-timeout option in `{uriString}'");
                     }
                 }
                 else if (name == "protocol")

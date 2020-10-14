@@ -1132,8 +1132,6 @@ namespace ZeroC.Ice.Test.Proxy
 
                 using var comm2 = new Communicator();
 
-                Console.WriteLine(IObjectPrx.Parse("ice+tcp://localhost/identity", comm1).InvocationTimeout.TotalSeconds);
-
                 TestHelper.Assert(IObjectPrx.Parse("ice+tcp://localhost/identity", comm1).InvocationTimeout ==
                                   TimeSpan.FromSeconds(120));
 
