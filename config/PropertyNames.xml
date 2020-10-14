@@ -382,6 +382,7 @@ generated from the section label.
         <property name="Package.[any]" />
         <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
+        <!-- TODO: remove PreferIPv6Address -->
         <property name="PreferIPv6Address" />
         <property name="PreloadAssemblies" />
         <property name="PrintAdapterReady" />
@@ -444,6 +445,7 @@ generated from the section label.
         <property name="Timeout"/>
         <property name="RetryCount"/>
         <property name="LatencyMultiplier"/>
+        <!-- TODO: Remove Address, Port, and Interface -->
         <property name="Address"/>
         <property name="Port"/>
         <property name="Interface"/>

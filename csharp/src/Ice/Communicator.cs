@@ -162,7 +162,6 @@ namespace ZeroC.Ice
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
-        internal bool PreferIPv6 { get; }
 
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
         /// invocation. It must be a number greater than 0.</summary>
@@ -524,8 +523,6 @@ namespace ZeroC.Ice
                 ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
                 _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
-
-                PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
                 NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
 

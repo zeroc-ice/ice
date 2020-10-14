@@ -154,8 +154,8 @@ namespace ZeroC.Ice.Test.UDP
 
             var sb = new StringBuilder("test -d:udp -h ");
 
-            // Use loopback to prevent other machines to answer.
-            if (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false)
+            // Use loopback to prevent other machines from answering.
+            if (helper.Host.Contains(":"))
             {
                 sb.Append("\"ff15::1:1\"");
             }
@@ -167,14 +167,8 @@ namespace ZeroC.Ice.Test.UDP
             sb.Append(helper.BasePort + 10);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                if (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false)
-                {
-                    sb.Append(" --interface \"::1\"");
-                }
-                else
-                {
-                    sb.Append(" --interface 127.0.0.1");
-                }
+                string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
+                sb.Append($" --interface {intf}");
             }
             var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator);
 

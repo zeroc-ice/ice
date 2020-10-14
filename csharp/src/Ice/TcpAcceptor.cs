@@ -51,8 +51,7 @@ namespace ZeroC.Ice
 
             _addr = Network.GetAddressForServerEndpoint(endpoint.Host,
                                                         endpoint.Port,
-                                                        Network.EnableBoth,
-                                                        endpoint.Communicator.PreferIPv6);
+                                                        Network.EnableBoth);
 
             _socket = Network.CreateServerSocket(endpoint, _addr.AddressFamily);
 

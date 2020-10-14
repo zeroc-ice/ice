@@ -43,7 +43,7 @@ namespace ZeroC.Ice.Test.UDP
             var endpoint = new StringBuilder();
 
             // Use loopback to prevent other machines to answer.
-            if (communicator.GetProperty("Ice.PreferIPv6Address") == "1")
+            if (Host.Contains(":"))
             {
                 endpoint.Append("udp -h \"ff15::1:1\"");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||

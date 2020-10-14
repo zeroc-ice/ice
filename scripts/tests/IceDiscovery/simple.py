@@ -12,6 +12,12 @@ props = lambda process, current: {
     "IceDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
     "IceDiscovery.RetryCount": 20,
     "IceDiscovery.DomainId": domainId,
+     "IceDiscovery.Multicast.Endpoints":
+        f"udp -h 239.255.0.1 -p {current.driver.getTestPort(10)} --interface 127.0.0.1:udp -h \"ff15::1\" -p {current.driver.getTestPort(10)} --interface \"::1\"",
+    "IceDiscovery.Lookup":
+        f"udp -h 239.255.0.1 -p {current.driver.getTestPort(10)} --interface 127.0.0.1:udp -h \"ff15::1\" -p {current.driver.getTestPort(10)} --interface \"::1\"",
+    "IceDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
+    # TODO remove Interface and Port properties once all tests are fixed to not use them
     "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
     "IceDiscovery.Port": current.driver.getTestPort(10),
     "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),

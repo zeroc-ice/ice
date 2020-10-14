@@ -53,11 +53,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                 properties["Test.Host"] = value;
             }
 
-            if (defaultProperties.TryGetValue("Ice.PreferIPv6Address", out value))
-            {
-                properties["Ice.PreferIPv6Address"] = value;
-            }
-
             properties["Ice.RetryIntervals"] = "-1";
 
             if (cert != null)
