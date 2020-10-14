@@ -823,12 +823,13 @@ pair<string, string> Slice::parseMetadata(const string& metadata)
 
     // We subtract 1 under the assumption that it ends with a ')' which shouldn't be included.
     auto length = metadata.length() - start - 1;
-    if (!metadata.ends_with(')')
+    // Check the raw string ends with a closing parentheses.
+    if (metadata.at(length + start) != ')')
     {
         unit->error("missing closing parentheses for metadata arguments");
         length += 1;
     }
-    return make_pair(metadata.substr(0, start), metadata.subst(start + 1, length))
+    return make_pair(metadata.substr(0, start), metadata.substr(start + 1, length));
 }
 
 map<string, string> Slice::parseMetadata(const StringList& metadata)
@@ -849,5 +850,5 @@ bool Slice::hasMetadata(const string& directive, const map<string, string>& meta
 optional<string> Slice::findMetadata(const string& directive, const map<string, string>& metadata)
 {
     auto match = metadata.find(directive);
-    return match != metadata.end() : match->second : nullopt;
+    return (match != metadata.end() ? make_optional(match->second) : nullopt);
 }
