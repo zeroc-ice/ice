@@ -40,6 +40,7 @@ module Ice
         string operation;
         bool? \idempotent;       // null equivalent to false
         Priority? priority;      // null equivalent to 0
+        varlong deadline;
     }
 
     /// The type of result carried by an ice2 response frame. The values Success and Failure match the values of OK and

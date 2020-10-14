@@ -12,6 +12,10 @@ namespace ZeroC.Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
 
+        /// <summary>The request deadline. The peer sets the deadline to the absolute time at which its timeout will be
+        /// triggered. With Ice1 the peer doesn't send a deadline and it always has the default value.</summary>
+        public DateTime Deadline { get; }
+
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
 
@@ -62,6 +66,7 @@ namespace ZeroC.Ice
                 Operation = requestHeaderBody.Operation;
                 IsIdempotent = requestHeaderBody.Idempotent ?? false;
                 Priority = requestHeaderBody.Priority ?? default;
+                Deadline = DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = null!; // initialized below
 
                 if (Location.Any(segment => segment.Length == 0))

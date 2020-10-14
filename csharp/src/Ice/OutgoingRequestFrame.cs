@@ -38,6 +38,10 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>The request deadline. The deadline is set to the absolute time at which its invocation timeout will be
+        /// triggered.</summary>
+        public DateTime Deadline { get; }
+
         /// <summary>The encoding of the request payload.</summary>
         public override Encoding Encoding { get; }
 
@@ -311,6 +315,7 @@ namespace ZeroC.Ice
             Operation = operation;
             IsIdempotent = idempotent;
 
+            Deadline = DateTime.UtcNow + proxy.InvocationTimeout;
             _invocationTimeoutCancelationSource = new CancellationTokenSource(proxy.InvocationTimeout);
             if (cancel.CanBeCanceled)
             {
@@ -356,7 +361,12 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
-                ostr.WriteIce2RequestHeaderBody(Identity, Facet, Location, Operation, IsIdempotent);
+                ostr.WriteIce2RequestHeaderBody(Identity,
+                                                Facet,
+                                                Location,
+                                                Operation,
+                                                IsIdempotent,
+                                                Deadline - DateTime.UnixEpoch);
             }
             PayloadStart = ostr.Tail;
 
