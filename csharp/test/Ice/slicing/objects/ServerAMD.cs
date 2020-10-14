@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("Test", new TestIntfAsync());
+            adapter.Add("Test", new AsyncTestIntf());
             await adapter.ActivateAsync();
             await communicator.WaitForShutdownAsync();
         }

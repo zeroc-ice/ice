@@ -79,14 +79,14 @@ namespace ZeroC.Ice.Test.Threading
             await proxy.PingAsync().ContinueWith(checkScheduler("pingAsyncAsync"), TaskScheduler.Current);
             TestHelper.Assert(TaskScheduler.Current == scheduler);
 
-            // The progress Report callback is always called from the default task scheduler right now.
+            // The progress Report callback is from the default task scheduler or the caller's thread scheduler.
             Progress progress;
             progress = new Progress();
             await proxy.PingSyncAsync(progress: progress);
-            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
+            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default || progress.Scheduler == scheduler);
             progress = new Progress();
             await proxy.PingAsync(progress: progress);
-            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
+            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default || progress.Scheduler == scheduler);
 
             // The continuation of an awaitable setup with ConfigureAwait(false) is ran with the default
             // scheduler unless it completes synchronously in which cause it will run on the current

@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 });
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("test", new MyObjectAsync());
+            adapter.Add("test", new AsyncMyObject());
             await DispatchInterceptors.ActivateAsync(adapter);
             ServerReady();
             await communicator.WaitForShutdownAsync();

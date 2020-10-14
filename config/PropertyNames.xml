@@ -388,7 +388,9 @@ generated from the section label.
         <property name="PrintProcessId" />
         <property name="PrintStackTraces" />
         <property name="ProgramName" />
-        <property name="RetryIntervals" />
+        <property name="RetryBufferSizeMax" />
+        <property name="RetryRequestSizeMax" />
+        <property name="RetryIntervals" /> <!-- TODO remove -->
         <property name="ServerIdleTime" />
         <property name="SOCKSProxyHost" />
         <property name="SOCKSProxyPort" />

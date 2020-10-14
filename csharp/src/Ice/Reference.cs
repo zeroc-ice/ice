@@ -705,101 +705,6 @@ namespace ZeroC.Ice
         {
         }
 
-        internal int CheckRetryAfterException(Exception ex, bool sent, bool idempotent, ref int cnt)
-        {
-            // TODO: revisit retry logic
-
-            // If the request was sent and is not idempotent, the operation might be retried only if the exception
-            // is an ObjectNotExistException or ConnectionClosedByPeerException. Otherwise, it can't be retried.
-            if (sent && !idempotent && !(ex is ObjectNotExistException) && !(ex is ConnectionClosedByPeerException))
-            {
-                throw ExceptionUtil.Throw(ex);
-            }
-
-            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to the connection and the request will
-            // fail with the exception.
-            if (IsFixed)
-            {
-                throw ExceptionUtil.Throw(ex);
-            }
-
-            if (ex is ObjectNotExistException one)
-            {
-                RouterInfo? ri = RouterInfo;
-                if (ri != null && one.Operation.Equals("ice_add_proxy"))
-                {
-                    // If we have a router, an ObjectNotExistException with an operation name "ice_add_proxy" indicates
-                    // to the client that the router isn't aware of the proxy (for example, because it was evicted by
-                    // the router). In this case, we must *always* retry, so that the missing proxy is added to the
-                    // router.
-
-                    ri.ClearCache(this);
-
-                    if (Communicator.TraceLevels.Retry >= 1)
-                    {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory,
-                            $"retrying operation call to add proxy to router\n {ex}");
-                    }
-                    return 0; // We must always retry, so we don't look at the retry count.
-                }
-                else if (IsIndirect)
-                {
-                    // We retry ObjectNotExistException if the reference is indirect.
-                    if (IsWellKnown)
-                    {
-                        LocatorInfo?.ClearCache(this);
-                    }
-                }
-                else
-                {
-                    // For all other cases, we don't retry ObjectNotExistException.
-                    throw ExceptionUtil.Throw(ex);
-                }
-            }
-
-            // Don't retry if the communicator or object adapter are disposed.
-            if (ex is ObjectDisposedException)
-            {
-                throw ExceptionUtil.Throw(ex);
-            }
-
-            ++cnt;
-            Debug.Assert(cnt > 0);
-
-            int interval;
-            if (cnt == (Communicator.RetryIntervals.Length + 1) && ex is ConnectionClosedByPeerException)
-            {
-                // A connection closed exception is always retried at least once, even if the retry limit is reached.
-                interval = 0;
-            }
-            else if (cnt > Communicator.RetryIntervals.Length)
-            {
-                if (Communicator.TraceLevels.Retry >= 1)
-                {
-                    Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory,
-                        $"cannot retry operation call because retry limit has been exceeded\n{ex}");
-                }
-                throw ExceptionUtil.Throw(ex);
-            }
-            else
-            {
-                interval = Communicator.RetryIntervals[cnt - 1];
-            }
-
-            if (Communicator.TraceLevels.Retry >= 1)
-            {
-                string s = "retrying operation call";
-                if (interval > 0)
-                {
-                    s += " in " + interval + "ms";
-                }
-                s += $" because of exception\n{ex}";
-                Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory, s);
-            }
-
-            return interval;
-        }
-
         internal void ClearConnection(Connection connection)
         {
             Debug.Assert(!IsFixed);
@@ -1037,7 +942,9 @@ namespace ZeroC.Ice
 
         internal Connection? GetCachedConnection() => _connection;
 
-        internal async ValueTask<Connection> GetConnectionAsync(CancellationToken cancel)
+        internal async ValueTask<Connection> GetConnectionAsync(
+            IReadOnlyList<IConnector> excludedConnectors,
+            CancellationToken cancel)
         {
             Connection? connection = _connection;
 
@@ -1160,6 +1067,7 @@ namespace ZeroC.Ice
                                                                false,
                                                                EndpointSelection,
                                                                ConnectionId,
+                                                               excludedConnectors,
                                                                cancel).ConfigureAwait(false);
                     }
                     else
@@ -1172,10 +1080,11 @@ namespace ZeroC.Ice
                         {
                             try
                             {
-                                connection = await factory.CreateAsync(new Endpoint[] { endpoint },
+                                connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
                                                                        endpoint != lastEndpoint,
                                                                        EndpointSelection,
                                                                        ConnectionId,
+                                                                       excludedConnectors,
                                                                        cancel).ConfigureAwait(false);
                                 break;
                             }
@@ -1218,7 +1127,7 @@ namespace ZeroC.Ice
                                                       "connection to cached endpoints failed\n" +
                                                       $"removing endpoints from cache and trying again\n{ex}");
                         }
-                        return await GetConnectionAsync(cancel);
+                        return await GetConnectionAsync(excludedConnectors, cancel);
                     }
                     throw;
                 }

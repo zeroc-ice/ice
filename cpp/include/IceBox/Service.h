@@ -15,7 +15,6 @@
 #include <Ice/Comparable.h>
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
-#include <Ice/GCObject.h>
 #include <Ice/Value.h>
 #include <Ice/Incoming.h>
 #include <Ice/FactoryTableInit.h>

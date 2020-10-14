@@ -7,7 +7,7 @@
 
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
-#include <Ice/ServantLocatorF.h>
+#include <Ice/ServantLocator.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>

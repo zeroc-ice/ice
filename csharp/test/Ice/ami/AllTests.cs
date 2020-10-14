@@ -98,20 +98,6 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        private class SentCallback : CallbackBase
-        {
-            public SentCallback() => _thread = Thread.CurrentThread;
-
-            public void Sent(bool ss)
-            {
-                TestHelper.Assert((ss && _thread == Thread.CurrentThread) || (!ss && _thread != Thread.CurrentThread));
-
-                Called();
-            }
-
-            private readonly Thread _thread;
-        }
-
         public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
@@ -392,26 +378,26 @@ namespace ZeroC.Ice.Test.AMI
             output.Flush();
             {
                 {
-                    var cb = new SentCallback();
+                    var cb = new CallbackBase();
 
                     Task t = p.IceIsAAsync("",
-                        progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                        progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IcePingAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IcePingAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IceIdAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IceIdAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IceIdsAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IceIdsAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.OpAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.OpAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
                 }

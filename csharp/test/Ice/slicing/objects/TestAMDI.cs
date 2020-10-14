@@ -8,7 +8,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Objects
 {
-    public sealed class TestIntfAsync : ITestIntfAsync
+    public sealed class AsyncTestIntf : IAsyncTestIntf
     {
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {

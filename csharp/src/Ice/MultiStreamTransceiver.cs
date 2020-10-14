@@ -338,14 +338,14 @@ namespace ZeroC.Ice
             {
                 framePrefix = "sent";
                 encoding = outgoingFrame.Encoding;
-                frameType = frame is OutgoingRequestFrame ? "request" : "response";
+                frameType = frame is OutgoingRequestFrame ? "Request" : "Response";
                 frameSize = outgoingFrame.Size;
             }
             else if (frame is IncomingFrame incomingFrame)
             {
                 framePrefix = "received";
                 encoding = incomingFrame.Encoding;
-                frameType = frame is IncomingRequestFrame ? "request" : "response";
+                frameType = frame is IncomingRequestFrame ? "Request" : "Response";
                 frameSize = incomingFrame.Size;
             }
             else
@@ -370,9 +370,9 @@ namespace ZeroC.Ice
                 {
                     frameType = (Ice2Definitions.FrameType)type switch
                     {
-                        Ice2Definitions.FrameType.Initialize => "initialize",
-                        Ice2Definitions.FrameType.GoAway => "goaway",
-                        _ => "unknown"
+                        Ice2Definitions.FrameType.Initialize => "Initialize",
+                        Ice2Definitions.FrameType.GoAway => "GoAway",
+                        _ => "Unknown"
                     };
                     encoding = Ice2Definitions.Encoding;
                     frameSize = 0;
@@ -381,10 +381,10 @@ namespace ZeroC.Ice
                 {
                     frameType = (Ice1Definitions.FrameType)type switch
                     {
-                        Ice1Definitions.FrameType.ValidateConnection => "validate",
-                        Ice1Definitions.FrameType.CloseConnection => "close",
-                        Ice1Definitions.FrameType.RequestBatch => "batch request",
-                        _ => "unknown"
+                        Ice1Definitions.FrameType.ValidateConnection => "ValidateConnection",
+                        Ice1Definitions.FrameType.CloseConnection => "CloseConnection",
+                        Ice1Definitions.FrameType.RequestBatch => "RequestBatch",
+                        _ => "Unknown"
                     };
                     encoding = Ice1Definitions.Encoding;
                     frameSize = 0;
@@ -411,7 +411,7 @@ namespace ZeroC.Ice
                 s.Append("\nstream ID = ");
                 s.Append(streamId);
             }
-            else if (frameType == "request" || frameType == "response")
+            else if (frameType == "Request" || frameType == "Response")
             {
                 s.Append("\ncompression status = ");
                 s.Append(compress);
@@ -432,7 +432,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (frameType == "request")
+            if (frameType == "Request")
             {
                 Identity identity;
                 string facet;
@@ -491,7 +491,7 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            else if (frameType == "response")
+            else if (frameType == "Response")
             {
                 s.Append("\nresult type = ");
                 if (frame is IncomingResponseFrame incomingResponseFrame)
@@ -503,19 +503,19 @@ namespace ZeroC.Ice
                     s.Append(outgoingResponseFrame.ResultType);
                 }
             }
-            else if (frameType == "batch request")
+            else if (frameType == "RequestBatch")
             {
                 s.Append("\nnumber of requests = ");
                 s.Append(data.AsReadOnlySpan().ReadInt());
             }
-            else if (protocol == Protocol.Ice2 && frameType == "goaway")
+            else if (protocol == Protocol.Ice2 && frameType == "GoAway")
             {
                 var istr = new InputStream(data, encoding);
                 s.Append("\nlast bidirectional stream ID = ");
                 s.Append(istr.ReadVarLong());
                 s.Append("\nlast unidirectional stream ID = ");
                 s.Append(istr.ReadVarLong());
-                s.Append("\nreason = ");
+                s.Append("\nmessage from peer = ");
                 s.Append(istr.ReadString());
             }
 

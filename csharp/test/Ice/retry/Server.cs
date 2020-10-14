@@ -13,10 +13,17 @@ namespace ZeroC.Ice.Test.Retry
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.Warn.Connections"] = "0";
             await using var communicator = Initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("retry", new Retry());
-            await adapter.ActivateAsync();
+            communicator.SetProperty("TestAdapter1.Endpoints", GetTestEndpoint(0));
+            var adapter1 = communicator.CreateObjectAdapter("TestAdapter1");
+            adapter1.Add("retry", new Retry());
+            adapter1.Add("replicated", new Replicated(true));
+            adapter1.Add("nonreplicated", new NonReplicated());
+            await adapter1.ActivateAsync();
+
+            communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
+            var adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
+            adapter2.Add("replicated", new Replicated(false));
+            await adapter2.ActivateAsync();
             ServerReady();
             await communicator.WaitForShutdownAsync();
         }

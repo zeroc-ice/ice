@@ -1,7 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -28,6 +30,9 @@ namespace ZeroC.Ice
         private Task? _disposeTask;
         private readonly object _mutex = new ();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending = new ();
+        // We keep a map of the connectors that recently resulted in a transport failure. This is used to influence the
+        // selection of connectors when creating new connections. Connectors with recent failures are tried last.
+        private readonly ConcurrentDictionary<IConnector, DateTime> _transportFailures = new ();
 
         public async ValueTask DisposeAsync()
         {
@@ -73,15 +78,17 @@ namespace ZeroC.Ice
             AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
 
+        internal void AddHintFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
+
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
             EndpointSelectionType selType,
             string connectionId,
+            IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
         {
             Debug.Assert(endpoints.Count > 0);
-
             lock (_mutex)
             {
                 if (_disposeTask != null)
@@ -96,7 +103,9 @@ namespace ZeroC.Ice
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
+                        if (connectionList.FirstOrDefault(connection =>
+                            connection.IsActive && !excludedConnectors.Contains(connection.Connector))
+                            is Connection connection)
                         {
                             return connection;
                         }
@@ -106,13 +115,14 @@ namespace ZeroC.Ice
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
             // resolve an endpoint hostname into connector addresses.
-            var connectors = new List<(IConnector, Endpoint)>();
+            var connectors = new List<(IConnector Connector, Endpoint Endpoint)>();
             foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
-                    foreach (IConnector connector in await endpoint.ConnectorsAsync(selType,
-                                                                                    cancel).ConfigureAwait(false))
+                    IEnumerable<IConnector> endpointConnectors =
+                        await endpoint.ConnectorsAsync(selType, cancel).ConfigureAwait(false);
+                    foreach (IConnector connector in endpointConnectors)
                     {
                         connectors.Add((connector, endpoint));
                     }
@@ -138,6 +148,34 @@ namespace ZeroC.Ice
                         // If this was the last endpoint and we didn't manage to get a single connector, we're done.
                         throw;
                     }
+                }
+            }
+
+            lock (_mutex)
+            {
+                if (_disposeTask != null)
+                {
+                    throw new CommunicatorDisposedException();
+                }
+
+                // Purge expired hint failures
+                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
+                foreach ((IConnector connector, DateTime date) in _transportFailures)
+                {
+                    if (date <= expirationDate)
+                    {
+                        _ = _transportFailures.TryRemove(connector, out DateTime _);
+                    }
+                }
+
+                // Exclude connectors that where already tried, order the remaining connectors moving connectors with
+                // recent failures to the end of the list.
+                connectors = connectors.Where(item => !excludedConnectors.Contains(item.Connector)).OrderBy(
+                    item => _transportFailures.TryGetValue(item.Connector, out DateTime value) ? value : default).ToList();
+
+                if (connectors.Count == 0)
+                {
+                    throw new NoEndpointException();
                 }
             }
 
@@ -378,6 +416,8 @@ namespace ZeroC.Ice
                         bool last = i == connectors.Count - 1;
 
                         TraceLevels traceLevels = _communicator.TraceLevels;
+                        _transportFailures[connector] = DateTime.Now;
+
                         if (traceLevels.Transport >= 2)
                         {
                             _communicator.Logger.Trace(traceLevels.TransportCategory,

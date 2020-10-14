@@ -15,10 +15,10 @@ namespace ZeroC.Ice.Test.Inheritance
 
             output.Write("getting proxies for interface hierarchy... ");
             output.Flush();
-            MA.IIAPrx? ia = initial.Iaop();
-            MB.IIB1Prx? ib1 = initial.Ib1op();
-            MB.IIB2Prx? ib2 = initial.Ib2op();
-            MA.IICPrx? ic = initial.Icop();
+            MA.IAPrx? ia = initial.Iaop();
+            MB.IB1Prx? ib1 = initial.Ib1op();
+            MB.IB2Prx? ib2 = initial.Ib2op();
+            MA.ICPrx? ic = initial.Icop();
             TestHelper.Assert(ia != null);
             TestHelper.Assert(ib1 != null);
             TestHelper.Assert(ib2 != null);
@@ -32,10 +32,10 @@ namespace ZeroC.Ice.Test.Inheritance
 
             output.Write("invoking proxy operations on interface hierarchy... ");
             output.Flush();
-            MA.IIAPrx? iao;
-            MB.IIB1Prx? ib1o;
-            MB.IIB2Prx? ib2o;
-            MA.IICPrx? ico;
+            MA.IAPrx? iao;
+            MB.IB1Prx? ib1o;
+            MB.IB2Prx? ib2o;
+            MA.ICPrx? ico;
 
             iao = ia.Iaop(ia);
             TestHelper.Assert(iao!.Equals(ia));

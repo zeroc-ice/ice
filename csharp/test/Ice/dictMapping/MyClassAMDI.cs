@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
-    public sealed class MyClassAsync : IMyClassAsync
+    public sealed class AsyncMyClass : IAsyncMyClass
     {
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {

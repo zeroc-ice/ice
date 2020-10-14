@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Operations
             await using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("test", new MyDerivedClassAsync());
+            adapter.Add("test", new AsyncMyDerivedClass());
             await adapter.ActivateAsync();
             ServerReady();
             await communicator.WaitForShutdownAsync();

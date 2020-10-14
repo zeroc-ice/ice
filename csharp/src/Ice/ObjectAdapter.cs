@@ -60,13 +60,13 @@ namespace ZeroC.Ice
             "ACM.Close",
             "AdapterId",
             "Endpoints",
+            "IncomingFrameSizeMax",
             "Locator",
             "Locator.Encoding",
             "Locator.EndpointSelection",
             "Locator.ConnectionCached",
             "Locator.PreferNonSecure",
             "Locator.Router",
-            "MessageSizeMax",
             "PublishedEndpoints",
             "ReplicaGroupId",
             "Router",
@@ -898,7 +898,11 @@ namespace ZeroC.Ice
                 IObject? servant = Find(current.Identity, current.Facet);
                 if (servant == null)
                 {
-                    throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+                    throw new ObjectNotExistException(
+                        current.Identity,
+                        current.Facet,
+                        current.Operation,
+                        _replicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
                 }
 
                 // TODO: support input streamable data if Current.EndOfStream == false and output streamable data.

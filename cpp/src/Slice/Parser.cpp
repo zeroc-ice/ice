@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/Parser.h>
