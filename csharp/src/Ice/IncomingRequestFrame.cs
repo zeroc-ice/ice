@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
@@ -66,7 +67,9 @@ namespace ZeroC.Ice
                 Operation = requestHeaderBody.Operation;
                 IsIdempotent = requestHeaderBody.Idempotent ?? false;
                 Priority = requestHeaderBody.Priority ?? default;
-                Deadline = DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
+                var deadline = TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
+                Deadline = deadline == Timeout.InfiniteTimeSpan ?
+                    DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = null!; // initialized below
 
                 if (Location.Any(segment => segment.Length == 0))

@@ -309,7 +309,8 @@ namespace ZeroC.Ice
             IsIdempotent = idempotent;
 
             Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
-            Deadline = DateTime.UtcNow + proxy.InvocationTimeout;
+            Deadline = proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
+                DateTime.MaxValue : DateTime.UtcNow + proxy.InvocationTimeout;
             if (proxy.InvocationTimeout != Timeout.InfiniteTimeSpan)
             {
                 _invocationTimeoutCancellationSource = new CancellationTokenSource(proxy.InvocationTimeout);
@@ -365,7 +366,8 @@ namespace ZeroC.Ice
                                                 Location,
                                                 Operation,
                                                 IsIdempotent,
-                                                Deadline - DateTime.UnixEpoch);
+                                                proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
+                                                    Timeout.InfiniteTimeSpan : Deadline - DateTime.UnixEpoch);
             }
             PayloadStart = ostr.Tail;
 
