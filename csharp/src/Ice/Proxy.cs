@@ -548,6 +548,7 @@ namespace ZeroC.Ice
                     {
                         reference.Communicator.DecRetryBufferSize(requestSize);
                     }
+                    // TODO release the request memory if not already done after sent
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
