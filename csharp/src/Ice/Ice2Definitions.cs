@@ -14,8 +14,10 @@ namespace ZeroC.Ice
         // ice2 frame types:
         internal enum FrameType : byte
         {
-            Request = 0,
+            Initialize = 0,
+            Request = 1,
             Response = 2,
+            GoAway = 3
         }
 
         /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance. This

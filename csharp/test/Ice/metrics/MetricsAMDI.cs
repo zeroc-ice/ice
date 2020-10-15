@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public ValueTask FailAsync(Current current, CancellationToken cancel)
         {
-            current.Connection!.Close(ConnectionClose.Forcefully);
+            current.Connection.AbortAsync();
             return default;
         }
 

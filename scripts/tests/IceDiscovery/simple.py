@@ -7,16 +7,33 @@ import uuid
 
 domainId = uuid.uuid4() # Ensures each test uses a unique domain ID
 
-props = lambda process, current: {
-    # TODO workaround until we use TimeSpan timeout with all mappings
-    "IceDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
-    "IceDiscovery.RetryCount": 20,
-    "IceDiscovery.DomainId": domainId,
-    "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
-    "IceDiscovery.Port": current.driver.getTestPort(10),
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
-    "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client" # This is used for the trace file
-}
+def props(process, current):
+    port = current.driver.getTestPort(10)
+    discoveryProps = {
+        "IceDiscovery.RetryCount": 20,
+        "IceDiscovery.DomainId": domainId,
+        "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
+        "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client" # This is used for the trace file
+    }
+
+    if isinstance(current.testcase.getMapping(), CSharpMapping):
+        discoveryProps.update({
+            "IceDiscovery.Timeout": "50ms",
+            "IceDiscovery.Multicast.Endpoints":
+                f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
+            "IceDiscovery.Lookup":
+                f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
+            "IceDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
+        })
+    else:
+        discoveryProps.update({
+            "IceDiscovery.Timeout": "50",
+            "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
+            "IceDiscovery.Port": port,
+        })
+
+    return discoveryProps
+
 
 traceProps = {
     "Ice.Trace.Locator" : 2,

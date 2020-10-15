@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.ACM
             var proxy = ITestIntfPrx.Parse(_adapter!.GetTestIntf()!.ToString() ?? "", _communicator!);
             try
             {
-                proxy.GetConnection()!.Closed += (sender, args) =>
+                proxy.GetConnection().Closed += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -213,7 +213,7 @@ namespace ZeroC.Ice.Test.ACM
                         }
                     };
 
-                proxy.GetConnection()!.HeartbeatReceived += (sender, args) =>
+                proxy.GetConnection().PingReceived += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -497,11 +497,11 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.StartHeartbeatCount();
                 Connection con = proxy.GetConnection()!;
-                con.Heartbeat();
-                con.Heartbeat();
-                con.Heartbeat();
-                con.Heartbeat();
-                con.Heartbeat();
+                con.Ping();
+                con.Ping();
+                con.Ping();
+                con.Ping();
+                con.Ping();
                 proxy.WaitForHeartbeatCount(5);
             }
         }
@@ -537,7 +537,7 @@ namespace ZeroC.Ice.Test.ACM
                 con.Closed += (sender, args) => t1.SetResult(null);
                 con.Closed += (sender, args) => t2.SetResult(null);
 
-                con.Close(ConnectionClose.Gracefully);
+                con.GoAwayAsync();
                 TestHelper.Assert(t1.Task.Result == null);
                 TestHelper.Assert(t2.Task.Result == null);
 
@@ -554,7 +554,7 @@ namespace ZeroC.Ice.Test.ACM
                 con.Closed += (sender, args) => t3.SetResult(null);
                 TestHelper.Assert(t3.Task.Result == null);
 
-                con.HeartbeatReceived += (sender, args) => TestHelper.Assert(false);
+                con.PingReceived += (sender, args) => TestHelper.Assert(false);
 
                 foreach ((string close, string hearbeat) in new (string, string)[]
                                                                 {
@@ -589,11 +589,12 @@ namespace ZeroC.Ice.Test.ACM
 
             TextWriter output = helper.Output;
 
+            // TODO: remove tests which are no longer supported when we refactor ACM.
             var tests = new List<TestCase>
             {
                 new InvocationHeartbeatTest(com, helper),
-                new InvocationNoHeartbeatTest(com, helper),
-                new InvocationHeartbeatCloseOnIdleTest(com, helper),
+                // new InvocationNoHeartbeatTest(com, helper),
+                // new InvocationHeartbeatCloseOnIdleTest(com, helper),
 
                 new CloseOnIdleTest(com, helper),
                 new CloseOnInvocationTest(com, helper),

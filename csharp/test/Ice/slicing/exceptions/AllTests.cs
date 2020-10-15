@@ -770,7 +770,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 ObjectAdapter adapter = communicator.CreateObjectAdapter(protocol: helper.Protocol);
                 IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
                 adapter.Activate();
-                testPrx.GetConnection()!.Adapter = adapter;
+                testPrx.GetConnection().Adapter = adapter;
 
                 try
                 {

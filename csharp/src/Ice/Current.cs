@@ -15,9 +15,8 @@ namespace ZeroC.Ice
         /// <summary>The communicator.</summary>
         public Communicator Communicator => Adapter.Communicator;
 
-        /// <summary>The <see cref="Connection"/> over which the request was dispatched; it is null for colocated
-        /// dispatches.</summary>
-        public Connection? Connection { get; }
+        /// <summary>The <see cref="Connection"/> over which the request was dispatched.</summary>
+        public Connection Connection { get; }
 
         /// <summary>The request context, as received from the client.</summary>
         public Dictionary<string, string> Context => IncomingRequestFrame.Context;
@@ -45,19 +44,25 @@ namespace ZeroC.Ice
 
         /// <summary>The protocol used by the request.</summary>
         public Protocol Protocol => IncomingRequestFrame.Protocol;
-
+        /// <summary>The stream ID</summary>
+        public long StreamId => Stream.Id;
+        internal bool EndOfStream { get; }
         internal IncomingRequestFrame IncomingRequestFrame { get; }
+        internal TransceiverStream Stream { get; }
 
         internal Current(
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
-            bool oneway,
-            Connection? connection = null)
+            TransceiverStream stream,
+            bool endOfStream,
+            Connection connection)
         {
             Adapter = adapter;
             Connection = connection;
-            IsOneway = oneway;
+            EndOfStream = endOfStream;
+            IsOneway = !stream.IsBidirectional;
             IncomingRequestFrame = incomingRequestFrame;
+            Stream = stream;
         }
     }
 }

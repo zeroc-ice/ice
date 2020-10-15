@@ -22,8 +22,17 @@ namespace ZeroC.Ice.Test.AMI
         {
         }
 
-        public void Close(CloseMode mode, Current current, CancellationToken cancel) =>
-            current.Connection!.Close((ConnectionClose)(int)mode);
+        public void Close(CloseMode mode, Current current, CancellationToken cancel)
+        {
+            if (mode == CloseMode.Gracefully)
+            {
+                current.Connection.GoAwayAsync(cancel: cancel);
+            }
+            else
+            {
+                current.Connection.AbortAsync();
+            }
+        }
 
         public void Sleep(int ms, Current current, CancellationToken cancel)
         {
@@ -35,7 +44,7 @@ namespace ZeroC.Ice.Test.AMI
                                   current.Context["cancel"] == "mightSucceed" ||
                                   current.Protocol == Protocol.Ice1);
             }
-            catch (TaskCanceledException)
+            catch (System.AggregateException ex) when (ex.InnerException is TaskCanceledException)
             {
                 // Expected if the request is canceled.
                 TestHelper.Assert(current.Context.ContainsKey("cancel"));
@@ -128,6 +137,16 @@ namespace ZeroC.Ice.Test.AMI
             int oldValue = _value;
             _value = newValue;
             return oldValue;
+        }
+
+        public void SetOneway(int previousValue, int newValue, Current current, CancellationToken cancel)
+        {
+            if (_value != previousValue)
+            {
+                System.Console.Error.WriteLine($"previous value `{_value}' is not the expected value `{previousValue}'");
+            }
+            TestHelper.Assert(_value == previousValue);
+            _value = newValue;
         }
 
         private bool _shutdown;

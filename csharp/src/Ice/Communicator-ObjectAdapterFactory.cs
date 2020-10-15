@@ -96,7 +96,7 @@ namespace ZeroC.Ice
             CreateObjectAdapter(name, serializeDispatch, taskScheduler, null);
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
-        /// associated with a bi-directional connection.</summary>
+        /// associated with a bidirectional connection.</summary>
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
@@ -201,7 +201,7 @@ namespace ZeroC.Ice
             TaskScheduler? taskScheduler = null) =>
             CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
 
-        internal ObjectAdapter? FindObjectAdapter(Reference reference)
+        internal Endpoint? GetColocatedEndpoint(Reference reference)
         {
             List<ObjectAdapter> adapters;
             lock (_mutex)
@@ -219,7 +219,7 @@ namespace ZeroC.Ice
                 {
                     if (adapter.IsLocal(reference))
                     {
-                        return adapter;
+                        return adapter.GetColocatedEndpoint();
                     }
                 }
                 catch (ObjectDisposedException)
