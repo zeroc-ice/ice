@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Test;
@@ -154,8 +153,8 @@ namespace ZeroC.Ice.Test.UDP
 
             var sb = new StringBuilder("test -d:udp -h ");
 
-            // Use loopback to prevent other machines to answer.
-            if (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false)
+            // Use loopback to prevent other machines from answering.
+            if (helper.Host.Contains(":"))
             {
                 sb.Append("\"ff15::1:1\"");
             }
@@ -165,16 +164,10 @@ namespace ZeroC.Ice.Test.UDP
             }
             sb.Append(" -p ");
             sb.Append(helper.BasePort + 10);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS())
             {
-                if (communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false)
-                {
-                    sb.Append(" --interface \"::1\"");
-                }
-                else
-                {
-                    sb.Append(" --interface 127.0.0.1");
-                }
+                string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
+                sb.Append($" --interface {intf}");
             }
             var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator);
 
@@ -202,7 +195,7 @@ namespace ZeroC.Ice.Test.UDP
             }
 
             // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (!OperatingSystem.IsMacOS())
             {
                 Console.Out.Write("testing udp bi-dir connection... ");
                 Console.Out.Flush();

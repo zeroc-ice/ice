@@ -53,7 +53,7 @@ namespace ZeroC.Ice
 
             if (obj is UdpConnector udpConnector)
             {
-                if (!_endpoint.MulticastInterface.Equals(udpConnector._endpoint.MulticastInterface))
+                if (_endpoint.MulticastInterface != udpConnector._endpoint.MulticastInterface)
                 {
                     return false;
                 }

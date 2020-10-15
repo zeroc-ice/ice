@@ -311,11 +311,11 @@ namespace ZeroC.Ice
 
         private static string[] GetPlatformNativeLibraryNames()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (OperatingSystem.IsWindows())
             {
                 return new string[] { "bzip2.dll" };
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            else if (OperatingSystem.IsMacOS())
             {
                 return new string[] { "libbz2.dylib" };
             }

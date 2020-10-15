@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.Net.Security;
-using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -57,7 +56,7 @@ namespace ZeroC.Ice
                 try
                 {
                     X509KeyStorageFlags importFlags;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    if (OperatingSystem.IsLinux())
                     {
                         importFlags = X509KeyStorageFlags.EphemeralKeySet;
                     }

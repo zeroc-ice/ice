@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         public override Transport Transport => Transport.UDP;
 
         /// <summary>The local network interface used to send multicast datagrams.</summary>
-        internal string MulticastInterface { get; } = "";
+        internal string? MulticastInterface { get; }
 
         /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
         internal int MulticastTtl { get; } = -1;
@@ -81,8 +81,9 @@ namespace ZeroC.Ice
 
             base.AppendOptions(sb, optionSeparator);
 
-            if (MulticastInterface.Length > 0)
+            if (MulticastInterface != null)
             {
+                Debug.Assert(MulticastInterface.Length > 0);
                 bool addQuote = MulticastInterface.IndexOf(':') != -1;
                 sb.Append(" --interface ");
                 if (addQuote)
@@ -197,7 +198,7 @@ namespace ZeroC.Ice
                 {
                     if (oaEndpoint)
                     {
-                        MulticastInterface = "";
+                        MulticastInterface = null;
                     }
                     else
                     {

@@ -115,7 +115,6 @@ namespace ZeroC.Ice
                                                                      Port,
                                                                      ipVersion,
                                                                      endptSelection,
-                                                                     Communicator.PreferIPv6,
                                                                      cancel).ConfigureAwait(false);
                 return addrs.Select(item => CreateConnector(item, networkProxy));
             }
@@ -141,8 +140,7 @@ namespace ZeroC.Ice
             IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host,
                                                                      Port,
                                                                      Network.EnableBoth,
-                                                                     EndpointSelectionType.Ordered,
-                                                                     Communicator.PreferIPv6);
+                                                                     EndpointSelectionType.Ordered);
 
             if (addresses.Count() == 1)
             {

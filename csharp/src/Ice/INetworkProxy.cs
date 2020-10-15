@@ -87,7 +87,6 @@ namespace ZeroC.Ice
                                                                  _port,
                                                                  ipVersion,
                                                                  EndpointSelectionType.Random,
-                                                                 false,
                                                                  cancel).ConfigureAwait(false);
             return new SOCKSNetworkProxy(addresses.First());
         }
@@ -165,7 +164,6 @@ namespace ZeroC.Ice
                                                                  _port,
                                                                  ipVersion,
                                                                  EndpointSelectionType.Random,
-                                                                 false,
                                                                  cancel).ConfigureAwait(false);
             return new HTTPNetworkProxy(addresses.First(), ipVersion);
         }

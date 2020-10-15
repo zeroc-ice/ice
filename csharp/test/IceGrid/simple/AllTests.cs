@@ -109,7 +109,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 }
 
                 string multicast;
-                if (communicator.GetProperty("Ice.PreferIPv6Address") == "1")
+                if (helper.Host.Contains(":"))
                 {
                     multicast = "\"ff15::1\"";
                 }

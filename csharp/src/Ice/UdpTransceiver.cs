@@ -44,7 +44,7 @@ namespace ZeroC.Ice
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 
                     MulticastAddress = _addr;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    if (OperatingSystem.IsWindows())
                     {
                         // Windows does not allow binding to the multicast address itself so we bind to INADDR_ANY
                         // instead. As a result, bidirectional connection won't work because the source address won't
@@ -67,7 +67,6 @@ namespace ZeroC.Ice
                         MulticastAddress.Port = _addr.Port;
                     }
 
-                    Debug.Assert(_multicastInterface != null);
                     Network.SetMulticastGroup(Socket, MulticastAddress.Address, _multicastInterface);
                 }
                 else
@@ -130,7 +129,7 @@ namespace ZeroC.Ice
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (!_incoming ||
-                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
+                    (OperatingSystem.IsMacOS() &&
                      Socket.AddressFamily == AddressFamily.InterNetworkV6 && Socket.DualMode))
                 {
                     received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
@@ -208,7 +207,6 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    Debug.Assert(_multicastInterface != null);
                     interfaces = Network.GetInterfacesForMulticast(_multicastInterface,
                                                                    Network.GetIPVersion(MulticastAddress.Address));
                 }
@@ -268,7 +266,7 @@ namespace ZeroC.Ice
             Communicator communicator,
             EndPoint addr,
             IPAddress? sourceAddr,
-            string multicastInterface,
+            string? multicastInterface,
             int multicastTtl)
         {
             _communicator = communicator;
@@ -289,8 +287,9 @@ namespace ZeroC.Ice
 
                 if (Network.IsMulticast(_addr))
                 {
-                    if (_multicastInterface.Length > 0)
+                    if (_multicastInterface != null)
                     {
+                        Debug.Assert(_multicastInterface.Length > 0);
                         Network.SetMulticastInterface(Socket, _multicastInterface, _addr.AddressFamily);
                     }
                     if (multicastTtl != -1)
@@ -310,8 +309,7 @@ namespace ZeroC.Ice
         internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator)
         {
             _communicator = communicator;
-            _addr = Network.GetAddressForServerEndpoint(
-                endpoint.Host, endpoint.Port, Network.EnableBoth, communicator.PreferIPv6);
+            _addr = Network.GetAddressForServerEndpoint(endpoint.Host, endpoint.Port, Network.EnableBoth);
             _multicastInterface = endpoint.MulticastInterface;
             _incoming = true;
 
