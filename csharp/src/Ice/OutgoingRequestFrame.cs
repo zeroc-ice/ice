@@ -311,6 +311,7 @@ namespace ZeroC.Ice
             Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
             Deadline = proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
                 DateTime.MaxValue : DateTime.UtcNow + proxy.InvocationTimeout;
+
             if (proxy.InvocationTimeout != Timeout.InfiniteTimeSpan)
             {
                 _invocationTimeoutCancellationSource = new CancellationTokenSource(proxy.InvocationTimeout);
@@ -366,8 +367,9 @@ namespace ZeroC.Ice
                                                 Location,
                                                 Operation,
                                                 IsIdempotent,
+                                                // An infinite invocation timeout is encoded as 0
                                                 proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
-                                                    Timeout.InfiniteTimeSpan : Deadline - DateTime.UnixEpoch);
+                                                    TimeSpan.Zero : Deadline - DateTime.UnixEpoch);
             }
             PayloadStart = ostr.Tail;
 

@@ -68,7 +68,8 @@ namespace ZeroC.Ice
                 IsIdempotent = requestHeaderBody.Idempotent ?? false;
                 Priority = requestHeaderBody.Priority ?? default;
                 var deadline = TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
-                Deadline = deadline == Timeout.InfiniteTimeSpan ?
+                // The infinite invocation timeout is encoded as 0 and converted to DateTime.MaxValue
+                Deadline = deadline == TimeSpan.Zero ?
                     DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = null!; // initialized below
 

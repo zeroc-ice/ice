@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 {
                     socket.SetSocketOption(SocketOptionLevel.IPv6,
                                            SocketOptionName.IPv6Only,
-                                           endpoint.IsIPv6Only ? 1 : 0);
+                                           endpoint.IsIPv6Only ? true : false);
                 }
                 catch (SocketException ex)
                 {
@@ -37,6 +37,7 @@ namespace ZeroC.Ice
                     throw new TransportException(ex);
                 }
             }
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, true);
             return socket;
         }
 
