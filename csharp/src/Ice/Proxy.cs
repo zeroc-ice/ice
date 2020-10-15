@@ -550,9 +550,7 @@ namespace ZeroC.Ice
                     {
                         reference.Communicator.DecRetryBufferSize(requestSize);
                     }
-                    // TODO release the request memory if not already done after sent
-                    // Dispose currently is only disposing of the cancellation tokens.
-                    request.Dispose();
+                    // TODO release the request memory if not already done after sent.
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
@@ -566,13 +564,20 @@ namespace ZeroC.Ice
             bool synchronous,
             IProgress<bool>? progress = null)
         {
-            return InvokeWithInterceptorsAsync(proxy,
-                                               request,
-                                               oneway,
-                                               synchronous,
-                                               0,
-                                               progress,
-                                               request.CancellationToken);
+            try
+            {
+                return InvokeWithInterceptorsAsync(proxy,
+                                                   request,
+                                                   oneway,
+                                                   synchronous,
+                                                   0,
+                                                   progress,
+                                                   request.CancellationToken);
+            }
+            finally
+            {
+                request.Dispose();
+            }
 
             static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,
