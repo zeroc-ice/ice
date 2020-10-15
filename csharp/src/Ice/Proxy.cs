@@ -275,9 +275,7 @@ namespace ZeroC.Ice
             IncomingResponseFrame response;
             try
             {
-                response = await proxy.InvokeAsync(forwardedRequest,
-                                                   oneway,
-                                                   progress).ConfigureAwait(false);
+                response = await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
             }
             catch (DispatchException ex)
             {

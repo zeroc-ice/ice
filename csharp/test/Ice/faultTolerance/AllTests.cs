@@ -124,8 +124,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
             output.Flush();
             try
             {
-                using var cancel = new CancellationTokenSource(100);
-                obj.IcePing(cancel: cancel.Token);
+                obj.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).IcePing();
                 TestHelper.Assert(false);
             }
             catch

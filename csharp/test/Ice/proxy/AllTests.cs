@@ -529,7 +529,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             Connection connection = b1.GetConnection();
             IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
-            if (connection.Endpoint.Protocol == Protocol.Ice1)
+            if (connection.Protocol == Protocol.Ice1)
             {
                 TestHelper.Assert(b2.ToString() == "fixed -t -e 1.1");
             }

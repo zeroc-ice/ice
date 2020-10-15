@@ -1194,7 +1194,7 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 // For Ice2 the invocation timeout is included in the URI
-                properties[$"{prefix}.InvocationTimeout"] = TimeSpanExtensions.ToPropertyString(InvocationTimeout);
+                properties[$"{prefix}.InvocationTimeout"] = InvocationTimeout.ToPropertyString();
             }
 
             if (RouterInfo != null)
