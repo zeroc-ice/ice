@@ -2189,6 +2189,8 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << nl << "/// <param name=\"args\">The remote operation arguments.</param>";
             }
             _out << nl << "/// <param name=\"context\">The context to write into the request.</param>";
+            _out << nl << "/// <param name=\"cancel\">A cancellation token that receives the cancellation requests."
+                 << "</param>";
             _out << nl << "public static ZeroC.Ice.OutgoingRequestFrame " << fixId(operationName(operation))
                 << "(ZeroC.Ice.IObjectPrx proxy, ";
 
@@ -2197,29 +2199,30 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 inValue = paramCount > 1;
                 _out << (inValue ? "in " : "") << toTupleType(params, true) << " args" << ", ";
             }
-            _out << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context) =>";
+            _out << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context, "
+                 << "global::System.Threading.CancellationToken cancel) =>";
             _out.inc();
 
             if (paramCount == 0)
             {
                 _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithEmptyArgs(proxy, \"";
                 _out << operation->name() << "\", "
-                    << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ", context);";
+                    << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ", context, cancel);";
             }
             else
             {
                 _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithArgs(";
                 _out.inc();
                 _out << nl << "proxy,"
-                    << nl << "\"" << operation->name() << "\","
-                    << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
-                    << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
-                    << nl << "format: " << opFormatTypeToString(operation) << ","
-                    << nl << "context,"
+                     << nl << "\"" << operation->name() << "\","
+                     << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
+                     << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
+                     << nl << "format: " << opFormatTypeToString(operation) << ","
+                     << nl << "context,"
                      << nl << (inValue ? "in " : "") << "args,"
-                    << nl;
+                     << nl;
                 writeOutgoingRequestWriter(operation);
-                _out << ");";
+                _out << "," << nl << "cancel);";
                 _out.dec();
             }
             _out.dec();
@@ -2395,16 +2398,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << toTuple(params) << ", ";
     }
-    _out << context << "), ";
+    _out << context << ", " << cancel << "), ";
     if (voidOp)
     {
-        _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
+        _out << (oneway ? "oneway: true" : "IsOneway") << ");";
     }
     else
     {
-        _out << "Response." << name << ", ";
+        _out << "Response." << name << ");";
     }
-    _out << cancel << ");";
     _out.dec();
 
     // Write the async version of the operation
@@ -2424,7 +2426,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << toTuple(params) << ", ";
     }
-    _out << context << "), ";
+    _out << context << ", " << cancel << "), ";
     if (voidOp)
     {
         _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
@@ -2433,7 +2435,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << "Response." << name << ", ";
     }
-    _out << progress << ", " << cancel << ");";
+    _out << progress << ");";
     _out.dec();
 
     // TODO: move this check to the Slice parser.

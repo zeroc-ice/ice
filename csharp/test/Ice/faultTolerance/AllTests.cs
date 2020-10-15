@@ -89,12 +89,11 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 output.WriteLine("ok");
                 oldPid = pid;
 
-                using var cancel = new CancellationTokenSource(100);
                 if (i % 2 == 0)
                 {
                     output.Write($"shutting down server #{i}... ");
                     output.Flush();
-                    obj.Shutdown(cancel: cancel.Token);
+                    obj.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).Shutdown();
                     output.WriteLine("ok");
                 }
                 else
@@ -103,7 +102,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     output.Flush();
                     try
                     {
-                        obj.Abort(cancel: cancel.Token);
+                        obj.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).Abort();
                         TestHelper.Assert(false);
                     }
                     catch (ConnectionLostException)
@@ -125,8 +124,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
             output.Flush();
             try
             {
-                using var cancel = new CancellationTokenSource(100);
-                obj.IcePing(cancel: cancel.Token);
+                obj.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).IcePing();
                 TestHelper.Assert(false);
             }
             catch

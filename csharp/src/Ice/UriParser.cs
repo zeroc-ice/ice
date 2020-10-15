@@ -17,6 +17,7 @@ namespace ZeroC.Ice
         {
             // TODO: add more proxy options
             internal Encoding? Encoding;
+            internal TimeSpan? InvocationTimeout;
             internal Protocol? Protocol;
         }
 
@@ -262,6 +263,24 @@ namespace ZeroC.Ice
                         throw new FormatException($"multiple encoding options in `{uriString}'");
                     }
                     proxyOptions.Encoding = Encoding.Parse(value);
+                }
+                else if (name == "invocation-timeout")
+                {
+                    if (pureEndpoints)
+                    {
+                        throw new FormatException(
+                            $"invocation-timeout is not a valid option for endpoint `{uriString}'");
+                    }
+                    if (proxyOptions.InvocationTimeout != null)
+                    {
+                        throw new FormatException($"multiple invocation-timeout options in `{uriString}'");
+                    }
+                    proxyOptions.InvocationTimeout = TimeSpanExtensions.Parse(value);
+                    if (proxyOptions.InvocationTimeout.Value == TimeSpan.Zero)
+                    {
+                        throw new FormatException(
+                            $"0 is not a valid value for invocation-timeout option in `{uriString}'");
+                    }
                 }
                 else if (name == "protocol")
                 {
