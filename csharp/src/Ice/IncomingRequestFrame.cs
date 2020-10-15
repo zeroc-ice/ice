@@ -13,8 +13,9 @@ namespace ZeroC.Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
 
-        /// <summary>The request deadline. The peer sets the deadline to the absolute time at which its timeout will be
-        /// triggered. With Ice1 the peer doesn't send a deadline and it always has the default value.</summary>
+        /// <summary>The request deadline. The peer sets the deadline to the absolute time at which its invocation
+        /// timeout will be triggered. With Ice1 the peer doesn't send a deadline and it always has the default value.
+        /// </summary>
         public DateTime Deadline { get; }
 
         /// <summary>The encoding of the frame payload.</summary>
@@ -69,7 +70,7 @@ namespace ZeroC.Ice
                 Priority = requestHeaderBody.Priority ?? default;
                 var deadline = TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 // The infinite invocation timeout is encoded as 0 and converted to DateTime.MaxValue
-                Deadline = deadline == TimeSpan.Zero ?
+                Deadline = deadline == Timeout.InfiniteTimeSpan ?
                     DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = null!; // initialized below
 

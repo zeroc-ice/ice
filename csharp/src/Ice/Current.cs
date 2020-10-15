@@ -19,12 +19,13 @@ namespace ZeroC.Ice
         /// <summary>The <see cref="Connection"/> over which the request was dispatched.</summary>
         public Connection Connection { get; }
 
-        /// <summary>The request deadline. The peer sets the deadline to the absolute time at which its timeout will be
-        /// triggered. With Ice1 the peer doesn't send a deadline and it always has the default value.</summary>
-        public DateTime Deadline => IncomingRequestFrame.Deadline;
-
         /// <summary>The request context, as received from the client.</summary>
         public Dictionary<string, string> Context => IncomingRequestFrame.Context;
+
+        /// <summary>The request deadline. The peer sets the deadline to the absolute time at which its invocation
+        /// timeout will be triggered. With Ice1 the peer doesn't send a deadline and it is always set to
+        /// <see cref="DateTime.MaxValue"/>.</summary>
+        public DateTime Deadline => IncomingRequestFrame.Deadline;
 
         /// <summary>The encoding used by the request.</summary>
         public Encoding Encoding => IncomingRequestFrame.Encoding;
