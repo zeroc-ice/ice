@@ -47,7 +47,6 @@ namespace ZeroC.IceGrid.Test.Simple
                 Dictionary<string, string>? properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
                 properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
-                properties["IceLocatorDiscovery.Port"] = $"{helper.BasePort + 99}";
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
                 properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.Transport} -h 127.0.0.1";
 
@@ -160,14 +159,10 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties["IceLocatorDiscovery.RetryCount"] = "1";
                     properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
                     {
-                        string intf = communicator.GetProperty("IceLocatorDiscovery.Interface") ?? "";
-                        if (intf.Length > 0)
-                        {
-                            intf = $" --interface \"{intf}\"";
-                        }
+                        string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                         string port = $"{helper.BasePort + 99}";
                         properties["IceLocatorDiscovery.Lookup"] =
-                            $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
+                            $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} --interface {intf}";
                     }
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
