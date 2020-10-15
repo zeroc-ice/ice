@@ -15,13 +15,24 @@ registryTraceProps = {
     "IceGrid.Registry.Trace.Discovery": 2
 }
 
-clientProps = lambda process, current: {
-    # TODO workaround until we use TimeSpan timeout with all mappings
-    "IceLocatorDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
-    "IceLocatorDiscovery.RetryCount": 5,
-    "IceLocatorDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
-    "IceLocatorDiscovery.Port": current.driver.getTestPort(99),
-}
+def clientProps(process, current):
+    port = current.driver.getTestPort(99)
+    if isinstance(current.testcase.getMapping(), CSharpMapping):
+        return {
+            "IceLocatorDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
+            "IceLocatorDiscovery.RetryCount": 5,
+            "IceLocatorDiscovery.Lookup":
+                f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
+            "IceLocatorDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
+        }
+    else:
+        return {
+            "IceLocatorDiscovery.Timeout": "50",
+            "IceLocatorDiscovery.RetryCount": 5,
+            "IceLocatorDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
+            "IceLocatorDiscovery.Port": port,
+        }
+
 clientTraceProps = { "IceLocatorDiscovery.Trace.Lookup" : 3 }
 
 # Filter-out the warning about invalid lookup proxy
