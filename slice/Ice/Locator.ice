@@ -104,8 +104,7 @@ module Ice
 #endif
     }
 
-    /// A LocatorRegistry object can be reached with the ice2 protocol but not with the ice1 protocol. A server
-    /// application registers the endpoints of its indirect object adapters with this object.
+    /// A server application registers the endpoints of its indirect object adapters with the LocatorRegistry object.
     interface LocatorRegistry
     {
 #ifdef __SLICE2CS__
