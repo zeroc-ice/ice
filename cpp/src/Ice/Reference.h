@@ -10,8 +10,8 @@
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/RouterF.h>
-#include <Ice/LocatorF.h>
+#include <Ice/Router.h>
+#include <Ice/Locator.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ConnectionIF.h>
