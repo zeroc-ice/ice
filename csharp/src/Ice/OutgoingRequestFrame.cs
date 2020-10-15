@@ -367,9 +367,7 @@ namespace ZeroC.Ice
                                                 Location,
                                                 Operation,
                                                 IsIdempotent,
-                                                // An infinite invocation timeout is encoded as -1
-                                                proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
-                                                    Timeout.InfiniteTimeSpan : Deadline - DateTime.UnixEpoch);
+                                                Deadline);
             }
             PayloadStart = ostr.Tail;
 

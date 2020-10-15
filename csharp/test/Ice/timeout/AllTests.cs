@@ -195,15 +195,15 @@ namespace ZeroC.Ice.Test.Timeout
                         communicator.GetProperties(),
                         invocationInterceptors: new InvocationInterceptor[]
                         {
-                        (target, request, next, cancel) =>
-                        {
-                            request.AddBinaryContextEntry(10, request.Deadline, (ostr, value) =>
+                            (target, request, next, cancel) =>
                             {
-                                var deadline = (value - DateTime.UnixEpoch).TotalMilliseconds;
-                                ostr.WriteVarLong((long)deadline);
-                            });
-                            return next(target, request, cancel);
-                        }
+                                request.AddBinaryContextEntry(10, request.Deadline, (ostr, value) =>
+                                {
+                                    var deadline = (value - DateTime.UnixEpoch).TotalMilliseconds;
+                                    ostr.WriteVarLong((long)deadline);
+                                });
+                                return next(target, request, cancel);
+                            }
                         });
 
                     for (int i = 1000; i < 5000;)

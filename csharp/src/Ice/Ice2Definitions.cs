@@ -31,7 +31,7 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location,
             string operation,
             bool idempotent,
-            TimeSpan deadline)
+            DateTime deadline)
         {
             Debug.Assert(ostr.Encoding == Encoding);
             BitSequence bitSequence = ostr.WriteBitSequence(4); // bit set to true (set) by default
@@ -68,7 +68,9 @@ namespace ZeroC.Ice
 
             bitSequence[3] = false; // TODO: source for priority.
 
-            ostr.WriteVarLong((long)deadline.TotalMilliseconds);
+            // DateTime.MaxValue represents an infinite deadline and it is encoded as -1
+            ostr.WriteVarLong(
+                deadline == DateTime.MaxValue ? -1 : (long)(deadline - DateTime.UnixEpoch).TotalMilliseconds);
         }
     }
 }
