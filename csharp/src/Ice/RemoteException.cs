@@ -109,9 +109,7 @@ namespace ZeroC.Ice
         /// <summary>Constructs a remote exception with the provided message and origin.</summary>
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="origin">The remote exception origin.</param>
-        protected internal RemoteException(
-            string? message,
-            RemoteExceptionOrigin? origin)
+        protected internal RemoteException(string? message, RemoteExceptionOrigin? origin)
             : base(message)
         {
             Origin = origin;
