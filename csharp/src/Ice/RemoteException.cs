@@ -71,6 +71,9 @@ namespace ZeroC.Ice
         /// in a remote server.</summary>
         public bool ConvertToUnhandled { get; set; }
 
+        /// <summary>The remote exception origin.</summary>
+        public RemoteExceptionOrigin? Origin { get; set; }
+
         internal RetryPolicy RetryPolicy { get; }
 
         /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
@@ -93,10 +96,25 @@ namespace ZeroC.Ice
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="retryPolicy">The retry policy for the exception.</param>
         /// <param name="innerException">The inner exception.</param>
-        protected internal RemoteException(string? message, Exception? innerException = null, RetryPolicy retryPolicy = default)
+        protected internal RemoteException(
+            string? message,
+            Exception? innerException = null,
+            RetryPolicy retryPolicy = default)
             : base(message, innerException)
         {
             RetryPolicy = retryPolicy;
+            _hasCustomMessage = message != null;
+        }
+
+        /// <summary>Constructs a remote exception with the provided message and origin.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        /// <param name="origin">The remote exception origin.</param>
+        protected internal RemoteException(
+            string? message,
+            RemoteExceptionOrigin? origin)
+            : base(message)
+        {
+            Origin = origin;
             _hasCustomMessage = message != null;
         }
 
@@ -120,7 +138,7 @@ namespace ZeroC.Ice
         /// <param name="firstSlice"><c>True</c> if the exception corresponds to the first Slice, <c>False</c>
         /// otherwise.</param>
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice) =>
-            ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message);
+            ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message, Origin);
 
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }

@@ -825,7 +825,7 @@ namespace ZeroC.Ice.Test.Metrics
                 metrics.OpWithRequestFailedException();
                 TestHelper.Assert(false);
             }
-            catch (DispatchException)
+            catch (ObjectNotExistException)
             {
             }
             try
@@ -981,7 +981,7 @@ namespace ZeroC.Ice.Test.Metrics
                 metrics.OpWithRequestFailedException();
                 TestHelper.Assert(false);
             }
-            catch (DispatchException)
+            catch (ObjectNotExistException)
             {
             }
 
@@ -992,7 +992,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             catch (AggregateException ex)
             {
-                TestHelper.Assert(ex.InnerException is DispatchException);
+                TestHelper.Assert(ex.InnerException is ObjectNotExistException);
             }
 
             try

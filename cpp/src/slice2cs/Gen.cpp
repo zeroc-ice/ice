@@ -1605,6 +1605,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     MemberList dataMembers = p->dataMembers();
 
     string messageParamName = getEscapedParamName(p, "message");
+    string originParamName = getEscapedParamName(p, "origin");
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
     string retryPolicyParamName = getEscapedParamName(p, "retryPolicy");
 
@@ -1727,16 +1728,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
             << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
     }
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr, string? message)";
+    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr, string? message, "
+         << "ZeroC.Ice.RemoteException? origin)";
     // We call the base class constructor to initialize the base class fields.
     _out.inc();
     if (p->base())
     {
-        _out << nl << ": base(istr, message)";
+        _out << nl << ": base(istr, message, origin)";
     }
     else
     {
-        _out << nl << ": base(message)";
+        _out << nl << ": base(message, origin)";
     }
     _out.dec();
     _out << sb;
@@ -2712,8 +2714,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              << "Async(request, current, cancel),";
     }
 
-    _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException(current.Identity, current.Facet, "
-         << "current.Operation)";
+    _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException()";
 
     _out << eb << ";"; // switch expression
     _out.dec(); // method
@@ -3274,9 +3275,11 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
 
     _out << nl << "public static class " << name;
     _out << sb;
-    _out << nl << "public static " << prefix << "ZeroC.Ice.RemoteException Create(string? message) =>";
+    _out << nl << "public static " << prefix << "ZeroC.Ice.RemoteException Create(string? message, "
+         << prefix << "ZeroC.Ice.RemoteExceptionOrigin? origin) =>";
     _out.inc();
-    _out << nl << "new global::" << ns << "." << name << "((" << prefix << "ZeroC.Ice.InputStream?)null, message);";
+    _out << nl << "new global::" << ns << "." << name << "((" << prefix
+         << "ZeroC.Ice.InputStream?)null, message, origin);";
     _out.dec();
     _out << eb;
     return false;

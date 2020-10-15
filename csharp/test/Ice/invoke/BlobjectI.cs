@@ -61,7 +61,7 @@ namespace ZeroC.Ice.Test.Invoke
             }
             else
             {
-                throw new OperationNotExistException(current.Identity, current.Facet, current.Operation);
+                throw new OperationNotExistException();
             }
         }
     }

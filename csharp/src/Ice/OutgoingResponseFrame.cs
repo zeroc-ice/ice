@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ZeroC.Ice
 {
@@ -234,6 +235,7 @@ namespace ZeroC.Ice
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
             : this(request.Protocol, request.Encoding)
         {
+            exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
             ReplyStatus replyStatus = ReplyStatus.UserException;
             if (Encoding == Encoding.V11)
             {
@@ -283,10 +285,9 @@ namespace ZeroC.Ice
                 {
                     case ReplyStatus.ObjectNotExistException:
                     case ReplyStatus.OperationNotExistException:
-                        var dispatchException = (DispatchException)exception;
-                        dispatchException.Identity.IceWrite(ostr);
-                        ostr.WriteIce1Facet(dispatchException.Facet);
-                        ostr.WriteString(dispatchException.Operation);
+                        exception.Origin.Value.Identity.IceWrite(ostr);
+                        ostr.WriteIce1Facet(exception.Origin.Value.Facet);
+                        ostr.WriteString(exception.Origin.Value.Operation);
                         break;
 
                     case ReplyStatus.UnknownLocalException:

@@ -753,9 +753,7 @@ namespace ZeroC.Ice
                         {
                             if (_adapter == null)
                             {
-                                throw new ObjectNotExistException(requestFrame.Identity,
-                                                                  requestFrame.Facet,
-                                                                  requestFrame.Operation);
+                                throw new ObjectNotExistException();
                             }
                             else
                             {

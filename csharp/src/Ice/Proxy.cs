@@ -280,7 +280,7 @@ namespace ZeroC.Ice
             {
                 response = await proxy.InvokeAsync(forwardedRequest, oneway, progress, cancel).ConfigureAwait(false);
             }
-            catch (DispatchException ex)
+            catch (RemoteException ex)
             {
                 // It looks like InvokeAsync threw a 1.1 system exception (used for retries)
                 // TODO: fix (remove) when we fix retries
@@ -413,7 +413,7 @@ namespace ZeroC.Ice
                             {
                                 // 1.1 System exceptions
                                 lastException = systemException;
-                                if (reference.RouterInfo != null && one.Operation == "ice_add_proxy")
+                                if (reference.RouterInfo != null && one.Origin!.Value.Operation == "ice_add_proxy")
                                 {
                                     // If we have a router, an ObjectNotExistException with an operation name
                                     // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy

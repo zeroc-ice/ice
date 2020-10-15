@@ -22,7 +22,7 @@ namespace ZeroC.Ice.Test.Interceptor
             throw new InvalidInputException("badAdd");
 
         public int NotExistAdd(int x, int y, Current current, CancellationToken cancel) =>
-            throw new ObjectNotExistException(current);
+            throw new ObjectNotExistException();
 
         public void Op1(Current current, CancellationToken cancel) =>
             TestHelper.Assert(DispatchInterceptors.LocalContext.Value == int.Parse(current.Context["local-user"]));

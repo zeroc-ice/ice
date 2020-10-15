@@ -911,9 +911,6 @@ namespace ZeroC.Ice
                 if (servant == null)
                 {
                     throw new ObjectNotExistException(
-                        current.Identity,
-                        current.Facet,
-                        current.Operation,
                         _replicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
                 }
 

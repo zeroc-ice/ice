@@ -324,7 +324,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    TestHelper.Assert(ex.Identity == identity);
+                    TestHelper.Assert(ex.Origin!.Value.Identity == identity);
                     TestHelper.Assert(ex.Message.Contains("servant")); // verify we don't get system message
                 }
                 catch
@@ -348,7 +348,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    TestHelper.Assert(ex.Facet.Equals("no such facet"));
+                    TestHelper.Assert(ex.Origin!.Value.Facet == "no such facet");
                     TestHelper.Assert(ex.Message.Contains("with facet")); // verify we don't get system message
                 }
             }
@@ -370,7 +370,7 @@ namespace ZeroC.Ice.Test.Exceptions
             }
             catch (OperationNotExistException ex)
             {
-                TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
+                TestHelper.Assert(ex.Origin!.Value.Operation == "noSuchOperation");
                 TestHelper.Assert(ex.Message.Contains("could not find operation")); // verify we don't get system message
             }
             catch
@@ -378,26 +378,6 @@ namespace ZeroC.Ice.Test.Exceptions
                 TestHelper.Assert(false);
             }
 
-            output.WriteLine("ok");
-
-            output.Write("catching custom dispatch exception... ");
-            output.Flush();
-            try
-            {
-                thrower.ThrowCustomDispatchException();
-                TestHelper.Assert(false);
-            }
-            catch (CustomDispatchException ex)
-            {
-                // It's just a regular remote exception.
-                TestHelper.Assert(ex.Identity == thrower.Identity &&
-                    ex.Operation == "throwCustomDispatchException" &&
-                    ex.Custom == "custom");
-            }
-            catch
-            {
-                TestHelper.Assert(false);
-            }
             output.WriteLine("ok");
 
             output.Write("catching unhandled local exception... ");
@@ -415,11 +395,13 @@ namespace ZeroC.Ice.Test.Exceptions
                 // With ice1, the identity & operation are not set; with ice2, they are.
                 if (ice1)
                 {
-                    TestHelper.Assert(ex.Identity == Identity.Empty && ex.Operation.Length == 0);
+                    TestHelper.Assert(ex.Origin!.Value.Identity == Identity.Empty &&
+                                      ex.Origin!.Value.Operation.Length == 0);
                 }
                 else
                 {
-                    TestHelper.Assert(ex.Identity == thrower.Identity && ex.Operation == "throwLocalException");
+                    TestHelper.Assert(ex.Origin!.Value.Identity == thrower.Identity &&
+                                      ex.Origin!.Value.Operation == "throwLocalException");
                 }
             }
             catch
@@ -723,7 +705,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Identity == identity);
+                        TestHelper.Assert(ex.Origin!.Value.Identity == identity);
                     }
                     catch
                     {
@@ -753,7 +735,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Facet.Equals("no such facet"));
+                        TestHelper.Assert(ex.Origin!.Value.Facet.Equals("no such facet"));
                     }
                     catch
                     {
@@ -783,7 +765,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (OperationNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
+                        TestHelper.Assert(ex.Origin!.Value.Operation.Equals("noSuchOperation"));
                     }
                     catch
                     {
@@ -793,26 +775,6 @@ namespace ZeroC.Ice.Test.Exceptions
             }
             output.WriteLine("ok");
 
-            output.Write("catching custom dispatch exception with AMI... ");
-            output.Flush();
-            try
-            {
-                thrower.ThrowCustomDispatchExceptionAsync().Wait();
-                TestHelper.Assert(false);
-            }
-            catch (AggregateException exc)
-            {
-                var ex = (CustomDispatchException)exc.InnerException!;
-
-                // It's just a regular remote exception.
-                TestHelper.Assert(ex.Identity == thrower.Identity &&
-                    ex.Operation == "throwCustomDispatchException" &&
-                    ex.Custom == "custom");
-            }
-            catch
-            {
-                TestHelper.Assert(false);
-            }
             output.WriteLine("ok");
 
             output.Write("catching unhandled local exception with AMI... ");
@@ -912,7 +874,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Identity == identity);
+                        TestHelper.Assert(ex.Origin!.Value.Identity == identity);
                     }
                     catch
                     {
@@ -942,7 +904,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Facet.Equals("no such facet"));
+                        TestHelper.Assert(ex.Origin!.Value.Facet == "no such facet");
                     }
                     catch
                     {
@@ -972,7 +934,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (OperationNotExistException ex)
                     {
-                        TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
+                        TestHelper.Assert(ex.Origin!.Value.Operation == "noSuchOperation");
                     }
                     catch
                     {
