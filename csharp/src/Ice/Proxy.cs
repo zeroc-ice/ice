@@ -566,17 +566,30 @@ namespace ZeroC.Ice
         {
             try
             {
-                return InvokeWithInterceptorsAsync(proxy,
-                                                   request,
-                                                   oneway,
-                                                   synchronous,
-                                                   0,
-                                                   progress,
-                                                   request.CancellationToken);
+                return WaitForResponseAsync(InvokeWithInterceptorsAsync(proxy,
+                                                                        request,
+                                                                        oneway,
+                                                                        synchronous,
+                                                                        0,
+                                                                        progress,
+                                                                        request.CancellationToken));
             }
-            finally
+            catch
             {
                 request.Dispose();
+                throw;
+            }
+
+            async Task<IncomingResponseFrame> WaitForResponseAsync(Task<IncomingResponseFrame> t)
+            {
+                try
+                {
+                    return await t.ConfigureAwait(false);
+                }
+                finally
+                {
+                    request.Dispose();
+                }
             }
 
             static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
