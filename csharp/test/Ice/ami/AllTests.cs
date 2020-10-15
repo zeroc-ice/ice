@@ -766,7 +766,7 @@ namespace ZeroC.Ice.Test.AMI
                 {
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
-                    // invocation to fail with ConnectionClosedLocallyException.
+                    // invocation to fail with ConnectionClosedException.
                     p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
                     Connection con = p.GetConnection();
                     var cb = new CallbackBase();
@@ -780,7 +780,7 @@ namespace ZeroC.Ice.Test.AMI
                     }
                     catch (AggregateException ex)
                     {
-                        TestHelper.Assert(ex.InnerException is ConnectionClosedLocallyException);
+                        TestHelper.Assert(ex.InnerException is ConnectionClosedException);
                     }
                     p.FinishDispatch();
 
@@ -815,7 +815,7 @@ namespace ZeroC.Ice.Test.AMI
                     }
                     catch (AggregateException ex)
                     {
-                        TestHelper.Assert(ex.InnerException is ConnectionClosedLocallyException);
+                        TestHelper.Assert(ex.InnerException is ConnectionClosedException);
                     }
                     p.FinishDispatch();
 

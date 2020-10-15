@@ -43,7 +43,7 @@ namespace ZeroC.Ice.Test.Exceptions
             throw new CustomDispatchException(current.Identity, current.Facet, current.Operation, "custom");
 
         public void ThrowLocalException(Current current, CancellationToken cancel) =>
-            throw new ConnectionTimeoutException();
+            throw new ConnectionClosedException();
 
         public void ThrowNonIceException(Current current, CancellationToken cancel) => throw new Exception();
 
@@ -54,7 +54,7 @@ namespace ZeroC.Ice.Test.Exceptions
             new byte[1024 * 20];
 
         public void ThrowLocalExceptionIdempotent(Current current, CancellationToken cancel) =>
-            throw new ConnectionTimeoutException();
+            throw new ConnectionClosedException();
 
         public void ThrowAfterResponse(Current current, CancellationToken cancel)
         {

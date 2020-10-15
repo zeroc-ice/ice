@@ -582,7 +582,7 @@ namespace ZeroC.Ice.Test.Metrics
                 controller.Hold();
                 try
                 {
-                    // The first try should fail with ConnectionTimeoutException and the retry with
+                    // The first try should fail with ConnectTimeoutException and the retry with
                     // ConnectTimeoutException.
                     metricsWithHold.IcePing();
                     TestHelper.Assert(false);
@@ -604,7 +604,7 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 TestHelper.Assert(cm1.Failures == 5 && sm1.Failures >= 5);
 
-                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectionTimeoutException", 1, output);
+                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectionClosedException", 1, output);
                 CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 4, output);
                 CheckFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
             }

@@ -1292,7 +1292,6 @@ namespace ZeroC.Ice
             RouterInfo = null;
 
             _connection = fixedConnection;
-            _connection.ThrowException(); // Throw in case our connection is already destroyed.
 
             if (Protocol == Protocol.Ice1)
             {

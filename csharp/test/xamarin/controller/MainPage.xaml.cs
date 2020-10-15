@@ -648,7 +648,7 @@ namespace controller
                         Thread.Sleep(500);
                         registerProcessController();
                     }
-                    catch (Ice.ConnectionTimeoutException)
+                    catch (Ice.ConnectionClosedException)
                     {
                         Thread.Sleep(500);
                         registerProcessController();

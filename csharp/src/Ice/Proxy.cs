@@ -401,26 +401,19 @@ namespace ZeroC.Ice
                             }
                             break;
                         }
-                        catch (ConnectionClosedByPeerException ex)
-                        {
-                            // Always retry a gracefully close connection. Don't exclude the connector after a
-                            // graceful close connection, in case it is the only connector available.
-                            lastException = ex;
-                            retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
-
-                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                        }
                         catch (TransportException ex)
                         {
-                            if (connection != null)
+                            var closedException = ex as ConnectionClosedException;
+                            if (connection != null && closedException == null)
                             {
                                 reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
                             }
 
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
 
-                            // Retry transport exceptions if the request is idempotent or was not send
-                            if (request.IsIdempotent || !sent)
+                            // Retry transport exceptions if the request is idempotent, was not sent or if the
+                            // connection was gracefully closed by the peer and it's safe to retry.
+                            if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
                             {
                                 lastException = ex;
                                 retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
@@ -527,7 +520,8 @@ namespace ZeroC.Ice
                             {
                                 reference.Communicator.Logger.Trace(
                                     reference.Communicator.TraceLevels.RetryCategory,
-                                    "retrying operation call: because of exception");
+                                        $"retrying operation call with retry policy `{retryPolicy}' because of " +
+                                        (lastException != null ? $"exception\n{lastException}" : "remote exception"));
                             }
 
                             if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)

@@ -14,31 +14,31 @@ namespace ZeroC.Ice
     internal class SlicStream : SignaledTransceiverStream<(int, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
-        private volatile Exception? _exception;
         private readonly SlicTransceiver _transceiver;
         private int _receivedOffset;
         private int _receivedSize;
         private bool _receivedEndOfStream;
-
-        public override void Abort(Exception ex)
-        {
-            base.Abort(ex);
-            _exception = ex;
-        }
 
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
             if (disposing)
             {
-                if (IsSignaled && _exception == null)
+                if (IsSignaled)
                 {
-                    // If the stream is signaled and wasn't aborted, it was canceled or discarded. We get the
-                    // information for the frame to receive in order to pass it back to the transceiver below.
-                    ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
-                    Debug.Assert(valueTask.IsCompleted);
-                    (_receivedSize, _receivedEndOfStream) = valueTask.Result;
-                    _receivedOffset = 0;
+                    // If the stream is signaled, it was canceled or discarded. We get the information for the frame
+                    // to receive in order to pass it back to the transceiver below.
+                    try
+                    {
+                        ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
+                        Debug.Assert(valueTask.IsCompleted);
+                        (_receivedSize, _receivedEndOfStream) = valueTask.Result;
+                        _receivedOffset = 0;
+                    }
+                    catch
+                    {
+                        // Ignore, the stream got aborted.
+                    }
                 }
 
                 // If there's still data pending to be receive for the stream, we notify the transceiver that
@@ -78,11 +78,6 @@ namespace ZeroC.Ice
                     {
                         throw new InvalidDataException("received last frame with less data than expected");
                     }
-                }
-
-                if (_exception != null)
-                {
-                    throw _exception;
                 }
 
                 // Read and append the received stream frame data into the given buffer.
@@ -184,11 +179,7 @@ namespace ZeroC.Ice
             // header.
             async Task SendFrameAsync(int frameSize, bool fin, IList<ArraySegment<byte>> buffer)
             {
-                if (_exception != null)
-                {
-                    throw _exception;
-                }
-                else if (!IsStarted)
+                if (!IsStarted)
                 {
                     Debug.Assert(!IsIncoming);
 

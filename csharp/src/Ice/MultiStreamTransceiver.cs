@@ -220,9 +220,7 @@ namespace ZeroC.Ice
                 s.Append(ToString());
 
                 // Trace the cause of unexpected connection closures
-                if (!(exception is ConnectionClosedException ||
-                      exception is ConnectionIdleException ||
-                      exception is ObjectDisposedException))
+                if (!(exception is ConnectionClosedException || exception is ObjectDisposedException))
                 {
                     s.Append('\n');
                     s.Append(exception);

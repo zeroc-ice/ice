@@ -33,6 +33,14 @@ namespace ZeroC.Ice
         /// <inheritdoc/>
         public override int GetHashCode() => HashCode.Combine(Retryable, Delay);
 
+        /// <inheritdoc/>
+        public override string? ToString() => Retryable switch {
+            Retryable.AfterDelay => $"after delay {Delay}",
+            Retryable.OtherReplica => $"other replica",
+            Retryable.No => $"no retry",
+            _ => "unknown"
+        };
+
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>
         /// <param name="rhs">The right hand side operand.</param>
