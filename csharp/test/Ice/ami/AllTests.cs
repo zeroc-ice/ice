@@ -98,21 +98,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        private class SentCallback : CallbackBase
-        {
-            public SentCallback() => _thread = Thread.CurrentThread;
-
-            public void Sent(bool ss)
-            {
-                TestHelper.Assert((ss && _thread == Thread.CurrentThread) || (!ss && _thread != Thread.CurrentThread));
-
-                Called();
-            }
-
-            private readonly Thread _thread;
-        }
-
-        public static void Run(TestHelper helper, bool collocated)
+        public static void Run(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -139,11 +125,6 @@ namespace ZeroC.Ice.Test.AMI
 
                 TestHelper.Assert(p.IceIdsAsync().Result.Length == 2);
                 TestHelper.Assert(p.IceIdsAsync(ctx).Result.Length == 2);
-
-                if (!collocated)
-                {
-                    TestHelper.Assert(p.GetConnectionAsync().AsTask().Result != null);
-                }
 
                 p.OpAsync().Wait();
                 p.OpAsync(ctx).Wait();
@@ -195,12 +176,6 @@ namespace ZeroC.Ice.Test.AMI
                         TestHelper.Assert(ids.Length == 2);
                         ids = await p.IceIdsAsync(ctx);
                         TestHelper.Assert(ids.Length == 2);
-
-                        if (!collocated)
-                        {
-                            Connection? conn = await p.GetConnectionAsync();
-                            TestHelper.Assert(conn != null);
-                        }
 
                         await p.OpAsync();
                         await p.OpAsync(ctx);
@@ -262,12 +237,6 @@ namespace ZeroC.Ice.Test.AMI
                 p.IceIdsAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2),
                                                 TaskScheduler.Default).Wait();
 
-                if (!collocated)
-                {
-                    p.GetConnectionAsync().AsTask().ContinueWith(
-                        previous => TestHelper.Assert(previous.Result != null), TaskScheduler.Default).Wait();
-                }
-
                 p.OpAsync().ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
                 p.OpAsync(ctx).ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
 
@@ -324,21 +293,18 @@ namespace ZeroC.Ice.Test.AMI
                     TestHelper.Assert(ex.InnerException is NoEndpointException);
                 }
 
-                if (p.GetConnection() != null)
-                {
-                    Communicator ic = helper.Initialize(communicator.GetProperties());
-                    var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
-                    ic.Dispose();
+                Communicator ic = helper.Initialize(communicator.GetProperties());
+                var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
+                ic.Dispose();
 
-                    try
-                    {
-                        p2.OpAsync().Wait();
-                        TestHelper.Assert(false);
-                    }
-                    catch (AggregateException ex)
-                    {
-                        TestHelper.Assert(ex.InnerException is CommunicatorDisposedException);
-                    }
+                try
+                {
+                    p2.OpAsync().Wait();
+                    TestHelper.Assert(false);
+                }
+                catch (AggregateException ex)
+                {
+                    TestHelper.Assert(ex.InnerException is CommunicatorDisposedException);
                 }
             }
             output.WriteLine("ok");
@@ -412,26 +378,26 @@ namespace ZeroC.Ice.Test.AMI
             output.Flush();
             {
                 {
-                    var cb = new SentCallback();
+                    var cb = new CallbackBase();
 
                     Task t = p.IceIsAAsync("",
-                        progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                        progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IcePingAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IcePingAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IceIdAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IceIdAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IceIdsAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IceIdsAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
 
-                    t = p.OpAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.OpAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check();
                     t.Wait();
                 }
@@ -530,11 +496,6 @@ namespace ZeroC.Ice.Test.AMI
 
             Task.Run(async () =>
             {
-                if (serialized.GetConnection() == null)
-                {
-                    return; // Serialization not supported with collocation
-                }
-
                 output.Write("testing async serialization... ");
                 output.Flush();
                 try
@@ -558,9 +519,8 @@ namespace ZeroC.Ice.Test.AMI
                             TestHelper.Assert(previous == expected);
                             expected = j;
                         }
-                        serialized.GetConnection()!.Close(ConnectionClose.Gracefully);
+                        await serialized.GetConnection().GoAwayAsync();
                     }
-                    output.WriteLine("ok");
                 }
                 catch (ObjectNotExistException)
                 {
@@ -571,6 +531,40 @@ namespace ZeroC.Ice.Test.AMI
                     output.WriteLine($"unexpected exception {ex}");
                     TestHelper.Assert(false);
                 }
+
+                try
+                {
+                    var tasks = new Task[20];
+                    serialized.Set(-1);
+                    var context = new Dictionary<string, string>();
+                    for (int i = 0; i < 50; ++i)
+                    {
+                        // Async serialization only works once the connection is established and if there's no retries
+                        serialized.IcePing();
+                        for (int j = 0; j < tasks.Length; ++j)
+                        {
+                            context["value"] = (i * tasks.Length + j).ToString(); // This is for debugging
+                            tasks[j] = serialized.SetOnewayAsync(i * tasks.Length + j - 1,
+                                                                 i * tasks.Length + j,
+                                                                 context);
+                        }
+                        for (int j = 0; j < tasks.Length; ++j)
+                        {
+                            await tasks[j].ConfigureAwait(false);
+                        }
+                        await serialized.GetConnection().GoAwayAsync();
+                    }
+                }
+                catch (ObjectNotExistException)
+                {
+                    output.WriteLine("not supported");
+                }
+                catch (Exception ex)
+                {
+                    output.WriteLine($"unexpected exception {ex}");
+                    TestHelper.Assert(false);
+                }
+                output.WriteLine("ok");
             }).Wait();
 
             output.Write("testing async Task cancellation... ");
@@ -581,7 +575,7 @@ namespace ZeroC.Ice.Test.AMI
                 var cs3 = new CancellationTokenSource();
                 Task t1;
                 Task t2;
-                Task t3;
+                Task? t3;
                 try
                 {
                     var cancelCtx = new Dictionary<string, string> { { "cancel", "" } };
@@ -593,10 +587,12 @@ namespace ZeroC.Ice.Test.AMI
                     try
                     {
                         t3 = p.IcePingAsync(cancel: cs3.Token);
+                        // It might throw synchronously or asynchronously depending on connection establishment
                     }
                     catch (OperationCanceledException)
                     {
                         // expected
+                        t3 = null;
                     }
                     try
                     {
@@ -616,13 +612,24 @@ namespace ZeroC.Ice.Test.AMI
                     {
                         ae.Handle(ex => ex is OperationCanceledException);
                     }
+                    if (t3 != null)
+                    {
+                        try
+                        {
+                            t3.Wait();
+                            TestHelper.Assert(false);
+                        }
+                        catch (AggregateException ae)
+                        {
+                            ae.Handle(ex => ex is OperationCanceledException);
+                        }
+                    }
                 }
                 finally
                 {
                     p.IcePing();
                 }
             }
-            if (p.GetConnection() != null)
             {
                 // Stress test cancellation to ensure we exercise the various cancellation points. Cancellation of
                 // the sleep might fail or succeed on the server side depending how long we sleep.
@@ -687,27 +694,26 @@ namespace ZeroC.Ice.Test.AMI
                 }
                 TestHelper.Assert(t0.Status == TaskStatus.Canceled);
                 TestHelper.Assert(t2.Status == TaskStatus.Canceled);
-                TestHelper.Assert(t1.Result == 20);
-                TestHelper.Assert(t3.Result == 1);
+                if (serialized.Protocol == Protocol.Ice1 && serialized.GetConnection() is not ColocatedConnection)
+                {
+                    // Non-colocated Ice1 doesn't support canceling the request from the send queue
+                    // TODO: support it?
+                    TestHelper.Assert(t1.Result == 0);
+                    TestHelper.Assert(t3.Result == 2);
+                }
+                else
+                {
+                    TestHelper.Assert(t1.Result == 20);
+                    TestHelper.Assert(t3.Result == 1);
+                }
                 TestHelper.Assert(serialized.Set(0) == 3);
             }
             output.WriteLine("ok");
 
-            if (p.GetConnection() != null && p.SupportsAMD())
+            if (p.SupportsAMD())
             {
-                output.Write("testing graceful close connection with wait... ");
+                output.Write("testing graceful close connection... ");
                 output.Flush();
-                {
-                    // Local case: begin a request, close the connection gracefully, and make sure it waits for the
-                    // request to complete.
-                    Connection con = p.GetConnection()!;
-                    var cb = new CallbackBase();
-                    con.Closed += (sender, args) => cb.Called();
-                    Task t = p.SleepAsync(100);
-                    con.Close(ConnectionClose.GracefullyWithWait);
-                    t.Wait(); // Should complete successfully.
-                    cb.Check();
-                }
                 {
                     // Remote case.
                     byte[] seq = new byte[1024 * 10];
@@ -728,7 +734,7 @@ namespace ZeroC.Ice.Test.AMI
                         }
 
                         var cb = new ProgressCallback();
-                        p.CloseAsync(CloseMode.GracefullyWithWait, progress: cb);
+                        p.CloseAsync(CloseMode.Gracefully, progress: cb);
 
                         if (!cb.SentSynchronously)
                         {
@@ -756,21 +762,17 @@ namespace ZeroC.Ice.Test.AMI
                         }
                     }
                 }
-                output.WriteLine("ok");
 
-                output.Write("testing graceful close connection without wait... ");
-                output.Flush();
                 {
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
                     // invocation to fail with ConnectionClosedLocallyException.
                     p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
-                    Connection con = p.GetConnection()!;
+                    Connection con = p.GetConnection();
                     var cb = new CallbackBase();
-                    Task t = p.StartDispatchAsync(
-                        progress: new Progress(sentSynchronously => cb.Called()));
+                    Task t = p.StartDispatchAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
-                    con.Close(ConnectionClose.Gracefully);
+                    _ = con.GoAwayAsync();
                     try
                     {
                         t.Wait();
@@ -784,11 +786,11 @@ namespace ZeroC.Ice.Test.AMI
 
                     // Remote case: the server closes the connection gracefully, which means the connection will not
                     // be closed until all pending dispatched requests have completed.
-                    con = p.GetConnection()!;
+                    con = p.GetConnection();
                     cb = new CallbackBase();
                     con.Closed += (sender, args) => cb.Called();
                     t = p.SleepAsync(100);
-                    p.Close(CloseMode.Gracefully); // Close is delayed until sleep completes.
+                    _ = p.CloseAsync(CloseMode.Gracefully); // Close is delayed until sleep completes.
                     cb.Check();
                     t.Wait();
                 }
@@ -800,12 +802,12 @@ namespace ZeroC.Ice.Test.AMI
                     // Local case: start an operation and then close the connection forcefully on the client side.
                     // There will be no retry and we expect the invocation to fail with ConnectionClosedLocallyException.
                     p.IcePing();
-                    Connection con = p.GetConnection()!;
+                    Connection con = p.GetConnection();
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(
                         progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
-                    con.Close(ConnectionClose.Forcefully);
+                    con.AbortAsync();
                     try
                     {
                         t.Wait();

@@ -156,8 +156,8 @@ namespace ZeroC.Ice
                 // Set the compression status to '1' GZip compressed
                 compressedData[offset++] = 1;
                 // Write the size of the uncompressed data
-                OutputStream.WriteFixedLengthSize20(encapsulationSize - sizeLength,
-                                                    compressedData.AsSpan(offset, sizeLength));
+                compressedData.AsSpan(offset, sizeLength).WriteFixedLengthSize20(encapsulationSize - sizeLength);
+
                 offset += sizeLength;
                 using var memoryStream = new MemoryStream(compressedData, offset, compressedData.Length - offset);
                 using var gzipStream = new GZipStream(
@@ -236,9 +236,10 @@ namespace ZeroC.Ice
                 }
 
                 // Rewrite the encapsulation size
-                OutputStream.WriteEncapsulationSize(offset - sizeLength - encapsulationOffset,
-                                                    compressedData.AsSpan(encapsulationOffset, sizeLength),
-                                                    Protocol.GetEncoding());
+                compressedData.AsSpan(encapsulationOffset, sizeLength).WriteEncapsulationSize(
+                    offset - sizeLength - encapsulationOffset,
+                    Protocol.GetEncoding());
+
                 _payload = null; // reset cache
 
                 return CompressionResult.Success;

@@ -133,7 +133,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets the value of a property as an enumerated type, the conversion does a case insensitive
-        /// comparison of the property value with the enumerators and returns the matching enumerator or throws and
+        /// comparison of the property value with the enumerators and returns the matching enumerator or throws an
         /// exception if none matches the property value. If the property is not set, returns null.</summary>
         /// <typeparam name="TEnum">An enumeration type.</typeparam>
         /// <param name="name">The property name.</param>

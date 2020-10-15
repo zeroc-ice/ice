@@ -14,9 +14,6 @@
         <Compile Update="generated\PermissionsVerifier.cs">
           <SliceCompileSource>..\..\..\slice\Glacier2\PermissionsVerifier.ice</SliceCompileSource>
         </Compile>
-        <Compile Update="generated\PermissionsVerifierF.cs">
-          <SliceCompileSource>..\..\..\slice\Glacier2\PermissionsVerifierF.ice</SliceCompileSource>
-        </Compile>
         <Compile Update="generated\Router.cs">
           <SliceCompileSource>..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
         </Compile>

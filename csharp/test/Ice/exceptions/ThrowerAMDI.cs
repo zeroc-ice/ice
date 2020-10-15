@@ -7,9 +7,9 @@ using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
-    public class ThrowerAsync : IThrowerAsync
+    public class AsyncThrower : IAsyncThrower
     {
-        public ThrowerAsync()
+        public AsyncThrower()
         {
         }
 

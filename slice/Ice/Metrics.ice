@@ -201,13 +201,18 @@ module IceMX
         /// The number of invocations that failed with a user exception.
         int userException = 0;
 
-        /// The remote invocation metrics map.
+        /// The children invocation metrics map.
         ///
+        /// @see ChildInvocationMetrics
+        MetricsMap children;
+
+        /// The remote invocation metrics map.
+        /// TODO: Remove once all language mappings implement colocation as a transport
         /// @see RemoteMetrics
         MetricsMap remotes;
 
         /// The collocated invocation metrics map.
-        ///
+        /// TODO: Remove once all language mappings implement colocation as a transport
         /// @see CollocatedMetrics
         MetricsMap collocated;
     }

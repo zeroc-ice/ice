@@ -10,7 +10,6 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
-#include <Ice/CommunicatorAsync.h>
 #include <Ice/OutgoingAsync.h>
 
 namespace IceInternal

@@ -210,7 +210,16 @@ from IceStormUtil import *
 #
 # Supported mappings
 #
-for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
+
+# The order that the languages will be tested in.
+lang_order = ("cpp", "java", "python", "js", "csharp", "swift")
+
+# Filters out any files that aren't directories or don't start with one of the prefixes specified in 'lang_order'.
+mapping_filter = lambda x: os.path.isdir(os.path.join(toplevel, x)) and x.startswith(lang_order)
+# Returns the build-ordered index for a mapping named 'x'.
+mapping_orderer = lambda x: [index for index, name in enumerate(lang_order) if x.startswith(name)][0]
+
+for m in sorted(filter(mapping_filter, os.listdir(toplevel)), key=mapping_orderer):
     if m == "cpp" or re.match("cpp-.*", m):
         Mapping.add(m, CppMapping(), component)
     elif m == "java" or re.match("java-.*", m):
@@ -221,11 +230,11 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
+    elif m == "csharp" or re.match("charp-.*", m):
+        Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Mapping.add("swift", SwiftMapping(), component, enable=platform.hasSwift((5, 0)))
-    elif m == "csharp" or re.match("charp-.*", m):
-        Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.

@@ -48,10 +48,7 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
 
-            public IRemoteObserver? GetRemoteObserver(Connection connection, long requestId, int size) => null;
-
-            public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long i, int j) => null;
-
+            public IChildInvocationObserver? GetChildInvocationObserver(Connection connection, int size) => null;
         }
 
         private static readonly IInvocationObserver _invocationObserver = new InvocationObserver();

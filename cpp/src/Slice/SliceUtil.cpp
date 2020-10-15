@@ -788,3 +788,67 @@ bool Slice::opCompressReturn(const OperationPtr& op)
 {
     return opCompress(op, false);
 }
+
+string Slice::getDeprecateReason(const ContainedPtr& p, bool checkContainer)
+{
+    // Check if there was `deprecate` metadata directly on the entity.
+    auto reason = p->findMetadata("deprecate");
+    // If the entity wasn't directly deprecated, check if it's container is.
+    if (!reason && checkContainer)
+    {
+        if (ContainedPtr p2 = ContainedPtr::dynamicCast(p->container()))
+        {
+            reason = p2->findMetadata("deprecate");
+        }
+    }
+
+    if (reason)
+    {
+        if (reason->empty())
+        {
+            return "This " + p->kindOf() + " has been deprecated";
+        }
+        return *reason;
+    }
+    return "";
+}
+
+pair<string, string> Slice::parseMetadata(const string& metadata)
+{
+    auto start = metadata.find("(");
+    if (start == string::npos)
+    {
+        return make_pair(metadata, "");
+    }
+
+    // We subtract 1 under the assumption that it ends with a ')' which shouldn't be included.
+    auto length = metadata.length() - start - 1;
+    // Check the raw string ends with a closing parentheses.
+    if (metadata.at(length + start) != ')')
+    {
+        unit->error("missing closing parentheses for metadata arguments");
+        length += 1;
+    }
+    return make_pair(metadata.substr(0, start), metadata.substr(start + 1, length));
+}
+
+map<string, string> Slice::parseMetadata(const StringList& metadata)
+{
+    map<string, string> parsedMetadata;
+    for (const auto& m : metadata)
+    {
+        parsedMetadata.insert(parseMetadata(m));
+    }
+    return parsedMetadata;
+}
+
+bool Slice::hasMetadata(const string& directive, const map<string, string>& metadata)
+{
+    return metadata.find(directive) != metadata.end();
+}
+
+optional<string> Slice::findMetadata(const string& directive, const map<string, string>& metadata)
+{
+    auto match = metadata.find(directive);
+    return (match != metadata.end() ? make_optional(match->second) : nullopt);
+}

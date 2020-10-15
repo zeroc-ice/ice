@@ -53,5 +53,15 @@ module Ice
         /// The request failed.
         Failure = 1
     }
+
+    // The possible error codes to describe the reason of a stream reset.
+    enum StreamResetErrorCode : byte
+    {
+        /// The caller canceled the request.
+        RequestCanceled = 0,
+
+        /// The peer no longer wants to receive data from the stream.
+        StopStreamingData = 1,
+    }
 #endif
 }

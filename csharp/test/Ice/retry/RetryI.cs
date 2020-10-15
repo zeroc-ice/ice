@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Retry
             {
                 if (current.Connection != null)
                 {
-                    current.Connection.Close(ConnectionClose.Forcefully);
+                    current.Connection.AbortAsync();
                 }
                 else
                 {
