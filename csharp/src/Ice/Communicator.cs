@@ -1196,7 +1196,7 @@ namespace ZeroC.Ice
                 return null;
             });
 
-        internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator, Encoding encoding)
+        internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator)
         {
             // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist
             // yet.
@@ -1205,10 +1205,10 @@ namespace ZeroC.Ice
                 return null;
             }
 
-            if (locator.Locator != null || locator.Encoding != encoding)
+            if (locator.Locator != null)
             {
                 // The locator can't be located.
-                locator = locator.Clone(clearLocator: true, encoding: encoding);
+                locator = locator.Clone(clearLocator: true);
             }
 
             return _locatorInfoMap.GetOrAdd(locator,

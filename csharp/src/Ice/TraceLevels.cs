@@ -5,7 +5,7 @@ namespace ZeroC.Ice
     internal sealed class TraceLevels
     {
         internal readonly int Transport;
-        internal readonly string TransportCategory;
+        internal readonly string TransportCategory; // TODO: these are not constants?
         internal readonly int Protocol;
         internal readonly string ProtocolCategory;
         internal readonly int Retry;
@@ -20,7 +20,7 @@ namespace ZeroC.Ice
             TransportCategory = "Transport";
             ProtocolCategory = "Protocol";
             RetryCategory = "Retry";
-            LocationCategory = "Locator";
+            LocationCategory = "Locator"; // TODO why this inconsistency?
             SlicingCategory = "Slicing";
 
             string keyBase = "Ice.Trace.";

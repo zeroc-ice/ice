@@ -211,7 +211,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 IObjectPrx.Parse("unknown/unknown", communicator).IcePing();
                 TestHelper.Assert(false);
             }
-            catch (ObjectNotFoundException)
+            catch (NoEndpointException)
             {
                 // expected
             }
@@ -224,7 +224,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 IObjectPrx.Parse("test @ TestAdapterUnknown", communicator).IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
                 // expected
             }

@@ -28,7 +28,7 @@ namespace ZeroC.Ice
         public ILocatorPrx? Locator
         {
             get => _locatorInfo?.Locator;
-            set => _locatorInfo = (value != null) ? Communicator.GetLocatorInfo(value, value.Encoding) : null;
+            set => _locatorInfo = Communicator.GetLocatorInfo(value);
         }
 
         /// <summary>Returns the name of this object adapter. This name is used as prefix for the object adapter's
@@ -1133,36 +1133,16 @@ namespace ZeroC.Ice
             if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
             {
                 var sb = new StringBuilder("published endpoints for object adapter `");
-
-                if (Protocol == Protocol.Ice1)
-                {
-                    sb.Append(Name);
-                    sb.Append("':\n");
-                    sb.Append(string.Join(":", endpoints));
-                }
-                else
-                {
-                    sb.AppendEndpoint(endpoints[0]);
-                    if (endpoints.Count > 1)
-                    {
-                        Transport mainTransport = endpoints[0].Transport;
-                        sb.Append("?alt-endpoint=");
-                        for (int i = 1; i < endpoints.Count; ++i)
-                        {
-                            if (i > 1)
-                            {
-                                sb.Append(',');
-                            }
-                            sb.AppendEndpoint(endpoints[i], "", mainTransport != endpoints[i].Transport, '$');
-                        }
-                    }
-                }
+                sb.Append(Name);
+                sb.Append("':\n");
+                sb.AppendEndpointList(endpoints);
                 Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory, sb.ToString());
             }
 
             return endpoints;
         }
 
+        // TODO: split between register and unregister. And add cancellation token?
         private async Task UpdateLocatorRegistryAsync(LocatorInfo? locatorInfo, IObjectPrx? proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
@@ -1170,8 +1150,8 @@ namespace ZeroC.Ice
                 return; // Nothing to update.
             }
 
-            ILocatorRegistryPrx? locatorRegistry = await locatorInfo.GetLocatorRegistryAsync(
-                proxy?.Encoding ?? Protocol.GetEncoding()).ConfigureAwait(false);
+            ILocatorRegistryPrx? locatorRegistry =
+                await locatorInfo.GetLocatorRegistryAsync().ConfigureAwait(false);
             if (locatorRegistry == null)
             {
                 return;
@@ -1179,15 +1159,36 @@ namespace ZeroC.Ice
 
             try
             {
-                if (_replicaGroupId.Length == 0)
+                if (locatorRegistry.Protocol == Protocol.Ice1)
                 {
-                    await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy).ConfigureAwait(false);
+#pragma warning disable CS0618 // calling deprecated methods
+                    if (_replicaGroupId.Length == 0)
+                    {
+                        await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(
+                            _id,
+                            _replicaGroupId,
+                            proxy).ConfigureAwait(false);
+                    }
+#pragma warning restore CS0618
                 }
                 else
                 {
-                    await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(_id,
-                                                                               _replicaGroupId,
-                                                                               proxy).ConfigureAwait(false);
+                    if (proxy == null)
+                    {
+                        await locatorRegistry.UnregisterAdapterEndpointsAsync(_id,
+                                                                              _replicaGroupId,
+                                                                              Protocol).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await locatorRegistry.RegisterAdapterEndpointsAsync(_id,
+                                                                            _replicaGroupId,
+                                                                            proxy).ConfigureAwait(false);
+                    }
                 }
             }
             catch (ObjectDisposedException)
@@ -1215,14 +1216,14 @@ namespace ZeroC.Ice
 
             if (Communicator.TraceLevels.Location >= 1)
             {
-                var s = new StringBuilder();
-                s.Append($"updated object adapter `{_id}' endpoints with the locator registry\n");
-                s.Append("endpoints = ");
+                var sb = new StringBuilder();
+                sb.Append($"updated object adapter `{_id}' endpoints with the locator registry\n");
+                sb.Append("endpoints = ");
                 if (proxy != null)
                 {
-                    s.Append(string.Join(":", proxy.Endpoints));
+                    sb.Append(string.Join(":", proxy.Endpoints));
                 }
-                Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory, s.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory, sb.ToString());
             }
         }
 
