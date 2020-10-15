@@ -31,7 +31,7 @@ namespace ZeroC.Ice
         // enumerators are used.
         internal InvocationMode InvocationMode { get; }
         internal bool IsConnectionCached;
-        internal bool IsFixed => _fixedConnection != null;
+        internal bool IsFixed { get; }
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
         public bool IsOneway => InvocationMode != InvocationMode.Twoway;
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
@@ -42,9 +42,8 @@ namespace ZeroC.Ice
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
-        private readonly Connection? _fixedConnection;
         private int _hashCode;
-        private volatile IRequestHandler? _requestHandler; // readonly when IsFixed is true
+        private volatile Connection? _connection; // readonly when IsFixed is true
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>
@@ -239,7 +238,7 @@ namespace ZeroC.Ice
             if (IsFixed)
             {
                 // Compare properties and fields specific to fixed references
-                if (_fixedConnection != other._fixedConnection)
+                if (_connection != other._connection)
                 {
                     return false;
                 }
@@ -341,7 +340,7 @@ namespace ZeroC.Ice
 
                 if (IsFixed)
                 {
-                    hash.Add(_fixedConnection);
+                    hash.Add(_connection);
                 }
                 else
                 {
@@ -697,19 +696,19 @@ namespace ZeroC.Ice
         internal Reference(Communicator communicator, Connection fixedConnection, Identity identity)
             : this(communicator: communicator,
                    context: communicator.DefaultContext,
-                   encoding: fixedConnection.Endpoint.Protocol.GetEncoding(),
+                   encoding: fixedConnection.Protocol.GetEncoding(),
                    facet: "",
                    fixedConnection: fixedConnection,
                    identity: identity,
-                   invocationMode: fixedConnection.Endpoint.IsDatagram ?
+                   invocationMode: (fixedConnection.Endpoint?.IsDatagram ?? false) ?
                        InvocationMode.Datagram : InvocationMode.Twoway)
         {
         }
 
-        internal void ClearRequestHandler(IRequestHandler handler)
+        internal void ClearConnection(Connection connection)
         {
             Debug.Assert(!IsFixed);
-            Interlocked.CompareExchange(ref _requestHandler, null, handler);
+            Interlocked.CompareExchange(ref _connection, null, connection);
         }
 
         internal Reference Clone(
@@ -835,7 +834,7 @@ namespace ZeroC.Ice
                                           context?.ToImmutableDictionary() ?? Context,
                                           encoding ?? Encoding,
                                           facet ?? Facet,
-                                          (fixedConnection ?? _fixedConnection)!,
+                                          (fixedConnection ?? _connection)!,
                                           identity ?? Identity,
                                           invocationMode ?? InvocationMode);
                 return clone == this ? this : clone;
@@ -941,208 +940,204 @@ namespace ZeroC.Ice
             }
         }
 
-        internal Connection? GetCachedConnection() => _requestHandler as Connection;
+        internal Connection? GetCachedConnection() => _connection;
 
-        internal async ValueTask<IRequestHandler> GetConnectionAsync(
+        internal async ValueTask<Connection> GetConnectionAsync(
             IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
         {
-            Debug.Assert(!IsFixed);
+            Connection? connection = _connection;
 
-            // Get the endpoints
-            IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
-            bool cached = false;
-            if (RouterInfo != null)
+            // If the cached connection is no longer active, clear it and get a new connection.
+            if (!IsFixed && connection != null && !connection.IsActive)
             {
-                // Get the router client endpoints if a router is configured
-                endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
+                ClearConnection(connection);
+                connection = null;
             }
 
-            if (endpoints.Count == 0)
-            {
-                // Get the proxy's endpoint or query the locator to get endpoints
-                if (Endpoints.Count > 0)
-                {
-                    endpoints = Endpoints;
-                }
-                else if (LocatorInfo != null)
-                {
-                    (endpoints, cached) =
-                        await LocatorInfo.GetEndpointsAsync(this, LocatorCacheTimeout, cancel).ConfigureAwait(false);
-                }
-            }
-
-            if (endpoints.Count == 0)
-            {
-                throw new NoEndpointException(ToString());
-            }
-
-            // Apply overrides and filter endpoints
-            IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
-            {
-                // Filter out opaque endpoints
-                if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
-                {
-                    return false;
-                }
-
-                // Filter out based on InvocationMode and IsDatagram
-                switch (InvocationMode)
-                {
-                    case InvocationMode.Twoway:
-                    case InvocationMode.Oneway:
-                    case InvocationMode.BatchOneway:
-                        if (endpoint.IsDatagram)
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case InvocationMode.Datagram:
-                    case InvocationMode.BatchDatagram:
-                        if (!endpoint.IsDatagram)
-                        {
-                            return false;
-                        }
-                        break;
-
-                    default:
-                        Debug.Assert(false);
-                        return false;
-                }
-
-                // If PreferNonSecure is false, filter out all non-secure endpoints
-                return PreferNonSecure || endpoint.IsSecure;
-            });
-
-            if (EndpointSelection == EndpointSelectionType.Random)
-            {
-                // Shuffle the filtered endpoints using _rand
-                filteredEndpoints = filteredEndpoints.Shuffle();
-            }
-
-            if (PreferNonSecure)
-            {
-                // It's just a preference: we can fallback to secure endpoints.
-                filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
-            }
-
-            endpoints = filteredEndpoints.ToArray();
-            if (endpoints.Count == 0)
-            {
-                throw new NoEndpointException(ToString());
-            }
-
-            // Finally, create the connection.
-            try
-            {
-                OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
-                Connection? connection = null;
-                if (IsConnectionCached)
-                {
-                    // Get an existing connection or create one if there's no existing connection to one of the given
-                    // endpoints.
-                    connection = await factory.CreateAsync(endpoints,
-                                                           false,
-                                                           EndpointSelection,
-                                                           ConnectionId,
-                                                           excludedConnectors,
-                                                           cancel).ConfigureAwait(false);
-                }
-                else
-                {
-                    // Go through the list of endpoints and try to create the connection until it succeeds. This
-                    // is different from just calling create() with all the endpoints since this might create a
-                    // new connection even if there's an existing connection for one of the endpoints.
-                    Endpoint lastEndpoint = endpoints[endpoints.Count - 1];
-                    foreach (Endpoint endpoint in endpoints)
-                    {
-                        try
-                        {
-                            connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
-                                                                   endpoint != lastEndpoint,
-                                                                   EndpointSelection,
-                                                                   ConnectionId,
-                                                                   excludedConnectors,
-                                                                   cancel).ConfigureAwait(false);
-                            break;
-                        }
-                        catch (Exception)
-                        {
-                            if (endpoint == lastEndpoint)
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                }
-                Debug.Assert(connection != null);
-
-                if (RouterInfo != null)
-                {
-                    await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this));
-
-                    // Set the object adapter for this router (if any) on the new connection, so that callbacks from
-                    // the router can be received over this new connection.
-                    if (RouterInfo.Adapter != null)
-                    {
-                        connection.Adapter = RouterInfo.Adapter;
-                    }
-                }
-
-                return connection;
-            }
-            catch (Exception ex)
-            {
-                if (LocatorInfo != null && IsIndirect)
-                {
-                    LocatorInfo.ClearCache(this);
-                }
-
-                if (cached)
-                {
-                    TraceLevels traceLevels = Communicator.TraceLevels;
-                    if (traceLevels.Retry >= 2)
-                    {
-                        Communicator.Logger.Trace(traceLevels.RetryCategory, "connection to cached endpoints failed\n" +
-                            $"removing endpoints from cache and trying again\n{ex}");
-                    }
-                    return await GetConnectionAsync(excludedConnectors, cancel);
-                }
-                throw;
-            }
-        }
-
-        internal async ValueTask<IRequestHandler> GetRequestHandlerAsync(
-            IReadOnlyList<IConnector> excludedConnecors,
-            CancellationToken cancel)
-        {
-            IRequestHandler? handler = _requestHandler;
-            if (handler == null)
+            if (connection == null)
             {
                 Debug.Assert(!IsFixed);
 
+                IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
+
+                // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
+                // case we use the colocated endpoint.
                 if (InvocationMode != InvocationMode.Datagram)
                 {
-                    // If the invocation mode is not datagram, we first check if the target is colocated.
-                    ObjectAdapter? adapter = Communicator.FindObjectAdapter(this);
-                    if (adapter != null)
+                    Endpoint? endpoint = Communicator.GetColocatedEndpoint(this);
+                    if (endpoint != null)
                     {
-                        handler = new CollocatedRequestHandler(this, adapter);
+                        endpoints = new Endpoint[] { endpoint };
                     }
                 }
 
-                if (handler == null)
+                if (endpoints.Count == 0 && RouterInfo != null)
                 {
-                    handler = await GetConnectionAsync(excludedConnecors, cancel).ConfigureAwait(false);
+                    // Get the router client endpoints if a router is configured
+                    endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
+                }
+
+                bool cached = false;
+                if (endpoints.Count == 0)
+                {
+                    // Get the proxy's endpoint or query the locator to get endpoints
+                    if (Endpoints.Count > 0)
+                    {
+                        endpoints = Endpoints;
+                    }
+                    else if (LocatorInfo != null)
+                    {
+                        (endpoints, cached) = await LocatorInfo.GetEndpointsAsync(this,
+                                                                                  LocatorCacheTimeout,
+                                                                                  cancel).ConfigureAwait(false);
+                    }
+                }
+
+                if (endpoints.Count == 0)
+                {
+                    throw new NoEndpointException(ToString());
+                }
+
+                // Apply overrides and filter endpoints
+                IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
+                {
+                    // Filter out opaque endpoints
+                    if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
+                    {
+                        return false;
+                    }
+
+                    // Filter out based on InvocationMode and IsDatagram
+                    switch (InvocationMode)
+                    {
+                        case InvocationMode.Twoway:
+                        case InvocationMode.Oneway:
+                        case InvocationMode.BatchOneway:
+                            if (endpoint.IsDatagram)
+                            {
+                                return false;
+                            }
+                            break;
+
+                        case InvocationMode.Datagram:
+                        case InvocationMode.BatchDatagram:
+                            if (!endpoint.IsDatagram)
+                            {
+                                return false;
+                            }
+                            break;
+
+                        default:
+                            Debug.Assert(false);
+                            return false;
+                    }
+
+                    // If PreferNonSecure is false, filter out all non-secure endpoints
+                    return PreferNonSecure || endpoint.IsSecure;
+                });
+
+                if (EndpointSelection == EndpointSelectionType.Random)
+                {
+                    // Shuffle the filtered endpoints using _rand
+                    filteredEndpoints = filteredEndpoints.Shuffle();
+                }
+
+                if (PreferNonSecure)
+                {
+                    // It's just a preference: we can fallback to secure endpoints.
+                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
+                }
+
+                endpoints = filteredEndpoints.ToArray();
+                if (endpoints.Count == 0)
+                {
+                    throw new NoEndpointException(ToString());
+                }
+
+                // Finally, create the connection.
+                try
+                {
+                    OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
+                    if (IsConnectionCached)
+                    {
+                        // Get an existing connection or create one if there's no existing connection to one of
+                        // the given endpoints.
+                        connection = await factory.CreateAsync(endpoints,
+                                                               false,
+                                                               EndpointSelection,
+                                                               ConnectionId,
+                                                               excludedConnectors,
+                                                               cancel).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        // Go through the list of endpoints and try to create the connection until it succeeds. This
+                        // is different from just calling create() with all the endpoints since this might create a
+                        // new connection even if there's an existing connection for one of the endpoints.
+                        Endpoint lastEndpoint = endpoints[endpoints.Count - 1];
+                        foreach (Endpoint endpoint in endpoints)
+                        {
+                            try
+                            {
+                                connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
+                                                                       endpoint != lastEndpoint,
+                                                                       EndpointSelection,
+                                                                       ConnectionId,
+                                                                       excludedConnectors,
+                                                                       cancel).ConfigureAwait(false);
+                                break;
+                            }
+                            catch (Exception)
+                            {
+                                if (endpoint == lastEndpoint)
+                                {
+                                    throw;
+                                }
+                            }
+                        }
+                    }
+                    Debug.Assert(connection != null);
+
+                    if (RouterInfo != null)
+                    {
+                        await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this));
+
+                        // Set the object adapter for this router (if any) on the new connection, so that callbacks from
+                        // the router can be received over this new connection.
+                        if (RouterInfo.Adapter != null)
+                        {
+                            connection.Adapter = RouterInfo.Adapter;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (LocatorInfo != null && IsIndirect)
+                    {
+                        LocatorInfo.ClearCache(this);
+                    }
+
+                    if (cached)
+                    {
+                        TraceLevels traceLevels = Communicator.TraceLevels;
+                        if (traceLevels.Retry >= 2)
+                        {
+                            Communicator.Logger.Trace(traceLevels.RetryCategory,
+                                                      "connection to cached endpoints failed\n" +
+                                                      $"removing endpoints from cache and trying again\n{ex}");
+                        }
+                        return await GetConnectionAsync(excludedConnectors, cancel);
+                    }
+                    throw;
                 }
 
                 if (IsConnectionCached)
                 {
-                    _requestHandler = handler;
+                    _connection = connection;
                 }
             }
-            return handler;
+            return connection;
         }
 
         internal Dictionary<string, string> ToProperty(string prefix)
@@ -1288,22 +1283,22 @@ namespace ZeroC.Ice
             Identity = identity;
             InvocationMode = invocationMode;
             IsConnectionCached = false;
+            IsFixed = true;
             Location = ImmutableArray<string>.Empty;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
             PreferNonSecure = false;
-            Protocol = fixedConnection.Endpoint.Protocol;
+            Protocol = fixedConnection.Protocol;
             RouterInfo = null;
 
-            _fixedConnection = fixedConnection;
-            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = _fixedConnection;
+            _connection = fixedConnection;
+            _connection.ThrowException(); // Throw in case our connection is already destroyed.
 
             if (Protocol == Protocol.Ice1)
             {
                 if (InvocationMode == InvocationMode.Datagram)
                 {
-                    if (!(_fixedConnection.Endpoint as Endpoint)!.IsDatagram)
+                    if (!(_connection.Endpoint as Endpoint)!.IsDatagram)
                     {
                         throw new ArgumentException(
                             "a fixed datagram proxy requires a datagram connection",

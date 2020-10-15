@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,8 @@ namespace ZeroC.Ice
     internal sealed class UdpTransceiver : ITransceiver
     {
         public Socket Socket { get; }
+        public SslStream? SslStream => null;
+
         internal IPEndPoint? MulticastAddress { get; private set; }
 
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
@@ -44,7 +47,7 @@ namespace ZeroC.Ice
                     if (OperatingSystem.IsWindows())
                     {
                         // Windows does not allow binding to the multicast address itself so we bind to INADDR_ANY
-                        // instead. As a result, bi-directional connection won't work because the source address won't
+                        // instead. As a result, bidirectional connection won't work because the source address won't
                         // be the multicast address and the client will therefore reject the datagram.
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {
@@ -94,11 +97,7 @@ namespace ZeroC.Ice
 
         public ValueTask CloseAsync(Exception exception, CancellationToken cancel) => new ValueTask();
 
-        public ValueTask DisposeAsync()
-        {
-            Socket.Dispose();
-            return new ValueTask();
-        }
+        public void Dispose() => Socket.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -111,8 +110,7 @@ namespace ZeroC.Ice
                         Socket.Bind(_sourceAddr);
                     }
 
-                    // TODO: fix to use the cancellable ConnectAsync with 5.0
-                    await Socket.ConnectAsync(_addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_addr, cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -155,8 +153,8 @@ namespace ZeroC.Ice
                     // TODO: Fix to use the cancellable API with 5.0
                     SocketReceiveFromResult result =
                         await Socket.ReceiveFromAsync(buffer,
-                                                   SocketFlags.None,
-                                                   peerAddr).WaitAsync(cancel).ConfigureAwait(false);
+                                                      SocketFlags.None,
+                                                      peerAddr).WaitAsync(cancel).ConfigureAwait(false);
                     _peerAddr = result.RemoteEndPoint;
                     received = result.ReceivedBytes;
                 }

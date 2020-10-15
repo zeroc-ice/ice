@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace ZeroC.Ice
     internal sealed class TcpTransceiver : ITransceiver
     {
         public Socket Socket { get; }
+        public SslStream? SslStream => null;
 
         private readonly EndPoint? _addr;
         private readonly Communicator _communicator;
@@ -25,11 +27,7 @@ namespace ZeroC.Ice
 
         public ValueTask CloseAsync(Exception ex, CancellationToken cancel) => new ValueTask();
 
-        public ValueTask DisposeAsync()
-        {
-            Socket.Dispose();
-            return new ValueTask();
-        }
+        public void Dispose() => Socket.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -44,8 +42,7 @@ namespace ZeroC.Ice
                     }
 
                     // Connect to the server or proxy server.
-                    // TODO: use the cancelable ConnectAsync with 5.0
-                    await Socket.ConnectAsync(_proxy?.Address ?? _addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_proxy?.Address ?? _addr, cancel).ConfigureAwait(false);
 
                     _desc = Network.SocketToString(Socket, _proxy, _addr);
 

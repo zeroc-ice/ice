@@ -552,7 +552,7 @@ namespace ZeroC.Ice.Test.Location
                 output.Flush();
                 hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
                 obj1.MigrateHello();
-                hello.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                hello.GetConnection().GoAwayAsync();
                 hello.SayHello();
                 obj1.MigrateHello();
                 hello.SayHello();
@@ -614,7 +614,7 @@ namespace ZeroC.Ice.Test.Location
             }
             output.WriteLine("ok");
 
-            output.Write("testing indirect proxies to collocated objects... ");
+            output.Write("testing indirect proxies to colocated objects... ");
             output.Flush();
 
             communicator.SetProperty("Hello.AdapterId", Guid.NewGuid().ToString());
@@ -635,15 +635,15 @@ namespace ZeroC.Ice.Test.Location
             {
                 helloPrx = IHelloPrx.Parse($"ice:{id}", communicator);
             }
-            TestHelper.Assert(helloPrx.GetConnection() == null);
+            TestHelper.Assert(helloPrx.GetConnection() is ColocatedConnection);
 
             // Ensure that calls on the indirect proxy (with adapter ID) is collocated
             helloPrx = adapter.CreateIndirectProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
-            TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() == null);
+            TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() is ColocatedConnection);
 
             // Ensure that calls on the direct proxy is collocated
             helloPrx = adapter.CreateDirectProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
-            TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() == null);
+            TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() is ColocatedConnection);
 
             output.WriteLine("ok");
 

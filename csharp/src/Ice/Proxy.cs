@@ -183,11 +183,11 @@ namespace ZeroC.Ice
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
-        public static Connection? GetConnection(this IObjectPrx prx)
+        public static Connection GetConnection(this IObjectPrx prx)
         {
             try
             {
-                ValueTask<Connection?> task = prx.GetConnectionAsync(cancel: default);
+                ValueTask<Connection> task = prx.GetConnectionAsync(cancel: default);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -200,15 +200,10 @@ namespace ZeroC.Ice
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
-        public static async ValueTask<Connection?> GetConnectionAsync(
+        public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx prx,
-            CancellationToken cancel = default)
-        {
-            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(
-                ImmutableList<IConnector>.Empty,
-                cancel).ConfigureAwait(false);
-            return handler as Connection;
-        }
+            CancellationToken cancel = default) =>
+            prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
 
         /// <summary>Sends a request synchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -309,16 +304,10 @@ namespace ZeroC.Ice
                 case InvocationMode.Datagram when !oneway:
                     throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
                 default:
-                    return InvokeAsync(proxy, request, oneway, synchronous, progress, cancel);
+                    return InvokeAsync();
             }
 
-            static async Task<IncomingResponseFrame> InvokeAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
+            async Task<IncomingResponseFrame> InvokeAsync()
             {
                 Reference reference = proxy.IceReference;
 
@@ -334,39 +323,73 @@ namespace ZeroC.Ice
                     List<IConnector>? excludedConnectors = null;
                     while (retryCount < reference.Communicator.RetryMaxAttempts)
                     {
-                        IRequestHandler? handler = null;
-                        var progressWrapper = new ProgressWrapper(progress);
+                        Connection? connection = null;
+                        bool sent = false;
                         RetryPolicy retryPolicy = RetryPolicy.NoRetry;
+                        IChildInvocationObserver? childObserver = null;
                         try
                         {
-                            // Get the request handler and establish a connection if needed.
-                            handler = await reference.GetRequestHandlerAsync(
+                            // Get the connection, this will eventually establish a connection if needed.
+                            connection = await reference.GetConnectionAsync(
                                 excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
                                 cancel).ConfigureAwait(false);
 
-                            // Send the request and if it's a twoway request get the task to wait for the response
-                            response = await handler.SendRequestAsync(request,
-                                                                      oneway,
-                                                                      synchronous,
-                                                                      observer,
-                                                                      progressWrapper,
-                                                                      cancel).ConfigureAwait(false);
+                            cancel.ThrowIfCancellationRequested();
+
+                            // Create the outgoing stream.
+                            using TransceiverStream stream = connection.CreateStream(!oneway);
+
+                            childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
+                            childObserver?.Attach();
+
+                            // TODO: support for streaming data, fin should be false if there's data to stream.
+                            bool fin = true;
+
+                            // Send the request and wait for the sending to complete.
+                            await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
+
+                            // The request is sent, notify the progress callback.
+                            // TODO: Get rid of the sentSynchronously parameter which is always false now?
+                            if (progress != null)
+                            {
+                                progress.Report(false);
+                                progress = null; // Only call the progress callback once (TODO: revisit this?)
+                            }
+                            sent = true;
                             lastException = null;
+
+                            if (oneway)
+                            {
+                                return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
+                            }
+
+                            // TODO: the synchronous boolean is no longer used. It was used to allow the reception
+                            // of the response frame to be ran synchronously from the IO thread. Supporting this
+                            // might still be possible depending on the underlying transport but it would be quite
+                            // complex. So get rid of the synchronous boolean and simplify the proxy generated code?
+
+                            // Wait for the reception of the response.
+                            (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+
+                            if (childObserver != null)
+                            {
+                                // Detach now to not count as a remote failure the 1.1 system exception which might
+                                // be raised below.
+                                childObserver.Reply(response.Size);
+                                childObserver.Detach();
+                                childObserver = null;
+                            }
+
+                            if (!fin)
+                            {
+                                // TODO: handle received stream data.
+                            }
+
                             if (response.ResultType != ResultType.Failure)
                             {
                                 return response;
                             }
                             // retry below
-                        }
-                        catch (InvalidRequestHandlerException)
-                        {
-                            // TODO temporary, this is already fixed in the transport refactoring branch
-                            // Not a retry, we try to send the request using a handler that was no longer valid
-                            if (reference.IsConnectionCached)
-                            {
-                                reference.ClearRequestHandler(handler!);
-                            }
-                            continue;
                         }
                         catch (NoEndpointException ex)
                         {
@@ -384,16 +407,20 @@ namespace ZeroC.Ice
                             // graceful close connection, in case it is the only connector available.
                             lastException = ex;
                             retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
                         catch (TransportException ex)
                         {
-                            if (handler is Connection connection)
+                            if (connection != null)
                             {
                                 reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
                             }
 
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+
                             // Retry transport exceptions if the request is idempotent or was not send
-                            if (request.IsIdempotent || !progressWrapper.IsSent)
+                            if (request.IsIdempotent || !sent)
                             {
                                 lastException = ex;
                                 retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
@@ -402,6 +429,15 @@ namespace ZeroC.Ice
                             {
                                 throw;
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                            throw;
+                        }
+                        finally
+                        {
+                            childObserver?.Detach();
                         }
 
                         if (lastException == null)
@@ -470,24 +506,21 @@ namespace ZeroC.Ice
                                 }
                             }
 
-                            if (handler is Connection connection)
+                            if (retryPolicy.Retryable == Retryable.OtherReplica)
                             {
-                                if (retryPolicy.Retryable == Retryable.OtherReplica)
+                                excludedConnectors ??= new List<IConnector>();
+                                excludedConnectors.Add(connection!.Connector);
+                                if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
-                                    excludedConnectors ??= new List<IConnector>();
-                                    excludedConnectors.Add(connection.Connector);
-                                    if (reference.Communicator.TraceLevels.Retry >= 1)
-                                    {
-                                        reference.Communicator.Logger.Trace(
-                                            reference.Communicator.TraceLevels.RetryCategory,
-                                            $"excluding connector\n{connection.Connector}");
-                                    }
+                                    reference.Communicator.Logger.Trace(
+                                        reference.Communicator.TraceLevels.RetryCategory,
+                                        $"excluding connector\n{connection.Connector}");
                                 }
+                            }
 
-                                if (reference.IsConnectionCached)
-                                {
-                                    reference.ClearRequestHandler(handler);
-                                }
+                            if (reference.IsConnectionCached && connection != null)
+                            {
+                                reference.ClearConnection(connection);
                             }
 
                             if (reference.Communicator.TraceLevels.Retry >= 1)
@@ -570,23 +603,6 @@ namespace ZeroC.Ice
                     return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
                 }
             }
-        }
-
-        private class ProgressWrapper : IProgress<bool>
-        {
-            internal bool IsSent { get; private set; }
-            private readonly IProgress<bool>? _progress;
-
-            public void Report(bool sentSynchronously)
-            {
-                if (_progress != null)
-                {
-                    Task.Run(() => _progress.Report(sentSynchronously));
-                }
-                IsSent = true;
-            }
-
-            internal ProgressWrapper(IProgress<bool>? progress) => _progress = progress;
         }
     }
 }

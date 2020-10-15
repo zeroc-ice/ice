@@ -16,7 +16,7 @@ namespace ZeroC.Ice
 
         /// <summary>Accepts a new connection.</summary>
         /// <return>The accepted transceiver.</return>
-        ValueTask<ITransceiver> AcceptAsync();
+        ValueTask<Connection> AcceptAsync();
 
         /// <summary>Get a detailed description of the acceptor.</summary>
         /// <return>The detailed description.</return>

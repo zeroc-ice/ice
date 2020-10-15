@@ -83,7 +83,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             }
             output.WriteLine("ok");
 
-            output.Write("testing object adapter migration...");
+            output.Write("testing object adapter migration... ");
             output.Flush();
             {
                 proxies[0].ActivateObjectAdapter("oa", "oa1", "");
@@ -100,7 +100,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             }
             output.WriteLine("ok");
 
-            output.Write("testing object migration...");
+            output.Write("testing object migration... ");
             output.Flush();
             {
                 proxies[0].ActivateObjectAdapter("oa", "oa1", "");
@@ -136,7 +136,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             }
             output.WriteLine("ok");
 
-            output.Write("testing replica groups...");
+            output.Write("testing replica groups... ");
             output.Flush();
             {
                 proxies[0].ActivateObjectAdapter("oa", "oa1", "rg");

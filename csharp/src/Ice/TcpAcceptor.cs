@@ -10,20 +10,26 @@ namespace ZeroC.Ice
 {
     internal class TcpAcceptor : IAcceptor
     {
-        // TODO: add support for multiple endpoint listening on the same tcp port (possibly tcp/ssl/ws)
         public Endpoint Endpoint { get; }
 
         private readonly ObjectAdapter _adapter;
+        private readonly IConnectionManager _manager;
         private readonly Socket _socket;
         private readonly IPEndPoint _addr;
 
-        public async ValueTask<ITransceiver> AcceptAsync()
+        public async ValueTask<Connection> AcceptAsync()
         {
             Socket fd = await _socket.AcceptAsync().ConfigureAwait(false);
 
-            // TODO: read data from the socket to figure out if were are accepting a tcp/ssl/ws connection.
+            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name);
 
-            return ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name);
+            MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = Endpoint.Protocol switch
+            {
+                Protocol.Ice1 => new LegacyTransceiver(transceiver, Endpoint, _adapter),
+                _ => new SlicTransceiver(transceiver, Endpoint, _adapter)
+            };
+
+            return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamTranceiver, null, "", _adapter);
         }
 
         public void Dispose() => _socket.CloseNoThrow();
@@ -45,8 +51,9 @@ namespace ZeroC.Ice
 
         public override string ToString() => _addr.ToString();
 
-        internal TcpAcceptor(TcpEndpoint endpoint, ObjectAdapter adapter)
+        internal TcpAcceptor(TcpEndpoint endpoint, IConnectionManager manager, ObjectAdapter adapter)
         {
+            _manager = manager;
             _adapter = adapter;
 
             _addr = Network.GetAddressForServerEndpoint(endpoint.Host,

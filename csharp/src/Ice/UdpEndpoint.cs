@@ -35,6 +35,9 @@ namespace ZeroC.Ice
 
         private int _hashCode;
 
+        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
+
         public override bool Equals(Endpoint? other)
         {
             if (ReferenceEquals(this, other))
@@ -120,20 +123,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public override Connection CreateConnection(
-             IConnectionManager manager,
-             ITransceiver transceiver,
-             IConnector? connector,
-             string connectionId,
-             ObjectAdapter? adapter) => new UdpConnection(manager,
-                                                          this,
-                                                          transceiver,
-                                                          new Ice1BinaryConnection(transceiver!, this, adapter),
-                                                          connector,
-                                                          connectionId,
-                                                          adapter);
-
-        public override (ITransceiver, Endpoint) GetTransceiver()
+        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
         {
             var transceiver = new UdpTransceiver(this, Communicator);
             try
@@ -143,11 +133,13 @@ namespace ZeroC.Ice
                     Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
                         $"attempting to bind to {TransportName} socket\n{transceiver}");
                 }
-                return (transceiver, transceiver.Bind(this));
+                Endpoint endpoint = transceiver.Bind(this);
+                var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
+                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
             }
             catch (Exception)
             {
-                transceiver.DisposeAsync().AsTask().Wait();
+                transceiver.Dispose();
                 throw;
             }
         }

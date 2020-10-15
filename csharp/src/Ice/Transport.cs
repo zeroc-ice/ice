@@ -8,6 +8,8 @@ namespace ZeroC.Ice
     /// transport plug-ins.</summary>
     public enum Transport : short
     {
+        /// <summary>Colocated transport.</summary>
+        Colocated = 0,
         /// <summary>TCP transport.</summary>
         TCP = 1,
         /// <summary>SSL transport.</summary>

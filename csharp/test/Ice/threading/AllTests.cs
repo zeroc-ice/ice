@@ -78,14 +78,14 @@ namespace ZeroC.Ice.Test.Threading
             await proxy.PingAsync().ContinueWith(checkScheduler("pingAsyncAsync"), TaskScheduler.Current);
             TestHelper.Assert(TaskScheduler.Current == scheduler);
 
-            // The progress Report callback is always called from the default task scheduler right now.
+            // The progress Report callback is from the default task scheduler or the caller's thread scheduler.
             Progress progress;
             progress = new Progress();
             await proxy.PingSyncAsync(progress: progress);
-            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
+            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default || progress.Scheduler == scheduler);
             progress = new Progress();
             await proxy.PingAsync(progress: progress);
-            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
+            TestHelper.Assert(progress.Scheduler == TaskScheduler.Default || progress.Scheduler == scheduler);
 
             // The continuation of an awaitable setup with ConfigureAwait(false) is ran with the default
             // scheduler unless it completes synchronously in which cause it will run on the current
@@ -129,31 +129,26 @@ namespace ZeroC.Ice.Test.Threading
                                         TaskCreationOptions.None, schedulers.ExclusiveScheduler).Unwrap();
             output.WriteLine("ok");
 
-            if (!OperatingSystem.IsWindows())
+            output.Write("testing server-side default task scheduler concurrency... ");
             {
-                // TODO enable Windows once we investigate why this tests hang
-                // see: https://github.com/zeroc-ice/ice/issues/968
-                output.Write("testing server-side default task scheduler concurrency... ");
+                // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
+                // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
+                // of concurrency but in theory it could be much higher.
+                var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+                try
                 {
-                    // With the default task scheduler, the concurrency is limited to the number of .NET thread pool
-                    // threads. The server sets up at least 20 threads in the .NET Thread pool we test this level
-                    // of concurrency but in theory it could be much higher.
-                    var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-                    try
-                    {
-                        Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
-                    }
-                    catch (AggregateException ex)
-                    {
-                        // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
-                        // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
-                        // 4 additional concurrent calls.
-                        TestHelper.Assert(ex.InnerExceptions.Count < 5);
-                    }
-                    proxy.Reset();
+                    Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
                 }
-                output.WriteLine("ok");
+                catch (AggregateException ex)
+                {
+                    // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
+                    // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
+                    // 4 additional concurrent calls.
+                    TestHelper.Assert(ex.InnerExceptions.Count < 5);
+                }
+                proxy.Reset();
             }
+            output.WriteLine("ok");
 
             output.Write("testing server-side exclusive task scheduler... ");
             {
