@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Tagged
 {
-    public class InitialAsync : IInitialAsync
+    public class AsyncInitial : IAsyncInitial
     {
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {

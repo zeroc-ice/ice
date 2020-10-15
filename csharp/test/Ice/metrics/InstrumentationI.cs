@@ -93,18 +93,9 @@ namespace ZeroC.Ice.Test.Metrics
         }
     }
 
-    public class RemoteObserver : ChildInvocationObserver, IRemoteObserver
-    {
-    }
-
-    public class CollocatedObserver : ChildInvocationObserver, ICollocatedObserver
-    {
-    }
-
     public class InvocationObserver : Observer, IInvocationObserver
     {
-        public CollocatedObserver? CollocatedObserver;
-        public RemoteObserver? RemoteObserver;
+        public ChildInvocationObserver? ChildInvocationObserver;
         public int RetriedCount;
         public int UserExceptionCount;
 
@@ -115,13 +106,9 @@ namespace ZeroC.Ice.Test.Metrics
                 base.Reset();
                 RetriedCount = 0;
                 UserExceptionCount = 0;
-                if (RemoteObserver != null)
+                if (ChildInvocationObserver != null)
                 {
-                    RemoteObserver.Reset();
-                }
-                if (CollocatedObserver != null)
-                {
-                    CollocatedObserver.Reset();
+                    ChildInvocationObserver.Reset();
                 }
             }
         }
@@ -142,29 +129,16 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public IRemoteObserver GetRemoteObserver(Connection c, long a, int b)
+        public IChildInvocationObserver GetChildInvocationObserver(Connection c, int a)
         {
             lock (Mutex)
             {
-                if (RemoteObserver == null)
+                if (ChildInvocationObserver == null)
                 {
-                    RemoteObserver = new RemoteObserver();
-                    RemoteObserver.Reset();
+                    ChildInvocationObserver = new ChildInvocationObserver();
+                    ChildInvocationObserver.Reset();
                 }
-                return RemoteObserver;
-            }
-        }
-
-        public ICollocatedObserver GetCollocatedObserver(ObjectAdapter adapter, long a, int b)
-        {
-            lock (Mutex)
-            {
-                if (CollocatedObserver == null)
-                {
-                    CollocatedObserver = new CollocatedObserver();
-                    CollocatedObserver.Reset();
-                }
-                return CollocatedObserver;
+                return ChildInvocationObserver;
             }
         }
     }
@@ -306,7 +280,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public IDispatchObserver GetDispatchObserver(Current current, long requestId, int s)
+        public IDispatchObserver GetDispatchObserver(Current current, long streamId, int s)
         {
             lock (_mutex)
             {

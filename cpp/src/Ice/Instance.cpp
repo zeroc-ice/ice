@@ -37,7 +37,6 @@
 #include <Ice/LoggerAdminI.h>
 #include <Ice/RegisterPluginsInit.h>
 #include <Ice/ObserverHelper.h>
-#include <Ice/Functional.h>
 #include <Ice/ConsoleUtil.h>
 
 #include <IceUtil/DisableWarnings.h>

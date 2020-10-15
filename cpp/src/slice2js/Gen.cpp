@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
 #include <Gen.h>
@@ -64,23 +63,6 @@ opFormatTypeToString(const OperationPtr& op)
     }
 
     return "???";
-}
-
-string
-getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
-{
-    string deprecateMetadata, deprecateReason;
-    if(p1->findMetadata("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata)))
-    {
-        deprecateReason = "This " + type + " has been deprecated.";
-        const string prefix = "deprecate:";
-        if(deprecateMetadata.find(prefix) == 0 && deprecateMetadata.size() > prefix.size())
-        {
-            deprecateReason = deprecateMetadata.substr(prefix.size());
-        }
-    }
-    return deprecateReason;
 }
 
 void
@@ -1328,7 +1310,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "];";
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeDocComment(p, getDeprecateReason(p));
     _out << nl << localScope << '.' << name << " = class";
     _out << " extends " << baseRef;
 
@@ -1441,7 +1423,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "];";
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeDocComment(p, getDeprecateReason(p));
     _out << nl << localScope << "." << p->name() << " = class extends Ice.Object";
     _out << sb;
 
@@ -1766,7 +1748,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeDocComment(p, getDeprecateReason(p));
     _out << nl << localScope << '.' << name << " = class extends " << baseRef;
     _out << sb;
 
@@ -1873,7 +1855,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     }
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeDocComment(p, getDeprecateReason(p));
     _out << nl << localScope << '.' << name << " = class";
     _out << sb;
 
@@ -1993,7 +1975,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string name = fixId(p->name());
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeDocComment(p, getDeprecateReason(p));
     _out << nl << localScope << '.' << name << " = Slice.defineEnum([";
     _out.inc();
     _out << nl;

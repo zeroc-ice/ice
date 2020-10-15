@@ -395,12 +395,20 @@ namespace ZeroC.Ice
             bool oneway,
             IProgress<bool>? progress)
         {
-            Task<IncomingResponseFrame> response = this.InvokeAsync(request, oneway, progress);
-            return oneway ? Task.CompletedTask : ReadResponseAsync(response, Communicator);
+            // A oneway request still need to await the dummy response to return only once the request is sent.
+            return ReadResponseAsync(this.InvokeAsync(request, oneway, progress), oneway, Communicator);
 
             static async Task ReadResponseAsync(
-                Task<IncomingResponseFrame> response,
-                Communicator communicator) => (await response.ConfigureAwait(false)).ReadVoidReturnValue(communicator);
+                Task<IncomingResponseFrame> task,
+                bool oneway,
+                Communicator communicator)
+            {
+                 IncomingResponseFrame response = await task.ConfigureAwait(false);
+                 if (!oneway)
+                 {
+                     response.ReadVoidReturnValue(communicator);
+                 }
+            }
         }
 
         internal IObjectPrx Clone(Reference reference) => IceClone(reference);

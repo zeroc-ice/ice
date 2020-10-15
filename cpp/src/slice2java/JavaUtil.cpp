@@ -6,7 +6,6 @@
 #include "JavaUtil.h"
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
-#include <IceUtil/Functional.h>
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>

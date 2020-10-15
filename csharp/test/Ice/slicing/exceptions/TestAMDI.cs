@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
-    public sealed class TestIntfAsync : ITestIntfAsync
+    public sealed class AsyncTestIntf : IAsyncTestIntf
     {
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {

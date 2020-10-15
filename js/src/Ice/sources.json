@@ -6,14 +6,11 @@
         "Ice/BuiltinSequences.ice",
         "Ice/Identity.ice",
         "Ice/Locator.ice",
-        "Ice/LocatorF.ice",
         "Ice/Metrics.ice",
         "Ice/Process.ice",
-        "Ice/ProcessF.ice",
         "Ice/PropertiesAdmin.ice",
         "Ice/RemoteLogger.ice",
-        "Ice/Router.ice",
-        "Ice/RouterF.ice"
+        "Ice/Router.ice"
     ],
 
     "common": [

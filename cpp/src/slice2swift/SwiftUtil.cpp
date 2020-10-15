@@ -1059,11 +1059,11 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
         return "";
     }
 
-    bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
-
     if (auto optional = OptionalPtr::dynamicCast(type))
     {
-        return typeToString(optional->underlying(), toplevel, metadata) + (nonnull ? "" : "?");
+        auto underlying = optional->underlying();
+        // For interface type, we currently always generate "?", so we don't want a double ?.
+        return typeToString(underlying, toplevel, metadata) + (underlying->isInterfaceType() ? "" : "?");
     }
 
     //
@@ -1074,7 +1074,14 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
 
     if(builtin)
     {
-        return getUnqualified(builtinTable[builtin->kind()], currentModule);
+        if (builtin->isInterfaceType())
+        {
+            return getUnqualified(builtinTable[builtin->kind()], currentModule) + "?";
+        }
+        else
+        {
+            return getUnqualified(builtinTable[builtin->kind()], currentModule);
+        }
     }
 
     InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
@@ -1082,7 +1089,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
 
     if (proxy)
     {
-        return getUnqualified(getAbsoluteImpl(proxy, "", "Prx"), currentModule);
+        return getUnqualified(getAbsoluteImpl(proxy, "", "Prx?"), currentModule);
     }
 
     assert(cont);

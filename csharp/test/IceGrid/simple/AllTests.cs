@@ -109,7 +109,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 }
 
                 string multicast;
-                if (communicator.GetProperty("Ice.PreferIPv6Address") == "1")
+                if (helper.Host.Contains(":"))
                 {
                     multicast = "\"ff15::1\"";
                 }
@@ -239,7 +239,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 $"{communicator.DefaultLocator!.Identity.Category}/Registry", communicator);
             IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
-            Connection? connection = session.GetConnection()!;
+            Connection connection = session.GetConnection();
             connection.Acm = new Acm(TimeSpan.FromSeconds(registry.GetACMTimeout()),
                                      connection.Acm.Close,
                                      AcmHeartbeat.Always);

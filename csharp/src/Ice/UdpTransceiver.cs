@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,8 @@ namespace ZeroC.Ice
     internal sealed class UdpTransceiver : ITransceiver
     {
         public Socket Socket { get; }
+        public SslStream? SslStream => null;
+
         internal IPEndPoint? MulticastAddress { get; private set; }
 
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
@@ -41,10 +44,10 @@ namespace ZeroC.Ice
                     Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 
                     MulticastAddress = _addr;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    if (OperatingSystem.IsWindows())
                     {
                         // Windows does not allow binding to the multicast address itself so we bind to INADDR_ANY
-                        // instead. As a result, bi-directional connection won't work because the source address won't
+                        // instead. As a result, bidirectional connection won't work because the source address won't
                         // be the multicast address and the client will therefore reject the datagram.
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {
@@ -64,7 +67,6 @@ namespace ZeroC.Ice
                         MulticastAddress.Port = _addr.Port;
                     }
 
-                    Debug.Assert(_multicastInterface != null);
                     Network.SetMulticastGroup(Socket, MulticastAddress.Address, _multicastInterface);
                 }
                 else
@@ -95,11 +97,7 @@ namespace ZeroC.Ice
 
         public ValueTask CloseAsync(Exception exception, CancellationToken cancel) => new ValueTask();
 
-        public ValueTask DisposeAsync()
-        {
-            Socket.Dispose();
-            return new ValueTask();
-        }
+        public void Dispose() => Socket.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -112,8 +110,7 @@ namespace ZeroC.Ice
                         Socket.Bind(_sourceAddr);
                     }
 
-                    // TODO: fix to use the cancellable ConnectAsync with 5.0
-                    await Socket.ConnectAsync(_addr).WaitAsync(cancel).ConfigureAwait(false);
+                    await Socket.ConnectAsync(_addr, cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -132,7 +129,7 @@ namespace ZeroC.Ice
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if (!_incoming ||
-                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
+                    (OperatingSystem.IsMacOS() &&
                      Socket.AddressFamily == AddressFamily.InterNetworkV6 && Socket.DualMode))
                 {
                     received = await Socket.ReceiveAsync(buffer, SocketFlags.None, cancel).ConfigureAwait(false);
@@ -156,8 +153,8 @@ namespace ZeroC.Ice
                     // TODO: Fix to use the cancellable API with 5.0
                     SocketReceiveFromResult result =
                         await Socket.ReceiveFromAsync(buffer,
-                                                   SocketFlags.None,
-                                                   peerAddr).WaitAsync(cancel).ConfigureAwait(false);
+                                                      SocketFlags.None,
+                                                      peerAddr).WaitAsync(cancel).ConfigureAwait(false);
                     _peerAddr = result.RemoteEndPoint;
                     received = result.ReceivedBytes;
                 }
@@ -210,7 +207,6 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    Debug.Assert(_multicastInterface != null);
                     interfaces = Network.GetInterfacesForMulticast(_multicastInterface,
                                                                    Network.GetIPVersion(MulticastAddress.Address));
                 }
@@ -270,7 +266,7 @@ namespace ZeroC.Ice
             Communicator communicator,
             EndPoint addr,
             IPAddress? sourceAddr,
-            string multicastInterface,
+            string? multicastInterface,
             int multicastTtl)
         {
             _communicator = communicator;
@@ -291,8 +287,9 @@ namespace ZeroC.Ice
 
                 if (Network.IsMulticast(_addr))
                 {
-                    if (_multicastInterface.Length > 0)
+                    if (_multicastInterface != null)
                     {
+                        Debug.Assert(_multicastInterface.Length > 0);
                         Network.SetMulticastInterface(Socket, _multicastInterface, _addr.AddressFamily);
                     }
                     if (multicastTtl != -1)
@@ -312,8 +309,7 @@ namespace ZeroC.Ice
         internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator)
         {
             _communicator = communicator;
-            _addr = Network.GetAddressForServerEndpoint(
-                endpoint.Host, endpoint.Port, Network.EnableBoth, communicator.PreferIPv6);
+            _addr = Network.GetAddressForServerEndpoint(endpoint.Host, endpoint.Port, Network.EnableBoth);
             _multicastInterface = endpoint.MulticastInterface;
             _incoming = true;
 

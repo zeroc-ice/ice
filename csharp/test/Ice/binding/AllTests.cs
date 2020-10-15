@@ -9,8 +9,7 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class AllTests
     {
-        private static string GetAdapterNameWithAMI(ITestIntfPrx testIntf) =>
-            testIntf.GetAdapterNameAsync().Result;
+        private static string GetAdapterNameWithAMI(ITestIntfPrx testIntf) => testIntf.GetAdapterNameAsync().Result;
 
         private static void Shuffle(ref List<IRemoteObjectAdapterPrx> array)
         {
@@ -78,8 +77,8 @@ namespace ZeroC.Ice.Test.Binding
                 com.DeactivateObjectAdapter(adapter);
 
                 var test3 = test1.Clone(ITestIntfPrx.Factory);
-                TestHelper.Assert(test3.GetConnection() == test1.GetConnection());
-                TestHelper.Assert(test3.GetConnection() == test2.GetConnection());
+                TestHelper.Assert(test3.GetCachedConnection() == test1.GetCachedConnection());
+                TestHelper.Assert(test3.GetCachedConnection() == test2.GetCachedConnection());
 
                 try
                 {
@@ -125,7 +124,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.GetAdapterName());
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().GoAwayAsync();
                 }
 
                 // Ensure that the proxy correctly caches the connection(we always send the request over the same
@@ -146,7 +145,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     foreach (IRemoteObjectAdapterPrx adpt in adapters)
                     {
-                        adpt.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        adpt.GetTestIntf()!.GetConnection().GoAwayAsync();
                     }
                 }
 
@@ -169,7 +168,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.GetAdapterName());
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().GoAwayAsync();
                 }
 
                 // Deactivate an adapter and ensure that we can still establish the connection to the remaining
@@ -253,7 +252,7 @@ namespace ZeroC.Ice.Test.Binding
                     {
                         try
                         {
-                            a.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                            a.GetTestIntf()!.GetConnection().GoAwayAsync();
                         }
                         catch
                         {
@@ -297,7 +296,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(GetAdapterNameWithAMI(test1));
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().GoAwayAsync();
                 }
 
                 // Ensure that the proxy correctly caches the connection (we always send the request over the
@@ -318,7 +317,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     foreach (IRemoteObjectAdapterPrx? adpt in adapters)
                     {
-                        adpt.GetTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        adpt.GetTestIntf()!.GetConnection().GoAwayAsync();
                     }
                 }
 
@@ -341,7 +340,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(GetAdapterNameWithAMI(test1));
-                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection().GoAwayAsync();
                 }
 
                 // Deactivate an adapter and ensure that we can still establish the connection to the remaining
@@ -377,7 +376,7 @@ namespace ZeroC.Ice.Test.Binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.GetAdapterName());
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().GoAwayAsync();
                 }
 
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Random);
@@ -389,7 +388,7 @@ namespace ZeroC.Ice.Test.Binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.GetAdapterName());
-                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().GoAwayAsync();
                 }
 
                 Deactivate(com, adapters);
@@ -742,7 +741,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter82"));
-                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().GoAwayAsync();
                     }
 
                     ITestIntfPrx testNonSecure = obj.Clone(preferNonSecure: true);
@@ -756,7 +755,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter81"));
-                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().GoAwayAsync();
                     }
 
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
@@ -767,7 +766,7 @@ namespace ZeroC.Ice.Test.Binding
                         for (int i = 0; i < 5; i++)
                         {
                             TestHelper.Assert(obj.GetAdapterName().Equals("Adapter83"));
-                            obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                            obj.GetConnection().GoAwayAsync();
                         }
                     }
 

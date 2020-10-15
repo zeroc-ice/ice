@@ -13,11 +13,6 @@ namespace ZeroC.Ice.Instrumentation
         void Reply(int size);
     }
 
-    /// <summary>The collocated observer to instrument invocations that are collocated.</summary>
-    public partial interface ICollocatedObserver : IChildInvocationObserver
-    {
-    }
-
     /// <summary>The communicator observer interface used by the Ice run-time to obtain and update observers for its
     /// observable objects. This interface should be implemented by plug-ins that wish to observe Ice objects in order
     /// to collect statistics. An instance of this interface can be provided to the Ice run-time through the Ice
@@ -106,19 +101,11 @@ namespace ZeroC.Ice.Instrumentation
     /// remote invocation.</summary>
     public interface IInvocationObserver : IObserver
     {
-        /// <summary>Get a collocated observer for this invocation.</summary>
-        /// <param name="adapter">The object adapter hosting the collocated Ice object.</param>
-        /// <param name="requestId">The ID of the invocation.</param>
-        /// <param name="size">The size of the invocation in bytes.</param>
-        /// <returns>The observer to instrument the collocated invocation.</returns>
-        ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, long requestId, int size);
-
-        /// <summary>Get a remote observer for this invocation.</summary>
+        /// <summary>Get a child invocation observer for this invocation.</summary>
         /// <param name="connection">The connection information.</param>
-        /// <param name="requestId">The invocation request ID.</param>
         /// <param name="size">The size of the invocation in bytes.</param>
-        /// <returns>The observer to instrument the remote invocation.</returns>
-        IRemoteObserver? GetRemoteObserver(Connection connection, long requestId, int size);
+        /// <returns>The observer to instrument the child invocation.</returns>
+        IChildInvocationObserver? GetChildInvocationObserver(Connection connection, int size);
 
         /// <summary>Remote exception notification.</summary>
         void RemoteException();
@@ -157,10 +144,5 @@ namespace ZeroC.Ice.Instrumentation
         /// CommunicatorObserver.GetConnectionObserver is called. The implementation of GetConnectionObserver has the
         /// possibility to return an updated observer if necessary.</summary>
         void UpdateConnectionObservers();
-    }
-
-    /// <summary>The remote observer to instrument invocations that are sent over the wire.</summary>
-    public interface IRemoteObserver : IChildInvocationObserver
-    {
     }
 }

@@ -222,11 +222,11 @@ class ServerLocatorRegistry: TestLocatorRegistry {
 
     func setReplicatedAdapterDirectProxyAsync(adapterId adapter: String,
                                               replicaGroupId replica: String,
-                                              p: Ice.ObjectPrx?,
+                                              proxy: Ice.ObjectPrx?,
                                               current _: Ice.Current) -> Promise<Void> {
         return Promise<Void> { seal in
             withLock(&_lock) {
-                if let obj = p {
+                if let obj = proxy {
                     _adapters[adapter] = obj
                     _adapters[replica] = obj
                 } else {

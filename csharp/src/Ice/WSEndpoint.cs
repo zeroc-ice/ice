@@ -55,8 +55,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public override (ITransceiver, Endpoint) GetTransceiver() => throw new InvalidOperationException();
-
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
             base.AppendOptions(sb, optionSeparator);
@@ -88,22 +86,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        public override Connection CreateConnection(
-            IConnectionManager manager,
-            ITransceiver transceiver,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) =>
-            new WSConnection(manager,
-                this,
-                transceiver,
-                Protocol == Protocol.Ice1 ?
-                    (BinaryConnection)new Ice1BinaryConnection(transceiver, this, adapter) :
-                    new SlicBinaryConnection(transceiver, this, adapter),
-                connector,
-                connectionId,
-                adapter);
 
         // Constructor for ice1 endpoint parsing.
         internal WSEndpoint(
@@ -173,6 +155,14 @@ namespace ZeroC.Ice
                 options.Remove("option");
             }
         }
+
+        internal override Connection CreateConnection(
+            IConnectionManager manager,
+            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter) =>
+            new WSConnection(manager, this, transceiver, connector, connectionId, adapter);
 
         // Clone constructor
         private WSEndpoint(WSEndpoint endpoint, string host, ushort port)

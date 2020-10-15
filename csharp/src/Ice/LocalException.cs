@@ -53,7 +53,7 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new instance of the <see cref="CommunicatorDisposedException"/> class.</summary>
         public CommunicatorDisposedException()
-            : base("")
+            : base($"{typeof(Communicator).FullName}")
         {
         }
 
@@ -61,7 +61,7 @@ namespace ZeroC.Ice
         /// reference to the inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public CommunicatorDisposedException(Exception innerException)
-            : base("", innerException)
+            : base($"{typeof(Communicator).FullName}", innerException)
         {
         }
     }
@@ -292,19 +292,6 @@ namespace ZeroC.Ice
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public InvalidDataException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
-    }
-
-    /// <summary>This exception indicates that an attempt was made to send a request using an
-    /// <see cref="IRequestHandler"/> that is no longer valid.</summary>
-    public class InvalidRequestHandlerException : Exception
-    {
-        /// <summary>Constructs a new instance of the <see cref="InvalidRequestHandlerException"/> class with a reference to the inner
-        /// exception that is the cause of this exception.</summary>
-        /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        internal InvalidRequestHandlerException(Exception innerException)
-            : base("", innerException)
         {
         }
     }

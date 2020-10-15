@@ -19,7 +19,6 @@
 #include <ValueFactoryManager.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/Initialize.h>
-#include <Ice/CommunicatorAsync.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
 #include <Ice/ObjectAdapter.h>

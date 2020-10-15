@@ -7,8 +7,7 @@
 using namespace IceUtil;
 
 //
-// Flag constant used by the Shared class. Derived classes
-// such as GCObject define more flag constants.
+// Flag constant used by the Shared class.
 //
 const unsigned char IceUtil::Shared::NoDelete = 1;
 

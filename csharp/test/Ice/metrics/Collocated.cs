@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Metrics
             bool ice1 = GetTestProtocol(properties) == Protocol.Ice1;
 
             properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
-            properties["Ice.Admin.InstanceName"] = "client";
+            properties["Ice.Admin.InstanceName"] = "colocated";
             properties["Ice.Admin.DelayCreation"] = "1";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
@@ -27,7 +27,7 @@ namespace ZeroC.Ice.Test.Metrics
             adapter.Add("metrics", new Metrics());
             // Don't activate OA to ensure collocation is used.
 
-            IMetricsPrx metrics = AllTests.Run(this, observer);
+            IMetricsPrx metrics = AllTests.Run(this, observer, colocated: true);
             await metrics.ShutdownAsync();
         }
 

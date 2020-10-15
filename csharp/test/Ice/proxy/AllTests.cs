@@ -527,18 +527,17 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
             b1 = IObjectPrx.Parse(rf, communicator);
 
-            if (b1.GetConnection() is Connection connection) // not coloc-optimized target
+            Connection connection = b1.GetConnection();
+            IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
+            if (connection.Endpoint.Protocol == Protocol.Ice1)
             {
-                IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
-                if (connection.Endpoint.Protocol == Protocol.Ice1)
-                {
-                    TestHelper.Assert(b2.ToString() == "fixed -t -e 1.1");
-                }
-                else
-                {
-                    TestHelper.Assert(b2.ToString() == "ice:fixed?invocation-timeout=1m");
-                }
+                TestHelper.Assert(b2.ToString() == "fixed -t -e 1.1");
             }
+            else
+            {
+                TestHelper.Assert(b2.ToString() == "ice:fixed?invocation-timeout=1m");
+            }
+
             output.WriteLine("ok");
 
             output.Write("testing propertyToProxy... ");
@@ -861,13 +860,14 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(endpts1[0].Equals(
                 IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator).Endpoints[0]));
 
-            if (baseProxy.GetConnection() is Connection baseConnection)
+            if (baseProxy.GetConnection() is IPConnection baseConnection)
             {
-                Connection baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection()!;
+                Connection baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection();
                 compObj1 = compObj1.Clone(fixedConnection: baseConnection);
                 compObj2 = compObj2.Clone(fixedConnection: baseConnection2);
                 TestHelper.Assert(!compObj1.Equals(compObj2));
             }
+
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");
