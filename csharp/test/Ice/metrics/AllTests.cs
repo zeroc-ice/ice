@@ -900,7 +900,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
             TestHelper.Assert(dm1.Size == (38 + protocolRequestSizeAdjustment) &&
-                dm1.ReplySize == (metrics.Encoding == Encoding.V11 ? 48 : 51 + userExErrorMessageSize));
+                dm1.ReplySize == (metrics.Encoding == Encoding.V11 ? 48 : 81 + userExErrorMessageSize));
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
@@ -917,7 +917,7 @@ namespace ZeroC.Ice.Test.Metrics
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == 43 && dm1.ReplySize == 233);
+                TestHelper.Assert(dm1.Size == 43 && dm1.ReplySize == 203);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];

@@ -392,11 +392,10 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 TestHelper.Assert(ex.Message.Contains("unhandled exception")); // verify we get custom message
 
-                // With ice1, the identity & operation are not set; with ice2, they are.
+                // With ice1, the origin is not set; with ice2, it is.
                 if (ice1)
                 {
-                    TestHelper.Assert(ex.Origin!.Value.Identity == Identity.Empty &&
-                                      ex.Origin!.Value.Operation.Length == 0);
+                    TestHelper.Assert(ex.Origin == null);
                 }
                 else
                 {

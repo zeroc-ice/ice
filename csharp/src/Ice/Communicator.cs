@@ -1183,12 +1183,13 @@ namespace ZeroC.Ice
                 Type? factoryClass = FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
                 if (factoryClass != null)
                 {
-                    MethodInfo? method = factoryClass.GetMethod("Create",
-                                                                BindingFlags.Public | BindingFlags.Static,
-                                                                null,
-                                                                CallingConventions.Any,
-                                                                new Type[] { typeof(string) },
-                                                                null);
+                    MethodInfo? method = factoryClass.GetMethod(
+                        "Create",
+                        BindingFlags.Public | BindingFlags.Static,
+                        null,
+                        CallingConventions.Any,
+                        new Type[] { typeof(string), typeof(RemoteExceptionOrigin) },
+                        null);
                     Debug.Assert(method != null);
                     return (Func<string?, RemoteExceptionOrigin?, RemoteException>)Delegate.CreateDelegate(
                         typeof(Func<string?, RemoteExceptionOrigin?, RemoteException>), method);

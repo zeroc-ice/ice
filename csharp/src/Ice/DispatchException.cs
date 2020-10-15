@@ -28,7 +28,7 @@ namespace ZeroC.Ice
         /// <param name="operation">The operation name.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         public UnhandledException(Identity identity, string facet, string operation, Exception innerException)
-            : base(CustomMessage(identity, facet, operation, innerException))
+            : base(CustomMessage(identity, facet, operation, innerException), innerException)
         {
         }
 

@@ -1703,26 +1703,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     // protected internal constructor used for unmarshaling (always generated).
-    // the factory parameter is used to distinguish this ctor from the parameterless ctor that users may want to add to
-    // the partial class; it's not used otherwise.
     _out << sp;
-    if (!p->base())
-    {
-        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
-            << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
-    }
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr, string? message, "
-         << "ZeroC.Ice.RemoteException? origin)";
+    _out << nl << "protected internal " << name << "(string? message, ZeroC.Ice.RemoteExceptionOrigin? origin)";
     // We call the base class constructor to initialize the base class fields.
     _out.inc();
-    if (p->base())
-    {
-        _out << nl << ": base(istr, message, origin)";
-    }
-    else
-    {
-        _out << nl << ": base(message, origin)";
-    }
+    _out << nl << ": base(message, origin)";
     _out.dec();
     _out << sb;
     writeSuppressNonNullableWarnings(dataMembers, Slice::ExceptionType);
@@ -1759,7 +1744,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "if (firstSlice)";
     _out << sb;
-    _out << nl << "ostr.IceStartFirstSlice(_iceAllTypeIds, IceSlicedData, errorMessage: Message);";
+    _out << nl << "ostr.IceStartFirstSlice(_iceAllTypeIds, IceSlicedData, errorMessage: Message, origin: Origin);";
     _out << eb;
     _out << nl << "else";
     _out << sb;
@@ -3263,8 +3248,7 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     _out << nl << "public static " << prefix << "ZeroC.Ice.RemoteException Create(string? message, "
          << prefix << "ZeroC.Ice.RemoteExceptionOrigin? origin) =>";
     _out.inc();
-    _out << nl << "new global::" << ns << "." << name << "((" << prefix
-         << "ZeroC.Ice.InputStream?)null, message, origin);";
+    _out << nl << "new global::" << ns << "." << name << "(message, origin);";
     _out.dec();
     _out << eb;
     return false;
