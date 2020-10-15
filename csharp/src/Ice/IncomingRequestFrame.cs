@@ -14,8 +14,8 @@ namespace ZeroC.Ice
         public Dictionary<string, string> Context { get; }
 
         /// <summary>The request deadline. The peer sets the deadline to the absolute time at which its invocation
-        /// timeout will be triggered. With Ice1 the peer doesn't send a deadline and it always has the default value.
-        /// </summary>
+        /// timeout will be triggered. With Ice1 the peer doesn't send a deadline and it is always set to
+        /// <see cref="DateTime.MaxValue"/>.</summary>
         public DateTime Deadline { get; }
 
         /// <summary>The encoding of the frame payload.</summary>
@@ -58,6 +58,7 @@ namespace ZeroC.Ice
                 IsIdempotent = requestHeaderBody.OperationMode != OperationMode.Normal;
                 Context = requestHeaderBody.Context;
                 Priority = default;
+                Deadline = DateTime.MaxValue;
             }
             else
             {
