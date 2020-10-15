@@ -235,7 +235,6 @@ namespace ZeroC.Ice
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
             : this(request.Protocol, request.Encoding)
         {
-            exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
             ReplyStatus replyStatus = ReplyStatus.UserException;
             if (Encoding == Encoding.V11)
             {
@@ -285,9 +284,9 @@ namespace ZeroC.Ice
                 {
                     case ReplyStatus.ObjectNotExistException:
                     case ReplyStatus.OperationNotExistException:
-                        exception.Origin.Value.Identity.IceWrite(ostr);
-                        ostr.WriteIce1Facet(exception.Origin.Value.Facet);
-                        ostr.WriteString(exception.Origin.Value.Operation);
+                        request.Identity.IceWrite(ostr);
+                        ostr.WriteIce1Facet(request.Facet);
+                        ostr.WriteString(request.Operation);
                         break;
 
                     case ReplyStatus.UnknownLocalException:
@@ -301,6 +300,7 @@ namespace ZeroC.Ice
             }
             else
             {
+                exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
                 ostr.WriteException(exception);
             }
 
