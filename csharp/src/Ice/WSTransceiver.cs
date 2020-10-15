@@ -16,8 +16,8 @@ namespace ZeroC.Ice
     internal sealed class WSTransceiver : ITransceiver
     {
         public Socket? Socket => _underlying.Socket;
+        public SslStream? SslStream => (_underlying.Underlying as SslTransceiver)?.SslStream;
         internal IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
-        internal SslStream? SslStream => (_underlying.Underlying as SslTransceiver)?.SslStream;
 
         private enum OpCode : byte
         {
@@ -74,14 +74,9 @@ namespace ZeroC.Ice
 
             // Send the close frame.
             await SendImplAsync(OpCode.Close, new List<ArraySegment<byte>> { payload }, cancel).ConfigureAwait(false);
-
-            if (exception is ConnectionClosedByPeerException)
-            {
-                await ReceiveFrameAsync(cancel).ConfigureAwait(false);
-            }
         }
 
-        public ValueTask DisposeAsync() => _underlying.DisposeAsync();
+        public void Dispose() => _underlying.Dispose();
 
         public async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -234,8 +229,12 @@ namespace ZeroC.Ice
                 _receivePayloadOffset = 0;
             }
 
+            if (_receivePayloadLength == 0)
+            {
+                throw new ConnectionLostException();
+            }
+
             // Read the payload
-            Debug.Assert(_receivePayloadLength > 0);
             int length = Math.Min(_receivePayloadLength, buffer.Count);
             int received = await _underlying.ReceiveAsync(buffer[0..length], cancel).ConfigureAwait(false);
 
@@ -387,7 +386,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Transport >= 3)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                        $"received {_transportName} {opCode} frame with {_receivePayloadLength} bytes payload\n{this}");
+                        $"received {_transportName} {opCode} frame with {payloadLength} bytes payload\n{this}");
                 }
 
                 switch (opCode)
@@ -409,7 +408,7 @@ namespace ZeroC.Ice
                     {
                         // Read the Close frame payload.
                         ReadOnlyMemory<byte> payloadBuffer =
-                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(payloadLength, cancel).ConfigureAwait(false);
 
                         byte[] payload = payloadBuffer.ToArray();
                         if (_incoming)
@@ -424,7 +423,7 @@ namespace ZeroC.Ice
                         // we didn't send a close frame and we should reply back with a close frame.
                         if (_closing)
                         {
-                            throw new ConnectionLostException();
+                            return 0;
                         }
                         else
                         {
@@ -437,7 +436,7 @@ namespace ZeroC.Ice
                     {
                         // Read the ping payload.
                         ReadOnlyMemory<byte> payload =
-                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(payloadLength, cancel).ConfigureAwait(false);
 
                         // Send a Pong frame with the received payload.
                         var sendBuffer = new List<ArraySegment<byte>> { payload.ToArray() };
@@ -448,7 +447,7 @@ namespace ZeroC.Ice
                     {
                         // Read the pong payload.
                         ReadOnlyMemory<byte> payload =
-                            await _underlying.ReceiveAsync(_receivePayloadLength, cancel).ConfigureAwait(false);
+                            await _underlying.ReceiveAsync(payloadLength, cancel).ConfigureAwait(false);
 
                         // Nothing to do, this can be received even if we don't send a ping frame if the peer sends
                         // an unidirectional heartbeat.

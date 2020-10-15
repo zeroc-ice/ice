@@ -16,7 +16,6 @@ namespace ZeroC.Ice.Test.Operations
             var prx = adapter.Add("test", new MyDerivedClass(), IMyDerivedClassPrx.Factory);
             // Don't activate OA to ensure collocation is used.
 
-            Assert(prx.GetConnection() == null);
             AllTests.Run(this);
         }
 

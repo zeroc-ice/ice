@@ -21,10 +21,15 @@ namespace ZeroC.Ice
             // not need to wait for these two.
             if (cancel.CanBeCanceled && !task.IsCompleted)
             {
-                await Task.WhenAny(task.AsTask(), Task.Delay(-1, cancel)).ConfigureAwait(false);
+                Task asTask = task.AsTask();
+                await Task.WhenAny(asTask, Task.Delay(-1, cancel)).ConfigureAwait(false);
                 cancel.ThrowIfCancellationRequested();
+                await asTask.ConfigureAwait(false);
             }
-            await task.ConfigureAwait(false);
+            else
+            {
+                await task.ConfigureAwait(false);
+            }
         }
 
         /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
@@ -51,10 +56,15 @@ namespace ZeroC.Ice
             // not need to wait for these two.
             if (cancel.CanBeCanceled && !task.IsCompleted)
             {
-                await Task.WhenAny(task.AsTask(), Task.Delay(-1, cancel)).ConfigureAwait(false);
+                Task<T> asTask = task.AsTask();
+                await Task.WhenAny(asTask, Task.Delay(-1, cancel)).ConfigureAwait(false);
                 cancel.ThrowIfCancellationRequested();
+                return await asTask.ConfigureAwait(false);
             }
-            return await task.ConfigureAwait(false);
+            else
+            {
+                return await task.ConfigureAwait(false);
+            }
         }
 
         /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>

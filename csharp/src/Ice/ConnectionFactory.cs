@@ -25,18 +25,14 @@ namespace ZeroC.Ice
         public IAcmMonitor AcmMonitor { get; }
 
         private readonly Communicator _communicator;
-        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector =
-            new MultiDictionary<(IConnector, string), Connection>();
-        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
-            new MultiDictionary<(Endpoint, string), Connection>();
+        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector = new ();
+        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint = new ();
         private Task? _disposeTask;
-        // We keep a map of the connectors that recently result in a transport failure, this is used to
-        // influence the selection of connectors when creating new connections, connectors with recent failures
-        // are tried last this avoids retries choosing always connectors that have already result in a connect failure.
+        private readonly object _mutex = new ();
+        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending = new ();
+        // We keep a map of the connectors that recently resulted in a transport failure. This is used to influence the
+        // selection of connectors when creating new connections. Connectors with recent failures are tried last.
         private readonly ConcurrentDictionary<IConnector, DateTime> _transportFailures = new ();
-        private readonly object _mutex = new object();
-        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
-            new Dictionary<(IConnector, string), Task<Connection>>();
 
         public async ValueTask DisposeAsync()
         {
@@ -46,12 +42,14 @@ namespace ZeroC.Ice
             }
             await _disposeTask.ConfigureAwait(false);
 
+            // TODO: We need to check for _pending and cancel pending connection establishment.
+
             async Task PerformDisposeAsync()
             {
                 // Wait for connections to be closed.
                 IEnumerable<Task> tasks =
                     _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                        connection.GracefulCloseAsync(new CommunicatorDisposedException()));
+                        connection.GoAwayAsync(new CommunicatorDisposedException()));
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
 #if DEBUG
@@ -106,7 +104,7 @@ namespace ZeroC.Ice
                                                             out ICollection<Connection>? connectionList))
                     {
                         if (connectionList.FirstOrDefault(connection =>
-                            connection.Active && !excludedConnectors.Contains(connection.Connector))
+                            connection.IsActive && !excludedConnectors.Contains(connection.Connector))
                             is Connection connection)
                         {
                             return connection;
@@ -199,7 +197,7 @@ namespace ZeroC.Ice
                         if (_connectionsByConnector.TryGetValue((connector, connectionId),
                                                                 out ICollection<Connection>? connectionList))
                         {
-                            if (connectionList.FirstOrDefault(connection => connection.Active) is Connection connection)
+                            if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                             {
                                 return connection;
                             }
@@ -399,18 +397,11 @@ namespace ZeroC.Ice
                             {
                                 throw new CommunicatorDisposedException();
                             }
-
-                            connection = endpoint.CreateConnection(this,
-                                                                   connector.Connect(),
-                                                                   connector,
-                                                                   connectionId,
-                                                                   null);
-
+                            connection = connector.Connect(connectionId);
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                         }
-
-                        await connection.StartAsync().ConfigureAwait(false);
+                        await connection.InitializeAsync().ConfigureAwait(false);
                         return connection;
                     }
                     catch (CommunicatorDisposedException ex)
@@ -513,8 +504,8 @@ namespace ZeroC.Ice
         }
     }
 
-    // IncomingConnectionFactory for TCP based transports
-    internal sealed class TcpIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
+    // IncomingConnectionFactory for acceptor based transports.
+    internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
     {
         public IAcmMonitor AcmMonitor { get; }
 
@@ -522,31 +513,37 @@ namespace ZeroC.Ice
         private Task? _acceptTask;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
-        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private volatile bool _disposed;
-        private readonly object _mutex = new object();
+        private readonly HashSet<Connection> _connections = new ();
+        private bool _disposed;
+        private readonly object _mutex = new ();
 
         public override async ValueTask DisposeAsync()
         {
-            // Close the acceptor
             if (_communicator.TraceLevels.Transport >= 1)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
                     $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
             }
 
-            _disposed = true;
-            _acceptor.Dispose();
+            // Dispose of the acceptor and close the connections. It's important to perform this synchronously without
+            // any await in between to guarantee that once Communicator.ShutdownAsync returns the communicator no
+            // longer accepts any requests.
 
-            // Wait for AcceptAsync to return
+            lock (_mutex)
+            {
+                _disposed = true;
+                _acceptor.Dispose();
+            }
+
+            // The connection set is immutable once _disposed = true
+            var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
+            IEnumerable<Task> tasks = _connections.Select(connection => connection.GoAwayAsync(exception));
+
+            // Wait for AcceptAsync and the connection closure to return.
             if (_acceptTask != null)
             {
                 await _acceptTask.ConfigureAwait(false);
             }
-
-            // Wait for all the connections to be closed, the connection set is immutable once AcceptAsync returned
-            var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
-            IEnumerable<Task> tasks = _connections.Select(connection => connection.GracefulCloseAsync(exception));
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
@@ -563,17 +560,14 @@ namespace ZeroC.Ice
 
         public override string ToString() => _acceptor.ToString()!;
 
-        internal TcpIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish, Acm acm)
+        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish, Acm acm)
             : base(endpoint, publish)
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
+            _acceptor = Endpoint.Acceptor(this, _adapter);
+
             AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
-
-            // TODO: for ice2, support for multiple endpoints for the same acceptor and not one acceptor per endpoint
-            // if we want to provide port sharing for multiple listening endpoints.
-            _acceptor = new TcpAcceptor((TcpEndpoint)Endpoint, _adapter);
-
             Endpoint = _acceptor.Endpoint;
 
             if (_communicator.TraceLevels.Transport >= 1)
@@ -593,10 +587,14 @@ namespace ZeroC.Ice
 
             // Start the asynchronous operation from the thread pool to prevent eventually accepting
             // synchronously new connections from this thread.
-            _acceptTask = Task.Factory.StartNew(AcceptAsync,
-                                                default,
-                                                TaskCreationOptions.None,
-                                                _adapter.TaskScheduler ?? TaskScheduler.Default);
+            lock (_mutex)
+            {
+                Debug.Assert(!_disposed);
+                _acceptTask = Task.Factory.StartNew(AcceptAsync,
+                                                    default,
+                                                    TaskCreationOptions.None,
+                                                    _adapter.TaskScheduler ?? TaskScheduler.Default);
+            }
         }
 
         internal override void UpdateConnectionObservers()
@@ -614,15 +612,40 @@ namespace ZeroC.Ice
         {
             while (true)
             {
-                ITransceiver transceiver;
+                Connection? connection = null;
                 try
                 {
                     // We don't use ConfigureAwait(false) on purpose. We want to ensure continuations execute on the
                     // object adapter scheduler if an adapter scheduler is set.
-                    transceiver = await _acceptor.AcceptAsync();
+                    connection = await _acceptor.AcceptAsync();
+
+                    if (_communicator.TraceLevels.Transport >= 2)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                            $"trying to accept {Endpoint.TransportName} connection\n{connection}");
+                    }
+
+                    lock (_mutex)
+                    {
+                        if (_disposed)
+                        {
+                            throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
+                        }
+
+                        _connections.Add(connection);
+
+                        // We don't wait for the connection to be activated. This could take a while for some transports
+                        // such as TLS based transports where the handshake requires few round trips between the client
+                        // and server.
+                        _ = connection.InitializeAsync();
+                    }
                 }
-                catch (Exception ex)
+                catch (Exception exception)
                 {
+                    if (connection != null)
+                    {
+                        await connection.GoAwayAsync(exception);
+                    }
                     if (_disposed)
                     {
                         return;
@@ -631,62 +654,23 @@ namespace ZeroC.Ice
                     // We print an error and wait for one second to avoid running in a tight loop in case the
                     // failures occurs immediately again. Failures here are unexpected and could be considered
                     // fatal.
-                    _communicator.Logger.Error($"failed to accept connection:\n{ex}\n{_acceptor}");
+                    _communicator.Logger.Error($"failed to accept connection:\n{exception}\n{_acceptor}");
                     await Task.Delay(TimeSpan.FromSeconds(1));
                     continue;
-                }
-
-                if (_communicator.TraceLevels.Transport >= 2)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                        $"trying to accept {Endpoint.TransportName} connection\n{transceiver}");
-                }
-
-                Connection connection = Endpoint.CreateConnection(this, transceiver, null, "", _adapter);
-                try
-                {
-                    lock (_mutex)
-                    {
-                        _connections.Add(connection);
-                    }
-
-                    // We don't wait for the connection to be activated. This could take a while for some transports
-                    // such as TLS based transports where the handshake requires few round trips between the client
-                    // and server.
-                    _ = connection.StartAsync();
-                }
-                catch (ObjectDisposedException)
-                {
-                    // Ignore
-                }
-                catch (Exception ex)
-                {
-                    if (_communicator.TraceLevels.Transport >= 2)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
-                            $"failed to accept {Endpoint.TransportName} connection\n{connection}\n{ex}");
-                    }
                 }
             }
         }
     }
 
-    // IncomingConnectionFactory for ice1 datagram based transports
-    internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
+    // IncomingConnectionFactory for datagram based transports
+    internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory
     {
-        public IAcmMonitor AcmMonitor { get; }
-
         private readonly Connection _connection;
 
         public override async ValueTask DisposeAsync()
         {
             var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_connection.Adapter!.Name}");
-            await _connection.GracefulCloseAsync(exception).ConfigureAwait(false);
-        }
-
-        public void Remove(Connection connection)
-        {
-            // Ignore
+            await _connection.GoAwayAsync(exception).ConfigureAwait(false);
         }
 
         public override string ToString() => _connection.ToString()!;
@@ -694,13 +678,9 @@ namespace ZeroC.Ice
         internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish)
             : base(endpoint, publish)
         {
-            Communicator communicator = adapter.Communicator;
-            AcmMonitor = new ConnectionAcmMonitor(Acm.Disabled, communicator.Logger);
-
-            ITransceiver transceiver;
-            (transceiver, Endpoint) = Endpoint.GetTransceiver();
-            _connection = Endpoint.CreateConnection(this, transceiver, null, "", adapter);
-            _ = _connection.StartAsync();
+            _connection = endpoint.CreateDatagramServerConnection(adapter);
+            Endpoint = _connection.Endpoint;
+            _ = _connection.InitializeAsync();
         }
 
         internal override void Activate()

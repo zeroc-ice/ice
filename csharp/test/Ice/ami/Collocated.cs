@@ -17,6 +17,9 @@ namespace ZeroC.Ice.Test.AMI
             // of data.
             properties["Ice.TCP.SndSize"] = "50K";
 
+            // This test kills connections, so we don't want warnings.
+            properties["Ice.Warn.Connections"] = "0";
+
             await using Communicator communicator = Initialize(properties);
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -31,7 +34,7 @@ namespace ZeroC.Ice.Test.AMI
             adapter2.Add("serialized", new TestIntf());
             // Don't activate OA to ensure collocation is used.
 
-            AllTests.Run(this, true);
+            AllTests.Run(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

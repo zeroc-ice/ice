@@ -82,27 +82,10 @@ opFormatTypeToString(const OperationPtr& op)
     return "???";
 }
 
-string
-getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
-{
-    string deprecateMetadata, deprecateReason;
-    if(p1->findMetadata("deprecate", deprecateMetadata) ||
-       (p2 != 0 && p2->findMetadata("deprecate", deprecateMetadata)))
-    {
-        deprecateReason = "This " + type + " has been deprecated.";
-        const string prefix = "deprecate:";
-        if(deprecateMetadata.find(prefix) == 0 && deprecateMetadata.size() > prefix.size())
-        {
-            deprecateReason = deprecateMetadata.substr(prefix.size());
-        }
-    }
-    return deprecateReason;
-}
-
 void
-emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const string& type)
+emitDeprecate(const ContainedPtr& p1, bool checkContainer, Output& out)
 {
-    string reason = getDeprecateReason(p1, p2, type);
+    string reason = getDeprecateReason(p1, checkContainer);
     if(!reason.empty())
     {
         out << nl << "[global::System.Obsolete(\"" << reason << "\")]";
@@ -1275,7 +1258,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = fixId(p->scoped(), Slice::ObjectType);
     string ns = getNamespace(p);
     _out << sp;
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
+    writeTypeDocComment(p, getDeprecateReason(p));
 
     emitCommonAttributes();
     emitTypeIdAttribute(p->scoped());
@@ -1577,8 +1560,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     _out << sp;
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
-    emitDeprecate(p, 0, _out, "type");
+    writeTypeDocComment(p, getDeprecateReason(p));
+    emitDeprecate(p, false, _out);
 
     emitCommonAttributes();
     emitTypeIdAttribute(p->scoped());
@@ -1805,8 +1788,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     string ns = getNamespace(p);
     _out << sp;
 
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
-    emitDeprecate(p, 0, _out, "type");
+    writeTypeDocComment(p, getDeprecateReason(p));
+    emitDeprecate(p, false, _out);
     emitCommonAttributes();
     emitCustomAttributes(p);
     _out << nl << "public ";
@@ -1979,8 +1962,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string underlying = p->underlying() ? typeToString(p->underlying(), "") : "int";
 
     _out << sp;
-    emitDeprecate(p, 0, _out, "type");
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "type"));
+    emitDeprecate(p, false, _out);
+    writeTypeDocComment(p, getDeprecateReason(p));
     emitCommonAttributes();
     emitCustomAttributes(p);
     _out << nl << "public enum " << name << " : " << underlying;
@@ -1998,7 +1981,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << sp;
         }
 
-        writeTypeDocComment(en, getDeprecateReason(en, 0, "enumerator"));
+        writeTypeDocComment(en, getDeprecateReason(en));
         _out << nl << fixId(en->name());
         if (p->explicitValue())
         {
@@ -2106,8 +2089,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
 
     bool readonly = StructPtr::dynamicCast(cont) && cont->hasMetadata("cs:readonly");
 
-    writeTypeDocComment(p, getDeprecateReason(p, cont, "member"));
-    emitDeprecate(p, cont, _out, "member");
+    writeTypeDocComment(p, getDeprecateReason(p, true));
+    emitDeprecate(p, true, _out);
     emitCustomAttributes(p);
     _out << nl << "public ";
     if(readonly)
@@ -2155,7 +2138,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeProxyDocComment(p, getDeprecateReason(p, 0, "interface"));
+    writeProxyDocComment(p, getDeprecateReason(p));
     emitCommonAttributes();
     emitTypeIdAttribute(p->scoped());
     emitCustomAttributes(p);
@@ -2208,6 +2191,8 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << nl << "/// <param name=\"args\">The remote operation arguments.</param>";
             }
             _out << nl << "/// <param name=\"context\">The context to write into the request.</param>";
+            _out << nl << "/// <param name=\"cancel\">A cancellation token that receives the cancellation requests."
+                 << "</param>";
             _out << nl << "public static ZeroC.Ice.OutgoingRequestFrame " << fixId(operationName(operation))
                 << "(ZeroC.Ice.IObjectPrx proxy, ";
 
@@ -2216,29 +2201,30 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 inValue = paramCount > 1;
                 _out << (inValue ? "in " : "") << toTupleType(params, true) << " args" << ", ";
             }
-            _out << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context) =>";
+            _out << "global::System.Collections.Generic.IReadOnlyDictionary<string, string>? context, "
+                 << "global::System.Threading.CancellationToken cancel) =>";
             _out.inc();
 
             if (paramCount == 0)
             {
                 _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithEmptyArgs(proxy, \"";
                 _out << operation->name() << "\", "
-                    << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ", context);";
+                    << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ", context, cancel);";
             }
             else
             {
                 _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithArgs(";
                 _out.inc();
                 _out << nl << "proxy,"
-                    << nl << "\"" << operation->name() << "\","
-                    << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
-                    << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
-                    << nl << "format: " << opFormatTypeToString(operation) << ","
-                    << nl << "context,"
+                     << nl << "\"" << operation->name() << "\","
+                     << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
+                     << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
+                     << nl << "format: " << opFormatTypeToString(operation) << ","
+                     << nl << "context,"
                      << nl << (inValue ? "in " : "") << "args,"
-                    << nl;
+                     << nl;
                 writeOutgoingRequestWriter(operation);
-                _out << ");";
+                _out << "," << nl << "cancel);";
                 _out.dec();
             }
             _out.dec();
@@ -2381,7 +2367,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     auto params = operation->params();
 
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
-    string deprecateReason = getDeprecateReason(operation, interface, "operation");
+    string deprecateReason = getDeprecateReason(operation, true);
 
     string ns = getNamespace(interface);
     string opName = operationName(operation);
@@ -2414,16 +2400,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << toTuple(params) << ", ";
     }
-    _out << context << "), ";
+    _out << context << ", " << cancel << "), ";
     if (voidOp)
     {
-        _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
+        _out << (oneway ? "oneway: true" : "IsOneway") << ");";
     }
     else
     {
-        _out << "Response." << name << ", ";
+        _out << "Response." << name << ");";
     }
-    _out << cancel << ");";
     _out.dec();
 
     // Write the async version of the operation
@@ -2443,7 +2428,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << toTuple(params) << ", ";
     }
-    _out << context << "), ";
+    _out << context << ", " << cancel << "), ";
     if (voidOp)
     {
         _out << (oneway ? "oneway: true" : "IsOneway") << ", ";
@@ -2452,7 +2437,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << "Response." << name << ", ";
     }
-    _out << progress << ", " << cancel << ");";
+    _out << progress << ");";
     _out.dec();
 
     // TODO: move this check to the Slice parser.
@@ -2547,7 +2532,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeServantDocComment(p, getDeprecateReason(p, 0, "interface"));
+    writeServantDocComment(p, getDeprecateReason(p));
     emitCommonAttributes();
     emitTypeIdAttribute(p->scoped());
     emitCustomAttributes(p);
@@ -2797,7 +2782,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
 {
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(interface);
-    string deprecateReason = getDeprecateReason(operation, interface, "operation");
+    string deprecateReason = getDeprecateReason(operation, true);
     bool amd = _generateAllAsync || interface->hasMetadata("amd") || operation->hasMetadata("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
 

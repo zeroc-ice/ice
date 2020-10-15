@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -162,7 +161,6 @@ namespace ZeroC.Ice
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
-        internal bool PreferIPv6 { get; }
 
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
         /// invocation. It must be a number greater than 0.</summary>
@@ -170,6 +168,7 @@ namespace ZeroC.Ice
         internal int RetryBufferSizeMax { get; }
         internal int RetryRequestSizeMax { get; }
         internal Acm ServerAcm { get; }
+        internal SlicOptions SlicOptions { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
         internal bool WarnConnections { get; }
@@ -182,9 +181,10 @@ namespace ZeroC.Ice
         {
             "EndpointSelection",
             "ConnectionCached",
-            "PreferNonSecure",
+            "InvocationTimeout",
             "LocatorCacheTimeout",
             "Locator",
+            "PreferNonSecure",
             "Router",
             "Context\\..*"
         };
@@ -449,6 +449,13 @@ namespace ZeroC.Ice
 
                 TraceLevels = new TraceLevels(this);
 
+                DefaultInvocationTimeout =
+                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? TimeSpan.FromSeconds(60);
+                if (DefaultInvocationTimeout == TimeSpan.Zero)
+                {
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
+                }
+
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 DefaultEndpointSelection = endpointSelection switch
                 {
@@ -493,6 +500,29 @@ namespace ZeroC.Ice
                 ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
                 ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
 
+                SlicOptions = new SlicOptions
+                {
+                    MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
+                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
+                    IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30),
+                    PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
+                };
+                if (SlicOptions.MaxBidirectionalStreams < 1)
+                {
+                    throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
+                        "value for Ice.Slic.MaxBidirectionalStreams");
+                }
+                if (SlicOptions.MaxUnidirectionalStreams < 1)
+                {
+                    throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
+                        "value for Ice.Slic.MaxUnidirectionalStreams");
+                }
+                if (SlicOptions.PacketSize < 1024)
+                {
+                    throw new InvalidConfigurationException($"{SlicOptions.PacketSize} is not a valid " +
+                        "value for Ice.Slic.PacketSize");
+                }
+
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
@@ -503,7 +533,6 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
                 }
                 RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
-
                 RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024 * 100;
                 RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
 
@@ -524,8 +553,6 @@ namespace ZeroC.Ice
                 ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
                 _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
-
-                PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
                 NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
 
@@ -911,7 +938,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Get a proxy to the main facet of the Admin object. GetAdmin also creates the Admin object and
-        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
+        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set.
         /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
         /// {UUID}/admin when Ice.Admin.InstanceName is not set.
         ///
@@ -933,7 +960,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Get a proxy to the main facet of the Admin object. GetAdminAsync also creates the Admin object and
-        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
+        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set.
         /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
         /// {UUID}/admin when Ice.Admin.InstanceName is not set.
         ///

@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         public override Transport Transport => Transport.UDP;
 
         /// <summary>The local network interface used to send multicast datagrams.</summary>
-        internal string MulticastInterface { get; } = "";
+        internal string? MulticastInterface { get; }
 
         /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
         internal int MulticastTtl { get; } = -1;
@@ -34,6 +34,9 @@ namespace ZeroC.Ice
         private bool HasCompressionFlag { get; }
 
         private int _hashCode;
+
+        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+            throw new InvalidOperationException();
 
         public override bool Equals(Endpoint? other)
         {
@@ -78,8 +81,9 @@ namespace ZeroC.Ice
 
             base.AppendOptions(sb, optionSeparator);
 
-            if (MulticastInterface.Length > 0)
+            if (MulticastInterface != null)
             {
+                Debug.Assert(MulticastInterface.Length > 0);
                 bool addQuote = MulticastInterface.IndexOf(':') != -1;
                 sb.Append(" --interface ");
                 if (addQuote)
@@ -119,20 +123,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public override Connection CreateConnection(
-             IConnectionManager manager,
-             ITransceiver transceiver,
-             IConnector? connector,
-             string connectionId,
-             ObjectAdapter? adapter) => new UdpConnection(manager,
-                                                          this,
-                                                          transceiver,
-                                                          new Ice1BinaryConnection(transceiver!, this, adapter),
-                                                          connector,
-                                                          connectionId,
-                                                          adapter);
-
-        public override (ITransceiver, Endpoint) GetTransceiver()
+        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
         {
             var transceiver = new UdpTransceiver(this, Communicator);
             try
@@ -142,11 +133,13 @@ namespace ZeroC.Ice
                     Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
                         $"attempting to bind to {TransportName} socket\n{transceiver}");
                 }
-                return (transceiver, transceiver.Bind(this));
+                Endpoint endpoint = transceiver.Bind(this);
+                var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
+                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
             }
             catch (Exception)
             {
-                transceiver.DisposeAsync().AsTask().Wait();
+                transceiver.Dispose();
                 throw;
             }
         }
@@ -205,7 +198,7 @@ namespace ZeroC.Ice
                 {
                     if (oaEndpoint)
                     {
-                        MulticastInterface = "";
+                        MulticastInterface = null;
                     }
                     else
                     {

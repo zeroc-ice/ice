@@ -910,6 +910,13 @@ Slice::Contained::hasMetadataWithPrefix(const string& prefix) const
     return !findMetadataWithPrefix(prefix).empty();
 }
 
+optional<string>
+Slice::Contained::findMetadata(const string& directive) const
+{
+    // TODO this is temporary until we can fully replace the current metadata logic.
+    return Slice::findMetadata(directive, parseMetadata(_metadata));
+}
+
 bool
 Slice::Contained::findMetadata(const string& prefix, string& meta) const
 {
@@ -1381,34 +1388,6 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 Slice::Container::Container(const UnitPtr& ut) :
     SyntaxTreeBase(ut)
 {
-}
-
-bool
-Slice::Container::checkFileMetadata(const StringList& m1, const StringList& m2)
-{
-    // Not all file metadata mismatches represent actual problems. We are only concerned about
-    // the prefixes listed below (also see bug 2766).
-    array<string, 2> prefixes =
-    {
-        "java:package",
-        "python:package"
-    };
-
-    // Collect the metadata that is unique to each list.
-    StringList diffs;
-    set_symmetric_difference(m1.begin(), m1.end(), m2.begin(), m2.end(), back_inserter(diffs));
-
-    for (const auto& diff : diffs)
-    {
-        for (const auto& prefix : prefixes)
-        {
-            if (diff.find(prefix) != string::npos)
-            {
-                return false;
-            }
-        }
-    }
-    return true;
 }
 
 bool

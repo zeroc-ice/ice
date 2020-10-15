@@ -19,7 +19,6 @@ namespace ZeroC.Ice.Test.Retry
             await using Communicator communicator = Initialize(properties, observer: observer);
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-
             communicator.CreateObjectAdapter("TestAdapter").Add("retry", new Retry());
             await AllTests.Run(this, communicator, true).ShutdownAsync();
         }

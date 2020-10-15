@@ -15,7 +15,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             try
             {
-                var tcpConnection = (TcpConnection)current.Connection!;
+                var tcpConnection = (TcpConnection)current.Connection;
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
                 TestHelper.Assert(tcpConnection.RemoteCertificate == null);
             }
@@ -29,7 +29,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             try
             {
-                var tcpConnection = (TcpConnection)current.Connection!;
+                var tcpConnection = (TcpConnection)current.Connection;
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
                 TestHelper.Assert(tcpConnection.RemoteCertificate != null);
                 TestHelper.Assert(tcpConnection.RemoteCertificate.Subject.Equals(subjectDN));
@@ -45,7 +45,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             try
             {
-                var tcpConnection = (TcpConnection)current.Connection!;
+                var tcpConnection = (TcpConnection)current.Connection;
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
                 TestHelper.Assert(tcpConnection.NegotiatedCipherSuite!.ToString()!.Equals(cipher));
             }

@@ -89,9 +89,8 @@ namespace ZeroC.Ice
         private Task? _activateTask;
         private readonly Dictionary<CategoryPlusFacet, IObject> _categoryServantMap =
             new Dictionary<CategoryPlusFacet, IObject>();
+        private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;
         private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
-        private int _directCount;  // The number of direct proxies dispatching on this object adapter.
-        private TaskCompletionSource<object?>? _directDispatchCompletionSource;
         private Task? _disposeTask;
         private readonly string _id; // adapter id
         private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
@@ -178,6 +177,9 @@ namespace ZeroC.Ice
             {
                 // Synchronously Dispose of the incoming connection factories to stop accepting new incoming requests
                 // or connections. This ensures that once DisposeAsync returns, no new requests will be dispatched.
+                // Calling ToArray is important here to ensure that all the DisposeAsync calls are executed before we
+                // eventually hit an await (we want to make that once DisposeAsync returns a Task, all the connections
+                // started closing).
                 Task[] tasks =
                     _incomingConnectionFactories.Select(factory => factory.DisposeAsync().AsTask()).ToArray();
 
@@ -204,18 +206,9 @@ namespace ZeroC.Ice
                     // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
                 }
 
-                lock (_mutex)
+                if (_colocatedConnectionFactory != null)
                 {
-                    if (_directCount > 0)
-                    {
-                        Debug.Assert(_directDispatchCompletionSource == null);
-                        _directDispatchCompletionSource = new TaskCompletionSource<object?>();
-                    }
-                }
-
-                if (_directDispatchCompletionSource != null)
-                {
-                    await _directDispatchCompletionSource.Task.ConfigureAwait(false);
+                    await _colocatedConnectionFactory.DisposeAsync().ConfigureAwait(false);
                 }
 
                 // Wait for the incoming connection factories to be disposed.
@@ -746,7 +739,6 @@ namespace ZeroC.Ice
 
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
-            _directCount = 0;
 
             _id = "";
             _replicaGroupId = "";
@@ -771,7 +763,6 @@ namespace ZeroC.Ice
 
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
-            _directCount = 0;
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
@@ -849,13 +840,14 @@ namespace ZeroC.Ice
                             _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
                         }
 
-                        // TODO: Add support for QuicIncomingConnectionFactory and support for sharing the same
-                        // incoming connection for multiple TCP based ice2 transports such as tcp/ws.
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
                                 expanded.IsDatagram ?
-                                    (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(this, expanded, publishedEndpoint) :
-                                    new TcpIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
+                                    (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
+                                        this,
+                                        expanded,
+                                         publishedEndpoint) :
+                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
                     }
                     else
                     {
@@ -891,19 +883,15 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
+        internal async ValueTask<(OutgoingResponseFrame, bool)> DispatchAsync(
             IncomingRequestFrame request,
-            long streamId,
             Current current,
             CancellationToken cancel)
         {
-            IDispatchObserver? dispatchObserver = null;
-            if (Communicator.Observer != null)
-            {
-                dispatchObserver = Communicator.Observer.GetDispatchObserver(current, streamId, request.Size);
-                dispatchObserver?.Attach();
-            }
-
+            IDispatchObserver? dispatchObserver = Communicator.Observer?.GetDispatchObserver(current,
+                                                                                             current.StreamId,
+                                                                                             request.Size);
+            dispatchObserver?.Attach();
             try
             {
                 Debug.Assert(current.Adapter == this);
@@ -913,6 +901,8 @@ namespace ZeroC.Ice
                     throw new ObjectNotExistException(
                         _replicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
                 }
+
+                // TODO: support input streamable data if Current.EndOfStream == false and output streamable data.
 
                 ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
                 {
@@ -931,9 +921,9 @@ namespace ZeroC.Ice
                 if (!current.IsOneway)
                 {
                     response.Finish();
-                    dispatchObserver?.Reply(response.Size);
                 }
-                return response;
+                dispatchObserver?.Reply(response.Size);
+                return (response, true);
             }
             catch (Exception ex)
             {
@@ -958,7 +948,7 @@ namespace ZeroC.Ice
                     var response = new OutgoingResponseFrame(request, actualEx);
                     response.Finish();
                     dispatchObserver?.Reply(response.Size);
-                    return response;
+                    return (response, true);
                 }
                 else
                 {
@@ -967,7 +957,7 @@ namespace ZeroC.Ice
                         Warning(ex);
                     }
                     dispatchObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    return OutgoingResponseFrame.WithVoidReturnValue(current);
+                    return (OutgoingResponseFrame.WithVoidReturnValue(current), true);
                 }
             }
             finally
@@ -992,8 +982,39 @@ namespace ZeroC.Ice
             }
         }
 
+        internal Endpoint GetColocatedEndpoint()
+        {
+            lock (_mutex)
+            {
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
+
+                if (_colocatedConnectionFactory == null)
+                {
+                    // TODO: ACM configuration?
+                    _colocatedConnectionFactory = new AcceptorIncomingConnectionFactory(this,
+                                                                                        new ColocatedEndpoint(this),
+                                                                                        null,
+                                                                                        new Acm());
+
+                    // It's safe to start the connection within the synchronization, this isn't supposed to block for
+                    // colocated connections.
+                    _colocatedConnectionFactory.Activate();
+                }
+            }
+            return _colocatedConnectionFactory.PublishedEndpoint;
+        }
+
         internal bool IsLocal(Reference r)
         {
+            // The proxy protocol must match the object adapter's protocol.
+            if (r.Protocol != Protocol)
+            {
+                return false;
+            }
+
             // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             if (r.IsWellKnown)
@@ -1033,33 +1054,6 @@ namespace ZeroC.Ice
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
                 factory.UpdateConnectionObservers();
-            }
-        }
-
-        internal void IncDirectCount()
-        {
-            lock (_mutex)
-            {
-                if (_disposeTask != null)
-                {
-                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
-                }
-                Debug.Assert(_directCount >= 0);
-                ++_directCount;
-            }
-        }
-
-        internal void DecDirectCount()
-        {
-            lock (_mutex)
-            {
-                // Not check for deactivation here!
-                Debug.Assert(_directCount > 0);
-                if (--_directCount == 0)
-                {
-                    // Don't call SetResult directly to avoid continuations running synchronously
-                    Task.Run(() => _directDispatchCompletionSource?.SetResult(null));
-                }
             }
         }
 

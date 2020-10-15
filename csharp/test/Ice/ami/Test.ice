@@ -19,8 +19,7 @@ exception TestIntfException
 enum CloseMode
 {
     Forcefully,
-    Gracefully,
-    GracefullyWithWait
+    Gracefully
 }
 
 interface TestIntf
@@ -43,6 +42,7 @@ interface TestIntf
     [amd] void opWithUEAsyncDispatch();
 
     int set(int value);
+    [oneway] void setOneway(int previous, int value);
 }
 
 module Outer::Inner

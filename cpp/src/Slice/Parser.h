@@ -413,6 +413,7 @@ public:
 
     bool hasMetadata(const std::string&) const;
     bool hasMetadataWithPrefix(const std::string&) const;
+    std::optional<std::string> findMetadata(const std::string&) const;
     bool findMetadata(const std::string&, std::string&) const;
     std::string findMetadataWithPrefix(const std::string&) const;
     std::list<std::string> getAllMetadata() const;
@@ -466,7 +467,6 @@ protected:
 
     Container(const UnitPtr&);
 
-    bool checkFileMetadata(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
 
     std::map<std::string, ContainedPtr> _introducedMap;
