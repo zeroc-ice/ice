@@ -20,11 +20,16 @@
 [cs:namespace:ZeroC]
 module Ice
 {
+    /// Represents the origin of a remote exception, with ice2 all remote exceptions have an origin field set, with
+    /// ice1 it is only set for {@link ObjectNotExistException} and {@link OperationNotExistException}.
     [cs:readonly] struct RemoteExceptionOrigin
     {
-       Identity identity;
-       string facet;
-       string operation;
+        /// The Ice object Identity.
+        Identity identity;
+        /// The Ice object facet.
+        string facet;
+        /// The operation name.
+        string operation;
     }
 
 #ifdef __SLICE2CS__
