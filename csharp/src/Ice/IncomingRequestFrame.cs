@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace ZeroC.Ice
 {
@@ -72,7 +71,7 @@ namespace ZeroC.Ice
                 Operation = requestHeaderBody.Operation;
                 IsIdempotent = requestHeaderBody.Idempotent ?? false;
                 Priority = requestHeaderBody.Priority ?? default;
-                if (requestHeaderBody.Deadline < -1)
+                if (requestHeaderBody.Deadline < -1 || requestHeaderBody.Deadline == 0)
                 {
                     throw new InvalidDataException($"received invalid deadline value {requestHeaderBody.Deadline}");
                 }
