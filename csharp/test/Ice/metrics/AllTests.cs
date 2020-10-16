@@ -517,12 +517,8 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                // 2 additional bytes with ice2 and Encoding2: one for the sequence size and one for the frame size
-                int sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 2;
-                if (!ice1 && metrics.GetCachedConnection() is IPConnection)
-                {
-                    sizeLengthIncrease += 1; // One additional byte for the Slic frame size
-                }
+                // 1 additional bytes with ice2 and Encoding2 for the sequence size
+                int sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 1;
 
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
@@ -538,8 +534,8 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                // 6 additional bytes with ice2 and Encoding2: 3 for the sequence size and 3 for the frame size
-                sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 6;
+                // 4 additional bytes with ice2 and Encoding2: 3 for the sequence size and 1 for the frame size
+                sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 4;
                 if (!ice1 && metrics.GetCachedConnection() is IPConnection)
                 {
                     sizeLengthIncrease += 1921; // 1921 additional bytes for the Slic frame fragmentation.
@@ -885,8 +881,9 @@ namespace ZeroC.Ice.Test.Metrics
             map = ToMap(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"]!);
             TestHelper.Assert(map.Count == 6);
 
-            // TODO: temporary, currently we often save 2 bytes with the ice2 protocol
-            int protocolRequestSizeAdjustment = ice1 ? 0 : -4;
+            // TODO: temporary, currently we often save 2 bytes with the ice2 size protocol encoding
+            // there is 8 extra bytes for the request deadline
+            int protocolRequestSizeAdjustment = ice1 ? 0 : 4;
             int protocolReplySizeAdjustment = ice1 ? 0 : -2;
 
             DispatchMetrics dm1;
@@ -917,7 +914,7 @@ namespace ZeroC.Ice.Test.Metrics
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == 43 && dm1.ReplySize == 233);
+                TestHelper.Assert(dm1.Size == 51 && dm1.ReplySize == 233);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
@@ -1088,14 +1085,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 34) && rim1.ReplySize == (ice1 ? 14 : 10));
+            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 50) && rim1.ReplySize == (ice1 ? 14 : 10));
 
             im1 = (InvocationMetrics)map["opWithUserException"];
             TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 76 : 68) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 76 : 84) && rim1.ReplySize > 7);
             TestHelper.Assert(im1.UserException == 2);
 
             im1 = (InvocationMetrics)map["opWithLocalException"];
@@ -1106,7 +1103,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 78 : 70) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 78 : 86) && rim1.ReplySize > 7);
             // TODO: observers needs fixing to report a better exception than System.Exception
             CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
@@ -1118,7 +1115,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 94 : 86) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 94 : 102) && rim1.ReplySize > 7);
             if (ice1)
             {
                 CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ObjectNotExistException", 2, output);
@@ -1137,7 +1134,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 82 : 74) && rim1.ReplySize > 7);
+            TestHelper.Assert(rim1.Size == (ice1 ? 82 : 90) && rim1.ReplySize > 7);
             // TODO: observers needs fixing to report a better exception than System.Exception
             CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
@@ -1203,7 +1200,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(im1.Children.Length == 1);
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 34) && rim1.ReplySize == 0);
+            TestHelper.Assert(rim1.Size == (ice1 ? 42 : 50) && rim1.ReplySize == 0);
 
             TestAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
                         () => InvokeOp(metricsOneway), output);
