@@ -491,9 +491,9 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 else
                 {
-                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 29); // ice_ping request
+                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 39); // ice_ping request
                     TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 10); // ice_ping response
-                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 29);
+                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 39);
                     TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 10);
                 }
 
