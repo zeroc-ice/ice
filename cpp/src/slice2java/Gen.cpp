@@ -106,7 +106,7 @@ long getSerialVersionUUID(const DataMemberContainerPtr& p)
 
         try
         {
-            return stoll(*metadata);
+            return stol(*metadata);
         }
         catch (const logic_error&)
         {
