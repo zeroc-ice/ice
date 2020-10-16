@@ -38,6 +38,9 @@ namespace ZeroC.Ice
         public bool IsOneway => InvocationMode != InvocationMode.Twoway;
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
+
+        internal string LocationAsString => Protocol == Protocol.Ice1 ? AdapterId :
+            string.Join('/', Location.Select(s => Uri.EscapeDataString(s)));
         internal TimeSpan LocatorCacheTimeout { get; }
 
         internal LocatorInfo? LocatorInfo { get; }
@@ -194,7 +197,7 @@ namespace ZeroC.Ice
                 }
 
                 locatorInfo = communicator.GetLocatorInfo(
-                    communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
+                    communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory));
 
                 locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
                 preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
@@ -225,7 +228,7 @@ namespace ZeroC.Ice
                                  location: location,
                                  locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
                                  locatorInfo:
-                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
+                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator),
                                  preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
                                  protocol: protocol,
                                  routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
@@ -711,7 +714,7 @@ namespace ZeroC.Ice
                    invocationTimeout: communicator.DefaultInvocationTimeout,
                    location: location,
                    locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
-                   locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
+                   locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator),
                    preferNonSecure: communicator.DefaultPreferNonSecure,
                    protocol: protocol,
                    routerInfo: communicator.GetRouterInfo(communicator.DefaultRouter))
@@ -936,7 +939,7 @@ namespace ZeroC.Ice
                 LocatorInfo? locatorInfo = LocatorInfo;
                 if (locator != null)
                 {
-                    locatorInfo = Communicator.GetLocatorInfo(locator, encoding ?? locator.Encoding);
+                    locatorInfo = Communicator.GetLocatorInfo(locator);
                 }
                 else if (clearLocator)
                 {
@@ -1023,9 +1026,16 @@ namespace ZeroC.Ice
                     }
                     else if (LocatorInfo != null)
                     {
-                        (endpoints, cached) = await LocatorInfo.GetEndpointsAsync(this,
-                                                                                  LocatorCacheTimeout,
-                                                                                  cancel).ConfigureAwait(false);
+                        Reference? directReference;
+                        (directReference, cached) =
+                            await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
+
+                        if (directReference != null)
+                        {
+                            endpoints = directReference.Endpoints;
+                            // TODO: cache and send directReference's location with requests made using this reference
+                            // instead of the reference's location.
+                        }
                     }
                 }
 

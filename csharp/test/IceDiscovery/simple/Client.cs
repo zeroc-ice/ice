@@ -10,10 +10,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
-            // TODO: see server
-            properties["Test.Protocol"] = "ice1";
-            await using Ice.Communicator communicator = Initialize(properties);
+            await using Ice.Communicator communicator = Initialize(ref args);
             int num;
             try
             {
