@@ -76,9 +76,9 @@ namespace ZeroC.Ice
 
         internal RetryPolicy RetryPolicy { get; }
 
-        /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
-        /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in
-        /// derived partial exception classes that provide a custom default message.</summary>
+        /// <summary>When DefaultMessage is not null and the application does not construct the exception with a
+        /// constructor that takes a message parameter, Message returns DefaultMessage. This property should be
+        /// overridden in derived partial exception classes that provide a custom default message.</summary>
         protected virtual string? DefaultMessage => null;
 
         /// <summary>Returns the sliced data if the exception has a preserved-slice base exception and has been sliced during
@@ -153,70 +153,53 @@ namespace ZeroC.Ice
     public partial class ObjectNotExistException
     {
         /// <inheritdoc/>
-        protected override string? DefaultMessage
-        {
-            get
-            {
-                if (Origin is RemoteExceptionOrigin origin)
-                {
-                    return $@"could not find servant for Ice object `{origin.Identity}'" +
-                        (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
-                        $" while attempting to dispatch operation `{origin.Operation}'";
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
+        protected override string? DefaultMessage =>
+                Origin is RemoteExceptionOrigin origin ?
+                    $@"could not find servant for Ice object `{origin.Identity}'" +
+                    (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
+                    $" while attempting to dispatch operation `{origin.Operation}'" : null;
     }
 
     public partial class OperationNotExistException
     {
         /// <inheritdoc/>
-        protected override string? DefaultMessage
-        {
-            get
-            {
-                if (Origin is RemoteExceptionOrigin origin)
-                {
-                    return $"could not find operation `{origin.Operation}' for Ice object `{origin.Identity}'" +
-                        (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "");
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
+        protected override string? DefaultMessage =>
+            Origin is RemoteExceptionOrigin origin ?
+                $"could not find operation `{origin.Operation}' for Ice object `{origin.Identity}'" +
+                (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") : null;
     }
 
     public partial class UnhandledException : RemoteException
     {
         /// <summary>Constructs a new exception.</summary>
-        /// <param name="current">Holds decoded header data and other information about the current request.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        public UnhandledException(Current current, Exception innerException)
-            : base(CustomMessage(current, innerException), innerException)
+        public UnhandledException(Exception innerException)
+            : base(message: null, innerException)
         {
         }
 
-        private static string CustomMessage(Current current, Exception innerException)
+        protected override string? DefaultMessage
         {
-            string message = @$"unhandled exception while dispatching `{current.Operation}' on Ice object `{
-                current.Identity}'";
-            if (current.Facet.Length > 0)
+            get
             {
-                message += $" with facet `{current.Facet}'";
-            }
+                string message = "unhandled exception";
+                if (Origin is RemoteExceptionOrigin origin)
+                {
+                    message += $" while dispatching `{origin.Operation}' on Ice object `{origin.Identity}'";
+                    if (origin.Facet.Length > 0)
+                    {
+                        message += $" with facet `{origin.Facet}'";
+                    }
+                }
 #if DEBUG
-            message += $":\n{innerException}\n---";
+                message += $":\n{InnerException}\n---";
 #else
-            // The stack trace of the inner exception can include sensitive information we don't want to send
-            // "over the wire" in non-debug builds.
-            message += $":\n{innerException.Message}";
+                // The stack trace of the inner exception can include sensitive information we don't want to send
+                // "over the wire" in non-debug builds.
+                message += $":\n{InnerException.Message}";
 #endif
-            return message;
+                return message;
+            }
         }
     }
 }

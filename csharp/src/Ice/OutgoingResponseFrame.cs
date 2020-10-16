@@ -278,6 +278,7 @@ namespace ZeroC.Ice
                 hasEncapsulation = false;
             }
 
+            exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
             if (Encoding == Encoding.V11)
             {
                 switch (replyStatus)
@@ -300,7 +301,6 @@ namespace ZeroC.Ice
             }
             else
             {
-                exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
                 ostr.WriteException(exception);
             }
 

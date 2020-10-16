@@ -145,13 +145,13 @@ namespace ZeroC.Ice
                     if (replyStatus == ReplyStatus.OperationNotExistException)
                     {
                         systemException = new OperationNotExistException(
-                            null,
+                            message: null,
                             new RemoteExceptionOrigin(identity, facet, operation));
                     }
                     else
                     {
                         systemException = new ObjectNotExistException(
-                            null,
+                            message: null,
                             new RemoteExceptionOrigin(identity, facet, operation));
                     }
                     break;

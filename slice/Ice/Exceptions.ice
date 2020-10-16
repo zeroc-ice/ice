@@ -20,7 +20,7 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-    struct RemoteExceptionOrigin
+    [cs:readonly] struct RemoteExceptionOrigin
     {
        Identity identity;
        string facet;

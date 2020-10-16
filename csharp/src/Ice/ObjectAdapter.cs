@@ -937,7 +937,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        actualEx = new UnhandledException(current, ex);
+                        actualEx = new UnhandledException(ex);
                         dispatchObserver?.Failed(actualEx.InnerException!.GetType().FullName ?? "System.Exception");
                         if (Communicator.WarnDispatch)
                         {
