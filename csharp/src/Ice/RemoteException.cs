@@ -154,10 +154,10 @@ namespace ZeroC.Ice
     {
         /// <inheritdoc/>
         protected override string? DefaultMessage =>
-                Origin is RemoteExceptionOrigin origin ?
-                    $@"could not find servant for Ice object `{origin.Identity}'" +
-                    (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
-                    $" while attempting to dispatch operation `{origin.Operation}'" : null;
+            Origin is RemoteExceptionOrigin origin ?
+                $@"could not find servant for Ice object `{origin.Identity}'" +
+                (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
+                $" while attempting to dispatch operation `{origin.Operation}'" : null;
     }
 
     public partial class OperationNotExistException
