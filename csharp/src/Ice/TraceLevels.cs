@@ -11,7 +11,7 @@ namespace ZeroC.Ice
         internal readonly int Retry;
         internal readonly string RetryCategory;
         internal readonly int Location;
-        internal readonly string LocationCategory;
+        internal readonly string LocatorCategory;
         internal readonly int Slicing;
         internal readonly string SlicingCategory;
 
@@ -20,7 +20,7 @@ namespace ZeroC.Ice
             TransportCategory = "Transport";
             ProtocolCategory = "Protocol";
             RetryCategory = "Retry";
-            LocationCategory = "Locator"; // TODO why this inconsistency?
+            LocatorCategory = "Locator"; // TODO why this inconsistency?
             SlicingCategory = "Slicing";
 
             string keyBase = "Ice.Trace.";
@@ -28,7 +28,7 @@ namespace ZeroC.Ice
             Transport = communicator.GetPropertyAsInt(keyBase + TransportCategory) ?? 0;
             Protocol = communicator.GetPropertyAsInt(keyBase + ProtocolCategory) ?? 0;
             Retry = communicator.GetPropertyAsInt(keyBase + RetryCategory) ?? 0;
-            Location = communicator.GetPropertyAsInt(keyBase + LocationCategory) ?? 0;
+            Location = communicator.GetPropertyAsInt(keyBase + LocatorCategory) ?? 0;
             Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCategory) ?? 0;
         }
     }

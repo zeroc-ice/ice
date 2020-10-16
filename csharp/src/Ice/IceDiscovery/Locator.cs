@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -61,27 +62,31 @@ namespace ZeroC.IceDiscovery
         public void RegisterAdapterEndpoints(
             string adapterId,
             string replicaGroupId,
-            IObjectPrx endpoints,
+            IObjectPrx proxy,
             Current current,
             CancellationToken cancel)
         {
             lock (_mutex)
             {
-                Protocol protocol = endpoints.Protocol;
+                Protocol protocol = proxy.Protocol;
+
+                try
+                {
+                    _adapters.Add((adapterId, protocol), proxy.Clone(clearLocator: true, clearRouter: true));
+                }
+                catch (ArgumentException)
+                {
+                    throw new AdapterAlreadyActiveException($"adapter `{adapterId}' already has registered endpoints");
+                }
 
                 if (replicaGroupId.Length > 0)
                 {
                     if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
                     {
                         adapterIds = new HashSet<string>();
-                        _replicaGroups.Add((replicaGroupId, endpoints.Protocol), adapterIds);
+                        _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
                     }
-                    _adapters[(adapterId, protocol)] = endpoints.Clone(clearLocator: true, clearRouter: true);
                     adapterIds.Add(adapterId);
-                }
-                else
-                {
-                    _adapters[(adapterId, protocol)] = endpoints.Clone(clearLocator: true, clearRouter: true);
                 }
             }
         }
@@ -93,14 +98,6 @@ namespace ZeroC.IceDiscovery
             CancellationToken cancel)
         {
             Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
-            if (proxy != null)
-            {
-                RegisterAdapterEndpoints(adapterId, "", proxy, current, cancel);
-            }
-            else
-            {
-                UnregisterAdapterEndpoints(adapterId, "", Protocol.Ice1, current, cancel);
-            }
         }
 
          public void SetReplicatedAdapterDirectProxy(
@@ -111,14 +108,6 @@ namespace ZeroC.IceDiscovery
             CancellationToken cancel)
          {
             Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
-            if (proxy != null)
-            {
-                RegisterAdapterEndpoints(adapterId, replicaGroupId, proxy, current, cancel);
-            }
-            else
-            {
-                UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice1, current, cancel);
-            }
         }
 
         public void SetServerProcessProxy(
@@ -139,9 +128,10 @@ namespace ZeroC.IceDiscovery
         {
             lock (_mutex)
             {
+                _adapters.Remove((adapterId, protocol));
+
                 if (replicaGroupId.Length > 0)
                 {
-                    _adapters.Remove((adapterId, protocol));
                     if (_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
                     {
                         adapterIds.Remove(adapterId);
@@ -150,10 +140,6 @@ namespace ZeroC.IceDiscovery
                             _replicaGroups.Remove((replicaGroupId, protocol));
                         }
                     }
-                }
-                else
-                {
-                    _adapters.Remove((adapterId, protocol));
                 }
             }
         }
@@ -167,21 +153,22 @@ namespace ZeroC.IceDiscovery
                     return (proxy, false);
                 }
 
-                IObjectPrx? result = null;
-
                 if (_replicaGroups.TryGetValue((adapterId, protocol), out HashSet<string>? adapterIds))
                 {
-                    var endpoints = new List<Endpoint>();
                     Debug.Assert(adapterIds.Count > 0);
+
+                    IObjectPrx? result = null;
+                    var endpoints = new List<Endpoint>();
                     foreach (string id in adapterIds)
                     {
-                        if (!_adapters.TryGetValue((id, protocol), out proxy))
-                        {
-                            continue; // TODO: Inconsistency
-                        }
-
-                        result ??= proxy;
-                        endpoints.AddRange(proxy.Endpoints);
+                        // We assume that if adapterId is in adapterIds, it's also in the _adapters dictionary. The two
+                        // dictionaries can be out of sync if there is a bug in the local Ice runtime or application
+                        // code that uses this local colocated LocatorRegistry directly. For example, a call to
+                        // unregisterAdapterEndpoints with a missing or incorrect replicaGroupId. If there is such a
+                        // local bug, the code will throw a KeyNotFoundException.
+                        IObjectPrx p = _adapters[(id, protocol)];
+                        result ??= p;
+                        endpoints.AddRange(p.Endpoints);
                     }
 
                     return (result?.Clone(endpoints: endpoints), result != null);

@@ -286,6 +286,8 @@ namespace ZeroC.Ice
             this StringBuilder sb,
             IReadOnlyList<Endpoint> endpoints)
         {
+            Debug.Assert(endpoints.Count > 0);
+
             if (endpoints[0].Protocol == Protocol.Ice1)
             {
                 sb.Append(string.Join(":", endpoints));

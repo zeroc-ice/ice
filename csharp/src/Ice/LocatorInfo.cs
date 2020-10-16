@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -72,8 +71,8 @@ namespace ZeroC.Ice
                         if (reference.Communicator.TraceLevels.Location >= 2)
                         {
                             TraceDirect("removed well-known proxy with endpoints from locator cache",
-                                  reference,
-                                  resolvedWellKnownProxy);
+                                        reference,
+                                        resolvedWellKnownProxy);
                         }
                     }
                 }
@@ -94,14 +93,19 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             Debug.Assert(reference.IsIndirect);
-            Reference? directReference;
-            bool cached;
+            Reference? directReference = null;
+            bool cached = false;
+
+            Reference? indirectReference = null;
+
             if (reference.IsWellKnown)
             {
+                Reference? resolvedWellKnownProxy;
+
                 // First, we resolve the well-known reference. The resolved reference can be direct or indirect, but
                 // cannot be well-known.
-                Reference? resolvedWellKnownProxy;
-                (resolvedWellKnownProxy, cached) = GetResolvedWellKnownProxyFromCache(reference, reference.LocatorCacheTimeout);
+                (resolvedWellKnownProxy, cached) = GetResolvedWellKnownProxyFromCache(reference,
+                                                                                      reference.LocatorCacheTimeout);
                 if (!cached)
                 {
                     if (_background && resolvedWellKnownProxy != null)
@@ -118,69 +122,60 @@ namespace ZeroC.Ice
                     }
                 }
 
-                if (resolvedWellKnownProxy == null || !resolvedWellKnownProxy.IsIndirect)
+                if (resolvedWellKnownProxy != null)
                 {
-                    // If it's null or a direct reference, we're done
-                    directReference = resolvedWellKnownProxy;
-                }
-                else
-                {
-                    // Otherwise, it's an indirect reference (but can't be a well-known reference because
-                    // ResolveWellKnownProxyAsync doesn't return well-known references). We need to resolve its location
-                    // to get a direct reference.
-                    Debug.Assert(!resolvedWellKnownProxy.IsWellKnown);
-
-                    // Get the endpoints for the adapter from the resolved reference.
-                    bool adapterCached;
-                    (directReference, adapterCached) =
-                        GetResolvedLocationFromCache(resolvedWellKnownProxy, reference.LocatorCacheTimeout);
-
-                    if (!adapterCached)
+                    if (resolvedWellKnownProxy.IsIndirect)
                     {
-                        if (_background && directReference != null)
-                        {
-                            // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
-                            // are configured, we obtain new endpoints but continue using the stale endpoints to
-                            // not block the caller.
-                            _ = ResolveLocationAsync(resolvedWellKnownProxy, cancel: default);
-                        }
-                        else
-                        {
-                            try
-                            {
-                                directReference =
-                                    await ResolveLocationAsync(resolvedWellKnownProxy, cancel).ConfigureAwait(false);
-                            }
-                            finally
-                            {
-                                // If we can't resolve the location, we clear the resolved well known proxy from
-                                // the cache.
-                                if (directReference == null)
-                                {
-                                    RemoveWellKnownProxy(reference);
-                                }
-                            }
-                        }
+                        indirectReference = resolvedWellKnownProxy;
+                    }
+                    else
+                    {
+                        directReference = resolvedWellKnownProxy;
                     }
                 }
             }
             else
             {
-                (directReference, cached) = GetResolvedLocationFromCache(reference, reference.LocatorCacheTimeout);
-                if (!cached)
+                indirectReference = reference;
+            }
+
+            if (indirectReference != null)
+            {
+                bool cachedLocation;
+
+                (directReference, cachedLocation) =
+                    GetResolvedLocationFromCache(indirectReference, reference.LocatorCacheTimeout);
+
+                if (!cachedLocation)
                 {
                     if (_background && directReference != null)
                     {
                         // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
                         // are configured, we obtain new endpoints but continue using the stale endpoints to
                         // not block the caller.
-                        _ = ResolveLocationAsync(reference, cancel: default);
+                        _ = ResolveLocationAsync(indirectReference, cancel: default);
                     }
                     else
                     {
-                        directReference =
-                            await ResolveLocationAsync(reference, cancel).ConfigureAwait(false);
+                        try
+                        {
+                            directReference =
+                                await ResolveLocationAsync(indirectReference, cancel).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            // If we can't resolve the location we clear the resolved well known proxy from the cache.
+                            if (directReference == null && reference.IsWellKnown)
+                            {
+                                RemoveWellKnownProxy(reference);
+                            }
+                        }
                     }
+                }
+
+                if (!reference.IsWellKnown)
+                {
+                    cached = cachedLocation;
                 }
             }
 
@@ -188,34 +183,12 @@ namespace ZeroC.Ice
             {
                 if (directReference != null)
                 {
-                    if (cached)
-                    {
-                        if (reference.IsWellKnown)
-                        {
-                            TraceDirect("found entry for well-known proxy in locator cache",
-                                        reference,
-                                        directReference);
-                        }
-                        else
-                        {
-                            TraceDirect("found entry for location in locator cache", reference, directReference);
-                        }
-                    }
-                    else
-                    {
-                        if (reference.IsWellKnown)
-                        {
-                            TraceDirect("resolved well-known proxy using locator, adding to locator cache",
-                                         reference,
-                                         directReference);
-                        }
-                        else
-                        {
-                            TraceDirect("resolved location using locator, adding to locator cache",
-                                        reference,
-                                        directReference);
-                        }
-                    }
+                    string kind = reference.IsWellKnown ? "well-known proxy" : "location";
+                    TraceDirect(
+                            cached ? $"found entry for {kind} in locator cache" :
+                                $"resolved {kind} using locator, adding to locator cache",
+                            reference,
+                            directReference);
                 }
                 else
                 {
@@ -232,7 +205,7 @@ namespace ZeroC.Ice
                         sb.Append("well-known proxy ");
                         sb.Append(reference);
                     }
-                    communicator.Logger.Trace(communicator.TraceLevels.LocationCategory, sb.ToString());
+                    communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory, sb.ToString());
                 }
             }
 
@@ -281,7 +254,7 @@ namespace ZeroC.Ice
                 sb.Append("\nnew location = ");
                 sb.Append(directReference.LocationAsString);
             }
-            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory, sb.ToString());
+            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private static void TraceInvalid(Reference reference, Reference invalidReference)
@@ -290,7 +263,7 @@ namespace ZeroC.Ice
             sb.Append(reference);
             sb.Append("\n received = ");
             sb.Append(invalidReference);
-            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory, sb.ToString());
+            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private static void TraceWellKnown(string msg, Reference wellKnown, Reference indirectReference)
@@ -303,7 +276,7 @@ namespace ZeroC.Ice
             sb.Append('\n');
             sb.Append("location = ");
             sb.Append(indirectReference.LocationAsString);
-            wellKnown.Communicator.Logger.Trace(wellKnown.Communicator.TraceLevels.LocationCategory, sb.ToString());
+            wellKnown.Communicator.Logger.Trace(wellKnown.Communicator.TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private (Reference? Reference, bool Cached) GetResolvedLocationFromCache(Reference reference, TimeSpan ttl)
@@ -323,13 +296,11 @@ namespace ZeroC.Ice
             }
         }
 
-        private async Task<Reference?> ResolveLocationAsync(
-            Reference reference,
-            CancellationToken cancel)
+        private async Task<Reference?> ResolveLocationAsync(Reference reference, CancellationToken cancel)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
+                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
                     $"searching for adapter by id\nadapter = {reference.AdapterId}");
             }
 
@@ -419,7 +390,7 @@ namespace ZeroC.Ice
                     if (reference.Communicator.TraceLevels.Location > 0)
                     {
                         reference.Communicator.Logger.Trace(
-                            reference.Communicator.TraceLevels.LocationCategory,
+                            reference.Communicator.TraceLevels.LocatorCategory,
                             @$"could not contact the locator to resolve location `{reference.LocationAsString
                                 }'\nreason = {exception}");
                     }
@@ -458,7 +429,7 @@ namespace ZeroC.Ice
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
+                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
                     $"searching for well-known object\nwell-known proxy = {reference}");
             }
 
@@ -544,7 +515,7 @@ namespace ZeroC.Ice
                     if (reference.Communicator.TraceLevels.Location > 0)
                     {
                         reference.Communicator.Logger.Trace(
-                            reference.Communicator.TraceLevels.LocationCategory,
+                            reference.Communicator.TraceLevels.LocatorCategory,
                             @$"could not contact the locator to retrieve endpoints for well-known proxy `{reference
                                 }'\nreason = {exception}");
                     }

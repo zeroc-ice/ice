@@ -34,8 +34,7 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            (IObjectPrx? proxy, bool isReplicaGroup) =
-                _registry.FindAdapter(adapterId, protocol ?? Protocol.Ice1);
+            (IObjectPrx? proxy, bool isReplicaGroup) = _registry.FindAdapter(adapterId, protocol ?? Protocol.Ice1);
             if (proxy != null)
             {
                 // Reply to the multicast request using the given proxy.
@@ -250,8 +249,8 @@ namespace ZeroC.IceDiscovery
         }
     }
 
-     // TODO: missing IDisposable?
-     internal class LookupReply : ILookupReply
+    // TODO: missing IDisposable?
+    internal class LookupReply : ILookupReply
     {
         internal CancellationTokenSource CancellationSource { get; }
         internal TaskCompletionSource<IObjectPrx?> CompletionSource { get; }

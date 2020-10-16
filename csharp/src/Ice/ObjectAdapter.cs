@@ -1201,12 +1201,12 @@ namespace ZeroC.Ice
                 {
                     if (_replicaGroupId.Length == 0)
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory,
+                        Communicator.Logger.Trace(Communicator.TraceLevels.LocatorCategory,
                             $"could not update the endpoints of object adapter `{_id}' in the locator registry:\n{ex}");
                     }
                     else
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory,
+                        Communicator.Logger.Trace(Communicator.TraceLevels.LocatorCategory,
                             @$"could not update the endpoints of object adapter `{_id
                                 }' with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
                     }
@@ -1223,7 +1223,7 @@ namespace ZeroC.Ice
                 {
                     sb.Append(string.Join(":", proxy.Endpoints));
                 }
-                Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory, sb.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.LocatorCategory, sb.ToString());
             }
         }
 
