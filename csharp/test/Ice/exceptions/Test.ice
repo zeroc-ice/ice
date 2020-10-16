@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/RemoteException.ice>
+#include <Ice/Exceptions.ice>
 
 [[suppress-warning:reserved-identifier]]
 
