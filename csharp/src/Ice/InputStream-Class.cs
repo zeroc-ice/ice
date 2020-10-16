@@ -92,9 +92,8 @@ namespace ZeroC.Ice
 
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    Func<string?, RemoteExceptionOrigin?, RemoteException>? factory =
-                        Communicator.FindRemoteExceptionFactory(typeId);
-                    if (factory != null)
+                    if (Communicator.FindRemoteExceptionFactory(typeId) is
+                        Func<string?, RemoteExceptionOrigin?, RemoteException> factory)
                     {
                         // The 1.1 encoding does not carry the error message or origin so they are always null.
                         remoteEx = factory(errorMessage, origin);

@@ -1588,7 +1588,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     MemberList dataMembers = p->dataMembers();
 
     string messageParamName = getEscapedParamName(p, "message");
-    string originParamName = getEscapedParamName(p, "origin");
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
     string retryPolicyParamName = getEscapedParamName(p, "retryPolicy");
 

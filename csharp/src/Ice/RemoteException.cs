@@ -72,7 +72,7 @@ namespace ZeroC.Ice
         public bool ConvertToUnhandled { get; set; }
 
         /// <summary>The remote exception origin.</summary>
-        public RemoteExceptionOrigin? Origin { get; set; }
+        public RemoteExceptionOrigin? Origin { get; internal set; }
 
         internal RetryPolicy RetryPolicy { get; }
 
@@ -153,38 +153,61 @@ namespace ZeroC.Ice
     public partial class ObjectNotExistException
     {
         /// <inheritdoc/>
-        protected override string DefaultMessage =>
-            $"could not find servant for Ice object `{Origin!.Value.Identity}'" +
-            (Origin.Value.Facet.Length > 0 ? $" with facet `{Origin.Value.Facet}'" : "") +
-            $" while attempting to dispatch operation `{Origin.Value.Operation}'";
+        protected override string? DefaultMessage
+        {
+            get
+            {
+                if (Origin is RemoteExceptionOrigin origin)
+                {
+                    return $@"could not find servant for Ice object `{origin.Identity}'" +
+                    (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
+                    $" while attempting to dispatch operation `{origin.Operation}'";
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
     }
 
     public partial class OperationNotExistException
     {
         /// <inheritdoc/>
-        protected override string DefaultMessage =>
-            $"could not find operation `{Origin!.Value.Operation}' for Ice object `{Origin.Value.Identity}'" +
-            (Origin.Value.Facet.Length > 0 ? $" with facet `{Origin.Value.Facet}'" : "");
+        protected override string? DefaultMessage
+        {
+            get
+            {
+                if (Origin is RemoteExceptionOrigin origin)
+                {
+                    return $"could not find operation `{origin.Operation}' for Ice object `{origin.Identity}'" +
+                        (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "");
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
     }
 
-    public partial class UnhandledException
+    public partial class UnhandledException : RemoteException
     {
         /// <summary>Constructs a new exception.</summary>
-        /// <param name="identity">The Ice object Identity.</param>
-        /// <param name="facet">The Ice object facet.</param>
-        /// <param name="operation">The operation name.</param>
+        /// <param name="current">Holds decoded header data and other information about the current request.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        public UnhandledException(Identity identity, string facet, string operation, Exception innerException)
-            : base(CustomMessage(identity, facet, operation, innerException), innerException)
+        public UnhandledException(Current current, Exception innerException)
+            : base(CustomMessage(current, innerException), innerException)
         {
         }
 
-        private static string CustomMessage(Identity identity, string facet, string operation, Exception innerException)
+        private static string CustomMessage(Current current, Exception innerException)
         {
-            string message = $"unhandled exception while dispatching `{operation}' on Ice object `{identity}'";
-            if (facet.Length > 0)
+            string message = @$"unhandled exception while dispatching `{current.Operation}' on Ice object `{
+                current.Identity}'";
+            if (current.Facet.Length > 0)
             {
-                message += $" with facet `{facet}'";
+                message += $" with facet `{current.Facet}'";
             }
 #if DEBUG
             message += $":\n{innerException}\n---";
