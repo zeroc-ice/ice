@@ -1,6 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -13,62 +15,92 @@ namespace ZeroC.Ice.Test.Location
         private readonly object _mutex = new object();
         private readonly Dictionary<Identity, IObjectPrx> _objects = new Dictionary<Identity, IObjectPrx>();
 
-        public ValueTask SetAdapterDirectProxyAsync(
-            string adapter,
-            IObjectPrx? obj,
+        public void RegisterAdapterEndpoints(
+            string adapterId,
+            string replicaGroupId,
+            IObjectPrx endpoints,
             Current current,
             CancellationToken cancel)
         {
             lock (_mutex)
             {
-                if (obj != null)
+                _adapters[adapterId] = endpoints;
+                if (replicaGroupId.Length > 0)
                 {
-                    _adapters[adapter] = obj;
-                }
-                else
-                {
-                    _adapters.Remove(adapter);
+                    _adapters[replicaGroupId] = endpoints;
                 }
             }
-            return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetReplicatedAdapterDirectProxyAsync(
-            string adapter,
-            string replica,
-            IObjectPrx? obj,
+        public void SetAdapterDirectProxy(
+            string adapterId,
+            IObjectPrx? proxy,
             Current current,
             CancellationToken cancel)
         {
-            lock (_mutex)
+            Debug.Assert(current.Protocol == Protocol.Ice1);
+
+            if (proxy == null)
             {
-                if (obj != null)
-                {
-                    _adapters[adapter] = obj;
-                    _adapters[replica] = obj;
-                }
-                else
-                {
-                    _adapters.Remove(adapter);
-                    _adapters.Remove(replica);
-                }
+                UnregisterAdapterEndpoints(adapterId, replicaGroupId: "", Protocol.Ice1, current, cancel);
             }
-            return new ValueTask(Task.CompletedTask);
+            else
+            {
+                RegisterAdapterEndpoints(adapterId, "", proxy, current, cancel);
+            }
         }
 
-        public ValueTask SetServerProcessProxyAsync(
+        public void SetReplicatedAdapterDirectProxy(
+            string adapterId,
+            string replicaGroupId,
+            IObjectPrx? proxy,
+            Current current,
+            CancellationToken cancel)
+        {
+            Debug.Assert(current.Protocol == Protocol.Ice1);
+
+            if (proxy == null)
+            {
+                UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice1, current, cancel);
+            }
+            else
+            {
+                RegisterAdapterEndpoints(adapterId, replicaGroupId, proxy, current, cancel);
+            }
+        }
+
+        public void SetServerProcessProxy(
             string id,
             IProcessPrx? proxy,
             Current current,
-            CancellationToken cancel) => default;
-
-        public void AddObject(IObjectPrx? obj, Current current, CancellationToken cancel)
+            CancellationToken cancel)
         {
-            TestHelper.Assert(obj != null);
+            // Ignored
+        }
+
+        public void UnregisterAdapterEndpoints(
+            string adapterId,
+            string replicaGroupId,
+            Protocol protocol,
+            Current current,
+            CancellationToken cancel)
+        {
+            lock (_mutex)
+            {
+                _adapters.Remove(adapterId);
+                if (replicaGroupId.Length > 0)
+                {
+                    _adapters.Remove(replicaGroupId);
+                }
+            }
+        }
+
+        public void AddObject(IObjectPrx obj, Current current, CancellationToken cancel)
+        {
             AddObject(obj);
         }
 
-        public void AddObject(IObjectPrx obj)
+        internal void AddObject(IObjectPrx obj)
         {
             lock (_mutex)
             {
@@ -76,27 +108,33 @@ namespace ZeroC.Ice.Test.Location
             }
         }
 
-        public IObjectPrx GetAdapter(string adapter)
+        internal IObjectPrx? GetAdapter(string adapter)
         {
             lock (_mutex)
             {
-                if (!_adapters.TryGetValue(adapter, out IObjectPrx? obj))
+                if (_adapters.TryGetValue(adapter, out IObjectPrx? obj))
                 {
-                    throw new AdapterNotFoundException();
+                    return obj;
                 }
-                return obj;
+                else
+                {
+                    return null;
+                }
             }
         }
 
-        public IObjectPrx GetObject(Identity id)
+        internal IObjectPrx? GetObject(Identity id)
         {
             lock (_mutex)
             {
-                if (!_objects.TryGetValue(id, out IObjectPrx? obj))
+                if (_objects.TryGetValue(id, out IObjectPrx? obj))
                 {
-                    throw new ObjectNotFoundException();
+                    return obj;
                 }
-                return obj;
+                else
+                {
+                    return null;
+                }
             }
         }
     }

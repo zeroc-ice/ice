@@ -281,5 +281,35 @@ namespace ZeroC.Ice
             }
             return sb;
         }
+
+        internal static StringBuilder AppendEndpointList(
+            this StringBuilder sb,
+            IReadOnlyList<Endpoint> endpoints)
+        {
+            Debug.Assert(endpoints.Count > 0);
+
+            if (endpoints[0].Protocol == Protocol.Ice1)
+            {
+                sb.Append(string.Join(":", endpoints));
+            }
+            else
+            {
+                sb.AppendEndpoint(endpoints[0]);
+                if (endpoints.Count > 1)
+                {
+                    Transport mainTransport = endpoints[0].Transport;
+                    sb.Append("?alt-endpoint=");
+                    for (int i = 1; i < endpoints.Count; ++i)
+                    {
+                        if (i > 1)
+                        {
+                            sb.Append(',');
+                        }
+                        sb.AppendEndpoint(endpoints[i], "", mainTransport != endpoints[i].Transport, '$');
+                    }
+                }
+            }
+            return sb;
+        }
     }
 }

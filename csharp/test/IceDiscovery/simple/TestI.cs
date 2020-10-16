@@ -20,7 +20,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             communicator.SetProperty($"{name}.AdapterId", adapterId);
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
-            communicator.SetProperty($"{name}.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1");
+            communicator.SetProperty($"{name}.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();

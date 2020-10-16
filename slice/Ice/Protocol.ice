@@ -1,6 +1,4 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #pragma once
 
@@ -13,8 +11,8 @@
 
 [[python:pkgdir:Ice]]
 
-[[java:package:com.zeroc]]
 [cs:namespace:ZeroC]
+[java:package:com.zeroc]
 module Ice
 {
     /// Represents a version of the Ice protocol.
