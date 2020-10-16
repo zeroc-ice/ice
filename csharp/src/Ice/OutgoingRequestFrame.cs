@@ -4,14 +4,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
     /// <summary>Represents an ice1 or ice2 request frame sent by the application.</summary>
-    public sealed class OutgoingRequestFrame : OutgoingFrame
+    public sealed class OutgoingRequestFrame : OutgoingFrame, IDisposable
     {
         /// <summary>The context of this request frame.</summary>
         public IReadOnlyDictionary<string, string> Context => _contextOverride ?? _initialContext;
+
+        /// <summary>A cancellation token that receives the cancellation requests. The cancellation token takes into
+        /// account the invocation timeout and the cancellation token provided by the application.</summary>
+        public CancellationToken CancellationToken { get; }
 
         /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
         /// the same as Context's entries.</summary>
@@ -49,15 +54,23 @@ namespace ZeroC.Ice
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
+
         private Dictionary<string, string>? _contextOverride;
-
         private readonly ArraySegment<byte> _defaultBinaryContext;
-
         private readonly IReadOnlyDictionary<string, string> _initialContext;
+        private readonly CancellationTokenSource? _invocationTimeoutCancellationSource;
+        private readonly CancellationTokenSource? _linkedCancellationSource;
 
         // When true, we always write Context in slot 0 of the binary context. This field is always false when
         // _defaultBinaryContext is empty.
         private readonly bool _writeSlot0;
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _invocationTimeoutCancellationSource?.Dispose();
+            _linkedCancellationSource?.Dispose();
+        }
 
         /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with a single non-struct
         /// parameter.</summary>
@@ -74,6 +87,7 @@ namespace ZeroC.Ice
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
@@ -83,9 +97,10 @@ namespace ZeroC.Ice
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
             T args,
-            OutputStreamWriter<T> writer)
+            OutputStreamWriter<T> writer,
+            CancellationToken cancel = default)
         {
-            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Data,
                                         request.PayloadStart,
@@ -116,6 +131,7 @@ namespace ZeroC.Ice
         /// <param name="args">The argument(s) to write into the frame.</param>
         /// <param name="writer">The <see cref="OutputStreamWriter{T}"/> that writes the arguments into the frame.
         /// </param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
@@ -125,9 +141,10 @@ namespace ZeroC.Ice
             FormatType format,
             IReadOnlyDictionary<string, string>? context,
             in T args,
-            OutputStreamValueWriter<T> writer) where T : struct
+            OutputStreamValueWriter<T> writer,
+            CancellationToken cancel = default) where T : struct
         {
-            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context);
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Data,
                                         request.PayloadStart,
@@ -149,16 +166,20 @@ namespace ZeroC.Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A new OutgoingRequestFrame.</returns>
         public static OutgoingRequestFrame WithEmptyArgs(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
-            IReadOnlyDictionary<string, string>? context = null) =>
+            IReadOnlyDictionary<string, string>? context = null,
+            CancellationToken cancel = default) =>
             new OutgoingRequestFrame(proxy,
                                      operation,
                                      idempotent,
                                      compress: false,
                                      context,
+                                     cancel,
                                      writeEmptyArgs: true);
 
         /// <summary>Constructs an outgoing request frame from the given incoming request frame.</summary>
@@ -168,8 +189,13 @@ namespace ZeroC.Ice
         /// <param name="forwardBinaryContext">When true (the default), the new frame uses the incoming request frame's
         /// binary context as a fallback - all the entries in this binary context are added before the frame is sent,
         /// except for entries previously added by invocation interceptors.</param>
-        public OutgoingRequestFrame(IObjectPrx proxy, IncomingRequestFrame request, bool forwardBinaryContext = true)
-            : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context)
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public OutgoingRequestFrame(
+            IObjectPrx proxy,
+            IncomingRequestFrame request,
+            bool forwardBinaryContext = true,
+            CancellationToken cancel = default)
+            : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context, cancel)
         {
             if (request.Protocol == Protocol)
             {
@@ -263,6 +289,7 @@ namespace ZeroC.Ice
             bool idempotent,
             bool compress,
             IReadOnlyDictionary<string, string>? context,
+            CancellationToken cancel,
             bool writeEmptyArgs = false)
             : base(proxy.Protocol,
                    compress,
@@ -276,6 +303,20 @@ namespace ZeroC.Ice
             Location = proxy.Location;
             Operation = operation;
             IsIdempotent = idempotent;
+
+            Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
+            if (proxy.InvocationTimeout != Timeout.InfiniteTimeSpan)
+            {
+                _invocationTimeoutCancellationSource = new CancellationTokenSource(proxy.InvocationTimeout);
+                if (cancel.CanBeCanceled)
+                {
+                    _linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                        _invocationTimeoutCancellationSource.Token,
+                        cancel);
+                }
+            }
+            CancellationToken =
+                _linkedCancellationSource?.Token ?? _invocationTimeoutCancellationSource?.Token ?? cancel;
 
             if (context != null)
             {

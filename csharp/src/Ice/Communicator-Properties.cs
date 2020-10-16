@@ -274,33 +274,9 @@ namespace ZeroC.Ice
                 {
                     pv.Used = true;
 
-                    if (pv.Val == "infinite")
-                    {
-                        return Timeout.InfiniteTimeSpan;
-                    }
-
-                    // Match an integer followed letters
-                    Match match = Regex.Match(pv.Val, @"^([0-9]+)([a-z]+)$");
-
-                    if (!match.Success)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"the value `{pv.Val}' of property `{name}' is not a TimeSpan");
-                    }
-
                     try
                     {
-                        int value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                        string unit = match.Groups[2].Value;
-                        return unit switch
-                        {
-                            "ms" => TimeSpan.FromMilliseconds(value),
-                            "s" => TimeSpan.FromSeconds(value),
-                            "m" => TimeSpan.FromMinutes(value),
-                            "h" => TimeSpan.FromHours(value),
-                            "d" => TimeSpan.FromDays(value),
-                            _ => throw new FormatException($"unknown time unit `{unit}'"),
-                        };
+                        return TimeSpanExtensions.Parse(pv.Val);
                     }
                     catch (Exception ex)
                     {

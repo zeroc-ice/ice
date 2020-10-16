@@ -30,6 +30,8 @@ namespace ZeroC.Ice
         // For ice1 proxies, all the enumerators are meaningful. For other proxies, only the Twoway and Oneway
         // enumerators are used.
         internal InvocationMode InvocationMode { get; }
+
+        internal TimeSpan InvocationTimeout { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed { get; }
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
@@ -84,6 +86,7 @@ namespace ZeroC.Ice
             string facet;
             Identity identity;
             InvocationMode invocationMode = InvocationMode.Twoway;
+            TimeSpan? invocationTimeout = null;
             IReadOnlyList<string> location;
             Protocol protocol;
 
@@ -126,6 +129,8 @@ namespace ZeroC.Ice
                 {
                     throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
                 }
+
+                invocationTimeout = proxyOptions.InvocationTimeout;
             }
             else
             {
@@ -178,6 +183,16 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"cannot parse property `{property}'", ex);
                 }
 
+                if (invocationTimeout == null)
+                {
+                    property = $"{propertyPrefix}.InvocationTimeout";
+                    invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
+                    if (invocationTimeout == TimeSpan.Zero)
+                    {
+                        throw new InvalidConfigurationException($"0 is not a valid value for property `{property}'");
+                    }
+                }
+
                 locatorInfo = communicator.GetLocatorInfo(
                     communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
 
@@ -206,6 +221,7 @@ namespace ZeroC.Ice
                                  facet: facet,
                                  identity: identity,
                                  invocationMode: invocationMode,
+                                 invocationTimeout: invocationTimeout ?? communicator.DefaultInvocationTimeout,
                                  location: location,
                                  locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
                                  locatorInfo:
@@ -305,6 +321,10 @@ namespace ZeroC.Ice
             {
                 return false;
             }
+            if (InvocationTimeout != other.InvocationTimeout)
+            {
+                return false;
+            }
             if (IsFixed != other.IsFixed)
             {
                 return false;
@@ -336,6 +356,7 @@ namespace ZeroC.Ice
                 hash.Add(Facet);
                 hash.Add(Identity);
                 hash.Add(InvocationMode);
+                hash.Add(InvocationTimeout);
                 hash.Add(Protocol);
 
                 if (IsFixed)
@@ -526,6 +547,10 @@ namespace ZeroC.Ice
                     sb.Append(Encoding);
                 }
 
+                StartQueryOption(sb, ref firstOption);
+                sb.Append("invocation-timeout=");
+                sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
+
                 if (Endpoints.Count > 1)
                 {
                     Transport mainTransport = Endpoints[0].Transport;
@@ -683,6 +708,7 @@ namespace ZeroC.Ice
                    facet: facet,
                    identity: identity,
                    invocationMode: invocationMode,
+                   invocationTimeout: communicator.DefaultInvocationTimeout,
                    location: location,
                    locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
@@ -701,7 +727,8 @@ namespace ZeroC.Ice
                    fixedConnection: fixedConnection,
                    identity: identity,
                    invocationMode: (fixedConnection.Endpoint?.IsDatagram ?? false) ?
-                       InvocationMode.Datagram : InvocationMode.Twoway)
+                       InvocationMode.Datagram : InvocationMode.Twoway,
+                   invocationTimeout: communicator.DefaultInvocationTimeout)
         {
         }
 
@@ -725,6 +752,7 @@ namespace ZeroC.Ice
             Identity? identity = null,
             string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null, // from app
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -754,6 +782,11 @@ namespace ZeroC.Ice
                         $"{nameof(invocationMode)} applies only to ice1 proxies",
                         nameof(invocationMode));
                 }
+            }
+
+            if (invocationTimeout != null && invocationTimeout.Value == TimeSpan.Zero)
+            {
+                throw new ArgumentException("0 is not a valid value for invocationTimeout", nameof(invocationTimeout));
             }
 
             if (identityAndFacet != null && facet != null)
@@ -836,7 +869,8 @@ namespace ZeroC.Ice
                                           facet ?? Facet,
                                           (fixedConnection ?? _connection)!,
                                           identity ?? Identity,
-                                          invocationMode ?? InvocationMode);
+                                          invocationMode ?? InvocationMode,
+                                          invocationTimeout ?? InvocationTimeout);
                 return clone == this ? this : clone;
             }
             else
@@ -929,6 +963,7 @@ namespace ZeroC.Ice
                                           facet ?? Facet,
                                           identity ?? Identity,
                                           invocationMode ?? InvocationMode,
+                                          invocationTimeout ?? InvocationTimeout,
                                           newLocation ?? Location,
                                           locatorCacheTimeout ?? LocatorCacheTimeout,
                                           locatorInfo, // no fallback otherwise breaks clearLocator
@@ -1150,11 +1185,17 @@ namespace ZeroC.Ice
             var properties = new Dictionary<string, string>
             {
                 [prefix] = ToString(),
-                [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
-                [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
-                [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
-                [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
+                [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "1" : "0",
+                [$"{prefix}.EndpointSelection"] = EndpointSelection.ToString(),
+                [$"{prefix}.LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
+                [$"{prefix}.PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
+
+            if (Protocol == Protocol.Ice1)
+            {
+                // For Ice2 the invocation timeout is included in the URI
+                properties[$"{prefix}.InvocationTimeout"] = InvocationTimeout.ToPropertyString();
+            }
 
             if (RouterInfo != null)
             {
@@ -1225,6 +1266,7 @@ namespace ZeroC.Ice
             string facet,
             Identity identity,
             InvocationMode invocationMode,
+            TimeSpan invocationTimeout,
             IReadOnlyList<string> location, // already a copy provided by Ice
             TimeSpan locatorCacheTimeout,
             LocatorInfo? locatorInfo,
@@ -1241,6 +1283,7 @@ namespace ZeroC.Ice
             Facet = facet;
             Identity = identity;
             InvocationMode = invocationMode;
+            InvocationTimeout = invocationTimeout;
             IsConnectionCached = cacheConnection;
             Location = location;
             LocatorCacheTimeout = locatorCacheTimeout;
@@ -1261,6 +1304,7 @@ namespace ZeroC.Ice
 
             Debug.Assert(location.Count == 0 || location[0].Length > 0); // first segment cannot be empty
             Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
+            Debug.Assert(invocationTimeout != TimeSpan.Zero);
         }
 
         // Constructor for fixed references.
@@ -1271,7 +1315,8 @@ namespace ZeroC.Ice
             string facet,
             Connection fixedConnection,
             Identity identity,
-            InvocationMode invocationMode)
+            InvocationMode invocationMode,
+            TimeSpan invocationTimeout)
         {
             Communicator = communicator;
             ConnectionId = "";
@@ -1282,6 +1327,7 @@ namespace ZeroC.Ice
             Facet = facet;
             Identity = identity;
             InvocationMode = invocationMode;
+            InvocationTimeout = invocationTimeout;
             IsConnectionCached = false;
             IsFixed = true;
             Location = ImmutableArray<string>.Empty;
@@ -1313,6 +1359,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
+            Debug.Assert(invocationTimeout != TimeSpan.Zero);
         }
     }
 }

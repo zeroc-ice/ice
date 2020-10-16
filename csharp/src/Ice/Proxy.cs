@@ -55,6 +55,7 @@ namespace ZeroC.Ice
         /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
+        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -79,6 +80,7 @@ namespace ZeroC.Ice
             Identity? identity = null,
             string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -98,6 +100,7 @@ namespace ZeroC.Ice
                                            identity,
                                            identityAndFacet,
                                            invocationMode,
+                                           invocationTimeout,
                                            location,
                                            locator,
                                            locatorCacheTimeout,
@@ -123,6 +126,7 @@ namespace ZeroC.Ice
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
+        /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -143,6 +147,7 @@ namespace ZeroC.Ice
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
+            TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -163,6 +168,7 @@ namespace ZeroC.Ice
                                                      identity: null,
                                                      identityAndFacet: null,
                                                      invocationMode,
+                                                     invocationTimeout,
                                                      location,
                                                      locator,
                                                      locatorCacheTimeout,
@@ -212,17 +218,15 @@ namespace ZeroC.Ice
         /// proxy can have different endpoints.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// twoway request.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            bool oneway = false,
-            CancellationToken cancel = default)
+            bool oneway = false)
         {
             try
             {
-                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true, cancel: cancel).Result;
+                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true).Result;
             }
             catch (AggregateException ex)
             {
@@ -239,15 +243,13 @@ namespace ZeroC.Ice
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
         /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
         public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
             bool oneway = false,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default) =>
-            InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress, cancel);
+            IProgress<bool>? progress = null) =>
+                InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
@@ -268,12 +270,12 @@ namespace ZeroC.Ice
             IProgress<bool>? progress = null,
             CancellationToken cancel = default)
         {
-            var forwardedRequest = new OutgoingRequestFrame(proxy, request);
+            var forwardedRequest = new OutgoingRequestFrame(proxy, request, cancel: cancel);
 
             IncomingResponseFrame response;
             try
             {
-                response = await proxy.InvokeAsync(forwardedRequest, oneway, progress, cancel).ConfigureAwait(false);
+                response = await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
             }
             catch (DispatchException ex)
             {
@@ -542,7 +544,7 @@ namespace ZeroC.Ice
                     {
                         reference.Communicator.DecRetryBufferSize(requestSize);
                     }
-                    // TODO release the request memory if not already done after sent
+                    // TODO release the request memory if not already done after sent.
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
@@ -554,10 +556,35 @@ namespace ZeroC.Ice
             OutgoingRequestFrame request,
             bool oneway,
             bool synchronous,
-            IProgress<bool>? progress = null,
-            CancellationToken cancel = default)
+            IProgress<bool>? progress = null)
         {
-            return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous, 0, progress, cancel);
+            try
+            {
+                return WaitForResponseAsync(InvokeWithInterceptorsAsync(proxy,
+                                                                        request,
+                                                                        oneway,
+                                                                        synchronous,
+                                                                        0,
+                                                                        progress,
+                                                                        request.CancellationToken));
+            }
+            catch
+            {
+                request.Dispose();
+                throw;
+            }
+
+            async Task<IncomingResponseFrame> WaitForResponseAsync(Task<IncomingResponseFrame> t)
+            {
+                try
+                {
+                    return await t.ConfigureAwait(false);
+                }
+                finally
+                {
+                    request.Dispose();
+                }
+            }
 
             static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,

@@ -175,8 +175,7 @@ namespace ZeroC.Ice.Test.Retry
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
-                    using var cancel = new CancellationTokenSource(500);
-                    retry1.OpIdempotent(4, cancel: cancel.Token);
+                    retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpIdempotent(4);
                     TestHelper.Assert(false);
                 }
                 catch (OperationCanceledException)
@@ -192,8 +191,7 @@ namespace ZeroC.Ice.Test.Retry
                 try
                 {
                     // No retries before timeout kicks-in
-                    using var cancel = new CancellationTokenSource(500);
-                    retry1.OpAfterDelay(2, 600, cancel: cancel.Token);
+                    retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpAfterDelay(2, 600);
                     TestHelper.Assert(false);
                 }
                 catch (OperationCanceledException)
@@ -205,8 +203,7 @@ namespace ZeroC.Ice.Test.Retry
                 {
                     Instrumentation.TestInvocationReset();
                     // No retries before timeout kicks-in
-                    using var cancel = new CancellationTokenSource(500);
-                    int n = retry1.OpAfterDelay(4, 50, cancel: cancel.Token);
+                    int n = retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpAfterDelay(4, 50);
                     Instrumentation.TestRetryCount(4);
                     retry1.OpAfterDelay(-1, 0);
                     TestHelper.Assert(n == 4);
@@ -216,10 +213,9 @@ namespace ZeroC.Ice.Test.Retry
                     // No more than 5 invocation attempts with the default settings
                     Instrumentation.TestInvocationReset();
                     // No retries before timeout kicks-in
-                    using var cancel = new CancellationTokenSource(500);
                     try
                     {
-                        retry1.OpAfterDelay(5, 50, cancel: cancel.Token);
+                        retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpAfterDelay(5, 50);
                         TestHelper.Assert(false);
                     }
                     catch (SystemFailure)
