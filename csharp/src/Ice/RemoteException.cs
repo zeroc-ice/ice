@@ -160,8 +160,8 @@ namespace ZeroC.Ice
                 if (Origin is RemoteExceptionOrigin origin)
                 {
                     return $@"could not find servant for Ice object `{origin.Identity}'" +
-                    (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
-                    $" while attempting to dispatch operation `{origin.Operation}'";
+                        (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
+                        $" while attempting to dispatch operation `{origin.Operation}'";
                 }
                 else
                 {
