@@ -135,13 +135,11 @@ namespace ZeroC.IceDiscovery
 
         // This is a wrapper for the call to FindAdapterByIdAsync on the lookup proxy. The caller (LocatorInfo) ensures
         // there is no concurrent resolution for the same location.
-        internal async ValueTask<IObjectPrx?> FindAdapterByIdAsync(string[] location, Protocol protocol)
+        internal async ValueTask<IObjectPrx?> FindAdapterByIdAsync(
+            string adapterId,
+            Protocol protocol,
+            CancellationToken cancel)
         {
-            if (location.Length == 0)
-            {
-                return null;
-            }
-
             var replyServant = new LookupReply(protocol);
             IObjectPrx? proxy = await InvokeAsync(
                 async (lookup, lookupReply) =>
@@ -149,31 +147,28 @@ namespace ZeroC.IceDiscovery
                     try
                     {
                         await lookup.FindAdapterByIdAsync(_domainId,
-                                                          location[0],
+                                                          adapterId,
                                                           lookupReply,
-                                                          protocol).ConfigureAwait(false);
+                                                          protocol,
+                                                          cancel: cancel).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
                         // TODO: is InvalidOperationException really appropriate here?
                         throw new InvalidOperationException(
-                            $"failed to lookup adapter `{location[0]}' with lookup proxy `{_lookup}'", ex);
+                            $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}'", ex);
                     }
                 },
                 replyServant).ConfigureAwait(false);
-
-            if (proxy != null && location.Length > 1)
-            {
-                // We just consume the first segment of the location. The proxy returned by FindAdapterById has no
-                // location.
-                proxy = proxy.Clone(location: location[1..]);
-            }
             return proxy;
         }
 
         // This is a wrapper for FindObjectByIdAsync on the lookup proxy. The caller (LocatorInfo) ensures there is no
         // concurrent resolution for the same identity.
-        internal async ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity identity, Protocol protocol)
+        internal async ValueTask<IObjectPrx?> FindObjectByIdAsync(
+            Identity identity,
+            Protocol protocol,
+            CancellationToken cancel)
         {
             var replyServant = new LookupReply(protocol);
             return await InvokeAsync(
@@ -184,7 +179,8 @@ namespace ZeroC.IceDiscovery
                         await lookup.FindObjectByIdAsync(_domainId,
                                                          identity,
                                                          lookupReply,
-                                                         protocol).ConfigureAwait(false);
+                                                         protocol,
+                                                         cancel: cancel).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
