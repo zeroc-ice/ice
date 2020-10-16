@@ -130,11 +130,11 @@ namespace ZeroC.IceLocatorDiscovery
                     }
                     catch (NoEndpointException)
                     {
-                        throw new ObjectNotExistException(current);
+                        throw new ObjectNotExistException();
                     }
                     catch (ObjectDisposedException)
                     {
-                        throw new ObjectNotExistException(current);
+                        throw new ObjectNotExistException();
                     }
                     catch (Exception ex)
                     {

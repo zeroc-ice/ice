@@ -532,7 +532,7 @@ namespace ZeroC.Ice
                 {
                     if (stream.IsBidirectional)
                     {
-                        var exception = new ObjectNotExistException(request.Identity, request.Facet, request.Operation);
+                        var exception = new ObjectNotExistException();
                         response = new OutgoingResponseFrame(request, exception);
                         await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
                     }

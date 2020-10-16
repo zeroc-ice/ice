@@ -219,8 +219,8 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
-        private readonly ConcurrentDictionary<string, Func<string?, RemoteException>?> _remoteExceptionFactoryCache =
-            new ConcurrentDictionary<string, Func<string?, RemoteException>?>();
+        private readonly ConcurrentDictionary<
+            string, Func<string?, RemoteExceptionOrigin?, RemoteException>?> _remoteExceptionFactoryCache = new ();
         private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
@@ -1176,22 +1176,23 @@ namespace ZeroC.Ice
                return null;
            });
 
-        internal Func<string?, RemoteException>? FindRemoteExceptionFactory(string typeId) =>
+        internal Func<string?, RemoteExceptionOrigin?, RemoteException>? FindRemoteExceptionFactory(string typeId) =>
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
                 Type? factoryClass = FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
                 if (factoryClass != null)
                 {
-                    MethodInfo? method = factoryClass.GetMethod("Create",
-                                                                BindingFlags.Public | BindingFlags.Static,
-                                                                null,
-                                                                CallingConventions.Any,
-                                                                new Type[] { typeof(string) },
-                                                                null);
+                    MethodInfo? method = factoryClass.GetMethod(
+                        "Create",
+                        BindingFlags.Public | BindingFlags.Static,
+                        null,
+                        CallingConventions.Any,
+                        new Type[] { typeof(string), typeof(RemoteExceptionOrigin) },
+                        null);
                     Debug.Assert(method != null);
-                    return (Func<string?, RemoteException>)Delegate.CreateDelegate(typeof(Func<string?, RemoteException>),
-                                                                                   method);
+                    return (Func<string?, RemoteExceptionOrigin?, RemoteException>)Delegate.CreateDelegate(
+                        typeof(Func<string?, RemoteExceptionOrigin?, RemoteException>), method);
                 }
                 return null;
             });

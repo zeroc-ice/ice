@@ -899,9 +899,6 @@ namespace ZeroC.Ice
                 if (servant == null)
                 {
                     throw new ObjectNotExistException(
-                        current.Identity,
-                        current.Facet,
-                        current.Operation,
                         _replicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
                 }
 
@@ -940,7 +937,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
+                        actualEx = new UnhandledException(ex);
                         dispatchObserver?.Failed(actualEx.InnerException!.GetType().FullName ?? "System.Exception");
                         if (Communicator.WarnDispatch)
                         {

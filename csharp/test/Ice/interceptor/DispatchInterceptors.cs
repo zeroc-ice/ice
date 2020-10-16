@@ -36,7 +36,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
                     else if (context == "notExist")
                     {
-                        throw new ObjectNotExistException(current);
+                        throw new ObjectNotExistException();
                     }
                 }
 
@@ -50,7 +50,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
                     else if (context == "notExist")
                     {
-                        throw new ObjectNotExistException(current);
+                        throw new ObjectNotExistException();
                     }
                 }
 
