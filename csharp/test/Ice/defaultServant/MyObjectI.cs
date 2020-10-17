@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.DefaultServant
 
             if (name == "ObjectNotExist")
             {
-                throw new ObjectNotExistException(current);
+                throw new ObjectNotExistException();
             }
         }
 
@@ -22,7 +22,7 @@ namespace ZeroC.Ice.Test.DefaultServant
 
             if (name == "ObjectNotExist")
             {
-                throw new ObjectNotExistException(current);
+                throw new ObjectNotExistException();
             }
             return name;
         }

@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Interceptor
         public ValueTask<int> BadAddAsync(int x, int y, Current current, CancellationToken cancel) =>
             throw new InvalidInputException("badAdd");
         public ValueTask<int> NotExistAddAsync(int x, int y, Current current, CancellationToken cancel) =>
-            throw new ObjectNotExistException(current);
+            throw new ObjectNotExistException();
         public ValueTask Op1Async(Current current, CancellationToken cancel) => new ValueTask();
         public ValueTask OpWithBinaryContextAsync(Token token, Current current, CancellationToken cancel) => default;
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
