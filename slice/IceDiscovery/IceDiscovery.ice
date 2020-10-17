@@ -11,6 +11,7 @@
 [[python:pkgdir:IceDiscovery]]
 
 #include <Ice/Identity.ice>
+#include <Ice/Protocol.ice>
 
 /// The IceDiscovery plug-in implements the {@see Ice::Locator} interface to locate (or discover) objects and object
 /// adapters using UDP multicast. It also implements the {@see Ice::LocatorDiscovery} interface to allow servers to
@@ -39,20 +40,37 @@ module IceDiscovery
     /// requests from clients.
     interface Lookup
     {
-        /// Finds an object hosted by the target object's server.
-        /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
-        /// domain ID that matches the server's configured domain ID.
-        /// @param id The object identity.
-        /// @param reply A proxy to the client's LookupReply object. The server calls foundObjectById on this object
-        /// when it hosts an object with identity `id`, provided the domain IDs match.
-        idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply reply);
-
+#ifdef __SLICE2CS__
         /// Finds an object adapter hosted by the target object's server.
         /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
         /// domain ID that matches the server's configured domain ID.
         /// @param id The adapter ID.
-        /// @param reply A proxy to the client's LookupReply object. The server calls foundAdapterById on this object
-        /// when it hosts an object adapter with adapter ID `id`, provided the domain IDs match.
+        /// @param reply A proxy to the caller's LookupReply object. The server calls foundAdapterById on this object
+        /// when it hosts an object adapter that has the requested adapter ID (or replica group ID) and this object
+        /// adapter uses the specified protocol.
+        /// @param protocol The protocol of the object adapter (optional). Not set is equivalent to Protocol::Ice1.
+        idempotent void findAdapterById(
+            string domainId,
+            string id,
+            LookupReply reply,
+            tag(1) Ice::Protocol? protocol);
+
+        /// Finds an object hosted by the target object's server.
+        /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
+        /// domain ID that matches the server's configured domain ID.
+        /// @param id The object identity.
+        /// @param reply A proxy to the caller's LookupReply object. The server calls foundObjectById on this object
+        /// when it hosts an object with the requested identity in an object adapter that uses the specified protocol.
+        /// @param protocol The protocol of the object adapter hosting the desired object (optional). Not set is
+        /// equivalent to Protocol::Ice1.
+        idempotent void findObjectById(
+            string domainId,
+            Ice::Identity id,
+            LookupReply reply,
+            tag(1) Ice::Protocol? protocol);
+#else
         idempotent void findAdapterById(string domainId, string id, LookupReply reply);
+        idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply reply);
+#endif
     }
 }
