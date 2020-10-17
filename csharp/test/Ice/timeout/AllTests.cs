@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Threading;
 using System.Collections.Generic;
 using Test;
 
@@ -31,6 +30,7 @@ namespace ZeroC.Ice.Test.Timeout
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
+            bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
 
             var timeout = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), communicator);
 
@@ -186,6 +186,36 @@ namespace ZeroC.Ice.Test.Timeout
             }
             output.WriteLine("ok");
 
+            if (!ice1)
+            {
+                output.Write("testing deadlines... ");
+                output.Flush();
+                {
+                    var comm1 = new Communicator(
+                        communicator.GetProperties(),
+                        invocationInterceptors: new InvocationInterceptor[]
+                        {
+                            (target, request, next, cancel) =>
+                            {
+                                request.AddBinaryContextEntry(10, request.Deadline, (ostr, value) =>
+                                {
+                                    var deadline = (value - DateTime.UnixEpoch).TotalMilliseconds;
+                                    ostr.WriteVarLong((long)deadline);
+                                });
+                                return next(target, request, cancel);
+                            }
+                        });
+
+                    for (int i = 1000; i < 5000;)
+                    {
+                        i += 33;
+                        ITimeoutPrx to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm1).Clone(
+                            invocationTimeout: TimeSpan.FromMilliseconds(i));
+                        TestHelper.Assert(to.CheckDeadline());
+                    }
+                }
+                output.WriteLine("ok");
+            }
             controller.Shutdown();
         }
     }

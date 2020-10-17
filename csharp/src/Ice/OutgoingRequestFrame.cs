@@ -37,6 +37,14 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
+        /// caller is no longer interested in the response and discards the request. The server-side runtime does not
+        /// enforce this deadline - it's provided "for information" to the application. The Ice client runtime sets
+        /// this deadline automatically using the proxy's invocation timeout and sends it with ice2 requests but not
+        /// with ice1 requests. As a result, the deadline for an ice1 request is always <see cref="DateTime.MaxValue"/>
+        /// on the server-side even though the invocation timeout is usually not infinite.</summary>
+        public DateTime Deadline { get; }
+
         /// <summary>The encoding of the request payload.</summary>
         public override Encoding Encoding { get; }
 
@@ -305,6 +313,9 @@ namespace ZeroC.Ice
             IsIdempotent = idempotent;
 
             Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
+            Deadline = Protocol == Protocol.Ice1 || proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
+                DateTime.MaxValue : DateTime.UtcNow + proxy.InvocationTimeout;
+
             if (proxy.InvocationTimeout != Timeout.InfiniteTimeSpan)
             {
                 _invocationTimeoutCancellationSource = new CancellationTokenSource(proxy.InvocationTimeout);
@@ -355,7 +366,12 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
-                ostr.WriteIce2RequestHeaderBody(Identity, Facet, Location, Operation, IsIdempotent);
+                ostr.WriteIce2RequestHeaderBody(Identity,
+                                                Facet,
+                                                Location,
+                                                Operation,
+                                                IsIdempotent,
+                                                Deadline);
             }
             PayloadStart = ostr.Tail;
 

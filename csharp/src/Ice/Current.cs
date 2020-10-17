@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -20,6 +21,14 @@ namespace ZeroC.Ice
 
         /// <summary>The request context, as received from the client.</summary>
         public Dictionary<string, string> Context => IncomingRequestFrame.Context;
+
+        /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
+        /// caller is no longer interested in the response and discards the request. The server-side runtime does not
+        /// enforce this deadline - it's provided "for information" to the application. The Ice client runtime sets
+        /// this deadline automatically using the proxy's invocation timeout and sends it with ice2 requests but not
+        /// with ice1 requests. As a result, the deadline for an ice1 request is always <see cref="DateTime.MaxValue"/>
+        /// on the server-side even though the invocation timeout is usually not infinite.</summary>
+        public DateTime Deadline => IncomingRequestFrame.Deadline;
 
         /// <summary>The encoding used by the request.</summary>
         public Encoding Encoding => IncomingRequestFrame.Encoding;

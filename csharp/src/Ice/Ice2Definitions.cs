@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -29,7 +30,8 @@ namespace ZeroC.Ice
             string facet,
             IReadOnlyList<string> location,
             string operation,
-            bool idempotent)
+            bool idempotent,
+            DateTime deadline)
         {
             Debug.Assert(ostr.Encoding == Encoding);
             BitSequence bitSequence = ostr.WriteBitSequence(4); // bit set to true (set) by default
@@ -65,6 +67,10 @@ namespace ZeroC.Ice
             }
 
             bitSequence[3] = false; // TODO: source for priority.
+
+            // DateTime.MaxValue represents an infinite deadline and it is encoded as -1
+            ostr.WriteVarLong(
+                deadline == DateTime.MaxValue ? -1 : (long)(deadline - DateTime.UnixEpoch).TotalMilliseconds);
         }
     }
 }

@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Test;
+using System;
 
 namespace ZeroC.Ice.Test.Timeout
 {
@@ -30,7 +31,17 @@ namespace ZeroC.Ice.Test.Timeout
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter",
                                                                       taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter.Add("timeout", new Timeout());
-            adapter.Activate();
+            adapter.Activate((request, current, next, cancel) =>
+                {
+                    if (current.Operation == "checkDeadline")
+                    {
+                        if (request.BinaryContext.TryGetValue(10, out ReadOnlyMemory<byte> value))
+                        {
+                            current.Context["deadline"] = value.Read(istr => istr.ReadVarLong()).ToString();
+                        }
+                    }
+                    return next(request, current, cancel);
+                });
 
             ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
