@@ -67,9 +67,10 @@ namespace ZeroC.Ice
         internal static new WSEndpoint CreateIce1Endpoint(Transport transport, InputStream istr)
         {
             Debug.Assert(transport == Transport.WS || transport == Transport.WSS);
-            (string host, ushort port) = ReadHostPort(istr);
 
-            TimeSpan timeout = TimeSpan.FromMilliseconds(istr.ReadInt());
+            string host = istr.ReadString();
+            ushort port = ReadPort(istr);
+            var timeout = TimeSpan.FromMilliseconds(istr.ReadInt());
             bool compress = istr.ReadBool();
             string resource = istr.ReadString();
 
@@ -213,6 +214,7 @@ namespace ZeroC.Ice
             : base(endpoint, host, port)
         {
         }
+
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
 

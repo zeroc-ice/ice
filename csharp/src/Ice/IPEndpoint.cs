@@ -82,7 +82,7 @@ namespace ZeroC.Ice
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice1); // With ice2, we use Data directly.
+            Debug.Assert(Protocol == Protocol.Ice1);
             ostr.WriteString(Host);
             ostr.WriteInt(Port);
         }
@@ -293,65 +293,28 @@ namespace ZeroC.Ice
             return (host, port);
         }
 
-        // Read host and port for ice1 endpoint.
-        private protected static (string Host, ushort Port) ReadHostPort(InputStream istr)
+        // Read port for an ice1 endpoint.
+        private protected static ushort ReadPort(InputStream istr)
         {
-            string host = istr.ReadString();
-
-            if (host.Length == 0)
-            {
-                throw new InvalidDataException("endpoint host is empty");
-            }
-
             ushort port;
             checked
             {
                 port = (ushort)istr.ReadInt();
             }
-            return (host, port);
+            return port;
         }
 
-        // Constructor for URI parsing.
-        private protected IPEndpoint(
-            EndpointData data,
-            Dictionary<string, string> options,
-            Communicator communicator,
-            bool oaEndpoint)
-            : base(data, communicator, Protocol.Ice2)
-        {
-            if (!oaEndpoint && IPAddress.TryParse(data.Host, out IPAddress? address) &&
-                (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any)))
-            {
-                throw new ArgumentException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint", nameof(data));
-            }
-
-            if (oaEndpoint)
-            {
-                if (options.TryGetValue("ipv6-only", out string? value))
-                {
-                    IsIPv6Only = bool.Parse(value);
-                    options.Remove("ipv6-only");
-                }
-            }
-            else // parsing a URI that represents a proxy
-            {
-                if (options.TryGetValue("source-address", out string? value))
-                {
-                    // IPAddress.Parse apparently accepts IPv6 addresses in square brackets
-                    SourceAddress = IPAddress.Parse(value);
-                    options.Remove("source-address");
-                }
-                else
-                {
-                    SourceAddress = Communicator.DefaultSourceAddress;
-                }
-            }
-        }
-
-        // Constructor for unmarshaling.
+        // Constructor for ice1/ice2 unmarshaling.
         private protected IPEndpoint(EndpointData data, Communicator communicator, Protocol protocol)
             : base(data, communicator, protocol)
-            => SourceAddress = communicator.DefaultSourceAddress;
+        {
+            if (data.Host.Length == 0)
+            {
+                throw new InvalidDataException("endpoint host is empty");
+            }
+
+            SourceAddress = communicator.DefaultSourceAddress;
+        }
 
         // Constructor for ice1 endpoint parsing.
         private protected IPEndpoint(
@@ -406,6 +369,43 @@ namespace ZeroC.Ice
                 options.Remove("--ipv6Only");
             }
             // else IsIPv6Only remains false (default initialized)
+        }
+
+        // Constructor for ice2 parsing.
+        private protected IPEndpoint(
+            EndpointData data,
+            Dictionary<string, string> options,
+            Communicator communicator,
+            bool oaEndpoint)
+            : base(data, communicator, Protocol.Ice2)
+        {
+            if (!oaEndpoint && IPAddress.TryParse(data.Host, out IPAddress? address) &&
+                (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any)))
+            {
+                throw new ArgumentException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint", nameof(data));
+            }
+
+            if (oaEndpoint)
+            {
+                if (options.TryGetValue("ipv6-only", out string? value))
+                {
+                    IsIPv6Only = bool.Parse(value);
+                    options.Remove("ipv6-only");
+                }
+            }
+            else // parsing a URI that represents a proxy
+            {
+                if (options.TryGetValue("source-address", out string? value))
+                {
+                    // IPAddress.Parse apparently accepts IPv6 addresses in square brackets
+                    SourceAddress = IPAddress.Parse(value);
+                    options.Remove("source-address");
+                }
+                else
+                {
+                    SourceAddress = Communicator.DefaultSourceAddress;
+                }
+            }
         }
 
         // Constructor for Clone

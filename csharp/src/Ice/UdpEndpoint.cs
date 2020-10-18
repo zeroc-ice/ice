@@ -138,8 +138,10 @@ namespace ZeroC.Ice
         internal static UdpEndpoint CreateIce1Endpoint(Transport transport, InputStream istr)
         {
             Debug.Assert(transport == Transport.UDP);
-            (string host, ushort port) = ReadHostPort(istr);
-            return new UdpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
+            return new UdpEndpoint(new EndpointData(transport,
+                                                    host: istr.ReadString(),
+                                                    port: ReadPort(istr),
+                                                    Array.Empty<string>()),
                                    compress: istr.ReadBool(),
                                    istr.Communicator!);
         }

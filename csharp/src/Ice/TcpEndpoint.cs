@@ -114,14 +114,15 @@ namespace ZeroC.Ice
         internal static TcpEndpoint CreateIce1Endpoint(Transport transport, InputStream istr)
         {
             Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
-            (string host, ushort port) = ReadHostPort(istr);
 
-            TimeSpan timeout = TimeSpan.FromMilliseconds(istr.ReadInt());
-            bool compress = istr.ReadBool();
-
-            return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
-                                   timeout,
-                                   compress,
+            // This is correct in C# since arguments are evaluated left-to-right. This would not be correct in C++ where
+            // the order of evaluation of function arguments is undefined.
+            return new TcpEndpoint(new EndpointData(transport,
+                                                    host: istr.ReadString(),
+                                                    port: ReadPort(istr),
+                                                    Array.Empty<string>()),
+                                   timeout: TimeSpan.FromMilliseconds(istr.ReadInt()),
+                                   compress: istr.ReadBool(),
                                    istr.Communicator!);
         }
 
@@ -133,6 +134,7 @@ namespace ZeroC.Ice
             return new TcpEndpoint(new EndpointData(data.Transport, data.Host, data.Port, Array.Empty<string>()),
                                    communicator);
         }
+
         internal static TcpEndpoint ParseIce1Endpoint(
             Transport transport,
             Dictionary<string, string?> options,
@@ -166,6 +168,7 @@ namespace ZeroC.Ice
                                    communicator,
                                    oaEndpoint);
         }
+
         internal virtual Connection CreateConnection(
             IConnectionManager manager,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,

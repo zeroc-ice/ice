@@ -19,9 +19,12 @@ namespace ZeroC.Ice
     {
         /// <summary>Gets the communicator that created this endpoint.</summary>
         public Communicator Communicator { get; }
+
         /// <summary>Gets the external "over the wire" representation of this endpoint. With ice2 (and up) this is the
         /// actual data structure sent and received over the wire for this endpoint. With ice1, it is a subset of this
         /// external representation.</summary>
+        /// <remarks>The Options field of EndpointData is a writable array but should be treated as if it was read-only.
+        /// Do not update the contents of this array.</remarks>
         public EndpointData Data { get; }
 
         /// <summary>The host name or address.</summary>
@@ -189,8 +192,7 @@ namespace ZeroC.Ice
         /// ice1 endpoints.</param>
         protected internal abstract void AppendOptions(StringBuilder sb, char optionSeparator);
 
-        /// <summary>Writes the options of this endpoint to the output stream. With ice1, the options typically
-        /// include the host and port; with ice2, the host and port are not considered options.</summary>
+        /// <summary>Writes the options of this endpoint to the output stream. ice1-only.</summary>
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
 
