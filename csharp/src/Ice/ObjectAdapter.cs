@@ -1194,7 +1194,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                if (Communicator.TraceLevels.Location >= 1)
+                if (Communicator.TraceLevels.Locator >= 1)
                 {
                     if (_replicaGroupId.Length == 0)
                     {
@@ -1211,7 +1211,7 @@ namespace ZeroC.Ice
                 throw;
             }
 
-            if (Communicator.TraceLevels.Location >= 1)
+            if (Communicator.TraceLevels.Locator >= 1)
             {
                 var sb = new StringBuilder();
                 sb.Append($"updated object adapter `{_id}' endpoints with the locator registry\n");

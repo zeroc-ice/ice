@@ -58,7 +58,7 @@ namespace ZeroC.Ice
                         // We don't cache bogus well-known resolved references.
                         Debug.Assert(!resolvedWellKnownProxy.IsWellKnown);
 
-                        if (reference.Communicator.TraceLevels.Location >= 2)
+                        if (reference.Communicator.TraceLevels.Locator >= 2)
                         {
                             TraceWellKnown("removed well-known proxy without endpoints from locator cache",
                                            reference,
@@ -68,7 +68,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        if (reference.Communicator.TraceLevels.Location >= 2)
+                        if (reference.Communicator.TraceLevels.Locator >= 2)
                         {
                             TraceDirect("removed well-known proxy with endpoints from locator cache",
                                         reference,
@@ -80,7 +80,7 @@ namespace ZeroC.Ice
             else
             {
                 if (RemoveLocation(reference) is Reference resolvedLocation &&
-                    reference.Communicator.TraceLevels.Location >= 2)
+                    reference.Communicator.TraceLevels.Locator >= 2)
                 {
                     TraceDirect("removed endpoints for location from locator cache", reference, resolvedLocation);
                 }
@@ -179,7 +179,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (reference.Communicator.TraceLevels.Location >= 1)
+            if (reference.Communicator.TraceLevels.Locator >= 1)
             {
                 if (directReference != null)
                 {
@@ -298,7 +298,7 @@ namespace ZeroC.Ice
 
         private async Task<Reference?> ResolveLocationAsync(Reference reference, CancellationToken cancel)
         {
-            if (reference.Communicator.TraceLevels.Location > 0)
+            if (reference.Communicator.TraceLevels.Locator > 0)
             {
                 reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
                     $"searching for adapter by id\nadapter = {reference.AdapterId}");
@@ -371,7 +371,7 @@ namespace ZeroC.Ice
                         if (resolved.IsIndirect ||
                             resolved.Protocol != reference.Protocol)
                         {
-                            if (reference.Communicator.TraceLevels.Location >= 1)
+                            if (reference.Communicator.TraceLevels.Locator >= 1)
                             {
                                 TraceInvalid(reference, resolved);
                             }
@@ -387,7 +387,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception exception)
                 {
-                    if (reference.Communicator.TraceLevels.Location > 0)
+                    if (reference.Communicator.TraceLevels.Locator > 0)
                     {
                         reference.Communicator.Logger.Trace(
                             reference.Communicator.TraceLevels.LocatorCategory,
@@ -427,7 +427,7 @@ namespace ZeroC.Ice
 
         private async Task<Reference?> ResolveWellKnownProxyAsync(Reference reference, CancellationToken cancel)
         {
-            if (reference.Communicator.TraceLevels.Location > 0)
+            if (reference.Communicator.TraceLevels.Locator > 0)
             {
                 reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
                     $"searching for well-known object\nwell-known proxy = {reference}");
@@ -497,7 +497,7 @@ namespace ZeroC.Ice
                         Reference resolved = proxy.IceReference;
                         if (resolved.IsWellKnown || resolved.Protocol != reference.Protocol)
                         {
-                            if (reference.Communicator.TraceLevels.Location >= 1)
+                            if (reference.Communicator.TraceLevels.Locator >= 1)
                             {
                                 TraceInvalid(reference, resolved);
                             }
@@ -512,7 +512,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception exception)
                 {
-                    if (reference.Communicator.TraceLevels.Location > 0)
+                    if (reference.Communicator.TraceLevels.Locator > 0)
                     {
                         reference.Communicator.Logger.Trace(
                             reference.Communicator.TraceLevels.LocatorCategory,
