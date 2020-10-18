@@ -1054,33 +1054,27 @@ namespace ZeroC.Ice
         internal Endpoint ReadEndpoint(Protocol protocol)
         {
             Debug.Assert(Communicator != null);
-
-            var transport = (Transport)ReadShort();
-            // We only look up the factory for the transport if the protocol is supported.
-            IEndpointFactory? factory = protocol.IsSupported() ? Communicator.IceFindEndpointFactory(transport) : null;
-
             Endpoint endpoint;
 
             if (protocol == Protocol.Ice1 || OldEncoding)
             {
+                Transport transport = this.ReadTransport();
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
-                if (!encoding.IsSupported)
-                {
-                    // If we can't read the encapsulation (very unlikely), it's like we didn't find a factory.
-                    factory = null;
-                }
+
+                Ice1EndpointFactory? ice1Factory = protocol == Protocol.Ice1 && encoding.IsSupported ?
+                    Communicator.FindIce1EndpointFactory(transport) : null;
 
                 // Remove the two bytes of the encoding included in size. Endpoint encapsulations don't include a
                 // compression byte.
                 size -= 2;
 
                 // We need to read the encapsulation except for ice1 + null factory.
-                if (protocol == Protocol.Ice1 && factory == null)
+                if (protocol == Protocol.Ice1 && ice1Factory == null)
                 {
-                    endpoint = new OpaqueEndpoint(Communicator,
-                                                  transport,
-                                                  encoding,
-                                                  _buffer.Slice(Pos, size).ToArray());
+                    endpoint = OpaqueEndpoint.Create(transport,
+                                                     encoding,
+                                                     _buffer.Slice(Pos, size),
+                                                     Communicator);
                     Pos += size;
                 }
                 else if (encoding.IsSupported)
@@ -1093,10 +1087,20 @@ namespace ZeroC.Ice
                     InputStream istr = encoding == Encoding ?
                         this : new InputStream(_buffer.Slice(Pos, size), encoding, Communicator);
 
-                    // When factory is null, protocol is necessarily > ice1 (see first if block), and as a result we
-                    // never create a UniversalEndpoint for ice1.
-                    endpoint =
-                        factory?.Read(istr, transport, protocol) ?? new UniversalEndpoint(istr, transport, protocol);
+                    if (protocol == Protocol.Ice1)
+                    {
+                        Debug.Assert(ice1Factory != null); // see if block above with OpaqueEndpoint creation
+                        endpoint = ice1Factory(transport, istr);
+                    }
+                    else
+                    {
+                        var data = new EndpointData(transport,
+                                                    host: istr.ReadString(),
+                                                    port: istr.ReadUShort(),
+                                                    options: istr.ReadArray(1, InputStream.IceReaderIntoString));
+
+                        endpoint = Endpoint.FromEndpointData(data, Communicator, protocol);
+                    }
 
                     if (ReferenceEquals(istr, this))
                     {
@@ -1123,8 +1127,9 @@ namespace ZeroC.Ice
             }
             else
             {
-                endpoint = factory?.Read(this, transport, protocol) ?? new UniversalEndpoint(this, transport, protocol);
+                endpoint = Endpoint.FromEndpointData(new EndpointData(this), Communicator, protocol);
             }
+
             return endpoint;
         }
 

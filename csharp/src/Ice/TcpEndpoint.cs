@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -14,7 +15,6 @@ namespace ZeroC.Ice
     {
         public override bool IsDatagram => false;
         public override bool IsSecure => Transport == Transport.SSL;
-        public override Transport Transport { get; }
 
         public override string? this[string option] =>
             option switch
@@ -105,59 +105,79 @@ namespace ZeroC.Ice
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-            if (Protocol == Protocol.Ice1)
-            {
-                base.WriteOptions(ostr);
-                ostr.WriteInt((int)Timeout.TotalMilliseconds);
-                ostr.WriteBool(HasCompressionFlag);
-            }
-            else
-            {
-                ostr.WriteSize(0); // empty sequence of options
-            }
+            Debug.Assert(Protocol == Protocol.Ice1);
+            base.WriteOptions(ostr);
+            ostr.WriteInt((int)Timeout.TotalMilliseconds);
+            ostr.WriteBool(HasCompressionFlag);
         }
 
-        // Constructor for unmarshaling
-        internal TcpEndpoint(
-            InputStream istr,
-            Transport transport,
-            Protocol protocol,
-            bool mostDerived = true)
-            : base(istr, protocol)
+        internal static TcpEndpoint CreateIce1Endpoint(Transport transport, InputStream istr)
         {
-            Transport = transport;
-            if (protocol == Protocol.Ice1)
-            {
-                Timeout = TimeSpan.FromMilliseconds(istr.ReadInt());
-                HasCompressionFlag = istr.ReadBool();
-            }
-            else if (mostDerived)
-            {
-                SkipUnknownOptions(istr, istr.ReadSize());
-            }
+            Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
+            (string host, ushort port) = ReadHostPort(istr);
+
+            TimeSpan timeout = TimeSpan.FromMilliseconds(istr.ReadInt());
+            bool compress = istr.ReadBool();
+
+            return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
+                                   timeout,
+                                   compress,
+                                   istr.Communicator!);
         }
 
-        // Constructor for URI parsing.
-        internal TcpEndpoint(
-            Communicator communicator,
+        internal static TcpEndpoint CreateIce2Endpoint(EndpointData data, Communicator communicator)
+        {
+            Debug.Assert(data.Transport == Transport.TCP || data.Transport == Transport.SSL); // TODO: remove SSL
+
+            // Drop all options since we don't understand any.
+            return new TcpEndpoint(new EndpointData(data.Transport, data.Host, data.Port, Array.Empty<string>()),
+                                   communicator);
+        }
+        internal static TcpEndpoint ParseIce1Endpoint(
             Transport transport,
-            Protocol protocol,
+            Dictionary<string, string?> options,
+            Communicator communicator,
+            bool oaEndpoint,
+            string endpointString)
+        {
+            Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
+            (string host, ushort port) = ParseHostPort(options, oaEndpoint, endpointString);
+            return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
+                                   ParseTimeout(options, endpointString),
+                                   ParseCompress(options, endpointString),
+                                   options,
+                                   communicator,
+                                   oaEndpoint,
+                                   endpointString);
+        }
+
+        internal static TcpEndpoint ParseIce2Endpoint(
+            Transport transport,
             string host,
             ushort port,
             Dictionary<string, string> options,
-            bool oaEndpoint)
-            : base(communicator, protocol, host, port, options, oaEndpoint) => Transport = transport;
-
-        // Constructor for ice1 endpoint parsing.
-        internal TcpEndpoint(
             Communicator communicator,
-            Transport transport,
-            Dictionary<string, string?> options,
             bool oaEndpoint,
-            string endpointString)
-            : base(communicator, options, oaEndpoint, endpointString)
+            string _)
         {
-            Transport = transport;
+            Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
+            return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
+                                   options,
+                                   communicator,
+                                   oaEndpoint);
+        }
+        internal virtual Connection CreateConnection(
+            IConnectionManager manager,
+            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            IConnector? connector,
+            string connectionId,
+            ObjectAdapter? adapter) =>
+            new TcpConnection(manager, this, transceiver, connector, connectionId, adapter);
+
+        private protected static TimeSpan ParseTimeout(Dictionary<string, string?> options, string endpointString)
+        {
+            TimeSpan timeout = DefaultTimeout;
+
             if (options.TryGetValue("-t", out string? argument))
             {
                 if (argument == null)
@@ -166,52 +186,73 @@ namespace ZeroC.Ice
                 }
                 if (argument == "infinite")
                 {
-                    Timeout = System.Threading.Timeout.InfiniteTimeSpan;
+                    timeout = System.Threading.Timeout.InfiniteTimeSpan;
                 }
                 else
                 {
                     try
                     {
-                        Timeout = TimeSpan.FromMilliseconds(int.Parse(argument, CultureInfo.InvariantCulture));
+                        timeout = TimeSpan.FromMilliseconds(int.Parse(argument, CultureInfo.InvariantCulture));
                     }
                     catch (FormatException ex)
                     {
-                        throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'",
-                             ex);
+                        throw new FormatException(
+                            $"invalid timeout value `{argument}' in endpoint `{endpointString}'",
+                            ex);
                     }
-                    if (Timeout <= TimeSpan.Zero)
+                    if (timeout <= TimeSpan.Zero)
                     {
                         throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'");
                     }
                 }
                 options.Remove("-t");
             }
-
-            if (options.TryGetValue("-z", out argument))
-            {
-                if (argument != null)
-                {
-                    throw new FormatException(
-                        $"unexpected argument `{argument}' provided for -z option in `{endpointString}'");
-                }
-                HasCompressionFlag = true;
-                options.Remove("-z");
-            }
+            return timeout;
         }
 
-        internal virtual Connection CreateConnection(
-             IConnectionManager manager,
-             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-             IConnector? connector,
-             string connectionId,
-             ObjectAdapter? adapter) =>
-             new TcpConnection(manager, this, transceiver, connector, connectionId, adapter);
+        // Constructor for ice1 unmarshaling.
+        private protected TcpEndpoint(EndpointData data, TimeSpan timeout, bool compress, Communicator communicator)
+            : base(data, communicator, Protocol.Ice1)
+        {
+            Timeout = timeout;
+            HasCompressionFlag = compress;
+        }
+
+        // Constructor for ice2 unmarshaling.
+        private protected TcpEndpoint(EndpointData data, Communicator communicator)
+            : base(data, communicator, Protocol.Ice2)
+        {
+        }
+
+        // Constructor for ice1 parsing.
+        private protected TcpEndpoint(
+            EndpointData data,
+            TimeSpan timeout,
+            bool compress,
+            Dictionary<string, string?> options,
+            Communicator communicator,
+            bool oaEndpoint,
+            string endpointString)
+            : base(data, options, communicator, oaEndpoint, endpointString)
+        {
+            Timeout = timeout;
+            HasCompressionFlag = compress;
+        }
+
+        // Constructor for ice2 parsing.
+        private protected TcpEndpoint(
+            EndpointData data,
+            Dictionary<string, string> options,
+            Communicator communicator,
+            bool oaEndpoint)
+            : base(data, options, communicator, oaEndpoint)
+        {
+        }
 
         // Clone constructor
         private protected TcpEndpoint(TcpEndpoint endpoint, string host, ushort port)
             : base(endpoint, host, port)
         {
-            Transport = endpoint.Transport;
             HasCompressionFlag = endpoint.HasCompressionFlag;
             Timeout = endpoint.Timeout;
         }

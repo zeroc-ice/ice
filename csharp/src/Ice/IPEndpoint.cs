@@ -15,8 +15,6 @@ namespace ZeroC.Ice
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
     internal abstract class IPEndpoint : Endpoint
     {
-        public override string Host { get; }
-
         public override string? this[string option] =>
             option switch
             {
@@ -24,8 +22,6 @@ namespace ZeroC.Ice
                 "ipv6-only" => IsIPv6Only ? "true" : "false",
                 _ => base[option],
             };
-
-        public override ushort Port { get; }
 
         protected internal override bool HasOptions => Protocol == Protocol.Ice1 || SourceAddress != null;
 
@@ -50,6 +46,8 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint)
         {
+            // TODO: revisit, is connection ID gone?
+
             if (endpoint is IPEndpoint ipEndpoint)
             {
                 // Same as Equals except we don't consider the connection ID
@@ -84,15 +82,9 @@ namespace ZeroC.Ice
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-            if (Protocol == Protocol.Ice1)
-            {
-                ostr.WriteString(Host);
-                ostr.WriteInt(Port);
-            }
-            else
-            {
-                Debug.Assert(false); // the derived class must provide the implementation
-            }
+            Debug.Assert(Protocol == Protocol.Ice1); // With ice2, we use Data directly.
+            ostr.WriteString(Host);
+            ostr.WriteInt(Port);
         }
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
@@ -227,24 +219,111 @@ namespace ZeroC.Ice
 
         internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
 
+        private protected static bool ParseCompress(Dictionary<string, string?> options, string endpointString)
+        {
+            bool compress = false;
+
+            if (options.TryGetValue("-z", out string? argument))
+            {
+                if (argument != null)
+                {
+                    throw new FormatException(
+                        $"unexpected argument `{argument}' provided for -z option in `{endpointString}'");
+                }
+                compress = true;
+                options.Remove("-z");
+            }
+            return compress;
+        }
+
+        // Parse host and port from ice1 endpoint string.
+        private protected static (string Host, ushort Port) ParseHostPort(
+            Dictionary<string, string?> options,
+            bool oaEndpoint,
+            string endpointString)
+        {
+            string host;
+            ushort port = 0;
+
+            if (options.TryGetValue("-h", out string? argument))
+            {
+                host = argument ??
+                    throw new FormatException($"no argument provided for -h option in endpoint `{endpointString}'");
+
+                if (host == "*")
+                {
+                    // TODO: Should we check that IPv6 is enabled first and use 0.0.0.0 otherwise, or will
+                    // ::0 just bind to the IPv4 addresses in this case?
+                    host = oaEndpoint ? "::0" :
+                        throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
+                }
+
+                if (!oaEndpoint && IPAddress.TryParse(host, out IPAddress? address) &&
+                    (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any)))
+                {
+                    throw new FormatException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint");
+                }
+
+                options.Remove("-h");
+            }
+            else
+            {
+                throw new FormatException($"no -h option in endpoint `{endpointString}'");
+            }
+
+            if (options.TryGetValue("-p", out argument))
+            {
+                if (argument == null)
+                {
+                    throw new FormatException($"no argument provided for -p option in endpoint `{endpointString}'");
+                }
+
+                try
+                {
+                    port = ushort.Parse(argument, CultureInfo.InvariantCulture);
+                }
+                catch (FormatException ex)
+                {
+                    throw new FormatException($"invalid port value `{argument}' in endpoint `{endpointString}'", ex);
+                }
+                options.Remove("-p");
+            }
+            // else port remains 0
+
+            return (host, port);
+        }
+
+        // Read host and port for ice1 endpoint.
+        private protected static (string Host, ushort Port) ReadHostPort(InputStream istr)
+        {
+            string host = istr.ReadString();
+
+            if (host.Length == 0)
+            {
+                throw new InvalidDataException("endpoint host is empty");
+            }
+
+            ushort port;
+            checked
+            {
+                port = (ushort)istr.ReadInt();
+            }
+            return (host, port);
+        }
+
         // Constructor for URI parsing.
         private protected IPEndpoint(
-            Communicator communicator,
-            Protocol protocol,
-            string host,
-            ushort port,
+            EndpointData data,
             Dictionary<string, string> options,
+            Communicator communicator,
             bool oaEndpoint)
-            : base(communicator, protocol)
+            : base(data, communicator, Protocol.Ice2)
         {
-            Debug.Assert(protocol == Protocol.Ice2);
-            if (!oaEndpoint && IPAddress.TryParse(host, out IPAddress? address) &&
+            if (!oaEndpoint && IPAddress.TryParse(data.Host, out IPAddress? address) &&
                 (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any)))
             {
-                throw new ArgumentException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint", nameof(host));
+                throw new ArgumentException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint", nameof(data));
             }
-            Host = host;
-            Port = port;
 
             if (oaEndpoint)
             {
@@ -270,85 +349,20 @@ namespace ZeroC.Ice
         }
 
         // Constructor for unmarshaling.
-        private protected IPEndpoint(InputStream istr, Protocol protocol)
-            : base(istr.Communicator!, protocol)
-        {
-            Debug.Assert(protocol == Protocol.Ice1 || protocol == Protocol.Ice2);
-            Host = istr.ReadString();
-
-            if (Host.Length == 0)
-            {
-                throw new InvalidDataException("endpoint host is empty");
-            }
-
-            if (protocol == Protocol.Ice1)
-            {
-                checked
-                {
-                    Port = (ushort)istr.ReadInt();
-                }
-            }
-            else
-            {
-                Port = istr.ReadUShort();
-            }
-            SourceAddress = istr.Communicator!.DefaultSourceAddress;
-        }
+        private protected IPEndpoint(EndpointData data, Communicator communicator, Protocol protocol)
+            : base(data, communicator, protocol)
+            => SourceAddress = communicator.DefaultSourceAddress;
 
         // Constructor for ice1 endpoint parsing.
         private protected IPEndpoint(
-            Communicator communicator,
+            EndpointData data,
             Dictionary<string, string?> options,
+            Communicator communicator,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, Protocol.Ice1)
+            : base(data, communicator, Protocol.Ice1)
         {
-            if (options.TryGetValue("-h", out string? argument))
-            {
-                Host = argument ??
-                    throw new FormatException($"no argument provided for -h option in endpoint `{endpointString}'");
-
-                if (Host == "*")
-                {
-                    // TODO: Should we check that IPv6 is enabled first and use 0.0.0.0 otherwise, or will
-                    // ::0 just bind to the IPv4 addresses in this case?
-                    Host = oaEndpoint ? "::0" :
-                        throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
-                }
-
-                if (!oaEndpoint && IPAddress.TryParse(Host, out IPAddress? address) &&
-                    (address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any)))
-                {
-                    throw new FormatException("0.0.0.0 or [::0] is not a valid host in a proxy endpoint");
-                }
-
-                options.Remove("-h");
-            }
-            else
-            {
-                throw new FormatException($"no -h option in endpoint `{endpointString}'");
-            }
-
-            if (options.TryGetValue("-p", out argument))
-            {
-                if (argument == null)
-                {
-                    throw new FormatException($"no argument provided for -p option in endpoint `{endpointString}'");
-                }
-
-                try
-                {
-                    Port = ushort.Parse(argument, CultureInfo.InvariantCulture);
-                }
-                catch (FormatException ex)
-                {
-                    throw new FormatException($"invalid port value `{argument}' in endpoint `{endpointString}'", ex);
-                }
-                options.Remove("-p");
-            }
-            // else Port remains 0
-
-            if (options.TryGetValue("--sourceAddress", out argument))
+            if (options.TryGetValue("--sourceAddress", out string? argument))
             {
                 if (oaEndpoint)
                 {
@@ -396,10 +410,10 @@ namespace ZeroC.Ice
 
         // Constructor for Clone
         private protected IPEndpoint(IPEndpoint endpoint, string host, ushort port)
-            : base(endpoint.Communicator, endpoint.Protocol)
+            : base(new EndpointData(endpoint.Transport, host, port, endpoint.Data.Options),
+                   endpoint.Communicator,
+                   endpoint.Protocol)
         {
-            Host = host;
-            Port = port;
             SourceAddress = endpoint.SourceAddress;
             IsIPv6Only = endpoint.IsIPv6Only;
         }
