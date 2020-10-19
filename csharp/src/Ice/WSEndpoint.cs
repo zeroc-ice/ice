@@ -103,7 +103,7 @@ namespace ZeroC.Ice
             bool oaEndpoint,
             string endpointString)
         {
-            (string host, ushort port) = ParseHostPort(options, oaEndpoint, endpointString);
+            (string host, ushort port) = ParseHostAndPort(options, oaEndpoint, endpointString);
 
             string resource = "/";
 

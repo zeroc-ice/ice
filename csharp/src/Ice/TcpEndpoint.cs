@@ -143,7 +143,7 @@ namespace ZeroC.Ice
             string endpointString)
         {
             Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
-            (string host, ushort port) = ParseHostPort(options, oaEndpoint, endpointString);
+            (string host, ushort port) = ParseHostAndPort(options, oaEndpoint, endpointString);
             return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
                                    ParseTimeout(options, endpointString),
                                    ParseCompress(options, endpointString),

@@ -237,7 +237,7 @@ namespace ZeroC.Ice
         }
 
         // Parse host and port from ice1 endpoint string.
-        private protected static (string Host, ushort Port) ParseHostPort(
+        private protected static (string Host, ushort Port) ParseHostAndPort(
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)

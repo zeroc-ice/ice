@@ -1097,7 +1097,7 @@ namespace ZeroC.Ice
                         var data = new EndpointData(transport,
                                                     host: istr.ReadString(),
                                                     port: istr.ReadUShort(),
-                                                    options: istr.ReadArray(1, InputStream.IceReaderIntoString));
+                                                    options: istr.ReadArray(1, IceReaderIntoString));
 
                         endpoint = Endpoint.FromEndpointData(data, Communicator, protocol);
                     }

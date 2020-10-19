@@ -155,7 +155,7 @@ namespace ZeroC.Ice
         {
             Debug.Assert(transport == Transport.UDP);
 
-            (string host, ushort port) = ParseHostPort(options, oaEndpoint, endpointString);
+            (string host, ushort port) = ParseHostAndPort(options, oaEndpoint, endpointString);
 
             int ttl = -1;
 
