@@ -86,7 +86,7 @@ namespace ZeroC.IceDiscovery
             }
 
             // Setup locator registry.
-            LocatorRegistry locatorRegistry = new ();
+            LocatorRegistry locatorRegistry = new (_communicator);
             ILocatorRegistryPrx locatorRegistryPrx =
                 _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 

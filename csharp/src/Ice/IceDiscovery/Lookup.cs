@@ -25,7 +25,6 @@ namespace ZeroC.IceDiscovery
             string domainId,
             string adapterId,
             ILookupReplyPrx reply,
-            Protocol? protocol,
             Current current,
             CancellationToken cancel)
         {
@@ -34,7 +33,7 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            (IObjectPrx? proxy, bool isReplicaGroup) = _registry.FindAdapter(adapterId, protocol ?? Protocol.Ice1);
+            (IObjectPrx? proxy, bool isReplicaGroup) = _registry.FindAdapter(adapterId);
             if (proxy != null)
             {
                 // Reply to the multicast request using the given proxy.
@@ -53,7 +52,6 @@ namespace ZeroC.IceDiscovery
             string domainId,
             Identity id,
             ILookupReplyPrx reply,
-            Protocol? protocol,
             Current current,
             CancellationToken cancel)
         {
@@ -62,7 +60,7 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            if (_registry.FindObject(id, protocol ?? Protocol.Ice1) is IObjectPrx proxy)
+            if (_registry.FindObject(id, Protocol.Ice1) is IObjectPrx proxy)
             {
                 // Reply to the multicast request using the given proxy.
                 try
@@ -149,7 +147,6 @@ namespace ZeroC.IceDiscovery
                         await lookup.FindAdapterByIdAsync(_domainId,
                                                           adapterId,
                                                           lookupReply,
-                                                          protocol,
                                                           cancel: cancel).ConfigureAwait(false);
                     }
                     catch (Exception ex)
@@ -179,7 +176,6 @@ namespace ZeroC.IceDiscovery
                         await lookup.FindObjectByIdAsync(_domainId,
                                                          identity,
                                                          lookupReply,
-                                                         protocol,
                                                          cancel: cancel).ConfigureAwait(false);
                     }
                     catch (Exception ex)

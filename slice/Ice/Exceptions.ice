@@ -56,4 +56,10 @@ module Ice
     {
     }
 #endif
+
+    exception InvalidArgumentException
+    {
+        string paramName;
+    }
+
 }

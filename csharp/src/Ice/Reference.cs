@@ -1026,16 +1026,9 @@ namespace ZeroC.Ice
                     }
                     else if (LocatorInfo != null)
                     {
-                        Reference? directReference;
-                        (directReference, cached) =
+                        // TODO: cache and send the new location with requests
+                        (endpoints, _, cached) =
                             await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
-
-                        if (directReference != null)
-                        {
-                            endpoints = directReference.Endpoints;
-                            // TODO: cache and send directReference's location with requests made using this reference
-                            // instead of the reference's location.
-                        }
                     }
                 }
 

@@ -16,7 +16,6 @@
 #include <Ice/Endpoint.ice>
 #include <Ice/Identity.ice>
 #include <Ice/Process.ice>
-#include <Ice/Protocol.ice>
 
 [cs:namespace:ZeroC]
 [java:package:com.zeroc]
@@ -76,24 +75,19 @@ module Ice
         /// @return The locator registry, or null if this locator has no registry.
         idempotent LocatorRegistry? getRegistry();
 
-        /// Resolves the location of a proxy. Since Ice 4.0.
+        /// Resolves the location of a proxy that uses the ice2 protocol.
         /// @param location The location to resolve.
-        /// @param protocol The protocol of the proxy being resolved. Must be ice2 or greater.
         /// @return A sequence of one or more endpoints when the location can be resolved, and an empty sequence of
         /// endpoints when the location cannot be resolved. When the location can be resolved, this operation also
         /// returns a new location which is typically location[1..].
-        /* idempotent */ (EndpointDataSeq endpoints, StringSeq newLocation) resolveLocation(
-            StringSeq location,
-            Protocol protocol);
+        idempotent (EndpointDataSeq endpoints, StringSeq newLocation) resolveLocation(StringSeq location);
 
-        /// Locates the well-known object with the given identity. Since Ice 4.0.
+        /// Locates the well-known object with the given identity. This object must be reachable using the ice2
+        /// protocol.
         /// @param identity The identity of the well-known Ice object.
-        /// @param protocol The protocol of the proxy being resolved. Must be ice2 or greater.
         /// @return If the Locator could resolve the identity, a sequence of one or more endpoints and/or a non-empty
         /// location. Otherwise, an empty sequence of endpoints and an empty location.
-        /* idempotent */ (EndpointDataSeq endpoints, StringSeq location) resolveWellKnownProxy(
-            Identity identity,
-            Protocol protocol);
+        idempotent (EndpointDataSeq endpoints, StringSeq location) resolveWellKnownProxy(Identity identity);
 
 #else
         [amd] [nonmutating] [cpp:const] idempotent Object? findObjectById(Identity id)
@@ -110,11 +104,10 @@ module Ice
     interface LocatorRegistry
     {
 #ifdef __SLICE2CS__
-        /// Registers the endpoints of an object adapter. Since Ice 4.0.
+        /// Registers the endpoints of an object adapter that uses the ice2 protocol.
         /// @param adapterId The adapter ID.
         /// @param replicaGroupId The replica group ID. It is set to the empty string when the object adapter does not
         /// belong to a replica group.
-        /// @param protocol The protocol of the object adapter. Must be ice2 or greater.
         /// @param endpoints A sequence of one or more endpoints. The locator considers an object adapter to be active
         /// after it has registered its endpoints.
         /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
@@ -122,13 +115,9 @@ module Ice
         /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
         /// their active endpoints and no object adapter with this adapter ID and replica group ID (if applicable) was
         /// registered with the locator.
-        /// @throws InvalidReplicaGroupIdException Thrown if the given replica group does not match the replica group
-        /// associated with the adapter ID in the locator's database.
-        void registerAdapterEndpoints(
-            string adapterId,
-            string replicaGroupId,
-            Protocol protocol,
-            EndpointDataSeq endpoints);
+        /// @throws InvalidArgumentException Thrown if any of the provided arguments is invalid, such as an empty
+        /// adapter ID, empty endpoint sequence or adapter ID and replica group ID are inconsistent.
+        void registerAdapterEndpoints(string adapterId, string replicaGroupId, EndpointDataSeq endpoints);
 
         /// Registers or unregisters the endpoints of an object adapter that uses the ice1 protocol.
         /// @param id The adapter ID.
@@ -163,18 +152,16 @@ module Ice
         /// @throws ServerNotFoundException Thrown if the locator does not know a server with this server ID.
         idempotent void setServerProcessProxy(string serverId, Process proxy);
 
-        /// Unregisters the endpoints of an object adapter, if this object adapter has registered its endpoints. Since
-        /// Ice 4.0.
+        /// Unregisters the endpoints of an object adapter that uses the ice2 protocol, or does nothing if this object
+        /// adapter is not active.
         /// @param adapterId The adapter ID.
         /// @param replicaGroupId The replica group ID. It is set to the empty string when the object adapter does not
         /// belong to a replica group.
-        /// @param protocol The protocol of object adapter being unregistered. Must be ice2 or greater.
         /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
         /// their active endpoints and no object adapter with this adapter ID and replica group ID (if applicable) was
         /// registered with the locator.
-        /// @throws InvalidReplicaGroupIdException Thrown if the given replica group does not match the replica group
-        /// associated with the adapter ID in the locator's database.
-        idempotent void unregisterAdapterEndpoints(string adapterId, string replicaGroupId, Protocol protocol);
+        /// @throws InvalidArgumentException Thrown if any of the provided arguments is invalid.
+        idempotent void unregisterAdapterEndpoints(string adapterId, string replicaGroupId);
 
 #else
         [amd] idempotent void setAdapterDirectProxy(string id, Object? proxy)
