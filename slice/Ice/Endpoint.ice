@@ -9,8 +9,8 @@
 [[cpp:header-ext:h]]
 
 [[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
 
+[[js:module:ice]]
 [[python:pkgdir:Ice]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -20,8 +20,9 @@
 module Ice
 {
     /// Identifies a transport protocol that Ice can use to send requests and receive responses. The enumerators of
-    /// Transport correspond to the transports that the Ice runtime knows and implements. Other transports, with short
-    /// values not represented by these enumerators, can be implemented and registered using transport plug-ins.
+    /// Transport correspond to the transports that the Ice runtime knows and implements in some programming languages
+    /// and for some version of the Ice protocol. Other transports, with short values not represented by these
+    /// enumerators, can be implemented and registered using transport plug-ins.
     unchecked enum Transport : short
     {
         /// Colocated transport.
@@ -55,16 +56,27 @@ module Ice
         iAPS = 9
     }
 
-    // The endpoint data of an ice2 (or greater) direct proxy.
+    /// The "on-the-wire" representation of an endpoint for the ice2 protocol.
     [cs:readonly]
     struct EndpointData
     {
+        /// The transport.
         Transport transport;
+
+        /// The host name or address. Its exact meaning depends on the transport. For IP-based transports, it's a DNS
+        /// name or IP address. For Bluetooth RFCOMM, it's a Bluetooth Device Address.
         string host;
+
+        /// The port number. Its exact meaning depends on the transport. For IP-based transports, it's a port number.
+        /// For Bluetooth RFCOMM, it's always 0.
         ushort port;
+
+        /// A sequence of options. With tcp, ssl and udp, options is always empty. With ws and wss, option may include
+        /// a single entry with a "resource" string.
         StringSeq options;
     }
 
+    // Sequence of EndpointData (temporary).
     sequence<EndpointData> EndpointDataSeq;
 }
 

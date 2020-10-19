@@ -277,16 +277,16 @@ namespace ZeroC.Ice
                 hasEncapsulation = false;
             }
 
+            exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
             if (Encoding == Encoding.V11)
             {
                 switch (replyStatus)
                 {
                     case ReplyStatus.ObjectNotExistException:
                     case ReplyStatus.OperationNotExistException:
-                        var dispatchException = (DispatchException)exception;
-                        dispatchException.Identity.IceWrite(ostr);
-                        ostr.WriteIce1Facet(dispatchException.Facet);
-                        ostr.WriteString(dispatchException.Operation);
+                        request.Identity.IceWrite(ostr);
+                        ostr.WriteIce1Facet(request.Facet);
+                        ostr.WriteString(request.Operation);
                         break;
 
                     case ReplyStatus.UnknownLocalException:

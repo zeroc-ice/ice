@@ -16,6 +16,7 @@ interface Timeout
     void op();
     void sendData(ByteSeq seq);
     void sleep(int to);
+    bool checkDeadline();
 }
 
 interface Controller

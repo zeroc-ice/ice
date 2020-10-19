@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -35,6 +36,16 @@ namespace ZeroC.Ice.Test.Timeout
             {
                 Thread.Sleep(to);
             }
+        }
+
+        public bool CheckDeadline(Current current, CancellationToken cancel)
+        {
+            if (current.Protocol == Protocol.Ice2)
+            {
+                return current.Deadline ==
+                    DateTime.UnixEpoch + TimeSpan.FromMilliseconds(long.Parse(current.Context["deadline"]));
+            }
+            return true;
         }
     }
 

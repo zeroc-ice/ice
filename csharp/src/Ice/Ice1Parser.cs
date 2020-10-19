@@ -570,9 +570,9 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (communicator.FindEndpointFactory(transportName) is (IEndpointFactory factory, Transport transport))
+            if (communicator.FindIce1EndpointParser(transportName) is (Ice1EndpointParser parser, Transport transport))
             {
-                Endpoint endpoint = factory.Create(transport, options, oaEndpoint, endpointString);
+                Endpoint endpoint = parser(transport, options, communicator, oaEndpoint, endpointString);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
@@ -585,7 +585,7 @@ namespace ZeroC.Ice
             // of the known endpoints.
             if (!oaEndpoint && transportName == "opaque")
             {
-                var opaqueEndpoint = new OpaqueEndpoint(communicator, options, endpointString);
+                var opaqueEndpoint = OpaqueEndpoint.Parse(options, communicator, endpointString);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
@@ -593,7 +593,7 @@ namespace ZeroC.Ice
                 }
 
                 if (opaqueEndpoint.ValueEncoding.IsSupported &&
-                    communicator.IceFindEndpointFactory(opaqueEndpoint.Transport) != null)
+                    communicator.FindIce1EndpointFactory(opaqueEndpoint.Transport) != null)
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
                     // unmarshal it from this buffer.

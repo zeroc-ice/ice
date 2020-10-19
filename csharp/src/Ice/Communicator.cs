@@ -219,8 +219,8 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
-        private readonly ConcurrentDictionary<string, Func<string?, RemoteException>?> _remoteExceptionFactoryCache =
-            new ConcurrentDictionary<string, Func<string?, RemoteException>?>();
+        private readonly ConcurrentDictionary<
+            string, Func<string?, RemoteExceptionOrigin?, RemoteException>?> _remoteExceptionFactoryCache = new ();
         private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
@@ -228,10 +228,18 @@ namespace ZeroC.Ice
             new Dictionary<Transport, BufSizeWarnInfo>();
         private Task? _shutdownTask;
         private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
-        private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
-            new ConcurrentDictionary<Transport, IEndpointFactory>();
-        private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
-            new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
+
+        private readonly IDictionary<Transport, Ice1EndpointFactory> _ice1TransportRegistry =
+            new ConcurrentDictionary<Transport, Ice1EndpointFactory>();
+
+        private readonly IDictionary<Transport, (Ice2EndpointFactory, Ice2EndpointParser)> _ice2TransportRegistry =
+            new ConcurrentDictionary<Transport, (Ice2EndpointFactory, Ice2EndpointParser)>();
+
+        private readonly IDictionary<string, (Ice1EndpointParser, Transport)> _ice1TransportNameRegistry =
+            new ConcurrentDictionary<string, (Ice1EndpointParser, Transport)>();
+
+        private readonly IDictionary<string, (Ice2EndpointParser, Transport)> _ice2TransportNameRegistry =
+            new ConcurrentDictionary<string, (Ice2EndpointParser, Transport)>();
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -558,12 +566,55 @@ namespace ZeroC.Ice
 
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
-                var endpointFactory = new EndpointFactory(this);
-                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory, IPEndpoint.DefaultIPPort);
-                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory, IPEndpoint.DefaultIPPort);
-                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory, IPEndpoint.DefaultIPPort);
-                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, IPEndpoint.DefaultIPPort);
-                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, IPEndpoint.DefaultIPPort);
+                RegisterIce1Transport(Transport.TCP,
+                                      "tcp",
+                                      TcpEndpoint.CreateIce1Endpoint,
+                                      TcpEndpoint.ParseIce1Endpoint);
+
+                RegisterIce1Transport(Transport.SSL,
+                                      "ssl",
+                                      TcpEndpoint.CreateIce1Endpoint,
+                                      TcpEndpoint.ParseIce1Endpoint);
+
+                RegisterIce1Transport(Transport.UDP,
+                                      "udp",
+                                      UdpEndpoint.CreateIce1Endpoint,
+                                      UdpEndpoint.ParseIce1Endpoint);
+
+                RegisterIce1Transport(Transport.WS,
+                                      "ws",
+                                      WSEndpoint.CreateIce1Endpoint,
+                                      WSEndpoint.ParseIce1Endpoint);
+
+                RegisterIce1Transport(Transport.WSS,
+                                      "wss",
+                                      WSEndpoint.CreateIce1Endpoint,
+                                      WSEndpoint.ParseIce1Endpoint);
+
+                RegisterIce2Transport(Transport.TCP,
+                                      "tcp",
+                                      TcpEndpoint.CreateIce2Endpoint,
+                                      TcpEndpoint.ParseIce2Endpoint,
+                                      IPEndpoint.DefaultIPPort);
+
+                RegisterIce2Transport(Transport.WS,
+                                      "ws",
+                                      WSEndpoint.CreateIce2Endpoint,
+                                      WSEndpoint.ParseIce2Endpoint,
+                                      IPEndpoint.DefaultIPPort);
+
+                // TODO: this is temporary, ice2 should not have ssl and wss transports
+                RegisterIce2Transport(Transport.SSL,
+                                      "ssl",
+                                      TcpEndpoint.CreateIce2Endpoint,
+                                      TcpEndpoint.ParseIce2Endpoint,
+                                      IPEndpoint.DefaultIPPort);
+
+                RegisterIce2Transport(Transport.WSS,
+                                      "wss",
+                                      WSEndpoint.CreateIce2Endpoint,
+                                      WSEndpoint.ParseIce2Endpoint,
+                                      IPEndpoint.DefaultIPPort);
 
                 OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -1055,25 +1106,46 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Registers an endpoint factory for a transport. This is a publicly visible Ice internal method used
-        /// by transport plugins.</summary>
+        /// <summary>Registers a new transport for the ice1 protocol.</summary>
         /// <param name="transport">The transport.</param>
-        /// <param name="transportName">The name of the transport in lower case, for example "tcp", "quic".</param>
-        /// <param name="factory">The factory to register.</param>
-        /// <param name="defaultPort">The default port for URI endpoints that don't specificy a port explicitly.</param>
-        public void IceAddEndpointFactory(
+        /// <param name="transportName">The name of the transport in lower case, for example "tcp".</param>
+        /// <param name="factory">A delegate that Ice will use to unmarshal endpoints for this transport.</param>
+        /// <param name="parser">A delegate that Ice will use to parse endpoints for this transport.</param>
+        public void RegisterIce1Transport(
             Transport transport,
             string transportName,
-            IEndpointFactory factory,
-            ushort defaultPort = 0)
+            Ice1EndpointFactory factory,
+            Ice1EndpointParser parser)
         {
             if (transportName.Length == 0)
             {
                 throw new ArgumentException($"{nameof(transportName)} cannot be empty", nameof(transportName));
             }
 
-            _transportNameToEndpointFactory.Add(transportName, (factory, transport));
-            _transportToEndpointFactory.Add(transport, factory);
+            _ice1TransportRegistry.Add(transport, factory);
+            _ice1TransportNameRegistry.Add(transportName, (parser, transport));
+        }
+
+        /// <summary>Registers a new transport for the ice2 protocol.</summary>
+        /// <param name="transport">The transport.</param>
+        /// <param name="transportName">The name of the transport in lower case, for example "tcp".</param>
+        /// <param name="factory">A delegate that Ice will use to unmarshal endpoints for this transport.</param>
+        /// <param name="parser">A delegate that Ice will use to parse endpoints for this transport.</param>
+        /// <param name="defaultPort">The default port for URI endpoints that don't specificy a port explicitly.</param>
+        public void RegisterIce2Transport(
+            Transport transport,
+            string transportName,
+            Ice2EndpointFactory factory,
+            Ice2EndpointParser parser,
+            ushort defaultPort)
+        {
+            if (transportName.Length == 0)
+            {
+                throw new ArgumentException($"{nameof(transportName)} cannot be empty", nameof(transportName));
+            }
+
+            _ice2TransportRegistry.Add(transport, (factory, parser));
+            _ice2TransportNameRegistry.Add(transportName, (parser, transport));
 
             // Also register URI parser if not registered yet.
             try
@@ -1085,13 +1157,6 @@ namespace ZeroC.Ice
                 // Ignored, already registered
             }
         }
-
-        /// <summary>Finds an endpoint factory previously registered using IceAddEndpointFactory.</summary>
-        /// <param name="transport">The transport used to lookup the endpoint factory.</param>
-        /// <returns>And endpoint factory for the given transport or null if a factory has not been registered
-        /// for the given transport.</returns>
-        public IEndpointFactory? IceFindEndpointFactory(Transport transport) =>
-            _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
         // Add one or more dispatch interceptors, only to use by PluginInitializationContext
         internal void AddDispatchInterceptor(DispatchInterceptor[] interceptors) =>
@@ -1110,11 +1175,28 @@ namespace ZeroC.Ice
             }
         }
 
-        // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.
-        internal (IEndpointFactory Factory, Transport Transport)? FindEndpointFactory(string transportName) =>
-            _transportNameToEndpointFactory.TryGetValue(transportName,
-                out (IEndpointFactory Factory, Transport Transport) value) ? value :
-                    ((IEndpointFactory Factory, Transport Transport)?)null;
+        internal Ice1EndpointFactory? FindIce1EndpointFactory(Transport transport) =>
+            _ice1TransportRegistry.TryGetValue(transport, out Ice1EndpointFactory? factory) ? factory : null;
+
+        internal (Ice1EndpointParser Parser, Transport Transport)? FindIce1EndpointParser(string transportName) =>
+            _ice1TransportNameRegistry.TryGetValue(
+                transportName,
+                out (Ice1EndpointParser, Transport) value) ? value : null;
+
+        internal Ice2EndpointFactory? FindIce2EndpointFactory(Transport transport) =>
+            _ice2TransportRegistry.TryGetValue(
+                transport,
+                out (Ice2EndpointFactory Factory, Ice2EndpointParser _) value) ? value.Factory : null;
+
+        internal Ice2EndpointParser? FindIce2EndpointParser(Transport transport) =>
+            _ice2TransportRegistry.TryGetValue(
+                transport,
+                out (Ice2EndpointFactory _, Ice2EndpointParser Parser) value) ? value.Parser : null;
+
+        internal (Ice2EndpointParser Parser, Transport Transport)? FindIce2EndpointParser(string transportName) =>
+            _ice2TransportNameRegistry.TryGetValue(
+                transportName,
+                out (Ice2EndpointParser, Transport) value) ? value : null;
 
         internal void EraseRouterInfo(IRouterPrx? router)
         {
@@ -1176,22 +1258,23 @@ namespace ZeroC.Ice
                return null;
            });
 
-        internal Func<string?, RemoteException>? FindRemoteExceptionFactory(string typeId) =>
+        internal Func<string?, RemoteExceptionOrigin?, RemoteException>? FindRemoteExceptionFactory(string typeId) =>
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
                 Type? factoryClass = FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
                 if (factoryClass != null)
                 {
-                    MethodInfo? method = factoryClass.GetMethod("Create",
-                                                                BindingFlags.Public | BindingFlags.Static,
-                                                                null,
-                                                                CallingConventions.Any,
-                                                                new Type[] { typeof(string) },
-                                                                null);
+                    MethodInfo? method = factoryClass.GetMethod(
+                        "Create",
+                        BindingFlags.Public | BindingFlags.Static,
+                        null,
+                        CallingConventions.Any,
+                        new Type[] { typeof(string), typeof(RemoteExceptionOrigin) },
+                        null);
                     Debug.Assert(method != null);
-                    return (Func<string?, RemoteException>)Delegate.CreateDelegate(typeof(Func<string?, RemoteException>),
-                                                                                   method);
+                    return (Func<string?, RemoteExceptionOrigin?, RemoteException>)Delegate.CreateDelegate(
+                        typeof(Func<string?, RemoteExceptionOrigin?, RemoteException>), method);
                 }
                 return null;
             });

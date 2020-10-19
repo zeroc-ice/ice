@@ -1,14 +1,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-
 using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice

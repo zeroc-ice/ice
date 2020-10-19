@@ -71,11 +71,14 @@ namespace ZeroC.Ice
         /// in a remote server.</summary>
         public bool ConvertToUnhandled { get; set; }
 
+        /// <summary>The remote exception origin.</summary>
+        public RemoteExceptionOrigin? Origin { get; internal set; }
+
         internal RetryPolicy RetryPolicy { get; }
 
-        /// <summary>When DefaultMessage is not null and the application does construct the exception with a constructor
-        /// that takes a message parameter, Message returns DefaultMessage. This property should be overridden in
-        /// derived partial exception classes that provide a custom default message.</summary>
+        /// <summary>When DefaultMessage is not null and the application does not construct the exception with a
+        /// constructor that takes a message parameter, Message returns DefaultMessage. This property should be
+        /// overridden in derived partial exception classes that provide a custom default message.</summary>
         protected virtual string? DefaultMessage => null;
 
         /// <summary>Returns the sliced data if the exception has a preserved-slice base exception and has been sliced during
@@ -93,10 +96,23 @@ namespace ZeroC.Ice
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="retryPolicy">The retry policy for the exception.</param>
         /// <param name="innerException">The inner exception.</param>
-        protected internal RemoteException(string? message, Exception? innerException = null, RetryPolicy retryPolicy = default)
+        protected internal RemoteException(
+            string? message,
+            Exception? innerException = null,
+            RetryPolicy retryPolicy = default)
             : base(message, innerException)
         {
             RetryPolicy = retryPolicy;
+            _hasCustomMessage = message != null;
+        }
+
+        /// <summary>Constructs a remote exception with the provided message and origin.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        /// <param name="origin">The remote exception origin.</param>
+        protected internal RemoteException(string? message, RemoteExceptionOrigin? origin)
+            : base(message)
+        {
+            Origin = origin;
             _hasCustomMessage = message != null;
         }
 
@@ -120,7 +136,7 @@ namespace ZeroC.Ice
         /// <param name="firstSlice"><c>True</c> if the exception corresponds to the first Slice, <c>False</c>
         /// otherwise.</param>
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice) =>
-            ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message);
+            ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message, Origin);
 
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }
@@ -132,5 +148,58 @@ namespace ZeroC.Ice
         /// these "unknown" slices.</summary>
         /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
         public static SlicedData? GetSlicedData(this RemoteException ex) => ex.SlicedData;
+    }
+
+    public partial class ObjectNotExistException
+    {
+        /// <inheritdoc/>
+        protected override string? DefaultMessage =>
+            Origin is RemoteExceptionOrigin origin ?
+                $@"could not find servant for Ice object `{origin.Identity}'" +
+                (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") +
+                $" while attempting to dispatch operation `{origin.Operation}'" : null;
+    }
+
+    public partial class OperationNotExistException
+    {
+        /// <inheritdoc/>
+        protected override string? DefaultMessage =>
+            Origin is RemoteExceptionOrigin origin ?
+                $"could not find operation `{origin.Operation}' for Ice object `{origin.Identity}'" +
+                (origin.Facet.Length > 0 ? $" with facet `{origin.Facet}'" : "") : null;
+    }
+
+    public partial class UnhandledException : RemoteException
+    {
+        /// <summary>Constructs a new exception.</summary>
+        /// <param name="innerException">The exception that is the cause of the current exception.</param>
+        public UnhandledException(Exception innerException)
+            : base(message: null, innerException)
+        {
+        }
+
+        protected override string? DefaultMessage
+        {
+            get
+            {
+                string message = "unhandled exception";
+                if (Origin is RemoteExceptionOrigin origin)
+                {
+                    message += $" while dispatching `{origin.Operation}' on Ice object `{origin.Identity}'";
+                    if (origin.Facet.Length > 0)
+                    {
+                        message += $" with facet `{origin.Facet}'";
+                    }
+                }
+#if DEBUG
+                message += $":\n{InnerException}\n---";
+#else
+                // The stack trace of the inner exception can include sensitive information we don't want to send
+                // "over the wire" in non-debug builds.
+                message += $":\n{InnerException.Message}";
+#endif
+                return message;
+            }
+        }
     }
 }
