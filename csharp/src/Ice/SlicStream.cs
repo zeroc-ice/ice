@@ -50,10 +50,10 @@ namespace ZeroC.Ice
                     _transceiver.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
                 }
 
-                // Only release incoming streams on Dispose. Slic outgoing streams are released either when the
-                // StreamLast or StreamFin frames are received. The StreamFin frame can be received after the
-                // stream is disposed (e.g.: for oneway requests we dispose of the stream as soon as the request
-                // is sent and before receiving the StreamFin frame).
+                // Only release incoming streams on Dispose. Slic outgoing streams are released when the StreamLast
+                // frame is received. The StreamLast frame can be received after the stream is disposed (e.g.: for
+                // oneway requests we dispose of the stream as soon as the request is sent and before receiving the
+                // StreamLast frame).
                 if (!IsControl && IsIncoming)
                 {
                     ReleaseFlowControlCredit(notifyPeer: true);
@@ -313,9 +313,9 @@ namespace ZeroC.Ice
 
                     if (notifyPeer)
                     {
-                        // It's important to decrement the stream count before sending the StreamFin frame to prevent
+                        // It's important to decrement the stream count before sending the StreamLast frame to prevent
                         // a race where the peer could start a new stream before the counter is decremented.
-                        _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamFin, streamId: Id);
+                        _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
                     }
                 }
                 else if (IsStarted)

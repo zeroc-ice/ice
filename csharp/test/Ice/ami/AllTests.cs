@@ -525,7 +525,9 @@ namespace ZeroC.Ice.Test.AMI
                     }
 
                     {
-                        // Ensure requests don't fail if the connection is closed gracefully while being sent.
+                        // Ensure requests don't fail if the connection is closed gracefully while being sent. The
+                        // ping calls will get retried. Ping calls which are blocked waiting on the flow control
+                        // semaphore should also failed and be retried.
                         var tasks = new Task[20];
                         for (int i = 0; i < 10; ++i)
                         {

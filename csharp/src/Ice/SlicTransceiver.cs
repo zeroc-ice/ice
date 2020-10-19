@@ -78,6 +78,7 @@ namespace ZeroC.Ice
                         bool isIncoming = streamId.Value % 2 == (IsIncoming ? 0 : 1);
                         bool isBidirectional = streamId.Value % 4 < 2;
                         bool fin = type == SlicDefinitions.FrameType.StreamLast;
+
                         if (size == 0 && type == SlicDefinitions.FrameType.Stream)
                         {
                             throw new InvalidDataException("received empty stream frame");
@@ -91,16 +92,19 @@ namespace ZeroC.Ice
                                 stream.ReleaseFlowControlCredit();
                             }
 
-                            // Notify the stream that data is available for read.
-                            if (stream.ReceivedFrame(size, fin))
+                            if (size > 0)
                             {
-                                // Wait for the stream to receive the data before reading a new Slic frame.
-                                await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                // The stream has been aborted if it can't be signaled, read and ignore the data.
-                                await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
+                                // Notify the stream that data is available for read.
+                                if (stream.ReceivedFrame(size, fin))
+                                {
+                                    // Wait for the stream to receive the data before reading a new Slic frame.
+                                    await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
+                                }
+                                else
+                                {
+                                    // The stream has been aborted if it can't be signaled, read and ignore the data.
+                                    await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
+                                }
                             }
                         }
                         else if (isIncoming &&
@@ -119,6 +123,11 @@ namespace ZeroC.Ice
                                 _lastUnidirectionalId = streamId.Value;
                             }
 
+                            if (size == 0)
+                            {
+                                throw new InvalidDataException("received empty stream frame");
+                            }
+
                             // Accept the new incoming stream and notify the stream that data is available.
                             stream = new SlicStream(streamId.Value, this);
                             stream.AcquireIncomingFlowControlCredit();
@@ -134,8 +143,24 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            // The stream has been disposed, read and ignore the data.
-                            await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
+                            if (!isIncoming && fin)
+                            {
+                                // Release flow control credit for the disposed stream.
+                                if (isBidirectional)
+                                {
+                                    BidirectionalStreamSemaphore!.Release();
+                                }
+                                else
+                                {
+                                    UnidirectionalStreamSemaphore!.Release();
+                                }
+                            }
+
+                            if (size > 0)
+                            {
+                                // The stream has been disposed, read and ignore the data.
+                                await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
+                            }
                         }
                         break;
                     }
@@ -162,33 +187,6 @@ namespace ZeroC.Ice
                         }
                         break;
                     }
-                    case SlicDefinitions.FrameType.StreamFin:
-                    {
-                        Debug.Assert(streamId != null);
-                        if (size != 0)
-                        {
-                            throw new InvalidDataException("unexpected data for Slic stream fin fame");
-                        }
-                        if (streamId == 2 || streamId == 3)
-                        {
-                            throw new InvalidDataException("can't terminate control streams");
-                        }
-
-                        if (Endpoint.Communicator.TraceLevels.Transport > 2)
-                        {
-                            TraceTransportFrame("received ", type, size, streamId);
-                        }
-
-                        if (streamId.Value % 4 < 2)
-                        {
-                            BidirectionalStreamSemaphore!.Release();
-                        }
-                        else
-                        {
-                            UnidirectionalStreamSemaphore!.Release();
-                        }
-                        break;
-                    }
                     default:
                     {
                         throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
@@ -198,6 +196,7 @@ namespace ZeroC.Ice
 
             async ValueTask IgnoreReceivedData(SlicDefinitions.FrameType type, int size, long streamId)
             {
+                Debug.Assert(size > 0);
                 ArraySegment<byte> data = new byte[size];
                 await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
                 if (Endpoint.Communicator.TraceLevels.Transport > 2)
@@ -500,7 +499,6 @@ namespace ZeroC.Ice
                 SlicDefinitions.FrameType.Stream => "stream",
                 SlicDefinitions.FrameType.StreamLast => "last stream",
                 SlicDefinitions.FrameType.StreamReset => "reset stream",
-                SlicDefinitions.FrameType.StreamFin => "stream fin",
                 _ => "unknown",
             } + " frame";
 
@@ -570,7 +568,7 @@ namespace ZeroC.Ice
             // Receive the stream ID if the frame includes a stream ID. We receive at most 8 or size bytes and rewind
             // the transceiver buffered position if we read too much data.
             (ulong? streamId, int streamIdLength) = (null, 0);
-            if (type >= SlicDefinitions.FrameType.Stream && type <= SlicDefinitions.FrameType.StreamFin)
+            if (type >= SlicDefinitions.FrameType.Stream && type <= SlicDefinitions.FrameType.StreamReset)
             {
                 int receiveSize = Math.Min(size, 8);
                 buffer = await _transceiver.ReceiveAsync(receiveSize, cancel).ConfigureAwait(false);
