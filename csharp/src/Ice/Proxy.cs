@@ -271,19 +271,8 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request, cancel: cancel);
-
-            IncomingResponseFrame response;
-            try
-            {
-                response = await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
-            }
-            catch (RemoteException ex)
-            {
-                // It looks like InvokeAsync threw a 1.1 system exception (used for retries)
-                // TODO: fix (remove) when we fix retries
-                ex.ConvertToUnhandled = false;
-                throw;
-            }
+            IncomingResponseFrame response =
+                await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
             return new OutgoingResponseFrame(request, response);
         }
 
@@ -462,7 +451,6 @@ namespace ZeroC.Ice
                                 systemException is ObjectNotExistException one)
                             {
                                 // 1.1 System exceptions
-                                lastException = systemException;
                                 if (reference.RouterInfo != null && one.Origin!.Value.Operation == "ice_add_proxy")
                                 {
                                     // If we have a router, an ObjectNotExistException with an operation name
@@ -482,7 +470,7 @@ namespace ZeroC.Ice
                                 }
                             }
                             else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
-                                                                        out ReadOnlyMemory<byte> value))
+                                                                         out ReadOnlyMemory<byte> value))
                             {
                                 retryPolicy = value.Read(istr => new RetryPolicy(istr));
                             }
