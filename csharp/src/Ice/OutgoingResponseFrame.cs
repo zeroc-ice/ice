@@ -192,9 +192,8 @@ namespace ZeroC.Ice
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count + 2,
                                                                       Encoding);
-                            buffer[tail.Offset++] = (byte)replyStatus;
                             Data[0] = Data[0].Slice(0, tail.Offset);
-                            Data.Add(response.Payload.Slice(1));
+                            Data.Add(response.Payload);
                         }
                     }
                 }
