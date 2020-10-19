@@ -15,7 +15,7 @@ namespace ZeroC.IceDiscovery
         private readonly string _domainId;
         private readonly int _latencyMultiplier;
         private readonly ILookupPrx _lookup;
-        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new ();
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new();
         private readonly LocatorRegistry _registry;
         private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;

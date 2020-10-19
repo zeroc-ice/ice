@@ -45,7 +45,7 @@ namespace ZeroC.IceLocatorDiscovery
         private string _instanceName;
         private ILocatorPrx? _locator;
         private readonly ILookupPrx _lookup;
-        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new ();
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new();
         private readonly object _mutex = new object();
         private TimeSpan _nextRetry;
         private readonly int _retryCount;

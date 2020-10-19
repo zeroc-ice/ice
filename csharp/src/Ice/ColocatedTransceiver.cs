@@ -3,8 +3,8 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Channels;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     internal class ColocatedTransceiver : MultiStreamTransceiver
     {
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
-        internal readonly object Mutex = new ();
+        internal readonly object Mutex = new();
         internal AsyncSemaphore? PeerUnidirectionalSerializeSemaphore { get; private set; }
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
 

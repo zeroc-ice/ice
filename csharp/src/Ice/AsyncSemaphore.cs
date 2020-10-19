@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         private int _currentCount;
         private readonly int _maxCount;
         private readonly object _mutex = new object();
-        private readonly Queue<ManualResetValueTaskCompletionSource<bool>> _queue = new ();
+        private readonly Queue<ManualResetValueTaskCompletionSource<bool>> _queue = new();
 
         internal AsyncSemaphore(int initialCount)
         {

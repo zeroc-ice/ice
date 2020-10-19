@@ -2,10 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
@@ -56,7 +53,7 @@ namespace ZeroC.IceLocatorDiscovery
             if (lookupEndpoints == null)
             {
 
-                List<string> endpoints = new ();
+                List<string> endpoints = new();
                 List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
                 List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
 

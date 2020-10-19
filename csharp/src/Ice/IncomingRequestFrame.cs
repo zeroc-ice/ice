@@ -82,7 +82,7 @@ namespace ZeroC.Ice
 
                 if (Location.Any(segment => segment.Length == 0))
                 {
-                   throw new InvalidDataException("received request with empty location segment");
+                    throw new InvalidDataException("received request with empty location segment");
                 }
             }
 

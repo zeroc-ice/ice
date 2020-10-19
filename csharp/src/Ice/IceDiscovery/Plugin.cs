@@ -55,7 +55,7 @@ namespace ZeroC.IceDiscovery
             string? lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup");
             if (lookupEndpoints == null)
             {
-                List<string> endpoints = new ();
+                List<string> endpoints = new();
                 List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
                 List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
 
@@ -86,7 +86,7 @@ namespace ZeroC.IceDiscovery
             }
 
             // Setup locator registry.
-            LocatorRegistry locatorRegistry = new ();
+            LocatorRegistry locatorRegistry = new();
             ILocatorRegistryPrx locatorRegistryPrx =
                 _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 
@@ -94,7 +94,7 @@ namespace ZeroC.IceDiscovery
                 ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", _communicator).Clone(clearRouter: true);
 
             // Add lookup Ice object
-            Lookup lookup = new (locatorRegistry, lookupPrx, _communicator, _replyAdapter);
+            Lookup lookup = new(locatorRegistry, lookupPrx, _communicator, _replyAdapter);
             _multicastAdapter.Add("IceDiscovery/Lookup", lookup);
 
             // Setup locator on the communicator.
