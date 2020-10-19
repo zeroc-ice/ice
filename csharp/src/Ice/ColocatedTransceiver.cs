@@ -121,6 +121,17 @@ namespace ZeroC.Ice
             }
         }
 
+        internal override (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate)
+        {
+            (long, long) streamIds = base.AbortStreams(exception, predicate);
+
+            // Unblock requests waiting on the semaphores.
+            BidirectionalSerializeSemaphore?.CancelAwaiters(exception);
+            UnidirectionalSerializeSemaphore?.CancelAwaiters(exception);
+
+            return streamIds;
+        }
+
         internal long AllocateId(bool bidirectional)
         {
             lock (Mutex)

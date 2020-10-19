@@ -51,6 +51,7 @@ namespace ZeroC.Ice
         internal event EventHandler? Ping;
         internal int StreamCount => _streams.Count;
 
+        private volatile bool _aborted;
         // The mutex provides thread-safety for the _observer and LastActivity data members.
         private readonly object _mutex = new ();
         private IConnectionObserver? _observer;
@@ -230,8 +231,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
+        internal virtual (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
+            _aborted = true;
+
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
             // still needed for sending and receiving GoAway frames.
             long largestBidirectionalStreamId = 0;
@@ -257,7 +260,14 @@ namespace ZeroC.Ice
             return (largestBidirectionalStreamId, largestUnidirectionalStreamId);
         }
 
-        internal void AddStream(long id, TransceiverStream stream) => _streams[id] = stream;
+        internal void AddStream(long id, TransceiverStream stream)
+        {
+            if (_aborted)
+            {
+                throw new ConnectionClosedException();
+            }
+            _streams[id] = stream;
+        }
 
         internal void CheckStreamsEmpty()
         {
@@ -352,11 +362,13 @@ namespace ZeroC.Ice
                 {
                     framePrefix = "sent";
                     data = sendBuffer.Count > 0 ? sendBuffer.AsArraySegment() : ArraySegment<byte>.Empty;
+                    frameSize = sendBuffer.GetByteCount();
                 }
                 else if (frame is ArraySegment<byte> readBuffer)
                 {
                     framePrefix = "received";
                     data = readBuffer;
+                    frameSize = readBuffer.Count;
                 }
                 else
                 {
@@ -373,7 +385,6 @@ namespace ZeroC.Ice
                         _ => "Unknown"
                     };
                     encoding = Ice2Definitions.Encoding;
-                    frameSize = 0;
                 }
                 else
                 {
@@ -384,8 +395,8 @@ namespace ZeroC.Ice
                         Ice1Definitions.FrameType.RequestBatch => "RequestBatch",
                         _ => "Unknown"
                     };
+                    frameSize -= Ice1Definitions.HeaderSize;
                     encoding = Ice1Definitions.Encoding;
-                    frameSize = 0;
                 }
             }
 

@@ -542,6 +542,8 @@ namespace ZeroC.Ice
                     (response, fin) = await adapter.DispatchAsync(request, current, cancel).ConfigureAwait(false);
                 }
 
+                cancel.ThrowIfCancellationRequested();
+
                 if (stream.IsBidirectional)
                 {
                     // Send the response over the stream
@@ -585,7 +587,12 @@ namespace ZeroC.Ice
 
             Debug.Assert(_state < state); // Don't switch twice and only switch to a higher value state.
 
-            if (_state != ConnectionState.Closing && state == ConnectionState.Closed && _communicator.WarnConnections)
+            // If the connection is active and the new state is Closed without first going into the Closing state
+            // we print a warning, the connection was closed non-gracefully.
+            if (_state == ConnectionState.Active &&
+                state == ConnectionState.Closed &&
+                !Endpoint.IsDatagram &&
+                _communicator.WarnConnections)
             {
                 Debug.Assert(exception != null);
                 _communicator.Logger.Warning($"connection exception:\n{exception}\n{this}");

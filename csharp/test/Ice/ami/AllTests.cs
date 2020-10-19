@@ -500,26 +500,46 @@ namespace ZeroC.Ice.Test.AMI
                 output.Flush();
                 try
                 {
-                    int previous = 0;
-                    int expected = 0;
-                    var tasks = new Task<int>[20];
-                    var context = new Dictionary<string, string>();
-                    for (int i = 0; i < 50; ++i)
                     {
-                        // Async serialization only works once the connection is established and if there's no retries
-                        serialized.IcePing();
-                        for (int j = 0; j < tasks.Length; ++j)
+                        int previous = 0;
+                        int expected = 0;
+                        var tasks = new Task<int>[20];
+                        var context = new Dictionary<string, string>();
+                        for (int i = 0; i < 50; ++i)
                         {
-                            context["value"] = j.ToString(); // This is for debugging
-                            tasks[j] = serialized.SetAsync(j, context);
+                            // Async serialization only works once the connection is established and if there's no retries
+                            serialized.IcePing();
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                context["value"] = j.ToString(); // This is for debugging
+                                tasks[j] = serialized.SetAsync(j, context);
+                            }
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                previous = await tasks[j].ConfigureAwait(false);
+                                TestHelper.Assert(previous == expected);
+                                expected = j;
+                            }
+                            await serialized.GetConnection().GoAwayAsync();
                         }
-                        for (int j = 0; j < tasks.Length; ++j)
+                    }
+
+                    {
+                        // Ensure requests don't fail if the connection is closed gracefully while being sent.
+                        var tasks = new Task[20];
+                        for (int i = 0; i < 10; ++i)
                         {
-                            previous = await tasks[j].ConfigureAwait(false);
-                            TestHelper.Assert(previous == expected);
-                            expected = j;
+                            serialized.IcePing();
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                tasks[j] = serialized.IcePingAsync();
+                            }
+                            _ = serialized.GetConnection().GoAwayAsync();
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                await tasks[j].ConfigureAwait(false);
+                            }
                         }
-                        await serialized.GetConnection().GoAwayAsync();
                     }
                 }
                 catch (ObjectNotExistException)
