@@ -564,33 +564,13 @@ namespace ZeroC.Ice
             bool synchronous,
             IProgress<bool>? progress = null)
         {
-            try
-            {
-                return WaitForResponseAsync(InvokeWithInterceptorsAsync(proxy,
-                                                                        request,
-                                                                        oneway,
-                                                                        synchronous,
-                                                                        0,
-                                                                        progress,
-                                                                        request.CancellationToken));
-            }
-            catch
-            {
-                request.Dispose();
-                throw;
-            }
-
-            async Task<IncomingResponseFrame> WaitForResponseAsync(Task<IncomingResponseFrame> t)
-            {
-                try
-                {
-                    return await t.ConfigureAwait(false);
-                }
-                finally
-                {
-                    request.Dispose();
-                }
-            }
+            return InvokeWithInterceptorsAsync(proxy,
+                                               request,
+                                               oneway,
+                                               synchronous,
+                                               0,
+                                               progress,
+                                               request.CancellationToken);
 
             static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,

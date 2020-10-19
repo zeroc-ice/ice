@@ -343,8 +343,17 @@ namespace ZeroC.Ice
         /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <returns>The operation's return value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader) =>
-            this.Invoke(request, oneway: false).ReadReturnValue(Communicator, reader);
+        protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader)
+        {
+            try
+            {
+                return this.Invoke(request, oneway: false).ReadReturnValue(Communicator, reader);
+            }
+            finally
+            {
+                request.Dispose();
+            }
+        }
 
         /// <summary>Sends a request that returns void and waits synchronously for the result.</summary>
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
@@ -353,10 +362,17 @@ namespace ZeroC.Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void IceInvoke(OutgoingRequestFrame request, bool oneway)
         {
-            IncomingResponseFrame response = this.Invoke(request, oneway);
-            if (!oneway)
+            try
             {
-                response.ReadVoidReturnValue(Communicator);
+                IncomingResponseFrame response = this.Invoke(request, oneway);
+                if (!oneway)
+                {
+                    response.ReadVoidReturnValue(Communicator);
+                }
+            }
+            finally
+            {
+                request.Dispose();
             }
         }
 
@@ -373,13 +389,30 @@ namespace ZeroC.Ice
             InputStreamReader<T> reader,
             IProgress<bool>? progress)
         {
-            return ReadResponseAsync(this.InvokeAsync(request, oneway: false, progress), reader, Communicator);
+            Task<IncomingResponseFrame> responseTask;
+            try
+            {
+                responseTask = this.InvokeAsync(request, oneway: false, progress);
+            }
+            catch
+            {
+                request.Dispose();
+                throw;
+            }
 
-            static async Task<T> ReadResponseAsync(
-                Task<IncomingResponseFrame> task,
-                InputStreamReader<T> reader,
-                Communicator communicator) =>
-                (await task.ConfigureAwait(false)).ReadReturnValue(communicator, reader);
+            return ReadResponseAsync();
+
+            async Task<T> ReadResponseAsync()
+            {
+                try
+                {
+                    return (await responseTask.ConfigureAwait(false)).ReadReturnValue(Communicator, reader);
+                }
+                finally
+                {
+                    request.Dispose();
+                }
+            }
         }
 
         /// <summary>Sends a request that returns void and returns the result asynchronously.</summary>
@@ -394,18 +427,32 @@ namespace ZeroC.Ice
             bool oneway,
             IProgress<bool>? progress)
         {
-            // A oneway request still need to await the dummy response to return only once the request is sent.
-            return ReadResponseAsync(this.InvokeAsync(request, oneway, progress), oneway, Communicator);
-
-            static async Task ReadResponseAsync(
-                Task<IncomingResponseFrame> task,
-                bool oneway,
-                Communicator communicator)
+            Task<IncomingResponseFrame> responseTask;
+            try
             {
-                IncomingResponseFrame response = await task.ConfigureAwait(false);
-                if (!oneway)
+                responseTask = this.InvokeAsync(request, oneway, progress);
+            }
+            catch
+            {
+                request.Dispose();
+                throw;
+            }
+            // A oneway request still need to await the dummy response to return only once the request is sent.
+            return ReadResponseAsync();
+
+            async Task ReadResponseAsync()
+            {
+                try
                 {
-                    response.ReadVoidReturnValue(communicator);
+                    IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
+                    if (!oneway)
+                    {
+                        response.ReadVoidReturnValue(Communicator);
+                    }
+                }
+                finally
+                {
+                    request.Dispose();
                 }
             }
         }
