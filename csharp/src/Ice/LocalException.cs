@@ -177,15 +177,6 @@ namespace ZeroC.Ice
         }
     }
 
-    // /// <summary>This exception reports that a previously established connection timed out.</summary>
-    // public class ConnectionTimeoutException : TransportException
-    // {
-    //     /// <summary>Constructs a new instance of the <see cref="ConnectionTimeoutException"/> class.</summary>
-    //     public ConnectionTimeoutException()
-    //     {
-    //     }
-    // }
-
     /// <summary>This exception indicates that a previous established connection was closed.</summary>
     public class ConnectionClosedException : TransportException
     {
@@ -206,44 +197,6 @@ namespace ZeroC.Ice
         public ConnectionClosedException(string message, bool isClosedByPeer = false)
             : base(message) => IsClosedByPeer = isClosedByPeer;
     }
-
-    // /// <summary>This exception indicates that the connection was gracefully shut down by the server. A request
-    // /// that failed with this exception was not executed by the server. In most cases you will not get this
-    // /// exception because the client automatically retries the invocation in case the server shuts down the connection.
-    // /// However, if upon retry the server shuts down the connection again, and the retry limit is reached, this
-    // /// exception is propagated to the application code.</summary>
-    // public class ConnectionClosedByPeerException : ConnectionClosedException
-    // {
-    //     /// <summary>Constructs a new instance of the <see cref="ConnectionClosedByPeerException"/> class with a
-    //     /// specified error message.</summary>
-    //     /// <param name="message">The message that describes the error.</param>
-    //     public ConnectionClosedByPeerException(string message)
-    //         : base(message)
-    //     {
-    //     }
-    // }
-
-    // /// <summary>This exception indicates the application (client) closed the connection with Connection.Close.
-    // /// </summary>
-    // public class ConnectionClosedLocallyException : ConnectionClosedException
-    // {
-    //     /// <summary>Constructs a new instance of the <see cref="ConnectionClosedLocallyException"/> class with a
-    //     /// specified error message.</summary>
-    //     /// <param name="message">The message that describes the error.</param>
-    //     public ConnectionClosedLocallyException(string message)
-    //         : base(message)
-    //     {
-    //     }
-    // }
-
-    // /// <summary>This exception indicates the connection was closed by ACM because it was idle. </summary>
-    // public class ConnectionIdleException : TransportException
-    // {
-    //     /// <summary>Constructs a new instance of the <see cref="ConnectionIdleException"/> class.</summary>
-    //     public ConnectionIdleException()
-    //     {
-    //     }
-    // }
 
     /// <summary>This exception reports a DNS error.</summary>
     public class DNSException : TransportException

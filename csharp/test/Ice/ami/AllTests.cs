@@ -526,8 +526,7 @@ namespace ZeroC.Ice.Test.AMI
 
                     {
                         // Ensure requests don't fail if the connection is closed gracefully while being sent. The
-                        // ping calls will get retried. Ping calls which are blocked waiting on the flow control
-                        // semaphore should also failed and be retried.
+                        // ping calls will get retried.
                         var tasks = new Task[20];
                         for (int i = 0; i < 10; ++i)
                         {
@@ -556,25 +555,47 @@ namespace ZeroC.Ice.Test.AMI
 
                 try
                 {
-                    var tasks = new Task[20];
-                    serialized.Set(-1);
-                    var context = new Dictionary<string, string>();
-                    for (int i = 0; i < 50; ++i)
                     {
-                        // Async serialization only works once the connection is established and if there's no retries
-                        serialized.IcePing();
-                        for (int j = 0; j < tasks.Length; ++j)
+                        var tasks = new Task[20];
+                        serialized.Set(-1);
+                        var context = new Dictionary<string, string>();
+                        for (int i = 0; i < 50; ++i)
                         {
-                            context["value"] = (i * tasks.Length + j).ToString(); // This is for debugging
-                            tasks[j] = serialized.SetOnewayAsync(i * tasks.Length + j - 1,
-                                                                 i * tasks.Length + j,
-                                                                 context);
+                            // Async serialization only works once the connection is established and if there's no retries
+                            serialized.IcePing();
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                context["value"] = (i * tasks.Length + j).ToString(); // This is for debugging
+                                tasks[j] = serialized.SetOnewayAsync(i * tasks.Length + j - 1,
+                                                                    i * tasks.Length + j,
+                                                                    context);
+                            }
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                await tasks[j].ConfigureAwait(false);
+                            }
+                            await serialized.GetConnection().GoAwayAsync();
                         }
-                        for (int j = 0; j < tasks.Length; ++j)
+                    }
+
+                    {
+                        // Ensure requests don't fail if the connection is closed gracefully while being sent. The
+                        // ping calls will get retried.
+                        var tasks = new Task[20];
+                        var serializedOneway = serialized.Clone(oneway: true);
+                        for (int i = 0; i < 10; ++i)
                         {
-                            await tasks[j].ConfigureAwait(false);
+                            serializedOneway.IcePing();
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                tasks[j] = serializedOneway.IcePingAsync();
+                            }
+                            _ = serializedOneway.GetConnection().GoAwayAsync();
+                            for (int j = 0; j < tasks.Length; ++j)
+                            {
+                                await tasks[j].ConfigureAwait(false);
+                            }
                         }
-                        await serialized.GetConnection().GoAwayAsync();
                     }
                 }
                 catch (ObjectNotExistException)

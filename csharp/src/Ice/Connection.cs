@@ -542,6 +542,7 @@ namespace ZeroC.Ice
                     (response, fin) = await adapter.DispatchAsync(request, current, cancel).ConfigureAwait(false);
                 }
 
+                // No need to send the response if the dispatch is canceled.
                 cancel.ThrowIfCancellationRequested();
 
                 if (stream.IsBidirectional)
