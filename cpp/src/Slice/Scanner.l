@@ -487,43 +487,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* ========== Identifiers and Keywords ========== */
 
-{identifier}[[:space:]]*"(" {
-    StringTokPtr ident = new StringTok;
-    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
-    ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
-    *yylval = ident;
-    if(*yytext == '\\')
-    {
-        if(checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
-        {
-            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
-        }
-        return ICE_IDENT_OPEN;
-    }
-    int st = checkKeyword(ident->v);
-    if(st == ICE_IDENTIFIER)
-    {
-        return ICE_IDENT_OPEN;
-    }
-    else if(st == ICE_SCOPED_IDENTIFIER)
-    {
-        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
-        return ICE_IDENT_OPEN;
-    }
-    else if(st == ICE_TAG)
-    {
-        return ICE_TAG_OPEN;
-    }
-    else if(st == ICE_OPTIONAL)
-    {
-        return ICE_OPTIONAL_OPEN;
-    }
-    else
-    {
-        return ICE_KEYWORD_OPEN;
-    }
-}
-
 {identifier} {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
