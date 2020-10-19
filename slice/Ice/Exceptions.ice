@@ -20,25 +20,30 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-    /// Represents the origin of a remote exception, with ice2 all remote exceptions have an origin field set, with
-    /// ice1 it is only set for {@link ObjectNotExistException} and {@link OperationNotExistException}.
+    /// Represents the origin of a remote exception. With the Ice 2.0 encoding, all remote exceptions have an implicit
+    /// origin data member set during marshaling. With the Ice 1.1 encoding, this origin data member is only set and
+    /// marshaled for {@link ObjectNotExistException} and {@link OperationNotExistException}.
     [cs:readonly] struct RemoteExceptionOrigin
     {
         /// The Ice object Identity.
         Identity identity;
+
         /// The Ice object facet.
         string facet;
+
         /// The operation name.
         string operation;
     }
 
 #ifdef __SLICE2CS__
-    /// With ice1, an ObjectNotExistException is transmitted without the message string.
+    /// The object adapter could not find a servant for the target object.
     exception ObjectNotExistException
     {
     }
 
-    /// With ice1, an OperationNotExistException is transmitted without the message string.
+    /// The object adapter found a servant for the target object but this servant does not implement the requested
+    /// operation. This exception is typically thrown when a client with newer Slice definitions calls an implementation
+    /// based on older Slice definitions.
     exception OperationNotExistException
     {
     }
