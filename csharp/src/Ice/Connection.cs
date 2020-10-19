@@ -117,7 +117,7 @@ namespace ZeroC.Ice
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
         private IAcmMonitor? _monitor;
-        private readonly object _mutex = new();
+        private readonly object _mutex = new ();
         private volatile ConnectionState _state; // The current state.
 
         /// <summary>Aborts the connection.</summary>

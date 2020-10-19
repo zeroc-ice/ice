@@ -24,20 +24,20 @@ namespace ZeroC.Ice
         private readonly bool _background;
 
         private readonly ConcurrentDictionary<Reference, (TimeSpan InsertionTime, Reference Reference)>
-            _locationCache = new(_locationComparer);
+            _locationCache = new (_locationComparer);
 
-        private readonly Dictionary<Reference, Task<Reference?>> _locationRequests = new(_locationComparer);
+        private readonly Dictionary<Reference, Task<Reference?>> _locationRequests = new (_locationComparer);
 
         private ILocatorRegistryPrx? _locatorRegistry;
 
         // _mutex protects _locationRequests and _wellKnownProxyRequests
-        private readonly object _mutex = new();
+        private readonly object _mutex = new ();
 
         private readonly ConcurrentDictionary<Reference, (TimeSpan InsertionTime, Reference Reference)>
-            _wellKnownProxyCache = new(_wellKnownProxyComparer);
+            _wellKnownProxyCache = new (_wellKnownProxyComparer);
 
         private readonly Dictionary<Reference, Task<Reference?>> _wellKnownProxyRequests =
-            new(_wellKnownProxyComparer);
+            new (_wellKnownProxyComparer);
 
         internal LocatorInfo(ILocatorPrx locator, bool background)
         {

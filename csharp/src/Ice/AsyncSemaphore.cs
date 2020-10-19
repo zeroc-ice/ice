@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         private int _currentCount;
         private readonly int _maxCount;
         private readonly object _mutex = new object();
-        private readonly Queue<ManualResetValueTaskCompletionSource<bool>> _queue = new();
+        private readonly Queue<ManualResetValueTaskCompletionSource<bool>> _queue = new ();
 
         internal AsyncSemaphore(int initialCount)
         {

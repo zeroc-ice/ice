@@ -30,7 +30,7 @@ namespace ZeroC.IceDiscovery
             ResolveWellKnownProxyAsync(id, Protocol.Ice1, current, cancel);
 
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
-            new(_registry);
+            new (_registry);
 
         public ValueTask<IObjectPrx?> ResolveLocationAsync(
             string[] location,
@@ -55,9 +55,9 @@ namespace ZeroC.IceDiscovery
 
     internal class LocatorRegistry : ILocatorRegistry
     {
-        private readonly Dictionary<(string, Protocol), IObjectPrx> _adapters = new();
-        private readonly object _mutex = new();
-        private readonly Dictionary<(string, Protocol), HashSet<string>> _replicaGroups = new();
+        private readonly Dictionary<(string, Protocol), IObjectPrx> _adapters = new ();
+        private readonly object _mutex = new ();
+        private readonly Dictionary<(string, Protocol), HashSet<string>> _replicaGroups = new ();
 
         public void RegisterAdapterEndpoints(
             string adapterId,

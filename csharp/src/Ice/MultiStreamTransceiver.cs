@@ -51,9 +51,9 @@ namespace ZeroC.Ice
         internal int StreamCount => _streams.Count;
 
         // The mutex provides thread-safety for the _observer and LastActivity data members.
-        private readonly object _mutex = new();
+        private readonly object _mutex = new ();
         private IConnectionObserver? _observer;
-        private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new();
+        private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new ();
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Aborts the transceiver.</summary>
