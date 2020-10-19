@@ -19,11 +19,9 @@ namespace ZeroC.Ice
             {
                 "interface" => MulticastInterface,
                 "ttl" => MulticastTtl.ToString(CultureInfo.InvariantCulture),
-                "compress" => HasCompressionFlag ? "true" : null,
+                "compress" => _hasCompressionFlag ? "true" : null,
                 _ => base[option],
             };
-
-        public override Transport Transport => Transport.UDP;
 
         /// <summary>The local network interface used to send multicast datagrams.</summary>
         internal string? MulticastInterface { get; }
@@ -31,12 +29,33 @@ namespace ZeroC.Ice
         /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
         internal int MulticastTtl { get; } = -1;
 
-        private bool HasCompressionFlag { get; }
+        private readonly bool _hasCompressionFlag;
 
         private int _hashCode;
 
         public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
             throw new InvalidOperationException();
+
+        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
+        {
+            var transceiver = new UdpTransceiver(this, Communicator);
+            try
+            {
+                if (Communicator.TraceLevels.Transport >= 2)
+                {
+                    Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
+                        $"attempting to bind to {TransportName} socket\n{transceiver}");
+                }
+                Endpoint endpoint = transceiver.Bind(this);
+                var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
+                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
+            }
+            catch (Exception)
+            {
+                transceiver.Dispose();
+                throw;
+            }
+        }
 
         public override bool Equals(Endpoint? other)
         {
@@ -45,6 +64,7 @@ namespace ZeroC.Ice
                 return true;
             }
             return other is UdpEndpoint udpEndpoint &&
+                _hasCompressionFlag == udpEndpoint._hasCompressionFlag &&
                 MulticastInterface == udpEndpoint.MulticastInterface &&
                 MulticastTtl == udpEndpoint.MulticastTtl &&
                 base.Equals(udpEndpoint);
@@ -62,7 +82,7 @@ namespace ZeroC.Ice
             {
                 var hash = new HashCode();
                 hash.Add(base.GetHashCode());
-                hash.Add(HasCompressionFlag);
+                hash.Add(_hasCompressionFlag);
                 hash.Add(MulticastInterface);
                 hash.Add(MulticastTtl);
                 int hashCode = hash.ToHashCode();
@@ -74,7 +94,6 @@ namespace ZeroC.Ice
                 return _hashCode;
             }
         }
-
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
             Debug.Assert(Protocol == Protocol.Ice1);
@@ -103,7 +122,7 @@ namespace ZeroC.Ice
                 sb.Append(MulticastTtl.ToString(CultureInfo.InvariantCulture));
             }
 
-            if (HasCompressionFlag)
+            if (_hasCompressionFlag)
             {
                 sb.Append(" -z");
             }
@@ -111,63 +130,36 @@ namespace ZeroC.Ice
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-            // TODO: temporary, should be ice1-only
-            if (Protocol == Protocol.Ice1)
-            {
-                base.WriteOptions(ostr);
-                ostr.WriteBool(HasCompressionFlag);
-            }
-            else
-            {
-                ostr.WriteSize(0);
-            }
+            Debug.Assert(Protocol == Protocol.Ice1);
+            base.WriteOptions(ostr);
+            ostr.WriteBool(_hasCompressionFlag);
         }
 
-        public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
+        internal static UdpEndpoint CreateIce1Endpoint(Transport transport, InputStream istr)
         {
-            var transceiver = new UdpTransceiver(this, Communicator);
-            try
-            {
-                if (Communicator.TraceLevels.Transport >= 2)
-                {
-                    Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
-                        $"attempting to bind to {TransportName} socket\n{transceiver}");
-                }
-                Endpoint endpoint = transceiver.Bind(this);
-                var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
-                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
-            }
-            catch (Exception)
-            {
-                transceiver.Dispose();
-                throw;
-            }
+            Debug.Assert(transport == Transport.UDP);
+            return new UdpEndpoint(new EndpointData(transport,
+                                                    host: istr.ReadString(),
+                                                    port: ReadPort(istr),
+                                                    Array.Empty<string>()),
+                                   compress: istr.ReadBool(),
+                                   istr.Communicator!);
         }
 
-        // Constructor for unmarshaling.
-        internal UdpEndpoint(InputStream istr)
-            : base(istr, Protocol.Ice1) => HasCompressionFlag = istr.ReadBool();
-
-        // Constructor for ice1 endpoint parsing.
-        internal UdpEndpoint(
-            Communicator communicator,
+        internal static UdpEndpoint ParseIce1Endpoint(
+            Transport transport,
             Dictionary<string, string?> options,
+            Communicator communicator,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, options, oaEndpoint, endpointString)
         {
-            if (options.TryGetValue("-z", out string? argument))
-            {
-                if (argument != null)
-                {
-                    throw new FormatException(
-                        $"unexpected argument `{argument}' provided for -z option in `{endpointString}'");
-                }
-                HasCompressionFlag = true;
-                options.Remove("-z");
-            }
+            Debug.Assert(transport == Transport.UDP);
 
-            if (options.TryGetValue("--ttl", out argument))
+            (string host, ushort port) = ParseHostAndPort(options, oaEndpoint, endpointString);
+
+            int ttl = -1;
+
+            if (options.TryGetValue("--ttl", out string? argument))
             {
                 if (argument == null)
                 {
@@ -175,30 +167,32 @@ namespace ZeroC.Ice
                 }
                 try
                 {
-                    MulticastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
+                    ttl = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {
                     throw new FormatException($"invalid TTL value `{argument}' in endpoint `{endpointString}'", ex);
                 }
 
-                if (MulticastTtl < 0)
+                if (ttl < 0)
                 {
                     throw new FormatException($"TTL value `{argument}' out of range in endpoint `{endpointString}'");
                 }
                 options.Remove("--ttl");
             }
 
+            string? multicastInterface = null;
+
             if (options.TryGetValue("--interface", out argument))
             {
-                MulticastInterface = argument ?? throw new FormatException(
+                multicastInterface = argument ?? throw new FormatException(
                     $"no argument provided for --interface option in endpoint `{endpointString}'");
 
-                if (MulticastInterface == "*")
+                if (multicastInterface == "*")
                 {
                     if (oaEndpoint)
                     {
-                        MulticastInterface = null;
+                        multicastInterface = null;
                     }
                     else
                     {
@@ -207,10 +201,40 @@ namespace ZeroC.Ice
                 }
                 options.Remove("--interface");
             }
-        }
 
+            return new UdpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
+                                   ParseCompress(options, endpointString),
+                                   ttl,
+                                   multicastInterface,
+                                   options,
+                                   communicator,
+                                   oaEndpoint,
+                                   endpointString);
+        }
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
             new UdpConnector(this, addr);
+
+        // Constructor for ice1 unmarshaling
+        private UdpEndpoint(EndpointData data, bool compress, Communicator communicator)
+            : base(data, communicator, Protocol.Ice1) =>
+            _hasCompressionFlag = compress;
+
+        // Constructor for ice1 parsing
+        private UdpEndpoint(
+            EndpointData data,
+            bool compress,
+            int ttl,
+            string? multicastInterface,
+            Dictionary<string, string?> options,
+            Communicator communicator,
+            bool oaEndpoint,
+            string endpointString)
+            : base(data, options, communicator, oaEndpoint, endpointString)
+        {
+            _hasCompressionFlag = compress;
+            MulticastTtl = ttl;
+            MulticastInterface = multicastInterface;
+        }
 
         // Clone constructor
         private UdpEndpoint(UdpEndpoint endpoint, string host, ushort port)
@@ -218,9 +242,8 @@ namespace ZeroC.Ice
         {
             MulticastInterface = endpoint.MulticastInterface;
             MulticastTtl = endpoint.MulticastTtl;
-            HasCompressionFlag = endpoint.HasCompressionFlag;
+            _hasCompressionFlag = endpoint._hasCompressionFlag;
         }
-
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new UdpEndpoint(this, host, port);
     }

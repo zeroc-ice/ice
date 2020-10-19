@@ -29,7 +29,7 @@ namespace ZeroC.Ice
         public bool IsSealed { get; private protected set; }
 
         /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
-        /// <remarks>Treat this list as if it was read-only, like a IReadOnlyList{ReadOnlyMemory{byte}}. It is not
+        /// <remarks>Treat this list as if it was read-only, like an IReadOnlyList{ReadOnlyMemory{byte}}. It is not
         /// read-only for compatibility with the Socket APIs.</remarks>
         public IList<ArraySegment<byte>> Payload
         {

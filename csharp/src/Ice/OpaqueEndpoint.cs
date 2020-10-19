@@ -17,8 +17,6 @@ namespace ZeroC.Ice
     /// </summary>
     internal sealed class OpaqueEndpoint : Endpoint
     {
-        public override string Host => "";
-
         public override string? this[string option] =>
             option switch
             {
@@ -29,7 +27,6 @@ namespace ZeroC.Ice
             };
 
         public override string Scheme => "opaque";
-        public override Transport Transport { get; }
 
         protected internal override ushort DefaultPort => 0;
         protected internal override bool HasOptions => true;
@@ -111,13 +108,23 @@ namespace ZeroC.Ice
             }
         }
 
-        // Constructor for parsing the ice1 string format.
-        internal OpaqueEndpoint(
-            Communicator communicator,
+        internal static OpaqueEndpoint Create(
+            Transport transport,
+            Encoding valueEncoding,
+            ReadOnlyMemory<byte> value,
+            Communicator communicator) =>
+            new OpaqueEndpoint(new EndpointData(transport, host: "", port: 0, Array.Empty<string>()),
+                               valueEncoding,
+                               value,
+                               communicator);
+
+        internal static OpaqueEndpoint Parse(
             Dictionary<string, string?> options,
+            Communicator communicator,
             string endpointString)
-            : base(communicator, Protocol.Ice1)
         {
+            Transport transport;
+
             if (options.TryGetValue("-t", out string? argument))
             {
                 if (argument == null)
@@ -141,13 +148,15 @@ namespace ZeroC.Ice
                         $"transport value `{argument}' out of range in endpoint `{endpointString}'");
                 }
 
-                Transport = (Transport)t;
+                transport = (Transport)t;
                 options.Remove("-t");
             }
             else
             {
                 throw new FormatException($"no -t option in endpoint `{endpointString}'");
             }
+
+            Encoding valueEncoding;
 
             if (options.TryGetValue("-e", out argument))
             {
@@ -157,7 +166,7 @@ namespace ZeroC.Ice
                 }
                 try
                 {
-                    ValueEncoding = Encoding.Parse(argument);
+                    valueEncoding = Encoding.Parse(argument);
                 }
                 catch (FormatException ex)
                 {
@@ -168,8 +177,10 @@ namespace ZeroC.Ice
             }
             else
             {
-                ValueEncoding = Encoding.V11;
+                valueEncoding = Encoding.V11;
             }
+
+            ReadOnlyMemory<byte> value;
 
             if (options.TryGetValue("-v", out argument))
             {
@@ -180,7 +191,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    Value = Convert.FromBase64String(argument);
+                    value = Convert.FromBase64String(argument);
                 }
                 catch (FormatException ex)
                 {
@@ -193,20 +204,18 @@ namespace ZeroC.Ice
                 throw new FormatException($"no -v option in endpoint `{endpointString}'");
             }
 
-            // the caller deals with the remaining options, if any
+            return Create(transport, valueEncoding, value, communicator);
         }
 
-        // Constructor for unmarshaling.
-        internal OpaqueEndpoint(
-            Communicator communicator,
-            Transport transport,
-            Encoding payloadEncoding,
-            byte[] bytes)
-            : base(communicator, Protocol.Ice1)
+        private OpaqueEndpoint(
+            EndpointData data,
+            Encoding valueEncoding,
+            ReadOnlyMemory<byte> value,
+            Communicator communicator)
+            : base(data, communicator, Protocol.Ice1)
         {
-            Transport = transport;
-            ValueEncoding = payloadEncoding;
-            Value = bytes;
+            ValueEncoding = valueEncoding;
+            Value = value;
         }
     }
 }

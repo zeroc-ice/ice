@@ -1202,10 +1202,10 @@ namespace ZeroC.Ice
 
         internal void WriteEndpoint(Endpoint endpoint)
         {
-            WriteShort((short)endpoint.Transport);
-
             if (endpoint.Protocol == Protocol.Ice1 || OldEncoding)
             {
+                this.Write(endpoint.Transport);
+
                 Position startPos = _tail;
                 int sizeLength = OldEncoding ? 4 : 2;
                 if (endpoint is OpaqueEndpoint opaqueEndpoint)
@@ -1228,9 +1228,9 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        WriteString(endpoint.Host);
-                        WriteUShort(endpoint.Port);
-                        endpoint.WriteOptions(this);
+                        WriteString(endpoint.Data.Host);
+                        WriteUShort(endpoint.Data.Port);
+                        WriteSequence(endpoint.Data.Options, IceWriterFromString);
                     }
                     Encoding = previousEncoding;
                 }
@@ -1238,9 +1238,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                WriteString(endpoint.Host);
-                WriteUShort(endpoint.Port);
-                endpoint.WriteOptions(this);
+                endpoint.Data.IceWrite(this);
             }
         }
 
