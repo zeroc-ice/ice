@@ -1,9 +1,10 @@
-IllegalIdentifier.ice:12: illegal input character: '\357'
-IllegalIdentifier.ice:12: syntax error
-IllegalIdentifier.ice:12: illegal input character: '\273'
-IllegalIdentifier.ice:12: illegal input character: '\277'
+IllegalIdentifier.ice:17: Identifier cannot be scoped: `scoped::name'
 IllegalIdentifier.ice:20: illegal input character: '\305'
+IllegalIdentifier.ice:20: syntax error
 IllegalIdentifier.ice:20: illegal input character: '\222'
 IllegalIdentifier.ice:22: illegal input character: '\305'
 IllegalIdentifier.ice:22: illegal input character: '\223'
-IllegalIdentifier.ice:23: syntax error
+IllegalIdentifier.ice:24: syntax error
+IllegalIdentifier.ice:29: illegal input character: '\357'
+IllegalIdentifier.ice:29: illegal input character: '\273'
+IllegalIdentifier.ice:29: illegal input character: '\277'
