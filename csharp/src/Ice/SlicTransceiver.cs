@@ -86,7 +86,8 @@ namespace ZeroC.Ice
 
                         if (TryGetStream(streamId.Value, out SlicStream? stream))
                         {
-                            // If not an incoming stream and this is the last stream frame, we release the semaphore.
+                            // If an outgoing stream and this is the last stream frame, we release the flow control
+                            // credit to eventually allow a new outgoing stream to be opened.
                             if (!isIncoming && fin)
                             {
                                 stream.ReleaseFlowControlCredit();

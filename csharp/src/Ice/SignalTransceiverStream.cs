@@ -19,15 +19,15 @@ namespace ZeroC.Ice
         private volatile int _signaled;
 
         /// <summary>Aborts the stream. If the stream is waiting to be signaled and the stream is not signaled
-        /// already the stream will be signaled with the exception. If the stream is signaled, we save the
-        /// exception, it will be raised after the stream consumes the signal and wait for a new signal</summary>
+        /// already, the stream will be signaled with the exception. If the stream is signaled, we save the
+        /// exception to raise it after the stream consumes the signal and waits for a new signal</summary>
         public override void Abort(Exception ex)
         {
             // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
             // already signaled, it's because a result is pending. In this case, we keep track of the exception and
             // we'll raise the exception the next time the signal is awaited. This is necessary because
             // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
-            // call again until the source's result or exception is consumed.
+            // call again SetXxx until the source's result or exception is consumed.
             if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
             {
                 _source.RunContinuationsAsynchronously = true;

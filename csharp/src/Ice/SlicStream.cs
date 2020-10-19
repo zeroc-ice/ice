@@ -28,7 +28,7 @@ namespace ZeroC.Ice
                 if (IsSignaled)
                 {
                     // If the stream is signaled, it was canceled or discarded. We get the information for the frame
-                    // to receive in order to pass it back to the transceiver below.
+                    // to receive in order to consume it below.
                     try
                     {
                         ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
@@ -38,7 +38,7 @@ namespace ZeroC.Ice
                     }
                     catch
                     {
-                        // Ignore, the stream got aborted.
+                        // Ignore, the stream got aborted and there's nothing to consume.
                     }
                 }
 
@@ -51,9 +51,8 @@ namespace ZeroC.Ice
                 }
 
                 // Only release incoming streams on Dispose. Slic outgoing streams are released when the StreamLast
-                // frame is received. The StreamLast frame can be received after the stream is disposed (e.g.: for
-                // oneway requests we dispose of the stream as soon as the request is sent and before receiving the
-                // StreamLast frame).
+                // frame is received and it can be received after the stream is disposed (e.g.: for oneway requests
+                // we dispose of the stream as soon as the request is sent and before receiving the StreamLast frame).
                 if (!IsControl && IsIncoming)
                 {
                     ReleaseFlowControlCredit(notifyPeer: true);
@@ -178,7 +177,7 @@ namespace ZeroC.Ice
                 {
                     Debug.Assert(!IsIncoming);
 
-                    // If the outgoing stream isn't started, it's the first Send call. We need to acquire flow
+                    // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
                     // control credit to ensure we don't open more streams than the peer allows.
                     await AcquireOutgoingFlowControlCreditAsync(cancel).ConfigureAwait(false);
 
@@ -198,10 +197,9 @@ namespace ZeroC.Ice
 
                 // The incoming bidirectional stream is considered completed once no more data will be written on
                 // the stream. It's important to release the flow control credit here before the peer receives the
-                // last stream frame to prevent a race where the peer could start a new stream before the counter
-                // credit is released. If the credit release returns false, this indicates that the credit has
-                // already been released because the stream got reset. In this case, we just return, no need to
-                //  send the last stream frame.
+                // last stream frame to prevent a race where the peer could start a new stream before the credit
+                // counter is released. If the credit is already released, this indicates that got reset. In this
+                // case, we return since an empty stream last frame has been sent already.
                 if (IsIncoming && fin && !ReleaseFlowControlCredit())
                 {
                     return;
@@ -284,7 +282,7 @@ namespace ZeroC.Ice
 
         internal override void ReceivedReset(long errorCode)
         {
-            // We ignore the stream reset if the stream flow control credit is already released (because the last
+            // We ignore the stream reset if the stream flow control credit is already released (the last
             // stream frame has already been sent)
             if (ReleaseFlowControlCredit(notifyPeer: true))
             {
