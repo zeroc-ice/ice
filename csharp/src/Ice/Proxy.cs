@@ -405,9 +405,10 @@ namespace ZeroC.Ice
                         }
                         catch (NoEndpointException ex)
                         {
-                            // The reference has no endpoints or the last exception asked to retry using a different
-                            // replica, but we already tried all known replicas.
-                            if (response == null && lastException == null)
+                            // The reference has no endpoints or the previous retry policy asked to retry on a
+                            // different replica but no more replica are available (in this case, we rethrow the
+                            // remote exception instead of the NoEndpointException).
+                            if (response == null)
                             {
                                 lastException = ex;
                             }
