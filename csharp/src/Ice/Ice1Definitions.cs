@@ -115,26 +115,53 @@ namespace ZeroC.Ice
 
         internal static RetryPolicy GetRetryPolicy(IncomingResponseFrame response, Reference reference)
         {
-            if (response.ReadIce1SystemException(reference.Communicator) is Exception systemException &&
-                systemException is ObjectNotExistException one)
+            Debug.Assert(response.Encoding == Encoding.V11);
+            if (response.ResultType == ResultType.Failure)
             {
-                // 1.1 System exceptions
-                if (reference.RouterInfo != null && one.Origin!.Value.Operation == "ice_add_proxy")
+                var replyStatus = (ReplyStatus)response.Payload[0]; // can be reassigned below
+
+                InputStream? istr = null;
+                if (response.Protocol == Protocol.Ice1)
                 {
-                    // If we have a router, an ObjectNotExistException with an operation name
-                    // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy
-                    // (for example, because it was evicted by the router). In this case, we must
-                    // *always* retry, so that the missing proxy is added to the router.
-                    reference.RouterInfo.ClearCache(reference);
-                    return RetryPolicy.AfterDelay(TimeSpan.Zero);
-                }
-                else if (reference.IsIndirect)
-                {
-                    if (reference.IsWellKnown)
+                    if (replyStatus != ReplyStatus.UserException)
                     {
-                        reference.LocatorInfo?.ClearCache(reference);
+                        istr = new InputStream(response.Payload.Slice(1), Encoding.V11);
                     }
-                    return RetryPolicy.AfterDelay(TimeSpan.Zero);
+                }
+                else
+                {
+                    istr = new InputStream(response.Payload.Slice(1),
+                                           Ice2Definitions.Encoding,
+                                           reference.Communicator,
+                                           startEncapsulation: true);
+
+                    replyStatus = istr.ReadReplyStatus();
+                    if (replyStatus == ReplyStatus.UserException)
+                    {
+                        istr = null; // we are not reading this user exception here
+                    }
+                }
+
+                if (istr?.ReadIce1SystemException(replyStatus) is ObjectNotExistException one)
+                {
+                    // 1.1 System exceptions
+                    if (reference.RouterInfo != null && one.Origin!.Value.Operation == "ice_add_proxy")
+                    {
+                        // If we have a router, an ObjectNotExistException with an operation name
+                        // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy
+                        // (for example, because it was evicted by the router). In this case, we must
+                        // *always* retry, so that the missing proxy is added to the router.
+                        reference.RouterInfo.ClearCache(reference);
+                        return RetryPolicy.AfterDelay(TimeSpan.Zero);
+                    }
+                    else if (reference.IsIndirect)
+                    {
+                        if (reference.IsWellKnown)
+                        {
+                            reference.LocatorInfo?.ClearCache(reference);
+                        }
+                        return RetryPolicy.AfterDelay(TimeSpan.Zero);
+                    }
                 }
             }
             return RetryPolicy.NoRetry;
