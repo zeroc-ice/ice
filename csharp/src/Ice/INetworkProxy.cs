@@ -104,7 +104,7 @@ namespace ZeroC.Ice
     {
         public EndPoint Address => _address!;
         public string Name => "HTTP";
-        public int IPVersion { get; }
+        public int IPVersion => Network.EnableBoth;
 
         private readonly string? _host;
         private readonly int _port;
@@ -172,7 +172,6 @@ namespace ZeroC.Ice
         {
             _host = host;
             _port = port;
-            IPVersion = Network.EnableBoth;
         }
 
         private HTTPNetworkProxy(EndPoint address, int ipVersion)

@@ -13,7 +13,7 @@ class NetworkProxyTestCase(ClientServerTestCase):
 
     def __init__(self, proxyName, proxyType):
         ClientServerTestCase.__init__(self, proxyName + " client/server", client = Client(props = lambda p, c: {
-            "Ice.{0}ProxyHost".format(proxyName): "localhost",
+            "Ice.{0}ProxyHost".format(proxyName): "127.0.0.1", # our proxy server only supports IPv4
             "Ice.{0}ProxyPort".format(proxyName): "{0}".format(c.driver.getTestPort(c.testsuite.portNum))
         }))
         self.proxyName = proxyName
