@@ -394,7 +394,6 @@ namespace ZeroC.Ice
                         Ice1Definitions.FrameType.RequestBatch => "RequestBatch",
                         _ => "Unknown"
                     };
-                    frameSize -= Ice1Definitions.HeaderSize;
                     encoding = Ice1Definitions.Encoding;
                 }
             }
