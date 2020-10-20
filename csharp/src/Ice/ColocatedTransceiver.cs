@@ -50,8 +50,14 @@ namespace ZeroC.Ice
                         // create a new stream and provide it the received frame.
                         Debug.Assert(frame != null);
                         stream = new ColocatedStream(streamId, this);
-                        stream.ReceivedFrame(frame, fin);
-                        return stream;
+                        if (stream.ReceivedFrame(frame, fin))
+                        {
+                            return stream;
+                        }
+                        else
+                        {
+                            stream.Dispose();
+                        }
                     }
                     else
                     {

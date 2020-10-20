@@ -35,7 +35,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                _exception = ex;
+                _exception ??= ex;
             }
         }
 

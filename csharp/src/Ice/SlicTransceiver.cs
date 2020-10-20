@@ -128,6 +128,7 @@ namespace ZeroC.Ice
                             else
                             {
                                 // If we can't signal the stream, it's because it has already been aborted.
+                                stream.Dispose();
                                 await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
                             }
                         }

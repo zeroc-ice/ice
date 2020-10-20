@@ -121,8 +121,14 @@ namespace ZeroC.Ice
                         {
                             await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
                         }
-                        stream.ReceivedFrame(frameType, frame);
-                        return stream;
+                        if (stream.ReceivedFrame(frameType, frame))
+                        {
+                            return stream;
+                        }
+                        else
+                        {
+                            stream.Dispose();
+                        }
                     }
                     else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
                     {

@@ -261,11 +261,11 @@ namespace ZeroC.Ice
 
         internal void AddStream(long id, TransceiverStream stream)
         {
+            _streams[id] = stream;
             if (_aborted)
             {
-                throw new ConnectionClosedException();
+                stream.Abort(new ConnectionClosedException());
             }
-            _streams[id] = stream;
         }
 
         internal void CheckStreamsEmpty()

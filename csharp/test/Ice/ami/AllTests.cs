@@ -779,14 +779,14 @@ namespace ZeroC.Ice.Test.AMI
                         var cb = new ProgressCallback();
                         p.CloseAsync(CloseMode.Gracefully, progress: cb);
 
-                        if (!cb.SentSynchronously)
+                        if (!cb.Sent)
                         {
                             for (int i = 0; i < maxQueue; i++)
                             {
                                 cb = new ProgressCallback();
                                 Task t = p.OpWithPayloadAsync(seq, progress: cb);
                                 results.Add(t);
-                                if (cb.SentSynchronously)
+                                if (cb.Sent)
                                 {
                                     done = false;
                                     maxQueue *= 2;
