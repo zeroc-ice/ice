@@ -200,7 +200,19 @@ file_metadata
 // ----------------------------------------------------------------------
 : ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE
 {
-    $$ = $2;
+    //TODOREMOVE
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
+    for (auto& m : metadata->v)
+    {
+        auto pos = m.find('(');
+        if (pos != string::npos)
+        {
+            m[pos] = ':';
+            assert(m.back() == ')');
+            m.pop_back();
+        }
+    }
+    $$ = metadata;
 }
 ;
 
@@ -209,6 +221,18 @@ local_metadata
 // ----------------------------------------------------------------------
 : ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
 {
+    //TODOREMOVE
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
+    for (auto& m : metadata->v)
+    {
+        auto pos = m.find('(');
+        if (pos != string::npos)
+        {
+            m[pos] = ':';
+            assert(m.back() == ')');
+            m.pop_back();
+        }
+    }
     $$ = $2;
 }
 | local_metadata ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
@@ -216,6 +240,17 @@ local_metadata
     StringListTokPtr metadata1 = StringListTokPtr::dynamicCast($1);
     StringListTokPtr metadata2 = StringListTokPtr::dynamicCast($3);
     metadata1->v.splice(metadata1->v.end(), metadata2->v);
+    //TODOREMOVE
+    for (auto& m : metadata1->v)
+    {
+        auto pos = m.find('(');
+        if (pos != string::npos)
+        {
+            m[pos] = ':';
+            assert(m.back() == ')');
+            m.pop_back();
+        }
+    }
     $$ = metadata1;
 }
 | %empty
