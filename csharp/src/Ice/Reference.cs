@@ -39,8 +39,6 @@ namespace ZeroC.Ice
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
 
-        internal string LocationAsString => Protocol == Protocol.Ice1 ? AdapterId :
-            string.Join('/', Location.Select(s => Uri.EscapeDataString(s)));
         internal TimeSpan LocatorCacheTimeout { get; }
 
         internal LocatorInfo? LocatorInfo { get; }

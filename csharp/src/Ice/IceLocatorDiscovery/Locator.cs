@@ -21,13 +21,11 @@ namespace ZeroC.IceLocatorDiscovery
 
         public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveLocation(
             string[] location,
-            Protocol protocol,
             Current current,
             CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
 
         public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveWellKnownProxy(
             Identity identity,
-            Protocol protocol,
             Current current,
             CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
     }

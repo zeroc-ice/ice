@@ -3,10 +3,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using EndpointList = System.Collections.Generic.IReadOnlyList<ZeroC.Ice.Endpoint>;
+using Location = System.Collections.Generic.IReadOnlyList<string>;
 
 namespace ZeroC.Ice
 {
@@ -18,31 +22,30 @@ namespace ZeroC.Ice
     {
         internal ILocatorPrx Locator { get; }
 
-        private static readonly IEqualityComparer<Reference> _locationComparer = new LocationComparer();
-        private static readonly IEqualityComparer<Reference> _wellKnownProxyComparer = new WellKnownProxyComparer();
+        private static readonly IEqualityComparer<(Location, Protocol)> _locationComparer = new LocationComparer();
 
         private readonly bool _background;
 
         private readonly ConcurrentDictionary<
-            Reference,
-            (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints, IReadOnlyList<string> NewLocation)>
+            (Location, Protocol),
+            (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)>
             _locationCache = new (_locationComparer);
 
-        private readonly Dictionary<Reference, Task<(IReadOnlyList<Endpoint>, IReadOnlyList<string>)>>
-            _locationRequests = new (_locationComparer);
+        private readonly Dictionary<(Location, Protocol), Task<(EndpointList, Location)>> _locationRequests =
+             new (_locationComparer);
 
         private ILocatorRegistryPrx? _locatorRegistry;
 
         // _mutex protects _locationRequests and _wellKnownProxyRequests
         private readonly object _mutex = new ();
 
-        // Resolved can be a direct reference (with endpoints) or an indirect reference. When it's an indirect
-        // reference, Resolved is used for lookups in the _locationCache dictionary.
-        private readonly ConcurrentDictionary<Reference, (TimeSpan InsertionTime, Reference Resolved)>
-            _wellKnownProxyCache = new (_wellKnownProxyComparer);
+        private readonly ConcurrentDictionary<
+            (Identity, Protocol),
+            (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)>
+            _wellKnownProxyCache = new ();
 
-        private readonly Dictionary<Reference, Task<Reference?>> _wellKnownProxyRequests =
-            new (_wellKnownProxyComparer);
+        private readonly Dictionary<(Identity, Protocol), Task<(EndpointList, Location)>> _wellKnownProxyRequests =
+            new ();
 
         internal LocatorInfo(ILocatorPrx locator, bool background)
         {
@@ -56,124 +59,90 @@ namespace ZeroC.Ice
 
             if (reference.IsWellKnown)
             {
-                if (RemoveWellKnownProxy(reference) is Reference resolvedWellKnownProxy)
-                {
-                    if (resolvedWellKnownProxy.IsIndirect)
-                    {
-                        // We don't cache bogus well-known resolved references.
-                        Debug.Assert(!resolvedWellKnownProxy.IsWellKnown);
-
-                        if (reference.Communicator.TraceLevels.Location >= 2)
-                        {
-                            TraceWellKnown("removed well-known proxy without endpoints from locator cache",
-                                           reference,
-                                           resolvedWellKnownProxy);
-                        }
-                        ClearCache(resolvedWellKnownProxy); // i.e clears location cache
-                    }
-                    else
-                    {
-                        if (reference.Communicator.TraceLevels.Location >= 2)
-                        {
-                            TraceDirect("removed well-known proxy with endpoints from locator cache",
-                                        reference,
-                                        resolvedWellKnownProxy);
-                        }
-                    }
-                }
+                ClearCache(reference.Identity, reference.Protocol, reference.Communicator);
             }
             else
             {
-                if (RemoveLocation(reference) is Reference resolvedLocation &&
-                    reference.Communicator.TraceLevels.Location >= 2)
-                {
-                    TraceDirect("removed endpoints for location from locator cache", reference, resolvedLocation);
-                }
+                ClearCache(reference.Location, reference.Protocol, reference.Communicator);
             }
         }
 
         /// <summary>Resolves an indirect reference using the locator proxy or cache.</summary>
-        internal async ValueTask<(IReadOnlyList<Endpoint> Endpoints, IReadOnlyList<string> NewLocation, bool Cached)>
+        internal async ValueTask<(EndpointList Endpoints, Location Location, bool Cached)>
         ResolveIndirectReferenceAsync(
             Reference reference,
             CancellationToken cancel)
         {
             Debug.Assert(reference.IsIndirect);
-            Reference? directReference = null;
+
+            EndpointList endpoints = ImmutableArray<Endpoint>.Empty;
+            Location newLocation = ImmutableArray<string>.Empty;
             bool cached = false;
 
-            Reference? indirectReference = null;
+            Location locationToResolve;
 
             if (reference.IsWellKnown)
             {
-                Reference? resolvedWellKnownProxy;
-
-                // First, we resolve the well-known reference. The resolved reference can be direct or indirect, but
-                // cannot be well-known.
-                (resolvedWellKnownProxy, cached) = GetResolvedWellKnownProxyFromCache(reference,
+                // First, we resolve the well-known reference.
+                (endpoints, newLocation, cached) = GetResolvedWellKnownProxyFromCache(reference,
                                                                                       reference.LocatorCacheTimeout);
                 if (!cached)
                 {
-                    if (_background && resolvedWellKnownProxy != null)
+                    if (_background && (endpoints.Count > 0 || newLocation.Count > 0))
                     {
-                        // Reference is returned from the cache but TTL was reached, if backgrounds updates
-                        // are configured, we obtain a new reference to refresh the cache but use the stale
-                        // reference to not block the caller.
+                        // Entry is returned from the cache but TTL was reached, if backgrounds updates are configured,
+                        // we make a new resolution to refresh the cache but use the stale info to not block the caller.
                         _ = ResolveWellKnownProxyAsync(reference, cancel: default);
                     }
                     else
                     {
-                        resolvedWellKnownProxy =
+                        (endpoints, newLocation) =
                             await ResolveWellKnownProxyAsync(reference, cancel).ConfigureAwait(false);
                     }
                 }
 
-                if (resolvedWellKnownProxy != null)
-                {
-                    if (resolvedWellKnownProxy.IsIndirect)
-                    {
-                        indirectReference = resolvedWellKnownProxy;
-                    }
-                    else
-                    {
-                        directReference = resolvedWellKnownProxy;
-                    }
-                }
+                locationToResolve = endpoints.Count == 0 ? newLocation : ImmutableArray<string>.Empty;
             }
             else
             {
-                indirectReference = reference;
+                locationToResolve = reference.Location;
             }
 
-            if (indirectReference != null)
+            if (locationToResolve.Count > 0)
             {
                 bool cachedLocation;
 
-                (directReference, cachedLocation) =
-                    GetResolvedLocationFromCache(indirectReference, reference.LocatorCacheTimeout);
+                (endpoints, newLocation, cachedLocation) =
+                    GetResolvedLocationFromCache(locationToResolve, reference.Protocol, reference.LocatorCacheTimeout);
 
                 if (!cachedLocation)
                 {
-                    if (_background && directReference != null)
+                    if (_background && endpoints.Count > 0)
                     {
                         // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
                         // are configured, we obtain new endpoints but continue using the stale endpoints to
                         // not block the caller.
-                        _ = ResolveLocationAsync(indirectReference, cancel: default);
+                        _ = ResolveLocationAsync(locationToResolve,
+                                                 reference.Protocol,
+                                                 reference.Communicator,
+                                                 cancel: default);
                     }
                     else
                     {
                         try
                         {
-                            directReference =
-                                await ResolveLocationAsync(indirectReference, cancel).ConfigureAwait(false);
+                            (endpoints, newLocation) =
+                                await ResolveLocationAsync(locationToResolve,
+                                                           reference.Protocol,
+                                                           reference.Communicator,
+                                                           cancel).ConfigureAwait(false);
                         }
                         finally
                         {
-                            // If we can't resolve the location we clear the resolved well known proxy from the cache.
-                            if (directReference == null && reference.IsWellKnown)
+                            // If we can't resolve the location we clear the resolved well-known proxy from the cache.
+                            if (endpoints.Count == 0 && reference.IsWellKnown)
                             {
-                                RemoveWellKnownProxy(reference);
+                                ClearCache(reference.Identity, reference.Protocol, reference.Communicator);
                             }
                         }
                     }
@@ -187,14 +156,31 @@ namespace ZeroC.Ice
 
             if (reference.Communicator.TraceLevels.Location >= 1)
             {
-                if (directReference != null)
+                if (endpoints.Count > 0)
                 {
-                    string kind = reference.IsWellKnown ? "well-known proxy" : "location";
-                    TraceDirect(
-                            cached ? $"found entry for {kind} in locator cache" :
-                                $"resolved {kind} using locator, adding to locator cache",
-                            reference,
-                            directReference);
+                    if (reference.IsWellKnown)
+                    {
+                        Trace(
+                            cached ? $"found entry for well-known proxy in locator cache" :
+                               $"resolved well-known proxy using locator, adding to locator cache",
+                            reference.Identity,
+                            reference.Protocol,
+                            endpoints,
+                            newLocation,
+                            reference.Communicator);
+                    }
+                    else
+                    {
+                        Trace(
+                            cached ? $"found entry for location in locator cache" :
+                                $"resolved location using locator, adding to locator cache",
+                            locationToResolve,
+                            reference.Protocol,
+                            endpoints,
+                            newLocation,
+                            reference.Communicator);
+
+                    }
                 }
                 else
                 {
@@ -204,7 +190,7 @@ namespace ZeroC.Ice
                     if (reference.Location.Count > 0)
                     {
                         sb.Append("location ");
-                        sb.Append(reference.LocationAsString);
+                        sb.Append(reference.Location.ToLocationString());
                     }
                     else
                     {
@@ -215,7 +201,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            return (directReference, cached);
+            return (endpoints, newLocation, cached);
         }
 
         internal async ValueTask<ILocatorRegistryPrx?> GetLocatorRegistryAsync()
@@ -235,32 +221,141 @@ namespace ZeroC.Ice
         private static bool CheckTTL(TimeSpan insertionTime, TimeSpan ttl) =>
             ttl == Timeout.InfiniteTimeSpan || (Time.Elapsed - insertionTime) <= ttl;
 
-        private static void TraceDirect(string msg, Reference reference, Reference directReference)
+        private void ClearCache(Identity identity, Protocol protocol, Communicator communicator)
+        {
+            if (_wellKnownProxyCache.TryRemove(
+                (identity, protocol),
+                out (TimeSpan _, EndpointList Endpoints, Location Location) entry))
+            {
+                if (entry.Endpoints.Count > 0)
+                {
+                    if (communicator.TraceLevels.Location >= 2)
+                    {
+                        Trace(
+                            "removed well-known proxy with endpoints from locator cache",
+                            identity,
+                            protocol,
+                            entry.Endpoints,
+                            entry.Location,
+                            communicator);
+                    }
+                }
+                else
+                {
+                    Debug.Assert(entry.Location.Count > 0);
+                    if (communicator.TraceLevels.Location >= 2)
+                    {
+                        Trace(
+                            "removed well-known proxy without endpoints from locator cache",
+                            identity,
+                            protocol,
+                            entry.Location,
+                            communicator);
+                    }
+
+                    ClearCache(entry.Location, protocol, communicator);
+                }
+            }
+        }
+
+        private void ClearCache(Location location, Protocol protocol, Communicator communicator)
+        {
+            if (_locationCache.TryRemove(
+                (location, protocol),
+                out (TimeSpan _, EndpointList Endpoints, Location Location) entry))
+            {
+                if (communicator.TraceLevels.Location >= 2)
+                {
+                    Trace(
+                        "removed endpoints for location from locator cache",
+                        location,
+                        protocol,
+                        entry.Endpoints,
+                        entry.Location,
+                        communicator);
+                }
+            }
+        }
+
+        private static void Trace(
+            string msg,
+            Location location,
+            Protocol protocol,
+            EndpointList endpoints,
+            Location newLocation,
+            Communicator communicator)
         {
             var sb = new System.Text.StringBuilder(msg);
-            sb.Append('\n');
-            if (reference.Location.Count > 0)
-            {
-                sb.Append("protocol = ");
-                sb.Append(reference.Protocol.GetName());
-                sb.Append("\nlocation = ");
-                sb.Append(reference.LocationAsString);
-                sb.Append('\n');
-            }
-            else
-            {
-                sb.Append("well-known proxy = ");
-                sb.Append(reference);
-                sb.Append('\n');
-            }
-            sb.Append("endpoints = ");
-            sb.AppendEndpointList(directReference.Endpoints);
-            if (directReference.Location.Count > 0)
+            sb.Append("\nlocation = ");
+            sb.Append(location.ToLocationString());
+            sb.Append("\nprotocol = ");
+            sb.Append(protocol.GetName());
+            sb.Append("\nendpoints = ");
+            sb.AppendEndpointList(endpoints);
+            if (protocol != Protocol.Ice1)
             {
                 sb.Append("\nnew location = ");
-                sb.Append(directReference.LocationAsString);
+                sb.Append(newLocation.ToLocationString());
             }
-            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
+            communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory, sb.ToString());
+        }
+
+        private static void Trace(
+            string msg,
+            Identity identity,
+            Protocol protocol,
+            EndpointList endpoints,
+            Location location,
+            Communicator communicator)
+        {
+            var sb = new System.Text.StringBuilder(msg);
+            sb.Append("\nwell-known proxy = ");
+            sb.Append(identity);
+            sb.Append("\nprotocol = ");
+            sb.Append(protocol.GetName());
+            sb.Append("\nendpoints = ");
+            sb.AppendEndpointList(endpoints);
+            if (protocol != Protocol.Ice1)
+            {
+                sb.Append("\nlocation = ");
+                sb.Append(location.ToLocationString());
+            }
+            communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory, sb.ToString());
+        }
+
+        private static void Trace(
+            string msg,
+            Identity identity,
+            Protocol protocol,
+            Location location,
+            Communicator communicator)
+        {
+            var sb = new System.Text.StringBuilder(msg);
+            sb.Append("\nwell-known proxy = ");
+            sb.Append(identity);
+            sb.Append("\nprotocol = ");
+            sb.Append(protocol.GetName());
+            sb.Append("location = ");
+            sb.Append(location.ToLocationString());
+            communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory, sb.ToString());
+        }
+
+        private static void TraceInvalid(Location location, Location newLocation, Communicator communicator)
+        {
+            var sb = new System.Text.StringBuilder("locator returned only a location when resolving location ");
+            sb.Append(location.ToLocationString());
+            sb.Append("\n received = ");
+            sb.Append(newLocation.ToLocationString());
+            communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory, sb.ToString());
+        }
+        private static void TraceInvalid(Location location, Reference invalidReference)
+        {
+            var sb = new System.Text.StringBuilder("locator returned an invalid proxy when resolving location ");
+            sb.Append(location.ToLocationString());
+            sb.Append("\n received = ");
+            sb.Append(invalidReference);
+            invalidReference.Communicator.Logger.Trace(
+                invalidReference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private static void TraceInvalid(Reference reference, Reference invalidReference)
@@ -272,79 +367,78 @@ namespace ZeroC.Ice
             reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
         }
 
-        private static void TraceWellKnown(string msg, Reference wellKnown, Reference indirectReference)
+        private (EndpointList Endpoints, Location Location, bool Cached)
+        GetResolvedLocationFromCache(
+            Location location,
+            Protocol protocol,
+            TimeSpan ttl)
         {
-            Debug.Assert(wellKnown.IsWellKnown);
-            var sb = new System.Text.StringBuilder(msg);
-            sb.Append('\n');
-            sb.Append("well-known proxy = ");
-            sb.Append(wellKnown);
-            sb.Append('\n');
-            sb.Append("location = ");
-            sb.Append(indirectReference.LocationAsString);
-            wellKnown.Communicator.Logger.Trace(wellKnown.Communicator.TraceLevels.LocatorCategory, sb.ToString());
-        }
-
-        private (Reference? Reference, bool Cached) GetResolvedLocationFromCache(Reference reference, TimeSpan ttl)
-        {
-            if (ttl == TimeSpan.Zero) // Locator cache disabled.
+            if (ttl != TimeSpan.Zero && _locationCache.TryGetValue(
+                (location, protocol),
+                out (TimeSpan InsertionTime,
+                    EndpointList Endpoints,
+                    Location Location) entry))
             {
-                return (null, false);
-            }
-
-            if (_locationCache.TryGetValue(reference, out (TimeSpan InsertionTime, Reference Reference) entry))
-            {
-                return (entry.Reference, CheckTTL(entry.InsertionTime, ttl));
+                return (entry.Endpoints, entry.Location, CheckTTL(entry.InsertionTime, ttl));
             }
             else
             {
-                return (null, false);
+                return (ImmutableArray<Endpoint>.Empty, ImmutableArray<string>.Empty, false);
             }
         }
 
-        private async Task<Reference?> ResolveLocationAsync(Reference reference, CancellationToken cancel)
+        private async Task<(EndpointList, Location)> ResolveLocationAsync(
+            Location location,
+            Protocol protocol,
+            Communicator communicator,
+            CancellationToken cancel)
         {
-            if (reference.Communicator.TraceLevels.Location > 0)
+            if (communicator.TraceLevels.Location > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
-                    $"searching for adapter by id\nadapter = {reference.AdapterId}");
+                communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory,
+                    $"resolving location\nlocation = {location.ToLocationString()}");
             }
 
-            Task<Reference?>? task;
+            Task<(EndpointList, Location)>? task;
             lock (_mutex)
             {
-                if (!_locationRequests.TryGetValue(reference, out task))
+                if (!_locationRequests.TryGetValue((location, protocol), out task))
                 {
                     // If there is no request in progress for this location, we invoke one and cache the request to
                     // prevent concurrent identical requests. It's removed once the response is received.
-                    task = PerformResolveLocationAsync(reference);
+                    task = PerformResolveLocationAsync(location, protocol, communicator);
                     if (!task.IsCompleted)
                     {
                         // If PerformResolveLocationAsync completed, don't add the task (it would leak since
                         // PerformResolveLocationAsync is responsible for removing it).
                         // Since PerformResolveLocationAsync locks _mutex in its finally block, the only way it can be
                         // completed now is if completed synchronously.
-                        _locationRequests.Add(reference, task);
+                        _locationRequests.Add((location, protocol), task);
                     }
                 }
             }
 
             return await task.WaitAsync(cancel).ConfigureAwait(false);
 
-            async Task<Reference?> PerformResolveLocationAsync(Reference reference)
+            async Task<(EndpointList, Location)> PerformResolveLocationAsync(
+                Location location,
+                Protocol protocol,
+                Communicator communicator)
             {
+                Debug.Assert(location.Count > 0);
+
                 try
                 {
-                    IReadOnlyList<Endpoint>? endpoints;
-                    string adapterId;
+                    EndpointList endpoints = ImmutableArray<Endpoint>.Empty;
+                    Location newLocation = ImmutableArray<string>.Empty;
 
-                    if (reference.Protocol == Protocol.Ice1)
+                    if (protocol == Protocol.Ice1)
                     {
                         IObjectPrx? proxy = null;
                         try
                         {
                             proxy = await Locator.FindAdapterByIdAsync(
-                                reference.AdapterId,
+                                location[0],
                                 cancel: CancellationToken.None).ConfigureAwait(false);
                         }
                         catch (AdapterNotFoundException)
@@ -353,50 +447,58 @@ namespace ZeroC.Ice
                             proxy = null;
                         }
 
-                        adapterId = proxy?.AdapterId ?? "";
-                        endpoints = proxy?.Endpoints;
+                        Reference? resolved = proxy?.IceReference;
+
+                        if (resolved != null && (resolved.IsIndirect || resolved.Protocol != Protocol.Ice1))
+                        {
+                            if (communicator.TraceLevels.Location >= 1)
+                            {
+                                TraceInvalid(location, resolved);
+                            }
+                            resolved = null;
+                        }
+
+                        endpoints = resolved?.Endpoints ?? endpoints;
                     }
                     else
                     {
+                        EndpointData[] dataArray;
+
                         // This will throw OperationtNotExistException if it's an old Locator, and that's fine.
-                        (EndpointData[] endpoints, string[] newLocation) = await Locator.ResolveLocationAsync(
-                            reference.Location,
-                            reference.Protocol,
+                        (dataArray, newLocation) = await Locator.ResolveLocationAsync(
+                            location,
                             cancel: CancellationToken.None).ConfigureAwait(false);
+
+                        if (dataArray.Length > 0)
+                        {
+                            endpoints = dataArray.ToEndpointList(communicator);
+                        }
+                        else if (newLocation.Count > 0)
+                        {
+                            TraceInvalid(location, newLocation, communicator);
+                            newLocation = ImmutableArray<string>.Empty;
+                        }
                     }
 
-                    if (proxy == null)
+                    if (endpoints.Count == 0)
                     {
-                        RemoveLocation(reference); // clear cache if it's in there.
-                        return null;
+                        ClearCache(location, protocol, communicator);
+                        return (endpoints, newLocation);
                     }
                     else
                     {
-                        Reference resolved = proxy.IceReference;
-                        if (resolved.IsIndirect ||
-                            resolved.Protocol != reference.Protocol)
-                        {
-                            if (reference.Communicator.TraceLevels.Location >= 1)
-                            {
-                                TraceInvalid(reference, resolved);
-                            }
-                            return null;
-                        }
-                        else
-                        {
-                            // Cache the resolved location
-                            _locationCache[reference] = (Time.Elapsed, resolved);
-                            return resolved;
-                        }
+                        // Cache the resolved location
+                        _locationCache[(location, protocol)] = (Time.Elapsed, endpoints, newLocation);
+                        return (endpoints, newLocation);
                     }
                 }
                 catch (Exception exception)
                 {
-                    if (reference.Communicator.TraceLevels.Location > 0)
+                    if (communicator.TraceLevels.Location > 0)
                     {
-                        reference.Communicator.Logger.Trace(
-                            reference.Communicator.TraceLevels.LocatorCategory,
-                            @$"could not contact the locator to resolve location `{reference.LocationAsString
+                        communicator.Logger.Trace(
+                            communicator.TraceLevels.LocatorCategory,
+                            @$"could not contact the locator to resolve location `{location.ToLocationString()
                                 }'\nreason = {exception}");
                     }
                     throw;
@@ -405,32 +507,32 @@ namespace ZeroC.Ice
                 {
                     lock (_mutex)
                     {
-                        _locationRequests.Remove(reference);
+                        _locationRequests.Remove((location, protocol));
                     }
                 }
             }
         }
 
-        private (Reference? Reference, bool Cached) GetResolvedWellKnownProxyFromCache(
+        private (EndpointList Endpoints, Location Location, bool Cached) GetResolvedWellKnownProxyFromCache(
             Reference reference,
             TimeSpan ttl)
         {
-            if (ttl == TimeSpan.Zero) // Locator cache disabled.
+            if (ttl != TimeSpan.Zero &&
+                _wellKnownProxyCache.TryGetValue(
+                    (reference.Identity, reference.Protocol),
+                    out (TimeSpan InsertionTime, EndpointList Endpoints, Location Location) entry))
             {
-                return (null, false);
-            }
-
-            if (_wellKnownProxyCache.TryGetValue(reference, out (TimeSpan InsertionTime, Reference Reference) entry))
-            {
-                return (entry.Reference, CheckTTL(entry.InsertionTime, ttl));
+                return (entry.Endpoints, entry.Location, CheckTTL(entry.InsertionTime, ttl));
             }
             else
             {
-                return (null, false);
+                return (ImmutableArray<Endpoint>.Empty, ImmutableArray<string>.Empty, false);
             }
         }
 
-        private async Task<Reference?> ResolveWellKnownProxyAsync(Reference reference, CancellationToken cancel)
+        private async Task<(EndpointList, Location)> ResolveWellKnownProxyAsync(
+            Reference reference,
+            CancellationToken cancel)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
@@ -438,10 +540,10 @@ namespace ZeroC.Ice
                     $"searching for well-known object\nwell-known proxy = {reference}");
             }
 
-            Task<Reference?>? task;
+            Task<(EndpointList, Location)>? task;
             lock (_mutex)
             {
-                if (!_wellKnownProxyRequests.TryGetValue(reference, out task))
+                if (!_wellKnownProxyRequests.TryGetValue((reference.Identity, reference.Protocol), out task))
                 {
                     // If there's no locator request in progress for this object, we make one and cache it to prevent
                     // making too many requests on the locator. It's removed once the locator response is received.
@@ -450,18 +552,19 @@ namespace ZeroC.Ice
                     {
                         // If PerformGetObjectProxyAsync completed, don't add the task (it would leak since
                         // PerformGetObjectProxyAsync is responsible for removing it).
-                        _wellKnownProxyRequests.Add(reference, task);
+                        _wellKnownProxyRequests.Add((reference.Identity, reference.Protocol), task);
                     }
                 }
             }
 
             return await task.WaitAsync(cancel).ConfigureAwait(false);
 
-            async Task<Reference?> PerformResolveWellKnownProxyAsync(Reference reference)
+            async Task<(EndpointList, Location)> PerformResolveWellKnownProxyAsync(Reference reference)
             {
                 try
                 {
-                    Reference? resolved = null;
+                    EndpointList endpoints;
+                    Location location;
 
                     if (reference.Protocol == Protocol.Ice1)
                     {
@@ -478,7 +581,7 @@ namespace ZeroC.Ice
                             proxy = null;
                         }
 
-                        resolved = proxy?.IceReference;
+                        Reference? resolved = proxy?.IceReference;
 
                         if (resolved != null && (resolved.IsWellKnown || resolved.Protocol != Protocol.Ice1))
                         {
@@ -488,28 +591,30 @@ namespace ZeroC.Ice
                             }
                             resolved = null;
                         }
+
+                        endpoints = resolved?.Endpoints ?? ImmutableArray<Endpoint>.Empty;
+                        location = resolved?.Location ?? ImmutableArray<string>.Empty;
                     }
                     else
                     {
-                        (Endpoint[] endpoints, string[] location) = await Locator.ResolveWellKnownProxyAsync(
+                        EndpointData[] dataArray;
+                        (dataArray, location) = await Locator.ResolveWellKnownProxyAsync(
                             reference.Identity,
                             cancel: CancellationToken.None).ConfigureAwait(false);
 
-                        if (endpoints.Length > 0 || location.Length > 0)
-                        {
-                            resolved = reference.Clone(endpoints: endpoints, location: location);
-                        }
+                        endpoints = dataArray.ToEndpointList(reference.Communicator);
                     }
 
-                    if (resolved == null)
+                    if (endpoints.Count == 0 && location.Count == 0)
                     {
-                        RemoveWellKnownProxy(reference); // clear cache if it's in there.
-                        return null;
+                        ClearCache(reference.Identity, reference.Protocol, reference.Communicator);
+                        return (endpoints, location);
                     }
                     else
                     {
-                        _wellKnownProxyCache[reference] = (Time.Elapsed, resolved);
-                        return resolved;
+                        _wellKnownProxyCache[(reference.Identity, reference.Protocol)] =
+                            (Time.Elapsed, endpoints, location);
+                        return (endpoints, location);
                     }
                 }
                 catch (Exception exception)
@@ -527,26 +632,20 @@ namespace ZeroC.Ice
                 {
                     lock (_mutex)
                     {
-                        _wellKnownProxyRequests.Remove(reference);
+                        _wellKnownProxyRequests.Remove((reference.Identity, reference.Protocol));
                     }
                 }
             }
         }
 
-        private IReadOnlyList<Endpoint>? RemoveLocation(Reference reference) =>
-            _locationCache.TryRemove(reference, out (TimeSpan _, IEndpointList<Endpoint> Endpoints, bool _) entry) ?
-                entry.Endpoints : null;
-
-        private Reference? RemoveWellKnownProxy(Reference reference) =>
-            _wellKnownProxyCache.TryRemove(reference, out (TimeSpan _, Reference Resolved) entry) ?
-                entry.Resolved : null;
-
-        private sealed class LocationComparer : IEqualityComparer<Reference>
+        private sealed class LocationComparer : IEqualityComparer<(Location Location, Protocol Protocol)>
         {
-            public bool Equals(Reference? x, Reference? y) =>
-                x!.Location.SequenceEqual(y!.Location) && x.Protocol == y.Protocol;
+            public bool Equals(
+                (Location Location, Protocol Protocol) x,
+                (Location Location, Protocol Protocol) y) =>
+                x.Location.SequenceEqual(y.Location) && x.Protocol == y.Protocol;
 
-            public int GetHashCode(Reference obj)
+            public int GetHashCode((Location Location, Protocol Protocol) obj)
             {
                 var hash = new HashCode();
                 foreach (string s in obj.Location)
@@ -556,14 +655,6 @@ namespace ZeroC.Ice
                 hash.Add(obj.Protocol);
                 return hash.ToHashCode();
             }
-        }
-
-        private sealed class WellKnownProxyComparer : IEqualityComparer<Reference>
-        {
-            public bool Equals(Reference? x, Reference? y) =>
-                x!.Identity == y!.Identity && x.Protocol == y.Protocol;
-
-            public int GetHashCode(Reference obj) => HashCode.Combine(obj.Identity, obj.Protocol);
         }
     }
 }

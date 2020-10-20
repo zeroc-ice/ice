@@ -57,9 +57,10 @@ module Ice
     }
 #endif
 
+    /// One of the arguments to the operation has an invalid value.
     exception InvalidArgumentException
     {
+        /// The name of the corresponding parameter.
         string paramName;
     }
-
 }

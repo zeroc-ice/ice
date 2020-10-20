@@ -34,23 +34,16 @@ namespace ZeroC.IceDiscovery
 
         public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveLocationAsync(
             string[] location,
-            Protocol protocol,
             Current current,
             CancellationToken cancel)
         {
-            if ((byte)protocol < (byte)Protocol.Ice2)
-            {
-                // TODO: should we use & provide an ArgumentException-like remote exception?
-                throw new ArgumentException("protocol must be ice2 or greater", nameof(protocol));
-            }
-
             if (location.Length == 0)
             {
                 throw new ArgumentException("location cannot be empty", nameof(location));
             }
 
             IObjectPrx? proxy =
-                await _lookupServant.FindAdapterByIdAsync(location[0], protocol, cancel).ConfigureAwait(false);
+                await _lookupServant.FindAdapterByIdAsync(location[0], Protocol.Ice2, cancel).ConfigureAwait(false);
 
             if (proxy == null)
             {
@@ -64,19 +57,11 @@ namespace ZeroC.IceDiscovery
 
         public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveWellKnownProxyAsync(
             Identity identity,
-            Protocol protocol,
             Current current,
             CancellationToken cancel)
         {
-            // This implementation of ResolveWellKnownProxy pings the well-known proxy, so it only works with ice2,
-            // not ice2 and up.
-            if (protocol != Protocol.Ice2)
-            {
-                throw new ArgumentException("protocol must be ice2", nameof(protocol));
-            }
-
             IObjectPrx? proxy =
-                await _lookupServant.FindObjectByIdAsync(identity, protocol, cancel).ConfigureAwait(false);
+                await _lookupServant.FindObjectByIdAsync(identity, Protocol.Ice2, cancel).ConfigureAwait(false);
 
             if (proxy == null)
             {
@@ -112,28 +97,22 @@ namespace ZeroC.IceDiscovery
         public void RegisterAdapterEndpoints(
             string adapterId,
             string replicaGroupId,
-            Protocol protocol,
             EndpointData[] endpoints,
             Current current,
             CancellationToken cancel)
         {
-            if ((byte)protocol < (byte)Protocol.Ice2)
-            {
-                throw new ArgumentException("protocol must be ice2 or greater", nameof(protocol));
-            }
-
             lock (_mutex)
             {
                 try
                 {
-                    _ice2Adapters.Add((adapterId, protocol), endpoints);
+                    _ice2Adapters.Add((adapterId, Protocol.Ice2), endpoints);
                 }
                 catch (ArgumentException)
                 {
                     throw new AdapterAlreadyActiveException($"adapter `{adapterId}' already has registered endpoints");
                 }
 
-                AddAdapterToReplicaGroup(replicaGroupId, adapterId, protocol);
+                AddAdapterToReplicaGroup(replicaGroupId, adapterId, Protocol.Ice2);
             }
         }
 
@@ -182,19 +161,13 @@ namespace ZeroC.IceDiscovery
         public void UnregisterAdapterEndpoints(
             string adapterId,
             string replicaGroupId,
-            Protocol protocol,
             Current current,
             CancellationToken cancel)
         {
-            if ((byte)protocol < (byte)Protocol.Ice2)
-            {
-                throw new ArgumentException("protocol must be ice2 or greater", nameof(protocol));
-            }
-
             lock (_mutex)
             {
-                _ice2Adapters.Remove((adapterId, protocol));
-                RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, protocol);
+                _ice2Adapters.Remove((adapterId, Protocol.Ice2));
+                RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
             }
         }
 

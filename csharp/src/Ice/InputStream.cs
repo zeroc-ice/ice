@@ -1099,7 +1099,7 @@ namespace ZeroC.Ice
                                                     port: istr.ReadUShort(),
                                                     options: istr.ReadArray(1, IceReaderIntoString));
 
-                        endpoint = Endpoint.FromEndpointData(data, Communicator, protocol);
+                        endpoint = data.ToEndpoint(Communicator, protocol);
                     }
 
                     if (ReferenceEquals(istr, this))
@@ -1127,7 +1127,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                endpoint = Endpoint.FromEndpointData(new EndpointData(this), Communicator, protocol);
+                endpoint = (new EndpointData(this)).ToEndpoint(Communicator, protocol);
             }
 
             return endpoint;

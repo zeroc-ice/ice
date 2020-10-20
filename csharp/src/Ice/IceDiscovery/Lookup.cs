@@ -74,6 +74,26 @@ namespace ZeroC.IceDiscovery
             }
         }
 
+        public void ResolveAdapterId(
+            string domainId,
+            string adapterId,
+            IResolveAdapterIdReplyPrx reply,
+            Current current,
+            CancellationToken cancel)
+        {
+            // TODO
+        }
+
+        public void ResolveWellKnownProxy(
+            string domainId,
+            Identity identity,
+            IResolveWellKnownProxyReplyPrx reply,
+            Current current,
+            CancellationToken cancel)
+        {
+            // TODO
+        }
+
         internal Lookup(
             LocatorRegistry registry,
             ILookupPrx lookup,
