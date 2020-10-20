@@ -53,7 +53,7 @@ namespace ZeroC.Ice
                 // Only release incoming streams on Dispose. Slic outgoing streams are released when the StreamLast
                 // frame is received and it can be received after the stream is disposed (e.g.: for oneway requests
                 // we dispose of the stream as soon as the request is sent and before receiving the StreamLast frame).
-                if (!IsControl && IsIncoming)
+                if (IsIncoming)
                 {
                     ReleaseFlowControlCredit(notifyPeer: true);
                 }
@@ -178,8 +178,18 @@ namespace ZeroC.Ice
                     Debug.Assert(!IsIncoming);
 
                     // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
-                    // control credit to ensure we don't open more streams than the peer allows.
-                    await AcquireOutgoingFlowControlCreditAsync(cancel).ConfigureAwait(false);
+                    // control credit to ensure we don't open more streams than the peer allows. Wait on the
+                    // semaphores to ensure we don't more streams than allowed. The wait on the semaphore provides
+                    // FIFO guarantee to ensure that the sending of requests is serialized.
+                    Debug.Assert(!IsIncoming);
+                    if (IsBidirectional)
+                    {
+                        await _transceiver.BidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await _transceiver.UnidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                    }
 
                     // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
                     // receive stream frames with out-of-order stream IDs. The ID assignment will throw if the
@@ -247,38 +257,58 @@ namespace ZeroC.Ice
         }
 
         internal SlicStream(long streamId, SlicTransceiver transceiver)
-            : base(streamId, transceiver) => _transceiver = transceiver;
+            : base(streamId, transceiver)
+        {
+            _transceiver = transceiver;
+
+            if (IsIncoming && !IsControl)
+            {
+                // Increment the counters to ensure the peer doesn't open more streams than allowed.
+                Debug.Assert(IsIncoming);
+                if (IsBidirectional)
+                {
+                    if (_transceiver.BidirectionalStreamCount == _transceiver.Options.MaxBidirectionalStreams)
+                    {
+                        throw new InvalidDataException(
+                            $"maximum bidirectional stream count {_transceiver.Options.MaxBidirectionalStreams} reached");
+                    }
+                    Interlocked.Increment(ref _transceiver.BidirectionalStreamCount);
+                }
+                else if (!IsControl)
+                {
+                    if (_transceiver.UnidirectionalStreamCount == _transceiver.Options.MaxUnidirectionalStreams)
+                    {
+                        throw new InvalidDataException(
+                            $"maximum unidirectional stream count {_transceiver.Options.MaxUnidirectionalStreams} reached");
+                    }
+                    Interlocked.Increment(ref _transceiver.UnidirectionalStreamCount);
+                }
+            }
+        }
 
         internal SlicStream(bool bidirectional, SlicTransceiver transceiver)
             : base(bidirectional, transceiver) => _transceiver = transceiver;
 
-        internal void AcquireIncomingFlowControlCredit()
+        internal bool ReceivedFrame(int size, bool fin)
         {
-            // Increment the counters to ensure the peer doesn't open more streams than allowed.
-            Debug.Assert(IsIncoming);
-            if (IsBidirectional)
+            // If an outgoing stream and this is the last stream frame, we release the flow control
+            // credit to eventually allow a new outgoing stream to be opened. If the flow control credit
+            // are already released,
+            if (!IsIncoming && fin && !ReleaseFlowControlCredit())
             {
-                if (_transceiver.BidirectionalStreamCount == _transceiver.Options.MaxBidirectionalStreams)
-                {
-                    throw new InvalidDataException(
-                        $"maximum bidirectional stream count {_transceiver.Options.MaxBidirectionalStreams} reached");
-                }
-                Interlocked.Increment(ref _transceiver.BidirectionalStreamCount);
+                throw new InvalidDataException("already received last stream frame");
             }
-            else if (!IsControl)
+
+            if (size > 0)
             {
-                if (_transceiver.UnidirectionalStreamCount == _transceiver.Options.MaxUnidirectionalStreams)
-                {
-                    throw new InvalidDataException(
-                        $"maximum unidirectional stream count {_transceiver.Options.MaxUnidirectionalStreams} reached");
-                }
-                Interlocked.Increment(ref _transceiver.UnidirectionalStreamCount);
+                // Ensure to run the continuation asynchronously in case the continuation ends up calling user-code.
+                return SignalCompletion((size, fin), runContinuationAsynchronously: true);
+            }
+            else
+            {
+                return false;
             }
         }
-
-        internal bool ReceivedFrame(int size, bool fin) =>
-            // Ensure to run the continuation asynchronously in case the continuation ends up calling user-code.
-            SignalCompletion((size, fin), runContinuationAsynchronously: true);
 
         internal override void ReceivedReset(long errorCode)
         {
@@ -290,9 +320,12 @@ namespace ZeroC.Ice
             }
         }
 
-        internal bool ReleaseFlowControlCredit(bool notifyPeer = false)
+        private bool ReleaseFlowControlCredit(bool notifyPeer = false)
         {
-            Debug.Assert(!IsControl);
+            if (IsControl)
+            {
+                return true;
+            }
 
             // If the flow control credit is not already released, decreases the bidirectional or unidirectional
             // semaphore (for outgoing streams) / count (for incoming streams).
@@ -332,21 +365,6 @@ namespace ZeroC.Ice
             else
             {
                 return false;
-            }
-        }
-
-        private ValueTask AcquireOutgoingFlowControlCreditAsync(CancellationToken cancel)
-        {
-            // Wait on the semaphores to ensure we don't more streams than allowed. The wait on the semaphore provides
-            // FIFO guarantee to ensure that the sending of requests is serialized.
-            Debug.Assert(!IsIncoming);
-            if (IsBidirectional)
-            {
-                return _transceiver.BidirectionalStreamSemaphore!.WaitAsync(cancel);
-            }
-            else
-            {
-                return _transceiver.UnidirectionalStreamSemaphore!.WaitAsync(cancel);
             }
         }
     }

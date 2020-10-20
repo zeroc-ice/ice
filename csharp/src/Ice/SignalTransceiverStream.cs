@@ -24,8 +24,8 @@ namespace ZeroC.Ice
         public override void Abort(Exception ex)
         {
             // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
-            // already signaled, it's because a result is pending. In this case, we keep track of the exception and
-            // we'll raise the exception the next time the signal is awaited. This is necessary because
+            // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
+            //  the exception the next time the signal is awaited. This is necessary because
             // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
             // call again SetXxx until the source's result or exception is consumed.
             if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
@@ -81,21 +81,25 @@ namespace ZeroC.Ice
         T IValueTaskSource<T>.GetResult(short token)
         {
             Debug.Assert(token == _source.Version);
-            try
+
+            T result = _source.GetResult(token);
+
+            // Only reset the source if it succeeded. Once the stream got aborted with an exception, we no longer
+            // reset the the source.
+            Debug.Assert(_signaled == 1);
+            _source.Reset();
+            _signaled = 0;
+
+            // If an exception is set, we try to set it on the source if it wasn't signaled in the meantime.
+            if (_exception != null)
             {
-                return _source.GetResult(token);
-            }
-            finally
-            {
-                Debug.Assert(_signaled == 1);
-                _source.Reset();
-                _signaled = 0;
-                if (_exception != null)
+                if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
                 {
+                    _source.RunContinuationsAsynchronously = true;
                     _source.SetException(_exception);
-                    _signaled = 1;
                 }
             }
+            return result;
         }
 
         ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token) => _source.GetStatus(token);

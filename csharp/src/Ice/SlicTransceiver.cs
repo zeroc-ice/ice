@@ -86,26 +86,16 @@ namespace ZeroC.Ice
 
                         if (TryGetStream(streamId.Value, out SlicStream? stream))
                         {
-                            // If an outgoing stream and this is the last stream frame, we release the flow control
-                            // credit to eventually allow a new outgoing stream to be opened.
-                            if (!isIncoming && fin)
+                            // Notify the stream that data is available for read.
+                            if (stream.ReceivedFrame(size, fin))
                             {
-                                stream.ReleaseFlowControlCredit();
+                                // Wait for the stream to receive the data before reading a new Slic frame.
+                                await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
                             }
-
-                            if (size > 0)
+                            else if (size > 0)
                             {
-                                // Notify the stream that data is available for read.
-                                if (stream.ReceivedFrame(size, fin))
-                                {
-                                    // Wait for the stream to receive the data before reading a new Slic frame.
-                                    await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    // The stream has been aborted if it can't be signaled, read and ignore the data.
-                                    await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
-                                }
+                                // The stream has been aborted if it can't be signaled, read and ignore the data.
+                                await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
                             }
                         }
                         else if (isIncoming &&
@@ -126,12 +116,11 @@ namespace ZeroC.Ice
 
                             if (size == 0)
                             {
-                                throw new InvalidDataException("received empty stream frame");
+                                throw new InvalidDataException("received empty stream frame on new stream");
                             }
 
                             // Accept the new incoming stream and notify the stream that data is available.
                             stream = new SlicStream(streamId.Value, this);
-                            stream.AcquireIncomingFlowControlCredit();
                             if (stream.ReceivedFrame(size, fin))
                             {
                                 return stream;
