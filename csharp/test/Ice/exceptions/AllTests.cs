@@ -774,8 +774,6 @@ namespace ZeroC.Ice.Test.Exceptions
             }
             output.WriteLine("ok");
 
-            output.WriteLine("ok");
-
             output.Write("catching unhandled local exception with AMI... ");
             output.Flush();
 

@@ -18,6 +18,7 @@ namespace ZeroC.Ice
     {
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
+        internal bool IsValidated { get; private set; }
 
         private readonly object _mutex = new ();
         private long _nextBidirectionalId;
@@ -86,6 +87,14 @@ namespace ZeroC.Ice
 
                     await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize), cancel).ConfigureAwait(false);
                 }
+
+                // Make sure the transceiver is marked as validated. This flag is necessary because incoming
+                // connection initialization doesn't wait for connection validation message. So the connection
+                // is considered validated on the server side only once the first frame is received. This is
+                // only useful for connection warnings, to prevent a warning from showing up if the server side
+                // connection is closed before the first message is received (which can occur with SSL for
+                // example if the certification validation fails on the client side).
+                IsValidated = true;
 
                 // Parse the received frame and translate it into a stream ID, frame type and frame data. The returned
                 // stream ID can be negative if the Ice1 frame is no longer supported (batch requests).

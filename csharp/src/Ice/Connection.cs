@@ -593,6 +593,7 @@ namespace ZeroC.Ice
             if (_state == ConnectionState.Active &&
                 state == ConnectionState.Closed &&
                 !Endpoint.IsDatagram &&
+                ((Transceiver as LegacyTransceiver)?.IsValidated ?? true) &&
                 _communicator.WarnConnections)
             {
                 Debug.Assert(exception != null);
