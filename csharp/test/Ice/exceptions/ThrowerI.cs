@@ -39,9 +39,6 @@ namespace ZeroC.Ice.Test.Exceptions
 
         public void ThrowCasC(int a, int b, int c, Current current, CancellationToken cancel) => throw new C(a, b, c);
 
-        public void ThrowCustomDispatchException(Current current, CancellationToken cancel) =>
-            throw new CustomDispatchException(current.Identity, current.Facet, current.Operation, "custom");
-
         public void ThrowLocalException(Current current, CancellationToken cancel) =>
             throw new ConnectionClosedException();
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,8 +20,15 @@ namespace ZeroC.Ice
         /// <summary>Gets the communicator that created this endpoint.</summary>
         public Communicator Communicator { get; }
 
+        /// <summary>Gets the external "over the wire" representation of this endpoint. With ice2 (and up) this is the
+        /// actual data structure sent and received over the wire for this endpoint. With ice1, it is a subset of this
+        /// external representation.</summary>
+        /// <remarks>The Options field of EndpointData is a writable array but should be treated as if it was read-only.
+        /// Do not update the contents of this array.</remarks>
+        public EndpointData Data { get; }
+
         /// <summary>The host name or address.</summary>
-        public abstract string Host { get; }
+        public string Host => Data.Host;
 
         /// <summary>Indicates whether or not this endpoint's transport uses datagrams with no ordering or delivery
         /// guarantees.</summary>
@@ -57,7 +65,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>The port number.</summary>
-        public virtual ushort Port => DefaultPort;
+        public ushort Port => Data.Port;
 
         /// <summary>The Ice protocol of this endpoint.</summary>
         public Protocol Protocol { get; }
@@ -67,7 +75,7 @@ namespace ZeroC.Ice
         public virtual string Scheme => Protocol == Protocol.Ice1 ? TransportName : $"ice+{TransportName}";
 
         /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
-        public abstract Transport Transport { get; }
+        public Transport Transport => Data.Transport;
 
         /// <summary>The name of the endpoint's transport in lowercase.</summary>
         public virtual string TransportName => Transport.ToString().ToLowerInvariant();
@@ -103,6 +111,27 @@ namespace ZeroC.Ice
         /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
         public static bool operator !=(Endpoint? lhs, Endpoint? rhs) => !(lhs == rhs);
 
+        /// <summary>Creates an endpoint from an <see cref="EndpointData"/> struct.</summary>
+        /// <param name="data">The endpoint's data.</param>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="protocol">The endpoint's protocol. Must be ice2 or greater.</param>
+        /// <returns>A new endpoint.</returns>
+        public static Endpoint FromEndpointData(
+            EndpointData data,
+            Communicator communicator,
+            Protocol protocol = Protocol.Ice2)
+        {
+            if ((byte)protocol < (byte)Protocol.Ice2)
+            {
+                throw new ArgumentException("protocol must be ice2 or greater", nameof(protocol));
+            }
+
+            Ice2EndpointFactory? factory =
+                    protocol == Protocol.Ice2 ? communicator.FindIce2EndpointFactory(data.Transport) : null;
+
+            return factory?.Invoke(data, communicator) ?? UniversalEndpoint.Create(data, communicator, protocol);
+        }
+
         /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is Endpoint other && Equals(other);
 
@@ -113,7 +142,8 @@ namespace ZeroC.Ice
                 Protocol == endpoint.Protocol &&
                 Transport == endpoint.Transport &&
                 Host == endpoint.Host &&
-                Port == endpoint.Port;
+                Port == endpoint.Port &&
+                Data.Options.SequenceEqual(endpoint.Data.Options);
 
         /// <inheritdoc/>
         public override int GetHashCode()
@@ -124,6 +154,10 @@ namespace ZeroC.Ice
             hash.Add(Transport);
             hash.Add(Host);
             hash.Add(Port);
+            foreach (string s in Data.Options)
+            {
+                hash.Add(s);
+            }
             return hash.ToHashCode();
         }
 
@@ -158,8 +192,7 @@ namespace ZeroC.Ice
         /// ice1 endpoints.</param>
         protected internal abstract void AppendOptions(StringBuilder sb, char optionSeparator);
 
-        /// <summary>Writes the options of this endpoint to the output stream. With ice1, the options typically
-        /// include the host and port; with ice2, the host and port are not considered options.</summary>
+        /// <summary>Writes the options of this endpoint to the output stream. ice1-only.</summary>
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
 
@@ -203,25 +236,14 @@ namespace ZeroC.Ice
         public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 
         /// <summary>Constructs a new endpoint</summary>
+        /// <param name="data">The <see cref="EndpointData"/> struct.</param>
         /// <param name="communicator">The endpoint's communicator.</param>
         /// <param name="protocol">The endpoint's protocol.</param>
-        protected Endpoint(Communicator communicator, Protocol protocol)
+        protected Endpoint(EndpointData data, Communicator communicator, Protocol protocol)
         {
             Communicator = communicator;
+            Data = data;
             Protocol = protocol;
-        }
-
-        /// <summary>Skip unknown endpoints options during unmarshal.</summary>
-        /// <param name="istr">The <see cref="InputStream"/> being used to unmarshal the endpoint.</param>
-        /// <param name="count">The number of options to skip.</param>
-        protected void SkipUnknownOptions(InputStream istr, int count)
-        {
-            Debug.Assert(count == 0); // TODO: temporary, remove before release
-            while (count > 0)
-            {
-                istr.Skip(istr.ReadSize());
-                count--;
-            }
         }
     }
 
@@ -278,6 +300,36 @@ namespace ZeroC.Ice
             {
                 sb.Append('?');
                 endpoint.AppendOptions(sb, optionSeparator);
+            }
+            return sb;
+        }
+
+        internal static StringBuilder AppendEndpointList(
+            this StringBuilder sb,
+            IReadOnlyList<Endpoint> endpoints)
+        {
+            Debug.Assert(endpoints.Count > 0);
+
+            if (endpoints[0].Protocol == Protocol.Ice1)
+            {
+                sb.Append(string.Join(":", endpoints));
+            }
+            else
+            {
+                sb.AppendEndpoint(endpoints[0]);
+                if (endpoints.Count > 1)
+                {
+                    Transport mainTransport = endpoints[0].Transport;
+                    sb.Append("?alt-endpoint=");
+                    for (int i = 1; i < endpoints.Count; ++i)
+                    {
+                        if (i > 1)
+                        {
+                            sb.Append(',');
+                        }
+                        sb.AppendEndpoint(endpoints[i], "", mainTransport != endpoints[i].Transport, '$');
+                    }
+                }
             }
             return sb;
         }

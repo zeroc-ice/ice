@@ -3092,16 +3092,13 @@ class Driver:
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
 
-        if isinstance(current.testcase.getMapping(), CSharpMapping):
-            # TODO: what should we set interface to? Do we ever set interface to anything other than loopback IPs?
-            initData.properties.setProperty("IceDiscovery.Multicast.Endpoints",
-                "udp -h 239.255.0.1 -p 4061 --interface 127.0.0.1:udp -h \"ff15::1\" -p 4061 --interface \"::1\" ")
-            initData.properties.setProperty("IceDiscovery.Lookup",
-                "udp -h 239.255.0.1 -p 4061 --interface 127.0.0.1:udp -h \"ff15::1\" -p 4061 --interface \"::1\" ")
-            initData.properties.setProperty("IceDiscovery.Reply.Endpoints",
-                "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0")
-        else:
-            initData.properties.setProperty("IceDiscovery.Interface", self.interface)
+        # TODO: use `self.interface` instead of defauling to 127.0.0.1 and ::1
+        initData.properties.setProperty("IceDiscovery.Multicast.Endpoints",
+            "udp -h 239.255.0.1 -p 4061 --interface 127.0.0.1:udp -h \"ff15::1\" -p 4061 --interface \"::1\" ")
+        initData.properties.setProperty("IceDiscovery.Lookup",
+            "udp -h 239.255.0.1 -p 4061 --interface 127.0.0.1:udp -h \"ff15::1\" -p 4061 --interface \"::1\" ")
+        initData.properties.setProperty("IceDiscovery.Reply.Endpoints",
+            "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0")
 
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")

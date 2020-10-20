@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.Location
                 base1.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (ObjectNotFoundException)
+            catch (NoEndpointException)
             {
             }
             output.WriteLine("ok");
@@ -218,7 +218,7 @@ namespace ZeroC.Ice.Test.Location
                 base1.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
             }
             output.WriteLine("ok");
@@ -310,7 +310,7 @@ namespace ZeroC.Ice.Test.Location
                         {
                             t.Wait();
                         }
-                        catch (AggregateException ex) when (ex.InnerException is AdapterNotFoundException)
+                        catch (AggregateException ex) when (ex.InnerException is NoEndpointException)
                         {
                         }
                     },
@@ -334,16 +334,24 @@ namespace ZeroC.Ice.Test.Location
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
             }
-            registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
+
+            registry.RegisterAdapterEndpoints(
+                "TestAdapter3",
+                replicaGroupId: "",
+                locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
+
             try
             {
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
-                registry.SetAdapterDirectProxy(
+
+                registry.RegisterAdapterEndpoints(
                     "TestAdapter3",
+                    replicaGroupId: "",
                     IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
+
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
             }
             catch
@@ -369,7 +377,10 @@ namespace ZeroC.Ice.Test.Location
             {
             }
 
-            registry.SetAdapterDirectProxy("TestAdapter3", locator.FindAdapterById("TestAdapter"));
+            registry.RegisterAdapterEndpoints(
+                "TestAdapter3",
+                "",
+                locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
             try
             {
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
@@ -389,13 +400,15 @@ namespace ZeroC.Ice.Test.Location
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", communicator).IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
             }
             registry.AddObject(IObjectPrx.Parse(
                 ice1 ? "test3@TestAdapter4" : "ice:TestAdapter4//test3", communicator)); // Update
-            registry.SetAdapterDirectProxy("TestAdapter4",
-                                           IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
+            registry.RegisterAdapterEndpoints(
+                "TestAdapter4",
+                "",
+                IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
             try
             {
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", communicator).IcePing();
@@ -404,7 +417,10 @@ namespace ZeroC.Ice.Test.Location
             catch (ConnectionRefusedException)
             {
             }
-            registry.SetAdapterDirectProxy("TestAdapter4", locator.FindAdapterById("TestAdapter"));
+            registry.RegisterAdapterEndpoints(
+                "TestAdapter4",
+                "",
+                locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
             try
             {
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", communicator).IcePing();
@@ -414,8 +430,10 @@ namespace ZeroC.Ice.Test.Location
                 TestHelper.Assert(false);
             }
 
-            registry.SetAdapterDirectProxy("TestAdapter4",
-                                           IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
+            registry.RegisterAdapterEndpoints(
+                "TestAdapter4",
+                "",
+                IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
             try
             {
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", communicator).IcePing();
@@ -479,7 +497,10 @@ namespace ZeroC.Ice.Test.Location
                 properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
                 using Communicator ic = helper.Initialize(properties);
 
-                registry.SetAdapterDirectProxy("TestAdapter5", locator.FindAdapterById("TestAdapter"));
+                registry.RegisterAdapterEndpoints(
+                    "TestAdapter5",
+                    "",
+                    locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
                 registry.AddObject(IObjectPrx.Parse(
                     ice1 ? "test3@TestAdapter" : "ice:TestAdapter//test3", communicator));
 
@@ -489,7 +510,7 @@ namespace ZeroC.Ice.Test.Location
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", ic).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
                 count += 3;
                 TestHelper.Assert(count == locator.GetRequestCount());
-                registry.SetAdapterDirectProxy("TestAdapter5", null);
+                registry.UnregisterAdapterEndpoints("TestAdapter5", "", locator.Protocol);
                 registry.AddObject(IObjectPrx.Parse(helper.GetTestProxy("test3", 99), communicator));
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter5" : "ice:TestAdapter5//test", ic)
                     .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
@@ -561,25 +582,6 @@ namespace ZeroC.Ice.Test.Location
                 output.WriteLine("ok");
             }
 
-            output.Write("testing locator encoding resolution... ");
-            output.Flush();
-            hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
-            count = locator.GetRequestCount();
-            IObjectPrx.Parse(ice1 ? "test@TestAdapter" : "ice:TestAdapter//test", communicator).Clone(
-                encoding: Encoding.V11).IcePing();
-
-            // TODO: the count is apparently tied to whether or not we skip the if (ice1) block above. Would be nice to
-            // add a comment.
-            if (ice1)
-            {
-                TestHelper.Assert(count == locator.GetRequestCount());
-            }
-            else
-            {
-                TestHelper.Assert(count + 1 == locator.GetRequestCount());
-            }
-            output.WriteLine("ok");
-
             output.Write("shutdown server... ");
             output.Flush();
             obj1.Shutdown();
@@ -592,7 +594,7 @@ namespace ZeroC.Ice.Test.Location
                 obj2.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
             }
             try
@@ -600,7 +602,7 @@ namespace ZeroC.Ice.Test.Location
                 obj3.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
             }
             try
@@ -609,7 +611,7 @@ namespace ZeroC.Ice.Test.Location
                 obj5.IcePing();
                 TestHelper.Assert(false);
             }
-            catch (AdapterNotFoundException)
+            catch (NoEndpointException)
             {
             }
             output.WriteLine("ok");

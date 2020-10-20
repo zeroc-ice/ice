@@ -75,12 +75,14 @@ namespace ZeroC.Ice
         /// most derived to least derived.</param>
         /// <param name="slicedData">The preserved sliced-off slices, if any.</param>
         /// <param name="errorMessage">The exception error message (provided only by exceptions).</param>
+        /// <param name="origin">The exception origin (provided only by exceptions).</param>
         /// <param name="compactId">The compact ID of this slice, if any. Used by the 1.1 encoding.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceStartFirstSlice(
             string[] allTypeIds,
             SlicedData? slicedData = null,
             string? errorMessage = null,
+            RemoteExceptionOrigin? origin = null,
             int? compactId = null)
         {
             Debug.Assert(InEncapsulation && _current.InstanceType != InstanceType.None);
@@ -91,7 +93,7 @@ namespace ZeroC.Ice
                 try
                 {
                     // WriteSlicedData calls IceStartFirstSlice.
-                    WriteSlicedData(slicedDataValue, allTypeIds, errorMessage);
+                    WriteSlicedData(slicedDataValue, allTypeIds, errorMessage, origin);
                     firstSliceWritten = true;
                 }
                 catch (NotSupportedException)
@@ -123,7 +125,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    WriteTypeId20(allTypeIds, errorMessage);
+                    WriteTypeId20(allTypeIds, errorMessage, origin);
                     if (_format == FormatType.Sliced)
                     {
                         // Encode the slice size if using the sliced format.
@@ -225,7 +227,12 @@ namespace ZeroC.Ice
         /// <param name="slicedData">The sliced-off slices to write.</param>
         /// <param name="baseTypeIds">The type IDs of less derived slices.</param>
         /// <param name="errorMessage">For exceptions, the exception's error message.</param>
-        internal void WriteSlicedData(SlicedData slicedData, string[] baseTypeIds, string? errorMessage = null)
+        /// <param name="origin">For exceptions, the exception's origin.</param>
+        internal void WriteSlicedData(
+            SlicedData slicedData,
+            string[] baseTypeIds,
+            string? errorMessage = null,
+            RemoteExceptionOrigin? origin = null)
         {
             Debug.Assert(_current.InstanceType != InstanceType.None);
 
@@ -261,7 +268,7 @@ namespace ZeroC.Ice
                         baseTypeIds.CopyTo(allTypeIds, slicedData.Slices.Count);
                     }
 
-                    IceStartFirstSlice(allTypeIds, errorMessage: errorMessage);
+                    IceStartFirstSlice(allTypeIds, errorMessage: errorMessage, origin: origin);
                 }
                 else
                 {
@@ -391,7 +398,8 @@ namespace ZeroC.Ice
         /// </summary>
         /// <param name="allTypeIds">The type IDs of all slices of this class or exception instance.</param>
         /// <param name="errorMessage">The exception's error message. Provided only for exceptions.</param>
-        private void WriteTypeId20(string[] allTypeIds, string? errorMessage)
+        /// <param name="origin">The exception's origin. Provided only for exceptions.</param>
+        private void WriteTypeId20(string[] allTypeIds, string? errorMessage, RemoteExceptionOrigin? origin)
         {
             Debug.Assert(_current.InstanceType != InstanceType.None);
 
@@ -431,6 +439,8 @@ namespace ZeroC.Ice
 
                 Debug.Assert(errorMessage != null);
                 WriteString(errorMessage);
+                Debug.Assert(origin != null);
+                origin.Value.IceWrite(this);
             }
 
             _current.SliceFlags |= (EncodingDefinitions.SliceFlags)typeIdKind;

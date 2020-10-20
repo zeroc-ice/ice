@@ -126,12 +126,12 @@ namespace ZeroC.Ice
         /// <param name="istr">The stream to read from.</param>
         /// <param name="replyStatus">The reply status.</param>
         /// <returns>The exception read from the stream.</returns>
-        internal static DispatchException ReadIce1SystemException(this InputStream istr, ReplyStatus replyStatus)
+        internal static RemoteException ReadIce1SystemException(this InputStream istr, ReplyStatus replyStatus)
         {
             Debug.Assert(istr.Encoding == Encoding);
             Debug.Assert((byte)replyStatus > (byte)ReplyStatus.UserException);
 
-            DispatchException systemException;
+            RemoteException systemException;
 
             switch (replyStatus)
             {
@@ -144,16 +144,20 @@ namespace ZeroC.Ice
 
                     if (replyStatus == ReplyStatus.OperationNotExistException)
                     {
-                        systemException = new OperationNotExistException(identity, facet, operation);
+                        systemException = new OperationNotExistException(
+                            message: null,
+                            new RemoteExceptionOrigin(identity, facet, operation));
                     }
                     else
                     {
-                        systemException = new ObjectNotExistException(identity, facet, operation);
+                        systemException = new ObjectNotExistException(
+                            message: null,
+                            new RemoteExceptionOrigin(identity, facet, operation));
                     }
                     break;
 
                 default:
-                    systemException = new UnhandledException(istr.ReadString(), Identity.Empty, "", "");
+                    systemException = new UnhandledException(istr.ReadString());
                     break;
             }
 

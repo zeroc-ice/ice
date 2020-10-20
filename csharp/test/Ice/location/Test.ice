@@ -13,10 +13,8 @@ module ZeroC::Ice::Test::Location
 
 interface TestLocatorRegistry : ::Ice::LocatorRegistry
 {
-    //
     // Allow remote addition of objects to the locator registry.
-    //
-    void addObject(Object* obj);
+    void addObject(Object obj);
 }
 
 interface TestLocator : ::Ice::Locator

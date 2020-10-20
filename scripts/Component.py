@@ -164,14 +164,14 @@ class Ice(Component):
             return None
 
         # Define here Ice tests which are slow to execute and for which it's not useful to test different options
-        if testcase.getTestSuite().getId() in ["Ice/binding", "Ice/faultTolerance", "Ice/location"]:
+        if testcase.getTestSuite().getId() in ["Ice/binding", "Ice/faultTolerance"]:
             return self.serviceOptions
 
         # We only run the client/server tests defined for cross testing with all transports (we skip them for
         # AMD/Tie client/server tests however).
         if type(testcase) is ClientServerTestCase and self.isCross(testcase.getTestSuite().getId()):
             return self.transportOptions
-        elif parent in ["Ice", "IceBox"]:
+        elif parent in ["Ice", "IceBox", "IceDiscovery"]:
             return self.coreOptions
         else:
             return self.serviceOptions

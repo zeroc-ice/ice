@@ -54,9 +54,6 @@ namespace ZeroC.Ice.Test.Exceptions
         public ValueTask ThrowCasCAsync(int a, int b, int c, Current current, CancellationToken cancel) =>
             throw new C(a, b, c);
 
-        public ValueTask ThrowCustomDispatchExceptionAsync(Current current, CancellationToken cancel) =>
-            throw new CustomDispatchException(current.Identity, current.Facet, current.Operation, "custom");
-
         public ValueTask ThrowLocalExceptionAsync(Current current, CancellationToken cancel) =>
             throw new ConnectionClosedException();
 

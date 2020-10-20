@@ -29,7 +29,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
             else
             {
-                throw new OperationNotExistException(current.Identity, current.Facet, current.Operation);
+                throw new OperationNotExistException();
             }
         }
     }

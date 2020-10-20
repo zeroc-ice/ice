@@ -178,12 +178,6 @@ slice_error(const char* s)
 %token ICE_FILE_METADATA_OPEN
 %token ICE_FILE_METADATA_CLOSE
 
-// Here 'OPEN' means these tokens end with an open parenthesis.
-%token ICE_IDENT_OPEN
-%token ICE_KEYWORD_OPEN
-%token ICE_TAG_OPEN
-%token ICE_OPTIONAL_OPEN
-
 %token BAD_CHAR
 
 %%
@@ -542,9 +536,9 @@ exception_extends
 // ----------------------------------------------------------------------
 tag
 // ----------------------------------------------------------------------
-: ICE_TAG_OPEN ICE_INTEGER_LITERAL ')'
+: ICE_TAG '(' ICE_INTEGER_LITERAL ')'
 {
-    IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
+    IntegerTokPtr i = IntegerTokPtr::dynamicCast($3);
 
     int tag;
     if(i->v < 0 || i->v > INT32_MAX)
@@ -560,9 +554,9 @@ tag
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_TAG_OPEN scoped_name ')'
+| ICE_TAG '(' scoped_name ')'
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast($2);
+    StringTokPtr scoped = StringTokPtr::dynamicCast($3);
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
@@ -634,7 +628,7 @@ tag
     TaggedDefTokPtr m = new TaggedDefTok(static_cast<int>(tag));
     $$ = m;
 }
-| ICE_TAG_OPEN ')'
+| ICE_TAG '(' ')'
 {
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok; // Dummy
@@ -651,9 +645,9 @@ tag
 // ----------------------------------------------------------------------
 optional
 // ----------------------------------------------------------------------
-: ICE_OPTIONAL_OPEN ICE_INTEGER_LITERAL ')'
+: ICE_OPTIONAL '(' ICE_INTEGER_LITERAL ')'
 {
-    IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
+    IntegerTokPtr i = IntegerTokPtr::dynamicCast($3);
     if (!unit->compatMode())
     {
         unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
@@ -673,9 +667,9 @@ optional
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     $$ = m;
 }
-| ICE_OPTIONAL_OPEN scoped_name ')'
+| ICE_OPTIONAL '(' scoped_name ')'
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast($2);
+    StringTokPtr scoped = StringTokPtr::dynamicCast($3);
     if (!unit->compatMode())
     {
         unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
@@ -751,7 +745,7 @@ optional
     TaggedDefTokPtr m = new TaggedDefTok(static_cast<int>(tag));
     $$ = m;
 }
-| ICE_OPTIONAL_OPEN ')'
+| ICE_OPTIONAL '(' ')'
 {
     if (!unit->compatMode())
     {
@@ -857,9 +851,9 @@ class_name
 // ----------------------------------------------------------------------
 class_id
 // ----------------------------------------------------------------------
-: ICE_CLASS ICE_IDENT_OPEN ICE_INTEGER_LITERAL ')'
+: ICE_CLASS unscoped_name '(' ICE_INTEGER_LITERAL ')'
 {
-    IceUtil::Int64 id = IntegerTokPtr::dynamicCast($3)->v;
+    IceUtil::Int64 id = IntegerTokPtr::dynamicCast($4)->v;
     if(id < 0)
     {
         unit->error("invalid compact id for class: id must be a positive integer");
@@ -882,9 +876,9 @@ class_id
     classId->t = static_cast<int>(id);
     $$ = classId;
 }
-| ICE_CLASS ICE_IDENT_OPEN scoped_name ')'
+| ICE_CLASS unscoped_name '(' scoped_name ')'
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast($3);
+    StringTokPtr scoped = StringTokPtr::dynamicCast($4);
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
@@ -1202,7 +1196,7 @@ return_type
 // ----------------------------------------------------------------------
 operation_preamble
 // ----------------------------------------------------------------------
-: return_type ICE_IDENT_OPEN
+: return_type unscoped_name '('
 {
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
@@ -1237,7 +1231,7 @@ operation_preamble
         $$ = 0;
     }
 }
-| ICE_IDEMPOTENT return_type ICE_IDENT_OPEN
+| ICE_IDEMPOTENT return_type unscoped_name '('
 {
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
@@ -1272,7 +1266,7 @@ operation_preamble
         $$ = 0;
     }
 }
-| return_type ICE_KEYWORD_OPEN
+| return_type keyword '('
 {
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
@@ -1306,7 +1300,7 @@ operation_preamble
         $$ = 0;
     }
 }
-| ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN
+| ICE_IDEMPOTENT return_type keyword '('
 {
     TaggedDefListTokPtr returnMembers = TaggedDefListTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
@@ -1958,6 +1952,18 @@ scoped_name
 // ----------------------------------------------------------------------
 : ICE_IDENTIFIER
 | ICE_SCOPED_IDENTIFIER
+;
+
+// ----------------------------------------------------------------------
+unscoped_name
+// ----------------------------------------------------------------------
+: ICE_IDENTIFIER
+| ICE_SCOPED_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
+    unit->error("Identifier cannot be scoped: `" + (ident->v) + "'");
+    $$ = $1;
+}
 ;
 
 // ----------------------------------------------------------------------

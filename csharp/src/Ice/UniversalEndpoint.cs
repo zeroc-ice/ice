@@ -16,20 +16,16 @@ namespace ZeroC.Ice
     /// ice2 or greater.</summary>
     internal sealed class UniversalEndpoint : Endpoint
     {
-        public override string Host { get; }
-
         public override string? this[string option] =>
             option switch
             {
-                "option" => _options.Count > 0 ? string.Join(",", _options.Select(s => Uri.EscapeDataString(s))) : null,
+                "option" => Data.Options.Length > 0 ?
+                                string.Join(",", Data.Options.Select(s => Uri.EscapeDataString(s))) : null,
                 "transport" => TransportName,
                 _ => null
             };
 
-        public override ushort Port { get; }
-
         public override string Scheme => "ice+universal";
-        public override Transport Transport { get; }
 
         protected internal override ushort DefaultPort => DefaultUniversalPort;
         protected internal override bool HasOptions => true;
@@ -38,22 +34,12 @@ namespace ZeroC.Ice
 
         private int _hashCode; // 0 is a special value that means not initialized.
 
-        private readonly IReadOnlyList<string> _options = Array.Empty<string>();
-
         public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
-        public override bool Equals(Endpoint? other)
-        {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return other is UniversalEndpoint universalEndpoint &&
-                _options.SequenceEqual(universalEndpoint._options) &&
-                 base.Equals(other);
-        }
+        // There is no Equals as it's identical to the base.
 
+        // Only for caching, same value as base.
         public override int GetHashCode()
         {
             if (_hashCode != 0)
@@ -62,15 +48,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                int hashCode;
-                var hash = new HashCode();
-                hash.Add(base.GetHashCode());
-                foreach (string option in _options)
-                {
-                    hash.Add(option);
-                }
-                hashCode = hash.ToHashCode();
-
+                int hashCode = base.GetHashCode();
                 if (hashCode == 0)
                 {
                     hashCode = 1;
@@ -103,58 +81,46 @@ namespace ZeroC.Ice
             sb.Append("transport=");
             sb.Append(TransportName);
 
-            if (_options.Count > 0)
+            if (Data.Options.Length > 0)
             {
                 sb.Append(optionSeparator);
                 sb.Append("option=");
-                for (int i = 0; i < _options.Count; ++i)
-                {
-                    if (i > 0)
-                    {
-                        sb.Append(',');
-                    }
-                    sb.Append(Uri.EscapeDataString(_options[i]));
-                }
+                sb.Append(string.Join(",", Data.Options.Select(s => Uri.EscapeDataString(s))));
             }
         }
 
         protected internal override void WriteOptions(OutputStream ostr) =>
-            ostr.WriteSequence(_options, OutputStream.IceWriterFromString);
+            Debug.Assert(false); // WriteOptions is only for ice1.
 
-        // Constructor for unmarshaling.
-        internal UniversalEndpoint(InputStream istr, Transport transport, Protocol protocol)
-            : base(istr.Communicator!, protocol)
-        {
-            Debug.Assert(Protocol != Protocol.Ice1);
-            Transport = transport;
-            Host = istr.ReadString();
-            Port = istr.ReadUShort();
-            _options = istr.ReadArray(1, InputStream.IceReaderIntoString);
-        }
+        internal static UniversalEndpoint Create(EndpointData data, Communicator communicator, Protocol protocol) =>
+            new UniversalEndpoint(data, communicator, protocol);
 
-        // Constructor for URI parsing.
-        internal UniversalEndpoint(
-            Communicator communicator,
+        internal static UniversalEndpoint Parse(
             Transport transport,
-            Protocol protocol,
             string host,
             ushort port,
-            Dictionary<string, string> options)
-            : base(communicator, protocol)
+            Dictionary<string, string> options,
+            Communicator communicator,
+            Protocol protocol)
         {
-            Transport = transport;
-            Host = host;
-            Port = port;
+            string[] endpointDataOptions = Array.Empty<string>();
 
             if (options.TryGetValue("option", out string? value))
             {
                 // Each option must be percent-escaped; we hold it in memory unescaped, and later marshal it unescaped.
-                // For example, a WS endpoint resource option can be provided "double-escaped", with
-                // `/` replaced by %2F and %20 (space) escaped as %2520; this unescaping would result in
-                // the memory resource value being "singled-escaped".
-                _options = value.Split(",").Select(s => Uri.UnescapeDataString(s)).ToList();
+                endpointDataOptions = value.Split(",").Select(s => Uri.UnescapeDataString(s)).ToArray();
                 options.Remove("option");
             }
+
+            return new UniversalEndpoint(new EndpointData(transport, host, port, endpointDataOptions),
+                                         communicator,
+                                         protocol);
         }
+
+        // Constructor
+        private UniversalEndpoint(EndpointData data, Communicator communicator, Protocol protocol)
+            : base(data, communicator, protocol) =>
+            Debug.Assert(protocol != Protocol.Ice1);
+
     }
 }

@@ -12,6 +12,14 @@ namespace ZeroC.Ice
         /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
         public Dictionary<string, string> Context { get; }
 
+        /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
+        /// caller is no longer interested in the response and discards the request. The server-side runtime does not
+        /// enforce this deadline - it's provided "for information" to the application. The Ice client runtime sets
+        /// this deadline automatically using the proxy's invocation timeout and sends it with ice2 requests but not
+        /// with ice1 requests. As a result, the deadline for an ice1 request is always <see cref="DateTime.MaxValue"/>
+        /// on the server-side even though the invocation timeout is usually not infinite.</summary>
+        public DateTime Deadline { get; }
+
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
 
@@ -52,6 +60,7 @@ namespace ZeroC.Ice
                 IsIdempotent = requestHeaderBody.OperationMode != OperationMode.Normal;
                 Context = requestHeaderBody.Context;
                 Priority = default;
+                Deadline = DateTime.MaxValue;
             }
             else
             {
@@ -62,11 +71,18 @@ namespace ZeroC.Ice
                 Operation = requestHeaderBody.Operation;
                 IsIdempotent = requestHeaderBody.Idempotent ?? false;
                 Priority = requestHeaderBody.Priority ?? default;
+                if (requestHeaderBody.Deadline < -1 || requestHeaderBody.Deadline == 0)
+                {
+                    throw new InvalidDataException($"received invalid deadline value {requestHeaderBody.Deadline}");
+                }
+                // The infinite deadline is encoded as -1 and converted to DateTime.MaxValue
+                Deadline = requestHeaderBody.Deadline == -1 ?
+                    DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = null!; // initialized below
 
                 if (Location.Any(segment => segment.Length == 0))
                 {
-                   throw new InvalidDataException("received request with empty location segment");
+                    throw new InvalidDataException("received request with empty location segment");
                 }
             }
 

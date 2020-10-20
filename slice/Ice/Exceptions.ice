@@ -20,27 +20,31 @@
 [cs:namespace:ZeroC]
 module Ice
 {
-#ifdef __SLICE2CS__
-
-    /// A dispatch exception is a remote exception that reports an error during the server-side dispatch of a request.
-    /// It is usually thrown by Ice but can also be thrown by application code.
-    exception DispatchException
+    /// Represents the origin of a remote exception. With the Ice 2.0 encoding, all remote exceptions have an implicit
+    /// origin data member set during marshaling. With the Ice 1.1 encoding, this origin data member is only set and
+    /// marshaled for {@link ObjectNotExistException} and {@link OperationNotExistException}.
+    [cs:readonly] struct RemoteExceptionOrigin
     {
         /// The Ice object Identity.
         Identity identity;
+
         /// The Ice object facet.
         string facet;
+
         /// The operation name.
         string operation;
     }
 
-    /// With ice1, an ObjectNotExistException is transmitted without the message string.
-    exception ObjectNotExistException : DispatchException
+#ifdef __SLICE2CS__
+    /// The object adapter could not find a servant for the target object.
+    exception ObjectNotExistException
     {
     }
 
-    /// With ice1, an OperationNotExistException is transmitted without the message string.
-    exception OperationNotExistException : DispatchException
+    /// The object adapter found a servant for the target object but this servant does not implement the requested
+    /// operation. This exception is typically thrown when a client with newer Slice definitions calls an implementation
+    /// based on older Slice definitions.
+    exception OperationNotExistException
     {
     }
 
@@ -48,7 +52,7 @@ module Ice
     /// RemoteException or when it throws a RemoteException with its convertToUnhandled flag set to true.
     /// With ice1, an UnhandledException is transmitted as an "UnknownLocalException" with just a string (the message)
     /// as its payload. When receiving any Unknown exception over ice1, the mapped exception is UnhandledException.
-    exception UnhandledException : DispatchException
+    exception UnhandledException
     {
     }
 #endif

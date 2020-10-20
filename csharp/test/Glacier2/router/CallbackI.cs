@@ -14,7 +14,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 proxy!.Callback(current.Context, cancel: cancel);
             }
-            catch (DispatchException ex)
+            catch (RemoteException ex)
             {
                 ex.ConvertToUnhandled = false;
                 throw;
@@ -50,7 +50,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 TestHelper.Assert(!_callback);
                 _callback = true;
-                System.Threading.Monitor.Pulse(_mutex);
+                Monitor.Pulse(_mutex);
             }
         }
 
@@ -66,7 +66,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 while (!_callback)
                 {
-                    System.Threading.Monitor.Wait(_mutex, 30000);
+                    Monitor.Wait(_mutex, 30000);
                     TestHelper.Assert(_callback);
                 }
 
