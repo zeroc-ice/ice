@@ -4,32 +4,25 @@ namespace ZeroC.Ice
 {
     internal sealed class TraceLevels
     {
-        internal readonly int Transport;
-        internal readonly string TransportCategory; // TODO: these are not constants?
+        internal const string LocatorCategory = "Ice.Trace.Locator";
+        internal const string ProtocolCategory = "Ice.Trace.Protocol";
+        internal const string RetryCategory = "Ice.Trace.Retry";
+        internal const string SlicingCategory = "Ice.Trace.Slicing";
+        internal const string TransportCategory = "Ice.Trace.Transport";
+
+        internal readonly int Locator;
         internal readonly int Protocol;
-        internal readonly string ProtocolCategory;
         internal readonly int Retry;
-        internal readonly string RetryCategory;
-        internal readonly int Location;
-        internal readonly string LocatorCategory;
         internal readonly int Slicing;
-        internal readonly string SlicingCategory;
+        internal readonly int Transport;
 
         internal TraceLevels(Communicator communicator)
         {
-            TransportCategory = "Transport";
-            ProtocolCategory = "Protocol";
-            RetryCategory = "Retry";
-            LocatorCategory = "Locator"; // TODO why this inconsistency?
-            SlicingCategory = "Slicing";
-
-            string keyBase = "Ice.Trace.";
-
-            Transport = communicator.GetPropertyAsInt(keyBase + TransportCategory) ?? 0;
-            Protocol = communicator.GetPropertyAsInt(keyBase + ProtocolCategory) ?? 0;
-            Retry = communicator.GetPropertyAsInt(keyBase + RetryCategory) ?? 0;
-            Location = communicator.GetPropertyAsInt(keyBase + LocatorCategory) ?? 0;
-            Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCategory) ?? 0;
+            Locator = communicator.GetPropertyAsInt(LocatorCategory) ?? 0;
+            Protocol = communicator.GetPropertyAsInt(ProtocolCategory) ?? 0;
+            Retry = communicator.GetPropertyAsInt(RetryCategory) ?? 0;
+            Slicing = communicator.GetPropertyAsInt(SlicingCategory) ?? 0;
+            Transport = communicator.GetPropertyAsInt(TransportCategory) ?? 0;
         }
     }
 }
