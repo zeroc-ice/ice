@@ -392,8 +392,8 @@ namespace ZeroC.IceDiscovery
         }
     }
 
-     /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
-     internal class ResolveAdapterIdReply : IResolveAdapterIdReply, IDisposable
+    /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
+    internal class ResolveAdapterIdReply : IResolveAdapterIdReply, IDisposable
     {
         internal ReplyHandler<IReadOnlyList<EndpointData>> ReplyHandler { get; }
 
