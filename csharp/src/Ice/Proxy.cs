@@ -479,7 +479,7 @@ namespace ZeroC.Ice
                                 if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
                                     reference.Communicator.Logger.Trace(
-                                        reference.Communicator.TraceLevels.RetryCategory,
+                                        TraceLevels.RetryCategory,
                                         $"excluding connector\n{connection.Connector}");
                                 }
                             }
@@ -492,7 +492,7 @@ namespace ZeroC.Ice
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
                                 reference.Communicator.Logger.Trace(
-                                    reference.Communicator.TraceLevels.RetryCategory,
+                                    TraceLevels.RetryCategory,
                                     "retrying operation call: because of exception");
                             }
 

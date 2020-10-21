@@ -1355,7 +1355,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    if (TraceLevels.Location >= 1)
+                    if (TraceLevels.Locator >= 1)
                     {
                         Logger.Trace(TraceLevels.LocatorCategory,
                             $"could not register server `{serverId}' with the locator registry:\n{ex}");
@@ -1363,7 +1363,7 @@ namespace ZeroC.Ice
                     throw;
                 }
 
-                if (TraceLevels.Location >= 1)
+                if (TraceLevels.Locator >= 1)
                 {
                     Logger.Trace(TraceLevels.LocatorCategory, $"registered server `{serverId}' with the locator registry");
                 }

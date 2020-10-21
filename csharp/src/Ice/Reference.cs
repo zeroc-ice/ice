@@ -1159,7 +1159,7 @@ namespace ZeroC.Ice
                         TraceLevels traceLevels = Communicator.TraceLevels;
                         if (traceLevels.Retry >= 2)
                         {
-                            Communicator.Logger.Trace(traceLevels.RetryCategory,
+                            Communicator.Logger.Trace(TraceLevels.RetryCategory,
                                                       "connection to cached endpoints failed\n" +
                                                       $"removing endpoints from cache and trying again\n{ex}");
                         }

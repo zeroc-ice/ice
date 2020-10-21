@@ -197,7 +197,7 @@ namespace ZeroC.Ice
             {
                 if (_communicator.TraceLevels.Transport >= 2)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"{_transportName} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
@@ -207,12 +207,12 @@ namespace ZeroC.Ice
             {
                 if (_incoming)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"accepted {_transportName} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"{_transportName} connection HTTP upgrade request accepted\n{this}");
                 }
             }
@@ -385,7 +385,7 @@ namespace ZeroC.Ice
 
                 if (_communicator.TraceLevels.Transport >= 3)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"received {_transportName} {opCode} frame with {payloadLength} bytes payload\n{this}");
                 }
 
@@ -661,7 +661,7 @@ namespace ZeroC.Ice
                 _sendBuffer.Add(PrepareHeaderForSend(opCode, size));
                 if (_communicator.TraceLevels.Transport >= 3)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"sending {_transportName} {opCode} frame with {size} bytes payload\n{this}");
                 }
 
