@@ -96,16 +96,15 @@ namespace ZeroC.Ice
             try
             {
                 INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                int ipVersion = networkProxy?.IPVersion ?? Network.EnableBoth;
                 if (networkProxy != null)
                 {
-                    networkProxy = await networkProxy.ResolveHostAsync(ipVersion, cancel).ConfigureAwait(false);
+                    networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
                 }
 
                 IEnumerable<IPEndPoint> addrs =
                     await Network.GetAddressesForClientEndpointAsync(Host,
                                                                      Port,
-                                                                     ipVersion,
+                                                                     networkProxy?.IPVersion ?? Network.EnableBoth,
                                                                      endptSelection,
                                                                      cancel).ConfigureAwait(false);
                 return addrs.Select(item => CreateConnector(item, networkProxy));
