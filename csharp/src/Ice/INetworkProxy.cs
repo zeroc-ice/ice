@@ -30,7 +30,7 @@ namespace ZeroC.Ice
 
         // If the proxy host needs to be resolved, this should return a new NetworkProxy containing the IP address
         // of the proxy.
-        ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel);
+        ValueTask<INetworkProxy> ResolveHostAsync(CancellationToken cancel);
     }
 
     internal sealed class SOCKSNetworkProxy : INetworkProxy
@@ -77,7 +77,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(CancellationToken cancel)
         {
             Debug.Assert(_host != null);
 
@@ -85,7 +85,7 @@ namespace ZeroC.Ice
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
-                                                                 ipVersion,
+                                                                 IPVersion,
                                                                  EndpointSelectionType.Random,
                                                                  cancel).ConfigureAwait(false);
             return new SOCKSNetworkProxy(addresses.First());
@@ -154,7 +154,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion, CancellationToken cancel)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(CancellationToken cancel)
         {
             Debug.Assert(_host != null);
 
@@ -162,10 +162,10 @@ namespace ZeroC.Ice
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
-                                                                 ipVersion,
+                                                                 IPVersion,
                                                                  EndpointSelectionType.Random,
                                                                  cancel).ConfigureAwait(false);
-            return new HTTPNetworkProxy(addresses.First(), ipVersion);
+            return new HTTPNetworkProxy(addresses.First());
         }
 
         internal HTTPNetworkProxy(string host, int port)
@@ -174,10 +174,9 @@ namespace ZeroC.Ice
             _port = port;
         }
 
-        private HTTPNetworkProxy(EndPoint address, int ipVersion)
+        private HTTPNetworkProxy(EndPoint address)
         {
             _address = address;
-            IPVersion = ipVersion;
         }
     }
 }
