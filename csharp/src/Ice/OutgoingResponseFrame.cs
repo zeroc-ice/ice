@@ -90,7 +90,8 @@ namespace ZeroC.Ice
             return response;
         }
 
-        /// <summary>Constructs an outgoing response frame from the given incoming response frame.</summary>
+        /// <summary>Constructs an outgoing response frame from the given incoming response frame. The new response will
+        /// use the protocol of the <paramref name="request"/> and the encoding of <paramref name="response"/>.</summary>
         /// <param name="request">The request for which this constructor creates a response.</param>
         /// <param name="response">The incoming response used to construct the new outgoing response frame.</param>
         /// <param name="forwardBinaryContext">When true (the default), the new frame uses the incoming response frame's
@@ -156,7 +157,7 @@ namespace ZeroC.Ice
                                                                       EncapsulationStart,
                                                                       Ice1Definitions.Encoding,
                                                                       response.Payload.Count - 1 - sizeLength - 1,
-                                                                      response.Encoding);
+                                                                      Encoding);
                             Debug.Assert(tail.Segment == 0);
                             Data[0] = Data[0].Slice(0, tail.Offset);
                         }
@@ -191,7 +192,7 @@ namespace ZeroC.Ice
                                                                       EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count - 1 - sizeLength + 1,
-                                                                      response.Encoding);
+                                                                      Encoding);
                             buffer[tail.Offset++] = (byte)replyStatus;
                             Data[0] = Data[0].Slice(0, tail.Offset);
                             Data.Add(response.Payload.Slice(1 + sizeLength + 2));
@@ -207,7 +208,7 @@ namespace ZeroC.Ice
                                                                       EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count + 2, // +2 for the encoding
-                                                                      response.Encoding);
+                                                                      Encoding);
                             Data[0] = Data[0].Slice(0, tail.Offset);
                             Data.Add(response.Payload);
                         }
@@ -224,7 +225,7 @@ namespace ZeroC.Ice
                                                                       EncapsulationStart,
                                                                       Protocol.GetEncoding(),
                                                                       response.Payload.Count - 1 - sizeLength,
-                                                                      response.Encoding);
+                                                                      Encoding);
                     Data[0] = Data[0].Slice(0, tail.Offset);
                     Data.Add(response.Payload.Slice(1 + sizeLength + 2));
                 }
