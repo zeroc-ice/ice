@@ -6,7 +6,7 @@
 
 #include <DoubleModuleWithPackage.ice>
 
-[[java:package:dmwp]]
+[[java:package(dmwp)]]
 
 module M1
 {

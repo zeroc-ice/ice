@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-[[swift:class-resolver-prefix:IceObjects]]
+[[swift:class-resolver-prefix(IceObjects)]]
 
 module Test
 {

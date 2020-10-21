@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-[[swift:class-resolver-prefix:IceSlicingObjects]]
+[[swift:class-resolver-prefix(IceSlicingObjects)]]
 
 module Test
 {
@@ -101,7 +101,7 @@ exception PreservedException
 {
 }
 
-[format:sliced]
+[format(sliced)]
 interface TestIntf
 {
     Object SBaseAsObject();
@@ -111,7 +111,7 @@ interface TestIntf
 
     SBase SBSUnknownDerivedAsSBase();
 
-    [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
+    [format(compact)] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
     void checkSUnknown(Object o);

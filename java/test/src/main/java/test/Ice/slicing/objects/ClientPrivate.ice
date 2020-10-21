@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-[[java:package:test.Ice.slicing.objects.client]]
+[[java:package(test.Ice.slicing.objects.client)]]
 module Test
 {
 
@@ -105,7 +105,7 @@ exception PreservedException
 {
 }
 
-[format:sliced]
+[format(sliced)]
 interface TestIntf
 {
     Object SBaseAsObject();
@@ -115,7 +115,7 @@ interface TestIntf
 
     SBase SBSUnknownDerivedAsSBase();
 
-    [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
+    [format(compact)] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
     void checkSUnknown(Object o);

@@ -129,22 +129,17 @@ Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& o) : out(o)
 bool
 Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
 {
-    //
     // Always import Ice module first if not building Ice
-    //
-    if(UnitPtr::dynamicCast(p->container()) && _imports.empty())
+    if (UnitPtr::dynamicCast(p->container()) && _imports.empty())
     {
-        string swiftModule = getSwiftModule(p);
-        if(swiftModule != "Ice")
+        if (getSwiftModule(p) != "Ice")
         {
             addImport("Ice");
         }
     }
 
-    //
-    // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
-    //
-    if(p->hasInterfaceDefs())
+    // Add PromiseKit import for interfaces.
+    if (p->hasInterfaceDefs())
     {
         addImport("PromiseKit");
     }

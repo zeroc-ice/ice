@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.packagemd.testpkg]]
+[[java:package(test.Ice.packagemd.testpkg)]]
 
 module Test2
 {
@@ -29,7 +29,7 @@ exception E2 : E1
 }
 }
 
-[java:package:test.Ice.packagemd.modpkg]
+[java:package(test.Ice.packagemd.modpkg)]
 module Test3
 {
 class C1

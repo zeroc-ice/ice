@@ -6,7 +6,7 @@
 
 #include <DoubleModuleNoPackage.ice>
 
-[[java:package:dmnpTest7]]
+[[java:package(dmnpTest7)]]
 
 module M1::M2
 {

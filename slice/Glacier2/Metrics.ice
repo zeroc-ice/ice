@@ -4,22 +4,21 @@
 
 #pragma once
 
-[[cpp:dll-export:GLACIER2_API]]
-[[cpp:doxygen:include:Glacier2/Glacier2.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:Glacier2/Config.h]]
+[[cpp:dll-export(GLACIER2_API)]]
+[[cpp:doxygen:include(Glacier2/Glacier2.h)]]
+[[cpp:include(Glacier2/Config.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Glacier2]]
+[[python:pkgdir(Glacier2)]]
 
 #include <Ice/Metrics.ice>
 
-[[java:package:com.zeroc]]
+[[java:package(com.zeroc)]]
 
-[cs:namespace:ZeroC]
-[swift:module:Glacier2:MX]
+[cs:namespace(ZeroC)]
+[swift:module(Glacier2:MX)]
 module IceMX
 {
     /// Provides information on Glacier2 sessions.

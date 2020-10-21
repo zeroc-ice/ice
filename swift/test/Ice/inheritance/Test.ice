@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[swift:class-resolver-prefix:IceInheritance]]
+[[swift:class-resolver-prefix(IceInheritance)]]
 
 module Test
 {

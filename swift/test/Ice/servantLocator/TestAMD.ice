@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[swift:class-resolver-prefix:IceServantLocatorAMD]]
+[[swift:class-resolver-prefix(IceServantLocatorAMD)]]
 
 module Test
 {

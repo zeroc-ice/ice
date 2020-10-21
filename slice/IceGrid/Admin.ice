@@ -4,15 +4,14 @@
 
 #pragma once
 
-[[cpp:dll-export:ICEGRID_API]]
-[[cpp:doxygen:include:IceGrid/IceGrid.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:IceGrid/Config.h]]
+[[cpp:dll-export(ICEGRID_API)]]
+[[cpp:doxygen:include(IceGrid/IceGrid.h)]]
+[[cpp:include(IceGrid/Config.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:IceGrid]]
+[[python:pkgdir(IceGrid)]]
 
 [[3.7]]
 
@@ -22,8 +21,8 @@
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module IceGrid
 {
     /// An enumeration representing the state of the server.
@@ -194,7 +193,7 @@ module IceGrid
     }
 
     /// A sequence of {@link ApplicationInfo} structures.
-    [java:type:java.util.LinkedList<ApplicationInfo>] sequence<ApplicationInfo> ApplicationInfoSeq;
+    [java:type(java.util.LinkedList<ApplicationInfo>)] sequence<ApplicationInfo> ApplicationInfoSeq;
 
     /// Information about updates to an IceGrid application.
     struct ApplicationUpdateInfo
@@ -851,7 +850,7 @@ module IceGrid
     }
 
     /// A sequence of server dynamic information structures.
-    [java:type:java.util.LinkedList<ServerDynamicInfo>] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
+    [java:type(java.util.LinkedList<ServerDynamicInfo>)] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 
     /// Dynamic information about the state of an adapter.
     struct AdapterDynamicInfo
@@ -864,7 +863,7 @@ module IceGrid
     }
 
     /// A sequence of adapter dynamic information structures.
-    [java:type:java.util.LinkedList<AdapterDynamicInfo>] sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
+    [java:type(java.util.LinkedList<AdapterDynamicInfo>)] sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
 
     /// Dynamic information about the state of a node.
     struct NodeDynamicInfo

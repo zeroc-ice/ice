@@ -2,13 +2,12 @@
 
 #pragma once
 
-[[cpp:doxygen:include:IceDiscovery/IceDiscovery.h]]
-[[cpp:header-ext:h]]
+[[cpp:doxygen:include(IceDiscovery/IceDiscovery.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:IceDiscovery]]
+[[python:pkgdir(IceDiscovery)]]
 
 #include <Ice/Identity.ice>
 #include <Ice/Protocol.ice>
@@ -16,8 +15,8 @@
 /// The IceDiscovery plug-in implements the {@see Ice::Locator} interface to locate (or discover) objects and object
 /// adapters using UDP multicast. It also implements the {@see Ice::LocatorDiscovery} interface to allow servers to
 /// respond to such multicast discovery requests.
-[cs:namespace:ZeroC]
-[java:package:com.zeroc]
+[cs:namespace(ZeroC)]
+[java:package(com.zeroc)]
 module IceDiscovery
 {
     /// The IceDiscovery.Reply object adapter of a client application hosts a LookupReply object that processes

@@ -5,7 +5,7 @@
 #pragma once
 
 [[3.7]]
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Slicing::Objects
 {
@@ -99,7 +99,7 @@ exception PreservedException
 {
 }
 
-[format:sliced]
+[format(sliced)]
 interface TestIntf
 {
     Object SBaseAsObject();
@@ -110,7 +110,7 @@ interface TestIntf
     SBase SBSUnknownDerivedAsSBase();
     void CUnknownAsSBase(SBase cUnknown);
 
-    [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
+    [format(compact)] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
     void checkSUnknown(Object o);

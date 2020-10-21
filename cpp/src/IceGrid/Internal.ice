@@ -4,8 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifier]]
-[[cpp:header-ext:h]]
+[[suppress-warning(reserved-identifier)]]
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -45,7 +44,7 @@ module IceGrid
         string icepatch;
 
         /// The source directories.
-        [java:type:java.util.LinkedList<String>] Ice::StringSeq directories;
+        Ice::StringSeq directories;
     }
 
     dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;

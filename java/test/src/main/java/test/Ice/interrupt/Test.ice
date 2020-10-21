@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[java:package:test.Ice.interrupt]]
+[[java:package(test.Ice.interrupt)]]
 module Test
 {
 

@@ -3,22 +3,21 @@
 
 #pragma once
 
-[[cpp:dll-export:ICE_API]]
-[[cpp:doxygen:include:Ice/Ice.h]]
-[[cpp:header-ext:h]]
+[[cpp:dll-export(ICE_API)]]
+[[cpp:doxygen:include(Ice/Ice.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Ice]]
+[[python:pkgdir(Ice)]]
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 #include <Ice/Process.ice>
 #include <Ice/Protocol.ice>
 
-[cs:namespace:ZeroC]
-[java:package:com.zeroc]
+[cs:namespace(ZeroC)]
+[java:package(com.zeroc)]
 module Ice
 {
     /// This exception is thrown when a server tries to register endpoints for an object adapter that is already active.
@@ -61,7 +60,7 @@ module Ice
         /// not found.
         /// @throws ObjectNotFoundException Thrown if an object with identity `id' was not found. The caller should
         /// treat this exception like a null return value.
-        [deprecate:use resolveWellKnownProxy]
+        [deprecate(use resolveWellKnownProxy)]
         idempotent Object? findObjectById(Identity id);
 
         /// Finds an object adapter by id and returns a proxy that provides the object adapter's endpoint(s). Calling
@@ -71,7 +70,7 @@ module Ice
         /// not found.
         /// @throws AdapterNotFoundException Thrown if an object adapter with this adapter ID was not found. The caller
         /// should treat this exception like a null return value.
-        [deprecate:use resolveLocation]
+        [deprecate(use resolveLocation)]
         idempotent Object? findAdapterById(string id);
 
         /// Gets the locator registry.
@@ -135,7 +134,7 @@ module Ice
         /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
         /// registered its endpoints.
         // Note: idempotent is not quite correct, and kept only for backwards compatibility with old implementations.
-        [deprecate:use registerAdapterEndpoints or unregisterAdapterEndpoints]
+        [deprecate(use registerAdapterEndpoints or unregisterAdapterEndpoints)]
         idempotent void setAdapterDirectProxy(string id, Object? proxy);
 
         /// Registers or unregisters the endpoints of an object adapter that is a member of a replica group.  When proxy
@@ -152,7 +151,7 @@ module Ice
         /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
         /// @throws InvalidReplicaGroupIdException Thrown if the given replica group does not match the replica group
         /// associated with the adapter ID in the locator's database.
-        [deprecate:use registerAdapterEndpoints or unregisterAdapterEndpoints]
+        [deprecate(use registerAdapterEndpoints or unregisterAdapterEndpoints)]
         // Note: idempotent is not quite correct, and kept only for backwards compatibility with old implementations.
         idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object? proxy);
 

@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[java:package:test.Ice.exceptions.AMD]]
+[[java:package(test.Ice.exceptions.AMD)]]
 module Test
 {
 

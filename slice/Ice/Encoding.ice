@@ -2,17 +2,16 @@
 
 #pragma once
 
-[[cpp:dll-export:ICE_API]]
-[[cpp:doxygen:include:Ice/Ice.h]]
-[[cpp:header-ext:h]]
+[[cpp:dll-export(ICE_API)]]
+[[cpp:doxygen:include(Ice/Ice.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Ice]]
+[[python:pkgdir(Ice)]]
 
-[cs:namespace:ZeroC]
-[java:package:com.zeroc]
+[cs:namespace(ZeroC)]
+[java:package(com.zeroc)]
 module Ice
 {
     /// The Ice encoding defines how Slice constructs are marshaled to and later unmarshaled from sequences of bytes.

@@ -1,11 +1,9 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #pragma once
 
 // deprecated for enumerator references
-[[suppress-warning:invalid-metadata, deprecated, reserved-identifier]]
+[[suppress-warning(all)]]
 
 module ZeroC::Ice::Test::DefaultValue
 {
@@ -123,10 +121,8 @@ class ClassProperty
     double zeroDotD = 0;
 }
 
-//
-// Exceptions don't support "clr:property" metadata, but
+// Exceptions don't support "cs:property" metadata, but
 // we want to ensure that the generated code compiles.
-//
 [cs:property]
 exception ExceptionProperty
 {

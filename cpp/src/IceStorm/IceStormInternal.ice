@@ -4,8 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifier]]
-[[cpp:header-ext:h]]
+[[suppress-warning(reserved-identifier)]]
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
@@ -14,7 +13,7 @@
 #include <Ice/Context.ice>
 #include <Ice/Ice1Definitions.ice> // for Ice::OperationMode
 
-[[cpp:include:deque]]
+[[cpp:include(deque)]]
 
 module IceStorm
 {
@@ -32,7 +31,7 @@ module IceStorm
     }
 
     /// A sequence of EventData.
-    [cpp:type:std::deque<IceStorm::EventData>] sequence<EventData> EventDataSeq;
+    [cpp:type(std::deque<IceStorm::EventData>)] sequence<EventData> EventDataSeq;
 
     /// The TopicLink interface. This is used to forward events between
     /// federated Topic instances.

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.hold]]
+[[java:package(test.Ice.hold)]]
 module Test
 {
 

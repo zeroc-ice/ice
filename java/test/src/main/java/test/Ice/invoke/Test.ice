@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.invoke]]
+[[java:package(test.Ice.invoke)]]
 module Test
 {
 

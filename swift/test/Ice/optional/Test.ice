@@ -182,9 +182,9 @@ interface Initial
 
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 
-    [cpp:view-type:Util::string_view] optional(1) string
-    opCustomString([cpp:view-type:Util::string_view] optional(2) string p1,
-                   out [cpp:view-type:Util::string_view] optional(3) string p3);
+    [cpp:view-type(Util::string_view)] optional(1) string
+    opCustomString([cpp:view-type(Util::string_view)] optional(2) string p1,
+                   out [cpp:view-type(Util::string_view)] optional(3) string p3);
 
     optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
@@ -240,10 +240,10 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] optional(1) IntStringDict
+    [cpp:view-type(::std::map< ::Ice::Int, ::Util::string_view>)] [cpp:type(::Test::CustomMap< ::Ice::Int, std::string>)] optional(1) IntStringDict
     opCustomIntStringDict(
-        [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] optional(2) IntStringDict p1,
-        out [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] optional(3) IntStringDict p3);
+        [cpp:view-type(::std::map< ::Ice::Int, ::Util::string_view>)] [cpp:type(::Test::CustomMap< ::Ice::Int, std::string>)] optional(2) IntStringDict p1,
+        out [cpp:view-type(::std::map< ::Ice::Int, ::Util::string_view>)] [cpp:type(::Test::CustomMap< ::Ice::Int, std::string>)] optional(3) IntStringDict p3);
 
     void opClassAndUnknownOptional(A p);
 

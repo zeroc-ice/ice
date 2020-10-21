@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Glacier2.router]]
+[[java:package(test.Glacier2.router)]]
 module Test
 {
 

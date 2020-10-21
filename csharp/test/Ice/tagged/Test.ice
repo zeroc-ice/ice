@@ -5,7 +5,7 @@
 #pragma once
 
 [[3.7]]
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Tagged
 {
@@ -55,20 +55,20 @@ sequence<varulong> VarULongSeq;
 
 sequence<IntSeq> IntSeqSeq;
 
-[cs:generic:List] sequence<byte> ByteList;
-[cs:generic:List] sequence<bool> BoolList;
-[cs:generic:List] sequence<short> ShortList;
-[cs:generic:List] sequence<int> IntList;
-[cs:generic:List] sequence<long> LongList;
-[cs:generic:List] sequence<float> FloatList;
-[cs:generic:List] sequence<double> DoubleList;
-[cs:generic:List] sequence<string> StringList;
-[cs:generic:List] sequence<varint> VarIntList;
+[cs:generic(List)] sequence<byte> ByteList;
+[cs:generic(List)] sequence<bool> BoolList;
+[cs:generic(List)] sequence<short> ShortList;
+[cs:generic(List)] sequence<int> IntList;
+[cs:generic(List)] sequence<long> LongList;
+[cs:generic(List)] sequence<float> FloatList;
+[cs:generic(List)] sequence<double> DoubleList;
+[cs:generic(List)] sequence<string> StringList;
+[cs:generic(List)] sequence<varint> VarIntList;
 
 sequence<SmallStruct> SmallStructSeq;
-[cs:generic:List] sequence<SmallStruct> SmallStructList;
+[cs:generic(List)] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-[cs:generic:LinkedList] sequence<FixedStruct> FixedStructList;
+[cs:generic(LinkedList)] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 
 dictionary<int, int> IntIntDict;

@@ -4,18 +4,17 @@
 
 #pragma once
 
-[[cpp:dll-export:ICEGRID_API]]
-[[cpp:doxygen:include:IceGrid/IceGrid.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:IceGrid/Config.h]]
+[[cpp:dll-export(ICEGRID_API)]]
+[[cpp:doxygen:include(IceGrid/IceGrid.h)]]
+[[cpp:include(IceGrid/Config.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:IceGrid]]
+[[python:pkgdir(IceGrid)]]
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module IceGrid
 {
     /// This exception is raised if a user account for a given session

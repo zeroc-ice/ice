@@ -57,7 +57,7 @@ module _a__b__ {}      // Illegal underscores
 
 // Ensure that warnings can be suppressed with local metadata.
 
-[suppress-warning:reserved-identifier]
+[suppress-warning(reserved-identifier)]
 module suppressed
 {
 const long PrxA = 0;

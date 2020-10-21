@@ -1,12 +1,10 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #pragma once
 
 [[3.7]]
 
-[[swift:class-resolver-prefix:IceOptionalAMD]]
+[[swift:class-resolver-prefix(IceOptionalAMD)]]
 
 module Test
 {
@@ -36,7 +34,6 @@ struct VarStruct
     string m;
 }
 
-[clr:class]
 struct ClassVarStruct
 {
     int a;
@@ -52,12 +49,11 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-[clr:generic:List] sequence<SmallStruct> SmallStructList;
+sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-[clr:generic:LinkedList] sequence<FixedStruct> FixedStructList;
+sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 
-[clr:serializable:Ice.optional.Test.SerializableClass]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
@@ -146,7 +142,6 @@ exception RequiredException : OptionalException
     VarStruct vs2;
 }
 
-[clr:property]
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;

@@ -4,19 +4,18 @@
 
 #pragma once
 
-[[cpp:dll-export:ICE_API]]
-[[cpp:doxygen:include:Ice/Ice.h]]
-[[cpp:header-ext:h]]
+[[cpp:dll-export(ICE_API)]]
+[[cpp:doxygen:include(Ice/Ice.h)]]
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
-[[js:module:ice]]
-[[python:pkgdir:Ice]]
+[[js:module(ice)]]
+[[python:pkgdir(Ice)]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[cs:namespace:ZeroC]
-[java:package:com.zeroc]
+[cs:namespace(ZeroC)]
+[java:package(com.zeroc)]
 module Ice
 {
     /// Identifies a transport protocol that Ice can use to send requests and receive responses. The enumerators of

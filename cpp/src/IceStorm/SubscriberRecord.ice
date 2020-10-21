@@ -4,8 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifier]]
-[[cpp:header-ext:h]]
+[[suppress-warning(reserved-identifier)]]
 
 #include <Ice/Identity.ice>
 #include <IceStorm/IceStorm.ice>

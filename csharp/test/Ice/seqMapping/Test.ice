@@ -5,77 +5,77 @@
 #pragma once
 
 [[3.7]]
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::SeqMapping
 {
 
 sequence<byte> AByteS;
-[cs:generic:List] sequence<byte> LByteS;
-[cs:generic:LinkedList] sequence<byte> KByteS;
-[cs:generic:Queue] sequence<byte> QByteS;
-[cs:generic:Stack] sequence<byte> SByteS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<byte> CByteS;
+[cs:generic(List)] sequence<byte> LByteS;
+[cs:generic(LinkedList)] sequence<byte> KByteS;
+[cs:generic(Queue)] sequence<byte> QByteS;
+[cs:generic(Stack)] sequence<byte> SByteS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<byte> CByteS;
 
 sequence<bool> ABoolS;
-[cs:generic:List] sequence<bool> LBoolS;
-[cs:generic:LinkedList] sequence<bool> KBoolS;
-[cs:generic:Queue] sequence<bool> QBoolS;
-[cs:generic:Stack] sequence<bool> SBoolS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<bool> CBoolS;
+[cs:generic(List)] sequence<bool> LBoolS;
+[cs:generic(LinkedList)] sequence<bool> KBoolS;
+[cs:generic(Queue)] sequence<bool> QBoolS;
+[cs:generic(Stack)] sequence<bool> SBoolS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<bool> CBoolS;
 
 sequence<short> AShortS;
-[cs:generic:List] sequence<short> LShortS;
-[cs:generic:LinkedList] sequence<short> KShortS;
-[cs:generic:Queue] sequence<short> QShortS;
-[cs:generic:Stack] sequence<short> SShortS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<short> CShortS;
+[cs:generic(List)] sequence<short> LShortS;
+[cs:generic(LinkedList)] sequence<short> KShortS;
+[cs:generic(Queue)] sequence<short> QShortS;
+[cs:generic(Stack)] sequence<short> SShortS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<short> CShortS;
 
 sequence<int> AIntS;
-[cs:generic:List] sequence<int> LIntS;
-[cs:generic:LinkedList] sequence<int> KIntS;
-[cs:generic:Queue] sequence<int> QIntS;
-[cs:generic:Stack] sequence<int> SIntS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<int> CIntS;
+[cs:generic(List)] sequence<int> LIntS;
+[cs:generic(LinkedList)] sequence<int> KIntS;
+[cs:generic(Queue)] sequence<int> QIntS;
+[cs:generic(Stack)] sequence<int> SIntS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<int> CIntS;
 
 sequence<long> ALongS;
-[cs:generic:List] sequence<long> LLongS;
-[cs:generic:LinkedList] sequence<long> KLongS;
-[cs:generic:Queue] sequence<long> QLongS;
-[cs:generic:Stack] sequence<long> SLongS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<long> CLongS;
+[cs:generic(List)] sequence<long> LLongS;
+[cs:generic(LinkedList)] sequence<long> KLongS;
+[cs:generic(Queue)] sequence<long> QLongS;
+[cs:generic(Stack)] sequence<long> SLongS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<long> CLongS;
 
 sequence<float> AFloatS;
-[cs:generic:List] sequence<float> LFloatS;
-[cs:generic:LinkedList] sequence<float> KFloatS;
-[cs:generic:Queue] sequence<float> QFloatS;
-[cs:generic:Stack] sequence<float> SFloatS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<float> CFloatS;
+[cs:generic(List)] sequence<float> LFloatS;
+[cs:generic(LinkedList)] sequence<float> KFloatS;
+[cs:generic(Queue)] sequence<float> QFloatS;
+[cs:generic(Stack)] sequence<float> SFloatS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<float> CFloatS;
 
 sequence<double> ADoubleS;
-[cs:generic:List] sequence<double> LDoubleS;
-[cs:generic:LinkedList] sequence<double> KDoubleS;
-[cs:generic:Queue] sequence<double> QDoubleS;
-[cs:generic:Stack] sequence<double> SDoubleS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<double> CDoubleS;
+[cs:generic(List)] sequence<double> LDoubleS;
+[cs:generic(LinkedList)] sequence<double> KDoubleS;
+[cs:generic(Queue)] sequence<double> QDoubleS;
+[cs:generic(Stack)] sequence<double> SDoubleS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<double> CDoubleS;
 
 sequence<string> AStringS;
-[cs:generic:List] sequence<string> LStringS;
-[cs:generic:LinkedList] sequence<string> KStringS;
-[cs:generic:Queue] sequence<string> QStringS;
-[cs:generic:Stack] sequence<string> SStringS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<string> CStringS;
+[cs:generic(List)] sequence<string> LStringS;
+[cs:generic(LinkedList)] sequence<string> KStringS;
+[cs:generic(Queue)] sequence<string> QStringS;
+[cs:generic(Stack)] sequence<string> SStringS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<string> CStringS;
 
 sequence<Object> AObjectS;
-[cs:generic:List] sequence<Object> LObjectS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<Object> CObjectS;
+[cs:generic(List)] sequence<Object> LObjectS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<Object> CObjectS;
 
 sequence<Object*> AObjectPrxS;
-[cs:generic:List] sequence<Object*> LObjectPrxS;
-[cs:generic:LinkedList] sequence<Object*> KObjectPrxS;
-[cs:generic:Queue] sequence<Object*> QObjectPrxS;
-[cs:generic:Stack] sequence<Object*> SObjectPrxS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<Object*> CObjectPrxS;
+[cs:generic(List)] sequence<Object*> LObjectPrxS;
+[cs:generic(LinkedList)] sequence<Object*> KObjectPrxS;
+[cs:generic(Queue)] sequence<Object*> QObjectPrxS;
+[cs:generic(Stack)] sequence<Object*> SObjectPrxS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<Object*> CObjectPrxS;
 
 struct S
 {
@@ -83,11 +83,11 @@ struct S
 }
 
 sequence<S> AStructS;
-[cs:generic:List] sequence<S> LStructS;
-[cs:generic:LinkedList] sequence<S> KStructS;
-[cs:generic:Queue] sequence<S> QStructS;
-[cs:generic:Stack] sequence<S> SStructS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<S> CStructS;
+[cs:generic(List)] sequence<S> LStructS;
+[cs:generic(LinkedList)] sequence<S> KStructS;
+[cs:generic(Queue)] sequence<S> QStructS;
+[cs:generic(Stack)] sequence<S> SStructS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<S> CStructS;
 
 struct SD
 {
@@ -95,11 +95,11 @@ struct SD
 }
 
 sequence<SD> AStructSD;
-[cs:generic:List] sequence<SD> LStructSD;
-[cs:generic:LinkedList] sequence<SD> KStructSD;
-[cs:generic:Queue] sequence<SD> QStructSD;
-[cs:generic:Stack] sequence<SD> SStructSD;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<SD> CStructSD;
+[cs:generic(List)] sequence<SD> LStructSD;
+[cs:generic(LinkedList)] sequence<SD> KStructSD;
+[cs:generic(Queue)] sequence<SD> QStructSD;
+[cs:generic(Stack)] sequence<SD> SStructSD;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<SD> CStructSD;
 
 class CV
 {
@@ -107,15 +107,15 @@ class CV
 }
 
 sequence<CV> ACVS;
-[cs:generic:List] sequence<CV> LCVS;
+[cs:generic(List)] sequence<CV> LCVS;
 
 interface I {}
 sequence<I*> AIPrxS;
-[cs:generic:List] sequence<I*> LIPrxS;
-[cs:generic:LinkedList] sequence<I*> KIPrxS;
-[cs:generic:Queue] sequence<I*> QIPrxS;
-[cs:generic:Stack] sequence<I*> SIPrxS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<I*> CIPrxS;
+[cs:generic(List)] sequence<I*> LIPrxS;
+[cs:generic(LinkedList)] sequence<I*> KIPrxS;
+[cs:generic(Queue)] sequence<I*> QIPrxS;
+[cs:generic(Stack)] sequence<I*> SIPrxS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<I*> CIPrxS;
 
 class CR
 {
@@ -123,23 +123,23 @@ class CR
 }
 
 sequence<CR> ACRS;
-[cs:generic:List] sequence<CR> LCRS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CR> CCRS;
+[cs:generic(List)] sequence<CR> LCRS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<CR> CCRS;
 
 enum En { A, B, C }
 
 sequence<En> AEnS;
-[cs:generic:List] sequence<En> LEnS;
-[cs:generic:LinkedList] sequence<En> KEnS;
-[cs:generic:Queue] sequence<En> QEnS;
-[cs:generic:Stack] sequence<En> SEnS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<En> CEnS;
+[cs:generic(List)] sequence<En> LEnS;
+[cs:generic(LinkedList)] sequence<En> KEnS;
+[cs:generic(Queue)] sequence<En> QEnS;
+[cs:generic(Stack)] sequence<En> SEnS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<En> CEnS;
 
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<int> CustomIntS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CV> CustomCVS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<int> CustomIntS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<CV> CustomCVS;
 
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CustomIntS> CustomIntSS;
-[cs:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CustomCVS> CustomCVSS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<CustomIntS> CustomIntSS;
+[cs:generic(ZeroC.Ice.Test.SeqMapping.Custom)] sequence<CustomCVS> CustomCVSS;
 
 interface MyClass
 {
