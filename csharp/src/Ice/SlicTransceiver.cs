@@ -120,17 +120,23 @@ namespace ZeroC.Ice
                             }
 
                             // Accept the new incoming stream and notify the stream that data is available.
-                            stream = new SlicStream(streamId.Value, this);
-                            if (stream.ReceivedFrame(size, fin))
+                            try
                             {
-                                return stream;
-                            }
-                            else
-                            {
-                                // If we can't signal the stream, it's because it has already been aborted.
+                                stream = new SlicStream(streamId.Value, this);
+                                if (stream.ReceivedFrame(size, fin))
+                                {
+                                    return stream;
+                                }
                                 stream.Dispose();
-                                await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
                             }
+                            catch
+                            {
+                                // Ignore, the transceiver no longer accepts new streams because it's being
+                                // closed.
+                            }
+
+                            // Ignored the received data if we can't create a stream to handle it.
+                            await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
                         }
                         else
                         {

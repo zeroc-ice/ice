@@ -118,25 +118,29 @@ namespace ZeroC.Ice
                     {
                         // Create a new input stream for the request. If serialization is enabled, ensure we acquire
                         // the semaphore first to serialize the dispatching.
-                        stream = new LegacyStream(streamId, this);
-                        if (stream.IsBidirectional)
+                        try
                         {
-                            if (BidirectionalSerializeSemaphore != null)
+                            stream = new LegacyStream(streamId, this);
+                            if (stream.IsBidirectional)
                             {
-                                await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                if (BidirectionalSerializeSemaphore != null)
+                                {
+                                    await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                }
                             }
-                        }
-                        else if (UnidirectionalSerializeSemaphore != null)
-                        {
-                            await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                        }
-                        if (stream.ReceivedFrame(frameType, frame))
-                        {
-                            return stream;
-                        }
-                        else
-                        {
+                            else if (UnidirectionalSerializeSemaphore != null)
+                            {
+                                await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                            }
+                            if (stream.ReceivedFrame(frameType, frame))
+                            {
+                                return stream;
+                            }
                             stream.Dispose();
+                        }
+                        catch
+                        {
+                            // Ignore the frame if the connection is being closed.
                         }
                     }
                     else if (frameType == Ice1Definitions.FrameType.ValidateConnection)

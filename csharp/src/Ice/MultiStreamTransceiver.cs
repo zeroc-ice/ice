@@ -232,6 +232,7 @@ namespace ZeroC.Ice
 
         internal virtual (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
+            // Set the _aborted flag to prevent addition of new streams to the _streams collection.
             _aborted = true;
 
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
@@ -261,11 +262,11 @@ namespace ZeroC.Ice
 
         internal void AddStream(long id, TransceiverStream stream)
         {
-            _streams[id] = stream;
             if (_aborted)
             {
-                stream.Abort(new ConnectionClosedException());
+                throw new ConnectionClosedException();
             }
+            _streams[id] = stream;
         }
 
         internal void CheckStreamsEmpty()

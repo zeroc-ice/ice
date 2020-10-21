@@ -478,7 +478,7 @@ namespace ZeroC.Ice
                                 TraceRetry("cannot retry request because " +
                                            (requestSize > reference.Communicator.RetryRequestSizeMax ?
                                                $"the request size `{requestSize}' exceeds Ice.RetryRequestSizeMax" :
-                                               "the retry buffer size exceeds Ice.RetryBufferSizeMax"),
+                                               "the retry buffer size would exceed Ice.RetryBufferSizeMax"),
                                            retryCount,
                                            retryPolicy,
                                            lastException);

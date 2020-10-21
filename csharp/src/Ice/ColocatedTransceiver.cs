@@ -49,14 +49,18 @@ namespace ZeroC.Ice
                         // If we received an outgoing request frame or a frame for the incoming control stream,
                         // create a new stream and provide it the received frame.
                         Debug.Assert(frame != null);
-                        stream = new ColocatedStream(streamId, this);
-                        if (stream.ReceivedFrame(frame, fin))
+                        try
                         {
-                            return stream;
-                        }
-                        else
-                        {
+                            stream = new ColocatedStream(streamId, this);
+                            if (stream.ReceivedFrame(frame, fin))
+                            {
+                                return stream;
+                            }
                             stream.Dispose();
+                        }
+                        catch
+                        {
+                            // Ignore, the stream can't be created because the connection is being closed.
                         }
                     }
                     else
