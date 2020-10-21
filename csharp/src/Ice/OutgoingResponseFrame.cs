@@ -182,10 +182,10 @@ namespace ZeroC.Ice
                         var replyStatus = (ReplyStatus)response.Payload[0];
                         if (replyStatus == ReplyStatus.UserException)
                         {
-                            // We are forwarding an ice1 user exception using ice2, we create an ice2 encapsulation
+                            // We are forwarding an ice1 user exception using ice2. We create an ice2 encapsulation
                             // and write the 1.1 reply status followed by the user exception. The size of the new
-                            // encapsulation is adjusted, -1 correspond to the result type that is included in the
-                            // payload but is not part of the encapsulation, +1 correspond to the 1.1 replyStatus
+                            // encapsulation is adjusted: -1 corresponds to a result type that is included in the
+                            // payload but is not part of the encapsulation; +1 corresponds to a 1.1 replyStatus
                             // that is included at the start of the encapsulation.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
