@@ -5,7 +5,7 @@
 #pragma once
 
 [[suppress-warning(reserved-identifier)]]
-[[cpp:header-ext:h]]
+[[cpp:header-ext(h)]]
 
 #include <IceStorm/SubscriberRecord.ice>
 #include <IceStorm/LLURecord.ice>

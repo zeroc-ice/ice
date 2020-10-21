@@ -7,7 +7,7 @@
 #include <IceGrid/Admin.ice>
 
 [[suppress-warning(reserved-identifier)]]
-[[cpp:header-ext:h]]
+[[cpp:header-ext(h)]]
 
 module IceGrid
 {
