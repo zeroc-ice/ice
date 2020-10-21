@@ -49,12 +49,12 @@ namespace Test
             set => _writer = value;
         }
 
-        public static void Assert([DoesNotReturnIf(false)] bool b)
+        public static void Assert([DoesNotReturnIf(false)] bool b, string message = "")
         {
             if (!b)
             {
-                Debug.Assert(false);
-                throw new Exception();
+                Debug.Assert(false, message);
+                throw new Exception(message);
             }
         }
         public abstract Task RunAsync(string[] args);
