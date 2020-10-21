@@ -50,11 +50,11 @@ namespace ZeroC.Ice
         internal event EventHandler? Ping;
         internal int StreamCount => _streams.Count;
 
-        private volatile bool _aborted;
         // The mutex provides thread-safety for the _observer and LastActivity data members.
         private readonly object _mutex = new ();
         private IConnectionObserver? _observer;
         private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new ();
+        private volatile bool _streamsAborted;
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Aborts the transceiver.</summary>
@@ -202,8 +202,14 @@ namespace ZeroC.Ice
             // Abort the transport.
             Abort();
 
-            // Abort the streams and wait for all the streams to be completed.
-            AbortStreams(exception);
+            // Consider the abort as gracefull if the streams were already aborted.
+            bool gracefull = _streamsAborted;
+
+            // Abort the streams if not already done and wait for all the streams to be completed.
+            if (!_streamsAborted)
+            {
+                AbortStreams(exception);
+            }
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
             lock (_mutex)
@@ -220,9 +226,9 @@ namespace ZeroC.Ice
                 s.Append(ToString());
 
                 // Trace the cause of unexpected connection closures
-                if (!(exception is ConnectionClosedException || exception is ObjectDisposedException))
+                if (!gracefull && !(exception is ConnectionClosedException || exception is ObjectDisposedException))
                 {
-                    s.Append('\n');
+                    s.Append("\nexception = ");
                     s.Append(exception);
                 }
 
@@ -233,7 +239,7 @@ namespace ZeroC.Ice
         internal virtual (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
             // Set the _aborted flag to prevent addition of new streams to the _streams collection.
-            _aborted = true;
+            _streamsAborted = true;
 
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
             // still needed for sending and receiving GoAway frames.
@@ -262,7 +268,7 @@ namespace ZeroC.Ice
 
         internal void AddStream(long id, TransceiverStream stream)
         {
-            if (_aborted)
+            if (_streamsAborted)
             {
                 throw new ConnectionClosedException();
             }
