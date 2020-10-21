@@ -39,19 +39,18 @@ namespace ZeroC.IceDiscovery
         {
             if (location.Length == 0)
             {
-                throw new ArgumentException("location cannot be empty", nameof(location));
+                throw new InvalidArgumentException("location cannot be empty", nameof(location));
             }
 
-            IObjectPrx? proxy =
-                await _lookupServant.FindAdapterByIdAsync(location[0], cancel).ConfigureAwait(false);
+            IReadOnlyList<EndpointData> endpoints = await _lookupServant.ResolveAdapterIdAsync(location[0], cancel);
 
-            if (proxy == null)
+            if (endpoints.Count > 0)
             {
-                return (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
+                return (endpoints, location[1..]);
             }
             else
             {
-                return (null!, location[1..]); // TODO: convert endpoints into endpoint data seq
+                return (endpoints, ImmutableArray<string>.Empty);
             }
         }
 
@@ -60,16 +59,17 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            IObjectPrx? proxy =
-                await _lookupServant.FindObjectByIdAsync(identity, cancel).ConfigureAwait(false);
+            (IReadOnlyList<EndpointData> endpoints, string adapterId) = await _lookupServant.ResolveWellKnownProxyAsync(
+                identity,
+                cancel);
 
-            if (proxy == null)
+            if (endpoints.Count > 0)
             {
-                return (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
+                return (endpoints, ImmutableArray<string>.Empty);
             }
             else
             {
-                return (null!, proxy.Location); // TODO: convert endpoints into endpoint data seq
+                return (endpoints, ImmutableArray.Create(adapterId));
             }
         }
 
@@ -112,21 +112,7 @@ namespace ZeroC.IceDiscovery
                     throw new AdapterAlreadyActiveException($"adapter `{adapterId}' is already active");
                 }
 
-                AddAdapterToReplicaGroup(replicaGroupId, adapterId, Protocol.Ice2);
-            }
-        }
-
-        private void AddAdapterToReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
-        {
-            // Must be called with _mutex locked.
-            if (replicaGroupId.Length > 0)
-            {
-                if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
-                {
-                    adapterIds = new HashSet<string>();
-                    _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
-                }
-                adapterIds.Add(adapterId);
+                AddAdapterToReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
             }
         }
 
@@ -156,7 +142,7 @@ namespace ZeroC.IceDiscovery
                     {
                         throw new AdapterAlreadyActiveException($"adapter `{adapterId}' is already active");
                     }
-                    AddAdapterToReplicaGroup(replicaGroupId, adapterId, Protocol.Ice1);
+                    AddAdapterToReplicaGroup(adapterId, replicaGroupId, Protocol.Ice1);
                 }
                 else
                 {
@@ -185,22 +171,6 @@ namespace ZeroC.IceDiscovery
             {
                 _ice2Adapters.Remove(adapterId);
                 RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
-            }
-        }
-
-        private void RemoveAdapterFromReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
-        {
-            // Must be called with _mutex locked
-            if (replicaGroupId.Length > 0)
-            {
-                if (_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
-                {
-                    adapterIds.Remove(adapterId);
-                    if (adapterIds.Count == 0)
-                    {
-                        _replicaGroups.Remove((replicaGroupId, protocol));
-                    }
-                }
             }
         }
 
@@ -362,6 +332,36 @@ namespace ZeroC.IceDiscovery
                 }
 
                 return (ImmutableArray<EndpointData>.Empty, "");
+            }
+        }
+
+        private void AddAdapterToReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
+        {
+            // Must be called with _mutex locked.
+            if (replicaGroupId.Length > 0)
+            {
+                if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                {
+                    adapterIds = new HashSet<string>();
+                    _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
+                }
+                adapterIds.Add(adapterId);
+            }
+        }
+
+        private void RemoveAdapterFromReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
+        {
+            // Must be called with _mutex locked
+            if (replicaGroupId.Length > 0)
+            {
+                if (_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                {
+                    adapterIds.Remove(adapterId);
+                    if (adapterIds.Count == 0)
+                    {
+                        _replicaGroups.Remove((replicaGroupId, protocol));
+                    }
+                }
             }
         }
     }
