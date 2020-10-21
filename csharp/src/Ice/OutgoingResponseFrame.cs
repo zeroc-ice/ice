@@ -199,7 +199,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            // We are forwarding an ice1 system exception using ice2, we create an ice2 encapsulation
+                            // We are forwarding an ice1 system exception using ice2.  We create an ice2 encapsulation
                             // and write the 1.1 encoded exception in it (which includes the 1.1 reply status, followed
                             // by the exception). The size of the new encapsulation is the size of the
                             // payload +2 bytes for the encapsulations encoding.
