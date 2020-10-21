@@ -238,7 +238,7 @@ namespace ZeroC.Ice
 
         internal virtual (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
-            // Set the _aborted flag to prevent addition of new streams to the _streams collection.
+            // Set the _streamsAborted flag to prevent addition of new streams to the _streams collection.
             _streamsAborted = true;
 
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
