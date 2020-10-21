@@ -113,6 +113,60 @@ namespace ZeroC.Ice
             return facetPath.Length == 1 ? facetPath[0] : "";
         }
 
+        internal static RetryPolicy GetRetryPolicy(IncomingResponseFrame response, Reference reference)
+        {
+            Debug.Assert(response.Encoding == Encoding.V11);
+            if (response.ResultType == ResultType.Failure)
+            {
+                var replyStatus = (ReplyStatus)response.Payload[0]; // can be reassigned below
+
+                InputStream? istr = null;
+                if (response.Protocol == Protocol.Ice1)
+                {
+                    if (replyStatus != ReplyStatus.UserException)
+                    {
+                        istr = new InputStream(response.Payload.Slice(1), Encoding.V11);
+                    }
+                }
+                else
+                {
+                    istr = new InputStream(response.Payload.Slice(1),
+                                           Ice2Definitions.Encoding,
+                                           reference.Communicator,
+                                           startEncapsulation: true);
+
+                    replyStatus = istr.ReadReplyStatus();
+                    if (replyStatus == ReplyStatus.UserException)
+                    {
+                        istr = null; // we are not reading this user exception here
+                    }
+                }
+
+                if (istr?.ReadIce1SystemException(replyStatus) is ObjectNotExistException one)
+                {
+                    // 1.1 System exceptions
+                    if (reference.RouterInfo != null && one.Origin!.Value.Operation == "ice_add_proxy")
+                    {
+                        // If we have a router, an ObjectNotExistException with an operation name
+                        // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy
+                        // (for example, because it was evicted by the router). In this case, we must
+                        // *always* retry, so that the missing proxy is added to the router.
+                        reference.RouterInfo.ClearCache(reference);
+                        return RetryPolicy.AfterDelay(TimeSpan.Zero);
+                    }
+                    else if (reference.IsIndirect)
+                    {
+                        if (reference.IsWellKnown)
+                        {
+                            reference.LocatorInfo?.ClearCache(reference);
+                        }
+                        return RetryPolicy.AfterDelay(TimeSpan.Zero);
+                    }
+                }
+            }
+            return RetryPolicy.NoRetry;
+        }
+
         /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
         /// <param name="istr">The stream to read from.</param>
         /// <returns>The facet read from the stream.</returns>
