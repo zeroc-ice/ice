@@ -85,8 +85,8 @@ module Ice
         /// Locates the well-known object with the given identity. This object must be reachable using the ice2
         /// protocol.
         /// @param identity The identity of the well-known Ice object.
-        /// @return If the Locator could resolve the identity, a sequence of one or more endpoints and/or a non-empty
-        /// location. Otherwise, an empty sequence of endpoints and an empty location.
+        /// @return A sequence of one or more endpoints and/or a non-empty location if the Locator could resolve the
+        /// identity. Otherwise, an empty sequence of endpoints and an empty location.
         idempotent (EndpointDataSeq endpoints, StringSeq location) resolveWellKnownProxy(Identity identity);
 
 #else

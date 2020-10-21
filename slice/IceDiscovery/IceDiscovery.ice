@@ -42,7 +42,7 @@ module IceDiscovery
         /// this object when it hosts an ice1 object adapter that has the requested adapter ID (or replica group ID).
         idempotent void findAdapterById(string domainId, string id, LookupReply reply);
 
-        /// Finds an ice1 object hosted by the target object's server.
+        /// Finds an object hosted by an ice1 object adapter of the target object's server
         /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
         /// domain ID that matches the server's configured domain ID.
         /// @param id The object identity.
@@ -70,9 +70,7 @@ module IceDiscovery
 #endif
     }
 
-    /// The IceDiscovery.Reply object adapter of a client application hosts LookupReply objects that process replies to
-    /// discovery requests, with one LookupReply object created for each discovery request. This interface is used only
-    /// when discovering/resolving ice1 proxies.
+    /// Handles the reply or replies to findAdapterById and findObjectById calls on {@see Lookup}.
     interface LookupReply
     {
         /// Provides the endpoints for an object adapter in response to a findAdapterById call on a Lookup object.
