@@ -17,6 +17,10 @@ namespace ZeroC.Ice
     /// transport-specific options.</summary>
     public abstract class Endpoint : IEquatable<Endpoint>
     {
+        /// <summary>A comparer for EndpointData. Unlike Equals and GetHashCode on EndpointData, this comparer compares
+        /// and hashes each element of EndpointData.Options.</summary>
+        public static IEqualityComparer<EndpointData> DataComparer => new EndpointDataComparer();
+
         /// <summary>Gets the communicator that created this endpoint.</summary>
         public Communicator Communicator { get; }
 
@@ -223,6 +227,29 @@ namespace ZeroC.Ice
             Communicator = communicator;
             Data = data;
             Protocol = protocol;
+        }
+
+        /// <summary>See <see cref="DataComparer"/>.</summary>
+        private sealed class EndpointDataComparer : IEqualityComparer<EndpointData>
+        {
+            public bool Equals(EndpointData x, EndpointData y) =>
+                x.Transport == y.Transport &&
+                x.Host == y.Host &&
+                x.Port == y.Port &&
+                x.Options.SequenceEqual(y.Options);
+
+            public int GetHashCode(EndpointData obj)
+            {
+                var hash = new HashCode();
+                hash.Add(obj.Transport);
+                hash.Add(obj.Host);
+                hash.Add(obj.Port);
+                foreach (string s in obj.Options)
+                {
+                    hash.Add(s);
+                }
+                return hash.ToHashCode();
+            }
         }
     }
 

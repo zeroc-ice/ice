@@ -21,13 +21,13 @@ namespace ZeroC.IceDiscovery
             string adapterId,
             Current current,
             CancellationToken cancel) =>
-            _lookupServant.FindAdapterByIdAsync(adapterId, Protocol.Ice1, cancel);
+            _lookupServant.FindAdapterByIdAsync(adapterId, cancel);
 
         public ValueTask<IObjectPrx?> FindObjectByIdAsync(
             Identity id,
             Current current,
             CancellationToken cancel) =>
-            _lookupServant.FindObjectByIdAsync(id, Protocol.Ice1, cancel);
+            _lookupServant.FindObjectByIdAsync(id, cancel);
 
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
             new (_registry);
@@ -43,7 +43,7 @@ namespace ZeroC.IceDiscovery
             }
 
             IObjectPrx? proxy =
-                await _lookupServant.FindAdapterByIdAsync(location[0], Protocol.Ice2, cancel).ConfigureAwait(false);
+                await _lookupServant.FindAdapterByIdAsync(location[0], cancel).ConfigureAwait(false);
 
             if (proxy == null)
             {
@@ -61,7 +61,7 @@ namespace ZeroC.IceDiscovery
             CancellationToken cancel)
         {
             IObjectPrx? proxy =
-                await _lookupServant.FindObjectByIdAsync(identity, Protocol.Ice2, cancel).ConfigureAwait(false);
+                await _lookupServant.FindObjectByIdAsync(identity, cancel).ConfigureAwait(false);
 
             if (proxy == null)
             {
@@ -88,7 +88,7 @@ namespace ZeroC.IceDiscovery
         private readonly Dictionary<string, IObjectPrx> _ice1Adapters = new ();
 
         // Dictionary for protocol >= ice2.
-        private readonly Dictionary<(string, Protocol), IReadOnlyList<EndpointData>> _ice2Adapters = new ();
+        private readonly Dictionary<string, IReadOnlyList<EndpointData>> _ice2Adapters = new ();
 
         private readonly object _mutex = new ();
 
@@ -105,11 +105,11 @@ namespace ZeroC.IceDiscovery
             {
                 try
                 {
-                    _ice2Adapters.Add((adapterId, Protocol.Ice2), endpoints);
+                    _ice2Adapters.Add(adapterId, endpoints);
                 }
                 catch (ArgumentException)
                 {
-                    throw new AdapterAlreadyActiveException($"adapter `{adapterId}' already has registered endpoints");
+                    throw new AdapterAlreadyActiveException($"adapter `{adapterId}' is already active");
                 }
 
                 AddAdapterToReplicaGroup(replicaGroupId, adapterId, Protocol.Ice2);
@@ -134,10 +134,8 @@ namespace ZeroC.IceDiscovery
             string adapterId,
             IObjectPrx? proxy,
             Current current,
-            CancellationToken cancel)
-        {
-            Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
-        }
+            CancellationToken cancel) =>
+            SetReplicatedAdapterDirectProxy(adapterId, "", proxy, current, cancel);
 
         public void SetReplicatedAdapterDirectProxy(
            string adapterId,
@@ -146,7 +144,26 @@ namespace ZeroC.IceDiscovery
            Current current,
            CancellationToken cancel)
         {
-            Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
+            lock (_mutex)
+            {
+                if (proxy != null)
+                {
+                    try
+                    {
+                        _ice1Adapters.Add(adapterId, proxy);
+                    }
+                    catch (ArgumentException)
+                    {
+                        throw new AdapterAlreadyActiveException($"adapter `{adapterId}' is already active");
+                    }
+                    AddAdapterToReplicaGroup(replicaGroupId, adapterId, Protocol.Ice1);
+                }
+                else
+                {
+                    _ice1Adapters.Remove(adapterId);
+                    RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, Protocol.Ice1);
+                }
+            }
         }
 
         public void SetServerProcessProxy(
@@ -166,7 +183,7 @@ namespace ZeroC.IceDiscovery
         {
             lock (_mutex)
             {
-                _ice2Adapters.Remove((adapterId, Protocol.Ice2));
+                _ice2Adapters.Remove(adapterId);
                 RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
             }
         }
@@ -227,7 +244,7 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal IObjectPrx? FindObject(Identity identity, Protocol protocol)
+        internal IObjectPrx? FindObject(Identity identity)
         {
             lock (_mutex)
             {
@@ -236,16 +253,14 @@ namespace ZeroC.IceDiscovery
                     return null;
                 }
 
-                foreach ((string replicaGroupId, Protocol p) in _replicaGroups.Keys)
+                foreach ((string replicaGroupId, Protocol protocol) in _replicaGroups.Keys)
                 {
-                    if (protocol == p)
+                    if (protocol == Protocol.Ice1)
                     {
                         try
                         {
-                            IObjectPrx dummyProxy = protocol == Protocol.Ice1 ? _dummyIce1Proxy : _dummyIce2Proxy;
-
                             // This proxy is an indirect proxy with a location (the replica group ID).
-                            IObjectPrx proxy = dummyProxy.Clone(
+                            IObjectPrx proxy = _dummyIce1Proxy.Clone(
                                 IObjectPrx.Factory,
                                 identity: identity,
                                 location: ImmutableArray.Create(replicaGroupId));
@@ -259,70 +274,94 @@ namespace ZeroC.IceDiscovery
                     }
                 }
 
-                if (protocol == Protocol.Ice1)
+                foreach (string adapterId in _ice1Adapters.Keys)
                 {
-                    foreach (string adapterId in _ice1Adapters.Keys)
+                    try
                     {
-                        try
-                        {
-                            IObjectPrx proxy = _dummyIce1Proxy.Clone(
-                                IObjectPrx.Factory,
-                                identity: identity,
-                                location: ImmutableArray.Create(adapterId));
-                            proxy.IcePing();
-                            return proxy;
-                        }
-                        catch
-                        {
-                            // Ignore.
-                        }
+                        IObjectPrx proxy = _dummyIce1Proxy.Clone(
+                            IObjectPrx.Factory,
+                            identity: identity,
+                            location: ImmutableArray.Create(adapterId));
+                        proxy.IcePing();
+                        return proxy;
+                    }
+                    catch
+                    {
+                        // Ignore.
                     }
                 }
-                else
-                {
-                    foreach ((string adapterId, Protocol p) in _ice2Adapters.Keys)
-                    {
-                        if (p == Protocol.Ice2)
-                        {
-                            try
-                            {
-                                IObjectPrx proxy = _dummyIce2Proxy.Clone(
-                                    IObjectPrx.Factory,
-                                    identity: identity,
-                                    location: ImmutableArray.Create(adapterId));
-                                proxy.IcePing();
-                                return proxy;
-                            }
-                            catch
-                            {
-                                // Ignore.
-                            }
-                        }
-                    }
-                }
+
                 return null;
             }
         }
 
-        internal (IReadOnlyList<EndpointData> Endpoints, bool IsReplicaGroup) ResolveLocation(
-            string adapterId,
-            Protocol protocol)
+        internal (IReadOnlyList<EndpointData> Endpoints, bool IsReplicaGroup) ResolveAdapterId(string adapterId)
         {
             lock (_mutex)
             {
-                if (_ice2Adapters.TryGetValue((adapterId, protocol), out IReadOnlyList<EndpointData>? endpoints))
+                if (_ice2Adapters.TryGetValue(adapterId, out IReadOnlyList<EndpointData>? endpoints))
                 {
                     return (endpoints, false);
                 }
 
-                if (_replicaGroups.TryGetValue((adapterId, protocol), out HashSet<string>? adapterIds))
+                if (_replicaGroups.TryGetValue((adapterId, Protocol.Ice2), out HashSet<string>? adapterIds))
                 {
                     Debug.Assert(adapterIds.Count > 0);
-
-                    return (adapterIds.SelectMany(id => _ice2Adapters[(id, protocol)]).ToList(), true);
+                    return (adapterIds.SelectMany(id => _ice2Adapters[id]).ToList(), true);
                 }
 
                 return (ImmutableArray<EndpointData>.Empty, false);
+            }
+        }
+
+        internal (IReadOnlyList<EndpointData> Endpoints, string AdapterId) ResolveWellKnownProxy(Identity identity)
+        {
+            lock (_mutex)
+            {
+                if (identity.Name.Length == 0)
+                {
+                    return (ImmutableArray<EndpointData>.Empty, "");
+                }
+
+                foreach ((string replicaGroupId, Protocol protocol) in _replicaGroups.Keys)
+                {
+                    if (protocol == Protocol.Ice2)
+                    {
+                        try
+                        {
+                            // This proxy is an indirect proxy with a location (the replica group ID).
+                            IObjectPrx proxy = _dummyIce2Proxy.Clone(
+                                IObjectPrx.Factory,
+                                identity: identity,
+                                location: ImmutableArray.Create(replicaGroupId));
+                            proxy.IcePing();
+                            return (ImmutableArray<EndpointData>.Empty, replicaGroupId);
+                        }
+                        catch
+                        {
+                            // Ignore and move on to the next replica group
+                        }
+                    }
+                }
+
+                foreach (string adapterId in _ice2Adapters.Keys)
+                {
+                    try
+                    {
+                        IObjectPrx proxy = _dummyIce2Proxy.Clone(
+                            IObjectPrx.Factory,
+                            identity: identity,
+                            location: ImmutableArray.Create(adapterId));
+                        proxy.IcePing();
+                        return (ImmutableArray<EndpointData>.Empty, adapterId);
+                    }
+                    catch
+                    {
+                        // Ignore.
+                    }
+                }
+
+                return (ImmutableArray<EndpointData>.Empty, "");
             }
         }
     }
