@@ -297,18 +297,18 @@ namespace ZeroC.Ice
                         // eventually terminates once the peer connection is closed.
                         if (_state == ConnectionState.Closed)
                         {
-                            return;
+                            throw exception;
                         }
                         await _acceptStreamTask.WaitAsync(cancel).ConfigureAwait(false);
                     }
                 }
                 catch (OperationCanceledException)
                 {
-                    await AbortAsync(new TimeoutException());
+                    await AbortAsync(new TimeoutException()).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    await AbortAsync(ex);
+                    await AbortAsync(ex).ConfigureAwait(false);
                 }
             }
         }

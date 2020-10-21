@@ -438,8 +438,8 @@ namespace ZeroC.Ice
                         catch (NoEndpointException ex)
                         {
                             // The reference has no endpoints or the previous retry policy asked to retry on a
-                            // different replica but no more replica are available (in this case, we rethrow the
-                            // remote exception instead of the NoEndpointException).
+                            // different replica but no more replicas are available (in this case, we rethrow
+                            // the remote exception instead of the NoEndpointException).
                             lastException = response == null ? ex : null;
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
@@ -489,7 +489,7 @@ namespace ZeroC.Ice
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("cannot retry request because the exception can't be retried",
+                                TraceRetry($"cannot retry request because the exception can't be retried",
                                            retryCount,
                                            retryPolicy,
                                            lastException);
@@ -590,8 +590,12 @@ namespace ZeroC.Ice
                 sb.Append(policy);
                 if (exception != null)
                 {
-                    sb.Append('\n');
+                    sb.Append("\nexception = ");
                     sb.Append(exception);
+                }
+                else
+                {
+                    sb.Append("\nexception = remote exception");
                 }
                 proxy.IceReference.Communicator.Logger.Trace(proxy.IceReference.Communicator.TraceLevels.RetryCategory,
                                                              sb.ToString());
