@@ -11,14 +11,13 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
+    /// <summary>Servant class that implements the Slice interface Ice::LocatorRegistry.</summary>
     internal class LocatorRegistry : ILocatorRegistry
     {
         private readonly IObjectPrx _dummyIce1Proxy;
         private readonly IObjectPrx _dummyIce2Proxy;
 
         private readonly Dictionary<string, IObjectPrx> _ice1Adapters = new ();
-
-        // Dictionary for protocol >= ice2.
         private readonly Dictionary<string, IReadOnlyList<EndpointData>> _ice2Adapters = new ();
 
         private readonly object _mutex = new ();
@@ -123,22 +122,8 @@ namespace ZeroC.IceDiscovery
                 if (_replicaGroups.TryGetValue((adapterId, Protocol.Ice1), out HashSet<string>? adapterIds))
                 {
                     Debug.Assert(adapterIds.Count > 0);
-
-                    IObjectPrx? result = null;
-                    var endpoints = new List<Endpoint>();
-                    foreach (string id in adapterIds)
-                    {
-                        // We assume that if adapterId is in adapterIds, it's also in the _ice1Adapters dictionary.
-                        // The two dictionaries can be out of sync if there is a bug in the local Ice runtime or
-                        // application code that uses this local colocated LocatorRegistry directly. For example, a call
-                        // to unregisterAdapterEndpoints with a missing or incorrect replicaGroupId. If there is such a
-                        // local bug, the code will throw a KeyNotFoundException.
-                        IObjectPrx p = _ice1Adapters[id];
-                        result ??= p;
-                        endpoints.AddRange(p.Endpoints);
-                    }
-
-                    return (result?.Clone(endpoints: endpoints), result != null);
+                    var endpoints = adapterIds.SelectMany(id => _ice1Adapters[id].Endpoints).ToList();
+                    return (_dummyIce1Proxy.Clone(endpoints: endpoints), true);
                 }
 
                 return (null, false);

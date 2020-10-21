@@ -79,12 +79,6 @@ namespace ZeroC.IceDiscovery
             _replyAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Reply");
             _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
 
-            // This undocumented object adapter hosts the locator and locator registry servants.
-            if (_locatorAdapter.Protocol != Protocol.Ice2)
-            {
-                throw new InvalidConfigurationException("the IceDiscovery.Locator object adapter must use ice2");
-            }
-
             // Setup locator registry.
             var locatorRegistryServant = new LocatorRegistry(_communicator);
             ILocatorRegistryPrx locatorRegistry =

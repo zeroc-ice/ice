@@ -8,7 +8,8 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
-    /// <summary>Implements the slice interface Lookup using the local LocatorRegistry servant.</summary>
+    /// <summary>Servant class that implements the Slice interface IceDiscovery::Lookup using the local LocatorRegistry
+    /// servant.</summary>
     internal class Lookup : IAsyncLookup
     {
         private readonly string _domainId;

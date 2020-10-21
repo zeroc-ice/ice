@@ -12,12 +12,17 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
+    /// <summary>Servant class that implements the Slice interface Ice::Locator.</summary>
     internal class Locator : IAsyncLocator
     {
         private readonly string _domainId;
         private readonly int _latencyMultiplier;
 
         private readonly ILookupPrx _lookup;
+
+        // The key is a single-endpoint datagram Lookup proxy extracted from the _lookup proxy.
+        // The value is a dummy datagram proxy with usually a single endpoint that is one of _replyAdapter's endpoints
+        // and that matches the interface of the key's endpoint.
         private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new ();
 
         private readonly ObjectAdapter _replyAdapter;
@@ -199,27 +204,23 @@ namespace ZeroC.IceDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
             // of the lookup proxy.
 
-            // Dummy proxy for replies, which can contain multiple endpoints (but see below).
+            // Dummy proxy for replies which can have multiple endpoints (but see below).
             IObjectPrx lookupReply = _replyAdapter.CreateProxy(
                 "dummy",
                 IObjectPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
 
-            var single = new Endpoint[1];
             foreach (Endpoint endpoint in lookup.Endpoints)
             {
                 // lookup's invocation mode is Datagram
                 Debug.Assert(endpoint.Transport == Transport.UDP);
 
-                single[0] = endpoint;
-
-                ILookupPrx key = lookup.Clone(endpoints: single);
+                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
                 if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
                     Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
                     if (q != null)
                     {
-                        single[0] = q;
-                        _lookups[key] = lookupReply.Clone(endpoints: single);
+                        _lookups[key] = lookupReply.Clone(endpoints: ImmutableArray.Create(q));
                     }
                 }
 
@@ -232,6 +233,11 @@ namespace ZeroC.IceDiscovery
             Debug.Assert(_lookups.Count > 0);
         }
 
+        /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
+        /// <param name="find">A delegate that performs the remote call. The first two parameters correspond to an
+        /// entry in the _lookups dictionary, and the third parameter is the unique identity of the reply object
+        /// registered with the _replyAdapter.</param>
+        /// <param name="replyHandler">The reply handler.</param>
         private async Task<TResult> InvokeAsync<TResult>(
             Func<ILookupPrx, IObjectPrx, Identity, Task> find,
             ReplyHandler<TResult> replyHandler)
