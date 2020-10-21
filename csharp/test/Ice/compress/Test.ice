@@ -20,7 +20,7 @@ interface TestIntf
 {
     [compress(params)] void opCompressParams(int size, ByteSeq p1);
     [compress(return)] ByteSeq opCompressReturn(int size);
-    [compress(params,return)] ByteSeq opCompressParamsAndReturn(ByteSeq p1);
+    [compress(params, return)] ByteSeq opCompressParamsAndReturn(ByteSeq p1);
 
     void opWithUserException(int size);
 
