@@ -3,6 +3,7 @@
 #pragma once
 
 [[cpp:doxygen:include(IceLocatorDiscovery/IceLocatorDiscovery.h)]]
+[[cpp:header-ext:h]]
 
 [[suppress-warning(reserved-identifier)]]
 [[js:module(ice)]]

@@ -5,6 +5,7 @@
 #pragma once
 
 [[suppress-warning(reserved-identifier)]]
+[[cpp:header-ext:h]]
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>

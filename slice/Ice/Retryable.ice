@@ -6,6 +6,7 @@
 
 [[cpp:dll-export(ICE_API)]]
 [[cpp:doxygen:include(Ice/Ice.h)]]
+[[cpp:header-ext:h]]
 [[cpp:include(list)]]
 
 [[suppress-warning(reserved-identifier)]]
