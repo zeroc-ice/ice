@@ -31,6 +31,15 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
+            if (adapterId.Length == 0)
+            {
+                throw new InvalidArgumentException("adapterId cannot be empty", nameof(adapterId));
+            }
+            if (endpoints.Length == 0)
+            {
+                throw new InvalidArgumentException("endpoints cannot be empty", nameof(endpoints));
+            }
+
             lock (_mutex)
             {
                 try
@@ -97,6 +106,11 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
+            if (adapterId.Length == 0)
+            {
+                throw new InvalidArgumentException("adapterId cannot be empty", nameof(adapterId));
+            }
+
             lock (_mutex)
             {
                 _ice2Adapters.Remove(adapterId);
