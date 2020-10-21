@@ -132,7 +132,7 @@ namespace ZeroC.Ice
 
             if (Endpoint.Communicator.TraceLevels.Transport >= 3)
             {
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory,
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"received {size} bytes via {Endpoint.TransportName}\n{this}");
             }
         }
@@ -174,7 +174,7 @@ namespace ZeroC.Ice
 
             if (Endpoint.Communicator.TraceLevels.Transport >= 3 && size > 0)
             {
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory,
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"sent {size} bytes via {Endpoint.TransportName}\n{this}");
             }
         }
@@ -227,7 +227,7 @@ namespace ZeroC.Ice
                     s.Append(exception);
                 }
 
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
             }
         }
 
@@ -294,7 +294,7 @@ namespace ZeroC.Ice
                     s.Append(" connection\n");
                 }
                 s.Append(ToString());
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
             }
         }
 
@@ -521,7 +521,7 @@ namespace ZeroC.Ice
             s.Append('\n');
             s.Append(ToString());
 
-            communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
+            communicator.Logger.Trace(TraceLevels.ProtocolCategory, s.ToString());
         }
 
         internal async ValueTask WaitForEmptyStreamsAsync()

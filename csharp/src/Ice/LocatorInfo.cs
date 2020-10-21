@@ -205,7 +205,7 @@ namespace ZeroC.Ice
                         sb.Append("well-known proxy ");
                         sb.Append(reference);
                     }
-                    communicator.Logger.Trace(communicator.TraceLevels.LocatorCategory, sb.ToString());
+                    communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
                 }
             }
 
@@ -254,7 +254,7 @@ namespace ZeroC.Ice
                 sb.Append("\nnew location = ");
                 sb.Append(directReference.LocationAsString);
             }
-            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
+            reference.Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private static void TraceInvalid(Reference reference, Reference invalidReference)
@@ -263,7 +263,7 @@ namespace ZeroC.Ice
             sb.Append(reference);
             sb.Append("\n received = ");
             sb.Append(invalidReference);
-            reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory, sb.ToString());
+            reference.Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private static void TraceWellKnown(string msg, Reference wellKnown, Reference indirectReference)
@@ -276,7 +276,7 @@ namespace ZeroC.Ice
             sb.Append('\n');
             sb.Append("location = ");
             sb.Append(indirectReference.LocationAsString);
-            wellKnown.Communicator.Logger.Trace(wellKnown.Communicator.TraceLevels.LocatorCategory, sb.ToString());
+            wellKnown.Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private (Reference? Reference, bool Cached) GetResolvedLocationFromCache(Reference reference, TimeSpan ttl)
@@ -300,7 +300,7 @@ namespace ZeroC.Ice
         {
             if (reference.Communicator.TraceLevels.Locator > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
+                reference.Communicator.Logger.Trace(TraceLevels.LocatorCategory,
                     $"searching for adapter by id\nadapter = {reference.AdapterId}");
             }
 
@@ -390,7 +390,7 @@ namespace ZeroC.Ice
                     if (reference.Communicator.TraceLevels.Locator > 0)
                     {
                         reference.Communicator.Logger.Trace(
-                            reference.Communicator.TraceLevels.LocatorCategory,
+                            TraceLevels.LocatorCategory,
                             @$"could not contact the locator to resolve location `{reference.LocationAsString
                                 }'\nreason = {exception}");
                     }
@@ -429,7 +429,7 @@ namespace ZeroC.Ice
         {
             if (reference.Communicator.TraceLevels.Locator > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocatorCategory,
+                reference.Communicator.Logger.Trace(TraceLevels.LocatorCategory,
                     $"searching for well-known object\nwell-known proxy = {reference}");
             }
 
@@ -515,7 +515,7 @@ namespace ZeroC.Ice
                     if (reference.Communicator.TraceLevels.Locator > 0)
                     {
                         reference.Communicator.Logger.Trace(
-                            reference.Communicator.TraceLevels.LocatorCategory,
+                            TraceLevels.LocatorCategory,
                             @$"could not contact the locator to retrieve endpoints for well-known proxy `{reference
                                 }'\nreason = {exception}");
                     }

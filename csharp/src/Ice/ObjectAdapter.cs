@@ -859,7 +859,7 @@ namespace ZeroC.Ice
                     {
                         if (Communicator.TraceLevels.Transport >= 2)
                         {
-                            Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
+                            Communicator.Logger.Trace(TraceLevels.TransportCategory,
                                                       $"created adapter `{Name}' without endpoints");
                         }
                     }
@@ -1133,7 +1133,7 @@ namespace ZeroC.Ice
                 sb.Append(Name);
                 sb.Append("':\n");
                 sb.AppendEndpointList(endpoints);
-                Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory, sb.ToString());
+                Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
             }
 
             return endpoints;
@@ -1198,12 +1198,12 @@ namespace ZeroC.Ice
                 {
                     if (_replicaGroupId.Length == 0)
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.LocatorCategory,
+                        Communicator.Logger.Trace(TraceLevels.LocatorCategory,
                             $"could not update the endpoints of object adapter `{_id}' in the locator registry:\n{ex}");
                     }
                     else
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.LocatorCategory,
+                        Communicator.Logger.Trace(TraceLevels.LocatorCategory,
                             @$"could not update the endpoints of object adapter `{_id
                                 }' with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
                     }
@@ -1220,7 +1220,7 @@ namespace ZeroC.Ice
                 {
                     sb.Append(string.Join(":", proxy.Endpoints));
                 }
-                Communicator.Logger.Trace(Communicator.TraceLevels.LocatorCategory, sb.ToString());
+                Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
             }
         }
 
