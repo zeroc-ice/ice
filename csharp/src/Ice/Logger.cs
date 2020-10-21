@@ -102,8 +102,15 @@ namespace ZeroC.Ice
 
         protected override void Write(string message)
         {
-            _synchronizedWriter.WriteLine(message);
-            _synchronizedWriter.Flush();
+            try
+            {
+                _synchronizedWriter.WriteLine(message);
+                _synchronizedWriter.Flush();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Expected if logging occurs after communicator destruction.
+            }
         }
 
         // only to use by clone with prefix and avoid reopening the file in write mode

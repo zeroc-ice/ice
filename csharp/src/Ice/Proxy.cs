@@ -441,7 +441,7 @@ namespace ZeroC.Ice
                             // different replica but no more replica are available (in this case, we rethrow the
                             // remote exception instead of the NoEndpointException).
                             lastException = response == null ? ex : null;
-                            break;
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
                         catch (TransportException ex)
                         {
@@ -483,7 +483,7 @@ namespace ZeroC.Ice
                                            retryPolicy,
                                            lastException);
                             }
-                            break; // We cannot retry
+                            break; // We cannot retry, get out of the loop
                         }
                         else if (retryPolicy.Retryable == Retryable.No)
                         {
@@ -494,7 +494,7 @@ namespace ZeroC.Ice
                                            retryPolicy,
                                            lastException);
                             }
-                            break; // We cannot retry
+                            break; // We cannot retry, get out of the loop
                         }
                         else if (++retryCount == reference.Communicator.RetryMaxAttempts)
                         {
@@ -505,7 +505,7 @@ namespace ZeroC.Ice
                                            retryPolicy,
                                            lastException);
                             }
-                            break; // We cannot retry
+                            break; // We cannot retry, get out of the loop
                         }
                         else
                         {
@@ -549,7 +549,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    // No more retries and can't retry, throw the exception and return the remote exception
+                    // No more retries or can't retry, throw the exception and return the remote exception
                     if (lastException != null)
                     {
                         observer?.Failed(lastException.GetType().FullName ?? "System.Exception");
