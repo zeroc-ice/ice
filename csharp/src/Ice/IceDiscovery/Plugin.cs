@@ -86,19 +86,21 @@ namespace ZeroC.IceDiscovery
             }
 
             // Setup locator registry.
-            LocatorRegistry locatorRegistry = new (_communicator);
-            ILocatorRegistryPrx locatorRegistryPrx =
-                _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
+            var locatorRegistryServant = new LocatorRegistry(_communicator);
+            ILocatorRegistryPrx locatorRegistry =
+                _locatorAdapter.AddWithUUID(locatorRegistryServant, ILocatorRegistryPrx.Factory);
 
-            ILookupPrx lookupPrx =
+            ILookupPrx lookup =
                 ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", _communicator).Clone(clearRouter: true);
 
             // Add lookup Ice object
-            Lookup lookup = new (locatorRegistry, lookupPrx, _communicator, _replyAdapter);
-            _multicastAdapter.Add("IceDiscovery/Lookup", lookup);
+            var lookupServant = new Lookup(locatorRegistryServant, _communicator);
+            _multicastAdapter.Add("IceDiscovery/Lookup", lookupServant);
 
             // Setup locator on the communicator.
-            _locator = _locatorAdapter.AddWithUUID(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
+            _locator = _locatorAdapter.AddWithUUID(new Locator(locatorRegistry, lookup, _replyAdapter),
+                                                   ILocatorPrx.Factory);
+
             _defaultLocator = _communicator.DefaultLocator;
             _communicator.DefaultLocator = _locator;
 
