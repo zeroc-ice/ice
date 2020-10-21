@@ -448,7 +448,7 @@ namespace ZeroC.Ice
                             Debug.Assert(retryPolicy == RetryPolicy.NoRetry);
 
                             observer?.RemoteException();
-                            if (response.Protocol == Protocol.Ice1)
+                            if (response.Encoding == Encoding.V11)
                             {
                                 retryPolicy = Ice1Definitions.GetRetryPolicy(response, reference);
                             }
