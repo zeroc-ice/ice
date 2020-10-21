@@ -161,10 +161,6 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            // TODO: this code is currently unreachable because the application never gets an incoming
-                            // response frame carrying a system exception - this system exception is always thrown.
-                            Debug.Assert(false);
-
                             Data[0] = Data[0].Slice(0, 1);
                         }
                         // 1 for the result type in the response, then sizeLength + 2 to skip the encapsulation header,
@@ -190,17 +186,12 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            // TODO: this code is currently unreachable because the application never gets an incoming
-                            // response frame carrying a system exception - this system exception is always thrown.
-                            Debug.Assert(false);
-
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
                                                                       EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
-                                                                      response.Payload.Count,
+                                                                      response.Payload.Count + 2,
                                                                       Encoding);
-                            buffer[tail.Offset++] = (byte)replyStatus;
                             Data[0] = Data[0].Slice(0, tail.Offset);
                             Data.Add(response.Payload);
                         }

@@ -338,7 +338,7 @@ namespace ZeroC.Ice.Test.Admin
                 messageTypes = new LogMessageType[] { LogMessageType.ErrorMessage, LogMessageType.TraceMessage };
                 string[] categories = { "testCat" };
                 (logMessages, prefix) = logger.GetLog(messageTypes, categories, -1);
-                TestHelper.Assert(logMessages.Length == 5);
+                TestHelper.Assert(logMessages.Length == 5, $"logMessages.Length: {logMessages.Length}");
                 TestHelper.Assert(prefix.Equals("NullLogger"));
 
                 foreach (LogMessage msg in logMessages)

@@ -1,11 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.ProtocolBridging
 {

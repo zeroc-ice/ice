@@ -1116,15 +1116,9 @@ namespace ZeroC.Ice.Test.Metrics
             rim1 = (ChildInvocationMetrics)im1.Children[0]!;
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
             TestHelper.Assert(rim1.Size == (ice1 ? 94 : 102) && rim1.ReplySize > 7);
-            if (ice1)
-            {
-                CheckFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ObjectNotExistException", 2, output);
-            }
-            else
-            {
-                // TODO: observers needs fixing to report a better exception than System.Exception
-                CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
-            }
+
+            // TODO: observers needs fixing to report a better exception than System.Exception
+            CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
             im1 = (InvocationMetrics)map["opWithUnknownException"];
             TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Retry == 0);

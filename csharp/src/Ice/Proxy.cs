@@ -272,19 +272,8 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request, cancel: cancel);
-
-            IncomingResponseFrame response;
-            try
-            {
-                response = await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
-            }
-            catch (RemoteException ex)
-            {
-                // It looks like InvokeAsync threw a 1.1 system exception (used for retries)
-                // TODO: fix (remove) when we fix retries
-                ex.ConvertToUnhandled = false;
-                throw;
-            }
+            IncomingResponseFrame response =
+                await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
             return new OutgoingResponseFrame(request, response);
         }
 
@@ -404,30 +393,11 @@ namespace ZeroC.Ice
                                 return response;
                             }
 
-                            // Read the retry policy and check if it's an Ice1 exception
+                            // Get the retry policy.
                             observer?.RemoteException();
-                            if (response.ReadIce1SystemException(proxy.Communicator) is Exception systemException &&
-                                systemException is ObjectNotExistException one)
+                            if (response.Encoding == Encoding.V11)
                             {
-                                // 1.1 System exceptions
-                                lastException = systemException;
-                                if (reference.RouterInfo != null && one.Origin!.Value.Operation == "ice_add_proxy")
-                                {
-                                    // If we have a router, an ObjectNotExistException with an operation name
-                                    // "ice_add_proxy" indicates to the client that the router isn't aware of the proxy
-                                    // (for example, because it was evicted by the router). In this case, we must
-                                    // *always* retry, so that the missing proxy is added to the router.
-                                    reference.RouterInfo.ClearCache(reference);
-                                    retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
-                                }
-                                else if (reference.IsIndirect)
-                                {
-                                    if (reference.IsWellKnown)
-                                    {
-                                        reference.LocatorInfo?.ClearCache(reference);
-                                    }
-                                    retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
-                                }
+                                retryPolicy = Ice1Definitions.GetRetryPolicy(response, reference);
                             }
                             else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
                                                                         out ReadOnlyMemory<byte> value))
