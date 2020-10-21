@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Channels;
-
+using System.Threading.Tasks;
 using ColocatedChannelReader = System.Threading.Channels.ChannelReader<(long StreamId, object? Frame, bool Fin)>;
 using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long StreamId, object? Frame, bool Fin)>;
 
@@ -16,9 +15,6 @@ namespace ZeroC.Ice
     internal class ColocatedEndpoint : Endpoint
     {
         public override bool IsSecure => true;
-        public override string Host => Adapter.Name;
-        public override ushort Port => 0;
-        public override Transport Transport => Transport.Colocated;
 
         protected internal override bool HasOptions => false;
         protected internal override ushort DefaultPort => 0;
@@ -54,7 +50,9 @@ namespace ZeroC.Ice
         }
 
         internal ColocatedEndpoint(ObjectAdapter adapter)
-            : base(adapter.Communicator, adapter.Protocol)
+            : base(new EndpointData(Transport.Colocated, host: adapter.Name, port: 0, Array.Empty<string>()),
+                   adapter.Communicator,
+                   adapter.Protocol)
         {
             Adapter = adapter;
             var options = new UnboundedChannelOptions

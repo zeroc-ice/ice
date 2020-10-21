@@ -122,40 +122,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>If this response holds a 1.1-encoded system exception, reads and throws this exception.</summary>
-        internal Exception? ReadIce1SystemException(Communicator communicator)
-        {
-            if (ResultType == ResultType.Failure && Encoding == Encoding.V11)
-            {
-                var replyStatus = (ReplyStatus)Payload[0]; // can be reassigned below
-
-                InputStream? istr = null;
-                if (Protocol == Protocol.Ice1)
-                {
-                    if (replyStatus != ReplyStatus.UserException)
-                    {
-                        istr = new InputStream(Payload.Slice(1), Encoding.V11);
-                    }
-                }
-                else
-                {
-                    istr = new InputStream(Payload.Slice(1),
-                                           Ice2Definitions.Encoding,
-                                           communicator,
-                                           startEncapsulation: true);
-
-                    replyStatus = istr.ReadReplyStatus();
-                    if (replyStatus == ReplyStatus.UserException)
-                    {
-                        istr = null; // we are not throwing this user exception here
-                    }
-                }
-
-                return istr?.ReadIce1SystemException(replyStatus);
-            }
-            return null;
-        }
-
         private protected override ArraySegment<byte> GetEncapsulation()
         {
             // Can only be called for a frame with an encapsulation:

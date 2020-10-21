@@ -121,11 +121,7 @@ extern int slice_debug;
     ICE_LOCAL_METADATA_CLOSE = 302, /* ICE_LOCAL_METADATA_CLOSE  */
     ICE_FILE_METADATA_OPEN = 303,  /* ICE_FILE_METADATA_OPEN  */
     ICE_FILE_METADATA_CLOSE = 304, /* ICE_FILE_METADATA_CLOSE  */
-    ICE_IDENT_OPEN = 305,          /* ICE_IDENT_OPEN  */
-    ICE_KEYWORD_OPEN = 306,        /* ICE_KEYWORD_OPEN  */
-    ICE_TAG_OPEN = 307,            /* ICE_TAG_OPEN  */
-    ICE_OPTIONAL_OPEN = 308,       /* ICE_OPTIONAL_OPEN  */
-    BAD_CHAR = 309                 /* BAD_CHAR  */
+    BAD_CHAR = 305                 /* BAD_CHAR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

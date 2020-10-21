@@ -141,7 +141,7 @@ namespace ZeroC.Ice
                 port = (ushort)uri.Port;
             }
 
-            IEndpointFactory? factory = null;
+            Ice2EndpointParser? parser = null;
             Transport transport;
 
             if (transportName == "universal")
@@ -159,17 +159,17 @@ namespace ZeroC.Ice
                 {
                     // It's possible we have a factory for this transport, and we check it only when the protocol is
                     // ice2 (otherwise, we want to create a UniversalEndpoint).
-                    factory = communicator.IceFindEndpointFactory(transport);
+                    parser = communicator.FindIce2EndpointParser(transport);
                 }
             }
-            else if (communicator.FindEndpointFactory(transportName) is (EndpointFactory f, Transport t))
+            else if (communicator.FindIce2EndpointParser(transportName) is (Ice2EndpointParser p, Transport t))
             {
                 if (protocol != Protocol.Ice2)
                 {
                     throw new FormatException(
                         $"cannot create an `{uri.Scheme}' endpoint for protocol `{protocol.GetName()}'");
                 }
-                factory = f;
+                parser = p;
                 transport = t;
             }
             else
@@ -177,14 +177,16 @@ namespace ZeroC.Ice
                 throw new FormatException($"unknown transport `{transportName}'");
             }
 
-            Endpoint endpoint = factory?.Create(transport,
-                                                protocol,
-                                                uri.DnsSafeHost,
-                                                port,
-                                                options,
-                                                oaEndpoint,
-                                                uriString) ??
-                new UniversalEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
+            // parser can be non-null only when the protocol is ice2.
+
+            Endpoint endpoint = parser?.Invoke(transport,
+                                               uri.DnsSafeHost,
+                                               port,
+                                               options,
+                                               communicator,
+                                               oaEndpoint,
+                                               uriString) ??
+                UniversalEndpoint.Parse(transport, uri.DnsSafeHost, port, options, communicator, protocol);
 
             if (options.Count > 0)
             {

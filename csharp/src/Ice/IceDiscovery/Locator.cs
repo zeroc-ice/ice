@@ -100,13 +100,13 @@ namespace ZeroC.IceDiscovery
             Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
         }
 
-         public void SetReplicatedAdapterDirectProxy(
-            string adapterId,
-            string replicaGroupId,
-            IObjectPrx? proxy,
-            Current current,
-            CancellationToken cancel)
-         {
+        public void SetReplicatedAdapterDirectProxy(
+           string adapterId,
+           string replicaGroupId,
+           IObjectPrx? proxy,
+           Current current,
+           CancellationToken cancel)
+        {
             Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
         }
 

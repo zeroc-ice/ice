@@ -123,71 +123,59 @@ namespace ZeroC.Ice
         {
             Debug.Assert(host.Length > 0);
 
-            int retry = 5;
-            while (true)
+            var addresses = new List<IPEndPoint>();
+            try
             {
-                var addresses = new List<IPEndPoint>();
-                try
+                // Trying to parse the IP address is necessary to handle wildcard addresses such as 0.0.0.0 or ::0
+                // since GetHostAddressesAsync fails to resolve them.
+                var a = IPAddress.Parse(host);
+                if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                    (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                 {
-                    // Trying to parse the IP address is necessary to handle wildcard addresses such as 0.0.0.0 or ::0
-                    // since GetHostAddressesAsync fails to resolve them.
-                    var a = IPAddress.Parse(host);
+                    addresses.Add(new IPEndPoint(a, port));
+                    return addresses;
+                }
+                else
+                {
+                    throw new DNSException(host);
+                }
+            }
+            catch (FormatException)
+            {
+            }
+
+            try
+            {
+                foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).WaitAsync(cancel).ConfigureAwait(false))
+                {
                     if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
                         (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                     {
                         addresses.Add(new IPEndPoint(a, port));
-                        return addresses;
                     }
-                    else
-                    {
-                        throw new DNSException(host);
-                    }
-                }
-                catch (FormatException)
-                {
                 }
 
-                try
+                // No InterNetwork/InterNetworkV6 available.
+                if (addresses.Count == 0)
                 {
-                    foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).WaitAsync(cancel).ConfigureAwait(false))
-                    {
-                        if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
-                            (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
-                        {
-                            addresses.Add(new IPEndPoint(a, port));
-                        }
-                    }
+                    throw new DNSException(host);
+                }
 
-                    // No InterNetwork/InterNetworkV6 available.
-                    if (addresses.Count == 0)
-                    {
-                        throw new DNSException(host);
-                    }
+                IEnumerable<IPEndPoint> addrs = addresses;
+                if (selType == EndpointSelectionType.Random)
+                {
+                    addrs = addrs.Shuffle();
+                }
 
-                    IEnumerable<IPEndPoint> addrs = addresses;
-                    if (selType == EndpointSelectionType.Random)
-                    {
-                        addrs = addrs.Shuffle();
-                    }
-
-                    return addrs;
-                }
-                catch (DNSException)
-                {
-                    throw;
-                }
-                catch (SocketException ex)
-                {
-                    if (ex.SocketErrorCode == SocketError.TryAgain && --retry >= 0)
-                    {
-                        continue;
-                    }
-                    throw new DNSException(host, ex);
-                }
-                catch (Exception ex)
-                {
-                    throw new DNSException(host, ex);
-                }
+                return addrs;
+            }
+            catch (DNSException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DNSException(host, ex);
             }
         }
 
@@ -282,13 +270,9 @@ namespace ZeroC.Ice
 
         internal static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
         {
-            List<IPAddress> addresses;
-            int retry = 5;
-
-        repeatGetHostByName:
+            List<IPAddress> addresses = new List<IPAddress>();
             try
             {
-                addresses = new List<IPAddress>();
                 NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
                 foreach (NetworkInterface ni in nics)
                 {
@@ -311,14 +295,6 @@ namespace ZeroC.Ice
                         }
                     }
                 }
-            }
-            catch (SocketException ex)
-            {
-                if (ex.SocketErrorCode == SocketError.TryAgain && --retry >= 0)
-                {
-                    goto repeatGetHostByName;
-                }
-                throw new TransportException("error retrieving local network interface IP addresses", ex);
             }
             catch (Exception ex)
             {
@@ -533,7 +509,7 @@ namespace ZeroC.Ice
             Debug.Assert(iface.Length > 0);
 
             // The iface parameter must either be an IP address, an index or the name of an interface. If it's an index
-            // we just return it. If it's an IP addess we search for an interface which has this IP address. If it's a
+            // we just return it. If it's an IP address we search for an interface which has this IP address. If it's a
             // name we search an interface with this name.
             try
             {
@@ -598,7 +574,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            throw new ArgumentException("couldn't find interface `" + iface + "'");
+            throw new ArgumentException($"couldn't find interface `{iface}'");
         }
 
         private static int GetInterfaceIndex(string iface, AddressFamily family)
@@ -609,7 +585,7 @@ namespace ZeroC.Ice
             }
 
             // The iface parameter must either be an IP address, an index or the name of an interface. If it's an index
-            // we just return it. If it's an IP addess we search for an interface which has this IP address. If it's a
+            // we just return it. If it's an IP address we search for an interface which has this IP address. If it's a
             // name we search an interface with this name.
             try
             {
