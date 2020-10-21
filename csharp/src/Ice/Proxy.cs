@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -329,7 +330,7 @@ namespace ZeroC.Ice
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
                     List<IConnector>? excludedConnectors = null;
-                    while (retryCount < reference.Communicator.RetryMaxAttempts)
+                    while (true)
                     {
                         Connection? connection = null;
                         bool sent = false;
@@ -397,60 +398,13 @@ namespace ZeroC.Ice
                                 // TODO: handle received stream data.
                             }
 
-                            if (releaseRequestAfterSent || response.ResultType != ResultType.Failure)
+                            // If success, just return the response!
+                            if (response.ResultType == ResultType.Success)
                             {
                                 return response;
                             }
-                            // retry below
-                        }
-                        catch (NoEndpointException ex)
-                        {
-                            // The reference has no endpoints or the previous retry policy asked to retry on a
-                            // different replica but no more replica are available (in this case, we rethrow the
-                            // remote exception instead of the NoEndpointException).
-                            if (response == null)
-                            {
-                                lastException = ex;
-                            }
-                            break;
-                        }
-                        catch (TransportException ex)
-                        {
-                            var closedException = ex as ConnectionClosedException;
-                            if (connection != null && closedException == null)
-                            {
-                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
-                            }
 
-                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-
-                            // Retry transport exceptions if the request is idempotent, was not sent or if the
-                            // connection was gracefully closed by the peer (in which case it's safe to retry).
-                            if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
-                            {
-                                lastException = ex;
-                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                            throw;
-                        }
-                        finally
-                        {
-                            childObserver?.Detach();
-                        }
-
-                        if (lastException == null)
-                        {
-                            Debug.Assert(response != null &&
-                                         response.ResultType == ResultType.Failure &&
-                                         !releaseRequestAfterSent);
+                            // Read the retry policy and check if it's an Ice1 exception
                             observer?.RemoteException();
                             if (response.ReadIce1SystemException(proxy.Communicator) is Exception systemException &&
                                 systemException is ObjectNotExistException one)
@@ -481,13 +435,81 @@ namespace ZeroC.Ice
                                 retryPolicy = value.Read(istr => new RetryPolicy(istr));
                             }
                         }
-
-                        if ((sent && releaseRequestAfterSent) || retryPolicy.Retryable == Retryable.No)
+                        catch (NoEndpointException ex)
                         {
+                            // The reference has no endpoints or the previous retry policy asked to retry on a
+                            // different replica but no more replica are available (in this case, we rethrow the
+                            // remote exception instead of the NoEndpointException).
+                            lastException = response == null ? ex : null;
+                            break;
+                        }
+                        catch (TransportException ex)
+                        {
+                            var closedException = ex as ConnectionClosedException;
+                            if (connection != null && closedException == null)
+                            {
+                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
+                            }
+
+                            lastException = ex;
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+
+                            // Retry transport exceptions if the request is idempotent, was not sent or if the
+                            // connection was gracefully closed by the peer (in which case it's safe to retry).
+                            if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
+                            {
+                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            lastException = ex;
+                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                        }
+                        finally
+                        {
+                            childObserver?.Detach();
+                        }
+
+                        if (sent && releaseRequestAfterSent)
+                        {
+                            if (reference.Communicator.TraceLevels.Retry >= 1)
+                            {
+                                TraceRetry("cannot retry request because " +
+                                           (requestSize > reference.Communicator.RetryRequestSizeMax ?
+                                               $"the request size `{requestSize}' exceeds Ice.RetryRequestSizeMax" :
+                                               "the retry buffer size exceeds Ice.RetryBufferSizeMax"),
+                                           retryCount,
+                                           retryPolicy,
+                                           lastException);
+                            }
                             break; // We cannot retry
                         }
-                        else if (++retryCount < reference.Communicator.RetryMaxAttempts)
+                        else if (retryPolicy.Retryable == Retryable.No)
                         {
+                            if (reference.Communicator.TraceLevels.Retry >= 1)
+                            {
+                                TraceRetry("cannot retry request because the exception can't be retried",
+                                           retryCount,
+                                           retryPolicy,
+                                           lastException);
+                            }
+                            break; // We cannot retry
+                        }
+                        else if (++retryCount == reference.Communicator.RetryMaxAttempts)
+                        {
+                            if (reference.Communicator.TraceLevels.Retry >= 1)
+                            {
+                                TraceRetry("cannot retry request because the maximum retry count has been reached",
+                                           retryCount,
+                                           retryPolicy,
+                                           lastException);
+                            }
+                            break; // We cannot retry
+                        }
+                        else
+                        {
+                            Debug.Assert(retryCount < reference.Communicator.RetryMaxAttempts);
                             if (retryPolicy.Retryable == Retryable.OtherReplica)
                             {
                                 excludedConnectors ??= new List<IConnector>();
@@ -507,10 +529,10 @@ namespace ZeroC.Ice
 
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                reference.Communicator.Logger.Trace(
-                                    reference.Communicator.TraceLevels.RetryCategory,
-                                        $"retrying operation call with retry policy `{retryPolicy}' because of " +
-                                        (lastException != null ? $"exception\n{lastException}" : "remote exception"));
+                                TraceRetry("retrying request because of exception",
+                                           retryCount,
+                                           retryPolicy,
+                                           lastException);
                             }
 
                             if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
@@ -522,11 +544,12 @@ namespace ZeroC.Ice
                                     proxy.Communicator.CancellationToken);
                                 await Task.Delay(retryPolicy.Delay, tokenSource.Token).ConfigureAwait(false);
                             }
+
                             observer?.Retried();
                         }
                     }
 
-                    // No more retries return the response
+                    // No more retries and can't retry, throw the exception and return the remote exception
                     if (lastException != null)
                     {
                         observer?.Failed(lastException.GetType().FullName ?? "System.Exception");
@@ -549,6 +572,29 @@ namespace ZeroC.Ice
                     // TODO: Use IDisposable for observers, this will allow using "using".
                     observer?.Detach();
                 }
+            }
+
+            void TraceRetry(string message, int retryCount, RetryPolicy policy, Exception? exception = null)
+            {
+                var sb = new StringBuilder();
+                sb.Append(message);
+                sb.Append("\nproxy = ");
+                sb.Append(proxy);
+                sb.Append("\noperation = ");
+                sb.Append(request.Operation);
+                sb.Append("\nretry count = ");
+                sb.Append(retryCount);
+                sb.Append('/');
+                sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                sb.Append("\nretry policy = ");
+                sb.Append(policy);
+                if (exception != null)
+                {
+                    sb.Append('\n');
+                    sb.Append(exception);
+                }
+                proxy.IceReference.Communicator.Logger.Trace(proxy.IceReference.Communicator.TraceLevels.RetryCategory,
+                                                             sb.ToString());
             }
         }
 
