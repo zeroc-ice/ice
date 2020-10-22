@@ -17,7 +17,6 @@ namespace ZeroC.Ice
     {
         internal int BidirectionalStreamCount;
         internal AsyncSemaphore? BidirectionalStreamSemaphore;
-        internal TimeSpan IdleTimeout;
         internal readonly object Mutex = new ();
         internal SlicOptions Options { get; }
         internal int UnidirectionalStreamCount;
@@ -279,7 +278,7 @@ namespace ZeroC.Ice
                     var initializeAckBody = new InitializeAckBody(
                         (ulong)Options.MaxBidirectionalStreams,
                         (ulong)Options.MaxUnidirectionalStreams,
-                        (ulong)Options.IdleTimeout.TotalMilliseconds);
+                        (ulong)IdleTimeout.TotalMilliseconds);
                     initializeAckBody.IceWrite(ostr);
                 }, cancel: cancel).ConfigureAwait(false);
             }
@@ -293,7 +292,7 @@ namespace ZeroC.Ice
                         Protocol.Ice2.GetName(),
                         (ulong)Options.MaxBidirectionalStreams,
                         (ulong)Options.MaxUnidirectionalStreams,
-                        (ulong)Options.IdleTimeout.TotalMilliseconds);
+                        (ulong)IdleTimeout.TotalMilliseconds);
                     initializeBody.IceWrite(ostr);
                 }, cancel: cancel).ConfigureAwait(false);
 
@@ -328,7 +327,10 @@ namespace ZeroC.Ice
             }
 
             // Use the smallest idle timeout.
-            IdleTimeout = peerIdleTimeout < Options.IdleTimeout ? peerIdleTimeout : Options.IdleTimeout;
+            if (peerIdleTimeout < IdleTimeout)
+            {
+                IdleTimeout = peerIdleTimeout;
+            }
         }
 
         public override Task PingAsync(CancellationToken cancel) =>

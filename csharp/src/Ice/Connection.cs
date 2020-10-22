@@ -29,44 +29,6 @@ namespace ZeroC.Ice
     /// <summary>Represents a connection used to send and receive Ice frames.</summary>
     public abstract class Connection
     {
-        /// <summary>Gets or set the connection Acm (Active Connection Management) configuration.</summary>
-        public Acm Acm
-        {
-            get
-            {
-                lock (_mutex)
-                {
-                    return _monitor?.Acm ?? Acm.Disabled;
-                }
-            }
-            set
-            {
-                if (_manager != null)
-                {
-                    lock (_mutex)
-                    {
-                        if (_state >= ConnectionState.Closing)
-                        {
-                            return;
-                        }
-
-                        if (_state == ConnectionState.Active)
-                        {
-                            _monitor?.Remove(this);
-                        }
-
-                        _monitor = value == _manager.AcmMonitor.Acm ?
-                            _manager.AcmMonitor : new ConnectionAcmMonitor(value, _communicator.Logger);
-
-                        if (_state == ConnectionState.Active)
-                        {
-                            _monitor?.Add(this);
-                        }
-                    }
-                }
-            }
-        }
-
         /// <summary>Gets or sets the object adapter that dispatches requests received over this connection.
         /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the
         /// outgoing connection used by the proxy in order to receive callbacks. This is useful if the server
@@ -87,8 +49,42 @@ namespace ZeroC.Ice
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
 
+        /// <summary>Gets the connection idle timeout.</summary>
+        public TimeSpan IdleTimeout
+        {
+            get => Transceiver.IdleTimeout;
+            set
+            {
+                // Setting IdleTimeout is only supported with ice1 connections. With ice2 connections, the underlying
+                // transport (Slic or Quic) provides support for negotiating the idle timeout when the connection is
+                // established and the connection uses the negotiated idle timeout to monitor the connection.
+                if (Endpoint.Protocol != Protocol.Ice1)
+                {
+                    throw new NotSupportedException("setting IdleTimeout is only supported with ice1 connections");
+                }
+
+                lock (_mutex)
+                {
+                    if (_state == ConnectionState.Active)
+                    {
+                        Transceiver.IdleTimeout = value;
+                        _timer?.Dispose();
+                        TimeSpan period = value / 2;
+                        if (period != TimeSpan.Zero)
+                        {
+                            _timer = new Timer(value => Monitor(), null, period, period);
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary><c>true</c> for incoming connections <c>false</c> otherwise.</summary>
         public bool IsIncoming => _connector == null;
+
+        /// <summary>Enables or disables the keep alive. When enabled, the connection is kept alive by sending ping
+        /// frames at regular time intervals when the connection is idle.</summary>
+        public bool KeepAlive { get; set; }
 
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
@@ -113,9 +109,9 @@ namespace ZeroC.Ice
         private readonly IConnector? _connector;
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
-        private IAcmMonitor? _monitor;
         private readonly object _mutex = new ();
         private volatile ConnectionState _state; // The current state.
+        private Timer? _timer;
 
         /// <summary>Aborts the connection.</summary>
         /// <param name="message">A description of the connection abortion reason.</param>
@@ -212,7 +208,6 @@ namespace ZeroC.Ice
         {
             _communicator = endpoint.Communicator;
             _manager = manager;
-            _monitor = manager?.AcmMonitor;
             Transceiver = transceiver;
             _connector = connector;
             ConnectionId = connectionId;
@@ -313,7 +308,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void Monitor(TimeSpan now, Acm acm)
+        internal void Monitor()
         {
             lock (_mutex)
             {
@@ -322,37 +317,29 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                // We send a heartbeat if there was no activity in the last (timeout / 4) period. Sending a heartbeat
-                // sooner than really needed is safer to ensure that the receiver will receive the heartbeat in time.
-                // Sending the heartbeat if there was no activity in the last (timeout / 2) period isn't enough since
-                // monitor() is called only every (timeout / 2) period.
-                //
-                // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because the
-                // monitor() method is still only called every (timeout / 2) period.
-                if (_state == ConnectionState.Active &&
-                    (acm.Heartbeat == AcmHeartbeat.Always ||
-                    (acm.Heartbeat != AcmHeartbeat.Off && now >= (Transceiver.LastActivity + (acm.Timeout / 4)))))
+                TimeSpan idleTime = Time.Elapsed - Transceiver.LastActivity;
+
+                if (idleTime > IdleTimeout / 4 && (KeepAlive || Transceiver.IncomingStreamCount > 0))
                 {
-                    if (acm.Heartbeat != AcmHeartbeat.OnDispatch || Transceiver.StreamCount > 2)
-                    {
-                        Debug.Assert(_state == ConnectionState.Active);
-                        if (!Endpoint.IsDatagram)
-                        {
-                            _ = Transceiver.PingAsync(default);
-                        }
-                    }
+                    // We send a ping if there was no activity in the last (IdleTimeout / 4) period. Sending a ping
+                    // sooner than really needed is safer to ensure that the receiver will receive the ping in
+                    // time. Sending the ping if there was no activity in the last (IdleTimeout / 2) period isn't
+                    // enough since Monitor is called only every (IdleTimeout / 2) period. We also send a ping if
+                    // dispatch are in progress to notify the peer that we're still alive.
+                    //
+                    // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because
+                    // Monitor is still only called every (IdleTimeout / 2) period.
+                    _ = Transceiver.PingAsync(default);
                 }
 
-                if (acm.Close != AcmClose.Off && now >= Transceiver.LastActivity + acm.Timeout)
+                if (idleTime > IdleTimeout)
                 {
-                    if (acm.Close == AcmClose.OnIdleForceful ||
-                        (acm.Close != AcmClose.OnIdle && (Transceiver.StreamCount > 2)))
+                    if (Transceiver.OutgoingStreamCount > 0)
                     {
-                        // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
-                        // ACM activity in the last period.
+                        // Abort the connection if we didn't receive a heartbeat while some requests are in progress.
                         _ = AbortAsync(new ConnectionClosedException("connection timed out"));
                     }
-                    else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount <= 2)
+                    else
                     {
                         // The connection is idle, close it.
                         _ = GoAwayAsync(new ConnectionClosedException("connection idle"));
@@ -453,6 +440,8 @@ namespace ZeroC.Ice
 
                 // Dispose of the transceiver.
                 Transceiver.Dispose();
+
+                _timer?.Dispose();
 
                 // Raise the Closed event
                 try
@@ -600,16 +589,20 @@ namespace ZeroC.Ice
                 _communicator.Logger.Warning($"connection exception:\n{exception}\n{this}");
             }
 
-            // We register with the connection monitor if our new state is Active. ACM monitors the connection
-            // once it's initialized and validated and until it's closed. Timeouts for connection establishment and
-            // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (state == ConnectionState.Active)
             {
-                _monitor?.Add(this);
+                // Setup a timer to check for the connection idle time every IdleTimeout / 2 period. If the transport
+                // doesn't support idle timeout (e.g.: the colocated transport), IdleTimeout will be TimeSpan.Zero.
+                TimeSpan period = Transceiver.IdleTimeout / 2;
+                if (period != TimeSpan.Zero)
+                {
+                    _timer = new Timer(value => Monitor(), null, period, period);
+                }
             }
             else if (_state == ConnectionState.Active)
             {
-                _monitor?.Remove(this);
+                // Terminate the timer on connection closure.
+                _timer?.Dispose();
             }
 
             if (_communicator.Observer != null)

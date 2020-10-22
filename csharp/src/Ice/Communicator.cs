@@ -152,7 +152,7 @@ namespace ZeroC.Ice
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
-        internal Acm ClientAcm { get; }
+        internal TimeSpan IdleTimeout { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
 
@@ -167,7 +167,6 @@ namespace ZeroC.Ice
         internal int RetryMaxAttempts { get; }
         internal int RetryBufferSizeMax { get; }
         internal int RetryRequestSizeMax { get; }
-        internal Acm ServerAcm { get; }
         internal SlicOptions SlicOptions { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -505,14 +504,16 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.ConnectTimeout");
                 }
 
-                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
-                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
+                IdleTimeout = GetPropertyAsTimeSpan("Ice.IdleTimeout") ?? TimeSpan.FromSeconds(60);
+                if (IdleTimeout == TimeSpan.Zero)
+                {
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.IdleTimeout");
+                }
 
                 SlicOptions = new SlicOptions
                 {
                     MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
                     MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
-                    IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30),
                     PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
                 };
                 if (SlicOptions.MaxBidirectionalStreams < 1)

@@ -197,21 +197,6 @@ namespace ZeroC.Glacier2
             // Remote invocation should be done without acquiring a mutex lock.
             Debug.Assert(router != null);
             Debug.Assert(_communicator != null);
-            Connection? conn = router.GetCachedConnection();
-            string category = router.GetCategoryForClient();
-            TimeSpan acmTimeout = TimeSpan.Zero;
-            try
-            {
-                acmTimeout = TimeSpan.FromSeconds(router.GetACMTimeout());
-            }
-            catch (OperationNotExistException)
-            {
-            }
-
-            if (acmTimeout == TimeSpan.Zero)
-            {
-                acmTimeout = TimeSpan.FromSeconds(router.GetSessionTimeout());
-            }
 
             // We create the callback object adapter here because createObjectAdapter internally makes synchronous
             // RPCs to the router. We can't create the OA on-demand when the client calls ObjectAdapter() or
@@ -222,6 +207,8 @@ namespace ZeroC.Glacier2
                 _adapter = _communicator.CreateObjectAdapterWithRouter(router);
                 _adapter.Activate();
             }
+
+            string category = router.GetCategoryForClient();
 
             lock (_mutex)
             {
@@ -241,15 +228,35 @@ namespace ZeroC.Glacier2
                 // Assign the session after _destroy is checked.
                 _session = session;
                 _connected = true;
+            }
 
-                if (acmTimeout != TimeSpan.Zero)
+            // When using Ice1, we need to figure out the router's acm/session timeout and configure the connection
+            // accordingly. With Ice2, this is no longer necessary, the idle timeout is configured is negotiated on
+            // connection establishment.
+            Connection connection = router.GetConnection();
+            if (router.Protocol == Protocol.Ice1)
+            {
+                TimeSpan idleTimeout = TimeSpan.Zero;
+                try
                 {
-                    Connection? connection = _router.GetCachedConnection();
-                    Debug.Assert(connection != null);
-                    connection.Acm = new Acm(acmTimeout, connection.Acm.Close, AcmHeartbeat.Always);
-                    connection.Closed += (sender, args) => Destroy();
+                    idleTimeout = TimeSpan.FromSeconds(router.GetACMTimeout());
+                }
+                catch (OperationNotExistException)
+                {
+                }
+
+                if (idleTimeout == TimeSpan.Zero)
+                {
+                    idleTimeout = TimeSpan.FromSeconds(router.GetSessionTimeout());
+                }
+
+                if (idleTimeout != TimeSpan.Zero)
+                {
+                    connection.IdleTimeout = idleTimeout;
                 }
             }
+
+            connection.Closed += (sender, args) => Destroy();
 
             try
             {
