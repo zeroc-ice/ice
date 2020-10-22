@@ -112,7 +112,14 @@ namespace ZeroC.Ice
                             Debug.Assert(stream.IsControl);
                             continue;
                         }
-                        stream.ReceivedFrame(frameType, frame);
+                        try
+                        {
+                            stream.ReceivedFrame(frameType, frame);
+                        }
+                        catch
+                        {
+                            // Ignore, the stream has been aborted
+                        }
                     }
                     else if (frameType == Ice1Definitions.FrameType.Request)
                     {
@@ -132,15 +139,13 @@ namespace ZeroC.Ice
                             {
                                 await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
                             }
-                            if (stream.ReceivedFrame(frameType, frame))
-                            {
-                                return stream;
-                            }
-                            stream.Dispose();
+                            stream.ReceivedFrame(frameType, frame);
+                            return stream;
                         }
                         catch
                         {
-                            // Ignore the frame if the connection is being closed.
+                            // Ignore, if the connection is being closed or the stream has been aborted.
+                            stream?.Dispose();
                         }
                     }
                     else if (frameType == Ice1Definitions.FrameType.ValidateConnection)

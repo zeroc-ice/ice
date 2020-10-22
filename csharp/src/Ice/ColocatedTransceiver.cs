@@ -35,13 +35,20 @@ namespace ZeroC.Ice
                     {
                         // If we received a frame for a known stream, signal the stream of the frame reception. A null
                         // frame indicates a stream reset so reset the stream in this case.
-                        if (frame == null)
+                        try
                         {
-                            stream.ReceivedReset(0);
+                            if (frame == null)
+                            {
+                                stream.ReceivedReset(0);
+                            }
+                            else
+                            {
+                                stream.ReceivedFrame(frame, fin);
+                            }
                         }
-                        else
+                        catch
                         {
-                            stream.ReceivedFrame(frame, fin);
+                            // Ignore the stream has been aborted.
                         }
                     }
                     else if (frame is OutgoingRequestFrame || streamId == (IsIncoming ? 2 : 3))
@@ -52,15 +59,13 @@ namespace ZeroC.Ice
                         try
                         {
                             stream = new ColocatedStream(streamId, this);
-                            if (stream.ReceivedFrame(frame, fin))
-                            {
-                                return stream;
-                            }
-                            stream.Dispose();
+                            stream.ReceivedFrame(frame, fin);
+                            return stream;
                         }
                         catch
                         {
-                            // Ignore, the stream can't be created because the connection is being closed.
+                            // Ignore, the connection is being closed or the stream got aborted.
+                            stream?.Dispose();
                         }
                     }
                     else

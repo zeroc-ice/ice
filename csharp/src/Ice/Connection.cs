@@ -166,9 +166,9 @@ namespace ZeroC.Ice
             remove => Transceiver.Ping -= value;
         }
 
-        /// <summary>Returns if the connection is active. Outgoing streams can be created and incoming streams
-        /// accepted when the connection is active. The connection is no longer considered active as soon as
-        /// <see cref="GoAwayAsync(string?, CancellationToken)"/> is called to initiate a gracefull connection
+        /// <summary>Returns <c>true</c> if the connection is active. Outgoing streams can be created and incoming
+        /// streams accepted when the connection is active. The connection is no longer considered active as soon
+        /// as <see cref="GoAwayAsync(string?, CancellationToken)"/> is called to initiate a gracefull connection
         /// closure.</summary>
         /// <return><c>true</c> if the connection is active, <c>false</c> if it's closing or closed.</return>
         public bool IsActive => _state == ConnectionState.Active;
@@ -234,7 +234,6 @@ namespace ZeroC.Ice
                 {
                     throw new ConnectionClosedException();
                 }
-                Debug.Assert(IsActive);
                 return Transceiver.CreateStream(bidirectional);
             }
         }

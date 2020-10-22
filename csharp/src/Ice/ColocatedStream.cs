@@ -60,7 +60,7 @@ namespace ZeroC.Ice
         internal ColocatedStream(bool bidirectional, ColocatedTransceiver transceiver)
             : base(bidirectional, transceiver) => _transceiver = transceiver;
 
-        internal bool ReceivedFrame(object frame, bool fin) =>
+        internal void ReceivedFrame(object frame, bool fin) =>
             // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
             // code which could end up blocking the AcceptStreamAsync task.
             SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);

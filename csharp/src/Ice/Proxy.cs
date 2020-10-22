@@ -455,7 +455,7 @@ namespace ZeroC.Ice
                             }
                             break; // We cannot retry, get out of the loop
                         }
-                        else if (retryPolicy.Retryable == Retryable.No)
+                        else if (retryPolicy == RetryPolicy.NoRetry)
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
@@ -479,8 +479,9 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            Debug.Assert(retryCount < reference.Communicator.RetryMaxAttempts);
-                            if (retryPolicy.Retryable == Retryable.OtherReplica)
+                            Debug.Assert(retryCount < reference.Communicator.RetryMaxAttempts &&
+                                         retryPolicy != RetryPolicy.NoRetry);
+                            if (retryPolicy == RetryPolicy.OtherReplica)
                             {
                                 excludedConnectors ??= new List<IConnector>();
                                 excludedConnectors.Add(connection!.Connector);

@@ -178,9 +178,8 @@ namespace ZeroC.Ice
                     Debug.Assert(!IsIncoming);
 
                     // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
-                    // control credit to ensure we don't open more streams than the peer allows. Wait on the
-                    // semaphores to ensure we don't more streams than allowed. The wait on the semaphore provides
-                    // FIFO guarantee to ensure that the sending of requests is serialized.
+                    // control credit to ensure we don't open more streams than the peer allows. The wait on the
+                    // semaphore provides FIFO guarantee to ensure that the sending of requests is serialized.
                     Debug.Assert(!IsIncoming);
                     if (IsBidirectional)
                     {
@@ -263,8 +262,9 @@ namespace ZeroC.Ice
 
             if (IsIncoming && !IsControl)
             {
-                // Increment the counters to ensure the peer doesn't open more streams than allowed.
-                Debug.Assert(IsIncoming);
+                // Increment the counter to ensure the peer doesn't open more streams than allowed. This can't be
+                // called concurrently for a given connection so if it's fine to check the counter and increment
+                // it after.
                 if (IsBidirectional)
                 {
                     if (_transceiver.BidirectionalStreamCount == _transceiver.Options.MaxBidirectionalStreams)
@@ -274,7 +274,7 @@ namespace ZeroC.Ice
                     }
                     Interlocked.Increment(ref _transceiver.BidirectionalStreamCount);
                 }
-                else if (!IsControl)
+                else
                 {
                     if (_transceiver.UnidirectionalStreamCount == _transceiver.Options.MaxUnidirectionalStreams)
                     {
@@ -289,7 +289,7 @@ namespace ZeroC.Ice
         internal SlicStream(bool bidirectional, SlicTransceiver transceiver)
             : base(bidirectional, transceiver) => _transceiver = transceiver;
 
-        internal bool ReceivedFrame(int size, bool fin)
+        internal void ReceivedFrame(int size, bool fin)
         {
             // If an outgoing stream and this is the last stream frame, we release the flow control
             // credit to eventually allow a new outgoing stream to be opened. If the flow control credit
@@ -299,15 +299,8 @@ namespace ZeroC.Ice
                 throw new InvalidDataException("already received last stream frame");
             }
 
-            if (size > 0)
-            {
-                // Ensure to run the continuation asynchronously in case the continuation ends up calling user-code.
-                return SignalCompletion((size, fin), runContinuationAsynchronously: true);
-            }
-            else
-            {
-                return false;
-            }
+            // Ensure to run the continuation asynchronously in case the continuation ends up calling user-code.
+            SignalCompletion((size, fin), runContinuationAsynchronously: true);
         }
 
         internal override void ReceivedReset(long errorCode)

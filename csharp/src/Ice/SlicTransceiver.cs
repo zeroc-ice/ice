@@ -86,13 +86,18 @@ namespace ZeroC.Ice
 
                         if (TryGetStream(streamId.Value, out SlicStream? stream))
                         {
-                            // Notify the stream that data is available for read.
-                            if (stream.ReceivedFrame(size, fin))
+                            try
                             {
-                                // Wait for the stream to receive the data before reading a new Slic frame.
-                                await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
+                                // Notify the stream that data is available for read.
+                                stream.ReceivedFrame(size, fin);
+
+                                if (size > 0)
+                                {
+                                    // Wait for the stream to receive the data before reading a new Slic frame.
+                                    await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
+                                }
                             }
-                            else if (size > 0)
+                            catch
                             {
                                 // The stream has been aborted if it can't be signaled, read and ignore the data.
                                 await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
@@ -123,16 +128,14 @@ namespace ZeroC.Ice
                             try
                             {
                                 stream = new SlicStream(streamId.Value, this);
-                                if (stream.ReceivedFrame(size, fin))
-                                {
-                                    return stream;
-                                }
-                                stream.Dispose();
+                                stream.ReceivedFrame(size, fin);
+                                return stream;
                             }
                             catch
                             {
                                 // Ignore, the transceiver no longer accepts new streams because it's being
-                                // closed.
+                                // closed or the stream has been disposed shortly after being constructed.
+                                stream?.Dispose();
                             }
 
                             // Ignored the received data if we can't create a stream to handle it.
@@ -440,8 +443,7 @@ namespace ZeroC.Ice
 
         internal async ValueTask ReceiveDataAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
-            int offset = 0;
-            while (offset != buffer.Count)
+            for (int offset = 0; offset != buffer.Count;)
             {
                 int received = await _transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;

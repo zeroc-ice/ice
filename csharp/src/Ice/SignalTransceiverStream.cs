@@ -49,7 +49,7 @@ namespace ZeroC.Ice
         {
         }
 
-        protected bool SignalCompletion(T result, bool runContinuationAsynchronously = false)
+        protected void SignalCompletion(T result, bool runContinuationAsynchronously = false)
         {
             // If the source isn't already signaled, signal completion by setting the result. Otherwise if it's
             // already signaled, it's because the stream got aborted and the exception is set on the source.
@@ -57,12 +57,11 @@ namespace ZeroC.Ice
             {
                 _source.RunContinuationsAsynchronously = runContinuationAsynchronously;
                 _source.SetResult(result);
-                return true;
             }
             else
             {
                 // The stream is already signaled because it got aborted.
-                return false;
+                throw new InvalidOperationException("the stream is already signaled");
             }
         }
 
@@ -82,10 +81,11 @@ namespace ZeroC.Ice
         {
             Debug.Assert(token == _source.Version);
 
+            // Get the result. This will throw if the stream has been aborted. In this case, we let the
+            // exception go through and don't reset the source.
             T result = _source.GetResult(token);
 
-            // Only reset the source if it succeeded. Once the stream got aborted with an exception, we no longer
-            // reset the the source.
+            // Reset the source to allow the stream to be signaled again.
             Debug.Assert(_signaled == 1);
             _source.Reset();
             _signaled = 0;
