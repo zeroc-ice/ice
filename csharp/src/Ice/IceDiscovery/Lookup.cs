@@ -86,7 +86,7 @@ namespace ZeroC.IceDiscovery
             {
                 try
                 {
-                    await reply.FoundAsync(endpoints, isReplicaGroup, cancel: cancel).ConfigureAwait(false);
+                    await reply.FoundAdapterIdAsync(endpoints, isReplicaGroup, cancel: cancel).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -107,21 +107,17 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            (IReadOnlyList<EndpointData> endpoints, string adapterId) = _registryServant.ResolveWellKnownProxy(identity);
-            try
+            string adapterId = _registryServant.ResolveWellKnownProxy(identity);
+            if (adapterId.Length > 0)
             {
-                if (endpoints.Count > 0)
+                try
                 {
-                    await reply.FoundEndpointsAsync(endpoints, cancel: cancel).ConfigureAwait(false);
+                    await reply.FoundWellKnownProxyAsync(adapterId, cancel: cancel).ConfigureAwait(false);
                 }
-                else if (adapterId.Length > 0)
+                catch
                 {
-                    await reply.FoundAdapterIdAsync(adapterId, cancel: cancel).ConfigureAwait(false);
+                    // Ignore.
                 }
-            }
-            catch
-            {
-                // Ignore.
             }
         }
 

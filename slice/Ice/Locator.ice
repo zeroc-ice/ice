@@ -110,8 +110,6 @@ module Ice
         /// belong to a replica group.
         /// @param endpoints A sequence of one or more endpoints. The locator considers an object adapter to be active
         /// after it has registered its endpoints.
-        /// @throws AdapterAlreadyActiveException Thrown if an object adapter with the same adapter ID has already
-        /// registered its endpoints.
         /// @throws AdapterNotFoundException Thrown if the locator only allows registered object adapters to register
         /// their active endpoints and no object adapter with this adapter ID and replica group ID (if applicable) was
         /// registered with the locator.

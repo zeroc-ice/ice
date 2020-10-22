@@ -42,15 +42,7 @@ namespace ZeroC.IceDiscovery
 
             lock (_mutex)
             {
-                try
-                {
-                    _ice2Adapters.Add(adapterId, endpoints);
-                }
-                catch (ArgumentException)
-                {
-                    throw new AdapterAlreadyActiveException($"adapter `{adapterId}' is already active");
-                }
-
+                _ice2Adapters[adapterId] = endpoints;
                 AddAdapterToReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
             }
         }
@@ -73,14 +65,7 @@ namespace ZeroC.IceDiscovery
             {
                 if (proxy != null)
                 {
-                    try
-                    {
-                        _ice1Adapters.Add(adapterId, proxy);
-                    }
-                    catch (ArgumentException)
-                    {
-                        throw new AdapterAlreadyActiveException($"adapter `{adapterId}' is already active");
-                    }
+                    _ice1Adapters[adapterId] = proxy;
                     AddAdapterToReplicaGroup(adapterId, replicaGroupId, Protocol.Ice1);
                 }
                 else
@@ -146,13 +131,13 @@ namespace ZeroC.IceDiscovery
 
         internal IObjectPrx? FindObject(Identity identity)
         {
+            if (identity.Name.Length == 0)
+            {
+                return null;
+            }
+
             lock (_mutex)
             {
-                if (identity.Name.Length == 0)
-                {
-                    return null;
-                }
-
                 foreach ((string replicaGroupId, Protocol protocol) in _replicaGroups.Keys)
                 {
                     if (protocol == Protocol.Ice1)
@@ -214,15 +199,15 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal (IReadOnlyList<EndpointData> Endpoints, string AdapterId) ResolveWellKnownProxy(Identity identity)
+        internal string ResolveWellKnownProxy(Identity identity)
         {
+            if (identity.Name.Length == 0)
+            {
+                return "";
+            }
+
             lock (_mutex)
             {
-                if (identity.Name.Length == 0)
-                {
-                    return (ImmutableArray<EndpointData>.Empty, "");
-                }
-
                 foreach ((string replicaGroupId, Protocol protocol) in _replicaGroups.Keys)
                 {
                     if (protocol == Protocol.Ice2)
@@ -235,7 +220,7 @@ namespace ZeroC.IceDiscovery
                                 identity: identity,
                                 location: ImmutableArray.Create(replicaGroupId));
                             proxy.IcePing();
-                            return (ImmutableArray<EndpointData>.Empty, replicaGroupId);
+                            return replicaGroupId;
                         }
                         catch
                         {
@@ -253,7 +238,7 @@ namespace ZeroC.IceDiscovery
                             identity: identity,
                             location: ImmutableArray.Create(adapterId));
                         proxy.IcePing();
-                        return (ImmutableArray<EndpointData>.Empty, adapterId);
+                        return adapterId;
                     }
                     catch
                     {
@@ -261,7 +246,7 @@ namespace ZeroC.IceDiscovery
                     }
                 }
 
-                return (ImmutableArray<EndpointData>.Empty, "");
+                return "";
             }
         }
 

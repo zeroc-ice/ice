@@ -93,7 +93,7 @@ module IceDiscovery
         /// @param endpoints A sequence of endpoints. Cannot be empty.
         /// @param isReplicaGroup True if the adapter ID provided to the resolveAdapterId call corresponds to a replica
         /// group ID and false otherwise.
-        void found(Ice::EndpointDataSeq endpoints, bool isReplicaGroup);
+        void foundAdapterId(Ice::EndpointDataSeq endpoints, bool isReplicaGroup);
     }
 
     /// Handles the reply or replies to resolveWellKnownProxy calls on {@see Lookup}.
@@ -102,12 +102,7 @@ module IceDiscovery
         /// Provides the adapter ID or replica group ID for an object adapter that hosts the desired well-known object,
         /// in response to a resolveWellKnownProxy call on a Lookup object.
         /// @param adapterId The adapter ID or replica group ID of the object adapter that hosts the object.
-        void foundAdapterId(string adapterId);
-
-        /// Provides the endpoints for an object adapter that hosts the desired well-known object, in response to a
-        /// resolveWellKnownProxy call on a Lookup object.
-        /// @param endpoints A sequence of endpoints. Cannot be empty.
-        void foundEndpoints(Ice::EndpointDataSeq endpoints);
+        void foundWellKnownProxy(string adapterId);
     }
 #endif
 }

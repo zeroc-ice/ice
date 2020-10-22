@@ -145,7 +145,7 @@ namespace ZeroC.IceDiscovery
         {
             using var replyServant = new ResolveWellKnownProxyReply();
 
-            (IReadOnlyList<EndpointData> endpoints, string adapterId) = await InvokeAsync(
+            string adapterId = await InvokeAsync(
                 async (lookup, dummyReply, replyIdentity) =>
                 {
                     try
@@ -166,14 +166,9 @@ namespace ZeroC.IceDiscovery
                 },
                 replyServant.ReplyHandler).ConfigureAwait(false);
 
-            if (endpoints.Count > 0)
-            {
-                return (endpoints, ImmutableArray<string>.Empty);
-            }
-            else
-            {
-                return (endpoints, ImmutableArray.Create(adapterId));
-            }
+            // We never return endpoints
+            return (ImmutableArray<EndpointData>.Empty,
+                    adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
         }
 
         internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter)
@@ -407,7 +402,7 @@ namespace ZeroC.IceDiscovery
 
         public void Dispose() => ReplyHandler.Dispose();
 
-        public void Found(
+        public void FoundAdapterId(
             EndpointData[] endpoints,
             bool isReplicaGroup,
             Current current,
@@ -448,17 +443,15 @@ namespace ZeroC.IceDiscovery
     /// <summary>Servant class that implements the Slice interface ResolveWellKnownProxyReply.</summary>
     internal class ResolveWellKnownProxyReply : IResolveWellKnownProxyReply, IDisposable
     {
-        internal ReplyHandler<(IReadOnlyList<EndpointData>, string)> ReplyHandler { get; }
+        internal ReplyHandler<string> ReplyHandler { get; }
 
         public void Dispose() => ReplyHandler.Dispose();
 
-        public void FoundAdapterId(string adapterId, Current current, CancellationToken cancel) =>
-            ReplyHandler.SetResult((ImmutableArray<EndpointData>.Empty, adapterId));
-        public void FoundEndpoints(EndpointData[] endpoints, Current current, CancellationToken cancel) =>
-            ReplyHandler.SetResult((endpoints, ""));
+        public void FoundWellKnownProxy(string adapterId, Current current, CancellationToken cancel) =>
+            ReplyHandler.SetResult(adapterId);
 
         internal ResolveWellKnownProxyReply() =>
-            ReplyHandler = new (this, () => (ImmutableArray<EndpointData>.Empty, ""));
+            ReplyHandler = new (this, () => "");
     }
 
     // Temporary helper class
