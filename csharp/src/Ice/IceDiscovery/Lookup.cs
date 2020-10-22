@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,9 +37,9 @@ namespace ZeroC.IceDiscovery
                     await reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, cancel: cancel).
                         ConfigureAwait(false);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore.
+                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
                 }
             }
         }
@@ -62,9 +63,9 @@ namespace ZeroC.IceDiscovery
                 {
                     await reply.FoundObjectByIdAsync(id, proxy, cancel: cancel).ConfigureAwait(false);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore.
+                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
                 }
             }
         }
@@ -88,9 +89,9 @@ namespace ZeroC.IceDiscovery
                 {
                     await reply.FoundAdapterIdAsync(endpoints, isReplicaGroup, cancel: cancel).ConfigureAwait(false);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore.
+                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
                 }
             }
         }
@@ -114,9 +115,9 @@ namespace ZeroC.IceDiscovery
                 {
                     await reply.FoundWellKnownProxyAsync(adapterId, cancel: cancel).ConfigureAwait(false);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore.
+                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
                 }
             }
         }
