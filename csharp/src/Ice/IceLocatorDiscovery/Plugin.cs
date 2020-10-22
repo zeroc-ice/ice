@@ -70,9 +70,7 @@ namespace ZeroC.IceLocatorDiscovery
 
             if (_communicator.GetProperty($"{_name}.Locator.Endpoints") == null)
             {
-                // TODO: temporary to use ice1
-                _communicator.SetProperty($"{_name}.Locator.Endpoints", "tcp -h localhost");
-                // _communicator.SetProperty($"{_name}.Locator.AdapterId", Guid.NewGuid().ToString());
+                _communicator.SetProperty($"{_name}.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
             _replyAdapter = _communicator.CreateObjectAdapter(_name + ".Reply");
@@ -95,7 +93,11 @@ namespace ZeroC.IceLocatorDiscovery
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var locatorId = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
             _locatorServant = new Locator(_name, lookupPrx, _communicator, instanceName, voidLocator, locatorReplyPrx);
-            _locator = _locatorAdapter.Add(locatorId, _locatorServant, ILocatorPrx.Factory);
+
+            // TODO: the Clone is a temporary work-around. Locator needs to be re-implemented as a real servant that
+            // remarshals requests using the encoding of the discovered proxy.
+            _locator =
+                _locatorAdapter.Add(locatorId, _locatorServant, ILocatorPrx.Factory).Clone(encoding: Encoding.V11);
             _communicator.DefaultLocator = _locator;
 
             _replyAdapter.Add(lookupReplyId, new LookupReply(_locatorServant));
