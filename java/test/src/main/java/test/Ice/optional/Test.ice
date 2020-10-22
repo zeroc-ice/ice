@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-[[java:package:test.Ice.optional]]
+[[java:package(test.Ice.optional)]]
 
 module Test
 {
@@ -51,9 +51,9 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-[java:type:java.util.ArrayList<SmallStruct>] sequence<SmallStruct> SmallStructList;
+[java:type(java.util.ArrayList<SmallStruct>)] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-[java:type:java.util.ArrayList<FixedStruct>] sequence<FixedStruct> FixedStructList;
+[java:type(java.util.ArrayList<FixedStruct>)] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 
 [java:serializable:test.Ice.optional.SerializableClass] sequence<byte> Serializable;

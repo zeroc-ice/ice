@@ -7,7 +7,7 @@
 #include <Package.ice>
 #include <NoPackage.ice>
 
-[[java:package:test.Ice.packagemd]]
+[[java:package(test.Ice.packagemd)]]
 module Test
 {
 

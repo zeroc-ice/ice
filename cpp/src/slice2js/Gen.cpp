@@ -694,7 +694,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printGeneratedHeader(_jsout, _fileBase + ".ice");
 
     //
-    // Check for global "js:module:ice" metadata. If this is set then we are building Ice.
+    // Check for global "js:module(ice)" metadata. If this is set then we are building Ice.
     //
     bool icejs = module == "ice";
 

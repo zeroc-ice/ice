@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.networkProxy]]
+[[java:package(test.Ice.networkProxy)]]
 module Test
 {
 

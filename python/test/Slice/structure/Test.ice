@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[[cpp:include:list]]
+[[cpp:include(list)]]
 
 module Test
 {

@@ -9,7 +9,7 @@
 //
 // Suppress invalid metadata warnings
 //
-[[suppress-warning:invalid-metadata]]
+[[suppress-warning(invalid-metadata)]]
 
 #include <Ice/BuiltinSequences.ice>
 

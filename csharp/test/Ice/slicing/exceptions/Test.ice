@@ -5,7 +5,7 @@
 #pragma once
 
 [[3.7]]
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Slicing::Exceptions
 {
@@ -46,7 +46,7 @@ class BaseClass
     string bc;
 }
 
-[format:sliced]
+[format(sliced)]
 interface Relay
 {
     void knownPreservedAsBase();
@@ -58,7 +58,7 @@ interface Relay
     void clientPrivateException();
 }
 
-[format:sliced]
+[format(sliced)]
 interface TestIntf
 {
     void baseAsBase();
@@ -77,7 +77,7 @@ interface TestIntf
     void unknownMostDerived1AsKnownIntermediate();
     void unknownMostDerived2AsBase();
 
-    [format:compact] void unknownMostDerived2AsBaseCompact();
+    [format(compact)] void unknownMostDerived2AsBaseCompact();
 
     void knownPreservedAsBase();
     void knownPreservedAsKnownPreserved();

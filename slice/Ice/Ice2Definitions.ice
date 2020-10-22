@@ -2,20 +2,20 @@
 
 #pragma once
 
-[[cpp:dll-export:ICE_API]]
-[[cpp:doxygen:include:Ice/Ice.h]]
-[[cpp:header-ext:h]]
+[[cpp:dll-export(ICE_API)]]
+[[cpp:doxygen:include(Ice/Ice.h)]]
+[[cpp:header-ext(h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Ice]]
+[[python:pkgdir(Ice)]]
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module Ice
 {
     // These definitions help with the encoding of ice2 frames.

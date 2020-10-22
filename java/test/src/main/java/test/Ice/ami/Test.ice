@@ -7,7 +7,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-[[java:package:test.Ice.ami]]
+[[java:package(test.Ice.ami)]]
 module Test
 {
 

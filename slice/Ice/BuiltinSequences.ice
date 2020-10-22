@@ -4,21 +4,21 @@
 
 #pragma once
 
-[[cpp:dll-export:ICE_API]]
-[[cpp:doxygen:include:Ice/Ice.h]]
-[[cpp:header-ext:h]]
+[[cpp:dll-export(ICE_API)]]
+[[cpp:doxygen:include(Ice/Ice.h)]]
+[[cpp:header-ext(h)]]
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
-[[js:module:ice]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Ice]]
+[[python:pkgdir(Ice)]]
 
-[[java:package:com.zeroc]]
+[[java:package(com.zeroc)]]
 
 [[3.7]] // TODO, temporary
 
-[cs:namespace:ZeroC]
+[cs:namespace(ZeroC)]
 module Ice
 {
     /// A sequence of bools.

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[cpp:source-include:Forward.h]]
+[[cpp:source-include(Forward.h)]]
 
 module Test
 {

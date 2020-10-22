@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.scope]]
+[[java:package(test.Ice.scope)]]
 module Test
 {
     struct S

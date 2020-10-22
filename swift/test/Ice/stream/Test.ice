@@ -11,9 +11,9 @@
 //
 // Suppress invalid metadata warnings
 //
-[[suppress-warning:invalid-metadata]]
+[[suppress-warning(invalid-metadata)]]
 
-[[swift:class-resolver-prefix:IceStrem]]
+[[swift:class-resolver-prefix(IceStream)]]
 module Test
 {
 
@@ -127,7 +127,7 @@ module Sub
 }
 }
 
-[swift:module:Test:Test2]
+[swift:module(Test:Test2)]
 module Test2::Sub2
 {
     enum NestedEnum2

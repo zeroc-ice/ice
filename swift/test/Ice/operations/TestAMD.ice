@@ -8,7 +8,7 @@
 
 #include <Ice/Context.ice>
 
-[[swift:class-resolver-prefix:IceOperationsAMD]]
+[[swift:class-resolver-prefix(IceOperationsAMD)]]
 
 module Test
 {
@@ -354,7 +354,7 @@ const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194
 // Test proxy inheritance for class with operations
 // see: https://github.com/zeroc-ice/ice/issues/406
 //
-[swift:module:Test:M]
+[swift:module(Test:M)]
 module M
 {
     class A

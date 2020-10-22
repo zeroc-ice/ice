@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.interceptor]]
+[[java:package(test.Ice.interceptor)]]
 module Test
 {
 

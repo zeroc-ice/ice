@@ -158,7 +158,7 @@ module Test
     }
 }
 
-[swift:module:Test:Inner]
+[swift:module(Test:Inner)]
 module Inner::Test::Inner2
 {
     interface I
