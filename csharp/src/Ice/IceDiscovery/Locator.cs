@@ -244,7 +244,6 @@ namespace ZeroC.IceDiscovery
             Identity replyIdentity =
                 _replyAdapter.AddWithUUID(replyHandler.Servant, ILocatorRegistryPrx.Factory).Identity;
 
-            Task<TResult> replyTask = replyHandler.Task;
             try
             {
                 for (int i = 0; i < _retryCount; ++i)
@@ -271,7 +270,7 @@ namespace ZeroC.IceDiscovery
                         Task.Delay(_timeout, replyHandler.CancellationToken)).ConfigureAwait(false);
                     if (t == replyHandler.Task)
                     {
-                        return await replyTask.ConfigureAwait(false);
+                        return await replyHandler.Task.ConfigureAwait(false);
                     }
                     else if (t.IsCanceled)
                     {
