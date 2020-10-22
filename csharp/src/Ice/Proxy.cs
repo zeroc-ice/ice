@@ -488,7 +488,7 @@ namespace ZeroC.Ice
                                 if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
                                     reference.Communicator.Logger.Trace(
-                                        reference.Communicator.TraceLevels.RetryCategory,
+                                        TraceLevels.RetryCategory,
                                         $"excluding connector\n{connection.Connector}");
                                 }
                             }
@@ -568,8 +568,7 @@ namespace ZeroC.Ice
                 {
                     sb.Append("\nexception = remote exception");
                 }
-                proxy.IceReference.Communicator.Logger.Trace(proxy.IceReference.Communicator.TraceLevels.RetryCategory,
-                                                             sb.ToString());
+                proxy.IceReference.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
 

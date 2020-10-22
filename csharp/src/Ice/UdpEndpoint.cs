@@ -43,7 +43,7 @@ namespace ZeroC.Ice
             {
                 if (Communicator.TraceLevels.Transport >= 2)
                 {
-                    Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
+                    Communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"attempting to bind to {TransportName} socket\n{transceiver}");
                 }
                 Endpoint endpoint = transceiver.Bind(this);

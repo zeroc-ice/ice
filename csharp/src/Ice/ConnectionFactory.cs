@@ -138,7 +138,7 @@ namespace ZeroC.Ice
                     TraceLevels traceLevels = _communicator.TraceLevels;
                     if (traceLevels.Transport >= 2)
                     {
-                        _communicator.Logger.Trace(traceLevels.TransportCategory, last ?
+                        _communicator.Logger.Trace(TraceLevels.TransportCategory, last ?
                             $"couldn't resolve endpoint host and no more endpoints to try\n{ex}" :
                             $"couldn't resolve endpoint host, trying next endpoint\n{ex}");
                     }
@@ -386,7 +386,7 @@ namespace ZeroC.Ice
 
                         if (_communicator.TraceLevels.Transport >= 2)
                         {
-                            _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                            _communicator.Logger.Trace(TraceLevels.TransportCategory,
                                 $"trying to establish {endpoint.TransportName} connection to {connector}");
                         }
 
@@ -420,7 +420,7 @@ namespace ZeroC.Ice
 
                         if (traceLevels.Transport >= 2)
                         {
-                            _communicator.Logger.Trace(traceLevels.TransportCategory,
+                            _communicator.Logger.Trace(TraceLevels.TransportCategory,
                                 $"failed to establish {endpoint.TransportName} connection to {connector} " +
                                 (last && !hasMore ?
                                     $"and no more endpoints to try\n{ex}" :
@@ -521,7 +521,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Transport >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
             }
 
@@ -572,7 +572,7 @@ namespace ZeroC.Ice
 
             if (_communicator.TraceLevels.Transport >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"listening for {Endpoint.TransportName} connections\n{_acceptor.ToDetailedString()}");
             }
         }
@@ -581,7 +581,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Transport >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"accepting {Endpoint.TransportName} connections at {_acceptor}");
             }
 
@@ -621,7 +621,7 @@ namespace ZeroC.Ice
 
                     if (_communicator.TraceLevels.Transport >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                        _communicator.Logger.Trace(TraceLevels.TransportCategory,
                             $"trying to accept {Endpoint.TransportName} connection\n{connection}");
                     }
 

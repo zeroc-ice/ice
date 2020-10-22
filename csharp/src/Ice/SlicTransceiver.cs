@@ -520,7 +520,7 @@ namespace ZeroC.Ice
             s.Append('\n');
             s.Append(Underlying.ToString());
 
-            Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
+            Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
         }
 
         private async ValueTask<(SlicDefinitions.FrameType, ArraySegment<byte>)> ReceiveFrameAsync(

@@ -90,7 +90,8 @@ namespace ZeroC.Ice
             return response;
         }
 
-        /// <summary>Constructs an outgoing response frame from the given incoming response frame.</summary>
+        /// <summary>Constructs an outgoing response frame from the given incoming response frame. The new response will
+        /// use the protocol of the <paramref name="request"/> and the encoding of <paramref name="response"/>.</summary>
         /// <param name="request">The request for which this constructor creates a response.</param>
         /// <param name="response">The incoming response used to construct the new outgoing response frame.</param>
         /// <param name="forwardBinaryContext">When true (the default), the new frame uses the incoming response frame's
@@ -142,14 +143,17 @@ namespace ZeroC.Ice
                     {
                         Debug.Assert(response.Protocol == Protocol.Ice2);
 
-                        // Read the reply status byte immediately after the encapsulation header; + 2 corresponds to the
-                        // encoding in the header.
-                        byte b = response.Payload[1 + sizeLength + 2];
-                        ReplyStatus replyStatus = b.AsReplyStatus();
+                        // Read the reply status byte located immediately after the encapsulation header; +1
+                        // corresponds to the result type and +2 corresponds to the encoding in the encapsulation
+                        // header.
+                        ReplyStatus replyStatus = response.Payload[1 + sizeLength + 2].AsReplyStatus();
 
-                        buffer[0] = b;
+                        buffer[0] = (byte)replyStatus;
                         if (replyStatus == ReplyStatus.UserException)
                         {
+                            // We are forwarding a user exception encoded using 1.1 and received over ice2 to ice1.
+                            // The size of the new encapsulation is the size of the payload -1 byte of the ice2 result
+                            // type, -1 byte of the reply status, sizeLength is not included in the encapsulation size.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
                                                                       EncapsulationStart,
@@ -161,8 +165,13 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            Data[0] = Data[0].Slice(0, 1);
+                            // We are forwarding a system exception encoded using 1.1 and received over ice2 to ice1.
+                            Data[0] = Data[0].Slice(0, 1); // Just the 1.1 reply status
                         }
+
+                        // We need to get rid of the extra reply status byte and the start of the encapsulation added
+                        // when 1.1 exceptions are marshaled using ice2.
+
                         // 1 for the result type in the response, then sizeLength + 2 to skip the encapsulation header,
                         // then + 1 to skip the reply status byte
                         Data.Add(response.Payload.Slice(1 + sizeLength + 2 + 1));
@@ -174,11 +183,14 @@ namespace ZeroC.Ice
                         var replyStatus = (ReplyStatus)response.Payload[0];
                         if (replyStatus == ReplyStatus.UserException)
                         {
+                            // We are forwarding a user exception encoded using 1.1 and received over ice1 to ice2. We
+                            // create an ice2 encapsulation and write the 1.1 reply status followed by the 1.1 encoded
+                            // data, sizeLength is not included in the encapsulation size.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
                                                                       EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
-                                                                      response.Payload.Count - 1 - sizeLength + 1,
+                                                                      response.Payload.Count - sizeLength,
                                                                       Encoding);
                             buffer[tail.Offset++] = (byte)replyStatus;
                             Data[0] = Data[0].Slice(0, tail.Offset);
@@ -186,11 +198,15 @@ namespace ZeroC.Ice
                         }
                         else
                         {
+                            // We are forwarding a system exception encoded using 1.1 and received over ice1 to ice2.
+                            // We create an ice2 encapsulation and write the 1.1 encoded exception in it (which
+                            // includes the 1.1 reply status, followed by the exception). The size of the new
+                            // encapsulation is the size of the payload +2 bytes for the encapsulations encoding.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
                                                                       EncapsulationStart,
                                                                       Ice2Definitions.Encoding,
-                                                                      response.Payload.Count + 2,
+                                                                      response.Payload.Count + 2, // +2 for the encoding
                                                                       Encoding);
                             Data[0] = Data[0].Slice(0, tail.Offset);
                             Data.Add(response.Payload);
@@ -199,6 +215,9 @@ namespace ZeroC.Ice
                 }
                 else
                 {
+                    // In this case we always have an encapsulation it is either an ice1 response with result type
+                    // success or an ice2 response that always uses an encapsulation. We just need to rewrite the
+                    // encapsulation header with the new encoding and keep the rest of the encapsulation data as is.
                     buffer[0] = (byte)response.ResultType;
                     OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Data,
@@ -210,7 +229,9 @@ namespace ZeroC.Ice
                     Data.Add(response.Payload.Slice(1 + sizeLength + 2));
                 }
 
-                // There is never a binary context in this case.
+                // When forwarding responses using different protocols there is never a binary context. Either the
+                // source response uses ice1 and does not carry a binary context or the source response uses ice2 and
+                // its binary context cannot be included in the forwarded ice1 response.
                 Debug.Assert(Data.Count == 2);
                 PayloadEnd = new OutputStream.Position(1, Data[1].Count);
             }
