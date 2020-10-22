@@ -1,5 +1,5 @@
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Assemblies::Core
 {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.IceGrid.simple]]
+[[java:package(test.IceGrid.simple)]]
 module Test
 {
 

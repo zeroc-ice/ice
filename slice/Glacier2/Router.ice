@@ -4,21 +4,21 @@
 
 #pragma once
 
-[[cpp:dll-export:GLACIER2_API]]
-[[cpp:doxygen:include:Glacier2/Glacier2.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:Glacier2/Config.h]]
+[[cpp:dll-export(GLACIER2_API)]]
+[[cpp:doxygen:include(Glacier2/Glacier2.h)]]
+[[cpp:header-ext(h)]]
+[[cpp:include(Glacier2/Config.h)]]
 
-[[js:module:ice]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Glacier2]]
+[[python:pkgdir(Glacier2)]]
 
 #include <Ice/Router.ice>
 #include <Glacier2/Session.ice>
 #include <Glacier2/PermissionsVerifier.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 /// Glacier2 is a firewall solution for Ice. Glacier2 authenticates
 /// and filters client requests and allows callbacks to the client in a
 /// secure fashion. In combination with IceSSL, Glacier2 provides a
@@ -74,7 +74,7 @@ module Glacier2
         ///
         /// @throws CannotCreateSessionException Raised if the session
         /// cannot be created.
-        [amd] [format:sliced] Session* createSession(string userId, string password)
+        [amd] [format(sliced)] Session* createSession(string userId, string password)
             throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Create a per-client session with the router. The user is
@@ -102,7 +102,7 @@ module Glacier2
         ///
         /// @throws CannotCreateSessionException Raised if the session
         /// cannot be created.
-        [amd] [format:sliced] Session* createSessionFromSecureConnection()
+        [amd] [format(sliced)] Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 
         /// Keep the calling client's session with this router alive.

@@ -4,18 +4,18 @@
 
 #pragma once
 
-[[cpp:dll-export:GLACIER2_API]]
-[[cpp:doxygen:include:Glacier2/Glacier2.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:Glacier2/Config.h]]
+[[cpp:dll-export(GLACIER2_API)]]
+[[cpp:doxygen:include(Glacier2/Glacier2.h)]]
+[[cpp:header-ext(h)]]
+[[cpp:include(Glacier2/Config.h)]]
 
-[[js:module:ice]]
-[[python:pkgdir:Glacier2]]
+[[js:module(ice)]]
+[[python:pkgdir(Glacier2)]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module Glacier2
 {
     /// Information taken from an SSL connection used for permissions

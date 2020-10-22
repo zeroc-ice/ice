@@ -94,7 +94,7 @@ exception PreservedException
 {
 }
 
-[amd] [format:sliced]
+[amd] [format(sliced)]
 interface TestIntf
 {
     Object SBaseAsObject();
@@ -104,7 +104,7 @@ interface TestIntf
 
     SBase SBSUnknownDerivedAsSBase();
 
-    [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
+    [format(compact)] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
     void checkSUnknown(Object o);

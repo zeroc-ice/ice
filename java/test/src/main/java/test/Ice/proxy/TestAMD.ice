@@ -6,7 +6,7 @@
 
 #include<Ice/Context.ice>
 
-[[java:package:test.Ice.proxy.AMD]]
+[[java:package(test.Ice.proxy.AMD)]]
 module Test
 {
 

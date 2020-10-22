@@ -13,7 +13,7 @@ public class Client: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
-        initData.classResolverPrefix = ["IceStrem"]
+        initData.classResolverPrefix = ["IceStream"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

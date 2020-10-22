@@ -5,7 +5,7 @@
 #pragma once
 
 [[3.7]]
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 #include <Ice/Context.ice>
 

@@ -7,7 +7,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::AMI
 {

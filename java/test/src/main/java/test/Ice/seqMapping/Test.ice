@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.seqMapping]]
+[[java:package(test.Ice.seqMapping)]]
 module Test
 {
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.threadPoolPriority]]
+[[java:package(test.Ice.threadPoolPriority)]]
 module Test
 {
 
