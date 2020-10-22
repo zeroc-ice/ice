@@ -184,8 +184,7 @@ namespace ZeroC.IceDiscovery
 
             Communicator communicator = replyAdapter.Communicator;
 
-            _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ??
-                TimeSpan.FromMilliseconds(300);
+            _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
@@ -380,7 +379,7 @@ namespace ZeroC.IceDiscovery
         }
 
         internal LookupReply() =>
-            ReplyHandler = new ReplyHandler<IObjectPrx?>(this, () => null, CollectReplicaReplies);
+            ReplyHandler = new (this, () => null, CollectReplicaReplies);
 
         private IObjectPrx? CollectReplicaReplies()
         {

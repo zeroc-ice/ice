@@ -277,7 +277,7 @@ namespace ZeroC.Ice
             sb.Append(identity);
             sb.Append("\nprotocol = ");
             sb.Append(protocol.GetName());
-            sb.Append("location = ");
+            sb.Append("\nlocation = ");
             sb.Append(location.ToLocationString());
             communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
@@ -290,6 +290,7 @@ namespace ZeroC.Ice
             sb.Append(newLocation.ToLocationString());
             communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
+
         private static void TraceInvalid(Location location, Reference invalidReference)
         {
             var sb = new System.Text.StringBuilder("locator returned an invalid proxy when resolving location ");
@@ -361,17 +362,14 @@ namespace ZeroC.Ice
             }
         }
 
-        private (EndpointList Endpoints, Location Location, bool Cached)
-        GetResolvedLocationFromCache(
+        private (EndpointList Endpoints, Location Location, bool Cached) GetResolvedLocationFromCache(
             Location location,
             Protocol protocol,
             TimeSpan ttl)
         {
             if (ttl != TimeSpan.Zero && _locationCache.TryGetValue(
                 (location, protocol),
-                out (TimeSpan InsertionTime,
-                    EndpointList Endpoints,
-                    Location Location) entry))
+                out (TimeSpan InsertionTime, EndpointList Endpoints, Location Location) entry))
             {
                 return (entry.Endpoints, entry.Location, CheckTTL(entry.InsertionTime, ttl));
             }
@@ -475,7 +473,7 @@ namespace ZeroC.Ice
                     {
                         EndpointData[] dataArray;
 
-                        // This will throw OperationtNotExistException if it's an old Locator, and that's fine.
+                        // This will throw OperationNotExistException if it's an old Locator, and that's fine.
                         (dataArray, newLocation) = await Locator.ResolveLocationAsync(
                             location,
                             cancel: CancellationToken.None).ConfigureAwait(false);
@@ -635,9 +633,9 @@ namespace ZeroC.Ice
         private sealed class LocationComparer : IEqualityComparer<(Location Location, Protocol Protocol)>
         {
             public bool Equals(
-                (Location Location, Protocol Protocol) x,
-                (Location Location, Protocol Protocol) y) =>
-                x.Location.SequenceEqual(y.Location) && x.Protocol == y.Protocol;
+                (Location Location, Protocol Protocol) lhs,
+                (Location Location, Protocol Protocol) rhs) =>
+                lhs.Location.SequenceEqual(rhs.Location) && lhs.Protocol == rhs.Protocol;
 
             public int GetHashCode((Location Location, Protocol Protocol) obj)
             {

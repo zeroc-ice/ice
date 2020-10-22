@@ -33,7 +33,8 @@ namespace ZeroC.IceDiscovery
                 // Reply to the multicast request using the given proxy.
                 try
                 {
-                    await reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, cancel: cancel);
+                    await reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, cancel: cancel).
+                        ConfigureAwait(false);
                 }
                 catch
                 {
@@ -59,7 +60,7 @@ namespace ZeroC.IceDiscovery
                 // Reply to the multicast request using the given proxy.
                 try
                 {
-                    await reply.FoundObjectByIdAsync(id, proxy, cancel: cancel);
+                    await reply.FoundObjectByIdAsync(id, proxy, cancel: cancel).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -85,7 +86,7 @@ namespace ZeroC.IceDiscovery
             {
                 try
                 {
-                    await reply.FoundAsync(endpoints, isReplicaGroup, cancel: cancel);
+                    await reply.FoundAsync(endpoints, isReplicaGroup, cancel: cancel).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -111,11 +112,11 @@ namespace ZeroC.IceDiscovery
             {
                 if (endpoints.Count > 0)
                 {
-                    await reply.FoundEndpointsAsync(endpoints, cancel: cancel);
+                    await reply.FoundEndpointsAsync(endpoints, cancel: cancel).ConfigureAwait(false);
                 }
                 else if (adapterId.Length > 0)
                 {
-                    await reply.FoundAdapterIdAsync(adapterId, cancel: cancel);
+                    await reply.FoundAdapterIdAsync(adapterId, cancel: cancel).ConfigureAwait(false);
                 }
             }
             catch
