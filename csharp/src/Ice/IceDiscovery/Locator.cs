@@ -36,14 +36,14 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new LookupReply();
+            using var replyServant = new LookupReply(_replyAdapter);
             return await InvokeAsync(
-                async (lookup, dummyReply, replyIdentity) =>
+                async (lookup, dummyReply) =>
                 {
                     try
                     {
                         ILookupReplyPrx lookupReply =
-                            dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyIdentity);
+                            dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
 
                         await lookup.FindAdapterByIdAsync(_domainId,
                                                           adapterId,
@@ -57,7 +57,7 @@ namespace ZeroC.IceDiscovery
                             $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}'", ex);
                     }
                 },
-                replyServant.ReplyHandler).ConfigureAwait(false);
+                replyServant).ConfigureAwait(false);
 
         }
 
@@ -66,14 +66,14 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new LookupReply();
+            using var replyServant = new LookupReply(_replyAdapter);
             return await InvokeAsync(
-                async (lookup, dummyReply, replyIdentity) =>
+                async (lookup, dummyReply) =>
                 {
                     try
                     {
                         ILookupReplyPrx lookupReply =
-                            dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyIdentity);
+                            dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
 
                         await lookup.FindObjectByIdAsync(_domainId,
                                                          identity,
@@ -86,7 +86,7 @@ namespace ZeroC.IceDiscovery
                             $"failed to lookup object `{identity}' with lookup proxy `{_lookup}'", ex);
                     }
                 },
-                replyServant.ReplyHandler).ConfigureAwait(false);
+                replyServant).ConfigureAwait(false);
         }
 
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
@@ -104,15 +104,15 @@ namespace ZeroC.IceDiscovery
 
             string adapterId = location[0];
 
-            using var replyServant = new ResolveAdapterIdReply();
+            using var replyServant = new ResolveAdapterIdReply(_replyAdapter);
 
             IReadOnlyList<EndpointData> endpoints = await InvokeAsync(
-                async (lookup, dummyReply, replyIdentity) =>
+                async (lookup, dummyReply) =>
                 {
                     try
                     {
                         IResolveAdapterIdReplyPrx reply =
-                            dummyReply.Clone(IResolveAdapterIdReplyPrx.Factory, identity: replyIdentity);
+                            dummyReply.Clone(IResolveAdapterIdReplyPrx.Factory, identity: replyServant.Identity);
 
                         await lookup.ResolveAdapterIdAsync(_domainId,
                                                             adapterId,
@@ -126,7 +126,7 @@ namespace ZeroC.IceDiscovery
                             $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}'", ex);
                     }
                 },
-                replyServant.ReplyHandler).ConfigureAwait(false);
+                replyServant).ConfigureAwait(false);
 
             if (endpoints.Count > 0)
             {
@@ -143,15 +143,15 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new ResolveWellKnownProxyReply();
+            using var replyServant = new ResolveWellKnownProxyReply(_replyAdapter);
 
             string adapterId = await InvokeAsync(
-                async (lookup, dummyReply, replyIdentity) =>
+                async (lookup, dummyReply) =>
                 {
                     try
                     {
                         IResolveWellKnownProxyReplyPrx reply =
-                            dummyReply.Clone(IResolveWellKnownProxyReplyPrx.Factory, identity: replyIdentity);
+                            dummyReply.Clone(IResolveWellKnownProxyReplyPrx.Factory, identity: replyServant.Identity);
 
                         await lookup.ResolveWellKnownProxyAsync(_domainId,
                                                                 identity,
@@ -164,7 +164,7 @@ namespace ZeroC.IceDiscovery
                             $"failed to lookup object `{identity}' with lookup proxy `{_lookup}'", ex);
                     }
                 },
-                replyServant.ReplyHandler).ConfigureAwait(false);
+                replyServant).ConfigureAwait(false);
 
             // We never return endpoints
             return (ImmutableArray<EndpointData>.Empty,
@@ -231,94 +231,77 @@ namespace ZeroC.IceDiscovery
         /// <param name="find">A delegate that performs the remote call. The first two parameters correspond to an
         /// entry in the _lookups dictionary, and the third parameter is the unique identity of the reply object
         /// registered with the _replyAdapter.</param>
-        /// <param name="replyHandler">The reply handler.</param>
+        /// <param name="replyServant">The reply servant.</param>
         private async Task<TResult> InvokeAsync<TResult>(
-            Func<ILookupPrx, IObjectPrx, Identity, Task> find,
-            ReplyHandler<TResult> replyHandler)
+            Func<ILookupPrx, IObjectPrx, Task> find,
+            ReplyServant<TResult> replyServant)
         {
-            Identity replyIdentity =
-                _replyAdapter.AddWithUUID(replyHandler.Servant, ILocatorRegistryPrx.Factory).Identity;
-
-            try
+            for (int i = 0; i < _retryCount; ++i)
             {
-                for (int i = 0; i < _retryCount; ++i)
+                TimeSpan start = Time.Elapsed;
+                int failureCount = 0;
+                foreach ((ILookupPrx lookup, IObjectPrx dummyReply) in _lookups)
                 {
-                    TimeSpan start = Time.Elapsed;
-                    int failureCount = 0;
-                    foreach ((ILookupPrx lookup, IObjectPrx dummyReply) in _lookups)
+                    try
                     {
-                        try
+                        await find(lookup, dummyReply);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (++failureCount == _lookups.Count)
                         {
-                            await find(lookup, dummyReply, replyIdentity);
-                        }
-                        catch (Exception ex)
-                        {
-                            if (++failureCount == _lookups.Count)
-                            {
-                                _replyAdapter.Communicator.Logger.Warning(ex.ToString());
-                                replyHandler.SetEmptyResult();
-                            }
+                            _replyAdapter.Communicator.Logger.Warning(ex.ToString());
+                            replyServant.SetEmptyResult();
                         }
                     }
-
-                    Task? t = await Task.WhenAny(replyHandler.Task,
-                        Task.Delay(_timeout, replyHandler.CancellationToken)).ConfigureAwait(false);
-                    if (t == replyHandler.Task)
-                    {
-                        return await replyHandler.Task.ConfigureAwait(false);
-                    }
-                    else if (t.IsCanceled)
-                    {
-                        // If the timeout was canceled we delay the completion of the request to give a chance to other
-                        // members of this replica group to reply
-                        return await replyHandler.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier)
-                            .ConfigureAwait(false);
-                    }
-                    // else timeout, so we retry until _retryCount
                 }
-                replyHandler.SetEmptyResult(); // Timeout
-                return await replyHandler.Task.ConfigureAwait(false);
+
+                Task? t = await Task.WhenAny(replyServant.Task,
+                    Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
+                if (t == replyServant.Task)
+                {
+                    return await replyServant.Task.ConfigureAwait(false);
+                }
+                else if (t.IsCanceled)
+                {
+                    // If the timeout was canceled we delay the completion of the request to give a chance to other
+                    // members of this replica group to reply
+                    return await replyServant.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier).
+                        ConfigureAwait(false);
+                }
+                // else timeout, so we retry until _retryCount
             }
-            finally
-            {
-                _replyAdapter.Remove(replyIdentity);
-            }
+
+            replyServant.SetEmptyResult(); // Timeout
+            return await replyServant.Task.ConfigureAwait(false);
         }
     }
 
-    /// <summary>Helps collect / gather the reply(ies) to a lookup request.</summary>
-    internal sealed class ReplyHandler<TResult> : IDisposable
+    /// <summary>The base class of all Reply servant that helps collect / gather the reply(ies) to a lookup reques.
+    /// </summary>
+    internal class ReplyServant<TResult> : IObject, IDisposable
     {
         internal CancellationToken CancellationToken => _cancellationSource.Token;
+        internal Identity Identity { get; }
+
         internal Task<TResult> Task => _completionSource.Task;
-        internal IObject Servant { get; }
 
         private readonly CancellationTokenSource _cancellationSource;
         private readonly TaskCompletionSource<TResult> _completionSource;
-
         private readonly TResult _emptyResult;
-        private readonly Func<TResult>? _replicaReplyCollector;
 
-        public void Dispose() => _cancellationSource.Dispose();
+        private readonly ObjectAdapter _replyAdapter;
 
-        internal ReplyHandler(IObject servant, TResult emptyResult, Func<TResult>? replicaReplyCollector = null)
+        public void Dispose()
         {
-            Servant = servant;
-            _cancellationSource = new CancellationTokenSource();
-            _completionSource = new TaskCompletionSource<TResult>();
-            _emptyResult = emptyResult;
-            _replicaReplyCollector = replicaReplyCollector;
+            _cancellationSource.Dispose();
+            _replyAdapter.Remove(Identity);
         }
 
-        internal void Cancel() => _cancellationSource.Cancel();
-
         internal void SetEmptyResult() => _completionSource.SetResult(_emptyResult);
-        internal void SetResult(TResult result) => _completionSource.SetResult(result);
 
         internal async Task<TResult> WaitForReplicaGroupRepliesAsync(TimeSpan start, int latencyMultiplier)
         {
-            Debug.Assert(_replicaReplyCollector != null);
-
             // This method is called by InvokeAsync after the first reply from a replica group to wait for additional
             // replies from the replica group.
             TimeSpan latency = (Time.Elapsed - start) * latencyMultiplier;
@@ -328,23 +311,39 @@ namespace ZeroC.IceDiscovery
             }
             await System.Threading.Tasks.Task.Delay(latency);
 
-            SetResult(_replicaReplyCollector());
+            SetResult(CollectReplicaReplies());
             return await Task;
         }
+
+        private protected ReplyServant(TResult emptyResult, ObjectAdapter replyAdapter)
+        {
+            Identity = replyAdapter.AddWithUUID(this, IObjectPrx.Factory).Identity;
+
+            _cancellationSource = new CancellationTokenSource();
+            _completionSource = new TaskCompletionSource<TResult>();
+            _emptyResult = emptyResult;
+            _replyAdapter = replyAdapter;
+        }
+
+        private protected void Cancel() => _cancellationSource.Cancel();
+
+        private protected virtual TResult CollectReplicaReplies()
+        {
+            Debug.Assert(false); // must be overriden if called by WaitForReplicaGroupRepliesAsync
+            return _emptyResult;
+        }
+
+        private protected void SetResult(TResult result) => _completionSource.SetResult(result);
     }
 
     /// <summary>Servant class that implements the Slice interface LookupReply.</summary>
-    internal class LookupReply : ILookupReply, IDisposable
+    internal sealed class LookupReply : ReplyServant<IObjectPrx?>, ILookupReply
     {
-        internal ReplyHandler<IObjectPrx?> ReplyHandler { get; }
-
         private readonly object _mutex = new object();
         private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
 
-        public void Dispose() => ReplyHandler.Dispose();
-
         public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
-            ReplyHandler.SetResult(proxy);
+            SetResult(proxy);
 
         public void FoundAdapterById(
             string adapterId,
@@ -362,20 +361,22 @@ namespace ZeroC.IceDiscovery
                     {
                         // Cancel WhenAny and let InvokeAsync wait for additional replies from the replica group, and
                         // later call CollectReplicaReplies.
-                        ReplyHandler.Cancel();
+                        Cancel();
                     }
                 }
             }
             else
             {
-                ReplyHandler.SetResult(proxy);
+                SetResult(proxy);
             }
         }
 
-        internal LookupReply() =>
-            ReplyHandler = new (this, null, CollectReplicaReplies);
+        internal LookupReply(ObjectAdapter replyAdapter)
+            : base(emptyResult: null, replyAdapter)
+        {
+        }
 
-        private IObjectPrx? CollectReplicaReplies()
+        private protected override IObjectPrx? CollectReplicaReplies()
         {
             lock (_mutex)
             {
@@ -392,15 +393,10 @@ namespace ZeroC.IceDiscovery
     }
 
     /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
-    internal class ResolveAdapterIdReply : IResolveAdapterIdReply, IDisposable
+    internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
     {
-        internal ReplyHandler<IReadOnlyList<EndpointData>> ReplyHandler { get; }
-
         private readonly object _mutex = new object();
-
         private readonly HashSet<EndpointData> _endpointDataSet = new (EndpointDataComparer.Instance);
-
-        public void Dispose() => ReplyHandler.Dispose();
 
         public void FoundAdapterId(
             EndpointData[] endpoints,
@@ -417,20 +413,22 @@ namespace ZeroC.IceDiscovery
                     _endpointDataSet.UnionWith(endpoints);
                     if (firstReply)
                     {
-                        ReplyHandler.Cancel();
+                        Cancel();
                     }
                 }
             }
             else
             {
-                ReplyHandler.SetResult(endpoints);
+                SetResult(endpoints);
             }
         }
 
-        internal ResolveAdapterIdReply() =>
-            ReplyHandler = new (this, ImmutableArray<EndpointData>.Empty, CollectReplicaReplies);
+        internal ResolveAdapterIdReply(ObjectAdapter replyAdapter)
+            : base(ImmutableArray<EndpointData>.Empty, replyAdapter)
+        {
+        }
 
-        private IReadOnlyList<EndpointData> CollectReplicaReplies()
+        private protected override IReadOnlyList<EndpointData> CollectReplicaReplies()
         {
             lock (_mutex)
             {
@@ -441,17 +439,15 @@ namespace ZeroC.IceDiscovery
     }
 
     /// <summary>Servant class that implements the Slice interface ResolveWellKnownProxyReply.</summary>
-    internal class ResolveWellKnownProxyReply : IResolveWellKnownProxyReply, IDisposable
+    internal class ResolveWellKnownProxyReply : ReplyServant<string>, IResolveWellKnownProxyReply
     {
-        internal ReplyHandler<string> ReplyHandler { get; }
-
-        public void Dispose() => ReplyHandler.Dispose();
-
         public void FoundWellKnownProxy(string adapterId, Current current, CancellationToken cancel) =>
-            ReplyHandler.SetResult(adapterId);
+            SetResult(adapterId);
 
-        internal ResolveWellKnownProxyReply() =>
-            ReplyHandler = new (this, "");
+        internal ResolveWellKnownProxyReply(ObjectAdapter replyAdapter)
+            : base(emptyResult: "", replyAdapter)
+        {
+        }
     }
 
     // Temporary helper class
