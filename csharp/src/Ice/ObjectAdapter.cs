@@ -1174,10 +1174,10 @@ namespace ZeroC.Ice
                 {
                     if (proxy != null)
                     {
-                        List<EndpointData> endpointDataList = proxy.Endpoints.Select(e => e.Data).ToList();
-                        await locatorRegistry.RegisterAdapterEndpointsAsync(_id,
-                                                                            _replicaGroupId,
-                                                                            endpointDataList).ConfigureAwait(false);
+                        await locatorRegistry.RegisterAdapterEndpointsAsync(
+                            _id,
+                            _replicaGroupId,
+                            proxy.Endpoints.ToEndpointDataList()).ConfigureAwait(false);
                     }
                     else
                     {

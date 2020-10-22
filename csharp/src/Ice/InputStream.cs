@@ -1127,7 +1127,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                endpoint = (new EndpointData(this)).ToEndpoint(Communicator, protocol);
+                endpoint = new EndpointData(this).ToEndpoint(Communicator, protocol);
             }
 
             return endpoint;

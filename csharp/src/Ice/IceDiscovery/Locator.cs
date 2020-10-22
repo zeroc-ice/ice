@@ -296,12 +296,12 @@ namespace ZeroC.IceDiscovery
         private readonly CancellationTokenSource _cancellationSource;
         private readonly TaskCompletionSource<TResult> _completionSource;
 
-        private readonly Func<TResult> _emptyResult;
+        private readonly TResult _emptyResult;
         private readonly Func<TResult>? _replicaReplyCollector;
 
         public void Dispose() => _cancellationSource.Dispose();
 
-        internal ReplyHandler(IObject servant, Func<TResult> emptyResult, Func<TResult>? replicaReplyCollector = null)
+        internal ReplyHandler(IObject servant, TResult emptyResult, Func<TResult>? replicaReplyCollector = null)
         {
             Servant = servant;
             _cancellationSource = new CancellationTokenSource();
@@ -312,7 +312,7 @@ namespace ZeroC.IceDiscovery
 
         internal void Cancel() => _cancellationSource.Cancel();
 
-        internal void SetEmptyResult() => _completionSource.SetResult(_emptyResult());
+        internal void SetEmptyResult() => _completionSource.SetResult(_emptyResult);
         internal void SetResult(TResult result) => _completionSource.SetResult(result);
 
         internal async Task<TResult> WaitForReplicaGroupRepliesAsync(TimeSpan start, int latencyMultiplier)
@@ -373,7 +373,7 @@ namespace ZeroC.IceDiscovery
         }
 
         internal LookupReply() =>
-            ReplyHandler = new (this, () => null, CollectReplicaReplies);
+            ReplyHandler = new (this, null, CollectReplicaReplies);
 
         private IObjectPrx? CollectReplicaReplies()
         {
@@ -428,7 +428,7 @@ namespace ZeroC.IceDiscovery
         }
 
         internal ResolveAdapterIdReply() =>
-            ReplyHandler = new (this, () => ImmutableArray<EndpointData>.Empty, CollectReplicaReplies);
+            ReplyHandler = new (this, ImmutableArray<EndpointData>.Empty, CollectReplicaReplies);
 
         private IReadOnlyList<EndpointData> CollectReplicaReplies()
         {
@@ -451,7 +451,7 @@ namespace ZeroC.IceDiscovery
             ReplyHandler.SetResult(adapterId);
 
         internal ResolveWellKnownProxyReply() =>
-            ReplyHandler = new (this, () => "");
+            ReplyHandler = new (this, "");
     }
 
     // Temporary helper class

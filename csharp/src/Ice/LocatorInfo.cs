@@ -79,11 +79,11 @@ namespace ZeroC.Ice
             Location newLocation = ImmutableArray<string>.Empty;
             bool cached = false;
 
-            Location locationToResolve;
+            Location locationToResolve = reference.Location;
 
             if (reference.IsWellKnown)
             {
-                // First, we resolve the well-known reference.
+                // First, we check the cache.
                 (endpoints, newLocation, cached) = GetResolvedWellKnownProxyFromCache(reference,
                                                                                       reference.LocatorCacheTimeout);
                 if (!cached)
@@ -102,10 +102,6 @@ namespace ZeroC.Ice
                 }
 
                 locationToResolve = endpoints.Count == 0 ? newLocation : ImmutableArray<string>.Empty;
-            }
-            else
-            {
-                locationToResolve = reference.Location;
             }
 
             if (locationToResolve.Count > 0)
