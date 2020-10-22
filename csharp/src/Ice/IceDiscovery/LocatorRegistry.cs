@@ -256,7 +256,7 @@ namespace ZeroC.IceDiscovery
             {
                 if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
                 {
-                    adapterIds = new HashSet<string>();
+                    adapterIds = new ();
                     _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
                 }
                 adapterIds.Add(adapterId);

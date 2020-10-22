@@ -38,27 +38,17 @@ namespace ZeroC.IceDiscovery
         {
             using var replyServant = new LookupReply(_replyAdapter);
             return await InvokeAsync(
-                async (lookup, dummyReply) =>
+                (lookup, dummyReply) =>
                 {
-                    try
-                    {
-                        ILookupReplyPrx lookupReply =
-                            dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+                    ILookupReplyPrx lookupReply =
+                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
 
-                        await lookup.FindAdapterByIdAsync(_domainId,
-                                                          adapterId,
-                                                          lookupReply,
-                                                          cancel: cancel).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        // TODO: is InvalidOperationException really appropriate here?
-                        throw new InvalidOperationException(
-                            $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}'", ex);
-                    }
+                    return lookup.FindAdapterByIdAsync(_domainId,
+                                                      adapterId,
+                                                      lookupReply,
+                                                      cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
-
         }
 
         public async ValueTask<IObjectPrx?> FindObjectByIdAsync(
@@ -68,23 +58,12 @@ namespace ZeroC.IceDiscovery
         {
             using var replyServant = new LookupReply(_replyAdapter);
             return await InvokeAsync(
-                async (lookup, dummyReply) =>
+                (lookup, dummyReply) =>
                 {
-                    try
-                    {
-                        ILookupReplyPrx lookupReply =
-                            dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+                    ILookupReplyPrx lookupReply =
+                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
 
-                        await lookup.FindObjectByIdAsync(_domainId,
-                                                         identity,
-                                                         lookupReply,
-                                                         cancel: cancel).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException(
-                            $"failed to lookup object `{identity}' with lookup proxy `{_lookup}'", ex);
-                    }
+                    return lookup.FindObjectByIdAsync(_domainId, identity, lookupReply, cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
         }
@@ -107,24 +86,15 @@ namespace ZeroC.IceDiscovery
             using var replyServant = new ResolveAdapterIdReply(_replyAdapter);
 
             IReadOnlyList<EndpointData> endpoints = await InvokeAsync(
-                async (lookup, dummyReply) =>
+                (lookup, dummyReply) =>
                 {
-                    try
-                    {
-                        IResolveAdapterIdReplyPrx reply =
-                            dummyReply.Clone(IResolveAdapterIdReplyPrx.Factory, identity: replyServant.Identity);
+                    IResolveAdapterIdReplyPrx reply =
+                        dummyReply.Clone(IResolveAdapterIdReplyPrx.Factory, identity: replyServant.Identity);
 
-                        await lookup.ResolveAdapterIdAsync(_domainId,
-                                                            adapterId,
-                                                            reply,
-                                                            cancel: cancel).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        // TODO: is InvalidOperationException really appropriate here?
-                        throw new InvalidOperationException(
-                            $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}'", ex);
-                    }
+                    return lookup.ResolveAdapterIdAsync(_domainId,
+                                                        adapterId,
+                                                        reply,
+                                                        cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
 
@@ -146,23 +116,15 @@ namespace ZeroC.IceDiscovery
             using var replyServant = new ResolveWellKnownProxyReply(_replyAdapter);
 
             string adapterId = await InvokeAsync(
-                async (lookup, dummyReply) =>
+                (lookup, dummyReply) =>
                 {
-                    try
-                    {
-                        IResolveWellKnownProxyReplyPrx reply =
+                    IResolveWellKnownProxyReplyPrx reply =
                             dummyReply.Clone(IResolveWellKnownProxyReplyPrx.Factory, identity: replyServant.Identity);
 
-                        await lookup.ResolveWellKnownProxyAsync(_domainId,
-                                                                identity,
-                                                                reply,
-                                                                cancel: cancel).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException(
-                            $"failed to lookup object `{identity}' with lookup proxy `{_lookup}'", ex);
-                    }
+                    return lookup.ResolveWellKnownProxyAsync(_domainId,
+                                                             identity,
+                                                             reply,
+                                                             cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
 
@@ -228,9 +190,8 @@ namespace ZeroC.IceDiscovery
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
-        /// <param name="find">A delegate that performs the remote call. The first two parameters correspond to an
-        /// entry in the _lookups dictionary, and the third parameter is the unique identity of the reply object
-        /// registered with the _replyAdapter.</param>
+        /// <param name="find">A delegate that performs the remote call. The parameters correspond to an entry in the
+        /// _lookups dictionary.</param>
         /// <param name="replyServant">The reply servant.</param>
         private async Task<TResult> InvokeAsync<TResult>(
             Func<ILookupPrx, IObjectPrx, Task> find,
@@ -244,20 +205,24 @@ namespace ZeroC.IceDiscovery
                 {
                     try
                     {
-                        await find(lookup, dummyReply);
+                        await find(lookup, dummyReply).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
                         if (++failureCount == _lookups.Count)
                         {
-                            _replyAdapter.Communicator.Logger.Warning(ex.ToString());
+                            _replyAdapter.Communicator.Logger.Warning(
+                                $"IceDiscovery failed to send lookup request using `{_lookup}':\n{ex}");
                             replyServant.SetEmptyResult();
+                            return await replyServant.Task.ConfigureAwait(false);
                         }
                     }
                 }
 
-                Task? t = await Task.WhenAny(replyServant.Task,
+                Task? t = await Task.WhenAny(
+                    replyServant.Task,
                     Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
+
                 if (t == replyServant.Task)
                 {
                     return await replyServant.Task.ConfigureAwait(false);
@@ -309,18 +274,19 @@ namespace ZeroC.IceDiscovery
             {
                 latency = TimeSpan.FromMilliseconds(1);
             }
-            await System.Threading.Tasks.Task.Delay(latency);
+            await System.Threading.Tasks.Task.Delay(latency).ConfigureAwait(false);
 
             SetResult(CollectReplicaReplies());
-            return await Task;
+            return await Task.ConfigureAwait(false);
         }
 
         private protected ReplyServant(TResult emptyResult, ObjectAdapter replyAdapter)
         {
+            // Add servant (this) to object adapter with new UUID identity.
             Identity = replyAdapter.AddWithUUID(this, IObjectPrx.Factory).Identity;
 
-            _cancellationSource = new CancellationTokenSource();
-            _completionSource = new TaskCompletionSource<TResult>();
+            _cancellationSource = new ();
+            _completionSource = new ();
             _emptyResult = emptyResult;
             _replyAdapter = replyAdapter;
         }
@@ -329,7 +295,7 @@ namespace ZeroC.IceDiscovery
 
         private protected virtual TResult CollectReplicaReplies()
         {
-            Debug.Assert(false); // must be overriden if called by WaitForReplicaGroupRepliesAsync
+            Debug.Assert(false); // must be overridden if called by WaitForReplicaGroupRepliesAsync
             return _emptyResult;
         }
 
@@ -339,8 +305,8 @@ namespace ZeroC.IceDiscovery
     /// <summary>Servant class that implements the Slice interface LookupReply.</summary>
     internal sealed class LookupReply : ReplyServant<IObjectPrx?>, ILookupReply
     {
-        private readonly object _mutex = new object();
-        private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
+        private readonly object _mutex = new ();
+        private readonly HashSet<IObjectPrx> _proxies = new ();
 
         public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
             SetResult(proxy);
@@ -395,7 +361,7 @@ namespace ZeroC.IceDiscovery
     /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
     internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
     {
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new ();
         private readonly HashSet<EndpointData> _endpointDataSet = new (EndpointDataComparer.Instance);
 
         public void FoundAdapterId(
