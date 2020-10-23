@@ -283,8 +283,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    // After we went down the interceptor chain call PerformInvokeAsync that takes care of performing
-                    // the invocation.
+                    // After we went down the interceptor chain make the invocation.
                     return PerformInvokeAsync(request, oneway, progress, cancel);
                 }
             }
