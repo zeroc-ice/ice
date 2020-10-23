@@ -445,10 +445,11 @@ namespace ZeroC.Ice
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("cannot retry request because " +
-                                           (requestSize > reference.Communicator.RetryRequestSizeMax ?
-                                               $"the request size `{requestSize}' exceeds Ice.RetryRequestSizeMax" :
-                                               "the retry buffer size would exceed Ice.RetryBufferSizeMax"),
+                                TraceRetry("request failed with retryable exception but the request is not retryable " +
+                                           "because\n" + (requestSize > reference.Communicator.RetryRequestSizeMax ?
+                                           "the request size exceeds Ice.RetryRequestSizeMax, " :
+                                           "the retry buffer size would exceed Ice.RetryBufferSizeMax, ") +
+                                           "passing exception through to the application",
                                            retryCount,
                                            retryPolicy,
                                            lastException);
@@ -457,20 +458,14 @@ namespace ZeroC.Ice
                         }
                         else if (retryPolicy == RetryPolicy.NoRetry)
                         {
-                            if (reference.Communicator.TraceLevels.Retry >= 1)
-                            {
-                                TraceRetry($"cannot retry request because the exception can't be retried",
-                                           retryCount,
-                                           retryPolicy,
-                                           lastException);
-                            }
                             break; // We cannot retry, get out of the loop
                         }
                         else if (++retryCount == reference.Communicator.RetryMaxAttempts)
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("cannot retry request because the maximum retry count has been reached",
+                                TraceRetry("request failed with retryable exception but the retry count is exceeded,\n" +
+                                           "passing exception through to the application",
                                            retryCount,
                                            retryPolicy,
                                            lastException);
@@ -500,7 +495,7 @@ namespace ZeroC.Ice
 
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("retrying request because of exception",
+                                TraceRetry("retrying request because of retryable exception",
                                            retryCount,
                                            retryPolicy,
                                            lastException);

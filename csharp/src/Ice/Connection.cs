@@ -104,16 +104,23 @@ namespace ZeroC.Ice
         internal List<Endpoint> Endpoints { get; }
 
         private protected MultiStreamTransceiver Transceiver { get; }
+        // The accept stream task is assigned each time a new accept stream async operation is started.
         private volatile Task _acceptStreamTask = Task.CompletedTask;
         private volatile ObjectAdapter? _adapter;
+        // The control stream is assigned on the connection initialization and is immutable once the connection
+        // reaches the Active state.
         private TransceiverStream? _controlStream;
         private EventHandler? _closed;
+        // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
+        // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
         private IAcmMonitor? _monitor;
+        // The mutex protects mutable non-volatile data members and ensures the logic for some operations is
+        // performed atomically.
         private readonly object _mutex = new ();
         private volatile ConnectionState _state; // The current state.
 
@@ -168,7 +175,7 @@ namespace ZeroC.Ice
 
         /// <summary>Returns <c>true</c> if the connection is active. Outgoing streams can be created and incoming
         /// streams accepted when the connection is active. The connection is no longer considered active as soon
-        /// as <see cref="GoAwayAsync(string?, CancellationToken)"/> is called to initiate a gracefull connection
+        /// as <see cref="GoAwayAsync(string?, CancellationToken)"/> is called to initiate a graceful connection
         /// closure.</summary>
         /// <return><c>true</c> if the connection is active, <c>false</c> if it's closing or closed.</return>
         public bool IsActive => _state == ConnectionState.Active;
@@ -245,7 +252,7 @@ namespace ZeroC.Ice
                 Task goAwayTask;
                 lock (_mutex)
                 {
-                    if (_state == ConnectionState.Active && _controlStream != null)
+                    if (_state == ConnectionState.Active && !Endpoint.IsDatagram)
                     {
                         SetState(ConnectionState.Closing, exception);
                         _closeTask ??= PerformGoAwayAsync(exception);
