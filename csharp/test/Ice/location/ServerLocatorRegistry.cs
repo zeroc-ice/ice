@@ -17,14 +17,14 @@ namespace ZeroC.Ice.Test.Location
         private readonly IDictionary<string, IObjectPrx> _ice1Adapters =
             new ConcurrentDictionary<string, IObjectPrx>();
 
-        private readonly IDictionary<Identity, IObjectPrx> _ice1Objects =
-            new ConcurrentDictionary<Identity, IObjectPrx>();
+        private readonly IDictionary<(Identity, string), IObjectPrx> _ice1Objects =
+            new ConcurrentDictionary<(Identity, string), IObjectPrx>();
 
         private readonly IDictionary<string, IReadOnlyList<EndpointData>> _ice2Adapters =
             new ConcurrentDictionary<string, IReadOnlyList<EndpointData>>();
 
-        private readonly IDictionary<Identity, (IReadOnlyList<EndpointData>, IReadOnlyList<string>)>
-            _ice2Objects = new ConcurrentDictionary<Identity, (IReadOnlyList<EndpointData>, IReadOnlyList<string>)>();
+        private readonly IDictionary<(Identity, string), (IReadOnlyList<EndpointData>, IReadOnlyList<string>)> _ice2Objects =
+            new ConcurrentDictionary<(Identity, string), (IReadOnlyList<EndpointData>, IReadOnlyList<string>)>();
 
         public void AddObject(IObjectPrx obj, Current current, CancellationToken cancel)
         {
@@ -102,25 +102,25 @@ namespace ZeroC.Ice.Test.Location
         internal IObjectPrx? GetIce1Adapter(string adapter) =>
             _ice1Adapters.TryGetValue(adapter, out IObjectPrx? proxy) ? proxy : null;
 
-        internal IObjectPrx? GetIce1Object(Identity id) =>
-            _ice1Objects.TryGetValue(id, out IObjectPrx? obj) ? obj : null;
+        internal IObjectPrx? GetIce1Object(Identity id, string facet) =>
+            _ice1Objects.TryGetValue((id, facet), out IObjectPrx? obj) ? obj : null;
 
         internal IReadOnlyList<EndpointData> GetIce2Adapter(string adapter) =>
             _ice2Adapters.TryGetValue(adapter, out IReadOnlyList<EndpointData>? endpoints) ? endpoints :
                 ImmutableArray<EndpointData>.Empty;
-        internal (IReadOnlyList<EndpointData>, IReadOnlyList<string>) GetIce2Object(Identity id) =>
-            _ice2Objects.TryGetValue(id, out var entry) ? entry :
+        internal (IReadOnlyList<EndpointData>, IReadOnlyList<string>) GetIce2Object(Identity id, string facet) =>
+            _ice2Objects.TryGetValue((id, facet), out var entry) ? entry :
                 (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
 
         internal void AddObject(IObjectPrx obj)
         {
             if (obj.Protocol == Protocol.Ice1)
             {
-                _ice1Objects[obj.Identity] = obj;
+                _ice1Objects[(obj.Identity, obj.Facet)] = obj;
             }
             else
             {
-                _ice2Objects[obj.Identity] = (obj.Endpoints.ToEndpointDataList(), obj.Location);
+                _ice2Objects[(obj.Identity, obj.Facet)] = (obj.Endpoints.ToEndpointDataList(), obj.Location);
             }
         }
     }

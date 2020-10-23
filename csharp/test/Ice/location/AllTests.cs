@@ -23,9 +23,9 @@ namespace ZeroC.Ice.Test.Location
             TestHelper.Assert(registry != null);
 
             System.IO.TextWriter output = helper.Output;
-            output.Write("testing stringToProxy... ");
+            output.Write("testing ice1 string/URI parsing... ");
             output.Flush();
-            IObjectPrx base1, base2, base3, base4, base5, base6;
+            IObjectPrx base1, base2, base3, base4, base5, base6, base7;
             if (ice1)
             {
                 base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
@@ -34,6 +34,7 @@ namespace ZeroC.Ice.Test.Location
                 base4 = IObjectPrx.Parse("ServerManager", communicator);
                 base5 = IObjectPrx.Parse("test2", communicator);
                 base6 = IObjectPrx.Parse("test @ ReplicatedAdapter", communicator);
+                base7 = IObjectPrx.Parse("test3 -f facet", communicator);
             }
             else
             {
@@ -43,6 +44,7 @@ namespace ZeroC.Ice.Test.Location
                 base4 = IObjectPrx.Parse("ice:ServerManager", communicator);
                 base5 = IObjectPrx.Parse("ice:test2", communicator);
                 base6 = IObjectPrx.Parse("ice:ReplicatedAdapter//test", communicator);
+                base7 = IObjectPrx.Parse("ice:test3#facet", communicator);
             }
             output.WriteLine("ok");
 
@@ -278,6 +280,21 @@ namespace ZeroC.Ice.Test.Location
             TestHelper.Assert(hello != null);
             TestHelper.Assert(hello.Location.Count == 1 && hello.Location[0] == "ReplicatedAdapter");
             hello.SayHello();
+            output.WriteLine("ok");
+
+            output.Write("testing well-known proxy with facet... ");
+            output.Flush();
+            hello = IHelloPrx.Parse(ice1 ? "bonjour -f abc" : "ice:bonjour#abc", communicator);
+            hello.SayHello();
+            hello = IHelloPrx.Parse(ice1 ? "hello -f abc" : "ice:hello#abc", communicator);
+            try
+            {
+                hello.SayHello();
+                TestHelper.Assert(false);
+            }
+            catch (NoEndpointException) // hello does not have an abc facet
+            {
+            }
             output.WriteLine("ok");
 
             output.Write("testing locator request queuing... ");

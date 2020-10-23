@@ -22,7 +22,7 @@ namespace ZeroC.IceDiscovery
 
         private readonly object _mutex = new ();
 
-        private readonly Dictionary<(string, Protocol), HashSet<string>> _replicaGroups = new ();
+        private readonly Dictionary<(string AdapterId, Protocol Protocol), HashSet<string>> _replicaGroups = new ();
 
         public void RegisterAdapterEndpoints(
             string adapterId,
@@ -105,7 +105,10 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity identity, CancellationToken cancel)
+        internal async ValueTask<IObjectPrx?> FindObjectAsync(
+            Identity identity,
+            string? facet,
+            CancellationToken cancel)
         {
             if (identity.Name.Length == 0)
             {
@@ -119,7 +122,7 @@ namespace ZeroC.IceDiscovery
                 // We check the local replica groups before the local adapters.
 
                 candidates =
-                    _replicaGroups.Keys.Where(k => k.Item2 == Protocol.Ice1).Select(k => k.Item1).ToList();
+                    _replicaGroups.Keys.Where(k => k.Protocol == Protocol.Ice1).Select(k => k.AdapterId).ToList();
 
                 candidates.AddRange(_ice1Adapters.Keys);
             }
@@ -132,6 +135,7 @@ namespace ZeroC.IceDiscovery
                     IObjectPrx proxy = _dummyIce1Proxy.Clone(
                         IObjectPrx.Factory,
                         identity: identity,
+                        facet: facet,
                         location: ImmutableArray.Create(id));
                     await proxy.IcePingAsync(cancel: cancel).ConfigureAwait(false);
                     return proxy;
@@ -164,7 +168,10 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal async ValueTask<string> ResolveWellKnownProxyAsync(Identity identity, CancellationToken cancel)
+        internal async ValueTask<string> ResolveWellKnownProxyAsync(
+            Identity identity,
+            string facet,
+            CancellationToken cancel)
         {
             if (identity.Name.Length == 0)
             {
@@ -178,7 +185,7 @@ namespace ZeroC.IceDiscovery
                 // We check the local replica groups before the local adapters.
 
                 candidates =
-                    _replicaGroups.Keys.Where(k => k.Item2 == Protocol.Ice2).Select(k => k.Item1).ToList();
+                    _replicaGroups.Keys.Where(k => k.Protocol == Protocol.Ice2).Select(k => k.AdapterId).ToList();
 
                 candidates.AddRange(_ice2Adapters.Keys);
             }
@@ -191,6 +198,7 @@ namespace ZeroC.IceDiscovery
                     IObjectPrx proxy = _dummyIce2Proxy.Clone(
                         IObjectPrx.Factory,
                         identity: identity,
+                        facet: facet,
                         location: ImmutableArray.Create(id));
                     await proxy.IcePingAsync(cancel: cancel).ConfigureAwait(false);
                     return id;

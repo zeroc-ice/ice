@@ -37,10 +37,10 @@ namespace ZeroC.Ice
         // _mutex protects _locationRequests and _wellKnownProxyRequests
         private readonly object _mutex = new ();
 
-        private readonly ConcurrentDictionary<(Identity, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
+        private readonly ConcurrentDictionary<(Identity, string, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
             new ();
 
-        private readonly Dictionary<(Identity, Protocol), Task<(EndpointList, Location)>> _wellKnownProxyRequests =
+        private readonly Dictionary<(Identity, string, Protocol), Task<(EndpointList, Location)>> _wellKnownProxyRequests =
             new ();
 
         internal LocatorInfo(ILocatorPrx locator, bool background)
@@ -55,7 +55,33 @@ namespace ZeroC.Ice
 
             if (reference.IsWellKnown)
             {
-                ClearCache(reference.Identity, reference.Protocol, reference.Communicator);
+                if (_wellKnownProxyCache.TryRemove(
+                    (reference.Identity, reference.Facet, reference.Protocol),
+                    out (TimeSpan _, EndpointList Endpoints, Location Location) entry))
+                {
+                    if (entry.Endpoints.Count > 0)
+                    {
+                        if (reference.Communicator.TraceLevels.Locator >= 2)
+                        {
+                            Trace("removed well-known proxy with endpoints from locator cache",
+                                  reference,
+                                  entry.Endpoints,
+                                  entry.Location);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Assert(entry.Location.Count > 0);
+                        if (reference.Communicator.TraceLevels.Locator >= 2)
+                        {
+                            Trace("removed well-known proxy without endpoints from locator cache",
+                                  reference,
+                                  entry.Location);
+                        }
+
+                        ClearCache(entry.Location, reference.Protocol, reference.Communicator);
+                    }
+                }
             }
             else
             {
@@ -133,7 +159,7 @@ namespace ZeroC.Ice
                             // If we can't resolve the location we clear the resolved well-known proxy from the cache.
                             if (endpoints.Count == 0 && reference.IsWellKnown)
                             {
-                                ClearCache(reference.Identity, reference.Protocol, reference.Communicator);
+                                ClearCache(reference);
                             }
                         }
                     }
@@ -153,11 +179,9 @@ namespace ZeroC.Ice
                     {
                         Trace(cached ? $"found entry for well-known proxy in locator cache" :
                                   $"resolved well-known proxy using locator, adding to locator cache",
-                              reference.Identity,
-                              reference.Protocol,
+                              reference,
                               endpoints,
-                              newLocation,
-                              reference.Communicator);
+                              newLocation);
                     }
                     else
                     {
@@ -233,44 +257,29 @@ namespace ZeroC.Ice
             communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
 
-        private static void Trace(
-            string msg,
-            Identity identity,
-            Protocol protocol,
-            EndpointList endpoints,
-            Location location,
-            Communicator communicator)
+        private static void Trace(string msg, Reference wellKnownProxy, EndpointList endpoints, Location location)
         {
             var sb = new System.Text.StringBuilder(msg);
             sb.Append("\nwell-known proxy = ");
-            sb.Append(identity);
-            sb.Append("\nprotocol = ");
-            sb.Append(protocol.GetName());
+            sb.Append(wellKnownProxy);
             sb.Append("\nendpoints = ");
             sb.AppendEndpointList(endpoints);
-            if (protocol != Protocol.Ice1)
+            if (wellKnownProxy.Protocol != Protocol.Ice1)
             {
                 sb.Append("\nlocation = ");
                 sb.Append(location.ToLocationString());
             }
-            communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
+            wellKnownProxy.Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
 
-        private static void Trace(
-            string msg,
-            Identity identity,
-            Protocol protocol,
-            Location location,
-            Communicator communicator)
+        private static void Trace(string msg, Reference wellKnownProxy, Location location)
         {
             var sb = new System.Text.StringBuilder(msg);
             sb.Append("\nwell-known proxy = ");
-            sb.Append(identity);
-            sb.Append("\nprotocol = ");
-            sb.Append(protocol.GetName());
+            sb.Append(wellKnownProxy);
             sb.Append("\nlocation = ");
             sb.Append(location.ToLocationString());
-            communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
+            wellKnownProxy.Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
         }
 
         private static void TraceInvalid(Location location, Location newLocation, Communicator communicator)
@@ -298,41 +307,6 @@ namespace ZeroC.Ice
             sb.Append("\n received = ");
             sb.Append(invalidReference);
             reference.Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
-        }
-
-        private void ClearCache(Identity identity, Protocol protocol, Communicator communicator)
-        {
-            if (_wellKnownProxyCache.TryRemove(
-                (identity, protocol),
-                out (TimeSpan _, EndpointList Endpoints, Location Location) entry))
-            {
-                if (entry.Endpoints.Count > 0)
-                {
-                    if (communicator.TraceLevels.Locator >= 2)
-                    {
-                        Trace("removed well-known proxy with endpoints from locator cache",
-                              identity,
-                              protocol,
-                              entry.Endpoints,
-                              entry.Location,
-                              communicator);
-                    }
-                }
-                else
-                {
-                    Debug.Assert(entry.Location.Count > 0);
-                    if (communicator.TraceLevels.Locator >= 2)
-                    {
-                        Trace("removed well-known proxy without endpoints from locator cache",
-                              identity,
-                              protocol,
-                              entry.Location,
-                              communicator);
-                    }
-
-                    ClearCache(entry.Location, protocol, communicator);
-                }
-            }
         }
 
         private void ClearCache(Location location, Protocol protocol, Communicator communicator)
@@ -376,7 +350,7 @@ namespace ZeroC.Ice
         {
             if (ttl != TimeSpan.Zero &&
                 _wellKnownProxyCache.TryGetValue(
-                    (reference.Identity, reference.Protocol),
+                    (reference.Identity, reference.Facet, reference.Protocol),
                     out (TimeSpan InsertionTime, EndpointList Endpoints, Location Location) entry))
             {
                 return (entry.Endpoints, entry.Location, CheckTTL(entry.InsertionTime, ttl));
@@ -526,7 +500,8 @@ namespace ZeroC.Ice
             Task<(EndpointList, Location)>? task;
             lock (_mutex)
             {
-                if (!_wellKnownProxyRequests.TryGetValue((reference.Identity, reference.Protocol), out task))
+                if (!_wellKnownProxyRequests.TryGetValue((reference.Identity, reference.Facet, reference.Protocol),
+                                                         out task))
                 {
                     // If there's no locator request in progress for this object, we make one and cache it to prevent
                     // making too many requests on the locator. It's removed once the locator response is received.
@@ -535,7 +510,7 @@ namespace ZeroC.Ice
                     {
                         // If PerformGetObjectProxyAsync completed, don't add the task (it would leak since
                         // PerformGetObjectProxyAsync is responsible for removing it).
-                        _wellKnownProxyRequests.Add((reference.Identity, reference.Protocol), task);
+                        _wellKnownProxyRequests.Add((reference.Identity, reference.Facet, reference.Protocol), task);
                     }
                 }
             }
@@ -556,6 +531,7 @@ namespace ZeroC.Ice
                         {
                             proxy = await Locator.FindObjectByIdAsync(
                                 reference.Identity,
+                                reference.Facet,
                                 cancel: CancellationToken.None).ConfigureAwait(false);
                         }
                         catch (ObjectNotFoundException)
@@ -583,6 +559,7 @@ namespace ZeroC.Ice
                         EndpointData[] dataArray;
                         (dataArray, location) = await Locator.ResolveWellKnownProxyAsync(
                             reference.Identity,
+                            reference.Facet,
                             cancel: CancellationToken.None).ConfigureAwait(false);
 
                         endpoints = dataArray.ToEndpointList(reference.Communicator);
@@ -590,12 +567,12 @@ namespace ZeroC.Ice
 
                     if (endpoints.Count == 0 && location.Count == 0)
                     {
-                        ClearCache(reference.Identity, reference.Protocol, reference.Communicator);
+                        ClearCache(reference);
                         return (endpoints, location);
                     }
                     else
                     {
-                        _wellKnownProxyCache[(reference.Identity, reference.Protocol)] =
+                        _wellKnownProxyCache[(reference.Identity, reference.Facet, reference.Protocol)] =
                             (Time.Elapsed, endpoints, location);
                         return (endpoints, location);
                     }
@@ -615,7 +592,7 @@ namespace ZeroC.Ice
                 {
                     lock (_mutex)
                     {
-                        _wellKnownProxyRequests.Remove((reference.Identity, reference.Protocol));
+                        _wellKnownProxyRequests.Remove((reference.Identity, reference.Facet, reference.Protocol));
                     }
                 }
             }

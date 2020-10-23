@@ -28,6 +28,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add($"controller{num}", new Controller());
+            adapter.Add($"faceted-controller{num}#abc", new Controller());
             await adapter.ActivateAsync();
 
             await communicator.WaitForShutdownAsync();

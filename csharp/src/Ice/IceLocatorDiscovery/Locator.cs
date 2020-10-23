@@ -16,7 +16,8 @@ namespace ZeroC.IceLocatorDiscovery
     internal class VoidLocator : ILocator
     {
         public IObjectPrx? FindAdapterById(string id, Current current, CancellationToken cancel) => null;
-        public IObjectPrx? FindObjectById(Identity id, Current current, CancellationToken cancel) => null;
+        public IObjectPrx? FindObjectById(Identity id, string? facet, Current current, CancellationToken cancel) =>
+            null;
         public ILocatorRegistryPrx? GetRegistry(Current current, CancellationToken cancel) => null;
 
         public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveLocation(
@@ -26,6 +27,7 @@ namespace ZeroC.IceLocatorDiscovery
 
         public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveWellKnownProxy(
             Identity identity,
+            string facet,
             Current current,
             CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
     }

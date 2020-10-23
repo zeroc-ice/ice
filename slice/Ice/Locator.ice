@@ -53,14 +53,15 @@ module Ice
     interface Locator
     {
 #ifdef __SLICE2CS__
-        /// Finds an object by identity and returns a proxy that provides a location or endpoint(s) that can be used
-        /// to reach the object using the ice1 protocol.
+        /// Finds an object by identity and facet and returns a proxy that provides a location or endpoint(s) that can
+        /// be used to reach the object using the ice1 protocol.
         /// @param id The identity.
-        /// @return An ice1 proxy that provides a location or endpoint(s), or null if an object with identity `id' was
-        /// not found.
-        /// @throws ObjectNotFoundException Thrown if an object with identity `id' was not found. The caller should
-        /// treat this exception like a null return value.
-        idempotent Object? findObjectById(Identity id);
+        /// @param facet The facet. A null value is equivalent to the empty string.
+        /// @return An ice1 proxy that provides a location or endpoint(s), or null if an object with the requested
+        /// identity and facet was not found.
+        /// @throws ObjectNotFoundException Thrown if an object with the requested identity and facet was not found. The
+        /// caller should treat this exception like a null return value.
+        idempotent Object? findObjectById(Identity id, tag(1) string? facet);
 
         /// Finds an object adapter by id and returns a proxy that provides the object adapter's endpoint(s). This
         /// operation is for object adapters using the ice1 protocol.
@@ -82,12 +83,15 @@ module Ice
         /// returns a new location which is typically location[1..].
         idempotent (EndpointDataSeq endpoints, StringSeq newLocation) resolveLocation(StringSeq location);
 
-        /// Locates the well-known object with the given identity. This object must be reachable using the ice2
-        /// protocol.
+        /// Locates the well-known object with the given identity and facet. This object must be reachable using the
+        /// ice2 protocol.
         /// @param identity The identity of the well-known Ice object.
+        /// @param facet The facet of the well-known Ice object.
         /// @return A sequence of one or more endpoints and/or a non-empty location if the Locator could resolve the
-        /// identity. Otherwise, an empty sequence of endpoints and an empty location.
-        idempotent (EndpointDataSeq endpoints, StringSeq location) resolveWellKnownProxy(Identity identity);
+        /// identity and facet. Otherwise, an empty sequence of endpoints and an empty location.
+        idempotent (EndpointDataSeq endpoints, StringSeq location) resolveWellKnownProxy(
+            Identity identity,
+            string facet);
 
 #else
         [amd] [nonmutating] [cpp:const] idempotent Object? findObjectById(Identity id)

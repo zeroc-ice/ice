@@ -48,6 +48,7 @@ namespace ZeroC.IceDiscovery
         public async ValueTask FindObjectByIdAsync(
             string domainId,
             Identity id,
+            string? facet,
             ILookupReplyPrx reply,
             Current current,
             CancellationToken cancel)
@@ -57,7 +58,7 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            if (await _registryServant.FindObjectAsync(id, cancel).ConfigureAwait(false) is IObjectPrx proxy)
+            if (await _registryServant.FindObjectAsync(id, facet, cancel).ConfigureAwait(false) is IObjectPrx proxy)
             {
                 // Reply to the multicast request using the given proxy.
                 try
@@ -102,6 +103,7 @@ namespace ZeroC.IceDiscovery
         public async ValueTask ResolveWellKnownProxyAsync(
             string domainId,
             Identity identity,
+            string facet,
             IResolveWellKnownProxyReplyPrx reply,
             Current current,
             CancellationToken cancel)
@@ -112,7 +114,7 @@ namespace ZeroC.IceDiscovery
             }
 
             string adapterId =
-                await _registryServant.ResolveWellKnownProxyAsync(identity, cancel).ConfigureAwait(false);
+                await _registryServant.ResolveWellKnownProxyAsync(identity, facet, cancel).ConfigureAwait(false);
 
             if (adapterId.Length > 0)
             {
