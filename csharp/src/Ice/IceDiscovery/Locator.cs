@@ -231,8 +231,8 @@ namespace ZeroC.IceDiscovery
                 {
                     // If the timeout was canceled we delay the completion of the request to give a chance to other
                     // members of this replica group to reply
-                    return await replyServant.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier).
-                        ConfigureAwait(false);
+                    return await
+                        replyServant.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier).ConfigureAwait(false);
                 }
                 // else timeout, so we retry until _retryCount
             }

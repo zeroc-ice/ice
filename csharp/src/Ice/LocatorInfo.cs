@@ -26,10 +26,8 @@ namespace ZeroC.Ice
 
         private readonly bool _background;
 
-        private readonly ConcurrentDictionary<
-            (Location, Protocol),
-            (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)>
-            _locationCache = new (_locationComparer);
+        private readonly ConcurrentDictionary<(Location, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _locationCache =
+            new (_locationComparer);
 
         private readonly Dictionary<(Location, Protocol), Task<(EndpointList, Location)>> _locationRequests =
              new (_locationComparer);
@@ -39,10 +37,8 @@ namespace ZeroC.Ice
         // _mutex protects _locationRequests and _wellKnownProxyRequests
         private readonly object _mutex = new ();
 
-        private readonly ConcurrentDictionary<
-            (Identity, Protocol),
-            (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)>
-            _wellKnownProxyCache = new ();
+        private readonly ConcurrentDictionary<(Identity, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
+            new ();
 
         private readonly Dictionary<(Identity, Protocol), Task<(EndpointList, Location)>> _wellKnownProxyRequests =
             new ();
@@ -68,8 +64,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Resolves an indirect reference using the locator proxy or cache.</summary>
-        internal async ValueTask<(EndpointList Endpoints, Location Location, bool Cached)>
-        ResolveIndirectReferenceAsync(
+        internal async ValueTask<(EndpointList Endpoints, Location Location, bool Cached)> ResolveIndirectReferenceAsync(
             Reference reference,
             CancellationToken cancel)
         {

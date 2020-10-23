@@ -146,7 +146,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void ReceivedReset(long errorCode) => Reset?.Invoke(errorCode);
+        internal virtual void ReceivedReset(long errorCode) => Reset?.Invoke(errorCode);
 
         internal virtual async ValueTask ReceiveInitializeFrameAsync(CancellationToken cancel)
         {

@@ -8,7 +8,7 @@ namespace ZeroC.Ice
 {
     /// <summary>A manual reset task completion source for ValueTask. It provides the same functionality as the
     /// TaskCompletionSource class but with ValueTask support instead. It's useful for hot code paths that
-    /// require to minimize heap allocations required by the Task class.</summary>
+    /// require to minimize heap allocations required by the Task class. This class is NOT thread safe.</summary>
     internal class ManualResetValueTaskCompletionSource<T> : IValueTaskSource<T>
     {
         internal bool IsCompleted => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
@@ -31,34 +31,7 @@ namespace ZeroC.Ice
 
         internal void SetException(Exception exception) => _source.SetException(exception);
 
-        internal bool TrySetException(Exception exception)
-        {
-            try
-            {
-                _source.SetException(exception);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-
         internal void SetResult(T value) => _source.SetResult(value);
-
-        internal bool TrySetResult(T value)
-        {
-            try
-            {
-                _source.SetResult(value);
-            }
-            catch
-            {
-
-                return false;
-            }
-            return true;
-        }
 
         T IValueTaskSource<T>.GetResult(short token)
         {

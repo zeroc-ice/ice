@@ -81,7 +81,7 @@ namespace ZeroC.Ice.Test.Timeout
                     timeout.SendData(seq);
                     TestHelper.Assert(false);
                 }
-                catch (ConnectionTimeoutException)
+                catch (ConnectionClosedException)
                 {
                     // Expected.
                 }
@@ -95,7 +95,7 @@ namespace ZeroC.Ice.Test.Timeout
                 {
                     timeout.SendData(new byte[1000000]);
                 }
-                catch (ConnectionTimeoutException)
+                catch (ConnectionClosedException)
                 {
                     TestHelper.Assert(false);
                 }

@@ -54,6 +54,7 @@ namespace ZeroC.Ice
         private readonly object _mutex = new ();
         private IConnectionObserver? _observer;
         private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new ();
+        private volatile bool _streamsAborted;
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Aborts the transceiver.</summary>
@@ -201,8 +202,14 @@ namespace ZeroC.Ice
             // Abort the transport.
             Abort();
 
-            // Abort the streams and wait for all the streams to be completed.
-            AbortStreams(exception);
+            // Consider the abort as graceful if the streams were already aborted.
+            bool graceful = _streamsAborted;
+
+            // Abort the streams if not already done and wait for all the streams to be completed.
+            if (!_streamsAborted)
+            {
+                AbortStreams(exception);
+            }
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
             lock (_mutex)
@@ -219,11 +226,9 @@ namespace ZeroC.Ice
                 s.Append(ToString());
 
                 // Trace the cause of unexpected connection closures
-                if (!(exception is ConnectionClosedException ||
-                      exception is ConnectionIdleException ||
-                      exception is ObjectDisposedException))
+                if (!graceful && !(exception is ConnectionClosedException || exception is ObjectDisposedException))
                 {
-                    s.Append('\n');
+                    s.Append("\nexception = ");
                     s.Append(exception);
                 }
 
@@ -231,8 +236,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
+        internal virtual (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
         {
+            // Set the _streamsAborted flag to prevent addition of new streams to the _streams collection.
+            _streamsAborted = true;
+
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
             // still needed for sending and receiving GoAway frames.
             long largestBidirectionalStreamId = 0;
@@ -258,7 +266,14 @@ namespace ZeroC.Ice
             return (largestBidirectionalStreamId, largestUnidirectionalStreamId);
         }
 
-        internal void AddStream(long id, TransceiverStream stream) => _streams[id] = stream;
+        internal void AddStream(long id, TransceiverStream stream)
+        {
+            if (_streamsAborted)
+            {
+                throw new ConnectionClosedException();
+            }
+            _streams[id] = stream;
+        }
 
         internal void CheckStreamsEmpty()
         {
@@ -353,11 +368,13 @@ namespace ZeroC.Ice
                 {
                     framePrefix = "sent";
                     data = sendBuffer.Count > 0 ? sendBuffer.AsArraySegment() : ArraySegment<byte>.Empty;
+                    frameSize = sendBuffer.GetByteCount();
                 }
                 else if (frame is ArraySegment<byte> readBuffer)
                 {
                     framePrefix = "received";
                     data = readBuffer;
+                    frameSize = readBuffer.Count;
                 }
                 else
                 {
@@ -374,7 +391,6 @@ namespace ZeroC.Ice
                         _ => "Unknown"
                     };
                     encoding = Ice2Definitions.Encoding;
-                    frameSize = 0;
                 }
                 else
                 {
@@ -386,7 +402,6 @@ namespace ZeroC.Ice
                         _ => "Unknown"
                     };
                     encoding = Ice1Definitions.Encoding;
-                    frameSize = 0;
                 }
             }
 

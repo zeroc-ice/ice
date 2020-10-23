@@ -18,6 +18,7 @@ namespace ZeroC.Ice
     {
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
+        internal bool IsValidated { get; private set; }
 
         private readonly object _mutex = new ();
         private long _nextBidirectionalId;
@@ -87,6 +88,14 @@ namespace ZeroC.Ice
                     await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize), cancel).ConfigureAwait(false);
                 }
 
+                // Make sure the transceiver is marked as validated. This flag is necessary because incoming
+                // connection initialization doesn't wait for connection validation message. So the connection
+                // is considered validated on the server side only once the first frame is received. This is
+                // only useful for connection warnings, to prevent a warning from showing up if the server side
+                // connection is closed before the first message is received (which can occur with SSL for
+                // example if the certification validation fails on the client side).
+                IsValidated = true;
+
                 // Parse the received frame and translate it into a stream ID, frame type and frame data. The returned
                 // stream ID can be negative if the Ice1 frame is no longer supported (batch requests).
                 (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
@@ -103,26 +112,41 @@ namespace ZeroC.Ice
                             Debug.Assert(stream.IsControl);
                             continue;
                         }
-                        stream.ReceivedFrame(frameType, frame);
+                        try
+                        {
+                            stream.ReceivedFrame(frameType, frame);
+                        }
+                        catch
+                        {
+                            // Ignore, the stream has been aborted
+                        }
                     }
                     else if (frameType == Ice1Definitions.FrameType.Request)
                     {
                         // Create a new input stream for the request. If serialization is enabled, ensure we acquire
                         // the semaphore first to serialize the dispatching.
-                        stream = new LegacyStream(streamId, this);
-                        if (stream.IsBidirectional)
+                        try
                         {
-                            if (BidirectionalSerializeSemaphore != null)
+                            stream = new LegacyStream(streamId, this);
+                            if (stream.IsBidirectional)
                             {
-                                await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                if (BidirectionalSerializeSemaphore != null)
+                                {
+                                    await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                }
                             }
+                            else if (UnidirectionalSerializeSemaphore != null)
+                            {
+                                await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                            }
+                            stream.ReceivedFrame(frameType, frame);
+                            return stream;
                         }
-                        else if (UnidirectionalSerializeSemaphore != null)
+                        catch
                         {
-                            await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                            // Ignore, if the connection is being closed or the stream has been aborted.
+                            stream?.Dispose();
                         }
-                        stream.ReceivedFrame(frameType, frame);
-                        return stream;
                     }
                     else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
                     {
