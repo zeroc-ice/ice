@@ -39,7 +39,8 @@ namespace ZeroC.IceDiscovery
                 }
                 catch (Exception ex)
                 {
-                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
+                    current.Communicator.Logger.Warning(
+                        $"IceDiscovery failed to send foundAdapterById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -56,7 +57,7 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            if (_registryServant.FindObject(id) is IObjectPrx proxy)
+            if (await _registryServant.FindObjectAsync(id, cancel).ConfigureAwait(false) is IObjectPrx proxy)
             {
                 // Reply to the multicast request using the given proxy.
                 try
@@ -65,7 +66,8 @@ namespace ZeroC.IceDiscovery
                 }
                 catch (Exception ex)
                 {
-                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
+                    current.Communicator.Logger.Warning(
+                        $"IceDiscovery failed to send foundObjectById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -91,7 +93,8 @@ namespace ZeroC.IceDiscovery
                 }
                 catch (Exception ex)
                 {
-                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
+                    current.Communicator.Logger.Warning(
+                        $"IceDiscovery failed to send foundAdapterId to `{reply}':\n{ex}");
                 }
             }
         }
@@ -108,7 +111,9 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            string adapterId = _registryServant.ResolveWellKnownProxy(identity);
+            string adapterId =
+                await _registryServant.ResolveWellKnownProxyAsync(identity, cancel).ConfigureAwait(false);
+
             if (adapterId.Length > 0)
             {
                 try
@@ -117,7 +122,8 @@ namespace ZeroC.IceDiscovery
                 }
                 catch (Exception ex)
                 {
-                    current.Communicator.Logger.Warning($"IceDiscovery failed to send reply to `{reply}':\n{ex}");
+                    current.Communicator.Logger.Warning(
+                        $"IceDiscovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
                 }
             }
         }

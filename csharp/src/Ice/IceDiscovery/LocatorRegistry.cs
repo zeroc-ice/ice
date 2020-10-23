@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 using ZeroC.Ice;
 
@@ -128,55 +129,44 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal IObjectPrx? FindObject(Identity identity)
+        internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity identity, CancellationToken cancel)
         {
             if (identity.Name.Length == 0)
             {
                 return null;
             }
 
+            List<string> candidates;
+
             lock (_mutex)
             {
-                foreach ((string replicaGroupId, Protocol protocol) in _replicaGroups.Keys)
-                {
-                    if (protocol == Protocol.Ice1)
-                    {
-                        try
-                        {
-                            // This proxy is an indirect proxy with a location (the replica group ID).
-                            IObjectPrx proxy = _dummyIce1Proxy.Clone(
-                                IObjectPrx.Factory,
-                                identity: identity,
-                                location: ImmutableArray.Create(replicaGroupId));
-                            proxy.IcePing();
-                            return proxy;
-                        }
-                        catch
-                        {
-                            // Ignore and move on to the next replica group
-                        }
-                    }
-                }
+                // We check the local replica groups before the local adapters.
 
-                foreach (string adapterId in _ice1Adapters.Keys)
-                {
-                    try
-                    {
-                        IObjectPrx proxy = _dummyIce1Proxy.Clone(
-                            IObjectPrx.Factory,
-                            identity: identity,
-                            location: ImmutableArray.Create(adapterId));
-                        proxy.IcePing();
-                        return proxy;
-                    }
-                    catch
-                    {
-                        // Ignore.
-                    }
-                }
+                candidates =
+                    _replicaGroups.Keys.Where(k => k.Item2 == Protocol.Ice1).Select(k => k.Item1).ToList();
 
-                return null;
+                candidates.AddRange(_ice1Adapters.Keys);
             }
+
+            foreach (string id in candidates)
+            {
+                try
+                {
+                    // This proxy is an indirect proxy with a location (the replica group ID or adapter ID).
+                    IObjectPrx proxy = _dummyIce1Proxy.Clone(
+                        IObjectPrx.Factory,
+                        identity: identity,
+                        location: ImmutableArray.Create(id));
+                    await proxy.IcePingAsync(cancel: cancel).ConfigureAwait(false);
+                    return proxy;
+                }
+                catch
+                {
+                    // Ignore and move on to the next replica group ID / adapter ID
+                }
+            }
+
+            return null;
         }
 
         internal (IReadOnlyList<EndpointData> Endpoints, bool IsReplicaGroup) ResolveAdapterId(string adapterId)
@@ -198,55 +188,43 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal string ResolveWellKnownProxy(Identity identity)
+        internal async ValueTask<string> ResolveWellKnownProxyAsync(Identity identity, CancellationToken cancel)
         {
             if (identity.Name.Length == 0)
             {
                 return "";
             }
 
+            List<string> candidates;
+
             lock (_mutex)
             {
-                foreach ((string replicaGroupId, Protocol protocol) in _replicaGroups.Keys)
-                {
-                    if (protocol == Protocol.Ice2)
-                    {
-                        try
-                        {
-                            // This proxy is an indirect proxy with a location (the replica group ID).
-                            IObjectPrx proxy = _dummyIce2Proxy.Clone(
-                                IObjectPrx.Factory,
-                                identity: identity,
-                                location: ImmutableArray.Create(replicaGroupId));
-                            proxy.IcePing();
-                            return replicaGroupId;
-                        }
-                        catch
-                        {
-                            // Ignore and move on to the next replica group
-                        }
-                    }
-                }
+                // We check the local replica groups before the local adapters.
 
-                foreach (string adapterId in _ice2Adapters.Keys)
-                {
-                    try
-                    {
-                        IObjectPrx proxy = _dummyIce2Proxy.Clone(
-                            IObjectPrx.Factory,
-                            identity: identity,
-                            location: ImmutableArray.Create(adapterId));
-                        proxy.IcePing();
-                        return adapterId;
-                    }
-                    catch
-                    {
-                        // Ignore.
-                    }
-                }
+                candidates =
+                    _replicaGroups.Keys.Where(k => k.Item2 == Protocol.Ice2).Select(k => k.Item1).ToList();
 
-                return "";
+                candidates.AddRange(_ice2Adapters.Keys);
             }
+
+            foreach (string id in candidates)
+            {
+                try
+                {
+                    // This proxy is an indirect proxy with a location (the replica group ID or adapter ID).
+                    IObjectPrx proxy = _dummyIce2Proxy.Clone(
+                        IObjectPrx.Factory,
+                        identity: identity,
+                        location: ImmutableArray.Create(id));
+                    await proxy.IcePingAsync(cancel: cancel).ConfigureAwait(false);
+                    return id;
+                }
+                catch
+                {
+                    // Ignore and move on to the next replica group ID / adapter ID
+                }
+            }
+            return "";
         }
 
         private void AddAdapterToReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
