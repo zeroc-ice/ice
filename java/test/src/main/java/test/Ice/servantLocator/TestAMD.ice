@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.servantLocator.AMD]]
+[[java:package(test.Ice.servantLocator.AMD)]]
 module Test
 {
 

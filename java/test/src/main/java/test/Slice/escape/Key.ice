@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Slice.escape]]
+[[java:package(test.Slice.escape)]]
 
 module abstract
 {

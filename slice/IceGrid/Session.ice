@@ -4,21 +4,21 @@
 
 #pragma once
 
-[[cpp:dll-export:ICEGRID_API]]
-[[cpp:doxygen:include:IceGrid/IceGrid.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:IceGrid/Config.h]]
+[[cpp:dll-export(ICEGRID_API)]]
+[[cpp:doxygen:include(IceGrid/IceGrid.h)]]
+[[cpp:header-ext(h)]]
+[[cpp:include(IceGrid/Config.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:IceGrid]]
+[[python:pkgdir(IceGrid)]]
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module IceGrid
 {
     /// A session object is used by IceGrid clients to allocate and

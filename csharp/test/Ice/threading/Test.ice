@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Threading
 {
@@ -17,7 +17,7 @@ exception TestFailedException
 interface TestIntf
 {
     void pingSync();
-    ["amd"] void ping();
+    [amd] void ping();
     void concurrent(int level);
     void reset();
     void shutdown();

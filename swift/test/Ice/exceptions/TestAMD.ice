@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[swift:class-resolver-prefix:IceExceptionsAMD]]
+[[swift:class-resolver-prefix(IceExceptionsAMD)]]
 
 module Test
 {

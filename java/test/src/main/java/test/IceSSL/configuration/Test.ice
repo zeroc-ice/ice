@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.IceSSL.configuration]]
+[[java:package(test.IceSSL.configuration)]]
 module Test
 {
 

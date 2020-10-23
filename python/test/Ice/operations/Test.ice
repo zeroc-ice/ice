@@ -6,7 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[[suppress-warning:deprecated]] // For classes with operations
+[[suppress-warning(deprecated)]] // For classes with operations
 
 module Test
 {

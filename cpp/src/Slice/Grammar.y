@@ -113,6 +113,21 @@ slice_error(const char* s)
     }
 }
 
+// TODO this function is only temporarily necessary to convert between the old and new syntax styles.
+void convertMetadata(StringListTokPtr& metadata)
+{
+    for (auto& m : metadata->v)
+    {
+        auto pos = m.find('(');
+        if (pos != string::npos)
+        {
+            m[pos] = ':';
+            assert(m.back() == ')');
+            m.pop_back();
+        }
+    }
+}
+
 %}
 
 // Directs Bison to generate a re-entrant parser.
@@ -200,7 +215,9 @@ file_metadata
 // ----------------------------------------------------------------------
 : ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE
 {
-    $$ = $2;
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
+    convertMetadata(metadata);
+    $$ = metadata;
 }
 ;
 
@@ -209,13 +226,17 @@ local_metadata
 // ----------------------------------------------------------------------
 : ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
 {
-    $$ = $2;
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($2);
+    convertMetadata(metadata);
+    $$ = metadata;
 }
 | local_metadata ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
 {
     StringListTokPtr metadata1 = StringListTokPtr::dynamicCast($1);
     StringListTokPtr metadata2 = StringListTokPtr::dynamicCast($3);
     metadata1->v.splice(metadata1->v.end(), metadata2->v);
+
+    convertMetadata(metadata1);
     $$ = metadata1;
 }
 | %empty

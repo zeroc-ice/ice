@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Enums
 {
@@ -166,7 +166,7 @@ enum FLSimpleEnum : byte
 }
 sequence<FLSimpleEnum> FLSimpleEnumSeq;
 
-[cs:attribute:System.Flags] unchecked enum MyFlags : uint
+[cs:attribute(System.Flags)] unchecked enum MyFlags : uint
 {
     E0 = 1,
     E1 = 2,

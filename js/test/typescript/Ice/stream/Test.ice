@@ -7,7 +7,7 @@
 //
 // Suppress invalid metadata warnings
 //
-[[suppress-warning:invalid-metadata]]
+[[suppress-warning(invalid-metadata)]]
 [[js:es6-module]]
 [[3.7]]
 

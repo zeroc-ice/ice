@@ -44,7 +44,7 @@ class BaseClass
     string bc;
 }
 
-[format:sliced]
+[format(sliced)]
 interface Relay
 {
     void knownPreservedAsBase() throws Base;
@@ -54,7 +54,7 @@ interface Relay
     void unknownPreservedAsKnownPreserved() throws KnownPreserved;
 }
 
-[format:sliced]
+[format(sliced)]
 interface TestIntf
 {
     void baseAsBase() throws Base;
@@ -73,7 +73,7 @@ interface TestIntf
     void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
     void unknownMostDerived2AsBase() throws Base;
 
-    [format:compact] void unknownMostDerived2AsBaseCompact() throws Base;
+    [format(compact)] void unknownMostDerived2AsBaseCompact() throws Base;
 
     void knownPreservedAsBase() throws Base;
     void knownPreservedAsKnownPreserved() throws KnownPreserved;

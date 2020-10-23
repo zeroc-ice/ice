@@ -6,7 +6,7 @@
 
 #include <SingleModuleWithPackage.ice>
 
-[[java:package:smwp]]
+[[java:package(smwp)]]
 
 module T1::T2
 {

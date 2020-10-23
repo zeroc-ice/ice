@@ -5,7 +5,7 @@
 #pragma once
 #include <Ice/Identity.ice>
 
-[[java:package:test.Ice.udp]]
+[[java:package(test.Ice.udp)]]
 module Test
 {
 

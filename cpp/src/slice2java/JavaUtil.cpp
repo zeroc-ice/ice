@@ -348,11 +348,6 @@ private:
                             result.push_back(s);
                             continue;
                         }
-                        else if(rest == "tie")
-                        {
-                            result.push_back(s);
-                            continue;
-                        }
                         else if(rest == "UserException")
                         {
                             result.push_back(s);
@@ -495,9 +490,7 @@ private:
         StringList newMetadata;
         for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
         {
-            //
             // The "getset" metadata can only be specified on a class, struct, exception or data member.
-            //
             if((*i) == "java:getset" &&
                (!ClassDefPtr::dynamicCast(p) && !StructPtr::dynamicCast(p) && !ExceptionPtr::dynamicCast(p) &&
                 !MemberPtr::dynamicCast(p)))

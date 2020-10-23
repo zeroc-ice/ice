@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[cpp:dll-export:LIBRARY_TEST_API]]
+[[cpp:dll-export(LIBRARY_TEST_API)]]
 
 module Test
 {

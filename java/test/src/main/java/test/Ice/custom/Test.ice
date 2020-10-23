@@ -6,24 +6,24 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[java:package:test.Ice.custom]]
+[[java:package(test.Ice.custom)]]
 module Test
 {
 
 class C {}
 
 sequence<C> CSeq;
-[java:type:java.util.ArrayList<C>] sequence<C> CArray;
-[java:type:java.util.LinkedList<C>] sequence<C> CList;
+[java:type(java.util.ArrayList<C>)] sequence<C> CArray;
+[java:type(java.util.LinkedList<C>)] sequence<C> CList;
 
-[java:type:java.util.ArrayList<Boolean>] sequence<bool> BoolSeq;
-[java:type:java.util.ArrayList<Byte>] sequence<byte> ByteSeq;
-[java:type:java.util.ArrayList<Short>] sequence<short> ShortSeq;
-[java:type:java.util.ArrayList<Integer>] sequence<int> IntSeq;
-[java:type:java.util.ArrayList<Long>] sequence<long> LongSeq;
-[java:type:java.util.ArrayList<Float>] sequence<float> FloatSeq;
-[java:type:java.util.ArrayList<Double>] sequence<double> DoubleSeq;
-[java:type:java.util.ArrayList<String>] sequence<string> StringSeq;
+[java:type(java.util.ArrayList<Boolean>)] sequence<bool> BoolSeq;
+[java:type(java.util.ArrayList<Byte>)] sequence<byte> ByteSeq;
+[java:type(java.util.ArrayList<Short>)] sequence<short> ShortSeq;
+[java:type(java.util.ArrayList<Integer>)] sequence<int> IntSeq;
+[java:type(java.util.ArrayList<Long>)] sequence<long> LongSeq;
+[java:type(java.util.ArrayList<Float>)] sequence<float> FloatSeq;
+[java:type(java.util.ArrayList<Double>)] sequence<double> DoubleSeq;
+[java:type(java.util.ArrayList<String>)] sequence<string> StringSeq;
 
 [java:buffer] sequence<byte> ByteBuffer;
 [java:buffer] sequence<short> ShortBuffer;
@@ -33,18 +33,18 @@ sequence<C> CSeq;
 [java:buffer] sequence<double> DoubleBuffer;
 
 enum E { E1, E2, E3 }
-[java:type:java.util.ArrayList<E>] sequence<E> ESeq;
+[java:type(java.util.ArrayList<E>)] sequence<E> ESeq;
 
 struct S
 {
     E en;
 }
-[java:type:java.util.ArrayList<S>] sequence<S> SSeq;
+[java:type(java.util.ArrayList<S>)] sequence<S> SSeq;
 
 dictionary<int, string> D;
-[java:type:java.util.ArrayList<java.util.Map<Integer,String>>] sequence<D> DSeq;
+[java:type(java.util.ArrayList<java.util.Map<Integer,String>>)] sequence<D> DSeq;
 
-[java:type:java.util.LinkedList<java.util.List<String>>] sequence<StringSeq> StringSeqSeq;
+[java:type(java.util.LinkedList<java.util.List<String>>)] sequence<StringSeq> StringSeqSeq;
 
 interface TestIntf
 {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:deprecated]] // For enumerator references
+[[suppress-warning(deprecated)]] // For enumerator references
 [[js:es6-module]]
 
 module Test
