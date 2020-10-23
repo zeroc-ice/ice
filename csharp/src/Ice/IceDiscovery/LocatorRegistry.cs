@@ -22,7 +22,7 @@ namespace ZeroC.IceDiscovery
 
         private readonly object _mutex = new ();
 
-        private readonly Dictionary<(string, Protocol), HashSet<string>> _replicaGroups = new ();
+        private readonly Dictionary<(string AdapterId, Protocol Protocol), HashSet<string>> _replicaGroups = new ();
 
         public void RegisterAdapterEndpoints(
             string adapterId,
@@ -122,7 +122,7 @@ namespace ZeroC.IceDiscovery
                 // We check the local replica groups before the local adapters.
 
                 candidates =
-                    _replicaGroups.Keys.Where(k => k.Item2 == Protocol.Ice1).Select(k => k.Item1).ToList();
+                    _replicaGroups.Keys.Where(k => k.Protocol == Protocol.Ice1).Select(k => k.AdapterId).ToList();
 
                 candidates.AddRange(_ice1Adapters.Keys);
             }
@@ -185,7 +185,7 @@ namespace ZeroC.IceDiscovery
                 // We check the local replica groups before the local adapters.
 
                 candidates =
-                    _replicaGroups.Keys.Where(k => k.Item2 == Protocol.Ice2).Select(k => k.Item1).ToList();
+                    _replicaGroups.Keys.Where(k => k.Protocol == Protocol.Ice2).Select(k => k.AdapterId).ToList();
 
                 candidates.AddRange(_ice2Adapters.Keys);
             }
