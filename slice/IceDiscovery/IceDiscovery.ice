@@ -46,27 +46,34 @@ module IceDiscovery
         /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
         /// domain ID that matches the server's configured domain ID.
         /// @param id The object identity.
+        /// @param facet The facet of the object. Null is equivalent to the empty string.
         /// @param reply A proxy to a LookupReply object created by the caller. The server calls foundObjectById on this
-        /// object when it hosts an object with the requested identity in an ice1 object adapter.
-        idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply reply);
+        /// object when it hosts an object with the requested identity and facet in an ice1 object adapter.
+        idempotent void findObjectById(string domainId, Ice::Identity id, tag(1) string? facet, LookupReply reply);
 
 #ifdef __SLICE2CS__
         /// Finds an ice2 object adapter hosted by the target object's server.
         /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
         /// domain ID that matches the server's configured domain ID.
         /// @param adapterId The adapter ID.
-        /// @param reply A proxy to a ResolveAdapterIdReply object created by the caller. The server calls found
-        /// on this object when it hosts an ice2 object adapter that has the requested adapter ID (or replica group ID).
+        /// @param reply A proxy to a ResolveAdapterIdReply object created by the caller. The server calls
+        /// foundAdapterId on this object when it hosts an ice2 object adapter that has the requested adapter ID (or
+        /// replica group ID).
         void resolveAdapterId(string domainId, string adapterId, ResolveAdapterIdReply reply);
 
         /// Finds an object hosted by an ice2 object adapter of the target object's server.
         /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
         /// domain ID that matches the server's configured domain ID.
         /// @param identity The identity of the object.
+        /// @param facet The facet of the object.
         /// @param reply A proxy to a ResolvedWellKnownProxyReply object created by the caller. The server calls
-        /// foundAdapterId or foundEndpoints on this object when it has an ice2 object adapter that hosts an object with
-        /// the given identity.
-        void resolveWellKnownProxy(string domainId, Ice::Identity identity, ResolveWellKnownProxyReply reply);
+        /// foundWellKnownProxy on this object when it has an ice2 object adapter that hosts an object with the given
+        /// identity and facet.
+        void resolveWellKnownProxy(
+            string domainId,
+            Ice::Identity identity,
+            string facet,
+            ResolveWellKnownProxyReply reply);
 #endif
     }
 

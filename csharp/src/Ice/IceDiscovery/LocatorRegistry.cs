@@ -105,7 +105,10 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity identity, CancellationToken cancel)
+        internal async ValueTask<IObjectPrx?> FindObjectAsync(
+            Identity identity,
+            string? facet,
+            CancellationToken cancel)
         {
             if (identity.Name.Length == 0)
             {
@@ -132,6 +135,7 @@ namespace ZeroC.IceDiscovery
                     IObjectPrx proxy = _dummyIce1Proxy.Clone(
                         IObjectPrx.Factory,
                         identity: identity,
+                        facet: facet,
                         location: ImmutableArray.Create(id));
                     await proxy.IcePingAsync(cancel: cancel).ConfigureAwait(false);
                     return proxy;
@@ -164,7 +168,10 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal async ValueTask<string> ResolveWellKnownProxyAsync(Identity identity, CancellationToken cancel)
+        internal async ValueTask<string> ResolveWellKnownProxyAsync(
+            Identity identity,
+            string facet,
+            CancellationToken cancel)
         {
             if (identity.Name.Length == 0)
             {
@@ -191,6 +198,7 @@ namespace ZeroC.IceDiscovery
                     IObjectPrx proxy = _dummyIce2Proxy.Clone(
                         IObjectPrx.Factory,
                         identity: identity,
+                        facet: facet,
                         location: ImmutableArray.Create(id));
                     await proxy.IcePingAsync(cancel: cancel).ConfigureAwait(false);
                     return id;

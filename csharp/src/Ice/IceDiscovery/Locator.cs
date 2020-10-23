@@ -53,6 +53,7 @@ namespace ZeroC.IceDiscovery
 
         public async ValueTask<IObjectPrx?> FindObjectByIdAsync(
             Identity identity,
+            string? facet,
             Current current,
             CancellationToken cancel)
         {
@@ -63,7 +64,7 @@ namespace ZeroC.IceDiscovery
                     ILookupReplyPrx lookupReply =
                         dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
 
-                    return lookup.FindObjectByIdAsync(_domainId, identity, lookupReply, cancel: cancel);
+                    return lookup.FindObjectByIdAsync(_domainId, identity, facet, lookupReply, cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
         }
@@ -110,6 +111,7 @@ namespace ZeroC.IceDiscovery
 
         public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveWellKnownProxyAsync(
             Identity identity,
+            string facet,
             Current current,
             CancellationToken cancel)
         {
@@ -123,6 +125,7 @@ namespace ZeroC.IceDiscovery
 
                     return lookup.ResolveWellKnownProxyAsync(_domainId,
                                                              identity,
+                                                             facet,
                                                              reply,
                                                              cancel: cancel);
                 },

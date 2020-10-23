@@ -7,6 +7,10 @@ namespace ZeroC.Ice.Test.Location
 {
     public class TestIntf : ITestIntf
     {
+        private ObjectAdapter _adapter1;
+        private ObjectAdapter _adapter2;
+        private ServerLocatorRegistry _registry;
+
         internal TestIntf(ObjectAdapter adapter1, ObjectAdapter adapter2, ServerLocatorRegistry registry)
         {
             _adapter1 = adapter1;
@@ -14,6 +18,7 @@ namespace ZeroC.Ice.Test.Location
             _registry = registry;
 
             _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
+            _registry.AddObject(_adapter1.Add("bonjour#abc", new Hello(), IObjectPrx.Factory));
         }
 
         public void Shutdown(Current current, CancellationToken cancel) => _adapter1.Communicator.ShutdownAsync();
@@ -40,9 +45,5 @@ namespace ZeroC.Ice.Test.Location
                 _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current, cancel);
             }
         }
-
-        private ObjectAdapter _adapter1;
-        private ObjectAdapter _adapter2;
-        private ServerLocatorRegistry _registry;
     }
 }
