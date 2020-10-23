@@ -361,7 +361,7 @@ namespace ZeroC.Ice.Test.Tagged
                     ostr.WriteTaggedString(1, value.s); // duplicate tag ignored by the server
                 });
 
-            TestHelper.Assert(initial.Invoke(requestFrame).ResultType == ResultType.Success);
+            TestHelper.Assert(initial.InvokeAsync(requestFrame).Result.ResultType == ResultType.Success);
 
             output.WriteLine("ok");
 
@@ -500,7 +500,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         byte? b1 = istr.ReadTaggedByte(1);
@@ -541,7 +541,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     bool? b1 = istr.ReadTaggedBool(1);
@@ -582,7 +582,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         short? s1 = istr.ReadTaggedShort(1);
@@ -623,7 +623,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     int? r1 = istr.ReadTaggedInt(1);
@@ -663,7 +663,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, long? p1) => ostr.WriteTaggedLong(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     long? l1 = istr.ReadTaggedLong(1);
@@ -703,7 +703,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         float? f1 = istr.ReadTaggedFloat(1);
@@ -744,7 +744,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         double? d1 = istr.ReadTaggedDouble(1);
@@ -787,7 +787,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, string? p1) => ostr.WriteTaggedString(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                 {
                     string? s1 = istr.ReadTaggedString(1);
@@ -828,7 +828,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(1, (int?)p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(2)?.AsMyEnum()));
                 TestHelper.Assert(r1 == MyEnum.M1);
@@ -866,7 +866,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(1, p1, 1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: true, istr => new SmallStruct(istr)),
                         istr.ReadTaggedStruct(2, fixedSize: true, istr => new SmallStruct(istr))));
@@ -905,7 +905,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(1, p1, 4));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: true, istr => new FixedStruct(istr)),
                         istr.ReadTaggedStruct(2, fixedSize: true, istr => new FixedStruct(istr))));
@@ -952,7 +952,7 @@ namespace ZeroC.Ice.Test.Tagged
                         ostr.WriteTaggedStruct(1, p1);
                     });
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedStruct(1, fixedSize: false, istr => new VarStruct(istr)),
                         istr.ReadTaggedStruct(2, fixedSize: false, istr => new VarStruct(istr))));
@@ -1012,7 +1012,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<byte>(1), istr.ReadTaggedArray<byte>(2)));
 
@@ -1050,7 +1050,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<bool>(1), istr.ReadTaggedArray<bool>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
@@ -1088,7 +1088,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, short[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<short>(1), istr.ReadTaggedArray<short>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
@@ -1125,7 +1125,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, int[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<int>(1), istr.ReadTaggedArray<int>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
@@ -1162,7 +1162,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, long[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<long>(1), istr.ReadTaggedArray<long>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
@@ -1199,7 +1199,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, float[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<float>(1), istr.ReadTaggedArray<float>(2)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, r1!));
@@ -1236,7 +1236,7 @@ namespace ZeroC.Ice.Test.Tagged
                     p1,
                     (OutputStream ostr, double[]? p1) => ostr.WriteTaggedArray(1, p1));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray<double>(1), istr.ReadTaggedArray<double>(2)));
 
@@ -1275,7 +1275,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, string[]? p1) =>
                         ostr.WriteTaggedSequence(1, p1, (ost, s) => ostr.WriteString(s)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 1, fixedSize: false, istr => istr.ReadString()),
                        istr.ReadTaggedArray(2, 1, fixedSize: false, istr => istr.ReadString())));
@@ -1314,7 +1314,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, SmallStruct[]? p1) => ostr.WriteTaggedSequence(1, p1, 1,
                         (ostr, st) => ostr.WriteStruct(st)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 1, fixedSize: true, istr => new SmallStruct(istr)),
                         istr.ReadTaggedArray(2, 1, fixedSize: true, istr => new SmallStruct(istr))));
@@ -1358,7 +1358,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, List<SmallStruct>? p1) => ostr.WriteTaggedSequence(1, p1, 1,
                         (ostr, st) => ostr.WriteStruct(st)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         List<SmallStruct>? list1 =
@@ -1407,7 +1407,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, FixedStruct[]? p1) => ostr.WriteTaggedSequence(1, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedArray(1, 4, fixedSize: true, istr => new FixedStruct(istr)),
                         istr.ReadTaggedArray(2, 4, fixedSize: true, istr => new FixedStruct(istr))));
@@ -1451,7 +1451,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, LinkedList<FixedStruct>? p1) => ostr.WriteTaggedSequence(1, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     {
                         LinkedList<FixedStruct>? list1 =
@@ -1499,7 +1499,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, VarStruct[]? p1) =>
                         ostr.WriteTaggedSequence(1, p1, (ostr, vs) => ostr.WriteStruct(vs)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                       (istr.ReadTaggedArray(1, 1, fixedSize: false, istr => new VarStruct(istr)),
                         istr.ReadTaggedArray(2, 1, fixedSize: false, istr => new VarStruct(istr))));
@@ -1570,7 +1570,7 @@ namespace ZeroC.Ice.Test.Tagged
                     (OutputStream ostr, Dictionary<int, int>? p1) => ostr.WriteTaggedDictionary(1, p1, 8,
                         (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteInt(v)));
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                     (istr.ReadTaggedDictionary(1, 4, 4, fixedSize: true,
                         istr => istr.ReadInt(), istr => istr.ReadInt()),
@@ -1620,7 +1620,7 @@ namespace ZeroC.Ice.Test.Tagged
                             (ostr, k) => ostr.WriteString(k), (ostr, v) => ostr.WriteInt(v));
                     });
 
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
+                IncomingResponseFrame responseFrame = initial.InvokeAsync(requestFrame).Result;
                 (r1, r2) = responseFrame.ReadReturnValue(communicator, istr =>
                       (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadString(),
                                                                             istr => istr.ReadInt()),
