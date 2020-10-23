@@ -53,13 +53,13 @@ module Ice
     interface Locator
     {
 #ifdef __SLICE2CS__
-        /// Finds an object by identity and returns a proxy that provides a location or endpoint(s) that can be used
-        /// to reach the object using the ice1 protocol.
+        /// Finds an object by identity and facet and returns a proxy that provides a location or endpoint(s) that can
+        /// be used to reach the object using the ice1 protocol.
         /// @param id The identity.
         /// @param facet The facet. A null value is equivalent to the empty string.
         /// @return An ice1 proxy that provides a location or endpoint(s), or null if an object with the requested
         /// identity and facet was not found.
-        /// @throws ObjectNotFoundException Thrown if an object with the request identity and facet was not found. The
+        /// @throws ObjectNotFoundException Thrown if an object with the requested identity and facet was not found. The
         /// caller should treat this exception like a null return value.
         idempotent Object? findObjectById(Identity id, tag(1) string? facet);
 
