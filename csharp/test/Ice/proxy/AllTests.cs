@@ -654,7 +654,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             // InvocationTimeout is a property with Ice1 and an URI option with Ice2 so the extra property with Ice1
-            TestHelper.Assert(proxyProps.Count == (ice1 ? 13 : 12), $"proxyProps.Count: {proxyProps.Count} ice1: {ice1}");
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 13 : 12));
             TestHelper.Assert(proxyProps["Test"] ==
                               (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
                                       "ice+tcp://127.0.0.1/test?invocation-timeout=10s"));
