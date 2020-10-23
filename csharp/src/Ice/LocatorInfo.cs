@@ -199,10 +199,8 @@ namespace ZeroC.Ice
             {
                 ILocatorRegistryPrx? registry = await Locator.GetRegistryAsync().ConfigureAwait(false);
 
-                // The locator registry can't be located and we use ordered endpoint selection in case the locator
-                // returned a proxy with some endpoints which are preferred to be tried first.
-                _locatorRegistry =
-                    registry?.Clone(clearLocator: true, endpointSelection: EndpointSelectionType.Ordered);
+                // The locator registry can't be located.
+                _locatorRegistry = registry?.Clone(clearLocator: true);
             }
             return _locatorRegistry;
         }

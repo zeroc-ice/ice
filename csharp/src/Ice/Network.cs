@@ -93,18 +93,11 @@ namespace ZeroC.Ice
             return socket;
         }
 
-        internal static IEnumerable<IPEndPoint> GetAddresses(
-            string host,
-            int port,
-            int ipVersion,
-            EndpointSelectionType selType)
+        internal static IEnumerable<IPEndPoint> GetAddresses(string host, int port, int ipVersion)
         {
             try
             {
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
-                                                                            port,
-                                                                            ipVersion,
-                                                                            selType);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -118,7 +111,6 @@ namespace ZeroC.Ice
             string host,
             int port,
             int ipVersion,
-            EndpointSelectionType selType,
             CancellationToken cancel = default)
         {
             Debug.Assert(host.Length > 0);
@@ -161,13 +153,7 @@ namespace ZeroC.Ice
                     throw new DNSException(host);
                 }
 
-                IEnumerable<IPEndPoint> addrs = addresses;
-                if (selType == EndpointSelectionType.Random)
-                {
-                    addrs = addrs.Shuffle();
-                }
-
-                return addrs;
+                return addresses;
             }
             catch (DNSException)
             {
@@ -183,12 +169,11 @@ namespace ZeroC.Ice
             string host,
             int port,
             int ipVersion,
-            EndpointSelectionType selType,
             CancellationToken cancel)
         {
             Debug.Assert(host.Length > 0);
 
-            return await GetAddressesAsync(host, port, ipVersion, selType, cancel).ConfigureAwait(false);
+            return await GetAddressesAsync(host, port, ipVersion, cancel).ConfigureAwait(false);
         }
 
         internal static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion)
@@ -200,10 +185,7 @@ namespace ZeroC.Ice
             try
             {
                 // Get the addresses for the given host and return the first one
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
-                                                                            port,
-                                                                            ipVersion,
-                                                                            EndpointSelectionType.Ordered);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
                 return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
             }
             catch (AggregateException ex)

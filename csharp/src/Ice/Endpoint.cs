@@ -185,12 +185,9 @@ namespace ZeroC.Ice
         public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
 
         /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
-        /// <param name="endpointSelection">The endpoint selection type used when expanding the endpoint address.
-        /// </param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A collector of connectors for this endpoint.</returns>
         public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType endpointSelection,
             CancellationToken cancel);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.

@@ -238,8 +238,7 @@ namespace ZeroC.Ice.Test.Retry
                     sb.Append(':');
                     sb.Append(helper.BasePort + 1);
 
-                    IReplicatedPrx? replicated = IReplicatedPrx.Parse(sb.ToString(), communicator).Clone(
-                        endpointSelection: EndpointSelectionType.Ordered);
+                    IReplicatedPrx? replicated = IReplicatedPrx.Parse(sb.ToString(), communicator);
 
                     replicated.IcePing();
                     TestHelper.Assert(((IPConnection)replicated.GetCachedConnection()!).RemoteEndpoint!.Port ==

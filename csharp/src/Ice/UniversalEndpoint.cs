@@ -60,9 +60,7 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint) => false;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType selType,
-            CancellationToken cancel) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>

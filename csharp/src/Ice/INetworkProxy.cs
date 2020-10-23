@@ -86,7 +86,6 @@ namespace ZeroC.Ice
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
                                                                  IPVersion,
-                                                                 EndpointSelectionType.Random,
                                                                  cancel).ConfigureAwait(false);
             return new SOCKSNetworkProxy(addresses.First());
         }
@@ -158,12 +157,10 @@ namespace ZeroC.Ice
         {
             Debug.Assert(_host != null);
 
-            // Get addresses in random order and use the first one
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
                                                                  IPVersion,
-                                                                 EndpointSelectionType.Random,
                                                                  cancel).ConfigureAwait(false);
             return new HTTPNetworkProxy(addresses.First());
         }

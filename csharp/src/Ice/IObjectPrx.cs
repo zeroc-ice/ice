@@ -127,9 +127,6 @@ namespace ZeroC.Ice
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
 
-        /// <summary>The endpoint selection policy of this proxy, which can be Random or Ordered.</summary>
-        public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
-
         /// <summary>The facet to use on the target Ice object. The empty string corresponds to the default facet.
         /// </summary>
         public string Facet => IceReference.Facet;
