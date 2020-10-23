@@ -35,13 +35,20 @@ namespace ZeroC.Ice
                     {
                         // If we received a frame for a known stream, signal the stream of the frame reception. A null
                         // frame indicates a stream reset so reset the stream in this case.
-                        if (frame == null)
+                        try
                         {
-                            stream.ReceivedReset(0);
+                            if (frame == null)
+                            {
+                                stream.ReceivedReset(0);
+                            }
+                            else
+                            {
+                                stream.ReceivedFrame(frame, fin);
+                            }
                         }
-                        else
+                        catch
                         {
-                            stream.ReceivedFrame(frame, fin);
+                            // Ignore the stream has been aborted.
                         }
                     }
                     else if (frame is OutgoingRequestFrame || streamId == (IsIncoming ? 2 : 3))
@@ -49,9 +56,17 @@ namespace ZeroC.Ice
                         // If we received an outgoing request frame or a frame for the incoming control stream,
                         // create a new stream and provide it the received frame.
                         Debug.Assert(frame != null);
-                        stream = new ColocatedStream(streamId, this);
-                        stream.ReceivedFrame(frame, fin);
-                        return stream;
+                        try
+                        {
+                            stream = new ColocatedStream(streamId, this);
+                            stream.ReceivedFrame(frame, fin);
+                            return stream;
+                        }
+                        catch
+                        {
+                            // Ignore, the connection is being closed or the stream got aborted.
+                            stream?.Dispose();
+                        }
                     }
                     else
                     {
@@ -119,6 +134,17 @@ namespace ZeroC.Ice
                 _nextBidirectionalId = 0;
                 _nextUnidirectionalId = 2;
             }
+        }
+
+        internal override (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate)
+        {
+            (long, long) streamIds = base.AbortStreams(exception, predicate);
+
+            // Unblock requests waiting on the semaphores.
+            BidirectionalSerializeSemaphore?.CancelAwaiters(exception);
+            UnidirectionalSerializeSemaphore?.CancelAwaiters(exception);
+
+            return streamIds;
         }
 
         internal long AllocateId(bool bidirectional)

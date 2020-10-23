@@ -317,7 +317,7 @@ namespace ZeroC.Ice.Test.ACM
                     proxy.Sleep(10);
                     TestHelper.Assert(false);
                 }
-                catch (ConnectionTimeoutException)
+                catch (ConnectionClosedException)
                 {
                     proxy.InterruptSleep();
 
@@ -365,14 +365,7 @@ namespace ZeroC.Ice.Test.ACM
                 lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
-                    try
-                    {
-                        connection.ThrowException();
-                    }
-                    catch (Exception ex)
-                    {
-                        TestHelper.Assert(ex is ConnectionIdleException);
-                    }
+                    TestHelper.Assert(!connection.IsActive);
                 }
             }
         }
@@ -409,14 +402,7 @@ namespace ZeroC.Ice.Test.ACM
                 {
                     TestHelper.Assert(Heartbeat == 0);
                 }
-                try
-                {
-                    connection.ThrowException();
-                }
-                catch (Exception ex)
-                {
-                    TestHelper.Assert(ex is ConnectionIdleException);
-                }
+                TestHelper.Assert(!connection.IsActive);
             }
         }
 
@@ -434,14 +420,7 @@ namespace ZeroC.Ice.Test.ACM
                 {
                     TestHelper.Assert(Heartbeat == 0);
                 }
-                try
-                {
-                    connection.ThrowException();
-                }
-                catch (Exception ex)
-                {
-                    TestHelper.Assert(ex is ConnectionTimeoutException);
-                }
+                TestHelper.Assert(!connection.IsActive);
             }
         }
 
@@ -541,14 +520,7 @@ namespace ZeroC.Ice.Test.ACM
                 TestHelper.Assert(t1.Task.Result == null);
                 TestHelper.Assert(t2.Task.Result == null);
 
-                try
-                {
-                    con.ThrowException();
-                    TestHelper.Assert(false);
-                }
-                catch (ConnectionClosedLocallyException)
-                {
-                }
+                TestHelper.Assert(!con.IsActive);
 
                 var t3 = new TaskCompletionSource<object?>();
                 con.Closed += (sender, args) => t3.SetResult(null);

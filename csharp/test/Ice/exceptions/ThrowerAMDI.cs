@@ -55,7 +55,7 @@ namespace ZeroC.Ice.Test.Exceptions
             throw new C(a, b, c);
 
         public ValueTask ThrowLocalExceptionAsync(Current current, CancellationToken cancel) =>
-            throw new ConnectionTimeoutException();
+            throw new ConnectionClosedException();
 
         public ValueTask ThrowNonIceExceptionAsync(Current current, CancellationToken cancel) => throw new Exception();
 
@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.Exceptions
             new ValueTask<ReadOnlyMemory<byte>>(new byte[1024 * 20]);
 
         public ValueTask ThrowLocalExceptionIdempotentAsync(Current current, CancellationToken cancel) =>
-            throw new ConnectionTimeoutException();
+            throw new ConnectionClosedException();
 
         // Not supported with C# AMD API
         public ValueTask ThrowAfterResponseAsync(Current current, CancellationToken cancel) =>
