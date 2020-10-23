@@ -125,8 +125,25 @@ namespace ZeroC.Ice.Test.ACM
 
     public abstract class TestCase
     {
-        protected readonly object Mutex = new object();
+        private IRemoteObjectAdapterPrx? _adapter;
+        private readonly IRemoteCommunicatorPrx _com;
+        private int? _clientIdleTimeout;
+        private bool? _clientKeepAlive;
+        private Communicator? _communicator;
+        private readonly TestHelper _helper;
+        private readonly Logger _logger;
+        private string? _msg;
+        private readonly string _name;
+        private readonly TextWriter _output;
+        private int? _serverIdleTimeout;
+        private bool? _serverKeepAlive;
         private readonly Stopwatch _stopwatch = new Stopwatch();
+        private Thread? _thread;
+
+        protected bool Closed;
+        protected int Heartbeat;
+        protected readonly object Mutex = new object();
+
         public TestCase(string name, IRemoteCommunicatorPrx com, TestHelper helper)
         {
             _name = name;
@@ -134,42 +151,16 @@ namespace ZeroC.Ice.Test.ACM
             _output = helper.Output;
             _logger = new Logger(_name, _output);
             _helper = helper;
-
-            _clientAcmTimeout = -1;
-            _clientAcmClose = null;
-            _clientAcmHeartbeat = null;
-
-            _serverAcmTimeout = -1;
-            _serverAcmClose = null;
-            _serverAcmHeartbeat = null;
-
-            Heartbeat = 0;
-            Closed = false;
             _stopwatch.Start();
         }
 
         public void Init()
         {
-            _adapter = _com.CreateObjectAdapter(_serverAcmTimeout,
-                                                _serverAcmClose?.ToString(),
-                                                _serverAcmHeartbeat?.ToString());
+            _adapter = _com.CreateObjectAdapter(_serverIdleTimeout, _serverKeepAlive);
 
             Dictionary<string, string> properties = _com.Communicator.GetProperties();
-            properties["Ice.ACM.Timeout"] = "2s";
-            if (_clientAcmTimeout >= 0)
-            {
-                properties["Ice.ACM.Client.Timeout"] = $"{_clientAcmTimeout}s";
-            }
-
-            if (_clientAcmClose >= 0)
-            {
-                properties["Ice.ACM.Client.Close"] = ((AcmClose)_clientAcmClose).ToString();
-            }
-
-            if (_clientAcmHeartbeat >= 0)
-            {
-                properties["Ice.ACM.Client.Heartbeat"] = ((AcmHeartbeat)_clientAcmHeartbeat).ToString();
-            }
+            properties["Ice.IdleTimeout"] = _clientIdleTimeout ?? "2s";
+            properties["Ice.KeepAlive"] = _clientKeepAlive ?? "0";
             _communicator = _helper.Initialize(properties);
             _thread = new Thread(Run);
         }
@@ -248,40 +239,17 @@ namespace ZeroC.Ice.Test.ACM
 
         public abstract void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy);
 
-        public void SetClientAcm(int timeout, AcmClose? close, AcmHeartbeat? heartbeat)
+        public void SetClientParams(int idleTimeout, bool keepAlive)
         {
-            _clientAcmTimeout = timeout;
-            _clientAcmClose = close;
-            _clientAcmHeartbeat = heartbeat;
+            _clientIdleTimeout = timeout;
+            _clientKeepAlive = keepAlive;
         }
 
-        public void SetServerAcm(int timeout, AcmClose? close, AcmHeartbeat? heartbeat)
+        public void SetServerParams(int idleTimeout, bool keepAlive)
         {
-            _serverAcmTimeout = timeout;
-            _serverAcmClose = close;
-            _serverAcmHeartbeat = heartbeat;
+            _serverIdleTimeout = timeout;
+            _serverKeepAlive = keepAlive;
         }
-
-        private readonly string _name;
-        private readonly IRemoteCommunicatorPrx _com;
-        private string? _msg;
-        private readonly Logger _logger;
-        private readonly TestHelper _helper;
-        private readonly TextWriter _output;
-        private Thread? _thread;
-
-        private Communicator? _communicator;
-        private IRemoteObjectAdapterPrx? _adapter;
-
-        private int _clientAcmTimeout;
-        private AcmClose? _clientAcmClose;
-        private AcmHeartbeat? _clientAcmHeartbeat;
-        private int _serverAcmTimeout;
-        private AcmClose? _serverAcmClose;
-        private AcmHeartbeat? _serverAcmHeartbeat;
-
-        protected int Heartbeat;
-        protected bool Closed;
     }
 
     public class AllTests
@@ -290,7 +258,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             // Faster ACM to make sure we receive enough ACM heartbeats
             public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("invocation heartbeat", com, helper) => SetServerAcm(1, null, null);
+                : base("invocation heartbeat", com, helper) => SetServerParams(1, null, null);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.Sleep(4);
@@ -307,7 +275,7 @@ namespace ZeroC.Ice.Test.ACM
             // Disable heartbeat on invocations
             public InvocationNoHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("invocation with no heartbeat", com, helper) =>
-                SetServerAcm(2, AcmClose.OnInvocation, AcmHeartbeat.Off);
+                SetServerParams(2, AcmClose.OnInvocation, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -335,8 +303,8 @@ namespace ZeroC.Ice.Test.ACM
             public InvocationHeartbeatCloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("invocation with no heartbeat and close on idle", com, helper)
             {
-                SetClientAcm(1, AcmClose.OnIdle, AcmHeartbeat.Off); // Only close on idle.
-                SetServerAcm(1, AcmClose.OnInvocation, AcmHeartbeat.Off); // Disable heartbeat on invocations
+                SetClientParams(1, AcmClose.OnIdle, AcmHeartbeat.Off); // Only close on idle.
+                SetServerParams(1, AcmClose.OnInvocation, AcmHeartbeat.Off); // Disable heartbeat on invocations
             }
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
@@ -356,7 +324,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             // Only close on idle
             public CloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("close on idle", com, helper) => SetClientAcm(1, AcmClose.OnIdle, AcmHeartbeat.Off);
+                : base("close on idle", com, helper) => SetClientParams(1, AcmClose.OnIdle, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -374,7 +342,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             // Only close on invocation
             public CloseOnInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("close on invocation", com, helper) => SetClientAcm(1, AcmClose.OnInvocation, AcmHeartbeat.Off);
+                : base("close on invocation", com, helper) => SetClientParams(1, AcmClose.OnInvocation, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -393,7 +361,7 @@ namespace ZeroC.Ice.Test.ACM
             // Only close on idle and invocation
             public CloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("close on idle and invocation", com, helper) =>
-                SetClientAcm(1, AcmClose.OnInvocationAndIdle, AcmHeartbeat.Off);
+                SetClientParams(1, AcmClose.OnInvocationAndIdle, AcmHeartbeat.Off);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 Connection connection = proxy.GetConnection()!;
@@ -411,7 +379,7 @@ namespace ZeroC.Ice.Test.ACM
             // Only close on idle and invocation
             public ForcefulCloseOnIdleAndInvocationTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("forceful close on idle and invocation", com, helper) =>
-                SetClientAcm(1, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
+                SetClientParams(1, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 Connection connection = proxy.GetConnection()!;
@@ -428,7 +396,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             // Enable server heartbeats.
             public HeartbeatOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("heartbeat on idle", com, helper) => SetServerAcm(1, null, AcmHeartbeat.OnIdle);
+                : base("heartbeat on idle", com, helper) => SetServerParams(1, null, AcmHeartbeat.OnIdle);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -445,7 +413,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             // Enable server heartbeats.
             public HeartbeatAlwaysTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("heartbeat always", com, helper) => SetServerAcm(1, null, AcmHeartbeat.Always);
+                : base("heartbeat always", com, helper) => SetServerParams(1, null, AcmHeartbeat.Always);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
@@ -468,8 +436,8 @@ namespace ZeroC.Ice.Test.ACM
                 : base("manual heartbeats", com, helper)
             {
                 // Disable heartbeats.
-                SetClientAcm(10, null, AcmHeartbeat.Off);
-                SetServerAcm(10, null, AcmHeartbeat.Off);
+                SetClientParams(10, null, AcmHeartbeat.Off);
+                SetServerParams(10, null, AcmHeartbeat.Off);
             }
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
@@ -488,7 +456,7 @@ namespace ZeroC.Ice.Test.ACM
         private class SetAcmTest : TestCase
         {
             public SetAcmTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("setACM/getACM", com, helper) => SetClientAcm(15, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
+                : base("setACM/getACM", com, helper) => SetClientParams(15, AcmClose.OnIdleForceful, AcmHeartbeat.Off);
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {

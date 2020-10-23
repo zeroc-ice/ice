@@ -9,9 +9,8 @@ namespace ZeroC.Ice.Test.ACM
     public class RemoteCommunicator : IRemoteCommunicator
     {
         public IRemoteObjectAdapterPrx CreateObjectAdapter(
-            int timeout,
-            string? close,
-            string? heartbeat,
+            int idleTimeout,
+            bool keepAlive,
             Current current,
             CancellationToken cancel)
         {
@@ -20,20 +19,11 @@ namespace ZeroC.Ice.Test.ACM
             string host = communicator.GetProperty("Test.Host")!;
 
             string name = Guid.NewGuid().ToString();
-            if (timeout >= 0)
+            if (idleTimeout >= 0)
             {
-                communicator.SetProperty($"{name}.ACM.Timeout", $"{timeout}s");
+                communicator.SetProperty($"Ice.IdleTimeout", $"{idleTimeout}s");
             }
-
-            if (close is string closeValue)
-            {
-                communicator.SetProperty($"{name}.ACM.Close", Enum.Parse<AcmClose>(closeValue).ToString());
-            }
-
-            if (heartbeat is string heartbeatValue)
-            {
-                communicator.SetProperty($"{name}.ACM.Heartbeat", Enum.Parse<AcmHeartbeat>(heartbeatValue).ToString());
-            }
+            communicator.SetProperty($"Ice.KeepAlive", keepAlive ? "1" : "0");
 
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             if (!ice1 && host.Contains(':'))

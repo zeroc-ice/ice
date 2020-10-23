@@ -71,14 +71,18 @@ namespace ZeroC.Ice.Test.Timeout
             output.Write("testing connection timeout... ");
             output.Flush();
             {
+                Dictionary<string, string>? properties = communicator.GetProperties();
+                properties["Ice.IdleTimeout"] = "50ms";
+                using var comm = new Communicator(properties);
+
+                var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
+
                 // Expect TimeoutException.
                 controller.HoldAdapter(-1);
-                timeout.GetConnection().Acm = new Acm(TimeSpan.FromMilliseconds(50),
-                                                      AcmClose.OnInvocationAndIdle,
-                                                      AcmHeartbeat.Off);
+
                 try
                 {
-                    timeout.SendData(seq);
+                    to.SendData(seq);
                     TestHelper.Assert(false);
                 }
                 catch (ConnectionClosedException)
