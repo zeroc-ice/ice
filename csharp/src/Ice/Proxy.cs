@@ -313,7 +313,7 @@ namespace ZeroC.Ice
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
                                                                                      request.Operation,
                                                                                      request.Context);
-                int retryCount = 0;
+                int attempt = 1;
                 // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
                 // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
                 // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
@@ -457,7 +457,7 @@ namespace ZeroC.Ice
                                            "the request size exceeds Ice.RetryRequestSizeMax, " :
                                            "the retry buffer size would exceed Ice.RetryBufferSizeMax, ") +
                                            "passing exception through to the application",
-                                           retryCount,
+                                           attempt,
                                            retryPolicy,
                                            lastException);
                             }
@@ -467,13 +467,13 @@ namespace ZeroC.Ice
                         {
                             break; // We cannot retry, get out of the loop
                         }
-                        else if (++retryCount == reference.Communicator.RetryMaxAttempts)
+                        else if (++attempt > reference.Communicator.RetryMaxAttempts)
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("request failed with retryable exception but the retry count is exceeded,\n" +
+                                TraceRetry("request failed with retryable exception but it was the final attempt,\n" +
                                            "passing exception through to the application",
-                                           retryCount,
+                                           attempt,
                                            retryPolicy,
                                            lastException);
                             }
@@ -481,7 +481,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            Debug.Assert(retryCount < reference.Communicator.RetryMaxAttempts &&
+                            Debug.Assert(attempt <= reference.Communicator.RetryMaxAttempts &&
                                          retryPolicy != RetryPolicy.NoRetry);
                             if (retryPolicy == RetryPolicy.OtherReplica)
                             {
@@ -503,7 +503,7 @@ namespace ZeroC.Ice
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
                                 TraceRetry("retrying request because of retryable exception",
-                                           retryCount,
+                                           attempt,
                                            retryPolicy,
                                            lastException);
                             }
@@ -547,7 +547,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            void TraceRetry(string message, int retryCount, RetryPolicy policy, Exception? exception = null)
+            void TraceRetry(string message, int attempt, RetryPolicy policy, Exception? exception = null)
             {
                 var sb = new StringBuilder();
                 sb.Append(message);
@@ -555,10 +555,13 @@ namespace ZeroC.Ice
                 sb.Append(proxy);
                 sb.Append("\noperation = ");
                 sb.Append(request.Operation);
-                sb.Append("\nretry count = ");
-                sb.Append(retryCount);
-                sb.Append('/');
-                sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                if (attempt <= proxy.IceReference.Communicator.RetryMaxAttempts)
+                {
+                    sb.Append("\nrequest attempt = ");
+                    sb.Append(attempt);
+                    sb.Append('/');
+                    sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                }
                 sb.Append("\nretry policy = ");
                 sb.Append(policy);
                 if (exception != null)
