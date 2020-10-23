@@ -31,20 +31,13 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            if (adapterId.Length == 0)
-            {
-                throw new InvalidArgumentException("adapterId cannot be empty", nameof(adapterId));
-            }
+
             if (endpoints.Length == 0)
             {
                 throw new InvalidArgumentException("endpoints cannot be empty", nameof(endpoints));
             }
 
-            lock (_mutex)
-            {
-                _ice2Adapters[adapterId] = endpoints;
-                AddAdapterToReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
-            }
+            RegisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice2, endpoints, _ice2Adapters);
         }
 
         public void SetAdapterDirectProxy(
@@ -61,18 +54,13 @@ namespace ZeroC.IceDiscovery
            Current current,
            CancellationToken cancel)
         {
-            lock (_mutex)
+            if (proxy != null)
             {
-                if (proxy != null)
-                {
-                    _ice1Adapters[adapterId] = proxy;
-                    AddAdapterToReplicaGroup(adapterId, replicaGroupId, Protocol.Ice1);
-                }
-                else
-                {
-                    _ice1Adapters.Remove(adapterId);
-                    RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, Protocol.Ice1);
-                }
+                RegisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice1, proxy, _ice1Adapters);
+            }
+            else
+            {
+                UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice1, _ice1Adapters);
             }
         }
 
@@ -89,19 +77,8 @@ namespace ZeroC.IceDiscovery
             string adapterId,
             string replicaGroupId,
             Current current,
-            CancellationToken cancel)
-        {
-            if (adapterId.Length == 0)
-            {
-                throw new InvalidArgumentException("adapterId cannot be empty", nameof(adapterId));
-            }
-
-            lock (_mutex)
-            {
-                _ice2Adapters.Remove(adapterId);
-                RemoveAdapterFromReplicaGroup(adapterId, replicaGroupId, Protocol.Ice2);
-            }
-        }
+            CancellationToken cancel) =>
+            UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice2, _ice2Adapters);
 
         internal LocatorRegistry(Communicator communicator)
         {
@@ -227,31 +204,56 @@ namespace ZeroC.IceDiscovery
             return "";
         }
 
-        private void AddAdapterToReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
+       private void RegisterAdapterEndpoints<T>(
+            string adapterId,
+            string replicaGroupId,
+            Protocol protocol,
+            T endpoints,
+            Dictionary<string, T> adapters)
         {
-            // Must be called with _mutex locked.
-            if (replicaGroupId.Length > 0)
+            if (adapterId.Length == 0)
             {
-                if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                throw new InvalidArgumentException("adapterId cannot be empty", nameof(adapterId));
+            }
+
+            lock (_mutex)
+            {
+                adapters[adapterId] = endpoints;
+                if (replicaGroupId.Length > 0)
                 {
-                    adapterIds = new ();
-                    _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
+                    if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                    {
+                        adapterIds = new ();
+                        _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
+                    }
+                    adapterIds.Add(adapterId);
                 }
-                adapterIds.Add(adapterId);
             }
         }
 
-        private void RemoveAdapterFromReplicaGroup(string adapterId, string replicaGroupId, Protocol protocol)
+        private void UnregisterAdapterEndpoints<T>(
+            string adapterId,
+            string replicaGroupId,
+            Protocol protocol,
+            Dictionary<string, T> adapters)
         {
-            // Must be called with _mutex locked
-            if (replicaGroupId.Length > 0)
+            if (adapterId.Length == 0)
             {
-                if (_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                throw new InvalidArgumentException("adapterId cannot be empty", nameof(adapterId));
+            }
+
+            lock (_mutex)
+            {
+                adapters.Remove(adapterId);
+                if (replicaGroupId.Length > 0)
                 {
-                    adapterIds.Remove(adapterId);
-                    if (adapterIds.Count == 0)
+                    if (_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
                     {
-                        _replicaGroups.Remove((replicaGroupId, protocol));
+                        adapterIds.Remove(adapterId);
+                        if (adapterIds.Count == 0)
+                        {
+                            _replicaGroups.Remove((replicaGroupId, protocol));
+                        }
                     }
                 }
             }
