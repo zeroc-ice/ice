@@ -31,7 +31,6 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-
             if (endpoints.Length == 0)
             {
                 throw new InvalidArgumentException("endpoints cannot be empty", nameof(endpoints));
