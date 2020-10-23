@@ -1,6 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,23 +24,30 @@ namespace ZeroC.Ice.Test.Location
 
         public IObjectPrx? FindAdapterById(string adapter, Current current, CancellationToken cancel)
         {
-            Debug.Assert(current.Protocol == Protocol.Ice1);
-            return ResolveLocation(new string[] { adapter }, Protocol.Ice1, current, cancel);
+            ++_requestCount;
+            // We add a small delay to make sure locator request queuing gets tested when
+            // running the test on a fast machine
+            System.Threading.Thread.Sleep(1);
+
+            return _registry.GetIce1Adapter(adapter);
         }
 
         public IObjectPrx? FindObjectById(Identity id, Current current, CancellationToken cancel)
         {
-            Debug.Assert(current.Protocol == Protocol.Ice1);
-            return ResolveWellKnownProxy(id, Protocol.Ice1, current, cancel);
+            ++_requestCount;
+            // We add a small delay to make sure locator request queuing gets tested when
+            // running the test on a fast machine
+            System.Threading.Thread.Sleep(1);
+
+            return _registry.GetIce1Object(id);
         }
 
         public ILocatorRegistryPrx GetRegistry(Current current, CancellationToken cancel) => _registryPrx;
 
         public int GetRequestCount(Current current, CancellationToken cancel) => _requestCount;
 
-        public IObjectPrx? ResolveLocation(
+        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveLocation(
             string[] location,
-            Protocol protocol,
             Current current,
             CancellationToken cancel)
         {
@@ -46,12 +56,11 @@ namespace ZeroC.Ice.Test.Location
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
 
-            return _registry.GetAdapter(location[0]);
+            return (_registry.GetIce2Adapter(location[0]), location[1..]);
         }
 
-        public IObjectPrx? ResolveWellKnownProxy(
+        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveWellKnownProxy(
             Identity identity,
-            Protocol protocol,
             Current current,
             CancellationToken cancel)
         {
@@ -60,7 +69,7 @@ namespace ZeroC.Ice.Test.Location
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
 
-            return _registry.GetObject(identity);
+            return _registry.GetIce2Object(identity);
         }
     }
 }

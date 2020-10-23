@@ -39,8 +39,6 @@ namespace ZeroC.Ice
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
 
-        internal string LocationAsString => Protocol == Protocol.Ice1 ? AdapterId :
-            string.Join('/', Location.Select(s => Uri.EscapeDataString(s)));
         internal TimeSpan LocatorCacheTimeout { get; }
 
         internal LocatorInfo? LocatorInfo { get; }
@@ -1026,16 +1024,9 @@ namespace ZeroC.Ice
                     }
                     else if (LocatorInfo != null)
                     {
-                        Reference? directReference;
-                        (directReference, cached) =
+                        // TODO: cache and send the new location with requests
+                        (endpoints, _, cached) =
                             await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
-
-                        if (directReference != null)
-                        {
-                            endpoints = directReference.Endpoints;
-                            // TODO: cache and send directReference's location with requests made using this reference
-                            // instead of the reference's location.
-                        }
                     }
                 }
 

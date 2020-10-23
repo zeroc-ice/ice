@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -18,17 +19,15 @@ namespace ZeroC.IceLocatorDiscovery
         public IObjectPrx? FindObjectById(Identity id, Current current, CancellationToken cancel) => null;
         public ILocatorRegistryPrx? GetRegistry(Current current, CancellationToken cancel) => null;
 
-        public IObjectPrx? ResolveLocation(
+        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveLocation(
             string[] location,
-            Protocol protocol,
             Current current,
-            CancellationToken cancel) => null;
+            CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
 
-        public IObjectPrx? ResolveWellKnownProxy(
+        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveWellKnownProxy(
             Identity identity,
-            Protocol protocol,
             Current current,
-            CancellationToken cancel) => null;
+            CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
     }
 
     internal class LookupReply : ILookupReply

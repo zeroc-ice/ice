@@ -1139,7 +1139,7 @@ namespace ZeroC.Ice
             return endpoints;
         }
 
-        // TODO: split between register and unregister. And add cancellation token?
+        // TODO: split between register and unregister. Don't use proxy but endpoints. And add cancellation token?
         private async Task UpdateLocatorRegistryAsync(LocatorInfo? locatorInfo, IObjectPrx? proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
@@ -1156,9 +1156,8 @@ namespace ZeroC.Ice
 
             try
             {
-                if (locatorRegistry.Protocol == Protocol.Ice1)
+                if (Protocol == Protocol.Ice1)
                 {
-#pragma warning disable CS0618 // calling deprecated methods
                     if (_replicaGroupId.Length == 0)
                     {
                         await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy).ConfigureAwait(false);
@@ -1170,21 +1169,20 @@ namespace ZeroC.Ice
                             _replicaGroupId,
                             proxy).ConfigureAwait(false);
                     }
-#pragma warning restore CS0618
                 }
                 else
                 {
-                    if (proxy == null)
+                    if (proxy != null)
                     {
-                        await locatorRegistry.UnregisterAdapterEndpointsAsync(_id,
-                                                                              _replicaGroupId,
-                                                                              Protocol).ConfigureAwait(false);
+                        await locatorRegistry.RegisterAdapterEndpointsAsync(
+                            _id,
+                            _replicaGroupId,
+                            proxy.Endpoints.ToEndpointDataList()).ConfigureAwait(false);
                     }
                     else
                     {
-                        await locatorRegistry.RegisterAdapterEndpointsAsync(_id,
-                                                                            _replicaGroupId,
-                                                                            proxy).ConfigureAwait(false);
+                        await locatorRegistry.UnregisterAdapterEndpointsAsync(_id,
+                                                                              _replicaGroupId).ConfigureAwait(false);
                     }
                 }
             }

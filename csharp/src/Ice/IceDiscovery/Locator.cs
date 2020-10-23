@@ -12,229 +12,432 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
+    /// <summary>Servant class that implements the Slice interface Ice::Locator.</summary>
     internal class Locator : IAsyncLocator
     {
-        private readonly Lookup _lookupServant;
-        private readonly ILocatorRegistryPrx _registry;
+        private readonly string _domainId;
+        private readonly int _latencyMultiplier;
 
-        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(
+        private readonly ILookupPrx _lookup;
+
+        // The key is a single-endpoint datagram Lookup proxy extracted from the _lookup proxy.
+        // The value is a dummy datagram proxy with usually a single endpoint that is one of _replyAdapter's endpoints
+        // and that matches the interface of the key's endpoint.
+        private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new ();
+
+        private readonly ObjectAdapter _replyAdapter;
+
+        private readonly ILocatorRegistryPrx _registry;
+        private readonly int _retryCount;
+        private readonly TimeSpan _timeout;
+
+        public async ValueTask<IObjectPrx?> FindAdapterByIdAsync(
             string adapterId,
             Current current,
-            CancellationToken cancel) =>
-            ResolveLocationAsync(new string[] { adapterId }, Protocol.Ice1, current, cancel);
+            CancellationToken cancel)
+        {
+            using var replyServant = new LookupReply(_replyAdapter);
+            return await InvokeAsync(
+                (lookup, dummyReply) =>
+                {
+                    ILookupReplyPrx lookupReply =
+                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
 
-        public ValueTask<IObjectPrx?> FindObjectByIdAsync(
-            Identity id,
+                    return lookup.FindAdapterByIdAsync(_domainId,
+                                                      adapterId,
+                                                      lookupReply,
+                                                      cancel: cancel);
+                },
+                replyServant).ConfigureAwait(false);
+        }
+
+        public async ValueTask<IObjectPrx?> FindObjectByIdAsync(
+            Identity identity,
             Current current,
-            CancellationToken cancel) =>
-            ResolveWellKnownProxyAsync(id, Protocol.Ice1, current, cancel);
+            CancellationToken cancel)
+        {
+            using var replyServant = new LookupReply(_replyAdapter);
+            return await InvokeAsync(
+                (lookup, dummyReply) =>
+                {
+                    ILookupReplyPrx lookupReply =
+                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+
+                    return lookup.FindObjectByIdAsync(_domainId, identity, lookupReply, cancel: cancel);
+                },
+                replyServant).ConfigureAwait(false);
+        }
 
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
             new (_registry);
 
-        public ValueTask<IObjectPrx?> ResolveLocationAsync(
+        public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveLocationAsync(
             string[] location,
-            Protocol protocol,
             Current current,
-            CancellationToken cancel) =>
-            _lookupServant.FindAdapterByIdAsync(location, protocol);
-
-        public ValueTask<IObjectPrx?> ResolveWellKnownProxyAsync(
-            Identity identity,
-            Protocol protocol,
-            Current current,
-            CancellationToken cancel) =>
-            _lookupServant.FindObjectByIdAsync(identity, protocol);
-
-        internal Locator(Lookup lookupServant, ILocatorRegistryPrx registry)
+            CancellationToken cancel)
         {
-            _lookupServant = lookupServant;
+            if (location.Length == 0)
+            {
+                throw new InvalidArgumentException("location cannot be empty", nameof(location));
+            }
+
+            string adapterId = location[0];
+
+            using var replyServant = new ResolveAdapterIdReply(_replyAdapter);
+
+            IReadOnlyList<EndpointData> endpoints = await InvokeAsync(
+                (lookup, dummyReply) =>
+                {
+                    IResolveAdapterIdReplyPrx reply =
+                        dummyReply.Clone(IResolveAdapterIdReplyPrx.Factory, identity: replyServant.Identity);
+
+                    return lookup.ResolveAdapterIdAsync(_domainId,
+                                                        adapterId,
+                                                        reply,
+                                                        cancel: cancel);
+                },
+                replyServant).ConfigureAwait(false);
+
+            if (endpoints.Count > 0)
+            {
+                return (endpoints, location[1..]);
+            }
+            else
+            {
+                return (endpoints, ImmutableArray<string>.Empty);
+            }
+        }
+
+        public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveWellKnownProxyAsync(
+            Identity identity,
+            Current current,
+            CancellationToken cancel)
+        {
+            using var replyServant = new ResolveWellKnownProxyReply(_replyAdapter);
+
+            string adapterId = await InvokeAsync(
+                (lookup, dummyReply) =>
+                {
+                    IResolveWellKnownProxyReplyPrx reply =
+                            dummyReply.Clone(IResolveWellKnownProxyReplyPrx.Factory, identity: replyServant.Identity);
+
+                    return lookup.ResolveWellKnownProxyAsync(_domainId,
+                                                             identity,
+                                                             reply,
+                                                             cancel: cancel);
+                },
+                replyServant).ConfigureAwait(false);
+
+            // We never return endpoints
+            return (ImmutableArray<EndpointData>.Empty,
+                    adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
+        }
+
+        internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter)
+        {
+            _lookup = lookup;
             _registry = registry;
+            _replyAdapter = replyAdapter;
+
+            Communicator communicator = replyAdapter.Communicator;
+
+            _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            if (_timeout == Timeout.InfiniteTimeSpan)
+            {
+                _timeout = TimeSpan.FromMilliseconds(300);
+            }
+            _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
+
+            _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
+            if (_latencyMultiplier < 1)
+            {
+                throw new InvalidConfigurationException(
+                    "The value of `IceDiscovery.LatencyMultiplier' must be a positive integer greater than 0");
+            }
+
+            _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
+
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
+            // of the lookup proxy.
+
+            // Dummy proxy for replies which can have multiple endpoints (but see below).
+            IObjectPrx lookupReply = _replyAdapter.CreateProxy(
+                "dummy",
+                IObjectPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+
+            foreach (Endpoint endpoint in lookup.Endpoints)
+            {
+                // lookup's invocation mode is Datagram
+                Debug.Assert(endpoint.Transport == Transport.UDP);
+
+                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+                if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
+                {
+                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
+                    if (q != null)
+                    {
+                        _lookups[key] = lookupReply.Clone(endpoints: ImmutableArray.Create(q));
+                    }
+                }
+
+                if (!_lookups.ContainsKey(key))
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    _lookups[key] = lookupReply;
+                }
+            }
+            Debug.Assert(_lookups.Count > 0);
+        }
+
+        /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
+        /// <param name="find">A delegate that performs the remote call. The parameters correspond to an entry in the
+        /// _lookups dictionary.</param>
+        /// <param name="replyServant">The reply servant.</param>
+        private async Task<TResult> InvokeAsync<TResult>(
+            Func<ILookupPrx, IObjectPrx, Task> find,
+            ReplyServant<TResult> replyServant)
+        {
+            for (int i = 0; i < _retryCount; ++i)
+            {
+                TimeSpan start = Time.Elapsed;
+                int failureCount = 0;
+                foreach ((ILookupPrx lookup, IObjectPrx dummyReply) in _lookups)
+                {
+                    try
+                    {
+                        await find(lookup, dummyReply).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (++failureCount == _lookups.Count)
+                        {
+                            _replyAdapter.Communicator.Logger.Warning(
+                                $"IceDiscovery failed to send lookup request using `{_lookup}':\n{ex}");
+                            replyServant.SetEmptyResult();
+                            return await replyServant.Task.ConfigureAwait(false);
+                        }
+                    }
+                }
+
+                Task? t = await Task.WhenAny(
+                    replyServant.Task,
+                    Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
+
+                if (t == replyServant.Task)
+                {
+                    return await replyServant.Task.ConfigureAwait(false);
+                }
+                else if (t.IsCanceled)
+                {
+                    // If the timeout was canceled we delay the completion of the request to give a chance to other
+                    // members of this replica group to reply
+                    return await
+                        replyServant.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier).ConfigureAwait(false);
+                }
+                // else timeout, so we retry until _retryCount
+            }
+
+            replyServant.SetEmptyResult(); // Timeout
+            return await replyServant.Task.ConfigureAwait(false);
         }
     }
 
-    internal class LocatorRegistry : ILocatorRegistry
+    /// <summary>The base class of all Reply servant that helps collect / gather the reply(ies) to a lookup reques.
+    /// </summary>
+    internal class ReplyServant<TResult> : IObject, IDisposable
     {
-        private readonly Dictionary<(string, Protocol), IObjectPrx> _adapters = new ();
+        internal CancellationToken CancellationToken => _cancellationSource.Token;
+        internal Identity Identity { get; }
+
+        internal Task<TResult> Task => _completionSource.Task;
+
+        private readonly CancellationTokenSource _cancellationSource;
+        private readonly TaskCompletionSource<TResult> _completionSource;
+        private readonly TResult _emptyResult;
+
+        private readonly ObjectAdapter _replyAdapter;
+
+        public void Dispose()
+        {
+            _cancellationSource.Dispose();
+            _replyAdapter.Remove(Identity);
+        }
+
+        internal void SetEmptyResult() => _completionSource.SetResult(_emptyResult);
+
+        internal async Task<TResult> WaitForReplicaGroupRepliesAsync(TimeSpan start, int latencyMultiplier)
+        {
+            // This method is called by InvokeAsync after the first reply from a replica group to wait for additional
+            // replies from the replica group.
+            TimeSpan latency = (Time.Elapsed - start) * latencyMultiplier;
+            if (latency == TimeSpan.Zero)
+            {
+                latency = TimeSpan.FromMilliseconds(1);
+            }
+            await System.Threading.Tasks.Task.Delay(latency).ConfigureAwait(false);
+
+            SetResult(CollectReplicaReplies());
+            return await Task.ConfigureAwait(false);
+        }
+
+        private protected ReplyServant(TResult emptyResult, ObjectAdapter replyAdapter)
+        {
+            // Add servant (this) to object adapter with new UUID identity.
+            Identity = replyAdapter.AddWithUUID(this, IObjectPrx.Factory).Identity;
+
+            _cancellationSource = new ();
+            _completionSource = new ();
+            _emptyResult = emptyResult;
+            _replyAdapter = replyAdapter;
+        }
+
+        private protected void Cancel() => _cancellationSource.Cancel();
+
+        private protected virtual TResult CollectReplicaReplies()
+        {
+            Debug.Assert(false); // must be overridden if called by WaitForReplicaGroupRepliesAsync
+            return _emptyResult;
+        }
+
+        private protected void SetResult(TResult result) => _completionSource.SetResult(result);
+    }
+
+    /// <summary>Servant class that implements the Slice interface LookupReply.</summary>
+    internal sealed class LookupReply : ReplyServant<IObjectPrx?>, ILookupReply
+    {
         private readonly object _mutex = new ();
-        private readonly Dictionary<(string, Protocol), HashSet<string>> _replicaGroups = new ();
+        private readonly HashSet<IObjectPrx> _proxies = new ();
 
-        public void RegisterAdapterEndpoints(
+        public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
+            SetResult(proxy);
+
+        public void FoundAdapterById(
             string adapterId,
-            string replicaGroupId,
             IObjectPrx proxy,
+            bool isReplicaGroup,
             Current current,
             CancellationToken cancel)
         {
-            lock (_mutex)
+            if (isReplicaGroup)
             {
-                Protocol protocol = proxy.Protocol;
-
-                try
+                lock (_mutex)
                 {
-                    _adapters.Add((adapterId, protocol), proxy.Clone(clearLocator: true, clearRouter: true));
-                }
-                catch (ArgumentException)
-                {
-                    throw new AdapterAlreadyActiveException($"adapter `{adapterId}' already has registered endpoints");
-                }
-
-                if (replicaGroupId.Length > 0)
-                {
-                    if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                    _proxies.Add(proxy);
+                    if (_proxies.Count == 1)
                     {
-                        adapterIds = new HashSet<string>();
-                        _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
+                        // Cancel WhenAny and let InvokeAsync wait for additional replies from the replica group, and
+                        // later call CollectReplicaReplies.
+                        Cancel();
                     }
-                    adapterIds.Add(adapterId);
                 }
+            }
+            else
+            {
+                SetResult(proxy);
             }
         }
 
-        public void SetAdapterDirectProxy(
-            string adapterId,
-            IObjectPrx? proxy,
+        internal LookupReply(ObjectAdapter replyAdapter)
+            : base(emptyResult: null, replyAdapter)
+        {
+        }
+
+        private protected override IObjectPrx? CollectReplicaReplies()
+        {
+            lock (_mutex)
+            {
+                Debug.Assert(_proxies.Count > 0);
+                var endpoints = new List<Endpoint>();
+                IObjectPrx result = _proxies.First();
+                foreach (IObjectPrx prx in _proxies)
+                {
+                    endpoints.AddRange(prx.Endpoints);
+                }
+                return result.Clone(endpoints: endpoints);
+            }
+        }
+    }
+
+    /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
+    internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
+    {
+        private readonly object _mutex = new ();
+        private readonly HashSet<EndpointData> _endpointDataSet = new (EndpointDataComparer.Instance);
+
+        public void FoundAdapterId(
+            EndpointData[] endpoints,
+            bool isReplicaGroup,
             Current current,
             CancellationToken cancel)
         {
-            Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
-        }
-
-        public void SetReplicatedAdapterDirectProxy(
-           string adapterId,
-           string replicaGroupId,
-           IObjectPrx? proxy,
-           Current current,
-           CancellationToken cancel)
-        {
-            Debug.Assert(false); // this method is never called since this servant is hosted by an ice2 object adapter.
-        }
-
-        public void SetServerProcessProxy(
-            string serverId,
-            IProcessPrx process,
-            Current current,
-            CancellationToken cancel)
-        {
-            // Ignored
-        }
-
-        public void UnregisterAdapterEndpoints(
-            string adapterId,
-            string replicaGroupId,
-            Protocol protocol,
-            Current current,
-            CancellationToken cancel)
-        {
-            lock (_mutex)
+            if (isReplicaGroup)
             {
-                _adapters.Remove((adapterId, protocol));
-
-                if (replicaGroupId.Length > 0)
+                lock (_mutex)
                 {
-                    if (_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
+                    bool firstReply = _endpointDataSet.Count == 0;
+
+                    _endpointDataSet.UnionWith(endpoints);
+                    if (firstReply)
                     {
-                        adapterIds.Remove(adapterId);
-                        if (adapterIds.Count == 0)
-                        {
-                            _replicaGroups.Remove((replicaGroupId, protocol));
-                        }
+                        Cancel();
                     }
                 }
             }
-        }
-
-        internal (IObjectPrx? Proxy, bool IsReplicaGroup) FindAdapter(string adapterId, Protocol protocol)
-        {
-            lock (_mutex)
+            else
             {
-                if (_adapters.TryGetValue((adapterId, protocol), out IObjectPrx? proxy))
-                {
-                    return (proxy, false);
-                }
-
-                if (_replicaGroups.TryGetValue((adapterId, protocol), out HashSet<string>? adapterIds))
-                {
-                    Debug.Assert(adapterIds.Count > 0);
-
-                    IObjectPrx? result = null;
-                    var endpoints = new List<Endpoint>();
-                    foreach (string id in adapterIds)
-                    {
-                        // We assume that if adapterId is in adapterIds, it's also in the _adapters dictionary. The two
-                        // dictionaries can be out of sync if there is a bug in the local Ice runtime or application
-                        // code that uses this local colocated LocatorRegistry directly. For example, a call to
-                        // unregisterAdapterEndpoints with a missing or incorrect replicaGroupId. If there is such a
-                        // local bug, the code will throw a KeyNotFoundException.
-                        IObjectPrx p = _adapters[(id, protocol)];
-                        result ??= p;
-                        endpoints.AddRange(p.Endpoints);
-                    }
-
-                    return (result?.Clone(endpoints: endpoints), result != null);
-                }
-
-                return (null, false);
+                SetResult(endpoints);
             }
         }
 
-        internal IObjectPrx? FindObject(Identity identity, Protocol protocol)
+        internal ResolveAdapterIdReply(ObjectAdapter replyAdapter)
+            : base(ImmutableArray<EndpointData>.Empty, replyAdapter)
+        {
+        }
+
+        private protected override IReadOnlyList<EndpointData> CollectReplicaReplies()
         {
             lock (_mutex)
             {
-                if (identity.Name.Length == 0)
-                {
-                    return null;
-                }
-
-                foreach (((string ReplicaGroupId, Protocol Protocol) key, HashSet<string> adapterIds)
-                    in _replicaGroups)
-                {
-                    if (key.Protocol == protocol)
-                    {
-                        // We retrieve this proxy only for its protocol - everything else gets replaced by the Clone
-                        // below.
-                        IObjectPrx dummy = _adapters[(adapterIds.First(), protocol)];
-                        try
-                        {
-                            // This proxy is an indirect proxy with a location (the replica group ID).
-                            IObjectPrx proxy = dummy.Clone(IObjectPrx.Factory,
-                                                           endpoints: ImmutableArray<Endpoint>.Empty,
-                                                           identity: identity,
-                                                           location: ImmutableArray.Create(key.ReplicaGroupId));
-                            proxy.IcePing();
-                            return proxy;
-                        }
-                        catch
-                        {
-                            // Ignore and move on to the next replica group
-                        }
-                    }
-
-                }
-
-                foreach (((string AdapterId, Protocol Protocol) key, IObjectPrx dummy) in _adapters)
-                {
-                    if (key.Protocol == protocol)
-                    {
-                        try
-                        {
-                            IObjectPrx proxy = dummy.Clone(IObjectPrx.Factory,
-                                                           endpoints: ImmutableArray<Endpoint>.Empty,
-                                                           identity: identity,
-                                                           location: ImmutableArray.Create(key.AdapterId));
-                            proxy.IcePing();
-                            return proxy;
-                        }
-                        catch
-                        {
-                            // Ignore.
-                        }
-                    }
-                }
-
-                return null;
+                Debug.Assert(_endpointDataSet.Count > 0);
+                return _endpointDataSet.ToList();
             }
+        }
+    }
+
+    /// <summary>Servant class that implements the Slice interface ResolveWellKnownProxyReply.</summary>
+    internal class ResolveWellKnownProxyReply : ReplyServant<string>, IResolveWellKnownProxyReply
+    {
+        public void FoundWellKnownProxy(string adapterId, Current current, CancellationToken cancel) =>
+            SetResult(adapterId);
+
+        internal ResolveWellKnownProxyReply(ObjectAdapter replyAdapter)
+            : base(emptyResult: "", replyAdapter)
+        {
+        }
+    }
+
+    // Temporary helper class
+    internal sealed class EndpointDataComparer : IEqualityComparer<EndpointData>
+    {
+        internal static readonly EndpointDataComparer Instance = new ();
+
+        public bool Equals(EndpointData x, EndpointData y) =>
+            x.Transport == y.Transport &&
+            x.Host == y.Host &&
+            x.Port == y.Port &&
+            x.Options.SequenceEqual(y.Options);
+
+        public int GetHashCode(EndpointData obj)
+        {
+            var hash = new HashCode();
+            hash.Add(obj.Transport);
+            hash.Add(obj.Host);
+            hash.Add(obj.Port);
+            foreach (string s in obj.Options)
+            {
+                hash.Add(s);
+            }
+            return hash.ToHashCode();
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -276,6 +277,12 @@ namespace ZeroC.Ice
                 await proxy.InvokeAsync(forwardedRequest, oneway, progress).ConfigureAwait(false);
             return new OutgoingResponseFrame(request, response);
         }
+
+        /// <summary>Produces a string representation of a location.</summary>
+        /// <param name="location">The location.</param>
+        /// <returns>The location as a percent-escaped string with segments separated by '/'.</returns>
+        public static string ToLocationString(this IEnumerable<string> location) =>
+            string.Join('/', location.Select(s => Uri.EscapeDataString(s)));
 
         private static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
