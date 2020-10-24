@@ -434,6 +434,7 @@ namespace ZeroC.Ice.LocatorDiscovery
 
         public void FoundLocator(ILocatorPrx locator, Current current, CancellationToken cancel) =>
             _locatorServant.FoundLocator(locator);
+
         internal LookupReply(Locator locatorServant) => _locatorServant = locatorServant;
     }
 }
