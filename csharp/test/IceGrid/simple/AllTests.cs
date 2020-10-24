@@ -26,7 +26,8 @@ namespace ZeroC.IceGrid.Test.Simple
 
             Console.Out.Write("testing locator finder... ");
             var finderId = new Identity("LocatorFinder", "Ice");
-            ILocatorFinderPrx finder = communicator.DefaultLocator!.Clone(ILocatorFinderPrx.Factory, identity: finderId);
+            ILocatorFinderPrx finder = communicator.DefaultLocator!.Clone(ILocatorFinderPrx.Factory,
+                                                                          identity: finderId);
             TestHelper.Assert(finder != null && finder.GetLocator() != null);
             Console.Out.WriteLine("ok");
 

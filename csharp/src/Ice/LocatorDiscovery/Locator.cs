@@ -8,14 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.LocatorDiscovery
 {
     /// <summary>Implements interface Ice::Locator by forwarding all calls to the discovered locator. We cannot simply
     /// forward the requests using ForwardAsync because we need to occasionally perform transcoding. This locator is
-    /// hosted in an ice2 object adapter and receives 2.0-encoded requests, and the discovered locator proxy can be a
-    /// ice1/1.1 proxy that understands only 1.1-encoded requests.</summary>
+    /// hosted in an ice2 object adapter and typically receives 2.0-encoded requests, and the discovered locator proxy
+    /// can be an ice1/1.1 proxy that understands only 1.1-encoded requests.</summary>
     internal class Locator : IAsyncLocator
     {
         private TaskCompletionSource<ILocatorPrx>? _completionSource;
@@ -64,6 +63,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             }
         }
 
+        // Forwards the request to the discovered locator; if this discovered locator is null, returns a null proxy.
         public ValueTask<IObjectPrx?> FindAdapterByIdAsync(
             string adapterId,
             Current current,
@@ -128,13 +128,13 @@ namespace ZeroC.Ice.LocatorDiscovery
                 });
 
         internal Locator(
-            string name,
+            string pluginName,
             ILookupPrx lookup,
             Communicator communicator,
             string instanceName,
             ILookupReplyPrx lookupReply)
         {
-            _pluginName = name;
+            _pluginName = pluginName;
             _lookup = lookup;
             _timeout = communicator.GetPropertyAsTimeSpan($"{_pluginName}.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
@@ -340,7 +340,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             }
         }
 
-        // This helper method calls "callAsync" with the discovered locator, or will null.
+        // This helper method calls "callAsync" with the discovered locator or null when no locator was discovered.
         private async ValueTask<TResult> ForwardRequestAsync<TResult>(Func<ILocatorPrx?, Task<TResult>> callAsync)
         {
             ILocatorPrx? badLocator = null;
@@ -357,8 +357,8 @@ namespace ZeroC.Ice.LocatorDiscovery
                     }
                     catch (RemoteException ex)
                     {
-                        // If we receive a RemoteException, we just forward it as-is to the caller (e.g. a colocated
-                        // LocatorInfo).
+                        // If we receive a RemoteException, we just forward it as-is to the caller (typically a
+                        // colocated LocatorInfo).
                         ex.ConvertToUnhandled = false;
                         throw;
                     }
@@ -383,9 +383,9 @@ namespace ZeroC.Ice.LocatorDiscovery
                 }
                 else
                 {
-                    // Could not find any locator or we got the same locator after a failure - return "null".
                     if (exception != null)
                     {
+                        // Could not find any locator or we got the same locator or a null locator after a failure.
                         _lookup.Communicator.Logger.Warning(
                             $"{_pluginName}: failed to send request to discovered locator:\n{exception}");
                     }
