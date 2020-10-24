@@ -12,37 +12,14 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceLocatorDiscovery
 {
-    // A Locator implementation that always returns null. (temporary)
-    internal class VoidLocator : ILocator
-    {
-        public IObjectPrx? FindAdapterById(string id, Current current, CancellationToken cancel) => null;
-        public IObjectPrx? FindObjectById(Identity id, string? facet, Current current, CancellationToken cancel) =>
-            null;
-        public ILocatorRegistryPrx? GetRegistry(Current current, CancellationToken cancel) => null;
-
-        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveLocation(
-            string[] location,
-            Current current,
-            CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
-
-        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveWellKnownProxy(
-            Identity identity,
-            string facet,
-            Current current,
-            CancellationToken cancel) => (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
-    }
-
-    internal class LookupReply : ILookupReply
-    {
-        private readonly Locator _locatorServant;
-        public void FoundLocator(ILocatorPrx locator, Current current, CancellationToken cancel) =>
-            _locatorServant.FoundLocator(locator);
-        internal LookupReply(Locator locatorServant) => _locatorServant = locatorServant;
-    }
-    internal class Locator : IObject
+    /// <summary>Implements interface Ice::Locator by forwarding all calls to the discovered locator. We cannot simply
+    /// forward the requests using ForwardAsync because we need to occasionally perform transcoding. This locator is
+    /// hosted in an ice2 object adapter and receives 2.0-encoded requests, and the discovered locator proxy can be a
+    /// ice1/1.1 proxy that understands only 1.1-encoded requests.</summary>
+    internal class Locator : IAsyncLocator
     {
         private TaskCompletionSource<ILocatorPrx>? _completionSource;
-        private Task<ILocatorPrx>? _findLocatorTask;
+        private Task<ILocatorPrx?>? _findLocatorTask;
         private string _instanceName;
         private ILocatorPrx? _locator;
         private readonly ILookupPrx _lookup;
@@ -53,14 +30,103 @@ namespace ZeroC.IceLocatorDiscovery
         private readonly TimeSpan _retryDelay;
         private readonly TimeSpan _timeout;
         private readonly int _traceLevel;
-        private readonly ILocatorPrx _voidLocator;
+
+        // "Overrides" the generated DispatchAsync to forward as-is when the encoding match (this includes unknown
+        // operations and binary contexts). Otherwise, use the generated code to perform transcoding back and forth.
+        public async ValueTask<OutgoingResponseFrame> DispatchAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
+        {
+            ILocatorPrx? locator = await GetLocatorAsync().ConfigureAwait(false);
+
+            if (locator != null && current.Encoding == locator.Encoding)
+            {
+                return await ForwardRequestAsync(
+                    locator =>
+                    locator?.ForwardAsync(current.IsOneway, request, cancel: cancel).AsTask() ??
+                        // In the unlikely event locator is now null (e.g. after a failed attempt), we use the
+                        // "transcoding dispatch method" which will in turn return null/empty with a null locator.
+                        // See comments below.
+                        IAsyncLocator.DispatchAsync(this, request, current, cancel).AsTask()).ConfigureAwait(false);
+            }
+            else
+            {
+                // Calls the base DispathAsync, which calls FindAdapterByIdAsync etc.
+                // The transcoding is naturally limited to the known Ice::Locator operations. Other operations
+                // cannot be transcoded and result in OperationNotExistException.
+                return await IAsyncLocator.DispatchAsync(this, request, current, cancel).ConfigureAwait(false);
+            }
+        }
+
+        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(
+            string adapterId,
+            Current current,
+            CancellationToken cancel) =>
+            ForwardRequestAsync(locator =>
+                                locator?.FindAdapterByIdAsync(adapterId, current.Context, cancel: cancel) ??
+                                    Task.FromResult<IObjectPrx?>(null));
+
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(
+            Identity identity,
+            string? facet,
+            Current current,
+            CancellationToken cancel) =>
+            ForwardRequestAsync(locator =>
+                                locator?.FindObjectByIdAsync(identity, facet, cancel: cancel) ??
+                                    Task.FromResult<IObjectPrx?>(null));
+        public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
+            ForwardRequestAsync(locator =>
+                                locator?.GetRegistryAsync(current.Context, cancel: cancel) ??
+                                    Task.FromResult<ILocatorRegistryPrx?>(null));
+
+        public ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveLocationAsync(
+            string[] location,
+            Current current,
+            CancellationToken cancel) =>
+            ForwardRequestAsync<(IEnumerable<EndpointData>, IEnumerable<string>)>(
+                async locator =>
+                {
+                    if (locator != null)
+                    {
+                        return await locator.ResolveLocationAsync(
+                            location,
+                            current.Context,
+                            cancel: cancel).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        return (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
+                    }
+                });
+
+        public ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveWellKnownProxyAsync(
+            Identity identity,
+            string facet,
+            Current current,
+            CancellationToken cancel) =>
+            ForwardRequestAsync<(IEnumerable<EndpointData>, IEnumerable<string>)>(
+                async locator =>
+                {
+                    if (locator != null)
+                    {
+                        return await locator.ResolveWellKnownProxyAsync(
+                            identity,
+                            facet,
+                            current.Context,
+                            cancel: cancel).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        return (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
+                    }
+                });
 
         internal Locator(
             string name,
             ILookupPrx lookup,
             Communicator communicator,
             string instanceName,
-            ILocatorPrx voidLocator,
             ILookupReplyPrx lookupReply)
         {
             _lookup = lookup;
@@ -74,26 +140,23 @@ namespace ZeroC.IceLocatorDiscovery
             _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
             _locator = lookup.Communicator.DefaultLocator;
-            _voidLocator = voidLocator;
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
-            var single = new Endpoint[1];
             foreach (Endpoint endpoint in lookup.Endpoints)
             {
                 // lookup's invocation mode is Datagram
                 Debug.Assert(endpoint.Transport == Transport.UDP);
 
-                single[0] = endpoint;
-                ILookupPrx key = lookup.Clone(endpoints: single);
+                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+
                 if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
                     Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
 
                     if (q != null)
                     {
-                        single[0] = q;
-                        _lookups[key] = lookupReply.Clone(endpoints: single);
+                        _lookups[key] = lookupReply.Clone(endpoints: ImmutableArray.Create(q));
                     }
                 }
 
@@ -104,61 +167,6 @@ namespace ZeroC.IceLocatorDiscovery
                 }
             }
             Debug.Assert(_lookups.Count > 0);
-        }
-
-        public async ValueTask<OutgoingResponseFrame> DispatchAsync(
-            IncomingRequestFrame incomingRequest,
-            Current current,
-            CancellationToken cancel)
-        {
-            ILocatorPrx? badLocator = null;
-            Exception? exception = null;
-            while (true)
-            {
-                // Get the locator to send the request to (this will return the void locator if no locator is found)
-                ILocatorPrx newLocator = await GetLocatorAsync().ConfigureAwait(false);
-                if (!newLocator.Equals(badLocator))
-                {
-                    try
-                    {
-                        return
-                            await newLocator.ForwardAsync(false, incomingRequest, cancel: cancel).ConfigureAwait(false);
-                    }
-                    catch (ObjectNotExistException ex)
-                    {
-                        ex.ConvertToUnhandled = false;
-                        throw;
-                    }
-                    catch (NoEndpointException)
-                    {
-                        throw new ObjectNotExistException();
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        throw new ObjectNotExistException();
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (_mutex)
-                        {
-                            badLocator = newLocator;
-                            // If the current locator is equal to the one we use to send the request,
-                            // clear it and retry, this will trigger the lookup of a new locator.
-                            if (_locator != null && _locator.Equals(newLocator))
-                            {
-                                _locator = null;
-                            }
-                        }
-                        exception = ex;
-                    }
-                }
-                else
-                {
-                    // We got the same locator after a previous failure, throw the saved exception now.
-                    Debug.Assert(exception != null);
-                    throw exception;
-                }
-            }
         }
 
         internal void FoundLocator(ILocatorPrx locator)
@@ -176,16 +184,16 @@ namespace ZeroC.IceLocatorDiscovery
                     return;
                 }
 
-                // If we already have a locator assigned, ensure the given locator has the same identity and protocol,
-                // otherwise ignore it.
+                // If we already have a locator assigned, ensure the given locator has the same identity, facet and
+                // protocol, otherwise ignore it.
                 if (_locator != null)
                 {
-                    if (locator.Identity.Category != _locator.Identity.Category)
+                    if (locator.Identity != _locator.Identity || locator.Facet != _locator.Facet)
                     {
                         var sb = new StringBuilder();
-                        sb.Append("received Ice locator with different instance name:\n")
-                          .Append("using = `").Append(_locator.Identity.Category).Append("'\n")
-                          .Append("received = `").Append(locator.Identity.Category).Append("'\n")
+                        sb.Append("received Ice locator with different identities:\n")
+                          .Append("using = `").Append(_locator).Append("'\n")
+                          .Append("received = `").Append(locator).Append("'\n")
                           .Append("This is typically the case if multiple Ice locators with different ")
                           .Append("instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ")
                           .Append("is not set.");
@@ -212,6 +220,8 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         sb.Append("\ninstance name = ").Append(_instanceName);
                     }
+
+                    // TODO: what is this Lookup trace category?
                     _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
                 }
 
@@ -234,38 +244,7 @@ namespace ZeroC.IceLocatorDiscovery
             }
         }
 
-        private async Task<ILocatorPrx> GetLocatorAsync()
-        {
-            Task<ILocatorPrx> findLocatorTask;
-            lock (_mutex)
-            {
-                // If we already have a locator we use it.
-                if (_locator != null)
-                {
-                    return _locator;
-                }
-                // If the retry delay has not elapsed since the last failure return the void locator that always
-                // replies with a null proxy.
-                else if (Time.Elapsed < _nextRetry)
-                {
-                    return _voidLocator;
-                }
-                // If a locator lookup is running we await on it otherwise we start a new lookup.
-                else if (_findLocatorTask == null)
-                {
-                    _findLocatorTask = FindLocatorAsync();
-                }
-                findLocatorTask = _findLocatorTask;
-            }
-            ILocatorPrx locator = await findLocatorTask.ConfigureAwait(false);
-            lock (_mutex)
-            {
-                _findLocatorTask = null;
-            }
-            return locator;
-        }
-
-        private async Task<ILocatorPrx> FindLocatorAsync()
+        private async Task<ILocatorPrx?> FindLocatorAsync()
         {
             lock (_mutex)
             {
@@ -300,7 +279,7 @@ namespace ZeroC.IceLocatorDiscovery
                         {
                             if (++failureCount == _lookups.Count)
                             {
-                                // All the lookup calls failed propagate the error to the requests.
+                                // All the lookup calls failed, return null
                                 if (_traceLevel > 0)
                                 {
                                     var sb = new StringBuilder("locator lookup failed:\nlookup = ");
@@ -313,7 +292,7 @@ namespace ZeroC.IceLocatorDiscovery
                                     sb.Append(ex);
                                     _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
                                 }
-                                return _voidLocator;
+                                return null;
                             }
                         }
                     }
@@ -349,9 +328,105 @@ namespace ZeroC.IceLocatorDiscovery
                     }
 
                     _nextRetry = Time.Elapsed + _retryDelay;
-                    return _voidLocator;
+                    return null;
                 }
             }
         }
+
+        // This helper method calls "callAsync" with the discovered locator, or will null.
+        private async ValueTask<TResult> ForwardRequestAsync<TResult>(Func<ILocatorPrx?, Task<TResult>> callAsync)
+        {
+            ILocatorPrx? badLocator = null;
+            Exception? exception = null;
+            while (true)
+            {
+                // Get the locator to send the request to (this will return null if no locator is found)
+                ILocatorPrx? newLocator = await GetLocatorAsync().ConfigureAwait(false);
+                if (newLocator != null && !newLocator.Equals(badLocator))
+                {
+                    try
+                    {
+                        return await callAsync(newLocator).ConfigureAwait(false);
+                    }
+                    catch (RemoteException ex)
+                    {
+                        // If we receive a RemoteException, we just forward it as-is to the caller (e.g. a colocated
+                        // LocatorInfo).
+                        ex.ConvertToUnhandled = false;
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        badLocator = newLocator;
+
+                        // If we get some local exception, we attempt to find a new locator and try again.
+                        // TODO: this could lead to an infinite loop if we keep alternating between 2 different
+                        // locators.
+                        lock (_mutex)
+                        {
+                            // If the current locator is equal to the one we use to send the request,
+                            // clear it and retry, this will trigger the lookup of a new locator.
+                            if (_locator != null && _locator.Equals(newLocator))
+                            {
+                                _locator = null;
+                            }
+                        }
+                        exception = ex;
+                    }
+                }
+                else
+                {
+                    // Could not find any locator or we got the same locator after a failure - return "null".
+                    if (exception != null)
+                    {
+                        _lookup.Communicator.Logger.Warning(
+                            $"IceLocatorDiscovery: failed to send request to discovered locator:\n{exception}");
+                    }
+
+                    return await callAsync(null).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private async Task<ILocatorPrx?> GetLocatorAsync()
+        {
+            Task<ILocatorPrx?> findLocatorTask;
+            lock (_mutex)
+            {
+                if (_locator != null)
+                {
+                    // If we already have a locator we use it.
+                    return _locator;
+                }
+                else if (Time.Elapsed < _nextRetry)
+                {
+                    // If the retry delay has not elapsed since the last failure return null
+                    return null;
+                }
+                else if (_findLocatorTask == null)
+                {
+                    // If a locator lookup is running we await on it otherwise we start a new lookup.
+                    _findLocatorTask = FindLocatorAsync();
+                }
+                findLocatorTask = _findLocatorTask;
+            }
+
+            ILocatorPrx? locator = await findLocatorTask.ConfigureAwait(false);
+            lock (_mutex)
+            {
+                _findLocatorTask = null;
+            }
+            return locator;
+        }
+
+    }
+
+    internal class LookupReply : ILookupReply
+    {
+        private readonly Locator _locatorServant;
+
+        public void FoundLocator(ILocatorPrx locator, Current current, CancellationToken cancel) =>
+            _locatorServant.FoundLocator(locator);
+        internal LookupReply(Locator locatorServant) => _locatorServant = locatorServant;
     }
 }

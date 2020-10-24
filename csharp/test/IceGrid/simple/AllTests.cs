@@ -56,15 +56,24 @@ namespace ZeroC.IceGrid.Test.Simple
                     IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                     IObjectPrx.Parse("test", com).IcePing();
 
-                    // TODO: currently, com.DefaultLocator is a regular ice2/2.0 proxy and we don't want to forward
-                    // 2.0-encoded requests to IceGrid until IceGrid supports such requests.
+                    Ice.ILocatorPrx defaultLocator = com.DefaultLocator!;
+                    TestHelper.Assert(defaultLocator.Protocol == Protocol.Ice2);
+                    TestHelper.Assert(defaultLocator.Encoding == Encoding.V20);
 
-                    ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(ILocatorPrx.Factory,
-                                                                           encoding: Encoding.V11);
-
+                    // This works fine because the IceLocatorDiscovery Locator performs transcoding for Ice::Locator
+                    // operations.
                     TestHelper.Assert(defaultLocator.GetRegistry() != null);
-                    TestHelper.Assert(defaultLocator.GetLocalRegistry() != null);
-                    TestHelper.Assert(defaultLocator.GetLocalQuery() != null);
+
+                    // CheckedCast on the _IceGrid_ Locator proxy fails because ice_isA is not forwarded (due to the
+                    // encoding mismatch) but is instead implemented by the plain Locator of IceLocatorDiscovery.
+                    TestHelper.Assert(defaultLocator.CheckedCast(ILocatorPrx.Factory) == null);
+
+                    // Change the encoding to make it work:
+                    defaultLocator = defaultLocator.Clone(encoding: Encoding.V11);
+                    var iceGridLocator = defaultLocator.CheckedCast(ILocatorPrx.Factory);
+                    TestHelper.Assert(iceGridLocator != null);
+                    TestHelper.Assert(iceGridLocator.GetLocalRegistry() != null);
+                    TestHelper.Assert(iceGridLocator.GetLocalQuery() != null);
 
                     ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
                     adapter.Activate();
@@ -79,13 +88,16 @@ namespace ZeroC.IceGrid.Test.Simple
                     try
                     {
                         IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                        TestHelper.Assert(false);
                     }
                     catch (NoEndpointException)
                     {
                     }
+
                     try
                     {
                         IObjectPrx.Parse("test", com).IcePing();
+                        TestHelper.Assert(false);
                     }
                     catch (NoEndpointException)
                     {
@@ -93,11 +105,10 @@ namespace ZeroC.IceGrid.Test.Simple
 
                     Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V11);
 
-                    TestHelper.Assert(defaultLocator.GetRegistry() == null);
-                    TestHelper.Assert(defaultLocator.CheckedCast(ILocatorPrx.Factory) == null);
                     try
                     {
-                        com.DefaultLocator!.Clone(ILocatorPrx.Factory).GetLocalRegistry();
+                        defaultLocator.Clone(ILocatorPrx.Factory).GetLocalRegistry();
+                        TestHelper.Assert(false);
                     }
                     catch (OperationNotExistException)
                     {
@@ -166,14 +177,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     }
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
-                    try
-                    {
-                        IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                    }
-                    catch (NoEndpointException)
-                    {
-                        TestHelper.Assert(false);
-                    }
+                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                 }
             }
             Console.Out.WriteLine("ok");
@@ -263,6 +267,7 @@ namespace ZeroC.IceGrid.Test.Simple
             {
             }
 
+            // TODO: why these TestHelper.Assert(false) in catch blocks?
             try
             {
                 admin.EnableServer("server", true);
