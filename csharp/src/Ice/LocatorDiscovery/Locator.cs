@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
-namespace ZeroC.IceLocatorDiscovery
+namespace ZeroC.Ice.LocatorDiscovery
 {
     /// <summary>Implements interface Ice::Locator by forwarding all calls to the discovered locator. We cannot simply
     /// forward the requests using ForwardAsync because we need to occasionally perform transcoding. This locator is
@@ -24,12 +24,17 @@ namespace ZeroC.IceLocatorDiscovery
         private ILocatorPrx? _locator;
         private readonly ILookupPrx _lookup;
         private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new ();
+
+        private readonly string _lookupTraceCategory;
+        private readonly int _lookupTraceLevel;
         private readonly object _mutex = new object();
         private TimeSpan _nextRetry;
+
+        private readonly string _pluginName;
+
         private readonly int _retryCount;
         private readonly TimeSpan _retryDelay;
         private readonly TimeSpan _timeout;
-        private readonly int _traceLevel;
 
         // "Overrides" the generated DispatchAsync to forward as-is when the encoding match (this includes unknown
         // operations and binary contexts). Otherwise, use the generated code to perform transcoding back and forth.
@@ -129,15 +134,18 @@ namespace ZeroC.IceLocatorDiscovery
             string instanceName,
             ILookupReplyPrx lookupReply)
         {
+            _pluginName = name;
             _lookup = lookup;
-            _timeout = communicator.GetPropertyAsTimeSpan($"{name}.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            _timeout = communicator.GetPropertyAsTimeSpan($"{_pluginName}.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
-            _retryCount = Math.Max(communicator.GetPropertyAsInt($"{name}.RetryCount") ?? 3, 1);
-            _retryDelay = communicator.GetPropertyAsTimeSpan($"{name}.RetryDelay") ?? TimeSpan.FromMilliseconds(2000);
-            _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
+            _retryCount = Math.Max(communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3, 1);
+            _retryDelay = communicator.GetPropertyAsTimeSpan($"{_pluginName}.RetryDelay") ??
+                TimeSpan.FromMilliseconds(2000);
+            _lookupTraceLevel = communicator.GetPropertyAsInt($"{_pluginName}.Trace.Lookup") ?? 0;
+            _lookupTraceCategory = $"{_pluginName}.Lookup";
             _instanceName = instanceName;
             _locator = lookup.Communicator.DefaultLocator;
 
@@ -175,9 +183,9 @@ namespace ZeroC.IceLocatorDiscovery
             {
                 if (_instanceName.Length > 0 && locator.Identity.Category != _instanceName)
                 {
-                    if (_traceLevel > 2)
+                    if (_lookupTraceLevel > 2)
                     {
-                        _lookup.Communicator.Logger.Trace("Lookup",
+                        _lookup.Communicator.Logger.Trace(_lookupTraceCategory,
                             @$"ignoring locator reply: instance name doesn't match\nexpected = {_instanceName
                             } received = {locator.Identity.Category}");
                     }
@@ -190,21 +198,21 @@ namespace ZeroC.IceLocatorDiscovery
                 {
                     if (locator.Identity != _locator.Identity || locator.Facet != _locator.Facet)
                     {
-                        var sb = new StringBuilder();
-                        sb.Append("received Ice locator with different identities:\n")
+                        var sb = new StringBuilder(_pluginName);
+                        sb.Append(": received Ice locator with different identities:\n")
                           .Append("using = `").Append(_locator).Append("'\n")
                           .Append("received = `").Append(locator).Append("'\n")
                           .Append("This is typically the case if multiple Ice locators with different ")
-                          .Append("instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ")
-                          .Append("is not set.");
+                          .Append("instance names are deployed and the property `")
+                          .Append(_pluginName).Append(".InstanceName' is not set.");
                         locator.Communicator.Logger.Warning(sb.ToString());
                         return;
                     }
 
                     if (locator.Protocol != _locator.Protocol)
                     {
-                        var sb = new StringBuilder();
-                        sb.Append("ignoring Ice locator with different protocol:\n")
+                        var sb = new StringBuilder(_pluginName);
+                        sb.Append(": ignoring Ice locator with different protocol:\n")
                           .Append("using = `").Append(_locator.Protocol).Append("'\n")
                           .Append("received = `").Append(locator.Protocol).Append("'\n");
                         locator.Communicator.Logger.Warning(sb.ToString());
@@ -212,7 +220,7 @@ namespace ZeroC.IceLocatorDiscovery
                     }
                 }
 
-                if (_traceLevel > 0)
+                if (_lookupTraceLevel > 0)
                 {
                     var sb = new StringBuilder("locator lookup succeeded:\nlocator = ");
                     sb.Append(locator);
@@ -221,8 +229,7 @@ namespace ZeroC.IceLocatorDiscovery
                         sb.Append("\ninstance name = ").Append(_instanceName);
                     }
 
-                    // TODO: what is this Lookup trace category?
-                    _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
+                    _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
                 }
 
                 if (_locator == null)
@@ -253,7 +260,7 @@ namespace ZeroC.IceLocatorDiscovery
                 _completionSource = new TaskCompletionSource<ILocatorPrx>();
             }
 
-            if (_traceLevel > 1)
+            if (_lookupTraceLevel > 1)
             {
                 var sb = new StringBuilder("looking up locator:\nlookup = ");
                 sb.Append(_lookup);
@@ -261,7 +268,7 @@ namespace ZeroC.IceLocatorDiscovery
                 {
                     sb.Append("\ninstance name = ").Append(_instanceName);
                 }
-                _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
+                _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
             }
 
             int failureCount = 0;
@@ -280,7 +287,7 @@ namespace ZeroC.IceLocatorDiscovery
                             if (++failureCount == _lookups.Count)
                             {
                                 // All the lookup calls failed, return null
-                                if (_traceLevel > 0)
+                                if (_lookupTraceLevel > 0)
                                 {
                                     var sb = new StringBuilder("locator lookup failed:\nlookup = ");
                                     sb.Append(_lookup);
@@ -288,9 +295,9 @@ namespace ZeroC.IceLocatorDiscovery
                                     {
                                         sb.Append("\ninstance name = ").Append(_instanceName);
                                     }
-                                    sb.Append("\nwith lookup proxy `{_lookup}':\n");
+                                    sb.Append('\n');
                                     sb.Append(ex);
-                                    _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
+                                    _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
                                 }
                                 return null;
                             }
@@ -316,7 +323,7 @@ namespace ZeroC.IceLocatorDiscovery
                 else
                 {
                     // Locator lookup timeout and no more retries
-                    if (_traceLevel > 0)
+                    if (_lookupTraceLevel > 0)
                     {
                         var sb = new StringBuilder("locator lookup timed out:\nlookup = ");
                         sb.Append(_lookup);
@@ -324,7 +331,7 @@ namespace ZeroC.IceLocatorDiscovery
                         {
                             sb.Append("\ninstance name = ").Append(_instanceName);
                         }
-                        _lookup.Communicator.Logger.Trace("Lookup", sb.ToString());
+                        _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
                     }
 
                     _nextRetry = Time.Elapsed + _retryDelay;
@@ -380,7 +387,7 @@ namespace ZeroC.IceLocatorDiscovery
                     if (exception != null)
                     {
                         _lookup.Communicator.Logger.Warning(
-                            $"IceLocatorDiscovery: failed to send request to discovered locator:\n{exception}");
+                            $"{_pluginName}: failed to send request to discovered locator:\n{exception}");
                     }
 
                     return await callAsync(null).ConfigureAwait(false);

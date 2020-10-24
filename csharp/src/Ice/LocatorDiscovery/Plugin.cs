@@ -6,9 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
-namespace ZeroC.IceLocatorDiscovery
+namespace ZeroC.Ice.LocatorDiscovery
 {
-    /// <summary>The IceLocatorDiscovery plug-in's factory.</summary>
+    /// <summary>The LocatorDiscovery plug-in's factory.</summary>
     public sealed class PluginFactory : IPluginFactory
     {
         /// <inheritdoc/>
