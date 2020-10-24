@@ -28,7 +28,7 @@ module Ice::LocatorDiscovery
     {
         /// Provides a locator proxy in response to a findLocator call on a Lookup object.
         /// @param proxy The proxy to the locator object.
-        void foundLocator(Ice::Locator proxy);
+        [oneway] void foundLocator(Ice::Locator proxy);
     }
 
     /// A locator implementation such as the IceGrid registry hosts a Lookup object that receives discovery requests
@@ -40,7 +40,7 @@ module Ice::LocatorDiscovery
         /// If empty, all available locator implementations will reply.
         /// @param reply A proxy to the client's LookupReply object. The locator implementation calls foundLocator on
         /// this object.
-        idempotent void findLocator(string instanceName, LookupReply reply);
+        [oneway] idempotent void findLocator(string instanceName, LookupReply reply);
     }
 }
 
