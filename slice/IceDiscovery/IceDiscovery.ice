@@ -39,10 +39,9 @@ module IceDiscovery
         /// @param domainId The IceDiscovery domain ID. An IceDiscovery server only replies to requests that include a
         /// domain ID that matches the server's configured domain ID.
         /// @param id The object identity.
-        /// @param facet The facet of the object. Null is equivalent to the empty string.
         /// @param reply A proxy to a LookupReply object created by the caller. The server calls foundObjectById on this
-        /// object when it hosts an object with the requested identity and facet in an ice1 object adapter.
-        idempotent void findObjectById(string domainId, Ice::Identity id, tag(1) string? facet, LookupReply reply);
+        /// object when it hosts an object with the requested identity in an ice1 object adapter.
+        idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply reply);
     }
 
     /// Handles the reply or replies to findAdapterById and findObjectById calls on {@see Lookup}.
