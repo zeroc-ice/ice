@@ -32,7 +32,7 @@ namespace ZeroC.Ice
         internal InvocationMode InvocationMode { get; }
 
         internal TimeSpan InvocationTimeout { get; }
-        internal bool IsConnectionCached;
+        internal bool IsConnectionCached { get; }
         internal bool IsFixed { get; }
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
         public bool IsOneway => InvocationMode != InvocationMode.Twoway;
@@ -42,6 +42,7 @@ namespace ZeroC.Ice
         internal TimeSpan LocatorCacheTimeout { get; }
 
         internal LocatorInfo? LocatorInfo { get; }
+
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
@@ -999,13 +1000,10 @@ namespace ZeroC.Ice
 
                 // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
                 // case we use the colocated endpoint.
-                if (InvocationMode != InvocationMode.Datagram)
+                if (InvocationMode != InvocationMode.Datagram &&
+                    Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
                 {
-                    Endpoint? endpoint = Communicator.GetColocatedEndpoint(this);
-                    if (endpoint != null)
-                    {
-                        endpoints = new Endpoint[] { endpoint };
-                    }
+                    endpoints = ImmutableArray.Create(colocatedEndpoint);
                 }
 
                 if (endpoints.Count == 0 && RouterInfo != null)
