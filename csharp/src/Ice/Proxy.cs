@@ -232,7 +232,7 @@ namespace ZeroC.Ice
             }
             catch (AggregateException ex)
             {
-                Debug.Assert(ex.InnerException != null);
+                Debug.Assert(ex.InnerException != null, ex.ToString());
                 throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
@@ -417,7 +417,10 @@ namespace ZeroC.Ice
                             // The reference has no endpoints or the previous retry policy asked to retry on a
                             // different replica but no more replicas are available (in this case, we rethrow
                             // the remote exception instead of the NoEndpointException).
-                            lastException = response == null ? ex : null;
+                            if (response == null && lastException == null)
+                            {
+                                lastException = ex;
+                            }
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
                         catch (TransportException ex)
@@ -435,7 +438,8 @@ namespace ZeroC.Ice
                             // connection was gracefully closed by the peer (in which case it's safe to retry).
                             if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
                             {
-                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                                retryPolicy = ex.RetryPolicy;
+                                connection = ex.Connection;
                             }
                         }
                         catch (Exception ex)

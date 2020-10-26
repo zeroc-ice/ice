@@ -578,7 +578,7 @@ namespace ZeroC.Ice.Test.Metrics
                 controller.Hold();
                 try
                 {
-                    // The first try should fail with ConnectTimeoutException and the retry with
+                    // The first try should fail with ConnectionClosedException and the retry with
                     // ConnectTimeoutException.
                     metricsWithHold.IcePing();
                     TestHelper.Assert(false);
@@ -796,10 +796,10 @@ namespace ZeroC.Ice.Test.Metrics
                     }
 
                     TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") &&
-                        m1.Total == 5 && (!dnsException || m1.Failures == 5));
+                        m1.Total == 1 && (!dnsException || m1.Failures == 1));
                     if (dnsException)
                     {
-                        CheckFailure(clientMetrics, "EndpointLookup", m1.Id, "ZeroC.Ice.DNSException", 5, output);
+                        CheckFailure(clientMetrics, "EndpointLookup", m1.Id, "ZeroC.Ice.DNSException", 1, output);
                     }
                 }
                 // TODO: ice2 version

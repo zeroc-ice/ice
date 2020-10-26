@@ -71,7 +71,7 @@ namespace ZeroC.Ice
             catch (SocketException ex)
             {
                 _socket.CloseNoThrow();
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.NoRetry);
             }
 
             Endpoint = endpoint.Clone((ushort)_addr.Port);

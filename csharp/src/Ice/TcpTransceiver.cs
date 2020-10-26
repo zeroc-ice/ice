@@ -29,7 +29,7 @@ namespace ZeroC.Ice
 
         public void Dispose() => Socket.Dispose();
 
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public async ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
         {
             if (_addr != null)
             {
@@ -57,11 +57,11 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    throw new ConnectionRefusedException(ex);
+                    throw new ConnectionRefusedException(ex, connection);
                 }
                 catch (SocketException ex)
                 {
-                    throw new ConnectFailedException(ex);
+                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), connection);
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             if (received == 0)
             {
@@ -117,7 +117,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 

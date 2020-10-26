@@ -34,7 +34,7 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex);
+                    throw new TransportException(ex, RetryPolicy.NoRetry);
                 }
             }
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, true);
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
 
             if (!udp)
@@ -87,7 +87,7 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex);
+                    throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
             }
             return socket;
@@ -264,7 +264,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.NoRetry);
             }
         }
 
@@ -298,7 +298,10 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                throw new TransportException("error retrieving local network interface IP addresses", ex);
+                throw new TransportException(
+                    "error retrieving local network interface IP addresses",
+                    ex,
+                    RetryPolicy.NoRetry);
             }
 
             return addresses.ToArray();

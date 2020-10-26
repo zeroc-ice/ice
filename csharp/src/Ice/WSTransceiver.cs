@@ -78,9 +78,9 @@ namespace ZeroC.Ice
 
         public void Dispose() => _underlying.Dispose();
 
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public async ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
         {
-            await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
+            await _underlying.InitializeAsync(connection, cancel).ConfigureAwait(false);
 
             try
             {

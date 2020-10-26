@@ -74,7 +74,7 @@ namespace ZeroC.Ice
         /// ice2, it's ice+transport (ice+tcp, ice+quic etc.) or ice+universal.</summary>
         public virtual string Scheme => Protocol == Protocol.Ice1 ? TransportName : $"ice+{TransportName}";
 
-        /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
+        /// <summary>The <see cref="Ice.Transport"></see> of this endpoint.</summary>
         public Transport Transport => Data.Transport;
 
         /// <summary>The name of the endpoint's transport in lowercase.</summary>

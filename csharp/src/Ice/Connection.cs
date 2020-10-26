@@ -376,7 +376,7 @@ namespace ZeroC.Ice
                 CancellationToken cancel = source.Token;
 
                 // Initialize the transport.
-                await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
+                await Transceiver.InitializeAsync(this, cancel).ConfigureAwait(false);
 
                 if (!Endpoint.IsDatagram)
                 {
@@ -410,7 +410,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                var ex = new ConnectTimeoutException();
+                var ex = new ConnectTimeoutException(this);
                 _ = AbortAsync(ex);
                 throw ex;
             }

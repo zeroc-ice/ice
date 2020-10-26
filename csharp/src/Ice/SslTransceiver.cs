@@ -27,9 +27,9 @@ namespace ZeroC.Ice
         private BufferedStream? _writeStream;
         private readonly ITransceiver _underlying;
 
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public async ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
         {
-            await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
+            await _underlying.InitializeAsync(connection, cancel).ConfigureAwait(false);
 
             SslStream = new SslStream(new NetworkStream(_underlying.Socket!, false), false);
 
@@ -65,15 +65,15 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(ex, connection);
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), connection);
             }
             catch (AuthenticationException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.OtherReplica, connection);
             }
 
             if (_engine.SecurityTraceLevel >= 1)
@@ -132,7 +132,7 @@ namespace ZeroC.Ice
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             if (received == 0)
             {
@@ -158,7 +158,7 @@ namespace ZeroC.Ice
             catch (ObjectDisposedException ex)
             {
                 // The stream might have been disposed if the connection is closed.
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
@@ -166,7 +166,7 @@ namespace ZeroC.Ice
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 

@@ -47,11 +47,11 @@ namespace ZeroC.Ice
         {
             if (!(endpoint is IPEndPoint))
             {
-                throw new TransportException("SOCKS4 does not support domain names");
+                throw new TransportException("SOCKS4 does not support domain names", RetryPolicy.NoRetry);
             }
             else if (endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
-                throw new TransportException("SOCKS4 only supports IPv4 addresses");
+                throw new TransportException("SOCKS4 only supports IPv4 addresses", RetryPolicy.NoRetry);
             }
 
             // SOCKS connect request
@@ -73,7 +73,7 @@ namespace ZeroC.Ice
             await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel);
             if (data[0] != 0x00 || data[1] != 0x5a)
             {
-                throw new ConnectFailedException();
+                throw new ConnectFailedException(RetryPolicy.NoRetry);
             }
         }
 
@@ -150,7 +150,7 @@ namespace ZeroC.Ice
             parser.Parse(buffer);
             if (parser.Status() != 200)
             {
-                throw new ConnectFailedException();
+                throw new ConnectFailedException(RetryPolicy.NoRetry);
             }
         }
 
