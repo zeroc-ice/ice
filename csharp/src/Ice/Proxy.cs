@@ -415,7 +415,7 @@ namespace ZeroC.Ice
                         catch (NoEndpointException ex)
                         {
                             // The reference has no endpoints or the previous retry policy asked to retry on a
-                            // different replica but no more replicas are available (in this case, we rethrow
+                            // different replica but no more replicas are available (in this case, we throw
                             // the previous exception instead of the NoEndpointException).
                             if (response == null && lastException == null)
                             {
@@ -431,6 +431,7 @@ namespace ZeroC.Ice
                                 reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
                             }
 
+                            ex.Connection ??= connection;
                             lastException = ex;
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
 

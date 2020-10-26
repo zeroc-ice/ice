@@ -90,7 +90,7 @@ namespace ZeroC.Ice
 
         /// <summary>The connection associated with the exception or null if no connection is associated with the
         /// exception.</summary>
-        public Connection? Connection { get; }
+        public Connection? Connection { get; internal set; }
 
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class. A plain
         /// TransportException should have a custom message or an inner exception (or both).</summary>
