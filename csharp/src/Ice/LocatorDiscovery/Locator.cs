@@ -271,45 +271,46 @@ namespace ZeroC.Ice.LocatorDiscovery
                 _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
             }
 
-            int failureCount = 0;
+            // We retry only when at least one send succeeds and we don't get any reply.
+            // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
+                var invocationTasks = new List<Task>(_lookups.Count);
                 foreach ((ILookupPrx lookup, ILookupReplyPrx lookupReply) in _lookups)
                 {
                     try
                     {
-                        await lookup.FindLocatorAsync(_instanceName, lookupReply).ConfigureAwait(false);
+                        invocationTasks.Add(lookup.FindLocatorAsync(_instanceName, lookupReply));
                     }
                     catch (Exception ex)
                     {
-                        lock (_mutex)
-                        {
-                            if (++failureCount == _lookups.Count)
-                            {
-                                // All the lookup calls failed, return null
-                                if (_lookupTraceLevel > 0)
-                                {
-                                    var sb = new StringBuilder("locator lookup failed:\nlookup = ");
-                                    sb.Append(_lookup);
-                                    if (_instanceName.Length > 0)
-                                    {
-                                        sb.Append("\ninstance name = ").Append(_instanceName);
-                                    }
-                                    sb.Append('\n');
-                                    sb.Append(ex);
-                                    _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
-                                }
-                                return null;
-                            }
-                        }
+                        invocationTasks.Add(Task.FromException(ex));
                     }
                 }
 
-                Task t = await Task.WhenAny(_completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
+                Task t = Task.WhenAll(invocationTasks);
+
+                try
+                {
+                    await t.ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    if (t.Exception == null || t.Exception?.InnerExceptions.Count == invocationTasks.Count)
+                    {
+                        // All the tasks failed: trace and return null (no retry)
+                        TraceLookupFailure(ex);
+                        return null;
+                    }
+                    // else at least one task succeeded
+                }
+
+                t = await Task.WhenAny(_completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
                 if (t == _completionSource.Task)
                 {
                     return await _completionSource.Task.ConfigureAwait(false);
                 }
+                // else retry
             }
 
             lock (_mutex)
@@ -426,6 +427,21 @@ namespace ZeroC.Ice.LocatorDiscovery
             return locator;
         }
 
+        private void TraceLookupFailure(Exception ex)
+        {
+            if (_lookupTraceLevel > 0)
+            {
+                var sb = new StringBuilder("locator lookup failed:\nlookup = ");
+                sb.Append(_lookup);
+                if (_instanceName.Length > 0)
+                {
+                    sb.Append("\ninstance name = ").Append(_instanceName);
+                }
+                sb.Append('\n');
+                sb.Append(ex);
+                _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
+            }
+        }
     }
 
     internal class LookupReply : ILookupReply
