@@ -87,9 +87,7 @@ namespace ZeroC.Ice
             ostr.WriteInt(Port);
         }
 
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType endptSelection,
-            CancellationToken cancel)
+        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel)
         {
             Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
             observer?.Attach();
@@ -105,7 +103,6 @@ namespace ZeroC.Ice
                     await Network.GetAddressesForClientEndpointAsync(Host,
                                                                      Port,
                                                                      networkProxy?.IPVersion ?? Network.EnableBoth,
-                                                                     endptSelection,
                                                                      cancel).ConfigureAwait(false);
                 return addrs.Select(item => CreateConnector(item, networkProxy));
             }
@@ -128,10 +125,7 @@ namespace ZeroC.Ice
             // endpoints. Otherwise, we'll publish each individual expanded endpoint.
             publish = Port > 0 ? this : null;
 
-            IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host,
-                                                                     Port,
-                                                                     Network.EnableBoth,
-                                                                     EndpointSelectionType.Ordered);
+            IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host, Port, Network.EnableBoth);
 
             if (addresses.Count() == 1)
             {

@@ -83,7 +83,6 @@ namespace ZeroC.Ice
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
-            EndpointSelectionType selType,
             string connectionId,
             IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
@@ -120,8 +119,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    IEnumerable<IConnector> endpointConnectors =
-                        await endpoint.ConnectorsAsync(selType, cancel).ConfigureAwait(false);
+                    IEnumerable<IConnector> endpointConnectors = await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
                     foreach (IConnector connector in endpointConnectors)
                     {
                         connectors.Add((connector, endpoint));
@@ -313,8 +311,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    foreach (IConnector connector in
-                        endpoint.ConnectorsAsync(EndpointSelectionType.Ordered, cancel: default).AsTask().Result)
+                    foreach (IConnector connector in endpoint.ConnectorsAsync(cancel: default).AsTask().Result)
                     {
                         lock (_mutex)
                         {
