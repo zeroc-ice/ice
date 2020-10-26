@@ -8,9 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceDiscovery
+namespace ZeroC.Ice.Discovery
 {
     /// <summary>Servant class that implements the Slice interface Ice::Locator.</summary>
     internal class Locator : IAsyncLocator
@@ -25,6 +23,8 @@ namespace ZeroC.IceDiscovery
         // and that matches the interface of the key's endpoint.
         private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new ();
 
+        private readonly string _pluginName;
+
         private readonly ObjectAdapter _replyAdapter;
 
         private readonly ILocatorRegistryPrx _registry;
@@ -36,16 +36,16 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new LookupReply(_replyAdapter);
+            using var replyServant = new FindAdapterByIdReply(_replyAdapter);
             return await InvokeAsync(
                 (lookup, dummyReply) =>
                 {
-                    ILookupReplyPrx lookupReply =
-                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+                    IFindAdapterByIdReplyPrx reply =
+                        dummyReply.Clone(IFindAdapterByIdReplyPrx.Factory, identity: replyServant.Identity);
 
                     return lookup.FindAdapterByIdAsync(_domainId,
                                                       adapterId,
-                                                      lookupReply,
+                                                      reply,
                                                       cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
@@ -57,14 +57,14 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new LookupReply(_replyAdapter);
+            using var replyServant = new FindObjectByIdReply(_replyAdapter);
             return await InvokeAsync(
                 (lookup, dummyReply) =>
                 {
-                    ILookupReplyPrx lookupReply =
-                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+                    IFindObjectByIdReplyPrx reply =
+                        dummyReply.Clone(IFindObjectByIdReplyPrx.Factory, identity: replyServant.Identity);
 
-                    return lookup.FindObjectByIdAsync(_domainId, identity, facet, lookupReply, cancel: cancel);
+                    return lookup.FindObjectByIdAsync(_domainId, identity, facet, reply, cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
         }
@@ -136,29 +136,30 @@ namespace ZeroC.IceDiscovery
                     adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
         }
 
-        internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter)
+        internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter, string pluginName)
         {
             _lookup = lookup;
+            _pluginName = pluginName;
             _registry = registry;
             _replyAdapter = replyAdapter;
 
             Communicator communicator = replyAdapter.Communicator;
 
-            _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            _timeout = communicator.GetPropertyAsTimeSpan($"{_pluginName}.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
-            _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
+            _retryCount = communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3;
 
-            _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
+            _latencyMultiplier = communicator.GetPropertyAsInt($"{_pluginName}.LatencyMultiplier") ?? 1;
             if (_latencyMultiplier < 1)
             {
                 throw new InvalidConfigurationException(
-                    "The value of `IceDiscovery.LatencyMultiplier' must be a positive integer greater than 0");
+                    $"The value of `{_pluginName}.LatencyMultiplier' must be a positive integer greater than 0");
             }
 
-            _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
+            _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
             // of the lookup proxy.
@@ -215,7 +216,7 @@ namespace ZeroC.IceDiscovery
                         if (++failureCount == _lookups.Count)
                         {
                             _replyAdapter.Communicator.Logger.Warning(
-                                $"IceDiscovery failed to send lookup request using `{_lookup}':\n{ex}");
+                                $"{_pluginName} failed to send lookup request using `{_lookup}':\n{ex}");
                             replyServant.SetEmptyResult();
                             return await replyServant.Task.ConfigureAwait(false);
                         }
@@ -305,14 +306,11 @@ namespace ZeroC.IceDiscovery
         private protected void SetResult(TResult result) => _completionSource.SetResult(result);
     }
 
-    /// <summary>Servant class that implements the Slice interface LookupReply.</summary>
-    internal sealed class LookupReply : ReplyServant<IObjectPrx?>, ILookupReply
+    /// <summary>Servant class that implements the Slice interface FindAdapterByIdReply.</summary>
+    internal sealed class FindAdapterByIdReply : ReplyServant<IObjectPrx?>, IFindAdapterByIdReply
     {
         private readonly object _mutex = new ();
         private readonly HashSet<IObjectPrx> _proxies = new ();
-
-        public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
-            SetResult(proxy);
 
         public void FoundAdapterById(
             string adapterId,
@@ -340,7 +338,7 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal LookupReply(ObjectAdapter replyAdapter)
+        internal FindAdapterByIdReply(ObjectAdapter replyAdapter)
             : base(emptyResult: null, replyAdapter)
         {
         }
@@ -358,6 +356,18 @@ namespace ZeroC.IceDiscovery
                 }
                 return result.Clone(endpoints: endpoints);
             }
+        }
+    }
+
+    /// <summary>Servant class that implements the Slice interface FindObjectByIdReply.</summary>
+    internal class FindObjectByIdReply : ReplyServant<IObjectPrx?>, IFindObjectByIdReply
+    {
+        public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
+            SetResult(proxy);
+
+        internal FindObjectByIdReply(ObjectAdapter replyAdapter)
+            : base(emptyResult: null, replyAdapter)
+        {
         }
     }
 

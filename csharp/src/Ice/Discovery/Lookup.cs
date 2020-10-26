@@ -5,21 +5,21 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceDiscovery
+namespace ZeroC.Ice.Discovery
 {
-    /// <summary>Servant class that implements the Slice interface IceDiscovery::Lookup using the local LocatorRegistry
-    /// servant.</summary>
+    /// <summary>Servant class that implements the Slice interface Ice::Discovery::Lookup using the local
+    /// LocatorRegistry servant.</summary>
     internal class Lookup : IAsyncLookup
     {
         private readonly string _domainId;
+
+        private readonly string _pluginName;
         private readonly LocatorRegistry _registryServant;
 
         public async ValueTask FindAdapterByIdAsync(
             string domainId,
             string adapterId,
-            ILookupReplyPrx reply,
+            IFindAdapterByIdReplyPrx reply,
             Current current,
             CancellationToken cancel)
         {
@@ -40,7 +40,7 @@ namespace ZeroC.IceDiscovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundAdapterById to `{reply}':\n{ex}");
+                        $"{_pluginName} failed to send foundAdapterById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace ZeroC.IceDiscovery
             string domainId,
             Identity id,
             string? facet,
-            ILookupReplyPrx reply,
+            IFindObjectByIdReplyPrx reply,
             Current current,
             CancellationToken cancel)
         {
@@ -68,7 +68,7 @@ namespace ZeroC.IceDiscovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundObjectById to `{reply}':\n{ex}");
+                        $"{_pluginName} failed to send foundObjectById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace ZeroC.IceDiscovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundAdapterId to `{reply}':\n{ex}");
+                        $"{_pluginName} failed to send foundAdapterId to `{reply}':\n{ex}");
                 }
             }
         }
@@ -125,15 +125,16 @@ namespace ZeroC.IceDiscovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
+                        $"{_pluginName} failed to send foundWellKnownProxy to `{reply}':\n{ex}");
                 }
             }
         }
 
-        internal Lookup(LocatorRegistry registryServant, Communicator communicator)
+        internal Lookup(LocatorRegistry registryServant, string pluginName, Communicator communicator)
         {
+            _pluginName = pluginName;
             _registryServant = registryServant;
-            _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
+            _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
         }
     }
 }

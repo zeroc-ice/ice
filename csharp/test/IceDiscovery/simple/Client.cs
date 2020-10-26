@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.IceDiscovery.Test.Simple
+namespace ZeroC.Ice.Test.Discovery
 {
     public class Client : TestHelper
     {
