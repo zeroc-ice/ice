@@ -13,7 +13,6 @@ namespace ZeroC.IceGrid.Test.Simple
         {
             var properties = new Dictionary<string, string>();
             properties.ParseArgs(ref args, "TestAdapter");
-            properties.Add("Test.Protocol", "ice1");
 
             await using Communicator communicator = Initialize(ref args, properties);
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");

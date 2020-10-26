@@ -193,11 +193,11 @@ namespace ZeroC.IceDiscovery
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
-        /// <param name="find">A delegate that performs the remote call. The parameters correspond to an entry in the
-        /// _lookups dictionary.</param>
+        /// <param name="findAsync">A delegate that performs the remote call. The parameters correspond to an entry in
+        /// the _lookups dictionary.</param>
         /// <param name="replyServant">The reply servant.</param>
         private async Task<TResult> InvokeAsync<TResult>(
-            Func<ILookupPrx, IObjectPrx, Task> find,
+            Func<ILookupPrx, IObjectPrx, Task> findAsync,
             ReplyServant<TResult> replyServant)
         {
             for (int i = 0; i < _retryCount; ++i)
@@ -208,7 +208,7 @@ namespace ZeroC.IceDiscovery
                 {
                     try
                     {
-                        await find(lookup, dummyReply).ConfigureAwait(false);
+                        await findAsync(lookup, dummyReply).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
