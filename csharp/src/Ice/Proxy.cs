@@ -416,7 +416,7 @@ namespace ZeroC.Ice
                         {
                             // The reference has no endpoints or the previous retry policy asked to retry on a
                             // different replica but no more replicas are available (in this case, we rethrow
-                            // the remote exception instead of the NoEndpointException).
+                            // the previous exception instead of the NoEndpointException).
                             if (response == null && lastException == null)
                             {
                                 lastException = ex;
