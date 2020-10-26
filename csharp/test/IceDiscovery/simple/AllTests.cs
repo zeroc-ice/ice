@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Test;
-using ZeroC.Ice;
 
-namespace ZeroC.IceDiscovery.Test.Simple
+namespace ZeroC.Ice.Test.Discovery
 {
     public class AllTests
     {
