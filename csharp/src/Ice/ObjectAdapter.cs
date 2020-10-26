@@ -45,8 +45,8 @@ namespace ZeroC.Ice
         public Protocol Protocol { get; }
 
         /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.
-+       /// <seealso cref="SetPublishedEndpoints"/>
-+       /// <seealso cref="SetPublishedEndpointsAsync"/></summary>
+        /// <seealso cref="SetPublishedEndpoints"/>
+        /// <seealso cref="SetPublishedEndpointsAsync"/></summary>
         public IReadOnlyList<Endpoint> PublishedEndpoints
         {
             get
