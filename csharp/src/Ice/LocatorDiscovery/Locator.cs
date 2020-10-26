@@ -299,7 +299,18 @@ namespace ZeroC.Ice.LocatorDiscovery
                     if (t.Exception == null || t.Exception?.InnerExceptions.Count == invocationTasks.Count)
                     {
                         // All the tasks failed: trace and return null (no retry)
-                        TraceLookupFailure(ex);
+                        if (_lookupTraceLevel > 0)
+                        {
+                            var sb = new StringBuilder("locator lookup failed:\nlookup = ");
+                            sb.Append(_lookup);
+                            if (_instanceName.Length > 0)
+                            {
+                                sb.Append("\ninstance name = ").Append(_instanceName);
+                            }
+                            sb.Append('\n');
+                            sb.Append(ex);
+                            _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
+                        }
                         return null;
                     }
                     // else at least one task succeeded
@@ -425,22 +436,6 @@ namespace ZeroC.Ice.LocatorDiscovery
                 _findLocatorTask = null;
             }
             return locator;
-        }
-
-        private void TraceLookupFailure(Exception ex)
-        {
-            if (_lookupTraceLevel > 0)
-            {
-                var sb = new StringBuilder("locator lookup failed:\nlookup = ");
-                sb.Append(_lookup);
-                if (_instanceName.Length > 0)
-                {
-                    sb.Append("\ninstance name = ").Append(_instanceName);
-                }
-                sb.Append('\n');
-                sb.Append(ex);
-                _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
-            }
         }
     }
 
