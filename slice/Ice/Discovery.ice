@@ -27,7 +27,7 @@ module Ice::Discovery
     interface ResolveAdapterIdReply;
     interface ResolveWellKnownProxyReply;
 
-    /// The <plugin-name>.Multicast object adapter of a server application hosts a Lookup object that receives discovery
+    /// The {plugin-name}.Multicast object adapter of a server application hosts a Lookup object that receives discovery
     /// requests from Discovery clients.
     interface Lookup
     {
