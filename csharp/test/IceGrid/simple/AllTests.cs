@@ -26,7 +26,8 @@ namespace ZeroC.IceGrid.Test.Simple
 
             Console.Out.Write("testing locator finder... ");
             var finderId = new Identity("LocatorFinder", "Ice");
-            ILocatorFinderPrx finder = communicator.DefaultLocator!.Clone(ILocatorFinderPrx.Factory, identity: finderId);
+            ILocatorFinderPrx finder = communicator.DefaultLocator!.Clone(ILocatorFinderPrx.Factory,
+                                                                          identity: finderId);
             TestHelper.Assert(finder != null && finder.GetLocator() != null);
             Console.Out.WriteLine("ok");
 
@@ -42,11 +43,11 @@ namespace ZeroC.IceGrid.Test.Simple
                 session.GetAdmin()!.AddObjectWithType(obj, "::Test");
                 session.Destroy();
 
-                // Ensure the IceGrid discovery locator can discover the registries and make sure locator requests are
+                // Ensure the locator discovery plugin can discover the registries and make sure locator requests are
                 // forwarded.
                 Dictionary<string, string>? properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
-                properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
                 properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.Transport} -h 127.0.0.1";
 
@@ -56,20 +57,29 @@ namespace ZeroC.IceGrid.Test.Simple
                     IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                     IObjectPrx.Parse("test", com).IcePing();
 
-                    // TODO: currently, com.DefaultLocator is a regular ice2/2.0 proxy and we don't want to forward
-                    // 2.0-encoded requests to IceGrid until IceGrid supports such requests.
+                    Ice.ILocatorPrx defaultLocator = com.DefaultLocator!;
+                    TestHelper.Assert(defaultLocator.Protocol == Protocol.Ice2);
+                    TestHelper.Assert(defaultLocator.Encoding == Encoding.V20);
 
-                    ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(ILocatorPrx.Factory,
-                                                                           encoding: Encoding.V11);
-
+                    // This works fine because the LocatorDiscovery Locator performs transcoding for Ice::Locator
+                    // operations.
                     TestHelper.Assert(defaultLocator.GetRegistry() != null);
-                    TestHelper.Assert(defaultLocator.GetLocalRegistry() != null);
-                    TestHelper.Assert(defaultLocator.GetLocalQuery() != null);
+
+                    // CheckedCast on the _IceGrid_ Locator proxy fails because ice_isA is not forwarded (due to the
+                    // encoding mismatch) but is instead implemented by the plain Locator of LocatorDiscovery.
+                    TestHelper.Assert(defaultLocator.CheckedCast(ILocatorPrx.Factory) == null);
+
+                    // Change the encoding to make it work:
+                    defaultLocator = defaultLocator.Clone(encoding: Encoding.V11);
+                    var iceGridLocator = defaultLocator.CheckedCast(ILocatorPrx.Factory);
+                    TestHelper.Assert(iceGridLocator != null);
+                    TestHelper.Assert(iceGridLocator.GetLocalRegistry() != null);
+                    TestHelper.Assert(iceGridLocator.GetLocalQuery() != null);
 
                     ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
                     adapter.Activate();
                 }
-                // Now, ensure that the IceGrid discovery locator correctly handles failure to find a locator.
+                // Now, ensure that the locator discovery plugin correctly handles failure to find a locator.
                 {
                     properties["IceLocatorDiscovery.InstanceName"] = "unknown";
                     properties["IceLocatorDiscovery.RetryCount"] = "1";
@@ -79,13 +89,16 @@ namespace ZeroC.IceGrid.Test.Simple
                     try
                     {
                         IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                        TestHelper.Assert(false);
                     }
                     catch (NoEndpointException)
                     {
                     }
+
                     try
                     {
                         IObjectPrx.Parse("test", com).IcePing();
+                        TestHelper.Assert(false);
                     }
                     catch (NoEndpointException)
                     {
@@ -93,11 +106,10 @@ namespace ZeroC.IceGrid.Test.Simple
 
                     Ice.ILocatorPrx defaultLocator = com.DefaultLocator!.Clone(encoding: Encoding.V11);
 
-                    TestHelper.Assert(defaultLocator.GetRegistry() == null);
-                    TestHelper.Assert(defaultLocator.CheckedCast(ILocatorPrx.Factory) == null);
                     try
                     {
-                        com.DefaultLocator!.Clone(ILocatorPrx.Factory).GetLocalRegistry();
+                        defaultLocator.Clone(ILocatorPrx.Factory).GetLocalRegistry();
+                        TestHelper.Assert(false);
                     }
                     catch (OperationNotExistException)
                     {
@@ -121,7 +133,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 {
                     properties = communicator.GetProperties();
                     properties.Remove("Ice.Default.Locator");
-                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
                     properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
@@ -139,7 +151,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties = communicator.GetProperties();
                     properties.Remove("Ice.Default.Locator");
                     properties["IceLocatorDiscovery.RetryCount"] = "0";
-                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
                     properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
@@ -157,7 +169,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties = communicator.GetProperties();
                     properties.Remove("Ice.Default.Locator");
                     properties["IceLocatorDiscovery.RetryCount"] = "1";
-                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
                     {
                         string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                         string port = $"{helper.BasePort + 99}";
@@ -166,14 +178,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     }
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
-                    try
-                    {
-                        IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                    }
-                    catch (NoEndpointException)
-                    {
-                        TestHelper.Assert(false);
-                    }
+                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                 }
             }
             Console.Out.WriteLine("ok");
@@ -263,54 +268,12 @@ namespace ZeroC.IceGrid.Test.Simple
             {
             }
 
-            try
-            {
-                admin.EnableServer("server", true);
-            }
-            catch (ServerNotExistException)
-            {
-                TestHelper.Assert(false);
-            }
-            catch (NodeUnreachableException)
-            {
-                TestHelper.Assert(false);
-            }
-
-            try
-            {
-                obj.IcePing();
-            }
-            catch (NoEndpointException)
-            {
-                TestHelper.Assert(false);
-            }
-            try
-            {
-                obj2.IcePing();
-            }
-            catch (NoEndpointException)
-            {
-                TestHelper.Assert(false);
-            }
+            admin.EnableServer("server", true);
+            obj.IcePing();
+            obj2.IcePing();
             Console.Out.WriteLine("ok");
 
-            try
-            {
-                admin.StopServer("server");
-            }
-            catch (ServerNotExistException)
-            {
-                TestHelper.Assert(false);
-            }
-            catch (ServerStopException)
-            {
-                TestHelper.Assert(false);
-            }
-            catch (NodeUnreachableException)
-            {
-                TestHelper.Assert(false);
-            }
-
+            admin.StopServer("server");
             session.Destroy();
         }
     }

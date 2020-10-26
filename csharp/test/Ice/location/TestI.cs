@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Immutable;
 using System.Threading;
 using Test;
 
@@ -24,7 +25,8 @@ namespace ZeroC.Ice.Test.Location
         public void Shutdown(Current current, CancellationToken cancel) => _adapter1.Communicator.ShutdownAsync();
 
         public IHelloPrx GetHello(Current current, CancellationToken cancel) =>
-            _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
+            _adapter1.CreateProxy("hello", IHelloPrx.Factory).Clone(
+                location: ImmutableArray.Create(_adapter1.AdapterId));
 
         public IHelloPrx GetReplicatedHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateProxy("hello", IHelloPrx.Factory);

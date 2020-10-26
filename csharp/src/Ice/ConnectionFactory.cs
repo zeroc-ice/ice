@@ -83,7 +83,6 @@ namespace ZeroC.Ice
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
-            EndpointSelectionType selType,
             string connectionId,
             IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
@@ -120,8 +119,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    IEnumerable<IConnector> endpointConnectors =
-                        await endpoint.ConnectorsAsync(selType, cancel).ConfigureAwait(false);
+                    IEnumerable<IConnector> endpointConnectors = await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
                     foreach (IConnector connector in endpointConnectors)
                     {
                         connectors.Add((connector, endpoint));
@@ -305,17 +303,7 @@ namespace ZeroC.Ice
         internal void SetRouterInfo(RouterInfo routerInfo)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
-            IReadOnlyList<Endpoint> endpoints;
-            try
-            {
-                ValueTask<IReadOnlyList<Endpoint>> task = routerInfo.GetClientEndpointsAsync();
-                endpoints = task.IsCompleted ? task.Result : task.AsTask().Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
+            IReadOnlyList<Endpoint> endpoints = routerInfo.GetClientEndpoints(); // can make a synchronous remote call
 
             // Search for connections to the router's client proxy endpoints, and update the object adapter for
             // such connections, so that callbacks from the router can be received over such connections.
@@ -323,8 +311,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    foreach (IConnector connector in
-                        endpoint.ConnectorsAsync(EndpointSelectionType.Ordered, cancel: default).AsTask().Result)
+                    foreach (IConnector connector in endpoint.ConnectorsAsync(cancel: default).AsTask().Result)
                     {
                         lock (_mutex)
                         {

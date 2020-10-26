@@ -81,7 +81,7 @@ namespace ZeroC.Ice.Test.Info
 
                 IReadOnlyList<Endpoint> endpoints = adapter.GetEndpoints();
                 TestHelper.Assert(endpoints.Count == 2);
-                IReadOnlyList<Endpoint> publishedEndpoints = adapter.GetPublishedEndpoints();
+                IReadOnlyList<Endpoint> publishedEndpoints = adapter.PublishedEndpoints;
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
                 Endpoint tcpEndpoint = endpoints[0];
@@ -103,7 +103,7 @@ namespace ZeroC.Ice.Test.Info
                 endpoints = new List<Endpoint> { endpoints[0] };
 
                 adapter.SetPublishedEndpoints(endpoints);
-                publishedEndpoints = adapter.GetPublishedEndpoints();
+                publishedEndpoints = adapter.PublishedEndpoints;
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
                 adapter.Dispose();
@@ -116,7 +116,7 @@ namespace ZeroC.Ice.Test.Info
 
                 endpoints = adapter.GetEndpoints();
                 TestHelper.Assert(endpoints.Count >= 1);
-                publishedEndpoints = adapter.GetPublishedEndpoints();
+                publishedEndpoints = adapter.PublishedEndpoints;
                 TestHelper.Assert(publishedEndpoints.Count == 1);
 
                 foreach (Endpoint endpoint in endpoints)

@@ -48,7 +48,6 @@ namespace ZeroC.Ice
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="facet">The facet of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
@@ -75,7 +74,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null,
             string? facet = null,
             Connection? fixedConnection = null,
@@ -95,7 +93,6 @@ namespace ZeroC.Ice
                                            connectionId,
                                            context,
                                            encoding,
-                                           endpointSelection,
                                            endpoints,
                                            facet,
                                            fixedConnection,
@@ -122,7 +119,6 @@ namespace ZeroC.Ice
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
@@ -145,7 +141,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
@@ -163,7 +158,6 @@ namespace ZeroC.Ice
                                                      connectionId,
                                                      context,
                                                      encoding,
-                                                     endpointSelection,
                                                      endpoints,
                                                      facet: null,
                                                      fixedConnection,
@@ -244,7 +238,7 @@ namespace ZeroC.Ice
             bool oneway = false,
             IProgress<bool>? progress = null)
         {
-            switch (proxy.IceReference.InvocationMode)
+            switch (proxy.InvocationMode)
             {
                 case InvocationMode.BatchOneway:
                 case InvocationMode.BatchDatagram:
@@ -542,12 +536,12 @@ namespace ZeroC.Ice
                 sb.Append(proxy);
                 sb.Append("\noperation = ");
                 sb.Append(request.Operation);
-                if (attempt <= proxy.IceReference.Communicator.RetryMaxAttempts)
+                if (attempt <= proxy.Communicator.RetryMaxAttempts)
                 {
                     sb.Append("\nrequest attempt = ");
                     sb.Append(attempt);
                     sb.Append('/');
-                    sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                    sb.Append(proxy.Communicator.RetryMaxAttempts);
                 }
                 sb.Append("\nretry policy = ");
                 sb.Append(policy);
@@ -560,7 +554,7 @@ namespace ZeroC.Ice
                 {
                     sb.Append("\nexception = remote exception");
                 }
-                proxy.IceReference.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
+                proxy.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
 

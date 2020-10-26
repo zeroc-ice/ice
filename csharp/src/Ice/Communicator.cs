@@ -102,9 +102,6 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableDictionary();
         }
 
-        /// <summary>Gets the default endpoint selection policy for proxies with multiple endpoints.</summary>
-        public EndpointSelectionType DefaultEndpointSelection { get; }
-
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
         /// All newly created proxies and object adapters will use this default locator. Note that setting this property
         /// has no effect on existing proxies or object adapters.</summary>
@@ -463,15 +460,6 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
-
-                string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
-                DefaultEndpointSelection = endpointSelection switch
-                {
-                    "Random" => EndpointSelectionType.Random,
-                    "Ordered" => EndpointSelectionType.Ordered,
-                    _ => throw new InvalidConfigurationException(
-                             $"illegal value `{endpointSelection}'; expected `Random' or `Ordered'")
-                };
 
                 // TODO: switch to 0/false default
                 DefaultPreferNonSecure = GetPropertyAsBool("Ice.Default.PreferNonSecure") ?? true;
