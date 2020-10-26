@@ -22,7 +22,7 @@
 [java:package(com.zeroc)]
 module Ice::LocatorDiscovery
 {
-    /// The <plug-in name>.Reply object adapter of a client application hosts a LookupReply object that processes
+    /// The {plug-in name}.Reply object adapter of a client application hosts a LookupReply object that processes
     /// replies to locator discovery requests.
     interface LookupReply
     {
