@@ -293,7 +293,7 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             request.Finish();
-            InvocationMode mode = proxy.IceReference.InvocationMode;
+            InvocationMode mode = proxy.InvocationMode;
             switch (mode)
             {
                 case InvocationMode.BatchOneway:
@@ -555,12 +555,12 @@ namespace ZeroC.Ice
                 sb.Append(proxy);
                 sb.Append("\noperation = ");
                 sb.Append(request.Operation);
-                if (attempt <= proxy.IceReference.Communicator.RetryMaxAttempts)
+                if (attempt <= proxy.Communicator.RetryMaxAttempts)
                 {
                     sb.Append("\nrequest attempt = ");
                     sb.Append(attempt);
                     sb.Append('/');
-                    sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                    sb.Append(proxy.Communicator.RetryMaxAttempts);
                 }
                 sb.Append("\nretry policy = ");
                 sb.Append(policy);
@@ -573,7 +573,7 @@ namespace ZeroC.Ice
                 {
                     sb.Append("\nexception = remote exception");
                 }
-                proxy.IceReference.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
+                proxy.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
 
