@@ -8,10 +8,8 @@
 
 module ZeroC::IceGrid::Test::Simple
 {
-
-interface TestIntf
-{
-    void shutdown();
-}
-
+    interface TestIntf
+    {
+        void shutdown();
+    }
 }

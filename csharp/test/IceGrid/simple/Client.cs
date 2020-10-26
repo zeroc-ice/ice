@@ -12,12 +12,7 @@ namespace ZeroC.IceGrid.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(
-                ref args,
-                new Dictionary<string, string>
-                {
-                    ["Test.Protocol"] = "ice1",
-                });
+            await using Communicator communicator = Initialize(ref args);
             if (args.Any(v => v.Equals("--with-deploy")))
             {
                 AllTests.RunWithDeploy(this);
