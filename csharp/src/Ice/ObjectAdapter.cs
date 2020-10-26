@@ -18,6 +18,10 @@ namespace ZeroC.Ice
     /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
+        /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
+        /// have an adapter ID.</summary>
+        public string AdapterId { get; }
+
         /// <summary>Returns the communicator that created this object adapter.</summary>
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
@@ -40,6 +44,23 @@ namespace ZeroC.Ice
         /// determines this protocol.</summary>
         public Protocol Protocol { get; }
 
+        /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.</summary>
+        /// <returns>The published endpoints.</returns>
+        public IReadOnlyList<Endpoint> PublishedEndpoints
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _publishedEndpoints;
+                }
+            }
+        }
+
+        /// <summary>Returns the replica group ID of this object adapter, or the empty string if this object adapter
+        /// does not belong to a replica group.</summary>
+        public string ReplicaGroupId { get; }
+
         /// <summary>Indicates whether or not this object adapter serializes the dispatching of requests received
         /// over the same connection.</summary>
         /// <value>The serialize dispatch value.</value>
@@ -49,8 +70,6 @@ namespace ZeroC.Ice
         public TaskScheduler? TaskScheduler { get; }
 
         internal int IncomingFrameSizeMax { get; }
-
-        internal List<DispatchInterceptor> Interceptors { get; } = new List<DispatchInterceptor>();
 
         private static readonly string[] _suffixes =
         {
@@ -87,21 +106,21 @@ namespace ZeroC.Ice
 
         private readonly Acm _acm;
         private Task? _activateTask;
-        private readonly Dictionary<CategoryPlusFacet, IObject> _categoryServantMap =
-            new Dictionary<CategoryPlusFacet, IObject>();
+
+        private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new ();
         private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;
-        private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
+        private readonly Dictionary<string, IObject> _defaultServantMap = new ();
         private Task? _disposeTask;
-        private readonly string _id; // adapter id
-        private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
-            new Dictionary<IdentityPlusFacet, IObject>();
-        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
-            new List<IncomingConnectionFactory>();
+        private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new ();
+
+        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new ();
+        private readonly List<DispatchInterceptor> _interceptors = new ();
         private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
+
         private volatile LocatorInfo? _locatorInfo;
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new ();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
-        private readonly string _replicaGroupId;
+
         private readonly RouterInfo? _routerInfo;
 
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
@@ -125,6 +144,7 @@ namespace ZeroC.Ice
         /// requests received through these endpoints. ActivateAsync also registers this object adapter with the
         /// locator (if set).</summary>
         /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
+        // TODO: would be nice to add a CancellationToken parameter
         public async Task ActivateAsync(params DispatchInterceptor[] interceptors)
         {
             lock (_mutex)
@@ -140,8 +160,8 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
 
-                Interceptors.AddRange(Communicator.DispatchInterceptors);
-                Interceptors.AddRange(interceptors);
+                _interceptors.AddRange(Communicator.DispatchInterceptors);
+                _interceptors.AddRange(interceptors);
 
                 // Activate the incoming connection factories to start accepting connections
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -149,9 +169,8 @@ namespace ZeroC.Ice
                     factory.Activate();
                 }
 
-                _activateTask ??= UpdateLocatorRegistryAsync(_locatorInfo,
-                                                             CreateDirectProxy(new Identity("dummy", ""),
-                                                             IObjectPrx.Factory));
+                // In the event _publishedEndpoints is empty, RegisterEndpointsAsync does nothing.
+                _activateTask ??= RegisterEndpointsAsync(_publishedEndpoints, default);
             }
             await _activateTask.ConfigureAwait(false);
 
@@ -198,12 +217,11 @@ namespace ZeroC.Ice
 
                 try
                 {
-
-                    await UpdateLocatorRegistryAsync(_locatorInfo, null).ConfigureAwait(false);
+                    await UnregisterEndpointsAsync(default).ConfigureAwait(false);
                 }
                 catch
                 {
-                    // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
+                    // We can't throw exceptions in deactivate so we ignore failures to unregister endpoints
                 }
 
                 if (_colocatedConnectionFactory != null)
@@ -229,9 +247,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (!_identityServantMap.TryGetValue(new IdentityPlusFacet(identity, facet), out IObject? servant))
+                if (!_identityServantMap.TryGetValue((identity, facet), out IObject? servant))
                 {
-                    if (!_categoryServantMap.TryGetValue(new CategoryPlusFacet(identity.Category, facet), out servant))
+                    if (!_categoryServantMap.TryGetValue((identity.Category, facet), out servant))
                     {
                         _defaultServantMap.TryGetValue(facet, out servant);
                     }
@@ -263,16 +281,8 @@ namespace ZeroC.Ice
         public T Add<T>(Identity identity, string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
         {
-            CheckIdentity(identity);
-            lock (_mutex)
-            {
-                if (_disposeTask != null)
-                {
-                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
-                }
-                _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
-                return CreateProxy(identity, facet, proxyFactory);
-            }
+            Add(identity, facet, servant);
+            return CreateProxy(identity, facet, proxyFactory);
         }
 
         /// <summary>Adds a servant to this object adapter's Active Servant Map (ASM), using as key the provided
@@ -294,7 +304,7 @@ namespace ZeroC.Ice
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
-                _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
+                _identityServantMap.Add((identity, facet), servant);
             }
         }
 
@@ -304,7 +314,7 @@ namespace ZeroC.Ice
         /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(string,ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(string, ProxyFactory{T})"/>.</param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T Add<T>(string identityAndFacet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx
@@ -349,7 +359,8 @@ namespace ZeroC.Ice
         /// <param name="facet">The facet of the Ice object.</param>
         /// <param name="servant">The servant to add.</param>
         /// <param name="proxyFactory">The proxy factory used to manufacture the returned proxy. Pass INamePrx.Factory
-        /// for this parameter. See <see cref="CreateProxy{T}(Identity, string, ProxyFactory{T})"/>.</param>
+        /// for this parameter. See <see cref="CreateProxy{T}(Identity, string, ProxyFactory{T})"/>.
+        /// </param>
         /// <returns>A proxy associated with this object adapter, object identity and facet.</returns>
         public T AddWithUUID<T>(string facet, IObject servant, ProxyFactory<T> proxyFactory)
             where T : class, IObjectPrx =>
@@ -373,10 +384,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                var key = new IdentityPlusFacet(identity, facet);
-                if (_identityServantMap.TryGetValue(key, out IObject? servant))
+                if (_identityServantMap.TryGetValue((identity, facet), out IObject? servant))
                 {
-                    _identityServantMap.Remove(key);
+                    _identityServantMap.Remove((identity, facet));
                 }
                 return servant;
             }
@@ -404,7 +414,7 @@ namespace ZeroC.Ice
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
-                _categoryServantMap.Add(new CategoryPlusFacet(category, facet), servant);
+                _categoryServantMap.Add((category, facet), servant);
             }
         }
 
@@ -424,10 +434,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                var key = new CategoryPlusFacet(category, facet);
-                if (_categoryServantMap.TryGetValue(key, out IObject? servant))
+                if (_categoryServantMap.TryGetValue((category, facet), out IObject? servant))
                 {
-                    _categoryServantMap.Remove(key);
+                    _categoryServantMap.Remove((category, facet));
                 }
                 return servant;
             }
@@ -481,17 +490,29 @@ namespace ZeroC.Ice
         /// <returns>A proxy for the object with the given identity and facet.</returns>
         public T CreateProxy<T>(Identity identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            if (_id.Length == 0)
+            CheckIdentity(identity);
+
+            lock (_mutex)
             {
-                return CreateDirectProxy(identity, facet, factory);
-            }
-            else if (_replicaGroupId.Length == 0)
-            {
-                return CreateIndirectProxy(identity, facet, factory);
-            }
-            else
-            {
-                return factory(CreateReference(identity, facet, ImmutableArray.Create(_replicaGroupId)));
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
+
+                ImmutableArray<string> location = ReplicaGroupId.Length > 0 ? ImmutableArray.Create(ReplicaGroupId) :
+                    AdapterId.Length > 0 ? ImmutableArray.Create(AdapterId) : ImmutableArray<string>.Empty;
+
+                Protocol protocol = _publishedEndpoints.Count > 0 ? _publishedEndpoints[0].Protocol : Protocol;
+
+                return factory(new Reference(Communicator,
+                                             protocol.GetEncoding(),
+                                             endpoints: AdapterId.Length == 0 ?
+                                                _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
+                                             facet,
+                                             identity,
+                                             _invocationMode,
+                                             location,
+                                             protocol));
             }
         }
 
@@ -520,74 +541,14 @@ namespace ZeroC.Ice
             return CreateProxy(identity, facet, factory);
         }
 
-        /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
-        /// contains this object adapter's published endpoints.</summary>
-        /// <param name="identity">The object's identity.</param>
-        /// <param name="facet">The facet.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateDirectProxy<T>(Identity identity, string facet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx => factory(CreateReference(identity, facet, ImmutableArray<string>.Empty));
-
-        /// <summary>Creates a direct proxy for the object with the given identity. The returned proxy contains this
-        /// object adapter's published endpoints.</summary>
-        /// <param name="identity">The object's identity.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateDirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            CreateDirectProxy(identity, "", factory);
-
-        /// <summary>Creates a direct proxy for the object with the given identity and facet. The returned proxy
-        /// contains this object adapter's published endpoints.</summary>
-        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateDirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx
-        {
-            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
-            return CreateDirectProxy(identity, facet, factory);
-        }
-
-        /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
-        /// <param name="identity">The object's identity.</param>
-        /// <param name="facet">The facet.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateIndirectProxy<T>(Identity identity, string facet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx => factory(CreateReference(identity, facet, ImmutableArray.Create(_id)));
-
-        /// <summary>Creates an indirect proxy for the object with the given identity.</summary>
-        /// <param name="identity">The object's identity.</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity.</returns>
-        public T CreateIndirectProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            CreateIndirectProxy(identity, "", factory);
-
-        /// <summary>Creates an indirect proxy for the object with the given identity and facet.</summary>
-        /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
-        /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
-        /// desired proxy type.</param>
-        /// <returns>A proxy for the object with the given identity and facet.</returns>
-        public T CreateIndirectProxy<T>(string identityAndFacet, ProxyFactory<T> factory)
-            where T : class, IObjectPrx
-        {
-            (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
-            return CreateIndirectProxy(identity, facet, factory);
-        }
-
         /// <summary>Retrieves the endpoints configured with this object adapter.</summary>
         /// <returns>The endpoints.</returns>
+        // TODO: do we need this method? If yes, provide better documentation.
         public IReadOnlyList<Endpoint> GetEndpoints()
         {
             lock (_mutex)
             {
-                return _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).ToArray();
+                return _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).ToImmutableArray();
             }
         }
 
@@ -595,11 +556,12 @@ namespace ZeroC.Ice
         /// (if set) and rereads the list of local interfaces if the adapter is configured to listen on all endpoints.
         /// This method is useful when the network interfaces of the host changes: it allows you to refresh the
         /// endpoint information published in the proxies created by this object adapter.</summary>
-        public void RefreshPublishedEndpoints()
+        /// <param name="cancel">The cancellation token.</param>
+        public void RefreshPublishedEndpoints(CancellationToken cancel = default)
         {
             try
             {
-                RefreshPublishedEndpointsAsync().Wait();
+                RefreshPublishedEndpointsAsync(cancel).Wait(cancel);
             }
             catch (AggregateException ex)
             {
@@ -608,13 +570,26 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Refreshes the set of published endpoints. The runtime rereads the PublishedEndpoints property
+        /// <summary>Refreshes the set of published endpoints. The Ice runtime rereads the PublishedEndpoints property
         /// (if set) and rereads the list of local interfaces if the adapter is configured to listen on all endpoints.
         /// This method is useful when the network interfaces of the host changes: it allows you to refresh the
         /// endpoint information published in the proxies created by this object adapter.</summary>
-        public async Task RefreshPublishedEndpointsAsync()
+        /// <param name="cancel">The cancellation token.</param>
+        public async Task RefreshPublishedEndpointsAsync(CancellationToken cancel = default)
         {
-            IReadOnlyList<Endpoint> publishedEndpoints = await ComputePublishedEndpointsAsync().ConfigureAwait(false);
+            IReadOnlyList<Endpoint> publishedEndpoints = _routerInfo == null ? ComputePublishedEndpoints() :
+                await _routerInfo.Router.GetServerEndpointsAsync(cancel).ConfigureAwait(false);
+
+            // We always call the LocatorRegistry, even nothing changed.
+            if (publishedEndpoints.Count > 0)
+            {
+                await RegisterEndpointsAsync(publishedEndpoints, cancel).ConfigureAwait(false);
+            }
+            else
+            {
+                // This means the object adapter lost all its published endpoints, which should be very unusual.
+                await UnregisterEndpointsAsync(cancel).ConfigureAwait(false);
+            }
 
             lock (_mutex)
             {
@@ -623,45 +598,19 @@ namespace ZeroC.Ice
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
-                (publishedEndpoints, _publishedEndpoints) = (_publishedEndpoints, publishedEndpoints);
-            }
-
-            try
-            {
-                await UpdateLocatorRegistryAsync(_locatorInfo,
-                                                 CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory));
-            }
-            catch
-            {
-                lock (_mutex)
-                {
-                    // Restore the old published endpoints.
-                    _publishedEndpoints = publishedEndpoints;
-                    throw;
-                }
-            }
-        }
-
-        /// <summary>Retrieves the endpoints that would be listed in a proxy created by this object adapter.
-        /// </summary>
-        /// <returns>The published endpoints.</returns>
-        public IReadOnlyList<Endpoint> GetPublishedEndpoints()
-        {
-            lock (_mutex)
-            {
-                return _publishedEndpoints;
+                _publishedEndpoints = publishedEndpoints;
             }
         }
 
         /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
         /// <param name="newEndpoints">The new published endpoints.</param>
-        public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints)
+        /// <param name="cancel">The cancellation token.</param>
+        public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints, CancellationToken cancel = default)
         {
             try
             {
-                SetPublishedEndpointsAsync(newEndpoints).Wait();
+                SetPublishedEndpointsAsync(newEndpoints, cancel).Wait(cancel);
             }
             catch (AggregateException ex)
             {
@@ -673,55 +622,44 @@ namespace ZeroC.Ice
         /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
         /// <param name="newEndpoints">The new published endpoints.</param>
-        public async Task SetPublishedEndpointsAsync(IEnumerable<Endpoint> newEndpoints)
+        /// <param name="cancel">The cancellation token.</param>
+        public async Task SetPublishedEndpointsAsync(
+            IEnumerable<Endpoint> newEndpoints,
+            CancellationToken cancel = default)
         {
-            IReadOnlyList<Endpoint> oldPublishedEndpoints;
+            if (Name.Length == 0)
+            {
+                throw new InvalidOperationException("cannot set published endpoints on a nameless object adapter");
+            }
+
+            IReadOnlyList<Endpoint> publishedEndpoints = newEndpoints.ToImmutableArray();
+
+            if (publishedEndpoints.Count == 0)
+            {
+                throw new ArgumentException("the new endpoints cannot be empty", nameof(newEndpoints));
+            }
+
+            if (publishedEndpoints.Select(endpoint => endpoint.Protocol).Distinct().Count() > 1)
+            {
+                throw new ArgumentException("all endpoints must use the same protocol", nameof(newEndpoints));
+            }
+
+            if (_routerInfo != null)
+            {
+                throw new InvalidOperationException(
+                    "cannot set published endpoints on an object adapter associated with a router");
+            }
+
+            await RegisterEndpointsAsync(publishedEndpoints, cancel).ConfigureAwait(false);
 
             lock (_mutex)
             {
-                if (Name.Length == 0)
-                {
-                    throw new ArgumentException("cannot set published endpoints on a nameless object adapter");
-                }
-
-                if (newEndpoints.Select(endpoint => endpoint.Protocol).Distinct().Count() > 1)
-                {
-                    throw new ArgumentException("all published endpoints must use the same protocol");
-                }
-
                 if (_disposeTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
-                if (_routerInfo != null)
-                {
-                    throw new InvalidOperationException(
-                        "cannot set published endpoints on an object adapter associated with a router");
-                }
-
-                oldPublishedEndpoints = _publishedEndpoints;
-                _publishedEndpoints = newEndpoints.ToArray();
-                if (_publishedEndpoints.Count == 0)
-                {
-                    _publishedEndpoints = Array.Empty<Endpoint>();
-                }
-            }
-
-            try
-            {
-                await UpdateLocatorRegistryAsync(_locatorInfo,
-                                                 CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory));
-            }
-            catch
-            {
-                lock (_mutex)
-                {
-                    // Restore the old published endpoints.
-                    _publishedEndpoints = oldPublishedEndpoints;
-                    throw;
-                }
+                _publishedEndpoints = publishedEndpoints;
             }
         }
 
@@ -740,8 +678,8 @@ namespace ZeroC.Ice
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
-            _id = "";
-            _replicaGroupId = "";
+            AdapterId = "";
+            ReplicaGroupId = "";
             _acm = Communicator.ServerAcm;
             Protocol = protocol;
         }
@@ -786,8 +724,8 @@ namespace ZeroC.Ice
                 throw new InvalidConfigurationException($"object adapter `{Name}' requires configuration");
             }
 
-            _id = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
-            _replicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
+            AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
+            ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
             _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
             int frameSizeMax =
@@ -807,8 +745,7 @@ namespace ZeroC.Ice
                     // Make sure this router is not already registered with another adapter.
                     if (_routerInfo.Adapter != null)
                     {
-                        string routerStr = router.Identity.ToString(Communicator.ToStringMode);
-                        throw new ArgumentException($"router `{routerStr}' already registered with an object adapter",
+                        throw new ArgumentException($"router `{router}' already registered with an object adapter",
                             nameof(router));
                     }
 
@@ -818,7 +755,12 @@ namespace ZeroC.Ice
 
                     // Also modify all existing outgoing connections to the router's client proxy to use this object
                     // adapter for callbacks.
+
+                    // Often makes a synchronous remote call.
                     Communicator.OutgoingConnectionFactory.SetRouterInfo(_routerInfo);
+
+                    // Synchronous remote call!
+                    _publishedEndpoints = router.GetServerEndpoints();
                 }
                 else
                 {
@@ -863,10 +805,10 @@ namespace ZeroC.Ice
                                                       $"created adapter `{Name}' without endpoints");
                         }
                     }
+
+                    _publishedEndpoints = ComputePublishedEndpoints();
                 }
 
-                // Parse published endpoints.
-                _publishedEndpoints = ComputePublishedEndpointsAsync().Result;
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
                     ?? Communicator.DefaultLocator;
             }
@@ -899,16 +841,16 @@ namespace ZeroC.Ice
                 if (servant == null)
                 {
                     throw new ObjectNotExistException(
-                        _replicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
+                        ReplicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
                 }
 
                 // TODO: support input streamable data if Current.EndOfStream == false and output streamable data.
 
                 ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
                 {
-                    if (i < Interceptors.Count)
+                    if (i < _interceptors.Count)
                     {
-                        DispatchInterceptor interceptor = Interceptors[i++];
+                        DispatchInterceptor interceptor = _interceptors[i++];
                         return interceptor(request, current, (request, current, cancel) => DispatchAsync(i), cancel);
                     }
                     else
@@ -1023,13 +965,13 @@ namespace ZeroC.Ice
                 {
                     // Is the servant in the ASM?
                     // TODO: Currently doesn't check default servants - should we?
-                    return _identityServantMap.ContainsKey(new IdentityPlusFacet(r.Identity, r.Facet));
+                    return _identityServantMap.ContainsKey((r.Identity, r.Facet));
                 }
             }
             else if (r.IsIndirect)
             {
                 // Proxy is local if the reference's location matches this adapter id or replica group id.
-                return r.Location.Count == 1 && (r.Location[0] == _id || r.Location[0] == _replicaGroupId);
+                return r.Location.Count == 1 && (r.Location[0] == AdapterId || r.Location[0] == ReplicaGroupId);
             }
             else
             {
@@ -1057,74 +999,44 @@ namespace ZeroC.Ice
             }
         }
 
-        private static void CheckIdentity(Identity ident)
+        private static void CheckIdentity(Identity identity)
         {
-            if (ident.Name.Length == 0)
+            if (identity.Name.Length == 0)
             {
-                throw new ArgumentException("identity name cannot be empty", nameof(ident));
+                throw new ArgumentException("identity name cannot be empty", nameof(identity));
             }
         }
 
-        private Reference CreateReference(Identity identity, string facet, IReadOnlyList<string> location)
+        private IReadOnlyList<Endpoint> ComputePublishedEndpoints()
         {
-            CheckIdentity(identity);
-            lock (_mutex)
-            {
-                if (_disposeTask != null)
-                {
-                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
-                }
+            Debug.Assert(_routerInfo == null);
+            IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
 
-                // TODO: revisit location/endpoints logic with ice2.
-                return new Reference(communicator: Communicator,
-                                     encoding: Protocol.GetEncoding(),
-                                     endpoints: location.Count == 0 ?
-                                        _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
-                                     facet: facet,
-                                     identity: identity,
-                                     invocationMode: _invocationMode,
-                                     location: location,
-                                     protocol: _publishedEndpoints.Count > 0 ?
-                                               _publishedEndpoints[0].Protocol : Protocol);
+            // Parse published endpoints. If set, these are used in proxies instead of the connection factory
+            // endpoints.
+            if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
+            {
+                if (UriParser.IsEndpointUri(value))
+                {
+                    endpoints = UriParser.ParseEndpoints(value, Communicator);
+                }
+                else
+                {
+                    endpoints = Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
+                }
             }
-        }
 
-        private async Task<IReadOnlyList<Endpoint>> ComputePublishedEndpointsAsync()
-        {
-            IReadOnlyList<Endpoint>? endpoints = null;
-            if (_routerInfo != null)
+            if (endpoints.Count == 0)
             {
-                // Get the router's server proxy endpoints and use them as the published endpoints.
-                endpoints = await _routerInfo.GetServerEndpointsAsync().ConfigureAwait(false);
-                endpoints = endpoints.Distinct().ToArray();
-            }
-            else
-            {
-                // Parse published endpoints. If set, these are used in proxies instead of the connection factory
-                // endpoints.
-                if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
-                {
-                    if (UriParser.IsEndpointUri(value))
-                    {
-                        endpoints = UriParser.ParseEndpoints(value, Communicator);
-                    }
-                    else
-                    {
-                        endpoints = Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
-                    }
-                }
-                if (endpoints == null || endpoints.Count == 0)
-                {
-                    // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
-                    // endpoints, expanding any endpoint that may be listening on INADDR_ANY to include actual addresses
-                    // in the published endpoints.
-                    // We also filter out duplicate endpoints, this might occur if an endpoint with a DNS name
-                    // expands to multiple addresses. In this case, multiple incoming connection factories can point to
-                    // the same published endpoint.
+                // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
+                // endpoints, expanding any endpoint that may be listening on INADDR_ANY to include actual addresses
+                // in the published endpoints.
+                // We also filter out duplicate endpoints, this might occur if an endpoint with a DNS name
+                // expands to multiple addresses. In this case, multiple incoming connection factories can point to
+                // the same published endpoint.
 
-                    endpoints = _incomingConnectionFactories.SelectMany(factory =>
-                        factory.PublishedEndpoint.ExpandIfWildcard()).Distinct().ToArray();
-                }
+                endpoints = _incomingConnectionFactories.SelectMany(factory =>
+                    factory.PublishedEndpoint.ExpandIfWildcard()).Distinct().ToImmutableArray();
             }
 
             if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
@@ -1139,16 +1051,18 @@ namespace ZeroC.Ice
             return endpoints;
         }
 
-        // TODO: split between register and unregister. Don't use proxy but endpoints. And add cancellation token?
-        private async Task UpdateLocatorRegistryAsync(LocatorInfo? locatorInfo, IObjectPrx? proxy)
+        private async Task RegisterEndpointsAsync(IReadOnlyList<Endpoint> endpoints, CancellationToken cancel)
         {
-            if (_id.Length == 0 || locatorInfo == null)
+            // Use a stack copy in case another thread updates volatile _locatorInfo.
+            LocatorInfo? locatorInfo = _locatorInfo;
+
+            if (endpoints.Count == 0 || AdapterId.Length == 0 || locatorInfo == null)
             {
                 return; // Nothing to update.
             }
 
-            ILocatorRegistryPrx? locatorRegistry =
-                await locatorInfo.GetLocatorRegistryAsync().ConfigureAwait(false);
+            ILocatorRegistryPrx? locatorRegistry = await locatorInfo.GetLocatorRegistryAsync().ConfigureAwait(false);
+
             if (locatorRegistry == null)
             {
                 return;
@@ -1158,32 +1072,103 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice1)
                 {
-                    if (_replicaGroupId.Length == 0)
+                    IObjectPrx proxy = IObjectPrx.Factory(new Reference(Communicator,
+                                                                        Protocol.GetEncoding(),
+                                                                        endpoints,
+                                                                        facet: "",
+                                                                        new Identity("dummy", ""),
+                                                                        invocationMode: default,
+                                                                        location: ImmutableArray<string>.Empty,
+                                                                        protocol: endpoints[0].Protocol));
+                    if (ReplicaGroupId.Length > 0)
                     {
-                        await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy).ConfigureAwait(false);
+                        await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(
+                            AdapterId,
+                            ReplicaGroupId,
+                            proxy,
+                            cancel: cancel).ConfigureAwait(false);
                     }
                     else
                     {
-                        await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(
-                            _id,
-                            _replicaGroupId,
-                            proxy).ConfigureAwait(false);
+                        await locatorRegistry.SetAdapterDirectProxyAsync(AdapterId,
+                                                                         proxy,
+                                                                         cancel: cancel).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    if (proxy != null)
+                    await locatorRegistry.RegisterAdapterEndpointsAsync(
+                            AdapterId,
+                            ReplicaGroupId,
+                            endpoints.ToEndpointDataList(),
+                            cancel: cancel).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Communicator.TraceLevels.Locator >= 1)
+                {
+                    Communicator.Logger.Trace(
+                        TraceLevels.LocatorCategory,
+                        @$"failed to register the endpoints of object adapter `{
+                            Name}' with the locator registry:\n{ex}");
+                }
+                throw;
+            }
+
+            if (Communicator.TraceLevels.Locator >= 1)
+            {
+                var sb = new StringBuilder("registered the endpoints of object adapter `");
+                sb.Append(Name);
+                sb.Append("' with the locator registry\nendpoints = ");
+                sb.AppendEndpointList(endpoints);
+
+                Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
+            }
+        }
+
+        private async Task UnregisterEndpointsAsync(CancellationToken cancel)
+        {
+            // Use a stack copy in case another thread updates volatile _locatorInfo.
+            LocatorInfo? locatorInfo = _locatorInfo;
+
+            if (AdapterId.Length == 0 || locatorInfo == null)
+            {
+                return; // Nothing to update.
+            }
+
+            ILocatorRegistryPrx? locatorRegistry = await locatorInfo.GetLocatorRegistryAsync().ConfigureAwait(false);
+
+            if (locatorRegistry == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Protocol == Protocol.Ice1)
+                {
+                    if (ReplicaGroupId.Length > 0)
                     {
-                        await locatorRegistry.RegisterAdapterEndpointsAsync(
-                            _id,
-                            _replicaGroupId,
-                            proxy.Endpoints.ToEndpointDataList()).ConfigureAwait(false);
+                        await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(
+                            AdapterId,
+                            ReplicaGroupId,
+                            proxy: null,
+                            cancel: cancel).ConfigureAwait(false);
                     }
                     else
                     {
-                        await locatorRegistry.UnregisterAdapterEndpointsAsync(_id,
-                                                                              _replicaGroupId).ConfigureAwait(false);
+                        await locatorRegistry.SetAdapterDirectProxyAsync(AdapterId,
+                                                                         proxy: null,
+                                                                         cancel: cancel).ConfigureAwait(false);
                     }
+                }
+                else
+                {
+                    await locatorRegistry.UnregisterAdapterEndpointsAsync(
+                            AdapterId,
+                            ReplicaGroupId,
+                            cancel: cancel).ConfigureAwait(false);
                 }
             }
             catch (ObjectDisposedException)
@@ -1194,31 +1179,19 @@ namespace ZeroC.Ice
             {
                 if (Communicator.TraceLevels.Locator >= 1)
                 {
-                    if (_replicaGroupId.Length == 0)
-                    {
-                        Communicator.Logger.Trace(TraceLevels.LocatorCategory,
-                            $"could not update the endpoints of object adapter `{_id}' in the locator registry:\n{ex}");
-                    }
-                    else
-                    {
-                        Communicator.Logger.Trace(TraceLevels.LocatorCategory,
-                            @$"could not update the endpoints of object adapter `{_id
-                                }' with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
-                    }
+                    Communicator.Logger.Trace(
+                        TraceLevels.LocatorCategory,
+                        @$"failed to unregister the endpoints of object adapter `{
+                            Name}' from the locator registry:\n{ex}");
                 }
                 throw;
             }
 
             if (Communicator.TraceLevels.Locator >= 1)
             {
-                var sb = new StringBuilder();
-                sb.Append($"updated object adapter `{_id}' endpoints with the locator registry\n");
-                sb.Append("endpoints = ");
-                if (proxy != null)
-                {
-                    sb.Append(string.Join(":", proxy.Endpoints));
-                }
-                Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
+                Communicator.Logger.Trace(
+                    TraceLevels.LocatorCategory,
+                    $"unregistered the endpoints of object adapter `{Name}' from the locator registry");
             }
         }
 
@@ -1258,47 +1231,6 @@ namespace ZeroC.Ice
                 }
             }
             return (noProps, unknownProps);
-        }
-
-        private readonly struct IdentityPlusFacet : IEquatable<IdentityPlusFacet>
-        {
-            internal readonly Identity Identity;
-            internal readonly string Facet;
-
-            public bool Equals(IdentityPlusFacet other) =>
-                Identity.Equals(other.Identity) && Facet.Equals(other.Facet);
-
-            public override bool Equals(object? obj) => obj is IdentityPlusFacet value && Equals(value);
-
-            // Since facet is often empty, we don't want the empty facet to contribute to the hash value.
-            public override int GetHashCode() =>
-                Facet.Length == 0 ? Identity.GetHashCode() : HashCode.Combine(Identity, Facet);
-
-            internal IdentityPlusFacet(Identity identity, string facet)
-            {
-                Identity = identity;
-                Facet = facet;
-            }
-        }
-
-        private readonly struct CategoryPlusFacet : IEquatable<CategoryPlusFacet>
-        {
-            internal readonly string Category;
-            internal readonly string Facet;
-
-            public bool Equals(CategoryPlusFacet other) =>
-                Category.Equals(other.Category) && Facet.Equals(other.Facet);
-
-            public override bool Equals(object? obj) => obj is CategoryPlusFacet value && Equals(value);
-
-            public override int GetHashCode() =>
-                Facet.Length == 0 ? Category.GetHashCode() : HashCode.Combine(Category, Facet);
-
-            internal CategoryPlusFacet(string category, string facet)
-            {
-                Category = category;
-                Facet = facet;
-            }
         }
     }
 }
