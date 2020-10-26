@@ -425,13 +425,15 @@ namespace ZeroC.Ice
                         }
                         catch (TransportException ex)
                         {
+                            ex.Connection ??= connection;
+                            connection ??= ex.Connection;
+
                             var closedException = ex as ConnectionClosedException;
                             if (connection != null && closedException == null)
                             {
                                 reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
                             }
 
-                            ex.Connection ??= connection;
                             lastException = ex;
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
 
@@ -440,7 +442,6 @@ namespace ZeroC.Ice
                             if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
                             {
                                 retryPolicy = ex.RetryPolicy;
-                                connection = ex.Connection;
                             }
                         }
                         catch (Exception ex)
