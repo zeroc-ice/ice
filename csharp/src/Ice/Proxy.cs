@@ -207,46 +207,6 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
 
-        /// <summary>Sends a request synchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// twoway request.</param>
-        /// <returns>The response frame.</returns>
-        public static IncomingResponseFrame Invoke(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway = false)
-        {
-            try
-            {
-                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Sends a request asynchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// two-way request.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <returns>A task holding the response frame.</returns>
-        public static Task<IncomingResponseFrame> InvokeAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway = false,
-            IProgress<bool>? progress = null) =>
-                InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress);
-
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
         /// <remarks>When the incoming request frame's protocol and proxy's protocol are different, this method
@@ -272,23 +232,13 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        /// <summary>Produces a string representation of a location.</summary>
-        /// <param name="location">The location.</param>
-        /// <returns>The location as a percent-escaped string with segments separated by '/'.</returns>
-        public static string ToLocationString(this IEnumerable<string> location) =>
-            string.Join('/', location.Select(s => Uri.EscapeDataString(s)));
-
-        private static Task<IncomingResponseFrame> InvokeAsync(
+        public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress,
-            CancellationToken cancel)
+            bool oneway = false,
+            IProgress<bool>? progress = null)
         {
-            request.Finish();
-            InvocationMode mode = proxy.InvocationMode;
-            switch (mode)
+            switch (proxy.InvocationMode)
             {
                 case InvocationMode.BatchOneway:
                 case InvocationMode.BatchDatagram:
@@ -297,11 +247,48 @@ namespace ZeroC.Ice
                 case InvocationMode.Datagram when !oneway:
                     throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
                 default:
-                    return InvokeAsync();
+                    return InvokeWithInterceptorsAsync(proxy,
+                                                       request,
+                                                       oneway,
+                                                       0,
+                                                       progress,
+                                                       request.CancellationToken);
             }
 
-            async Task<IncomingResponseFrame> InvokeAsync()
+            Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
             {
+                cancel.ThrowIfCancellationRequested();
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
+                {
+                    // Call the next interceptor in the chain
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request, cancel) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, i, progress, cancel),
+                        cancel);
+                }
+                else
+                {
+                    // After we went down the interceptor chain make the invocation.
+                    return PerformInvokeAsync(request, oneway, progress, cancel);
+                }
+            }
+
+            async Task<IncomingResponseFrame> PerformInvokeAsync(
+                OutgoingRequestFrame request,
+                bool oneway,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+            {
+                request.Finish();
                 Reference reference = proxy.IceReference;
 
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
@@ -571,46 +558,10 @@ namespace ZeroC.Ice
             }
         }
 
-        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress = null)
-        {
-            return InvokeWithInterceptorsAsync(proxy,
-                                               request,
-                                               oneway,
-                                               synchronous,
-                                               0,
-                                               progress,
-                                               request.CancellationToken);
-
-            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                int i,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
-            {
-                cancel.ThrowIfCancellationRequested();
-                if (i < proxy.Communicator.InvocationInterceptors.Count)
-                {
-                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                    return interceptor(
-                        proxy,
-                        request,
-                        (target, request, cancel) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel),
-                        cancel);
-                }
-                else
-                {
-                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                }
-            }
-        }
+        /// <summary>Produces a string representation of a location.</summary>
+        /// <param name="location">The location.</param>
+        /// <returns>The location as a percent-escaped string with segments separated by '/'.</returns>
+        public static string ToLocationString(this IEnumerable<string> location) =>
+            string.Join('/', location.Select(s => Uri.EscapeDataString(s)));
     }
 }

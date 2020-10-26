@@ -237,7 +237,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     catch (ArgumentException)
                     {
                     }
-                    prx.Invoke(request);
+                    prx.InvokeAsync(request).Wait();
 
                     TestHelper.Assert(request.IsSealed);
                     // Adding to a sealed frame throws InvalidOperationException
@@ -266,7 +266,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
                         (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
                     TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
-                    prx.Invoke(request);
+                    prx.InvokeAsync(request).Wait();
 
                     // repeat compressed the frame before writing the context
                     request = OutgoingRequestFrame.WithArgs(prx,
@@ -285,7 +285,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         2,
                         Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
                         (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
-                    prx.Invoke(request);
+                    prx.InvokeAsync(request).Wait();
                 }
             }
             else
@@ -307,7 +307,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 catch (NotSupportedException)
                 {
                 }
-                prx.Invoke(request);
+                prx.InvokeAsync(request).Wait();
                 TestHelper.Assert(request.IsSealed);
             }
             output.WriteLine("ok");
