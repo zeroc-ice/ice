@@ -82,7 +82,7 @@ namespace ZeroC.Ice
         public abstract Task PingAsync(CancellationToken cancel);
 
         /// <summary>Initializes the transport.</summary>
-        /// <param name="connection">The connection that being initialize.</param>
+        /// <param name="connection">The connection being initialized.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public abstract ValueTask InitializeAsync(Connection connection, CancellationToken cancel);
 
