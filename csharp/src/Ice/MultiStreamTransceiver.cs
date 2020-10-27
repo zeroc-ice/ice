@@ -271,7 +271,7 @@ namespace ZeroC.Ice
         {
             if (_streamsAborted)
             {
-                throw new ConnectionClosedException();
+                throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             _streams[id] = stream;
         }

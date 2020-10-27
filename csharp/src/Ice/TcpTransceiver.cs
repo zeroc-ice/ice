@@ -57,7 +57,7 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    throw new ConnectionRefusedException(ex, connection);
+                    throw new ConnectionRefusedException(ex, RetryPolicy.OtherReplica, connection);
                 }
                 catch (SocketException ex)
                 {
@@ -87,7 +87,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (SocketException ex)
             {
@@ -95,7 +95,7 @@ namespace ZeroC.Ice
             }
             if (received == 0)
             {
-                throw new ConnectionLostException();
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             return received;
         }
@@ -113,7 +113,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (SocketException ex)
             {

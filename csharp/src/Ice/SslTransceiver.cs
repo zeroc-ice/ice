@@ -65,7 +65,7 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, connection);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), connection);
             }
             catch (IOException ex)
             {
@@ -128,7 +128,7 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex)
             {
@@ -136,7 +136,7 @@ namespace ZeroC.Ice
             }
             if (received == 0)
             {
-                throw new ConnectionLostException();
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             return received;
         }
@@ -162,7 +162,7 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex)
             {
