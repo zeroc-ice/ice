@@ -412,7 +412,7 @@ namespace ZeroC.Ice
                             var closedException = ex as ConnectionClosedException;
                             if (connection != null && closedException == null)
                             {
-                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
+                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connection.Connector);
                             }
 
                             lastException = ex;
