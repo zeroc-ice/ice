@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -66,6 +67,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             {
                 _communicator.SetProperty($"{_name}.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
+            _communicator.SetProperty($"{_name}.Reply.ProxyOptions", "-d");
 
             if (_communicator.GetProperty($"{_name}.Locator.Endpoints") == null)
             {
@@ -83,8 +85,9 @@ namespace ZeroC.Ice.LocatorDiscovery
             lookupPrx = lookupPrx.Clone(clearRouter: false);
 
             var lookupReplyId = new Identity(Guid.NewGuid().ToString(), "");
-            ILookupReplyPrx locatorReplyPrx = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory).Clone(
-                invocationMode: InvocationMode.Datagram);
+            ILookupReplyPrx locatorReplyPrx = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory);
+            Debug.Assert(locatorReplyPrx.InvocationMode == InvocationMode.Datagram);
+
             _defaultLocator = _communicator.DefaultLocator;
 
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";

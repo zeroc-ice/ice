@@ -138,7 +138,6 @@ namespace ZeroC.Ice.Discovery
 
         internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter, string pluginName)
         {
-            _lookup = lookup;
             _pluginName = pluginName;
             _registry = registry;
             _replyAdapter = replyAdapter;
@@ -150,6 +149,8 @@ namespace ZeroC.Ice.Discovery
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
+            _lookup = lookup.Clone(invocationTimeout: _timeout);
+
             _retryCount = communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3;
 
             _latencyMultiplier = communicator.GetPropertyAsInt($"{_pluginName}.LatencyMultiplier") ?? 1;
@@ -165,16 +166,17 @@ namespace ZeroC.Ice.Discovery
             // of the lookup proxy.
 
             // Dummy proxy for replies which can have multiple endpoints (but see below).
-            IObjectPrx lookupReply = _replyAdapter.CreateProxy(
-                "dummy",
-                IObjectPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+            IObjectPrx lookupReply = _replyAdapter.CreateProxy("dummy", IObjectPrx.Factory);
+            Debug.Assert(lookupReply.InvocationMode == InvocationMode.Datagram);
 
-            foreach (Endpoint endpoint in lookup.Endpoints)
+            foreach (Endpoint endpoint in _lookup.Endpoints)
             {
-                // lookup's invocation mode is Datagram
-                Debug.Assert(endpoint.Transport == Transport.UDP);
+                if (!endpoint.IsDatagram)
+                {
+                    throw new InvalidConfigurationException("lookup can only have udp endpoints");
+                }
 
-                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+                ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
                 if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
                     Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
@@ -207,7 +209,9 @@ namespace ZeroC.Ice.Discovery
             {
                 TimeSpan start = Time.Elapsed;
 
-                Task task = Task.WhenAll(_lookups.Select(
+                Task timeoutTask = Task.Delay(_timeout, replyServant.CancellationToken);
+
+                Task sendTask = Task.WhenAll(_lookups.Select(
                     entry =>
                     {
                         try
@@ -220,26 +224,27 @@ namespace ZeroC.Ice.Discovery
                         }
                     }));
 
-                try
-                {
-                    await task.ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    if (task.Exception == null || task.Exception?.InnerExceptions.Count == _lookups.Count)
-                    {
-                        // All the tasks failed: log warning and return empty result (no retry)
-                        _replyAdapter.Communicator.Logger.Warning(
-                                $"{_pluginName} failed to send lookup request using `{_lookup}':\n{ex}");
-                        replyServant.SetEmptyResult();
-                        return await replyServant.Task.ConfigureAwait(false);
-                    }
-                    // else at least one task succeeded
-                }
+                Task task = await Task.WhenAny(sendTask, replyServant.Task, timeoutTask).ConfigureAwait(false);
 
-                task = await Task.WhenAny(
-                    replyServant.Task,
-                    Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
+                if (task == sendTask)
+                {
+                    if (sendTask.Status == TaskStatus.Faulted)
+                    {
+                        if (sendTask.Exception!.InnerExceptions.Count == _lookups.Count)
+                        {
+                            // All the tasks failed: log warning and return empty result (no retry)
+                            _replyAdapter.Communicator.Logger.Warning(
+                                @$"{_pluginName} failed to send lookup request using `{_lookup
+                                    }':\n{sendTask.Exception!.InnerException!}");
+                            replyServant.SetEmptyResult();
+                            return await replyServant.Task.ConfigureAwait(false);
+                        }
+                    }
+                    // For Canceled or RanToCompletion, we assume at least one send was successful. If we're wrong,
+                    // we'll timeout soon anyways.
+
+                    task = await Task.WhenAny(replyServant.Task, timeoutTask).ConfigureAwait(false);
+                }
 
                 if (task == replyServant.Task)
                 {
