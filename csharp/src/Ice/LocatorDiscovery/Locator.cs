@@ -156,7 +156,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             {
                 if (!endpoint.IsDatagram)
                 {
-                    throw new InvalidConfigurationException("lookup can only have udp endpoints");
+                    throw new InvalidConfigurationException($"{_pluginName}.Lookup can only have udp endpoints");
                 }
 
                 ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
@@ -278,9 +278,9 @@ namespace ZeroC.Ice.LocatorDiscovery
             // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
-                Task timeoutTask = Task.Delay(_timeout);
+                var timeoutTask = Task.Delay(_timeout);
 
-                Task sendTask = Task.WhenAll(_lookups.Select(
+                var sendTask = Task.WhenAll(_lookups.Select(
                     entry =>
                     {
                         try

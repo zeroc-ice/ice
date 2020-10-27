@@ -157,7 +157,7 @@ namespace ZeroC.Ice.Discovery
             if (_latencyMultiplier < 1)
             {
                 throw new InvalidConfigurationException(
-                    $"The value of `{_pluginName}.LatencyMultiplier' must be a positive integer greater than 0");
+                    $"the value of `{_pluginName}.LatencyMultiplier' must be an integer greater than 0");
             }
 
             _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
@@ -173,7 +173,7 @@ namespace ZeroC.Ice.Discovery
             {
                 if (!endpoint.IsDatagram)
                 {
-                    throw new InvalidConfigurationException("lookup can only have udp endpoints");
+                    throw new InvalidConfigurationException($"{_pluginName}.Lookup can only have udp endpoints");
                 }
 
                 ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
@@ -209,9 +209,9 @@ namespace ZeroC.Ice.Discovery
             {
                 TimeSpan start = Time.Elapsed;
 
-                Task timeoutTask = Task.Delay(_timeout, replyServant.CancellationToken);
+                var timeoutTask = Task.Delay(_timeout, replyServant.CancellationToken);
 
-                Task sendTask = Task.WhenAll(_lookups.Select(
+                var sendTask = Task.WhenAll(_lookups.Select(
                     entry =>
                     {
                         try
