@@ -48,6 +48,10 @@ writeDependencies(const std::string&, const std::string&);
 std::vector<std::string>
 splitScopedName(const std::string&);
 
+// TODO
+std::string
+splitMetadata(const std::string& s, const std::string& delimiter, std::vector<std::string>& result);
+
 // Checks an identifier for illegal syntax and reports any that is present.
 bool
 checkIdentifier(const std::string&);
