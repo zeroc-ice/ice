@@ -3479,8 +3479,8 @@ class CSharpMapping(Mapping):
 
         return {
             "IceSSL" : plugindir + "Ice.dll:ZeroC.Ice.SslPluginFactory",
-            "IceDiscovery" : plugindir + "Ice.dll:ZeroC.IceDiscovery.PluginFactory",
-            "IceLocatorDiscovery" : plugindir + "Ice.dll:ZeroC.IceLocatorDiscovery.PluginFactory"
+            "IceDiscovery" : plugindir + "Ice.dll:ZeroC.Ice.Discovery.PluginFactory",
+            "IceLocatorDiscovery" : plugindir + "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory"
         }[plugin]
 
     def getEnv(self, process, current):

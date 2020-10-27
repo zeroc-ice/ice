@@ -2,13 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using ZeroC.Ice;
 
-namespace ZeroC.IceLocatorDiscovery
+namespace ZeroC.Ice.LocatorDiscovery
 {
-    /// <summary>The IceLocatorDiscovery plug-in's factory.</summary>
+    /// <summary>The LocatorDiscovery plug-in's factory.</summary>
     public sealed class PluginFactory : IPluginFactory
     {
         /// <inheritdoc/>
@@ -67,6 +67,7 @@ namespace ZeroC.IceLocatorDiscovery
             {
                 _communicator.SetProperty($"{_name}.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
+            _communicator.SetProperty($"{_name}.Reply.ProxyOptions", "-d");
 
             if (_communicator.GetProperty($"{_name}.Locator.Endpoints") == null)
             {
@@ -83,21 +84,17 @@ namespace ZeroC.IceLocatorDiscovery
             var lookupPrx = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", _communicator);
             lookupPrx = lookupPrx.Clone(clearRouter: false);
 
-            ILocatorPrx voidLocator = _locatorAdapter.AddWithUUID(new VoidLocator(), ILocatorPrx.Factory);
-
             var lookupReplyId = new Identity(Guid.NewGuid().ToString(), "");
-            ILookupReplyPrx locatorReplyPrx = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory).Clone(
-                invocationMode: InvocationMode.Datagram);
+            ILookupReplyPrx locatorReplyPrx = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory);
+            Debug.Assert(locatorReplyPrx.InvocationMode == InvocationMode.Datagram);
+
             _defaultLocator = _communicator.DefaultLocator;
 
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var locatorId = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
-            _locatorServant = new Locator(_name, lookupPrx, _communicator, instanceName, voidLocator, locatorReplyPrx);
+            _locatorServant = new Locator(_name, lookupPrx, _communicator, instanceName, locatorReplyPrx);
 
-            // TODO: the Clone is a temporary work-around. Locator needs to be re-implemented as a real servant that
-            // remarshals requests using the encoding of the discovered proxy.
-            _locator =
-                _locatorAdapter.Add(locatorId, _locatorServant, ILocatorPrx.Factory).Clone(encoding: Encoding.V11);
+            _locator = _locatorAdapter.Add(locatorId, _locatorServant, ILocatorPrx.Factory);
             _communicator.DefaultLocator = _locator;
 
             _replyAdapter.Add(lookupReplyId, new LookupReply(_locatorServant));

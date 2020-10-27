@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -126,9 +127,6 @@ namespace ZeroC.Ice
 
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
-
-        /// <summary>The endpoint selection policy of this proxy, which can be Random or Ordered.</summary>
-        public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
 
         /// <summary>The facet to use on the target Ice object. The empty string corresponds to the default facet.
         /// </summary>
@@ -347,7 +345,14 @@ namespace ZeroC.Ice
         {
             try
             {
-                return this.Invoke(request, oneway: false).ReadReturnValue(Communicator, reader);
+                IncomingResponseFrame response = this.InvokeAsync(request, oneway: false).Result;
+                return response.ReadReturnValue(Communicator, reader);
+
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
             finally
             {
@@ -364,11 +369,16 @@ namespace ZeroC.Ice
         {
             try
             {
-                IncomingResponseFrame response = this.Invoke(request, oneway);
+                IncomingResponseFrame response = this.InvokeAsync(request, oneway).Result;
                 if (!oneway)
                 {
                     response.ReadVoidReturnValue(Communicator);
                 }
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
             finally
             {

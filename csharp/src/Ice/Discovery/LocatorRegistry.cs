@@ -7,9 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceDiscovery
+namespace ZeroC.Ice.Discovery
 {
     /// <summary>Servant class that implements the Slice interface Ice::LocatorRegistry.</summary>
     internal class LocatorRegistry : ILocatorRegistry

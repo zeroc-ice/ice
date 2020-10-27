@@ -4,25 +4,25 @@
 
 #pragma once
 
+// TODO: move this test to Ice/discovery
+
 [[suppress-warning(reserved-identifier)]]
 
-module ZeroC::IceDiscovery::Test::Simple
+module ZeroC::Ice::Test::Discovery
 {
+    interface TestIntf
+    {
+        string getAdapterId();
+    }
 
-interface TestIntf
-{
-    string getAdapterId();
-}
+    interface Controller
+    {
+        void activateObjectAdapter(string name, string adapterId, string replicaGroupId);
+        void deactivateObjectAdapter(string name);
 
-interface Controller
-{
-    void activateObjectAdapter(string name, string adapterId, string replicaGroupId);
-    void deactivateObjectAdapter(string name);
+        void addObject(string oaName, string identityAndFacet);
+        void removeObject(string oaName, string identityAndFacet);
 
-    void addObject(string oaName, string identityAndFacet);
-    void removeObject(string oaName, string identityAndFacet);
-
-    void shutdown();
-}
-
+        void shutdown();
+    }
 }

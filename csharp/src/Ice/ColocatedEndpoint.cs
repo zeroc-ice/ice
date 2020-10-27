@@ -34,7 +34,6 @@ namespace ZeroC.Ice
             throw new NotSupportedException("colocated endpoint can't be marshaled");
 
         public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType endptSelection,
             CancellationToken cancel) => new ValueTask<IEnumerable<IConnector>>(_connectors);
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>

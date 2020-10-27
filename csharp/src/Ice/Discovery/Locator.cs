@@ -8,9 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceDiscovery
+namespace ZeroC.Ice.Discovery
 {
     /// <summary>Servant class that implements the Slice interface Ice::Locator.</summary>
     internal class Locator : IAsyncLocator
@@ -25,6 +23,8 @@ namespace ZeroC.IceDiscovery
         // and that matches the interface of the key's endpoint.
         private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new ();
 
+        private readonly string _pluginName;
+
         private readonly ObjectAdapter _replyAdapter;
 
         private readonly ILocatorRegistryPrx _registry;
@@ -36,16 +36,16 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new LookupReply(_replyAdapter);
+            using var replyServant = new FindAdapterByIdReply(_replyAdapter);
             return await InvokeAsync(
                 (lookup, dummyReply) =>
                 {
-                    ILookupReplyPrx lookupReply =
-                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+                    IFindAdapterByIdReplyPrx reply =
+                        dummyReply.Clone(IFindAdapterByIdReplyPrx.Factory, identity: replyServant.Identity);
 
                     return lookup.FindAdapterByIdAsync(_domainId,
                                                       adapterId,
-                                                      lookupReply,
+                                                      reply,
                                                       cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
@@ -57,14 +57,14 @@ namespace ZeroC.IceDiscovery
             Current current,
             CancellationToken cancel)
         {
-            using var replyServant = new LookupReply(_replyAdapter);
+            using var replyServant = new FindObjectByIdReply(_replyAdapter);
             return await InvokeAsync(
                 (lookup, dummyReply) =>
                 {
-                    ILookupReplyPrx lookupReply =
-                        dummyReply.Clone(ILookupReplyPrx.Factory, identity: replyServant.Identity);
+                    IFindObjectByIdReplyPrx reply =
+                        dummyReply.Clone(IFindObjectByIdReplyPrx.Factory, identity: replyServant.Identity);
 
-                    return lookup.FindObjectByIdAsync(_domainId, identity, facet, lookupReply, cancel: cancel);
+                    return lookup.FindObjectByIdAsync(_domainId, identity, facet, reply, cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
         }
@@ -136,44 +136,47 @@ namespace ZeroC.IceDiscovery
                     adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
         }
 
-        internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter)
+        internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter, string pluginName)
         {
-            _lookup = lookup;
+            _pluginName = pluginName;
             _registry = registry;
             _replyAdapter = replyAdapter;
 
             Communicator communicator = replyAdapter.Communicator;
 
-            _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            _timeout = communicator.GetPropertyAsTimeSpan($"{_pluginName}.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
-            _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
+            _lookup = lookup.Clone(invocationTimeout: _timeout);
 
-            _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
+            _retryCount = communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3;
+
+            _latencyMultiplier = communicator.GetPropertyAsInt($"{_pluginName}.LatencyMultiplier") ?? 1;
             if (_latencyMultiplier < 1)
             {
                 throw new InvalidConfigurationException(
-                    "The value of `IceDiscovery.LatencyMultiplier' must be a positive integer greater than 0");
+                    $"the value of `{_pluginName}.LatencyMultiplier' must be an integer greater than 0");
             }
 
-            _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
+            _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
             // of the lookup proxy.
 
             // Dummy proxy for replies which can have multiple endpoints (but see below).
-            IObjectPrx lookupReply = _replyAdapter.CreateProxy(
-                "dummy",
-                IObjectPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+            IObjectPrx lookupReply = _replyAdapter.CreateProxy("dummy", IObjectPrx.Factory);
+            Debug.Assert(lookupReply.InvocationMode == InvocationMode.Datagram);
 
-            foreach (Endpoint endpoint in lookup.Endpoints)
+            foreach (Endpoint endpoint in _lookup.Endpoints)
             {
-                // lookup's invocation mode is Datagram
-                Debug.Assert(endpoint.Transport == Transport.UDP);
+                if (!endpoint.IsDatagram)
+                {
+                    throw new InvalidConfigurationException($"{_pluginName}.Lookup can only have udp endpoints");
+                }
 
-                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+                ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
                 if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
                     Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
@@ -193,44 +196,61 @@ namespace ZeroC.IceDiscovery
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
-        /// <param name="find">A delegate that performs the remote call. The parameters correspond to an entry in the
-        /// _lookups dictionary.</param>
+        /// <param name="findAsync">A delegate that performs the remote call. Its parameters correspond to an entry in
+        /// the _lookups dictionary.</param>
         /// <param name="replyServant">The reply servant.</param>
         private async Task<TResult> InvokeAsync<TResult>(
-            Func<ILookupPrx, IObjectPrx, Task> find,
+            Func<ILookupPrx, IObjectPrx, Task> findAsync,
             ReplyServant<TResult> replyServant)
         {
+            // We retry only when at least one findAsync request is sent successfully and we don't get any reply.
+            // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
                 TimeSpan start = Time.Elapsed;
-                int failureCount = 0;
-                foreach ((ILookupPrx lookup, IObjectPrx dummyReply) in _lookups)
-                {
-                    try
+
+                var timeoutTask = Task.Delay(_timeout, replyServant.CancellationToken);
+
+                var sendTask = Task.WhenAll(_lookups.Select(
+                    entry =>
                     {
-                        await find(lookup, dummyReply).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (++failureCount == _lookups.Count)
+                        try
                         {
+                            return findAsync(entry.Key, entry.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            return Task.FromException(ex);
+                        }
+                    }));
+
+                Task task = await Task.WhenAny(sendTask, replyServant.Task, timeoutTask).ConfigureAwait(false);
+
+                if (task == sendTask)
+                {
+                    if (sendTask.Status == TaskStatus.Faulted)
+                    {
+                        if (sendTask.Exception!.InnerExceptions.Count == _lookups.Count)
+                        {
+                            // All the tasks failed: log warning and return empty result (no retry)
                             _replyAdapter.Communicator.Logger.Warning(
-                                $"IceDiscovery failed to send lookup request using `{_lookup}':\n{ex}");
+                                @$"{_pluginName} failed to send lookup request using `{_lookup
+                                    }':\n{sendTask.Exception!.InnerException!}");
                             replyServant.SetEmptyResult();
                             return await replyServant.Task.ConfigureAwait(false);
                         }
                     }
+                    // For Canceled or RanToCompletion, we assume at least one send was successful. If we're wrong,
+                    // we'll timeout soon anyways.
+
+                    task = await Task.WhenAny(replyServant.Task, timeoutTask).ConfigureAwait(false);
                 }
 
-                Task? t = await Task.WhenAny(
-                    replyServant.Task,
-                    Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
-
-                if (t == replyServant.Task)
+                if (task == replyServant.Task)
                 {
                     return await replyServant.Task.ConfigureAwait(false);
                 }
-                else if (t.IsCanceled)
+                else if (task.IsCanceled)
                 {
                     // If the timeout was canceled we delay the completion of the request to give a chance to other
                     // members of this replica group to reply
@@ -240,7 +260,7 @@ namespace ZeroC.IceDiscovery
                 // else timeout, so we retry until _retryCount
             }
 
-            replyServant.SetEmptyResult(); // Timeout
+            replyServant.SetEmptyResult(); // _retryCount exceeded
             return await replyServant.Task.ConfigureAwait(false);
         }
     }
@@ -305,14 +325,11 @@ namespace ZeroC.IceDiscovery
         private protected void SetResult(TResult result) => _completionSource.SetResult(result);
     }
 
-    /// <summary>Servant class that implements the Slice interface LookupReply.</summary>
-    internal sealed class LookupReply : ReplyServant<IObjectPrx?>, ILookupReply
+    /// <summary>Servant class that implements the Slice interface FindAdapterByIdReply.</summary>
+    internal sealed class FindAdapterByIdReply : ReplyServant<IObjectPrx?>, IFindAdapterByIdReply
     {
         private readonly object _mutex = new ();
         private readonly HashSet<IObjectPrx> _proxies = new ();
-
-        public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
-            SetResult(proxy);
 
         public void FoundAdapterById(
             string adapterId,
@@ -340,7 +357,7 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal LookupReply(ObjectAdapter replyAdapter)
+        internal FindAdapterByIdReply(ObjectAdapter replyAdapter)
             : base(emptyResult: null, replyAdapter)
         {
         }
@@ -358,6 +375,18 @@ namespace ZeroC.IceDiscovery
                 }
                 return result.Clone(endpoints: endpoints);
             }
+        }
+    }
+
+    /// <summary>Servant class that implements the Slice interface FindObjectByIdReply.</summary>
+    internal class FindObjectByIdReply : ReplyServant<IObjectPrx?>, IFindObjectByIdReply
+    {
+        public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
+            SetResult(proxy);
+
+        internal FindObjectByIdReply(ObjectAdapter replyAdapter)
+            : base(emptyResult: null, replyAdapter)
+        {
         }
     }
 

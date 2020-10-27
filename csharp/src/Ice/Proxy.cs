@@ -48,7 +48,6 @@ namespace ZeroC.Ice
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="facet">The facet of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
@@ -75,7 +74,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null,
             string? facet = null,
             Connection? fixedConnection = null,
@@ -95,7 +93,6 @@ namespace ZeroC.Ice
                                            connectionId,
                                            context,
                                            encoding,
-                                           endpointSelection,
                                            endpoints,
                                            facet,
                                            fixedConnection,
@@ -122,7 +119,6 @@ namespace ZeroC.Ice
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
@@ -145,7 +141,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
@@ -163,7 +158,6 @@ namespace ZeroC.Ice
                                                      connectionId,
                                                      context,
                                                      encoding,
-                                                     endpointSelection,
                                                      endpoints,
                                                      facet: null,
                                                      fixedConnection,
@@ -213,46 +207,6 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
 
-        /// <summary>Sends a request synchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// twoway request.</param>
-        /// <returns>The response frame.</returns>
-        public static IncomingResponseFrame Invoke(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway = false)
-        {
-            try
-            {
-                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null, ex.ToString());
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Sends a request asynchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// two-way request.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <returns>A task holding the response frame.</returns>
-        public static Task<IncomingResponseFrame> InvokeAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway = false,
-            IProgress<bool>? progress = null) =>
-                InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress);
-
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
         /// <remarks>When the incoming request frame's protocol and proxy's protocol are different, this method
@@ -278,23 +232,13 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        /// <summary>Produces a string representation of a location.</summary>
-        /// <param name="location">The location.</param>
-        /// <returns>The location as a percent-escaped string with segments separated by '/'.</returns>
-        public static string ToLocationString(this IEnumerable<string> location) =>
-            string.Join('/', location.Select(s => Uri.EscapeDataString(s)));
-
-        private static Task<IncomingResponseFrame> InvokeAsync(
+        public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress,
-            CancellationToken cancel)
+            bool oneway = false,
+            IProgress<bool>? progress = null)
         {
-            request.Finish();
-            InvocationMode mode = proxy.IceReference.InvocationMode;
-            switch (mode)
+            switch (proxy.InvocationMode)
             {
                 case InvocationMode.BatchOneway:
                 case InvocationMode.BatchDatagram:
@@ -303,11 +247,48 @@ namespace ZeroC.Ice
                 case InvocationMode.Datagram when !oneway:
                     throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
                 default:
-                    return InvokeAsync();
+                    return InvokeWithInterceptorsAsync(proxy,
+                                                       request,
+                                                       oneway,
+                                                       0,
+                                                       progress,
+                                                       request.CancellationToken);
             }
 
-            async Task<IncomingResponseFrame> InvokeAsync()
+            Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
             {
+                cancel.ThrowIfCancellationRequested();
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
+                {
+                    // Call the next interceptor in the chain
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request, cancel) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, i, progress, cancel),
+                        cancel);
+                }
+                else
+                {
+                    // After we went down the interceptor chain make the invocation.
+                    return PerformInvokeAsync(request, oneway, progress, cancel);
+                }
+            }
+
+            async Task<IncomingResponseFrame> PerformInvokeAsync(
+                OutgoingRequestFrame request,
+                bool oneway,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+            {
+                request.Finish();
                 Reference reference = proxy.IceReference;
 
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
@@ -561,12 +542,12 @@ namespace ZeroC.Ice
                 sb.Append(proxy);
                 sb.Append("\noperation = ");
                 sb.Append(request.Operation);
-                if (attempt <= proxy.IceReference.Communicator.RetryMaxAttempts)
+                if (attempt <= proxy.Communicator.RetryMaxAttempts)
                 {
                     sb.Append("\nrequest attempt = ");
                     sb.Append(attempt);
                     sb.Append('/');
-                    sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                    sb.Append(proxy.Communicator.RetryMaxAttempts);
                 }
                 sb.Append("\nretry policy = ");
                 sb.Append(policy);
@@ -579,50 +560,14 @@ namespace ZeroC.Ice
                 {
                     sb.Append("\nexception = remote exception");
                 }
-                proxy.IceReference.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
+                proxy.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
 
-        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress = null)
-        {
-            return InvokeWithInterceptorsAsync(proxy,
-                                               request,
-                                               oneway,
-                                               synchronous,
-                                               0,
-                                               progress,
-                                               request.CancellationToken);
-
-            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                int i,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
-            {
-                cancel.ThrowIfCancellationRequested();
-                if (i < proxy.Communicator.InvocationInterceptors.Count)
-                {
-                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                    return interceptor(
-                        proxy,
-                        request,
-                        (target, request, cancel) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel),
-                        cancel);
-                }
-                else
-                {
-                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                }
-            }
-        }
+        /// <summary>Produces a string representation of a location.</summary>
+        /// <param name="location">The location.</param>
+        /// <returns>The location as a percent-escaped string with segments separated by '/'.</returns>
+        public static string ToLocationString(this IEnumerable<string> location) =>
+            string.Join('/', location.Select(s => Uri.EscapeDataString(s)));
     }
 }
