@@ -275,28 +275,26 @@ namespace ZeroC.Ice.LocatorDiscovery
             // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
-                var invocationTasks = new List<Task>(_lookups.Count);
-                foreach ((ILookupPrx lookup, ILookupReplyPrx lookupReply) in _lookups)
-                {
-                    try
+                var task = Task.WhenAll(_lookups.Select(
+                    entry =>
                     {
-                        invocationTasks.Add(lookup.FindLocatorAsync(_instanceName, lookupReply));
-                    }
-                    catch (Exception ex)
-                    {
-                        invocationTasks.Add(Task.FromException(ex));
-                    }
-                }
-
-                Task t = Task.WhenAll(invocationTasks);
+                        try
+                        {
+                            return entry.Key.FindLocatorAsync(_instanceName, entry.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            return Task.FromException(ex);
+                        }
+                    }));
 
                 try
                 {
-                    await t.ConfigureAwait(false);
+                    await task.ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    if (t.Exception == null || t.Exception?.InnerExceptions.Count == invocationTasks.Count)
+                    if (task.Exception == null || task.Exception?.InnerExceptions.Count == _lookups.Count)
                     {
                         // All the tasks failed: trace and return null (no retry)
                         if (_lookupTraceLevel > 0)
@@ -316,12 +314,12 @@ namespace ZeroC.Ice.LocatorDiscovery
                     // else at least one task succeeded
                 }
 
-                t = await Task.WhenAny(_completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
-                if (t == _completionSource.Task)
+                task = await Task.WhenAny(_completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
+                if (task == _completionSource.Task)
                 {
                     return await _completionSource.Task.ConfigureAwait(false);
                 }
-                // else retry
+                // else retry until we reach _retryCount
             }
 
             lock (_mutex)

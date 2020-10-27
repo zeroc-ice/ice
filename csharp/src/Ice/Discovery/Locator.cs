@@ -194,44 +194,58 @@ namespace ZeroC.Ice.Discovery
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
-        /// <param name="findAsync">A delegate that performs the remote call. The parameters correspond to an entry in
+        /// <param name="findAsync">A delegate that performs the remote call. Its parameters correspond to an entry in
         /// the _lookups dictionary.</param>
         /// <param name="replyServant">The reply servant.</param>
         private async Task<TResult> InvokeAsync<TResult>(
             Func<ILookupPrx, IObjectPrx, Task> findAsync,
             ReplyServant<TResult> replyServant)
         {
+            // We retry only when at least one findAsync request is sent successfully and we don't get any reply.
+            // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
                 TimeSpan start = Time.Elapsed;
-                int failureCount = 0;
-                foreach ((ILookupPrx lookup, IObjectPrx dummyReply) in _lookups)
-                {
-                    try
+
+                Task task = Task.WhenAll(_lookups.Select(
+                    entry =>
                     {
-                        await findAsync(lookup, dummyReply).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (++failureCount == _lookups.Count)
+                        try
                         {
-                            _replyAdapter.Communicator.Logger.Warning(
-                                $"{_pluginName} failed to send lookup request using `{_lookup}':\n{ex}");
-                            replyServant.SetEmptyResult();
-                            return await replyServant.Task.ConfigureAwait(false);
+                            return findAsync(entry.Key, entry.Value);
                         }
+                        catch (Exception ex)
+                        {
+                            return Task.FromException(ex);
+                        }
+                    }));
+
+                try
+                {
+                    await task.ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    if (task.Exception == null || task.Exception?.InnerExceptions.Count == _lookups.Count)
+                    {
+                        // All the tasks failed: log warning and return empty result (no retry)
+                        _replyAdapter.Communicator.Logger.Warning(
+                                $"{_pluginName} failed to send lookup request using `{_lookup}':\n{ex}");
+                        replyServant.SetEmptyResult();
+                        return await replyServant.Task.ConfigureAwait(false);
                     }
+                    // else at least one task succeeded
                 }
 
-                Task? t = await Task.WhenAny(
+                task = await Task.WhenAny(
                     replyServant.Task,
                     Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
 
-                if (t == replyServant.Task)
+                if (task == replyServant.Task)
                 {
                     return await replyServant.Task.ConfigureAwait(false);
                 }
-                else if (t.IsCanceled)
+                else if (task.IsCanceled)
                 {
                     // If the timeout was canceled we delay the completion of the request to give a chance to other
                     // members of this replica group to reply
@@ -241,7 +255,7 @@ namespace ZeroC.Ice.Discovery
                 // else timeout, so we retry until _retryCount
             }
 
-            replyServant.SetEmptyResult(); // Timeout
+            replyServant.SetEmptyResult(); // _retryCount exceeded
             return await replyServant.Task.ConfigureAwait(false);
         }
     }
