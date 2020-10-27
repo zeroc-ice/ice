@@ -135,12 +135,13 @@ namespace ZeroC.Ice.LocatorDiscovery
             ILookupReplyPrx lookupReply)
         {
             _pluginName = pluginName;
-            _lookup = lookup;
             _timeout = communicator.GetPropertyAsTimeSpan($"{_pluginName}.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
+            _lookup = lookup.Clone(invocationTimeout: _timeout);
+
             _retryCount = Math.Max(communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3, 1);
             _retryDelay = communicator.GetPropertyAsTimeSpan($"{_pluginName}.RetryDelay") ??
                 TimeSpan.FromMilliseconds(2000);
@@ -149,14 +150,16 @@ namespace ZeroC.Ice.LocatorDiscovery
             _instanceName = instanceName;
             _locator = lookup.Communicator.DefaultLocator;
 
-            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
-            // datagram on each endpoint.
-            foreach (Endpoint endpoint in lookup.Endpoints)
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
+            // endpoint.
+            foreach (Endpoint endpoint in _lookup.Endpoints)
             {
-                // lookup's invocation mode is Datagram
-                Debug.Assert(endpoint.Transport == Transport.UDP);
+                if (!endpoint.IsDatagram)
+                {
+                    throw new InvalidConfigurationException($"{_pluginName}.Lookup can only have udp endpoints");
+                }
 
-                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+                ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
 
                 if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
@@ -271,45 +274,61 @@ namespace ZeroC.Ice.LocatorDiscovery
                 _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
             }
 
-            int failureCount = 0;
+            // We retry only when at least one send succeeds and we don't get any reply.
+            // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
-                foreach ((ILookupPrx lookup, ILookupReplyPrx lookupReply) in _lookups)
-                {
-                    try
+                var timeoutTask = Task.Delay(_timeout);
+
+                var sendTask = Task.WhenAll(_lookups.Select(
+                    entry =>
                     {
-                        await lookup.FindLocatorAsync(_instanceName, lookupReply).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (_mutex)
+                        try
                         {
-                            if (++failureCount == _lookups.Count)
+                            return entry.Key.FindLocatorAsync(_instanceName, entry.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            return Task.FromException(ex);
+                        }
+                    }));
+
+                Task task = await Task.WhenAny(sendTask, _completionSource.Task, timeoutTask).ConfigureAwait(false);
+
+                if (task == sendTask)
+                {
+                    if (sendTask.Status == TaskStatus.Faulted)
+                    {
+                        if (sendTask.Exception!.InnerExceptions.Count == _lookups.Count)
+                        {
+                            // All the tasks failed: trace and return null (no retry)
+                            if (_lookupTraceLevel > 0)
                             {
-                                // All the lookup calls failed, return null
-                                if (_lookupTraceLevel > 0)
+                                var sb = new StringBuilder("locator lookup failed:\nlookup = ");
+                                sb.Append(_lookup);
+                                if (_instanceName.Length > 0)
                                 {
-                                    var sb = new StringBuilder("locator lookup failed:\nlookup = ");
-                                    sb.Append(_lookup);
-                                    if (_instanceName.Length > 0)
-                                    {
-                                        sb.Append("\ninstance name = ").Append(_instanceName);
-                                    }
-                                    sb.Append('\n');
-                                    sb.Append(ex);
-                                    _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
+                                    sb.Append("\ninstance name = ").Append(_instanceName);
                                 }
-                                return null;
+                                sb.Append('\n');
+                                sb.Append(sendTask.Exception!.InnerException!);
+                                _lookup.Communicator.Logger.Trace(_lookupTraceCategory, sb.ToString());
                             }
+                            return null;
                         }
                     }
-                }
+                    // For Canceled or RanToCompletion, we assume at least one send was successful. If we're wrong,
+                    // we'll timeout soon anyways.
 
-                Task t = await Task.WhenAny(_completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
-                if (t == _completionSource.Task)
+                    task = await Task.WhenAny(_completionSource.Task, timeoutTask).ConfigureAwait(false);
+                }
+                // else, we either completed or timed out and don't care about sendTask anymore
+
+                if (task == _completionSource.Task)
                 {
                     return await _completionSource.Task.ConfigureAwait(false);
                 }
+                // else timeout, and retry until we reach _retryCount
             }
 
             lock (_mutex)
@@ -425,7 +444,6 @@ namespace ZeroC.Ice.LocatorDiscovery
             }
             return locator;
         }
-
     }
 
     internal class LookupReply : ILookupReply

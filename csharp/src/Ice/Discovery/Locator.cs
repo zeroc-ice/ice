@@ -138,7 +138,6 @@ namespace ZeroC.Ice.Discovery
 
         internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter, string pluginName)
         {
-            _lookup = lookup;
             _pluginName = pluginName;
             _registry = registry;
             _replyAdapter = replyAdapter;
@@ -150,13 +149,15 @@ namespace ZeroC.Ice.Discovery
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
+            _lookup = lookup.Clone(invocationTimeout: _timeout);
+
             _retryCount = communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3;
 
             _latencyMultiplier = communicator.GetPropertyAsInt($"{_pluginName}.LatencyMultiplier") ?? 1;
             if (_latencyMultiplier < 1)
             {
                 throw new InvalidConfigurationException(
-                    $"The value of `{_pluginName}.LatencyMultiplier' must be a positive integer greater than 0");
+                    $"the value of `{_pluginName}.LatencyMultiplier' must be an integer greater than 0");
             }
 
             _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
@@ -165,16 +166,17 @@ namespace ZeroC.Ice.Discovery
             // of the lookup proxy.
 
             // Dummy proxy for replies which can have multiple endpoints (but see below).
-            IObjectPrx lookupReply = _replyAdapter.CreateProxy(
-                "dummy",
-                IObjectPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+            IObjectPrx lookupReply = _replyAdapter.CreateProxy("dummy", IObjectPrx.Factory);
+            Debug.Assert(lookupReply.InvocationMode == InvocationMode.Datagram);
 
-            foreach (Endpoint endpoint in lookup.Endpoints)
+            foreach (Endpoint endpoint in _lookup.Endpoints)
             {
-                // lookup's invocation mode is Datagram
-                Debug.Assert(endpoint.Transport == Transport.UDP);
+                if (!endpoint.IsDatagram)
+                {
+                    throw new InvalidConfigurationException($"{_pluginName}.Lookup can only have udp endpoints");
+                }
 
-                ILookupPrx key = lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+                ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
                 if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
                     Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
@@ -194,44 +196,61 @@ namespace ZeroC.Ice.Discovery
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
-        /// <param name="findAsync">A delegate that performs the remote call. The parameters correspond to an entry in
+        /// <param name="findAsync">A delegate that performs the remote call. Its parameters correspond to an entry in
         /// the _lookups dictionary.</param>
         /// <param name="replyServant">The reply servant.</param>
         private async Task<TResult> InvokeAsync<TResult>(
             Func<ILookupPrx, IObjectPrx, Task> findAsync,
             ReplyServant<TResult> replyServant)
         {
+            // We retry only when at least one findAsync request is sent successfully and we don't get any reply.
+            // TODO: this _retryCount is really an attempt count not a retry count.
             for (int i = 0; i < _retryCount; ++i)
             {
                 TimeSpan start = Time.Elapsed;
-                int failureCount = 0;
-                foreach ((ILookupPrx lookup, IObjectPrx dummyReply) in _lookups)
-                {
-                    try
+
+                var timeoutTask = Task.Delay(_timeout, replyServant.CancellationToken);
+
+                var sendTask = Task.WhenAll(_lookups.Select(
+                    entry =>
                     {
-                        await findAsync(lookup, dummyReply).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (++failureCount == _lookups.Count)
+                        try
                         {
+                            return findAsync(entry.Key, entry.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            return Task.FromException(ex);
+                        }
+                    }));
+
+                Task task = await Task.WhenAny(sendTask, replyServant.Task, timeoutTask).ConfigureAwait(false);
+
+                if (task == sendTask)
+                {
+                    if (sendTask.Status == TaskStatus.Faulted)
+                    {
+                        if (sendTask.Exception!.InnerExceptions.Count == _lookups.Count)
+                        {
+                            // All the tasks failed: log warning and return empty result (no retry)
                             _replyAdapter.Communicator.Logger.Warning(
-                                $"{_pluginName} failed to send lookup request using `{_lookup}':\n{ex}");
+                                @$"{_pluginName} failed to send lookup request using `{_lookup
+                                    }':\n{sendTask.Exception!.InnerException!}");
                             replyServant.SetEmptyResult();
                             return await replyServant.Task.ConfigureAwait(false);
                         }
                     }
+                    // For Canceled or RanToCompletion, we assume at least one send was successful. If we're wrong,
+                    // we'll timeout soon anyways.
+
+                    task = await Task.WhenAny(replyServant.Task, timeoutTask).ConfigureAwait(false);
                 }
 
-                Task? t = await Task.WhenAny(
-                    replyServant.Task,
-                    Task.Delay(_timeout, replyServant.CancellationToken)).ConfigureAwait(false);
-
-                if (t == replyServant.Task)
+                if (task == replyServant.Task)
                 {
                     return await replyServant.Task.ConfigureAwait(false);
                 }
-                else if (t.IsCanceled)
+                else if (task.IsCanceled)
                 {
                     // If the timeout was canceled we delay the completion of the request to give a chance to other
                     // members of this replica group to reply
@@ -241,7 +260,7 @@ namespace ZeroC.Ice.Discovery
                 // else timeout, so we retry until _retryCount
             }
 
-            replyServant.SetEmptyResult(); // Timeout
+            replyServant.SetEmptyResult(); // _retryCount exceeded
             return await replyServant.Task.ConfigureAwait(false);
         }
     }

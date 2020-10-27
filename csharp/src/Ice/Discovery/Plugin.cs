@@ -70,6 +70,7 @@ namespace ZeroC.Ice.Discovery
             {
                 _communicator.SetProperty($"{_pluginName}.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
+            _communicator.SetProperty($"{_pluginName}.Reply.ProxyOptions", "-d"); // create datagram proxies
 
             if (_communicator.GetProperty($"{_pluginName}.Locator.Endpoints") == null)
             {
