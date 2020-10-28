@@ -4429,7 +4429,7 @@ Slice::Operation::format() const
     optional<FormatType> format = parseFormatMetadata();
     if (!format)
     {
-        // Fall back to checking if it inherits a format from it's interface.
+        // Fall back to checking if it inherits a format from its interface.
         format = ContainedPtr::dynamicCast(_container)->parseFormatMetadata();
     }
     return format;
