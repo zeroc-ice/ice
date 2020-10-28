@@ -34,7 +34,7 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex, RetryPolicy.NoRetry);
+                    throw new TransportException(ex);
                 }
             }
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, true);

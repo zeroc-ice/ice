@@ -86,11 +86,11 @@ namespace ZeroC.Ice
     public class TransportException : Exception
     {
         /// <summary>The exception retry policy.</summary>
-        public RetryPolicy RetryPolicy { get; }
+        internal RetryPolicy RetryPolicy { get; }
 
         /// <summary>The connector associated with the exception or null if no connector is associated with the
         /// exception.</summary>
-        public IConnector? Connector { get; }
+        internal IConnector? Connector { get; }
 
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class. A plain
         /// TransportException should have a custom message or an inner exception (or both).</summary>
