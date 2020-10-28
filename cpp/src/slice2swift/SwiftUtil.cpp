@@ -85,28 +85,18 @@ replace(string s, string patt, string val)
 }
 
 string
-opFormatTypeToString(const OperationPtr& op )
+opFormatTypeToString(const OperationPtr& op)
 {
-    switch(op->format())
+    if (auto format = op->format())
     {
-        case DefaultFormat:
+        switch (*format)
         {
-            return ".DefaultFormat";
-        }
-        case CompactFormat:
-        {
-            return ".CompactFormat";
-        }
-        case SlicedFormat:
-        {
-            return ".SlicedFormat";
-        }
-        default:
-        {
-            assert(false);
+            case CompactFormat: return ".CompactFormat";
+            case SlicedFormat:  return ".SlicedFormat";
         }
     }
-    return "???";
+    // TODO: replace DefaultFormat with CompactFormat in the mapping.
+    return ".DefaultFormat";
 }
 
 }
@@ -2261,7 +2251,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->sendMode()) << ",";
 
-    if(op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2349,7 +2339,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->sendMode()) << ",";
 
-    if(op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "format: " << opFormatTypeToString(op);
         out << ",";
@@ -2416,7 +2406,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
         writeUnmarshalInParams(out, op);
     }
 
-    if(op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
     }
@@ -2477,7 +2467,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
         writeUnmarshalInParams(out, op);
     }
 
-    if(op->format() != DefaultFormat)
+    if (op->format())
     {
         out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
     }

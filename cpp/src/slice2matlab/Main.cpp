@@ -1605,7 +1605,7 @@ private:
     void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
     string getTagFormat(const TypePtr&);
-    string getFormatType(FormatType);
+    string getFormatType(const OperationPtr&);
 
     void marshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
     void unmarshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
@@ -2097,13 +2097,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if(!allInParams.empty())
         {
-            if(op->format() == DefaultFormat)
+            if (op->format())
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op) << ");";
             }
             else
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
+                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
             for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
@@ -2260,13 +2260,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if(!allInParams.empty())
         {
-            if(op->format() == DefaultFormat)
+            if (op->format())
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op) << ");";
             }
             else
             {
-                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
+                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
             for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
@@ -3785,21 +3785,18 @@ CodeVisitor::getTagFormat(const TypePtr& type)
 }
 
 string
-CodeVisitor::getFormatType(FormatType type)
+CodeVisitor::getFormatType(const OperationPtr& op)
 {
-    switch(type)
+    if (auto format = op->format())
     {
-    case DefaultFormat:
-        return "Ice.FormatType.DefaultFormat";
-    case CompactFormat:
-        return "Ice.FormatType.CompactFormat";
-    case SlicedFormat:
-        return "Ice.FormatType.SlicedFormat";
-    default:
-        assert(false);
+        switch (*format)
+        {
+            case CompactFormat: return "Ice.FormatType.CompactFormat";
+            case SlicedFormat:  return "Ice.FormatType.SlicedFormat";
+        }
     }
-
-    return "???";
+    // TODO: replace DefaultFormat with CompactFormat in the mapping.
+    return "Ice.FormatType.DefaultFormat";
 }
 
 void

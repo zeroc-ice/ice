@@ -3154,7 +3154,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "inS.readEmptyParams();";
     }
-    if(p->format() != DefaultFormat)
+    if (p->format())
     {
         C << nl << "inS.setFormat(" << opFormatTypeToString(p) << ");";
     }

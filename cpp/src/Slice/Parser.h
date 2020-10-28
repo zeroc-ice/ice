@@ -49,7 +49,6 @@ enum NodeType
 // Format preference for classes and exceptions.
 enum FormatType
 {
-    DefaultFormat,    // No preference was specified.
     CompactFormat,    // Minimal format.
     SlicedFormat      // Full format.
 };
@@ -419,7 +418,7 @@ public:
     std::list<std::string> getAllMetadata() const;
     void setMetadata(const std::list<std::string>&);
 
-    FormatType parseFormatMetadata() const;
+    std::optional<FormatType> parseFormatMetadata() const;
 
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
@@ -726,7 +725,7 @@ public:
     bool returnsMultipleValues() const;
     bool hasReturnAndOut() const;
     bool hasSingleReturnType() const;
-    FormatType format() const;
+    std::optional<FormatType> format() const;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
 

@@ -66,20 +66,16 @@ isDefaultInitialized(const MemberPtr& member, bool considerDefaultValue)
 string
 opFormatTypeToString(const OperationPtr& op)
 {
-    // TODO: eliminate DefaultFormat in the parser (DefaultFormat means the communicator default that was removed in
-    // Ice 4.0)
-    switch (op->format())
+    if (auto format = op->format())
     {
-        case DefaultFormat:
-        case CompactFormat:
-            return "default"; // same as Compact
-        case SlicedFormat:
-            return "ZeroC.Ice.FormatType.Sliced";
-        default:
-            assert(false);
+        switch (*format)
+        {
+            case CompactFormat: return "ZeroC.Ice.FormatType.Compact";
+            case SlicedFormat:  return "ZeroC.Ice.FormatType.Sliced";
+        }
     }
-
-    return "???";
+    // "default" is the same as Compact.
+    return "default";
 }
 
 void

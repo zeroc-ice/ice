@@ -44,23 +44,17 @@ sliceModeToIceMode(Operation::Mode opMode)
 string
 opFormatTypeToString(const OperationPtr& op)
 {
-    string format = "com.zeroc.Ice.FormatType.";
-    switch(op->format())
+    if (auto format = op->format())
     {
-    case DefaultFormat:
-        format = "null"; // shorthand for most common case
-        break;
-    case CompactFormat:
-        format += "CompactFormat";
-        break;
-    case SlicedFormat:
-        format += "SlicedFormat";
-        break;
-    default:
-        assert(false);
-        break;
+        switch (*format)
+        {
+            case CompactFormat: return "com.zeroc.Ice.FormatType.CompactFormat";
+            case SlicedFormat:  return "com.zeroc.Ice.FormatType.SlicedFormat";
+        }
     }
-    return format;
+    // TODO: replace DefaultFormat with CompactFormat in the mapping.
+    // Return null for DefaultFormat.
+    return "null";
 }
 
 string
@@ -1116,7 +1110,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             out << nl << "inS.readEmptyParams();";
         }
 
-        if(op->format() != DefaultFormat)
+        if (op->format())
         {
             out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
         }

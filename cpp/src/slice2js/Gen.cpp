@@ -50,19 +50,17 @@ sliceModeToIceMode(Operation::Mode opMode)
 string
 opFormatTypeToString(const OperationPtr& op)
 {
-    switch(op->format())
+    if (auto format = op->format())
     {
-    case DefaultFormat:
-        return "0";
-    case CompactFormat:
-        return "1";
-    case SlicedFormat:
-        return "2";
-    default:
-        assert(false);
+        switch (*format)
+        {
+            case CompactFormat: return "1";
+            case SlicedFormat:  return "2";
+        }
     }
-
-    return "???";
+    // TODO: replace DefaultFormat with CompactFormat in the mapping.
+    // Return "0" for DefaultFormat.
+    return "0";
 }
 
 void
@@ -1542,7 +1540,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            if (op->format() != DefaultFormat)
+            if (op->format())
             {
                 _out << opFormatTypeToString(op); // Format.
             }

@@ -685,16 +685,16 @@ Slice::operationModeToString(Operation::Mode mode)
 string
 Slice::opFormatTypeToString(const OperationPtr& op)
 {
-    switch(op->format())
+    if (auto format = op->format())
     {
-    case DefaultFormat:
-        return "::Ice::FormatType::DefaultFormat";
-    case CompactFormat:
-        return "::Ice::FormatType::CompactFormat";
-    case SlicedFormat:
-        return "::Ice::FormatType::SlicedFormat";
+        switch (*format)
+        {
+            case CompactFormat: return "::Ice::FormatType::CompactFormat";
+            case SlicedFormat:  return "::Ice::FormatType::SlicedFormat";
+        }
     }
-    throw logic_error("");
+    // TODO: replace DefaultFormat with CompactFormat in the mapping.
+    return "::Ice::FormatType::DefaultFormat";
 }
 
 //

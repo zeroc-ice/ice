@@ -954,29 +954,26 @@ Slice::Contained::setMetadata(const list<string>& metadata)
     _metadata = metadata;
 }
 
-FormatType
+std::optional<FormatType>
 Slice::Contained::parseFormatMetadata() const
 {
-    FormatType result = DefaultFormat; // TODO: replace FormatType here by a std::optional<FormatType>
-                                       // and eliminate DefaultFormat (replaced by not-set).
-
     string tag = findMetadataWithPrefix("format:");
     if (!tag.empty())
     {
         if (tag == "compact")
         {
-            result = CompactFormat;
+            return CompactFormat;
         }
         else if (tag == "sliced")
         {
-            result = SlicedFormat;
+            return SlicedFormat;
         }
-        else if (tag != "default") // TODO: Allow "default" to be specified as a format value?
+        else
         {
             // TODO: How to handle invalid format?
         }
     }
-    return result;
+    return nullopt;
 }
 
 bool
@@ -4425,15 +4422,15 @@ Slice::Operation::hasSingleReturnType() const
     return _hasReturnType && (_usesOutParams || _returnType.size() == 1);
 }
 
-FormatType
+optional<FormatType>
 Slice::Operation::format() const
 {
-    FormatType format = parseFormatMetadata();
-    if (format == DefaultFormat)
+    // First check if the operation has a specified format.
+    optional<FormatType> format = parseFormatMetadata();
+    if (!format)
     {
-        ContainedPtr cont = ContainedPtr::dynamicCast(container());
-        assert(cont);
-        format = cont->parseFormatMetadata();
+        // Fall back to checking if it inherits a format from it's interface.
+        format = ContainedPtr::dynamicCast(_container)->parseFormatMetadata();
     }
     return format;
 }
