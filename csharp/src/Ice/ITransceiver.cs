@@ -33,8 +33,8 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         ValueTask CloseAsync(Exception exception, CancellationToken cancel);
 
-        /// <summary>Initializes the transceiver. The transceiver might use this method to establish or accept the
-        /// connection.</summary>
+        /// <summary>Initializes the transceiver. This is called by the connection during initialization to initialize
+        /// the transceiver.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         ValueTask InitializeAsync(CancellationToken cancel);
 

@@ -11,14 +11,7 @@ namespace ZeroC.Ice.Test.Retry
         {
             if (kill)
             {
-                if (current.Connection != null)
-                {
-                    current.Connection.AbortAsync();
-                }
-                else
-                {
-                    throw new ConnectionLostException();
-                }
+                current.Connection.AbortAsync();
             }
         }
 
@@ -46,7 +39,8 @@ namespace ZeroC.Ice.Test.Retry
             return counter;
         }
 
-        public void OpNotIdempotent(Current current, CancellationToken cancel) => throw new ConnectionLostException();
+        public void OpNotIdempotent(Current current, CancellationToken cancel) =>
+            throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
 
         public void OpSystemException(Current current, CancellationToken cancel) => throw new SystemFailure();
 
