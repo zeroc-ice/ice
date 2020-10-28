@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Metrics
             throw new UserEx("custom UserEx message");
 
         public void OpWithRequestFailedException(Current current, CancellationToken cancel) =>
-            throw new ObjectNotExistException();
+            throw new ObjectNotExistException(RetryPolicy.RefreshEndpoints);
 
         public void OpWithLocalException(Current current, CancellationToken cancel) =>
             throw new InvalidConfigurationException("fake");

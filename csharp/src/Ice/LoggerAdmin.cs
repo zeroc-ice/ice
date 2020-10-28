@@ -133,7 +133,7 @@ namespace ZeroC.Ice
             {
                 if (_destroyed)
                 {
-                    throw new ObjectNotExistException();
+                    throw new ObjectNotExistException(RetryPolicy.RefreshEndpoints);
                 }
 
                 _sendLogCommunicator ??= CreateSendLogCommunicator(current.Adapter.Communicator, _logger.LocalLogger);

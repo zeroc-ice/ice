@@ -2683,7 +2683,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              << "Async(request, current, cancel),";
     }
 
-    _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException()";
+    _out << nl << "_ => throw new ZeroC.Ice.OperationNotExistException(ZeroC.Ice.RetryPolicy.RefreshEndpoints)";
 
     _out << eb << ";"; // switch expression
     _out.dec(); // method

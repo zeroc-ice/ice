@@ -27,6 +27,8 @@ module Ice
         /// retry same endpoint after delay ms
         AfterDelay,
         /// retry another replica known to the caller (if any)
-        OtherReplica
+        OtherReplica,
+        /// retry another replica after refreshing endpoints
+        RefreshEndpoints
     }
 }

@@ -406,7 +406,8 @@ namespace ZeroC.Ice
                             var closedException = ex as ConnectionClosedException;
                             if (connection != null && closedException == null)
                             {
-                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
+                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(
+                                    connection.Connector);
                             }
 
                             lastException = ex;
@@ -464,7 +465,7 @@ namespace ZeroC.Ice
                         {
                             Debug.Assert(attempt <= reference.Communicator.RetryMaxAttempts &&
                                          retryPolicy != RetryPolicy.NoRetry);
-                            if (retryPolicy == RetryPolicy.OtherReplica)
+                            if (retryPolicy == RetryPolicy.OtherReplica || retryPolicy == RetryPolicy.RefreshEndpoints)
                             {
                                 excludedConnectors ??= new List<IConnector>();
                                 excludedConnectors.Add(connection!.Connector);
@@ -474,6 +475,11 @@ namespace ZeroC.Ice
                                         TraceLevels.RetryCategory,
                                         $"excluding connector\n{connection.Connector}");
                                 }
+                            }
+
+                            if (reference.IsIndirect && retryPolicy == RetryPolicy.RefreshEndpoints)
+                            {
+                                reference.LocatorInfo?.ClearCache(reference);
                             }
 
                             if (reference.IsConnectionCached && connection != null)

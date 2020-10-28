@@ -78,7 +78,7 @@ namespace ZeroC.Ice
             AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
 
-        internal void AddHintFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
+        internal void AddTransportFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,

@@ -19,6 +19,10 @@ namespace ZeroC.Ice
         /// </summary>
         public static readonly RetryPolicy OtherReplica = new RetryPolicy(Retryable.OtherReplica);
 
+        /// <summary>The RefreshEndpoints policy specifies that the exception can be retried on a different replica
+        /// after refreshing the endpoints.</summary>
+        public static readonly RetryPolicy RefreshEndpoints = new RetryPolicy(Retryable.RefreshEndpoints);
+
         /// <summary>Creates a retry policy that specifies that the exception can be retried after the given delay.</summary>
         /// <param name="delay">The delay after which the exception can be retried.</param>
         /// <returns>The retry policy.</returns>
