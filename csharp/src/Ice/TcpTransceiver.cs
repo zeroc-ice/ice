@@ -58,7 +58,7 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    throw new ConnectionRefusedException(ex, RetryPolicy.OtherReplica, _connector);
+                    throw new ConnectionRefusedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
                 }
                 catch (SocketException ex)
                 {
