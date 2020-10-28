@@ -311,6 +311,7 @@ namespace ZeroC.Ice
                     {
                         Connection? connection = null;
                         bool sent = false;
+                        bool clearedLocatorCache = false;
                         RetryPolicy retryPolicy = RetryPolicy.NoRetry;
                         IChildInvocationObserver? childObserver = null;
                         try
@@ -398,8 +399,13 @@ namespace ZeroC.Ice
                             // The reference has no endpoints or the previous retry policy asked to retry on a
                             // different replica but no more replicas are available (in this case, we rethrow
                             // the remote exception instead of the NoEndpointException).
-                            lastException = response == null ? ex : null;
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                            if (excludedConnectors?.Count > 0 && !clearedLocatorCache && reference.IsIndirect)
+                            {
+                                reference.LocatorInfo?.ClearCache(reference);
+                                clearedLocatorCache = true;
+                            }
+                            lastException = response == null ? ex : null;
                         }
                         catch (TransportException ex)
                         {
@@ -477,9 +483,11 @@ namespace ZeroC.Ice
                                 }
                             }
 
-                            if (reference.IsIndirect && retryPolicy == RetryPolicy.RefreshEndpoints)
+                            if (reference.IsIndirect && retryPolicy == RetryPolicy.RefreshEndpoints &&
+                                !clearedLocatorCache)
                             {
                                 reference.LocatorInfo?.ClearCache(reference);
+                                clearedLocatorCache = true;
                             }
 
                             if (reference.IsConnectionCached && connection != null)
