@@ -954,7 +954,7 @@ Slice::Contained::setMetadata(const list<string>& metadata)
     _metadata = metadata;
 }
 
-std::optional<FormatType>
+optional<FormatType>
 Slice::Contained::parseFormatMetadata() const
 {
     string tag = findMetadataWithPrefix("format:");
