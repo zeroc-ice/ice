@@ -73,7 +73,8 @@ namespace ZeroC.Ice
             await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel);
             if (data[0] != 0x00 || data[1] != 0x5a)
             {
-                throw new ConnectFailedException(RetryPolicy.NoRetry);
+                // TODO the retry always use the same proxy address
+                throw new ConnectFailedException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
@@ -81,7 +82,8 @@ namespace ZeroC.Ice
         {
             Debug.Assert(_host != null);
 
-            // Get addresses in random order and use the first one
+            // Get addresses and use the first one
+            // TODO can we support multiple addresses for a socks proxy
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
@@ -149,7 +151,8 @@ namespace ZeroC.Ice
             parser.Parse(buffer);
             if (parser.Status() != 200)
             {
-                throw new ConnectFailedException(RetryPolicy.NoRetry);
+                // TODO the retry always use the same proxy address
+                throw new ConnectFailedException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
@@ -157,6 +160,7 @@ namespace ZeroC.Ice
         {
             Debug.Assert(_host != null);
 
+            // TODO can we support multiple addresses for a socks proxy
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
@@ -171,9 +175,6 @@ namespace ZeroC.Ice
             _port = port;
         }
 
-        private HTTPNetworkProxy(EndPoint address)
-        {
-            _address = address;
-        }
+        private HTTPNetworkProxy(EndPoint address) => _address = address;
     }
 }

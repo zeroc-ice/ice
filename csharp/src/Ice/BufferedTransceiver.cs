@@ -32,8 +32,7 @@ namespace ZeroC.Ice
 
         public void Dispose() => Underlying.Dispose();
 
-        public ValueTask InitializeAsync(CancellationToken cancel) =>
-            Underlying.InitializeAsync(cancel);
+        public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
 
         public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             Underlying.ReceiveDatagramAsync(cancel);

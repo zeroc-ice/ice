@@ -78,7 +78,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.NoRetry, _connector);
+                throw new TransportException(ex);
             }
 
             Debug.Assert(endpoint != null);
