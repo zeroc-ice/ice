@@ -202,7 +202,8 @@ namespace ZeroC.Ice
             }
         }
 
-        public override ValueTask InitializeAsync(CancellationToken cancel) => _transceiver.InitializeAsync(cancel);
+        public override ValueTask InitializeAsync(CancellationToken cancel) =>
+            _transceiver.InitializeAsync(cancel);
 
         public override async Task PingAsync(CancellationToken cancel)
         {

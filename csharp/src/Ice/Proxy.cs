@@ -307,6 +307,7 @@ namespace ZeroC.Ice
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
                     List<IConnector>? excludedConnectors = null;
+                    IConnector? connector = null;
                     while (true)
                     {
                         Connection? connection = null;
@@ -319,7 +320,7 @@ namespace ZeroC.Ice
                             connection = await reference.GetConnectionAsync(
                                 excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
                                 cancel).ConfigureAwait(false);
-
+                            connector = connection.Connector;
                             cancel.ThrowIfCancellationRequested();
 
                             // Create the outgoing stream.
@@ -396,17 +397,21 @@ namespace ZeroC.Ice
                         catch (NoEndpointException ex)
                         {
                             // The reference has no endpoints or the previous retry policy asked to retry on a
-                            // different replica but no more replicas are available (in this case, we rethrow
-                            // the remote exception instead of the NoEndpointException).
-                            lastException = response == null ? ex : null;
+                            // different replica but no more replicas are available (in this case, we throw
+                            // the previous exception instead of the NoEndpointException).
+                            if (response == null && lastException == null)
+                            {
+                                lastException = ex;
+                            }
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
                         catch (TransportException ex)
                         {
                             var closedException = ex as ConnectionClosedException;
-                            if (connection != null && closedException == null)
+                            connector ??= ex.Connector;
+                            if (connector != null && closedException == null)
                             {
-                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
+                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connector);
                             }
 
                             lastException = ex;
@@ -416,7 +421,7 @@ namespace ZeroC.Ice
                             // connection was gracefully closed by the peer (in which case it's safe to retry).
                             if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
                             {
-                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                                retryPolicy = ex.RetryPolicy;
                             }
                         }
                         catch (Exception ex)
@@ -466,13 +471,13 @@ namespace ZeroC.Ice
                                          retryPolicy != RetryPolicy.NoRetry);
                             if (retryPolicy == RetryPolicy.OtherReplica)
                             {
+                                Debug.Assert(connector != null);
                                 excludedConnectors ??= new List<IConnector>();
-                                excludedConnectors.Add(connection!.Connector);
+                                excludedConnectors.Add(connector);
                                 if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
-                                    reference.Communicator.Logger.Trace(
-                                        TraceLevels.RetryCategory,
-                                        $"excluding connector\n{connection.Connector}");
+                                    reference.Communicator.Logger.Trace(TraceLevels.RetryCategory,
+                                                                        $"excluding connector\n{connector}");
                                 }
                             }
 

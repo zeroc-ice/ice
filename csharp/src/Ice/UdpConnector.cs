@@ -13,6 +13,7 @@ namespace ZeroC.Ice
         public Connection Connect(string connectionId)
         {
             var transceiver = new UdpTransceiver(_endpoint.Communicator,
+                                                 this,
                                                  _addr,
                                                  _endpoint.SourceAddress,
                                                  _endpoint.MulticastInterface,

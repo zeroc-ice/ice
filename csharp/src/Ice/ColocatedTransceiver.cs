@@ -75,7 +75,7 @@ namespace ZeroC.Ice
                 }
                 catch (ChannelClosedException exception)
                 {
-                    throw new ConnectionLostException(exception);
+                    throw new ConnectionLostException(exception, RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
             }
         }

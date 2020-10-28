@@ -133,7 +133,7 @@ namespace ZeroC.Ice
                                                   0);
                 if (rc != BzStatus.Ok)
                 {
-                    throw new TransportException($"bzip2 compression failed: {rc}");
+                    throw new TransportException($"bzip2 compression failed: {rc}", RetryPolicy.NoRetry);
                 }
 
                 // Slice the first segment to skip the header, the header is never compressed
@@ -158,7 +158,7 @@ namespace ZeroC.Ice
 
                 if (rc != BzStatus.RunOk)
                 {
-                    throw new TransportException($"bzip2 compression failed: {rc}");
+                    throw new TransportException($"bzip2 compression failed: {rc}", RetryPolicy.NoRetry);
                 }
 
                 do
@@ -169,7 +169,7 @@ namespace ZeroC.Ice
 
                 if (rc != BzStatus.StreamEnd)
                 {
-                    throw new TransportException($"bzip2 compression failed: {rc}");
+                    throw new TransportException($"bzip2 compression failed: {rc}", RetryPolicy.NoRetry);
                 }
 
                 int compressedLen = compressed.Length - (int)bzStream.AvailOut;
@@ -243,7 +243,7 @@ namespace ZeroC.Ice
                 rc = (BzStatus)BZ2_bzDecompressInit(ref bzStream, 0, 0);
                 if (rc != BzStatus.Ok)
                 {
-                    throw new TransportException($"bzip2 decompression failed: {rc}");
+                    throw new TransportException($"bzip2 decompression failed: {rc}", RetryPolicy.NoRetry);
                 }
 
                 bzStream.NextIn = compressedHandle.AddrOfPinnedObject() + compressed.Offset + headerSize + 4;
@@ -251,7 +251,7 @@ namespace ZeroC.Ice
                 rc = (BzStatus)BZ2_bzDecompress(ref bzStream);
                 if (rc != BzStatus.StreamEnd)
                 {
-                    throw new TransportException($"bzip2 decompression failed: {rc}");
+                    throw new TransportException($"bzip2 decompression failed: {rc}", RetryPolicy.NoRetry);
                 }
             }
             finally
