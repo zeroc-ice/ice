@@ -105,46 +105,6 @@ namespace ZeroC.Ice.Test.DefaultValue
                 TestHelper.Assert(v.ZeroDotD == 0);
             }
 
-            {
-                var v = new ClassProperty();
-                TestHelper.Assert(!v.BoolFalse);
-                TestHelper.Assert(v.BoolTrue);
-                TestHelper.Assert(v.B == 1);
-                TestHelper.Assert(v.S == 2);
-                TestHelper.Assert(v.I == 3);
-                TestHelper.Assert(v.L == 4);
-                TestHelper.Assert(v.F == 5.1F);
-                TestHelper.Assert(v.D == 6.2);
-                TestHelper.Assert(v.Str.Equals("foo bar"));
-                TestHelper.Assert(v.NoDefault == null);
-                TestHelper.Assert(v.ZeroI == 0);
-                TestHelper.Assert(v.ZeroL == 0);
-                TestHelper.Assert(v.ZeroF == 0);
-                TestHelper.Assert(v.ZeroDotF == 0);
-                TestHelper.Assert(v.ZeroD == 0);
-                TestHelper.Assert(v.ZeroDotD == 0);
-            }
-
-            {
-                var v = new ExceptionProperty();
-                TestHelper.Assert(!v.BoolFalse);
-                TestHelper.Assert(v.BoolTrue);
-                TestHelper.Assert(v.B == 1);
-                TestHelper.Assert(v.S == 2);
-                TestHelper.Assert(v.I == 3);
-                TestHelper.Assert(v.L == 4);
-                TestHelper.Assert(v.F == 5.1F);
-                TestHelper.Assert(v.D == 6.2);
-                TestHelper.Assert(v.Str.Equals("foo bar"));
-                TestHelper.Assert(v.NoDefault == null);
-                TestHelper.Assert(v.ZeroI == 0);
-                TestHelper.Assert(v.ZeroL == 0);
-                TestHelper.Assert(v.ZeroF == 0);
-                TestHelper.Assert(v.ZeroDotF == 0);
-                TestHelper.Assert(v.ZeroD == 0);
-                TestHelper.Assert(v.ZeroDotD == 0);
-            }
-
             output.WriteLine("ok");
         }
     }
