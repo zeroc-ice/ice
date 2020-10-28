@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 {
                     socket.SetSocketOption(SocketOptionLevel.IPv6,
                                            SocketOptionName.IPv6Only,
-                                           endpoint.IsIPv6Only ? true : false);
+                                           endpoint.IsIPv6Only);
                 }
                 catch (SocketException ex)
                 {
@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Socket CreateSocket(bool udp, AddressFamily family)
+        internal static Socket CreateSocket(bool udp, AddressFamily family, IConnector? connector = null)
         {
             Socket socket;
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
             }
 
             if (!udp)
@@ -87,7 +87,7 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                    throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
                 }
             }
             return socket;
@@ -244,15 +244,15 @@ namespace ZeroC.Ice
             {
                 return socket.LocalEndPoint;
             }
-            catch (SocketException ex)
+            catch (SocketException)
             {
-                throw new TransportException(ex, RetryPolicy.NoRetry);
             }
+            return null;
         }
 
         internal static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
         {
-            List<IPAddress> addresses = new List<IPAddress>();
+            var addresses = new HashSet<IPAddress>();
             try
             {
                 NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
@@ -263,10 +263,9 @@ namespace ZeroC.Ice
                     foreach (UnicastIPAddressInformation uni in uniColl)
                     {
                         if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
-                           (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
+                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                         {
-                            if (!addresses.Contains(uni.Address) &&
-                               (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
+                            if (includeLoopback || !IPAddress.IsLoopback(uni.Address))
                             {
                                 addresses.Add(uni.Address);
                                 if (singleAddressPerInterface)

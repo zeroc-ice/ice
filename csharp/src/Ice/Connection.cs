@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             AbortAsync(new ConnectionClosedException(message ?? "connection closed forcefully",
                                                      isClosedByPeer: false,
                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                     this));
+                                                     Connector));
 
         /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
         /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
@@ -169,7 +169,7 @@ namespace ZeroC.Ice
             GoAwayAsync(new ConnectionClosedException(message ?? "connection closed gracefully",
                                                       isClosedByPeer: false,
                                                       RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                      this),
+                                                      Connector),
                         cancel);
 
         /// <summary>This event is raised when the connection receives a ping frame. The connection object is
@@ -248,7 +248,7 @@ namespace ZeroC.Ice
                 {
                     throw new ConnectionClosedException(isClosedByPeer: false,
                                                         RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                        this);
+                                                        Connector);
                 }
                 return Transceiver.CreateStream(bidirectional);
             }
@@ -368,7 +368,7 @@ namespace ZeroC.Ice
                         _ = AbortAsync(new ConnectionClosedException("connection timed out",
                                                                      isClosedByPeer: false,
                                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                     this));
+                                                                     Connector));
                     }
                     else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount <= 2)
                     {
@@ -376,7 +376,7 @@ namespace ZeroC.Ice
                         _ = GoAwayAsync(new ConnectionClosedException("connection idle",
                                                                       isClosedByPeer: false,
                                                                       RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                      this));
+                                                                      Connector));
                     }
                 }
             }
@@ -391,7 +391,7 @@ namespace ZeroC.Ice
                 CancellationToken cancel = source.Token;
 
                 // Initialize the transport.
-                await Transceiver.InitializeAsync(this, cancel).ConfigureAwait(false);
+                await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
                 if (!Endpoint.IsDatagram)
                 {
@@ -416,7 +416,7 @@ namespace ZeroC.Ice
                         // initializes.
                         throw new ConnectionClosedException(isClosedByPeer: false,
                                                             RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                            this);
+                                                            Connector);
                     }
                     SetState(ConnectionState.Active);
 
@@ -427,7 +427,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero), this);
+                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero), Connector);
                 _ = AbortAsync(ex);
                 throw ex;
             }
@@ -665,7 +665,7 @@ namespace ZeroC.Ice
                     var exception = new ConnectionClosedException(message,
                                                                   isClosedByPeer: true,
                                                                   RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                  this);
+                                                                  Connector);
                     if (_state == ConnectionState.Active)
                     {
                         SetState(ConnectionState.Closing, exception);

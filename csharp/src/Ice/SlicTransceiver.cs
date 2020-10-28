@@ -211,10 +211,10 @@ namespace ZeroC.Ice
 
         public override TransceiverStream CreateStream(bool bidirectional) => new SlicStream(bidirectional, this);
 
-        public override async ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
+        public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             // Initialize the underlying transport
-            await _transceiver.InitializeAsync(connection, cancel).ConfigureAwait(false);
+            await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
 
             TimeSpan peerIdleTimeout;
             if (IsIncoming)

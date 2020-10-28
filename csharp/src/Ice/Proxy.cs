@@ -307,6 +307,7 @@ namespace ZeroC.Ice
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
                     List<IConnector>? excludedConnectors = null;
+                    IConnector? connector = null;
                     while (true)
                     {
                         Connection? connection = null;
@@ -319,7 +320,7 @@ namespace ZeroC.Ice
                             connection = await reference.GetConnectionAsync(
                                 excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
                                 cancel).ConfigureAwait(false);
-
+                            connector = connection.Connector;
                             cancel.ThrowIfCancellationRequested();
 
                             // Create the outgoing stream.
@@ -406,13 +407,11 @@ namespace ZeroC.Ice
                         }
                         catch (TransportException ex)
                         {
-                            ex.Connection ??= connection;
-                            connection ??= ex.Connection;
-
                             var closedException = ex as ConnectionClosedException;
-                            if (connection != null && closedException == null)
+                            connector ??= ex.Connector;
+                            if (connector != null && closedException == null)
                             {
-                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connection.Connector);
+                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connector);
                             }
 
                             lastException = ex;
@@ -472,13 +471,13 @@ namespace ZeroC.Ice
                                          retryPolicy != RetryPolicy.NoRetry);
                             if (retryPolicy == RetryPolicy.OtherReplica)
                             {
+                                Debug.Assert(connector != null);
                                 excludedConnectors ??= new List<IConnector>();
-                                excludedConnectors.Add(connection!.Connector);
+                                excludedConnectors.Add(connector);
                                 if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
-                                    reference.Communicator.Logger.Trace(
-                                        TraceLevels.RetryCategory,
-                                        $"excluding connector\n{connection.Connector}");
+                                    reference.Communicator.Logger.Trace(TraceLevels.RetryCategory,
+                                                                        $"excluding connector\n{connector}");
                                 }
                             }
 

@@ -17,6 +17,7 @@ namespace ZeroC.Ice
 
         private readonly EndPoint? _addr;
         private readonly Communicator _communicator;
+        private readonly IConnector? _connector;
         private string _desc;
         private readonly INetworkProxy? _proxy;
         private readonly IPAddress? _sourceAddr;
@@ -29,7 +30,7 @@ namespace ZeroC.Ice
 
         public void Dispose() => Socket.Dispose();
 
-        public async ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
+        public async ValueTask InitializeAsync(CancellationToken cancel)
         {
             if (_addr != null)
             {
@@ -57,11 +58,11 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    throw new ConnectionRefusedException(ex, RetryPolicy.OtherReplica, connection);
+                    throw new ConnectionRefusedException(ex, RetryPolicy.OtherReplica, _connector);
                 }
                 catch (SocketException ex)
                 {
-                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), connection);
+                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
                 }
             }
         }
@@ -87,15 +88,15 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
             if (received == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
             return received;
         }
@@ -113,24 +114,30 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
         }
 
         public override string ToString() => _desc;
 
-        internal TcpTransceiver(Communicator communicator, EndPoint addr, INetworkProxy? proxy, IPAddress? sourceAddr)
+        internal TcpTransceiver(
+            Communicator communicator,
+            IConnector? connector,
+            EndPoint addr,
+            INetworkProxy? proxy,
+            IPAddress? sourceAddr)
         {
             _communicator = communicator;
+            _connector = connector;
             _proxy = proxy;
             _addr = addr;
             _desc = "";
             _sourceAddr = sourceAddr;
-            Socket = Network.CreateSocket(false, (_proxy != null ? _proxy.Address : _addr).AddressFamily);
+            Socket = Network.CreateSocket(false, (_proxy != null ? _proxy.Address : _addr).AddressFamily, _connector);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.TCP);

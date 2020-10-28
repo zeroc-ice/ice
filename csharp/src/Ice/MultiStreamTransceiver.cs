@@ -82,9 +82,8 @@ namespace ZeroC.Ice
         public abstract Task PingAsync(CancellationToken cancel);
 
         /// <summary>Initializes the transport.</summary>
-        /// <param name="connection">The connection being initialized.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public abstract ValueTask InitializeAsync(Connection connection, CancellationToken cancel);
+        public abstract ValueTask InitializeAsync(CancellationToken cancel);
 
         /// <summary>Creates an outgoing stream. Depending on the transport implementation, the stream ID might not
         /// be immediately available after the stream creation. It will be available after the first successful send

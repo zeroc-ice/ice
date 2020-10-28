@@ -35,9 +35,8 @@ namespace ZeroC.Ice
 
         /// <summary>Initializes the transceiver. This is called by the connection during initialization to initialize
         /// the transceiver.</summary>
-        /// <param name="connection">The connection that being initialize.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        ValueTask InitializeAsync(Connection connection, CancellationToken cancel);
+        ValueTask InitializeAsync(CancellationToken cancel);
 
         /// <summary>Receives a new datagram from the connection, only supported for datagram connections.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>

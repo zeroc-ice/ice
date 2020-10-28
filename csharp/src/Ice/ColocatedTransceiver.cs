@@ -88,7 +88,7 @@ namespace ZeroC.Ice
 
         public override TransceiverStream CreateStream(bool bidirectional) => new ColocatedStream(bidirectional, this);
 
-        public async override ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
+        public async override ValueTask InitializeAsync(CancellationToken cancel)
         {
             // Send our unidirectional semaphore to the peer. The peer will decrease the semaphore when the stream is
             // disposed.

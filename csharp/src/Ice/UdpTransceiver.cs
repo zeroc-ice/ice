@@ -26,6 +26,7 @@ namespace ZeroC.Ice
 
         private IPEndPoint _addr;
         private readonly Communicator _communicator;
+        private readonly IConnector? _connector;
         private readonly bool _incoming;
         private readonly string? _multicastInterface;
         private EndPoint? _peerAddr;
@@ -77,7 +78,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.NoRetry);
+                throw new TransportException(ex, RetryPolicy.NoRetry, _connector);
             }
 
             Debug.Assert(endpoint != null);
@@ -99,7 +100,7 @@ namespace ZeroC.Ice
 
         public void Dispose() => Socket.Dispose();
 
-        public async ValueTask InitializeAsync(Connection connection, CancellationToken cancel)
+        public async ValueTask InitializeAsync(CancellationToken cancel)
         {
             if (!_incoming)
             {
@@ -114,7 +115,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), connection);
+                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
                 }
             }
         }
@@ -167,9 +168,9 @@ namespace ZeroC.Ice
             {
                 if (e.IsConnectionLost())
                 {
-                    throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
+                    throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
                 }
-                throw new TransportException(e, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new TransportException(e, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
 
             return buffer.Slice(0, received);
@@ -232,7 +233,7 @@ namespace ZeroC.Ice
 
             if (_incoming && _peerAddr == null)
             {
-                throw new TransportException("cannot send datagram to undefined peer", RetryPolicy.NoRetry);
+                throw new TransportException("cannot send datagram to undefined peer", RetryPolicy.NoRetry, _connector);
             }
 
             try
@@ -255,21 +256,23 @@ namespace ZeroC.Ice
             {
                 if (ex.IsConnectionLost())
                 {
-                    throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                    throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
                 }
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
         }
 
         // Only for use by UdpConnector.
         internal UdpTransceiver(
             Communicator communicator,
+            IConnector connector,
             EndPoint addr,
             IPAddress? sourceAddr,
             string? multicastInterface,
             int multicastTtl)
         {
             _communicator = communicator;
+            _connector = connector;
             _addr = (IPEndPoint)addr;
             _multicastInterface = multicastInterface;
             _incoming = false;
@@ -278,7 +281,7 @@ namespace ZeroC.Ice
                 _sourceAddr = new IPEndPoint(sourceAddr, 0);
             }
 
-            Socket = Network.CreateSocket(true, _addr.AddressFamily);
+            Socket = Network.CreateSocket(true, _addr.AddressFamily, _connector);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);
@@ -301,7 +304,7 @@ namespace ZeroC.Ice
             catch (SocketException ex)
             {
                 Socket.CloseNoThrow();
-                throw new TransportException(ex, RetryPolicy.NoRetry);
+                throw new TransportException(ex, RetryPolicy.NoRetry, _connector);
             }
         }
 
@@ -323,7 +326,7 @@ namespace ZeroC.Ice
             catch (SocketException ex)
             {
                 Socket.CloseNoThrow();
-                throw new TransportException(ex, RetryPolicy.NoRetry);
+                throw new TransportException(ex, RetryPolicy.NoRetry, _connector);
             }
         }
     }
