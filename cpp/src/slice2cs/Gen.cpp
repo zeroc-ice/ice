@@ -66,16 +66,12 @@ isDefaultInitialized(const MemberPtr& member, bool considerDefaultValue)
 string
 opFormatTypeToString(const OperationPtr& op)
 {
-    if (auto format = op->format())
+    switch (op->format().value_or(CompactFormat))
     {
-        switch (*format)
-        {
-            case CompactFormat: return "ZeroC.Ice.FormatType.Compact";
-            case SlicedFormat:  return "ZeroC.Ice.FormatType.Sliced";
-        }
+        case CompactFormat: return "ZeroC.Ice.FormatType.Compact";
+        case SlicedFormat:  return "ZeroC.Ice.FormatType.Sliced";
     }
-    // "default" is the same as Compact.
-    return "default";
+    throw illegal_argument("unknown format type");
 }
 
 void
