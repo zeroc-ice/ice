@@ -219,7 +219,8 @@ namespace ZeroC.Ice
             TimeSpan peerIdleTimeout;
             if (IsIncoming)
             {
-                (SlicDefinitions.FrameType type, ArraySegment<byte> data) = await ReceiveFrameAsync(cancel);
+                (SlicDefinitions.FrameType type, ArraySegment<byte> data) =
+                    await ReceiveFrameAsync(cancel).ConfigureAwait(false);
                 if (type != SlicDefinitions.FrameType.Initialize)
                 {
                     throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
@@ -233,13 +234,16 @@ namespace ZeroC.Ice
                 {
                     // If unsupported Slic version, we stop reading there and reply with a VERSION frame to provide
                     // the client the supported Slic versions.
-                    await PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Version, ostr =>
-                    {
-                        var versionBody = new VersionBody(new uint[] { 1 });
-                        versionBody.IceWrite(ostr);
-                    }, cancel: cancel).ConfigureAwait(false);
+                    await PrepareAndSendFrameAsync(
+                        SlicDefinitions.FrameType.Version,
+                        ostr =>
+                        {
+                            var versionBody = new VersionBody(new uint[] { 1 });
+                            versionBody.IceWrite(ostr);
+                        },
+                        cancel: cancel).ConfigureAwait(false);
 
-                    (type, data) = await ReceiveFrameAsync(cancel);
+                    (type, data) = await ReceiveFrameAsync(cancel).ConfigureAwait(false);
                     if (type != SlicDefinitions.FrameType.Initialize)
                     {
                         throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
@@ -277,31 +281,38 @@ namespace ZeroC.Ice
                 peerIdleTimeout = TimeSpan.FromMilliseconds(initializeBody.IdleTimeout);
 
                 // Send back an INITIALIZE_ACK frame.
-                await PrepareAndSendFrameAsync(SlicDefinitions.FrameType.InitializeAck, ostr =>
-                {
-                    var initializeAckBody = new InitializeAckBody(
-                        (ulong)Options.MaxBidirectionalStreams,
-                        (ulong)Options.MaxUnidirectionalStreams,
-                        (ulong)Options.IdleTimeout.TotalMilliseconds);
-                    initializeAckBody.IceWrite(ostr);
-                }, cancel: cancel).ConfigureAwait(false);
+                await PrepareAndSendFrameAsync(
+                    SlicDefinitions.FrameType.InitializeAck,
+                    ostr =>
+                    {
+                        var initializeAckBody = new InitializeAckBody(
+                            (ulong)Options.MaxBidirectionalStreams,
+                            (ulong)Options.MaxUnidirectionalStreams,
+                            (ulong)Options.IdleTimeout.TotalMilliseconds);
+                        initializeAckBody.IceWrite(ostr);
+                    },
+                    cancel: cancel).ConfigureAwait(false);
             }
             else
             {
                 // Send the INITIALIZE frame.
-                await PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Initialize, ostr =>
-                {
-                    var initializeBody = new InitializeBody(
-                        1,
-                        Protocol.Ice2.GetName(),
-                        (ulong)Options.MaxBidirectionalStreams,
-                        (ulong)Options.MaxUnidirectionalStreams,
-                        (ulong)Options.IdleTimeout.TotalMilliseconds);
-                    initializeBody.IceWrite(ostr);
-                }, cancel: cancel).ConfigureAwait(false);
+                await PrepareAndSendFrameAsync(
+                    SlicDefinitions.FrameType.Initialize,
+                    ostr =>
+                    {
+                        var initializeBody = new InitializeBody(
+                            1,
+                            Protocol.Ice2.GetName(),
+                            (ulong)Options.MaxBidirectionalStreams,
+                            (ulong)Options.MaxUnidirectionalStreams,
+                            (ulong)Options.IdleTimeout.TotalMilliseconds);
+                        initializeBody.IceWrite(ostr);
+                    },
+                    cancel: cancel).ConfigureAwait(false);
 
                 // Read the INITIALIZE_ACK or VERSION frame from the server
-                (SlicDefinitions.FrameType type, ArraySegment<byte> data) = await ReceiveFrameAsync(cancel);
+                (SlicDefinitions.FrameType type, ArraySegment<byte> data) =
+                    await ReceiveFrameAsync(cancel).ConfigureAwait(false);
 
                 var istr = new InputStream(data, SlicDefinitions.Encoding);
 

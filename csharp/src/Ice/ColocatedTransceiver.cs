@@ -92,8 +92,8 @@ namespace ZeroC.Ice
         {
             // Send our unidirectional semaphore to the peer. The peer will decrease the semaphore when the stream is
             // disposed.
-            await _writer.WriteAsync((-1, UnidirectionalSerializeSemaphore, false), cancel);
-            (_, object? semaphore, _) = await _reader.ReadAsync(cancel);
+            await _writer.WriteAsync((-1, UnidirectionalSerializeSemaphore, false), cancel).ConfigureAwait(false);
+            (_, object? semaphore, _) = await _reader.ReadAsync(cancel).ConfigureAwait(false);
 
             // Get the peer's unidirectional semaphore and keep track of it to be able to release it once a
             // unidirectional stream is disposed.

@@ -28,6 +28,7 @@ namespace ZeroC.Ice.Test.Plugin
 
             public ValueTask DisposeAsync()
             {
+                GC.SuppressFinalize(this);
                 _destroyed = true;
                 return new ValueTask(Task.CompletedTask);
             }

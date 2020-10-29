@@ -571,7 +571,7 @@ namespace ZeroC.Ice
                 if (stream.IsBidirectional)
                 {
                     // Send the response over the stream
-                    await stream.SendResponseFrameAsync(response, fin, cancel);
+                    await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException)
@@ -691,7 +691,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                await AbortAsync(ex);
+                await AbortAsync(ex).ConfigureAwait(false);
             }
 
             async Task PerformGoAwayAsync((long Bidirectional, long Unidirectional) lastStreamIds, Exception exception)

@@ -49,7 +49,7 @@ namespace ZeroC.Ice
                 case "ice2":
                     return Protocol.Ice2;
                 default:
-                    if (str.EndsWith(".0"))
+                    if (str.EndsWith(".0", StringComparison.InvariantCulture))
                     {
                         str = str[0..^2];
                     }

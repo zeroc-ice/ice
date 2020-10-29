@@ -40,8 +40,7 @@ namespace ZeroC.Ice
     /// dictionary.</param>
     /// <param name="communicator">The communicator.</param>
     /// <param name="oaEndpoint">When true, the new endpoint corresponds to an object adapter's endpoint configuration;
-    /// when false, uriString represents a proxy endpoint.</param>
-    /// <param name="uriString">The original URI endpoint string, for error messages and tracing.</param>
+    /// when false, represents a proxy endpoint.</param>
     /// <returns>A new endpoint for the ice2 protocol.</returns>
     public delegate Endpoint Ice2EndpointParser(
         Transport transport,
@@ -49,6 +48,5 @@ namespace ZeroC.Ice
         ushort port,
         Dictionary<string, string> options,
         Communicator communicator,
-        bool oaEndpoint,
-        string uriString);
+        bool oaEndpoint);
 }

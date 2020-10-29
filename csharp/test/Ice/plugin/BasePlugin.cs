@@ -34,6 +34,7 @@ namespace ZeroC.Ice.Test.Plugin
         public abstract void Initialize(PluginInitializationContext context);
         public virtual async ValueTask DisposeAsync()
         {
+            GC.SuppressFinalize(this);
             if (Other != null)
             {
                 await Other.DisposeAsync();

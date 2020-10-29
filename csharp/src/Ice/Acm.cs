@@ -261,6 +261,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public void Remove(Connection _) => _timer?.Dispose();
+        public void Remove(Connection connection) => _timer?.Dispose();
     }
 }

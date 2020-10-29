@@ -21,7 +21,6 @@
         <NoWarn>1591</NoWarn>
         <!-- TODO enable all warnigns as error once we fix analyzer warnings -->
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1" PrivateAssets="All"/>
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.205" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" PrivateAssets="All"/>
     </ItemGroup>

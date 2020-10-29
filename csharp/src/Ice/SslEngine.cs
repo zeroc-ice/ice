@@ -118,10 +118,10 @@ namespace ZeroC.Ice
                         bool first = true;
                         while (true)
                         {
-                            startpos = strbuf.IndexOf(beginCertificateMark, endpos);
+                            startpos = strbuf.IndexOf(beginCertificateMark, endpos, StringComparison.InvariantCulture);
                             if (startpos != -1)
                             {
-                                endpos = strbuf.IndexOf(endCertificateMark, startpos);
+                                endpos = strbuf.IndexOf(endCertificateMark, startpos, StringComparison.InvariantCulture);
                                 if (endpos == -1)
                                 {
                                     throw new FormatException(

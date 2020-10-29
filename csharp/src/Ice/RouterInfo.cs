@@ -51,7 +51,8 @@ namespace ZeroC.Ice
             }
 
             // TODO: fix the Slice method addProxies to return non-nullable proxies.
-            IObjectPrx?[] evictedProxies = await Router.AddProxiesAsync(new IObjectPrx[] { proxy });
+            IObjectPrx?[] evictedProxies =
+                await Router.AddProxiesAsync(new IObjectPrx[] { proxy }).ConfigureAwait(false);
 
             lock (_mutex)
             {

@@ -433,7 +433,8 @@ namespace ZeroC.Ice.Test.Metrics
 
             var invoke = (InvocationMetrics)view["Invocation"][0]!;
 
-            TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]") > 0 && invoke.Current == 0 && invoke.Total == 5);
+            TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0 &&
+                              invoke.Current == 0 && invoke.Total == 5);
             TestHelper.Assert(invoke.Children.Length == 2);
             TestHelper.Assert(invoke.Children[0]!.Total >= 2 && invoke.Children[1]!.Total >= 2);
             TestHelper.Assert((invoke.Children[0]!.Total + invoke.Children[1]!.Total) == 5);
@@ -443,7 +444,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             TestHelper.Assert(view["Dispatch"].Length == 1);
             TestHelper.Assert(view["Dispatch"][0]!.Current == 0 && view["Dispatch"][0]!.Total == 5);
-            TestHelper.Assert(view["Dispatch"][0]!.Id.IndexOf("[ice_ping]") > 0);
+            TestHelper.Assert(view["Dispatch"][0]!.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0);
 
             metrics.GetConnection().GoAwayAsync();
             metrics.Clone(connectionId: "Con1").GetConnection().GoAwayAsync();

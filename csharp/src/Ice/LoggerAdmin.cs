@@ -67,7 +67,7 @@ namespace ZeroC.Ice
                 try
                 {
                     // Wait for the previous request task to complete.
-                    await previousRequestTask;
+                    await previousRequestTask.ConfigureAwait(false);
 
                     if (_loggerAdmin.TraceLevel > 1)
                     {
@@ -77,7 +77,7 @@ namespace ZeroC.Ice
 
                     // Now send the given request. The IRemoteLogger requests are marked as [oneway] in the Slice so
                     // this should return once the request has been sent.
-                    await request(_remoteLoggerPrx);
+                    await request(_remoteLoggerPrx).ConfigureAwait(false);
 
                     if (_loggerAdmin.TraceLevel > 1)
                     {
@@ -363,10 +363,11 @@ namespace ZeroC.Ice
         {
             var properties = communicator.GetProperties().Where(p =>
                 p.Key == "Ice.Default.Locator" ||
-                p.Key.StartsWith("IceSSL.")).ToDictionary(p => p.Key, p => p.Value);
+                p.Key.StartsWith("IceSSL.", StringComparison.InvariantCulture)).ToDictionary(p => p.Key, p => p.Value);
 
             string[] args = communicator.GetPropertyAsList("Ice.Admin.Logger.Properties")?.Select(
-                v => v.StartsWith("--") ? v : $"--{v}").ToArray() ?? Array.Empty<string>();
+                v => v.StartsWith("--", StringComparison.InvariantCulture) ?
+                    v : $"--{v}").ToArray() ?? Array.Empty<string>();
             return new Communicator(ref args, properties, logger: logger);
         }
 

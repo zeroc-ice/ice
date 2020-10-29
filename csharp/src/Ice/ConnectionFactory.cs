@@ -595,6 +595,10 @@ namespace ZeroC.Ice
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Reliability",
+            "CA2007:Consider calling ConfigureAwait on the awaited task",
+            Justification = "Ensure continuations execute on the object adapter scheduler if it is set")]
         private async ValueTask AcceptAsync()
         {
             while (true)
@@ -602,8 +606,6 @@ namespace ZeroC.Ice
                 Connection? connection = null;
                 try
                 {
-                    // We don't use ConfigureAwait(false) on purpose. We want to ensure continuations execute on the
-                    // object adapter scheduler if an adapter scheduler is set.
                     connection = await _acceptor.AcceptAsync();
 
                     if (_communicator.TraceLevels.Transport >= 2)

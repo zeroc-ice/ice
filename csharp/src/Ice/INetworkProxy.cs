@@ -67,10 +67,10 @@ namespace ZeroC.Ice
             data[8] = 0x00; // User ID.
 
             // Send the request.
-            await socket.SendAsync(data, SocketFlags.None, cancel);
+            await socket.SendAsync(data, SocketFlags.None, cancel).ConfigureAwait(false);
 
             // Now wait for the response whose size is 8 bytes.
-            await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel);
+            await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel).ConfigureAwait(false);
             if (data[0] != 0x00 || data[1] != 0x5a)
             {
                 // TODO the retry always use the same proxy address
@@ -123,14 +123,18 @@ namespace ZeroC.Ice
             sb.Append("\r\n\r\n");
 
             // Send the connect request.
-            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(sb.ToString()), SocketFlags.None, cancel);
+            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(sb.ToString()),
+                                   SocketFlags.None,
+                                   cancel).ConfigureAwait(false);
 
             // Read the HTTP response, reserve enough space for reading at least HTTP1.1
             byte[] buffer = new byte[256];
             int received = 0;
             while (true)
             {
-                received += await socket.ReceiveAsync(buffer.AsMemory(received), SocketFlags.None, cancel);
+                received += await socket.ReceiveAsync(buffer.AsMemory(received),
+                                                      SocketFlags.None,
+                                                      cancel).ConfigureAwait(false);
 
                 // Check if we received the full HTTP response, if not, continue reading otherwise we're done.
                 int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, received));

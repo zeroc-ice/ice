@@ -1099,7 +1099,7 @@ namespace ZeroC.Ice
 
                     if (RouterInfo != null)
                     {
-                        await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this));
+                        await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this)).ConfigureAwait(false);
 
                         // Set the object adapter for this router (if any) on the new connection, so that callbacks from
                         // the router can be received over this new connection.
@@ -1125,7 +1125,7 @@ namespace ZeroC.Ice
                                                       "connection to cached endpoints failed\n" +
                                                       $"removing endpoints from cache and trying again\n{ex}");
                         }
-                        return await GetConnectionAsync(excludedConnectors, cancel);
+                        return await GetConnectionAsync(excludedConnectors, cancel).ConfigureAwait(false);
                     }
                     throw;
                 }

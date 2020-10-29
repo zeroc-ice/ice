@@ -331,7 +331,7 @@ namespace ZeroC.IceBox
                 Debug.Assert(_adminFacetFilter != null);
                 foreach (string p in _adminFacetFilter)
                 {
-                    if (p.StartsWith(prefix))
+                    if (p.StartsWith(prefix, StringComparison.InvariantCulture))
                     {
                         facetNames.Add(p.Substring(prefix.Length));
                     }
@@ -357,8 +357,9 @@ namespace ZeroC.IceBox
             if (_communicator.GetPropertyAsBool("IceBox.InheritProperties") ?? false)
             {
                 // Inherit all except Ice.Admin.xxx properties
-                properties = _communicator.GetProperties().Where(p => !p.Key.StartsWith("Ice.Admin.")).ToDictionary(
-                    p => p.Key, p => p.Value);
+                properties = _communicator.GetProperties().Where(
+                    p => !p.Key.StartsWith("Ice.Admin.", StringComparison.InvariantCulture)).ToDictionary(
+                        p => p.Key, p => p.Value);
             }
             else
             {
@@ -399,7 +400,7 @@ namespace ZeroC.IceBox
             {
                 foreach (string p in _communicator.FindAllAdminFacets().Keys)
                 {
-                    if (p.StartsWith(prefix))
+                    if (p.StartsWith(prefix, StringComparison.InvariantCulture))
                     {
                         _communicator.RemoveAdminFacet(p);
                     }
@@ -750,7 +751,9 @@ namespace ZeroC.IceBox
                 Debug.Assert(Args.Length > 0);
 
                 EntryPoint = Args[0];
-                Args = Args.Skip(1).Concat(serverArgs.Where(arg => arg.StartsWith($"--{service}."))).ToArray();
+                Args = Args.Skip(1).Concat(
+                    serverArgs.Where(
+                        arg => arg.StartsWith($"--{service}.", StringComparison.InvariantCulture))).ToArray();
             }
         }
     }

@@ -303,7 +303,8 @@ namespace ZeroC.Ice
         }
 
         protected override string DefaultResolve(string attribute) =>
-            attribute.StartsWith("context.") && _current.Context.TryGetValue(attribute.Substring(8), out string? v) ?
+            attribute.StartsWith("context.", StringComparison.InvariantCulture) &&
+            _current.Context.TryGetValue(attribute[8..], out string? v) ?
                 v : throw new MissingFieldException(attribute);
 
         private class AttributeResolverI : AttributeResolver
@@ -452,7 +453,8 @@ namespace ZeroC.Ice
         }
 
         protected override string DefaultResolve(string attribute) =>
-            attribute.StartsWith("context.") && _context.TryGetValue(attribute.Substring(8), out string? v) ?
+            attribute.StartsWith("context.", StringComparison.InvariantCulture) &&
+            _context.TryGetValue(attribute[8..], out string? v) ?
                 v : throw new MissingFieldException(attribute);
 
         private class AttributeResolverI : AttributeResolver
