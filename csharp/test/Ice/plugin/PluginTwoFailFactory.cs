@@ -32,6 +32,7 @@ namespace ZeroC.Ice.Test.Plugin
 
             public override ValueTask DisposeAsync()
             {
+                GC.SuppressFinalize(this);
                 TestHelper.Assert(_one != null && !_one.isDestroyed());
 
                 // Not destroyed because initialize fails.

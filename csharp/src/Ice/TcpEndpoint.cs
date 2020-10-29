@@ -159,8 +159,7 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             Communicator communicator,
-            bool oaEndpoint,
-            string _)
+            bool oaEndpoint)
         {
             Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
             return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),

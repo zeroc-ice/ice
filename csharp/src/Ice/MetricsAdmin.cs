@@ -574,7 +574,8 @@ namespace ZeroC.Ice
 
         internal void Updated(IReadOnlyDictionary<string, string> props)
         {
-            if (props.Keys.FirstOrDefault(key => key.IndexOf("IceMX.") == 0) != null)
+            if (props.Keys.FirstOrDefault(
+                    key => key.IndexOf("IceMX.", StringComparison.InvariantCulture) == 0) != null)
             {
                 // Update the metrics views using the new configuration.
                 try

@@ -50,7 +50,7 @@ namespace ZeroC.IceBox
             foreach (KeyValuePair<string, string> pair in services)
             {
                 string name = pair.Key.Substring(prefix.Length);
-                argSeq.RemoveAll(v => v.StartsWith("--" + name));
+                argSeq.RemoveAll(v => v.StartsWith($"--{name}", StringComparison.InvariantCulture));
             }
 
             foreach (string arg in args)

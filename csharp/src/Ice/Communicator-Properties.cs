@@ -514,7 +514,7 @@ namespace ZeroC.Ice
         /// <param name="prefix">Only arguments that start with --prefix are extracted.</param>
         public static void ParseArgs(this Dictionary<string, string> into, ref string[] args, string prefix = "")
         {
-            if (prefix.Length > 0 && !prefix.EndsWith("."))
+            if (prefix.Length > 0 && !prefix.EndsWith(".", StringComparison.InvariantCulture))
             {
                 prefix += '.';
             }

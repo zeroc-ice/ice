@@ -94,13 +94,16 @@ namespace ZeroC.Ice
         }
 
         protected override async ValueTask ResetAsync(long errorCode) =>
-            await _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamReset, ostr =>
+            await _transceiver.PrepareAndSendFrameAsync(
+                SlicDefinitions.FrameType.StreamReset,
+                ostr =>
                 {
                     checked
                     {
                         new StreamResetBody((ulong)errorCode).IceWrite(ostr);
                     }
-                }, Id).ConfigureAwait(false);
+                },
+                Id).ConfigureAwait(false);
 
         protected override async ValueTask SendAsync(
             IList<ArraySegment<byte>> buffer,
