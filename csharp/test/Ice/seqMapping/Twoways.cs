@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
-    public class Twoways
+    public static class Twoways
     {
         private const int Length = 100;
 
@@ -269,7 +269,6 @@ namespace ZeroC.Ice.Test.SeqMapping
                 var (r, o) = p.OpADoubleS(i);
                 TestHelper.Assert(o.SequenceEqual(i));
                 TestHelper.Assert(r.SequenceEqual(i));
-
             }
 
             {

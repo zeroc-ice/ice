@@ -509,6 +509,5 @@ namespace ZeroC.Ice.Test.SeqMapping
             Custom<Custom<CV?>> i,
             Current current,
             CancellationToken cancel) => new ((i, i));
-
     }
 }

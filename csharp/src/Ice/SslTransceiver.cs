@@ -155,7 +155,6 @@ namespace ZeroC.Ice
                 }
                 await _writeStream!.FlushAsync(cancel).ConfigureAwait(false);
                 return sent;
-
             }
             catch (ObjectDisposedException ex)
             {
@@ -237,7 +236,7 @@ namespace ZeroC.Ice
                     if (_engine.SecurityTraceLevel >= 1)
                     {
                         _communicator.Logger.Trace(
-                            _engine.SecurityTraceCategory,
+                            SslEngine.SecurityTraceCategory,
                             "SSL certificate validation failed - remote certificate not provided");
                     }
                     return false;
@@ -254,7 +253,7 @@ namespace ZeroC.Ice
                 if (_engine.SecurityTraceLevel >= 1)
                 {
                     _communicator.Logger.Trace(
-                        _engine.SecurityTraceCategory,
+                        SslEngine.SecurityTraceCategory,
                         "SSL certificate validation failed - Hostname mismatch");
                 }
                 return false;
@@ -338,7 +337,7 @@ namespace ZeroC.Ice
                 if (_engine.SecurityTraceLevel >= 1)
                 {
                     _communicator.Logger.Trace(
-                        _engine.SecurityTraceCategory,
+                        SslEngine.SecurityTraceCategory,
                         message.Length > 0 ?
                             $"SSL certificate validation failed: {message}" : "SSL certificate validation failed");
                 }
@@ -347,7 +346,7 @@ namespace ZeroC.Ice
 
             if (message.Length > 0 && _engine.SecurityTraceLevel >= 1)
             {
-                _communicator.Logger.Trace(_engine.SecurityTraceCategory,
+                _communicator.Logger.Trace(SslEngine.SecurityTraceCategory,
                     $"SSL certificate validation status: {message}");
             }
             return true;

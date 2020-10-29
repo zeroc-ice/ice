@@ -1,9 +1,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Test;
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.Timeout
 {
@@ -52,5 +53,27 @@ namespace ZeroC.Ice.Test.Timeout
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+    }
+
+    internal class Controller : IController
+    {
+        private readonly TaskScheduler _scheduler;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
+
+        public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
+
+        public void HoldAdapter(int to, Current current, CancellationToken cancel)
+        {
+            Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
+            if (to >= 0)
+            {
+                Task.Delay(to, cancel).ContinueWith(t => _semaphore.Release(), TaskScheduler.Default);
+            }
+        }
+
+        public void ResumeAdapter(Current current, CancellationToken cancel) => _ = _semaphore.Release();
+
+        public void Shutdown(Current current, CancellationToken cancel) =>
+            current.Adapter.Communicator.ShutdownAsync();
     }
 }

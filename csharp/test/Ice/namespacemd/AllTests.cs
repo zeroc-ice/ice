@@ -4,7 +4,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.NamespaceMD
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IInitialPrx Run(TestHelper helper)
         {

@@ -209,7 +209,7 @@ namespace ZeroC.Ice.Discovery
             return "";
         }
 
-       private void RegisterAdapterEndpoints<T>(
+        private void RegisterAdapterEndpoints<T>(
             string adapterId,
             string replicaGroupId,
             Protocol protocol,

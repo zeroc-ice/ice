@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using ZeroC.IceMX;
 using Test;
+using ZeroC.IceMX;
 
 namespace ZeroC.Ice.Test.Metrics
 {

@@ -4,35 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {
-    public class AllTests
+    public static class AllTests
     {
-        private static void ExceptAbortI(Exception ex, TextWriter output)
-        {
-            try
-            {
-                throw ex;
-            }
-            catch (ConnectionLostException)
-            {
-            }
-            catch (ConnectFailedException)
-            {
-            }
-            catch (TransportException)
-            {
-            }
-            catch
-            {
-                output.WriteLine(ex.ToString());
-                TestHelper.Assert(false);
-            }
-        }
-
         public static void Run(TestHelper helper, List<int> ports)
         {
             Communicator? communicator = helper.Communicator;
@@ -81,7 +58,6 @@ namespace ZeroC.Ice.Test.FaultTolerance
             int oldPid = 0;
             for (int i = 1, j = 0; i <= ports.Count; ++i, ++j)
             {
-
                 output.Write($"testing server #{i}... ");
                 output.Flush();
                 int pid = obj.Pid();

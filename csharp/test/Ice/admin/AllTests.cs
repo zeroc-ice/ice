@@ -8,7 +8,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Admin
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void TestFacets(Communicator com, bool builtInFacets, bool filtered)
         {

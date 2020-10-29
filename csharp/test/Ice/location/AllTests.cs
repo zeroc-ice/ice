@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Location
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper)
         {

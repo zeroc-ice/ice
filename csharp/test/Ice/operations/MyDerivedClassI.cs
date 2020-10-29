@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using Test;
+using System.Linq;
 using System.Threading;
+using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
@@ -362,7 +362,7 @@ namespace ZeroC.Ice.Test.Operations
         public (IEnumerable<IEnumerable<ulong>>,
                 IEnumerable<IEnumerable<ushort>>,
                 IEnumerable<IEnumerable<uint>>,
-            IEnumerable<IEnumerable<ulong>>) OpUShortUIntULongSS(
+                IEnumerable<IEnumerable<ulong>>) OpUShortUIntULongSS(
             ushort[][] p1,
             uint[][] p2,
             ulong[][] p3,

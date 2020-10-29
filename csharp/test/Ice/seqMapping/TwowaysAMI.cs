@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
-    public class TwowaysAMI
+    public static class TwowaysAMI
     {
         private const int Length = 100;
 

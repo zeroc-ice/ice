@@ -119,6 +119,5 @@ namespace ZeroC.Ice
         private UniversalEndpoint(EndpointData data, Communicator communicator, Protocol protocol)
             : base(data, communicator, protocol) =>
             Debug.Assert(protocol != Protocol.Ice1);
-
     }
 }

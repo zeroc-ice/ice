@@ -7,7 +7,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
-    public class Twoways
+    public static class Twoways
     {
         internal static void Run(TestHelper helper, IMyClassPrx p)
         {
@@ -152,7 +152,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(r == long.MaxValue);
             }
 
-             {
+            {
                 ushort s;
                 uint i;
                 ulong l;
@@ -1574,7 +1574,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[999999992L][1] == 999999120L);
             }
 
-             {
+            {
                 var sdi1 = new Dictionary<ulong, ulong[]>();
                 var sdi2 = new Dictionary<ulong, ulong[]>();
 

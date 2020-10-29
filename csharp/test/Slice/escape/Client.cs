@@ -2,10 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using ZeroC.Slice.Test.Escape.@abstract;
-using Test;
 using System.Threading;
+using System.Threading.Tasks;
+using Test;
+using ZeroC.Slice.Test.Escape.@abstract;
 
 public class Client : TestHelper
 {

@@ -789,7 +789,7 @@ namespace ZeroC.Ice
                                     (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
                                         this,
                                         expanded,
-                                         publishedEndpoint) :
+                                        publishedEndpoint) :
                                     new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
                     }
                     else

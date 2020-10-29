@@ -48,7 +48,6 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Shutdown(Current current, CancellationToken cancel) =>
             _ = current.Adapter.Communicator.ShutdownAsync();
-
     }
 
     public class RemoteObjectAdapter : IRemoteObjectAdapter

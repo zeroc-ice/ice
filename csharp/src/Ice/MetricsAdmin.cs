@@ -392,7 +392,7 @@ namespace ZeroC.Ice
             _detachedQueue.AddLast(entry);
         }
 
-        private bool Match(string attribute, Regex regex, MetricsHelper<T> helper, bool reject)
+        private static bool Match(string attribute, Regex regex, MetricsHelper<T> helper, bool reject)
         {
             string value;
             try
@@ -406,12 +406,12 @@ namespace ZeroC.Ice
             return regex.IsMatch(value);
         }
 
-        private Dictionary<string, Regex> ParseRule(Communicator communicator, string name)
+        private static Dictionary<string, Regex> ParseRule(Communicator communicator, string name)
         {
             var rules = new Dictionary<string, Regex>();
             foreach ((string key, string value) in communicator.GetProperties(forPrefix: $"{name}."))
             {
-                rules.Add(key.Substring(name.Length + 1), new Regex(value));
+                rules.Add(key[(name.Length + 1)..], new Regex(value));
             }
             return rules;
         }
@@ -659,7 +659,7 @@ namespace ZeroC.Ice
                 _disabledViews.Clear();
                 foreach (string propery in viewsProperties.Keys)
                 {
-                    string viewName = propery.Substring(viewsPrefix.Length);
+                    string viewName = propery[viewsPrefix.Length..];
                     int dotPos = viewName.IndexOf('.');
                     if (dotPos > 0)
                     {

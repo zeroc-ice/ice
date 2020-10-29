@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Compress
 {
-    public class AllTests
+    public static class AllTests
     {
         public static ITestIntfPrx Run(TestHelper helper, Communicator communicator)
         {

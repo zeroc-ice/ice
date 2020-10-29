@@ -1,11 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Location
 {
@@ -27,7 +23,7 @@ namespace ZeroC.Ice.Test.Location
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
-            System.Threading.Thread.Sleep(1);
+            Thread.Sleep(1);
 
             return _registry.GetIce1Adapter(adapter);
         }
@@ -37,7 +33,7 @@ namespace ZeroC.Ice.Test.Location
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
-            System.Threading.Thread.Sleep(1);
+            Thread.Sleep(1);
 
             return _registry.GetIce1Object(id, facet ?? "");
         }
@@ -68,7 +64,7 @@ namespace ZeroC.Ice.Test.Location
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
-            System.Threading.Thread.Sleep(1);
+            Thread.Sleep(1);
 
             return _registry.GetIce2Object(identity, facet);
         }

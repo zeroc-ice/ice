@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
-    public class OnewaysAMI
+    public static class OnewaysAMI
     {
         private class CallbackBase
         {

@@ -52,7 +52,6 @@ namespace ZeroC.Ice.LocatorDiscovery
             string? lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup");
             if (lookupEndpoints == null)
             {
-
                 List<string> endpoints = new ();
                 List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
                 List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);

@@ -1,15 +1,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IMyClassPrx Run(TestHelper helper)
         {
@@ -368,7 +368,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Twoway);
             TestHelper.Assert(!b1.IsOneway);
 
-             b1 = IObjectPrx.Parse("test", communicator);
+            b1 = IObjectPrx.Parse("test", communicator);
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Twoway);
             TestHelper.Assert(!b1.IsOneway);
 

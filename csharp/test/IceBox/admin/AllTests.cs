@@ -2,13 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using Test;
 using ZeroC.Ice;
 using ZeroC.IceMX;
-using Test;
 
 namespace ZeroC.IceBox.Test.Admin
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper)
         {

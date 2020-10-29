@@ -7,7 +7,7 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper)
         {

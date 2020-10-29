@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Objects
@@ -10,16 +10,21 @@ namespace ZeroC.Ice.Test.Slicing.Objects
     public partial class PNode
     {
         internal static int Counter;
+#pragma warning disable CA1822 // Mark members as static
         partial void Initialize() => ++Counter;
+#pragma warning restore CA1822 // Mark members as static
     }
 
     public partial class Preserved
     {
         internal static int Counter;
+
+#pragma warning disable CA1822 // Mark members as static
         partial void Initialize() => ++Counter;
+#pragma warning restore CA1822 // Mark members as static
     }
 
-    public class AllTests
+    public static class AllTests
     {
         public static ITestIntfPrx Run(TestHelper helper)
         {
@@ -675,9 +680,8 @@ namespace ZeroC.Ice.Test.Slicing.Objects
                     TestHelper.Assert(b2.Pb == b1);
                     try
                     {
-                        var p3 = (D3)b2;
+                        _ = (D3)b2;
                         TestHelper.Assert(false);
-                        D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
                     }
                     catch (InvalidCastException)
                     {

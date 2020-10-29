@@ -192,7 +192,6 @@ namespace ZeroC.Ice
                               endpoints,
                               newLocation,
                               reference.Communicator);
-
                     }
                 }
                 else

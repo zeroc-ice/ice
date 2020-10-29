@@ -18,7 +18,7 @@ namespace ZeroC.Ice
         internal TlsServerOptions TlsServerOptions { get; }
 
         internal int SecurityTraceLevel { get; }
-        internal string SecurityTraceCategory => "Security";
+        internal const string SecurityTraceCategory = "Security";
 
         private readonly ILogger _logger;
 
@@ -246,7 +246,7 @@ namespace ZeroC.Ice
             return result;
         }
 
-        private bool CheckPath(string defaultDir, ref string path)
+        private static bool CheckPath(string defaultDir, ref string path)
         {
             if (File.Exists(path))
             {

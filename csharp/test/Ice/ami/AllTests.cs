@@ -10,7 +10,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.AMI
 {
-    public class AllTests
+    public static class AllTests
     {
         public class Progress : IProgress<bool>
         {

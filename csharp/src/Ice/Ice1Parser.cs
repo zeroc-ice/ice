@@ -8,7 +8,6 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
-
     /// <summary>Provides helper methods to parse proxy and endpoint strings in the ice1 format.</summary>
     internal static class Ice1Parser
     {

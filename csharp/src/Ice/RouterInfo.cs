@@ -160,6 +160,5 @@ namespace ZeroC.Ice
             }
             return serverProxy.Endpoints;
         }
-
     }
 }

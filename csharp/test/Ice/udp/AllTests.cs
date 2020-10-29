@@ -8,7 +8,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.UDP
 {
-    public class AllTests
+    public static class AllTests
     {
         public class PingReplyI : IPingReply
         {

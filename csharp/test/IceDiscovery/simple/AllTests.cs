@@ -7,7 +7,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Discovery
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper, int num)
         {

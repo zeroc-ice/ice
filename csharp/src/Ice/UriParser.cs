@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace ZeroC.Ice
 {
-
     /// <summary>Provides helper methods to parse proxy and endpoint strings in the URI format.</summary>
     internal static class UriParser
     {

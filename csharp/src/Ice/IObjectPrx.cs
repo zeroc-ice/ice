@@ -347,7 +347,6 @@ namespace ZeroC.Ice
             {
                 IncomingResponseFrame response = this.InvokeAsync(request, oneway: false).Result;
                 return response.ReadReturnValue(Communicator, reader);
-
             }
             catch (AggregateException ex)
             {

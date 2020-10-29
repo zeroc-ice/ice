@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -34,7 +33,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         }
     }
 
-    public class AllTests
+    public static class AllTests
     {
         private static X509Certificate2 CreateCertificate(string certPEM) =>
             new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
@@ -407,8 +406,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                     }
                     fact.DestroyServer(server);
                 }
-                {
 
+                {
                     // This should fail because the client does not supply a certificate and server request it.
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
@@ -450,7 +449,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.DestroyServer(server);
                 }
                 {
-
                     // This should fail because the client doesn't trust the server's CA.
                     clientProperties = CreateProperties(defaultProperties);
                     using var comm = new Communicator(ref args, clientProperties);
@@ -474,7 +472,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.DestroyServer(server);
                 }
                 {
-
                     // This should fail because the server doesn't trust the client's CA.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca2");
                     using var comm = new Communicator(ref args, clientProperties);
@@ -498,9 +495,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.DestroyServer(server);
                 }
                 {
-
-                    // This should succeed because the self signed certificate used by the server is
-                    // trusted.
+                    // This should succeed because the self signed certificate used by the server is trusted.
                     clientProperties = CreateProperties(defaultProperties, ca: "cacert2");
                     using var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
@@ -708,7 +703,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             comm.Destroy();
                         }*/
 
-                        // Target host is an IP addres that matches the CN and the certificate doesn't include an IP
+                        // Target host is an IP address that matches the CN and the certificate doesn't include an IP
                         // altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
@@ -763,7 +758,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                 Console.Out.Write("testing certificate selection callback... ");
                 Console.Out.Flush();
                 {
-
                     var myCerts = new X509Certificate2Collection();
                     myCerts.Import(defaultDir + "/c_rsa_ca1.p12", "password", X509KeyStorageFlags.DefaultKeySet);
                     bool called = false;
@@ -1183,7 +1177,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties.Remove("IceSSL.Password");
                     try
                     {
-                        new Communicator(ref args, clientProperties);
+                        _ = new Communicator(ref args, clientProperties);
                         TestHelper.Assert(false);
                     }
                     catch

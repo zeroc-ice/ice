@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IMyObjectPrx Run(TestHelper helper)
         {
@@ -82,7 +82,6 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing invocation interceptors... ");
             output.Flush();
             {
-
                 var tasks = new List<Task>();
                 var invocationContext = new AsyncLocal<int>();
                 using var communicator = new Communicator(
@@ -201,7 +200,6 @@ namespace ZeroC.Ice.Test.Interceptor
                 catch (InvalidOperationException)
                 {
                 }
-
             }
             output.WriteLine("ok");
 

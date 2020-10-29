@@ -284,7 +284,7 @@ namespace ZeroC.Ice.Test.ACM
         protected bool Closed;
     }
 
-    public class AllTests
+    public static class AllTests
     {
         private class InvocationHeartbeatTest : TestCase
         {
@@ -298,56 +298,6 @@ namespace ZeroC.Ice.Test.ACM
                 lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 4);
-                }
-            }
-        }
-
-        private class InvocationNoHeartbeatTest : TestCase
-        {
-            // Disable heartbeat on invocations
-            public InvocationNoHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("invocation with no heartbeat", com, helper) =>
-                SetServerAcm(2, AcmClose.OnInvocation, AcmHeartbeat.Off);
-
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
-            {
-                try
-                {
-                    // Heartbeats are disabled on the server, the invocation should fail since heartbeats are expected.
-                    proxy.Sleep(10);
-                    TestHelper.Assert(false);
-                }
-                catch (ConnectionClosedException)
-                {
-                    proxy.InterruptSleep();
-
-                    WaitForClosed();
-                    lock (Mutex)
-                    {
-                        TestHelper.Assert(Heartbeat == 0);
-                    }
-                }
-            }
-        }
-
-        private class InvocationHeartbeatCloseOnIdleTest : TestCase
-        {
-            public InvocationHeartbeatCloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("invocation with no heartbeat and close on idle", com, helper)
-            {
-                SetClientAcm(1, AcmClose.OnIdle, AcmHeartbeat.Off); // Only close on idle.
-                SetServerAcm(1, AcmClose.OnInvocation, AcmHeartbeat.Off); // Disable heartbeat on invocations
-            }
-
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
-            {
-                // No close on invocation, the call should succeed this time.
-                proxy.Sleep(3);
-
-                lock (Mutex)
-                {
-                    TestHelper.Assert(Heartbeat == 0);
-                    TestHelper.Assert(!Closed);
                 }
             }
         }

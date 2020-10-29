@@ -7,7 +7,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Binding
 {
-    public class AllTests
+    public static class AllTests
     {
         private static string GetAdapterNameWithAMI(ITestIntfPrx testIntf) => testIntf.GetAdapterNameAsync().Result;
 
@@ -335,7 +335,7 @@ namespace ZeroC.Ice.Test.Binding
                         2,
                         "tcp");
 
-                 Func<string, string, string> getProxy = (identity, host) =>
+                Func<string, string, string> getProxy = (identity, host) =>
                     TestHelper.GetTestProxy(
                         identity,
                         new Dictionary<string, string>(communicator.GetProperties())

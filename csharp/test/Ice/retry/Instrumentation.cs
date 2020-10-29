@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using ZeroC.Ice.Instrumentation;
 using Test;
+using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice.Test.Retry
 {
-    public class Instrumentation
+    public static class Instrumentation
     {
         private static readonly object _mutex = new object();
         private static int _nFailure;
@@ -15,7 +15,6 @@ namespace ZeroC.Ice.Test.Retry
 
         private class InvocationObserver : IInvocationObserver
         {
-
             public void Attach()
             {
             }

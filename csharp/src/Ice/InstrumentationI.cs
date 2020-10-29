@@ -21,7 +21,6 @@ namespace ZeroC.IceMX
 
 namespace ZeroC.Ice
 {
-
     internal class ChildInvocationObserver :
         ObserverWithDelegate<ChildInvocationMetrics, IChildInvocationObserver>, IChildInvocationObserver
     {

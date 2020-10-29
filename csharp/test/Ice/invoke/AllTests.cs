@@ -4,7 +4,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Invoke
 {
-    public class AllTests
+    public static class AllTests
     {
         private const string TestString = "This is a test string";
 
