@@ -841,8 +841,7 @@ namespace ZeroC.Ice
                 IObject? servant = Find(current.Identity, current.Facet);
                 if (servant == null)
                 {
-                    throw new ObjectNotExistException(
-                        ReplicaGroupId.Length == 0 ? RetryPolicy.NoRetry : RetryPolicy.OtherReplica);
+                    throw new ObjectNotExistException(RetryPolicy.OtherReplica);
                 }
 
                 // TODO: support input streamable data if Current.EndOfStream == false and output streamable data.

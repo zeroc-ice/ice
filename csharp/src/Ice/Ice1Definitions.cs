@@ -156,14 +156,7 @@ namespace ZeroC.Ice
                         reference.RouterInfo.ClearCache(reference);
                         return RetryPolicy.AfterDelay(TimeSpan.Zero);
                     }
-                    else if (reference.IsIndirect)
-                    {
-                        if (reference.IsWellKnown)
-                        {
-                            reference.LocatorInfo?.ClearCache(reference);
-                        }
-                        return RetryPolicy.AfterDelay(TimeSpan.Zero);
-                    }
+                    return RetryPolicy.OtherReplica;
                 }
             }
             return RetryPolicy.NoRetry;

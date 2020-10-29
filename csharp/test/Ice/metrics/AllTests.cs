@@ -915,7 +915,7 @@ namespace ZeroC.Ice.Test.Metrics
             else
             {
                 // We marshal the full ONE.
-                TestHelper.Assert(dm1.Size == 51 && dm1.ReplySize == 203);
+                TestHelper.Assert(dm1.Size == 51 && dm1.ReplySize == 209);
             }
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
@@ -1109,7 +1109,7 @@ namespace ZeroC.Ice.Test.Metrics
             CheckFailure(clientMetrics, "Invocation", im1.Id, "System.Exception", 2, output);
 
             im1 = (InvocationMetrics)map["opWithRequestFailedException"];
-            TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Retry == 0);
+            TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Retry == 2);
             // System exceptions raised by the servant are reported as remote exceptions only with ice2, both as
             // a failure and remote exceptions with ice1.
             TestHelper.Assert(im1.Failures == 2 && im1.UserException == 2);

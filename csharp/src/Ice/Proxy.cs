@@ -302,6 +302,7 @@ namespace ZeroC.Ice
                 bool releaseRequestAfterSent =
                     requestSize > reference.Communicator.RetryRequestSizeMax ||
                     !reference.Communicator.IncRetryBufferSize(requestSize);
+                bool clearedLocatorCache = false;
                 try
                 {
                     IncomingResponseFrame? response = null;
@@ -484,6 +485,14 @@ namespace ZeroC.Ice
                             if (reference.IsConnectionCached && connection != null)
                             {
                                 reference.ClearConnection(connection);
+                            }
+
+                            // If we get a remote exception using an indirect reference clear the locator cache once
+                            // per retry sequence to ensure we are not using any stale endpoints.
+                            if (reference.IsIndirect && !clearedLocatorCache && response != null)
+                            {
+                                reference.LocatorInfo?.ClearCache(reference);
+                                clearedLocatorCache = true;
                             }
 
                             if (reference.Communicator.TraceLevels.Retry >= 1)

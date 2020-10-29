@@ -545,8 +545,8 @@ namespace ZeroC.Ice
                 {
                     if (stream.IsBidirectional)
                     {
-                        var exception = new ObjectNotExistException();
-                        response = new OutgoingResponseFrame(request, exception);
+                        response = new OutgoingResponseFrame(request,
+                                                             new ObjectNotExistException(RetryPolicy.OtherReplica));
                         await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
                     }
                     return;
