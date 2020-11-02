@@ -62,7 +62,6 @@ die () {
 
 # OS specific support (must be 'true' or 'false').
 cygwin=false
-msys=false
 darwin=false
 nonstop=false
 case "`uname`" in
@@ -71,9 +70,6 @@ case "`uname`" in
     ;;
   Darwin* )
     darwin=true
-    ;;
-  MINGW* )
-    msys=true
     ;;
   NONSTOP* )
     nonstop=true
