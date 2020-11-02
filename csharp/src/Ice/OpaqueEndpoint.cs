@@ -78,9 +78,7 @@ namespace ZeroC.Ice
             throw new NotImplementedException("cannot write the options of an opaque endpoint");
         }
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType selType,
-            CancellationToken cancel) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>

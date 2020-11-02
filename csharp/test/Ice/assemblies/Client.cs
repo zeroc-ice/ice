@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Linq;
-using System.IO;
-using System.Reflection;
 using System.Collections.Generic;
-using Test;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.Assemblies
 {

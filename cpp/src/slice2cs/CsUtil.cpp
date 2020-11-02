@@ -1578,20 +1578,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
             }
             else if(StructPtr::dynamicCast(cont))
             {
-                if(s.substr(csPrefix.size()) == "property")
-                {
-                    newLocalMetadata.push_back(s);
-                    continue;
-                }
                 if(s.substr(csPrefix.size()) == "readonly")
-                {
-                    newLocalMetadata.push_back(s);
-                    continue;
-                }
-            }
-            else if(ClassDefPtr::dynamicCast(cont))
-            {
-                if(s.substr(csPrefix.size()) == "property")
                 {
                     newLocalMetadata.push_back(s);
                     continue;

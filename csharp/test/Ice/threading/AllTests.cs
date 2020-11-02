@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Threading
 {
-    public class AllTests
+    public static class AllTests
     {
         private class Progress : IProgress<bool>
         {

@@ -1,14 +1,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Linq;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Test;
 
 namespace ZeroC.Ice.Test.Perf
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void RunTest(System.IO.TextWriter output, int repetitions, string name, Action invocation,
             Action warmUpInvocation)

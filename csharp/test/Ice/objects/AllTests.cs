@@ -33,7 +33,7 @@ namespace ZeroC.Ice.Test.Objects
         partial void Initialize() => Id = 1;
     }
 
-    public class AllTests
+    public static class AllTests
     {
         public static IInitialPrx Run(TestHelper helper)
         {
@@ -303,7 +303,6 @@ namespace ZeroC.Ice.Test.Objects
 
                 TestHelper.Assert(m1.V[k2]!.Data.Equals("two"));
                 TestHelper.Assert(m2.V[k2]!.Data.Equals("two"));
-
             }
             output.WriteLine("ok");
 

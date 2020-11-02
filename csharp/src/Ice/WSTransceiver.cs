@@ -44,6 +44,7 @@ namespace ZeroC.Ice
 
         private bool _closing;
         private readonly Communicator _communicator;
+        private readonly IConnector? _connector;
         private readonly bool _incoming;
         private readonly string _host;
         private string _key;
@@ -197,7 +198,7 @@ namespace ZeroC.Ice
             {
                 if (_communicator.TraceLevels.Transport >= 2)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"{_transportName} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
@@ -207,12 +208,12 @@ namespace ZeroC.Ice
             {
                 if (_incoming)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"accepted {_transportName} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"{_transportName} connection HTTP upgrade request accepted\n{this}");
                 }
             }
@@ -231,7 +232,7 @@ namespace ZeroC.Ice
 
             if (_receivePayloadLength == 0)
             {
-                throw new ConnectionLostException();
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
             }
 
             // Read the payload
@@ -257,10 +258,15 @@ namespace ZeroC.Ice
 
         public override string ToString() => _underlying.ToString()!;
 
-        internal
-        WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource)
+        internal WSTransceiver(
+            Communicator communicator,
+            ITransceiver del,
+            string host,
+            string resource,
+            IConnector? connector)
             : this(communicator, del)
         {
+            _connector = connector;
             _host = host;
             _resource = resource;
             _incoming = false;
@@ -385,7 +391,7 @@ namespace ZeroC.Ice
 
                 if (_communicator.TraceLevels.Transport >= 3)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"received {_transportName} {opCode} frame with {payloadLength} bytes payload\n{this}");
                 }
 
@@ -661,7 +667,7 @@ namespace ZeroC.Ice
                 _sendBuffer.Add(PrepareHeaderForSend(opCode, size));
                 if (_communicator.TraceLevels.Transport >= 3)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                    _communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"sending {_transportName} {opCode} frame with {size} bytes payload\n{this}");
                 }
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.metrics.AMD]]
+[[java:package(test.Ice.metrics.AMD)]]
 module Test
 {
 

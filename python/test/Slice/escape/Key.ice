@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[[suppress-warning:deprecated]]
+[[suppress-warning(deprecated)]]
 
 module and
 {

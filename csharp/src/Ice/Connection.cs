@@ -100,15 +100,22 @@ namespace ZeroC.Ice
         internal List<Endpoint> Endpoints { get; }
 
         private protected MultiStreamTransceiver Transceiver { get; }
+        // The accept stream task is assigned each time a new accept stream async operation is started.
         private volatile Task _acceptStreamTask = Task.CompletedTask;
         private volatile ObjectAdapter? _adapter;
+        // The control stream is assigned on the connection initialization and is immutable once the connection
+        // reaches the Active state.
         private TransceiverStream? _controlStream;
         private EventHandler? _closed;
+        // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
         private readonly Communicator _communicator;
         private readonly IConnector? _connector;
+        // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
+        // The mutex protects mutable non-volatile data members and ensures the logic for some operations is
+        // performed atomically.
         private readonly object _mutex = new ();
         private volatile ConnectionState _state; // The current state.
         private Timer? _timer;
@@ -116,7 +123,10 @@ namespace ZeroC.Ice
         /// <summary>Aborts the connection.</summary>
         /// <param name="message">A description of the connection abortion reason.</param>
         public Task AbortAsync(string? message = null) =>
-            AbortAsync(new ConnectionClosedException(message ?? "connection closed forcefully"));
+            AbortAsync(new ConnectionClosedException(message ?? "connection closed forcefully",
+                                                     isClosedByPeer: false,
+                                                     RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                     Connector));
 
         /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
         /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
@@ -152,7 +162,11 @@ namespace ZeroC.Ice
         /// <param name="message">The message transmitted to the peer with the GoAway frame.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public Task GoAwayAsync(string? message = null, CancellationToken cancel = default) =>
-            GoAwayAsync(new ConnectionClosedException(message ?? "connection closed gracefully"), cancel);
+            GoAwayAsync(new ConnectionClosedException(message ?? "connection closed gracefully",
+                                                      isClosedByPeer: false,
+                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                      Connector),
+                        cancel);
 
         /// <summary>This event is raised when the connection receives a ping frame. The connection object is
         /// passed as the event sender argument.</summary>
@@ -162,9 +176,9 @@ namespace ZeroC.Ice
             remove => Transceiver.Ping -= value;
         }
 
-        /// <summary>Returns if the connection is active. Outgoing streams can be created and incoming streams
-        /// accepted when the connection is active. The connection is no longer considered active as soon as
-        /// <see cref="GoAwayAsync(string?, CancellationToken)"/> is called to initiate a gracefull connection
+        /// <summary>Returns <c>true</c> if the connection is active. Outgoing streams can be created and incoming
+        /// streams accepted when the connection is active. The connection is no longer considered active as soon
+        /// as <see cref="GoAwayAsync(string?, CancellationToken)"/> is called to initiate a graceful connection
         /// closure.</summary>
         /// <return><c>true</c> if the connection is active, <c>false</c> if it's closing or closed.</return>
         public bool IsActive => _state == ConnectionState.Active;
@@ -228,9 +242,10 @@ namespace ZeroC.Ice
             {
                 if (_state != ConnectionState.Active)
                 {
-                    throw new ConnectionClosedException();
+                    throw new ConnectionClosedException(isClosedByPeer: false,
+                                                        RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                        Connector);
                 }
-                Debug.Assert(IsActive);
                 return Transceiver.CreateStream(bidirectional);
             }
         }
@@ -242,7 +257,7 @@ namespace ZeroC.Ice
                 Task goAwayTask;
                 lock (_mutex)
                 {
-                    if (_state == ConnectionState.Active && _controlStream != null)
+                    if (_state == ConnectionState.Active && !Endpoint.IsDatagram)
                     {
                         SetState(ConnectionState.Closing, exception);
                         _closeTask ??= PerformGoAwayAsync(exception);
@@ -337,13 +352,20 @@ namespace ZeroC.Ice
                 {
                     if (Transceiver.OutgoingStreamCount > 0)
                     {
-                        // Abort the connection if we didn't receive a heartbeat while some requests are in progress.
-                        _ = AbortAsync(new ConnectionClosedException("connection timed out"));
+                        // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
+                        // ACM activity in the last period.
+                        _ = AbortAsync(new ConnectionClosedException("connection timed out",
+                                                                     isClosedByPeer: false,
+                                                                     RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                                     Connector));
                     }
                     else
                     {
                         // The connection is idle, close it.
-                        _ = GoAwayAsync(new ConnectionClosedException("connection idle"));
+                        _ = GoAwayAsync(new ConnectionClosedException("connection idle",
+                                                                      isClosedByPeer: false,
+                                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                                      Connector));
                     }
                 }
             }
@@ -381,7 +403,9 @@ namespace ZeroC.Ice
                     {
                         // This can occur if the communicator or object adapter is disposed while the connection
                         // initializes.
-                        throw new ConnectionClosedException();
+                        throw new ConnectionClosedException(isClosedByPeer: false,
+                                                            RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                            Connector);
                     }
                     SetState(ConnectionState.Active);
 
@@ -392,7 +416,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                var ex = new ConnectTimeoutException();
+                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero), Connector);
                 _ = AbortAsync(ex);
                 throw ex;
             }
@@ -538,7 +562,7 @@ namespace ZeroC.Ice
                 if (stream.IsBidirectional)
                 {
                     // Send the response over the stream
-                    await stream.SendResponseFrameAsync(response, fin, cancel);
+                    await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException)
@@ -633,7 +657,10 @@ namespace ZeroC.Ice
                 Task goAwayTask;
                 lock (_mutex)
                 {
-                    var exception = new ConnectionClosedException(message, isClosedByPeer: true);
+                    var exception = new ConnectionClosedException(message,
+                                                                  isClosedByPeer: true,
+                                                                  RetryPolicy.AfterDelay(TimeSpan.Zero),
+                                                                  Connector);
                     if (_state == ConnectionState.Active)
                     {
                         SetState(ConnectionState.Closing, exception);
@@ -659,7 +686,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                await AbortAsync(ex);
+                await AbortAsync(ex).ConfigureAwait(false);
             }
 
             async Task PerformGoAwayAsync((long Bidirectional, long Unidirectional) lastStreamIds, Exception exception)

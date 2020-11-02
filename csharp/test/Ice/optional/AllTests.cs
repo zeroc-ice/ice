@@ -8,7 +8,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Optional
 {
-    internal class AllTests
+    internal static class AllTests
     {
         internal static ITestPrx Run(TestHelper helper)
         {

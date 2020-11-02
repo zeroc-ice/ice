@@ -258,7 +258,6 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
         public void CheckPBSUnknown(Preserved? p, Current current, CancellationToken cancel)
         {
-
             TestHelper.Assert(p is PSUnknown);
             var pu = (PSUnknown)p;
             TestHelper.Assert(pu.Pi == 5);

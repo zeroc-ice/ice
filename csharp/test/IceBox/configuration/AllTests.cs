@@ -2,12 +2,12 @@
 
 using System;
 using System.Linq;
-using ZeroC.Ice;
 using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceBox.Test.Configuration
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper)
         {

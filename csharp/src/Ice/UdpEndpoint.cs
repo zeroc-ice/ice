@@ -43,7 +43,7 @@ namespace ZeroC.Ice
             {
                 if (Communicator.TraceLevels.Transport >= 2)
                 {
-                    Communicator.Logger.Trace(Communicator.TraceLevels.TransportCategory,
+                    Communicator.Logger.Trace(TraceLevels.TransportCategory,
                         $"attempting to bind to {TransportName} socket\n{transceiver}");
                 }
                 Endpoint endpoint = transceiver.Bind(this);
@@ -211,7 +211,7 @@ namespace ZeroC.Ice
                                    oaEndpoint,
                                    endpointString);
         }
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new UdpConnector(this, addr);
 
         // Constructor for ice1 unmarshaling

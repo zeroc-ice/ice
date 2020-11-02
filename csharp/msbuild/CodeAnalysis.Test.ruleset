@@ -1,0 +1,22 @@
+﻿<RuleSet Name="Microsoft.Analyzers.ManagedCodeAnalysis" Description="Microsoft.Analyzers.ManagedCodeAnalysis" ToolsVersion="14.0">
+  <Include Path="CodeAnalysis.Base.ruleset" Action="Default" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+      <Rule Id="CA1717" Action="None" /> <!-- Only FlagsAttribute enums should have plural names -->
+      <Rule Id="CA2007" Action="None" /> <!-- Consider calling ConfigureAwait on the awaited task -->
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+      <Rule Id="SA0001" Action="None" /> <!-- XML comment analysis is disabled due to project configuration -->
+      <Rule Id="SA1012" Action="None" /> <!-- Opening brace should be preceded by a space -->
+      <Rule Id="SA1117" Action="None" /> <!-- The parameters should all be placed on the same line or each parameter should be placed on its own line. -->
+      <Rule Id="SA1300" Action="None" /> <!-- Element should begin with an uppercase letter -->
+      <Rule Id="SA1303" Action="None" /> <!-- Const field names should begin with upper-case letter -->
+      <Rule Id="SA1307" Action="None" /> <!-- Field names should begin with upper-case letter -->
+      <Rule Id="SA1312" Action="None" /> <!-- Variable should begin with lower-case letter -->
+      <Rule Id="SA1313" Action="None" /> <!-- Parameter should begin with lower-case letter -->
+      <Rule Id="SA1407" Action="None" /> <!-- Arithmetic expressions should declare precedence -->
+      <Rule Id="SA1408" Action="None" /> <!-- Conditional expressions should declare precedence -->
+      <Rule Id="SA1500" Action="None" /> <!-- Braces for multi-line statements should not share line -->
+      <Rule Id="SA1501" Action="None" /> <!-- Statement should not be on a single line -->
+      <Rule Id="SA1503" Action="None" /> <!-- Braces should not be omitted -->
+  </Rules>
+</RuleSet>

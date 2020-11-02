@@ -1,15 +1,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IMyClassPrx Run(TestHelper helper)
         {
@@ -368,7 +368,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Twoway);
             TestHelper.Assert(!b1.IsOneway);
 
-             b1 = IObjectPrx.Parse("test", communicator);
+            b1 = IObjectPrx.Parse("test", communicator);
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Twoway);
             TestHelper.Assert(!b1.IsOneway);
 
@@ -613,16 +613,6 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(!b1.IsConnectionCached);
             communicator.RemoveProperty(property);
 
-            property = propertyPrefix + ".EndpointSelection";
-            TestHelper.Assert(b1.EndpointSelection == EndpointSelectionType.Random);
-            communicator.SetProperty(property, "Random");
-            b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
-            TestHelper.Assert(b1.EndpointSelection == EndpointSelectionType.Random);
-            communicator.SetProperty(property, "Ordered");
-            b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
-            TestHelper.Assert(b1.EndpointSelection == EndpointSelectionType.Ordered);
-            communicator.RemoveProperty(property);
-
             property = propertyPrefix + ".Context.c1";
             TestHelper.Assert(!b1.Context.ContainsKey("c1"));
             communicator.SetProperty(property, "TEST");
@@ -646,13 +636,11 @@ namespace ZeroC.Ice.Test.Proxy
             IRouterPrx router = IRouterPrx.Parse("ice:router?encoding=1.1", communicator).Clone(
                 cacheConnection: true,
                 preferNonSecure: true,
-                endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: TimeSpan.FromSeconds(200));
 
             ILocatorPrx? locator = ILocatorPrx.Parse("ice:locator", communicator).Clone(
                 cacheConnection: false,
                 preferNonSecure: true,
-                endpointSelection: EndpointSelectionType.Random,
                 locatorCacheTimeout: TimeSpan.FromSeconds(300),
                 router: router);
 
@@ -660,14 +648,13 @@ namespace ZeroC.Ice.Test.Proxy
                 ice1 ? " test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" : "ice+tcp://127.0.0.1/test",
                 communicator).Clone(cacheConnection: true,
                                     preferNonSecure: false,
-                                    endpointSelection: EndpointSelectionType.Ordered,
                                     invocationTimeout: TimeSpan.FromSeconds(10),
                                     locatorCacheTimeout: TimeSpan.FromSeconds(100),
                                     locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             // InvocationTimeout is a property with Ice1 and an URI option with Ice2 so the extra property with Ice1
-            TestHelper.Assert(proxyProps.Count == (ice1 ? 16 : 15));
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 13 : 12));
             TestHelper.Assert(proxyProps["Test"] ==
                               (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
                                       "ice+tcp://127.0.0.1/test?invocation-timeout=10s"));
@@ -677,19 +664,16 @@ namespace ZeroC.Ice.Test.Proxy
                 TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "10s");
             }
             TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "0");
-            TestHelper.Assert(proxyProps["Test.EndpointSelection"] == "Ordered");
             TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "100s");
 
             TestHelper.Assert(proxyProps["Test.Locator"] == "ice:locator?invocation-timeout=1m"); // strange test with an indirect locator!
             TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"] == "0");
             TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "1");
-            TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"] == "Random");
             TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"] == "5m");
 
             TestHelper.Assert(proxyProps["Test.Locator.Router"] == "ice:router?encoding=1.1&invocation-timeout=1m"); // also very strange
             TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "1");
-            TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
             TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200s");
 
             output.WriteLine("ok");
@@ -788,11 +772,6 @@ namespace ZeroC.Ice.Test.Proxy
 
             TestHelper.Assert(compObj.Clone(cacheConnection: true).Equals(compObj.Clone(cacheConnection: true)));
             TestHelper.Assert(!compObj.Clone(cacheConnection: false).Equals(compObj.Clone(cacheConnection: true)));
-
-            TestHelper.Assert(compObj.Clone(endpointSelection: EndpointSelectionType.Random).Equals(
-                              compObj.Clone(endpointSelection: EndpointSelectionType.Random)));
-            TestHelper.Assert(!compObj.Clone(endpointSelection: EndpointSelectionType.Random).Equals(
-                              compObj.Clone(endpointSelection: EndpointSelectionType.Ordered)));
 
             TestHelper.Assert(compObj.Clone(connectionId: "id2").Equals(compObj.Clone(connectionId: "id2")));
             TestHelper.Assert(!compObj.Clone(connectionId: "id1").Equals(compObj.Clone(connectionId: "id2")));

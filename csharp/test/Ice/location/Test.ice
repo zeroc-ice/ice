@@ -6,7 +6,7 @@
 
 #include <Ice/Locator.ice>
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::Location
 {

@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Immutable;
 using System.Threading;
 using Test;
 
@@ -7,6 +8,10 @@ namespace ZeroC.Ice.Test.Location
 {
     public class TestIntf : ITestIntf
     {
+        private ObjectAdapter _adapter1;
+        private ObjectAdapter _adapter2;
+        private ServerLocatorRegistry _registry;
+
         internal TestIntf(ObjectAdapter adapter1, ObjectAdapter adapter2, ServerLocatorRegistry registry)
         {
             _adapter1 = adapter1;
@@ -14,12 +19,14 @@ namespace ZeroC.Ice.Test.Location
             _registry = registry;
 
             _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
+            _registry.AddObject(_adapter1.Add("bonjour#abc", new Hello(), IObjectPrx.Factory));
         }
 
         public void Shutdown(Current current, CancellationToken cancel) => _adapter1.Communicator.ShutdownAsync();
 
         public IHelloPrx GetHello(Current current, CancellationToken cancel) =>
-            _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
+            _adapter1.CreateProxy("hello", IHelloPrx.Factory).Clone(
+                location: ImmutableArray.Create(_adapter1.AdapterId));
 
         public IHelloPrx GetReplicatedHello(Current current, CancellationToken cancel) =>
             _adapter1.CreateProxy("hello", IHelloPrx.Factory);
@@ -40,9 +47,5 @@ namespace ZeroC.Ice.Test.Location
                 _registry.AddObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current, cancel);
             }
         }
-
-        private ObjectAdapter _adapter1;
-        private ObjectAdapter _adapter2;
-        private ServerLocatorRegistry _registry;
     }
 }

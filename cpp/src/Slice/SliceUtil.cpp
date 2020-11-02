@@ -429,6 +429,75 @@ Slice::splitScopedName(const string& scoped)
     return ids;
 }
 
+string Slice::splitMetadata(const string& s, const string& delimiter, vector<string>& result)
+{
+    size_t startPos = 0;
+    size_t endPos;
+    size_t delimPos;
+    size_t errorPos;
+
+    while(startPos != string::npos)
+    {
+        // Skip any leading whitespace.
+        startPos = s.find_first_not_of(" \t", startPos);
+
+        // If the string has nothing but whitespace left.
+        if (startPos == string::npos)
+        {
+            result.push_back("");
+            break;
+        }
+
+        // Check if the string is quoted.
+        if (s[startPos] == '"')
+        {
+            // Skip the opening quotation mark.
+            endPos = startPos++;
+
+            // Find the closing quotation mark, not counting escaped quotation marks.
+            do
+            {
+                endPos = s.find('"', endPos + 1);
+                // If no closing quotation mark was found.
+                if (endPos == string::npos)
+                {
+                    return "unbalanced quotation marks";
+                }
+            } while(s[endPos - 1] == '\\');
+
+            // Get the position of the next delimiter.
+            delimPos = s.find(delimiter, endPos + 1);
+            // Ensure there is only whitespace between the closing quotation mark and the next delimiter.
+            errorPos = s.find_first_not_of(" \t", endPos + 1);
+            if (errorPos != delimPos)
+            {
+                return "illegal syntax: `" + s.substr(errorPos, (delimPos - errorPos)) +
+                    "', only whitespace can appear between quotation marks and delimiters";
+            }
+        }
+        else
+        {
+            // Get the position of the next delimiter.
+            delimPos = s.find(delimiter, startPos);
+            // Skip any trailing whitespace.
+            endPos = s.find_last_not_of(" \t", delimPos - 1) + 1;
+
+            // Check for errorneous quotation marks in the string.
+            errorPos = s.find('"', startPos);
+            if (errorPos < endPos)
+            {
+                return "illegal syntax: `" + s.substr(errorPos, (delimPos - errorPos)) +
+                    "', only whitespace can appear between quotation marks and delimiters";
+            }
+        }
+
+        result.push_back(s.substr(startPos, (endPos - startPos)));
+        // If a delimiter was found, skip past it. If a delimiter wasn't found, this sets startPos to npos.
+        startPos = delimPos + (delimPos == string::npos ? 0 : delimiter.length());
+    }
+    return "";
+}
+
 bool
 Slice::checkIdentifier(const string& id)
 {
@@ -773,7 +842,7 @@ bool opCompress(const OperationPtr& op, bool params)
         return false;
     }
     vector<string> directions;
-    splitString(compress, ",", directions);
+    splitMetadata(compress, ",", directions);
     return find(directions.begin(), directions.end(), direction) != directions.end();
 }
 

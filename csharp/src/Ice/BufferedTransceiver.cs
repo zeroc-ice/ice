@@ -91,7 +91,7 @@ namespace ZeroC.Ice
             // Receive additional data if there's not enough or no buffered data.
             if (_buffer.Count < byteCount || (byteCount == 0 && _buffer.Count == 0))
             {
-                await ReceiveInBufferAsync(byteCount, cancel);
+                await ReceiveInBufferAsync(byteCount, cancel).ConfigureAwait(false);
                 Debug.Assert(_buffer.Count >= byteCount);
             }
 
@@ -154,14 +154,14 @@ namespace ZeroC.Ice
             if (byteCount == 0)
             {
                 // Perform a single receive and we're done.
-                offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
+                offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel).ConfigureAwait(false);
             }
             else
             {
                 // Receive data until we have read at least "byteCount" bytes in the buffer.
                 while (offset < byteCount)
                 {
-                    offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel);
+                    offset += await Underlying.ReceiveAsync(_buffer.Slice(offset), cancel).ConfigureAwait(false);
                 }
             }
 

@@ -2,7 +2,7 @@
 
 namespace ZeroC.Ice.Test.Operations
 {
-    public class Oneways
+    public static class Oneways
     {
         internal static void Run(IMyClassPrx p)
         {

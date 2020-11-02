@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceDiscovery.Test.Simple
+namespace ZeroC.Ice.Test.Discovery
 {
     public class Server : TestHelper
     {
@@ -28,6 +26,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add($"controller{num}", new Controller());
+            adapter.Add($"faceted-controller{num}#abc", new Controller());
             await adapter.ActivateAsync();
 
             await communicator.WaitForShutdownAsync();

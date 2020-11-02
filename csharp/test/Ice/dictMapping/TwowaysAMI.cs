@@ -6,38 +6,8 @@ using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
-    public class TwowaysAMI
+    public static class TwowaysAMI
     {
-        private class CallbackBase
-        {
-            private readonly object _mutex = new object();
-            private bool _called;
-            internal CallbackBase() => _called = false;
-
-            public virtual void Check()
-            {
-                lock (_mutex)
-                {
-                    while (!_called)
-                    {
-                        System.Threading.Monitor.Wait(this);
-                    }
-
-                    _called = false;
-                }
-            }
-
-            public virtual void Called()
-            {
-                lock (_mutex)
-                {
-                    TestHelper.Assert(!_called);
-                    _called = true;
-                    System.Threading.Monitor.Pulse(this);
-                }
-            }
-        }
-
         internal static void Run(IMyClassPrx p)
         {
             {

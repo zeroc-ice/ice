@@ -47,11 +47,11 @@ namespace ZeroC.Ice
         {
             if (!(endpoint is IPEndPoint))
             {
-                throw new TransportException("SOCKS4 does not support domain names");
+                throw new TransportException("SOCKS4 does not support domain names", RetryPolicy.NoRetry);
             }
             else if (endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
-                throw new TransportException("SOCKS4 only supports IPv4 addresses");
+                throw new TransportException("SOCKS4 only supports IPv4 addresses", RetryPolicy.NoRetry);
             }
 
             // SOCKS connect request
@@ -67,13 +67,14 @@ namespace ZeroC.Ice
             data[8] = 0x00; // User ID.
 
             // Send the request.
-            await socket.SendAsync(data, SocketFlags.None, cancel);
+            await socket.SendAsync(data, SocketFlags.None, cancel).ConfigureAwait(false);
 
             // Now wait for the response whose size is 8 bytes.
-            await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel);
+            await socket.ReceiveAsync(data.AsMemory(0, 8), SocketFlags.None, cancel).ConfigureAwait(false);
             if (data[0] != 0x00 || data[1] != 0x5a)
             {
-                throw new ConnectFailedException();
+                // TODO the retry always use the same proxy address
+                throw new ConnectFailedException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
@@ -81,12 +82,12 @@ namespace ZeroC.Ice
         {
             Debug.Assert(_host != null);
 
-            // Get addresses in random order and use the first one
+            // Get addresses and use the first one
+            // TODO can we support multiple addresses for a socks proxy
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
                                                                  IPVersion,
-                                                                 EndpointSelectionType.Random,
                                                                  cancel).ConfigureAwait(false);
             return new SOCKSNetworkProxy(addresses.First());
         }
@@ -122,14 +123,18 @@ namespace ZeroC.Ice
             sb.Append("\r\n\r\n");
 
             // Send the connect request.
-            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(sb.ToString()), SocketFlags.None, cancel);
+            await socket.SendAsync(System.Text.Encoding.ASCII.GetBytes(sb.ToString()),
+                                   SocketFlags.None,
+                                   cancel).ConfigureAwait(false);
 
             // Read the HTTP response, reserve enough space for reading at least HTTP1.1
             byte[] buffer = new byte[256];
             int received = 0;
             while (true)
             {
-                received += await socket.ReceiveAsync(buffer.AsMemory(received), SocketFlags.None, cancel);
+                received += await socket.ReceiveAsync(buffer.AsMemory(received),
+                                                      SocketFlags.None,
+                                                      cancel).ConfigureAwait(false);
 
                 // Check if we received the full HTTP response, if not, continue reading otherwise we're done.
                 int end = HttpParser.IsCompleteMessage(buffer.AsSpan(0, received));
@@ -150,7 +155,8 @@ namespace ZeroC.Ice
             parser.Parse(buffer);
             if (parser.Status() != 200)
             {
-                throw new ConnectFailedException();
+                // TODO the retry always use the same proxy address
+                throw new ConnectFailedException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
@@ -158,12 +164,11 @@ namespace ZeroC.Ice
         {
             Debug.Assert(_host != null);
 
-            // Get addresses in random order and use the first one
+            // TODO can we support multiple addresses for a socks proxy
             IEnumerable<IPEndPoint> addresses =
                 await Network.GetAddressesForClientEndpointAsync(_host,
                                                                  _port,
                                                                  IPVersion,
-                                                                 EndpointSelectionType.Random,
                                                                  cancel).ConfigureAwait(false);
             return new HTTPNetworkProxy(addresses.First());
         }
@@ -174,9 +179,6 @@ namespace ZeroC.Ice
             _port = port;
         }
 
-        private HTTPNetworkProxy(EndPoint address)
-        {
-            _address = address;
-        }
+        private HTTPNetworkProxy(EndPoint address) => _address = address;
     }
 }

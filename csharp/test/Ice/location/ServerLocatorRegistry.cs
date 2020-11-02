@@ -1,8 +1,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -11,24 +14,34 @@ namespace ZeroC.Ice.Test.Location
 {
     public class ServerLocatorRegistry : ITestLocatorRegistry
     {
-        private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
-        private readonly object _mutex = new object();
-        private readonly Dictionary<Identity, IObjectPrx> _objects = new Dictionary<Identity, IObjectPrx>();
+        private readonly IDictionary<string, IObjectPrx> _ice1Adapters =
+            new ConcurrentDictionary<string, IObjectPrx>();
+
+        private readonly IDictionary<(Identity, string), IObjectPrx> _ice1Objects =
+            new ConcurrentDictionary<(Identity, string), IObjectPrx>();
+
+        private readonly IDictionary<string, IReadOnlyList<EndpointData>> _ice2Adapters =
+            new ConcurrentDictionary<string, IReadOnlyList<EndpointData>>();
+
+        private readonly IDictionary<(Identity, string), (IReadOnlyList<EndpointData>, IReadOnlyList<string>)> _ice2Objects =
+            new ConcurrentDictionary<(Identity, string), (IReadOnlyList<EndpointData>, IReadOnlyList<string>)>();
+
+        public void AddObject(IObjectPrx obj, Current current, CancellationToken cancel)
+        {
+            AddObject(obj);
+        }
 
         public void RegisterAdapterEndpoints(
             string adapterId,
             string replicaGroupId,
-            IObjectPrx endpoints,
+            EndpointData[] endpoints,
             Current current,
             CancellationToken cancel)
         {
-            lock (_mutex)
+            _ice2Adapters[adapterId] = endpoints;
+            if (replicaGroupId.Length > 0)
             {
-                _adapters[adapterId] = endpoints;
-                if (replicaGroupId.Length > 0)
-                {
-                    _adapters[replicaGroupId] = endpoints;
-                }
+                _ice2Adapters[replicaGroupId] = endpoints;
             }
         }
 
@@ -36,19 +49,8 @@ namespace ZeroC.Ice.Test.Location
             string adapterId,
             IObjectPrx? proxy,
             Current current,
-            CancellationToken cancel)
-        {
-            Debug.Assert(current.Protocol == Protocol.Ice1);
-
-            if (proxy == null)
-            {
-                UnregisterAdapterEndpoints(adapterId, replicaGroupId: "", Protocol.Ice1, current, cancel);
-            }
-            else
-            {
-                RegisterAdapterEndpoints(adapterId, "", proxy, current, cancel);
-            }
-        }
+            CancellationToken cancel) =>
+            SetReplicatedAdapterDirectProxy(adapterId, "", proxy, current, cancel);
 
         public void SetReplicatedAdapterDirectProxy(
             string adapterId,
@@ -57,15 +59,21 @@ namespace ZeroC.Ice.Test.Location
             Current current,
             CancellationToken cancel)
         {
-            Debug.Assert(current.Protocol == Protocol.Ice1);
-
-            if (proxy == null)
+            if (proxy != null)
             {
-                UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice1, current, cancel);
+                _ice1Adapters[adapterId] = proxy;
+                if (replicaGroupId.Length > 0)
+                {
+                    _ice1Adapters[replicaGroupId] = proxy;
+                }
             }
             else
             {
-                RegisterAdapterEndpoints(adapterId, replicaGroupId, proxy, current, cancel);
+                _ice1Adapters.Remove(adapterId);
+                if (replicaGroupId.Length > 0)
+                {
+                    _ice1Adapters.Remove(replicaGroupId);
+                }
             }
         }
 
@@ -81,60 +89,38 @@ namespace ZeroC.Ice.Test.Location
         public void UnregisterAdapterEndpoints(
             string adapterId,
             string replicaGroupId,
-            Protocol protocol,
             Current current,
             CancellationToken cancel)
         {
-            lock (_mutex)
+            _ice2Adapters.Remove(adapterId);
+            if (replicaGroupId.Length > 0)
             {
-                _adapters.Remove(adapterId);
-                if (replicaGroupId.Length > 0)
-                {
-                    _adapters.Remove(replicaGroupId);
-                }
+                _ice2Adapters.Remove(replicaGroupId);
             }
         }
 
-        public void AddObject(IObjectPrx obj, Current current, CancellationToken cancel)
-        {
-            AddObject(obj);
-        }
+        internal IObjectPrx? GetIce1Adapter(string adapter) =>
+            _ice1Adapters.TryGetValue(adapter, out IObjectPrx? proxy) ? proxy : null;
+
+        internal IObjectPrx? GetIce1Object(Identity id, string facet) =>
+            _ice1Objects.TryGetValue((id, facet), out IObjectPrx? obj) ? obj : null;
+
+        internal IReadOnlyList<EndpointData> GetIce2Adapter(string adapter) =>
+            _ice2Adapters.TryGetValue(adapter, out IReadOnlyList<EndpointData>? endpoints) ? endpoints :
+                ImmutableArray<EndpointData>.Empty;
+        internal (IReadOnlyList<EndpointData>, IReadOnlyList<string>) GetIce2Object(Identity id, string facet) =>
+            _ice2Objects.TryGetValue((id, facet), out var entry) ? entry :
+                (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
 
         internal void AddObject(IObjectPrx obj)
         {
-            lock (_mutex)
+            if (obj.Protocol == Protocol.Ice1)
             {
-                _objects[obj.Identity] = obj;
+                _ice1Objects[(obj.Identity, obj.Facet)] = obj;
             }
-        }
-
-        internal IObjectPrx? GetAdapter(string adapter)
-        {
-            lock (_mutex)
+            else
             {
-                if (_adapters.TryGetValue(adapter, out IObjectPrx? obj))
-                {
-                    return obj;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        internal IObjectPrx? GetObject(Identity id)
-        {
-            lock (_mutex)
-            {
-                if (_objects.TryGetValue(id, out IObjectPrx? obj))
-                {
-                    return obj;
-                }
-                else
-                {
-                    return null;
-                }
+                _ice2Objects[(obj.Identity, obj.Facet)] = (obj.Endpoints.ToEndpointDataList(), obj.Location);
             }
         }
     }

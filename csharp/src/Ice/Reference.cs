@@ -22,7 +22,6 @@ namespace ZeroC.Ice
         internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
         internal Encoding Encoding { get; }
-        internal EndpointSelectionType EndpointSelection { get; }
         internal IReadOnlyList<Endpoint> Endpoints { get; }
         internal string Facet { get; }
         internal Identity Identity { get; }
@@ -32,18 +31,17 @@ namespace ZeroC.Ice
         internal InvocationMode InvocationMode { get; }
 
         internal TimeSpan InvocationTimeout { get; }
-        internal bool IsConnectionCached;
+        internal bool IsConnectionCached { get; }
         internal bool IsFixed { get; }
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
         public bool IsOneway => InvocationMode != InvocationMode.Twoway;
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
 
-        internal string LocationAsString => Protocol == Protocol.Ice1 ? AdapterId :
-            string.Join('/', Location.Select(s => Uri.EscapeDataString(s)));
         internal TimeSpan LocatorCacheTimeout { get; }
 
         internal LocatorInfo? LocatorInfo { get; }
+
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
@@ -149,7 +147,6 @@ namespace ZeroC.Ice
 
             bool? cacheConnection = null;
             IReadOnlyDictionary<string, string>? context = null;
-            EndpointSelectionType? endpointSelection = null;
             TimeSpan? locatorCacheTimeout = null;
             LocatorInfo? locatorInfo = null;
             bool? preferNonSecure = null;
@@ -172,18 +169,6 @@ namespace ZeroC.Ice
                 if (context.Count == 0)
                 {
                     context = null;
-                }
-
-                property = $"{propertyPrefix}.EndpointSelection";
-                try
-                {
-                    endpointSelection =
-                        communicator.GetProperty(property) is string endpointSelectionStr ?
-                            Enum.Parse<EndpointSelectionType>(endpointSelectionStr) : (EndpointSelectionType?)null;
-                }
-                catch (FormatException ex)
-                {
-                    throw new InvalidConfigurationException($"cannot parse property `{property}'", ex);
                 }
 
                 if (invocationTimeout == null)
@@ -219,7 +204,6 @@ namespace ZeroC.Ice
                                  connectionId: "",
                                  context: context ?? communicator.DefaultContext,
                                  encoding: encoding,
-                                 endpointSelection: endpointSelection ?? communicator.DefaultEndpointSelection,
                                  endpoints: endpoints,
                                  facet: facet,
                                  identity: identity,
@@ -266,10 +250,6 @@ namespace ZeroC.Ice
             {
                 // Compare properties specific to routable references
                 if (ConnectionId != other.ConnectionId)
-                {
-                    return false;
-                }
-                if (EndpointSelection != other.EndpointSelection)
                 {
                     return false;
                 }
@@ -374,7 +354,6 @@ namespace ZeroC.Ice
                         hash.Add(e);
                     }
                     hash.Add(IsConnectionCached);
-                    hash.Add(EndpointSelection);
                     foreach (string s in Location)
                     {
                         hash.Add(s);
@@ -706,7 +685,6 @@ namespace ZeroC.Ice
                    connectionId: "",
                    context: communicator.DefaultContext,
                    encoding: encoding,
-                   endpointSelection: communicator.DefaultEndpointSelection,
                    endpoints: endpoints,
                    facet: facet,
                    identity: identity,
@@ -748,7 +726,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null, // can be provided by app
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null, // from app
             string? facet = null,
             Connection? fixedConnection = null,
@@ -825,11 +802,6 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException("cannot change the connection ID of a fixed proxy",
                         nameof(connectionId));
-                }
-                if (endpointSelection != null)
-                {
-                    throw new ArgumentException("cannot change the endpoint selection policy of a fixed proxy",
-                        nameof(endpointSelection));
                 }
                 if (endpoints != null)
                 {
@@ -961,7 +933,6 @@ namespace ZeroC.Ice
                                           connectionId ?? ConnectionId,
                                           context?.ToImmutableDictionary() ?? Context,
                                           encoding ?? Encoding,
-                                          endpointSelection ?? EndpointSelection,
                                           newEndpoints ?? Endpoints,
                                           facet ?? Facet,
                                           identity ?? Identity,
@@ -1001,13 +972,10 @@ namespace ZeroC.Ice
 
                 // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
                 // case we use the colocated endpoint.
-                if (InvocationMode != InvocationMode.Datagram)
+                if (InvocationMode != InvocationMode.Datagram &&
+                    Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
                 {
-                    Endpoint? endpoint = Communicator.GetColocatedEndpoint(this);
-                    if (endpoint != null)
-                    {
-                        endpoints = new Endpoint[] { endpoint };
-                    }
+                    endpoints = ImmutableArray.Create(colocatedEndpoint);
                 }
 
                 if (endpoints.Count == 0 && RouterInfo != null)
@@ -1026,16 +994,9 @@ namespace ZeroC.Ice
                     }
                     else if (LocatorInfo != null)
                     {
-                        Reference? directReference;
-                        (directReference, cached) =
+                        // TODO: cache and send the new location with requests
+                        (endpoints, _, cached) =
                             await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
-
-                        if (directReference != null)
-                        {
-                            endpoints = directReference.Endpoints;
-                            // TODO: cache and send directReference's location with requests made using this reference
-                            // instead of the reference's location.
-                        }
                     }
                 }
 
@@ -1082,12 +1043,6 @@ namespace ZeroC.Ice
                     return PreferNonSecure || endpoint.IsSecure;
                 });
 
-                if (EndpointSelection == EndpointSelectionType.Random)
-                {
-                    // Shuffle the filtered endpoints using _rand
-                    filteredEndpoints = filteredEndpoints.Shuffle();
-                }
-
                 if (PreferNonSecure)
                 {
                     // It's just a preference: we can fallback to secure endpoints.
@@ -1110,7 +1065,6 @@ namespace ZeroC.Ice
                         // the given endpoints.
                         connection = await factory.CreateAsync(endpoints,
                                                                false,
-                                                               EndpointSelection,
                                                                ConnectionId,
                                                                excludedConnectors,
                                                                cancel).ConfigureAwait(false);
@@ -1127,7 +1081,6 @@ namespace ZeroC.Ice
                             {
                                 connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
                                                                        endpoint != lastEndpoint,
-                                                                       EndpointSelection,
                                                                        ConnectionId,
                                                                        excludedConnectors,
                                                                        cancel).ConfigureAwait(false);
@@ -1146,7 +1099,7 @@ namespace ZeroC.Ice
 
                     if (RouterInfo != null)
                     {
-                        await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this));
+                        await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this)).ConfigureAwait(false);
 
                         // Set the object adapter for this router (if any) on the new connection, so that callbacks from
                         // the router can be received over this new connection.
@@ -1168,11 +1121,11 @@ namespace ZeroC.Ice
                         TraceLevels traceLevels = Communicator.TraceLevels;
                         if (traceLevels.Retry >= 2)
                         {
-                            Communicator.Logger.Trace(traceLevels.RetryCategory,
+                            Communicator.Logger.Trace(TraceLevels.RetryCategory,
                                                       "connection to cached endpoints failed\n" +
                                                       $"removing endpoints from cache and trying again\n{ex}");
                         }
-                        return await GetConnectionAsync(excludedConnectors, cancel);
+                        return await GetConnectionAsync(excludedConnectors, cancel).ConfigureAwait(false);
                     }
                     throw;
                 }
@@ -1196,7 +1149,6 @@ namespace ZeroC.Ice
             {
                 [prefix] = ToString(),
                 [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "1" : "0",
-                [$"{prefix}.EndpointSelection"] = EndpointSelection.ToString(),
                 [$"{prefix}.LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
                 [$"{prefix}.PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
@@ -1271,7 +1223,6 @@ namespace ZeroC.Ice
             string connectionId,
             IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
             Encoding encoding,
-            EndpointSelectionType endpointSelection,
             IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
             string facet,
             Identity identity,
@@ -1288,7 +1239,6 @@ namespace ZeroC.Ice
             ConnectionId = connectionId;
             Context = context;
             Encoding = encoding;
-            EndpointSelection = endpointSelection;
             Endpoints = endpoints;
             Facet = facet;
             Identity = identity;
@@ -1332,7 +1282,6 @@ namespace ZeroC.Ice
             ConnectionId = "";
             Context = context;
             Encoding = encoding;
-            EndpointSelection = EndpointSelectionType.Random;
             Endpoints = Array.Empty<Endpoint>();
             Facet = facet;
             Identity = identity;

@@ -8,7 +8,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[java:package:test.Ice.stream]]
+[[java:package(test.Ice.stream)]]
 module Test
 {
 

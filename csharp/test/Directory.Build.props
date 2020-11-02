@@ -3,6 +3,7 @@
     <Import Project="$(MSBuildThisFileDirectory)../msbuild/ice.test.props" />
     <PropertyGroup>
         <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5</AppTargetFramework>
+        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Test.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
     <Choose>
         <When Condition="'$(ICE_BIN_DIST)' == 'all'">

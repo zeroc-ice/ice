@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
-    public class Twoways
+    public static class Twoways
     {
         internal static void Run(IMyClassPrx p)
         {

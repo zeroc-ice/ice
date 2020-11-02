@@ -8,7 +8,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
-    public class TwowaysAMI
+    public static class TwowaysAMI
     {
         internal static void Run(TestHelper helper, IMyClassPrx p)
         {

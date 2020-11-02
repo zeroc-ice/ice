@@ -9,13 +9,17 @@
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice"
             Exclude="../../../slice/$(AssemblyName)/*F.ice;../../../slice/$(AssemblyName)/BuiltinSequences.ice;../../../slice/$(AssemblyName)/Context.ice"/>
-        <SliceCompile Include="../../../slice/IceDiscovery/*.ice" />
-        <SliceCompile Include="../../../slice/IceLocatorDiscovery/*.ice" />
+        <Compile Update="generated\Discovery.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Discovery.ice</SliceCompileSource>
+        </Compile>
         <Compile Update="generated\Identity.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
         </Compile>
         <Compile Update="generated\Locator.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\LocatorDiscovery.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\LocatorDiscovery.ice</SliceCompileSource>
         </Compile>
         <Compile Update="generated\Metrics.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>

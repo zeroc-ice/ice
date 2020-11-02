@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
-    internal sealed class Time
+    internal static class Time
     {
         /// <summary>Gets the total elapsed time since the Ice run-time started as a TimeSpan object.</summary>
         internal static TimeSpan Elapsed => _stopwatch.Elapsed;

@@ -73,12 +73,11 @@ namespace ZeroC.Ice
             _communicator = communicator;
         }
 
-        internal void AddHintFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
+        internal void AddTransportFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
-            EndpointSelectionType selType,
             string connectionId,
             IReadOnlyList<IConnector> excludedConnectors,
             CancellationToken cancel)
@@ -115,8 +114,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    IEnumerable<IConnector> endpointConnectors =
-                        await endpoint.ConnectorsAsync(selType, cancel).ConfigureAwait(false);
+                    IEnumerable<IConnector> endpointConnectors = await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
                     foreach (IConnector connector in endpointConnectors)
                     {
                         connectors.Add((connector, endpoint));
@@ -133,7 +131,7 @@ namespace ZeroC.Ice
                     TraceLevels traceLevels = _communicator.TraceLevels;
                     if (traceLevels.Transport >= 2)
                     {
-                        _communicator.Logger.Trace(traceLevels.TransportCategory, last ?
+                        _communicator.Logger.Trace(TraceLevels.TransportCategory, last ?
                             $"couldn't resolve endpoint host and no more endpoints to try\n{ex}" :
                             $"couldn't resolve endpoint host, trying next endpoint\n{ex}");
                     }
@@ -300,17 +298,7 @@ namespace ZeroC.Ice
         internal void SetRouterInfo(RouterInfo routerInfo)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
-            IReadOnlyList<Endpoint> endpoints;
-            try
-            {
-                ValueTask<IReadOnlyList<Endpoint>> task = routerInfo.GetClientEndpointsAsync();
-                endpoints = task.IsCompleted ? task.Result : task.AsTask().Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
+            IReadOnlyList<Endpoint> endpoints = routerInfo.GetClientEndpoints(); // can make a synchronous remote call
 
             // Search for connections to the router's client proxy endpoints, and update the object adapter for
             // such connections, so that callbacks from the router can be received over such connections.
@@ -318,8 +306,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    foreach (IConnector connector in
-                        endpoint.ConnectorsAsync(EndpointSelectionType.Ordered, cancel: default).AsTask().Result)
+                    foreach (IConnector connector in endpoint.ConnectorsAsync(cancel: default).AsTask().Result)
                     {
                         lock (_mutex)
                         {
@@ -381,7 +368,7 @@ namespace ZeroC.Ice
 
                         if (_communicator.TraceLevels.Transport >= 2)
                         {
-                            _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                            _communicator.Logger.Trace(TraceLevels.TransportCategory,
                                 $"trying to establish {endpoint.TransportName} connection to {connector}");
                         }
 
@@ -415,7 +402,7 @@ namespace ZeroC.Ice
 
                         if (traceLevels.Transport >= 2)
                         {
-                            _communicator.Logger.Trace(traceLevels.TransportCategory,
+                            _communicator.Logger.Trace(TraceLevels.TransportCategory,
                                 $"failed to establish {endpoint.TransportName} connection to {connector} " +
                                 (last && !hasMore ?
                                     $"and no more endpoints to try\n{ex}" :
@@ -514,7 +501,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Transport >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
             }
 
@@ -564,7 +551,7 @@ namespace ZeroC.Ice
 
             if (_communicator.TraceLevels.Transport >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"listening for {Endpoint.TransportName} connections\n{_acceptor.ToDetailedString()}");
             }
         }
@@ -573,7 +560,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Transport >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"accepting {Endpoint.TransportName} connections at {_acceptor}");
             }
 
@@ -600,6 +587,10 @@ namespace ZeroC.Ice
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Reliability",
+            "CA2007:Consider calling ConfigureAwait on the awaited task",
+            Justification = "Ensure continuations execute on the object adapter scheduler if it is set")]
         private async ValueTask AcceptAsync()
         {
             while (true)
@@ -607,13 +598,11 @@ namespace ZeroC.Ice
                 Connection? connection = null;
                 try
                 {
-                    // We don't use ConfigureAwait(false) on purpose. We want to ensure continuations execute on the
-                    // object adapter scheduler if an adapter scheduler is set.
                     connection = await _acceptor.AcceptAsync();
 
                     if (_communicator.TraceLevels.Transport >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.TransportCategory,
+                        _communicator.Logger.Trace(TraceLevels.TransportCategory,
                             $"trying to accept {Endpoint.TransportName} connection\n{connection}");
                     }
 

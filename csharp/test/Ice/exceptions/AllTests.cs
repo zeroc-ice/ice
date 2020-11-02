@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IThrowerPrx Run(TestHelper helper)
         {

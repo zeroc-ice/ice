@@ -4,11 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Test;
-using ZeroC.Ice;
 
-namespace ZeroC.IceDiscovery.Test.Simple
+namespace ZeroC.Ice.Test.Discovery
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper, int num)
         {
@@ -16,12 +15,18 @@ namespace ZeroC.IceDiscovery.Test.Simple
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             var proxies = new List<IControllerPrx>();
+            var facetedProxies = new List<IControllerPrx>();
             var indirectProxies = new List<IControllerPrx>();
             bool ice1 = helper.Protocol == Protocol.Ice1;
 
             for (int i = 0; i < num; ++i)
             {
                 proxies.Add(IControllerPrx.Parse(ice1 ? $"controller{i}" : $"ice:controller{i}", communicator));
+
+                facetedProxies.Add(IControllerPrx.Parse(
+                    ice1 ? $"faceted-controller{i} -f abc" : $"ice:faceted-controller{i}#abc",
+                    communicator));
+
                 indirectProxies.Add(
                     IControllerPrx.Parse(ice1 ? $"controller{i} @ control{i}" : $"ice:control{i}//controller{i}",
                                          communicator));
@@ -41,6 +46,16 @@ namespace ZeroC.IceDiscovery.Test.Simple
             output.Flush();
             {
                 foreach (IControllerPrx prx in proxies)
+                {
+                    prx.IcePing();
+                }
+            }
+            output.WriteLine("ok");
+
+            output.Write("testing faceted well-known proxies... ");
+            output.Flush();
+            {
+                foreach (IControllerPrx prx in facetedProxies)
                 {
                     prx.IcePing();
                 }

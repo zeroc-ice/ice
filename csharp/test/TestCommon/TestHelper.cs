@@ -222,7 +222,7 @@ namespace Test
             return basePort;
         }
 
-        public Dictionary<string, string> CreateTestProperties(
+        public static Dictionary<string, string> CreateTestProperties(
             ref string[] args,
             Dictionary<string, string>? defaults = null)
         {

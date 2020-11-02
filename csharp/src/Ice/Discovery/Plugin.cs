@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
-namespace ZeroC.IceDiscovery
+namespace ZeroC.Ice.Discovery
 {
     internal sealed class Plugin : IPlugin
     {
@@ -15,6 +15,7 @@ namespace ZeroC.IceDiscovery
         private ILocatorPrx? _locator;
         private ObjectAdapter? _locatorAdapter;
         private ObjectAdapter? _multicastAdapter;
+        private readonly string _pluginName;
         private ObjectAdapter? _replyAdapter;
 
         public async ValueTask DisposeAsync()
@@ -46,13 +47,13 @@ namespace ZeroC.IceDiscovery
             const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
             const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
 
-            if (_communicator.GetProperty("IceDiscovery.Multicast.Endpoints") == null)
+            if (_communicator.GetProperty($"{_pluginName}.Multicast.Endpoints") == null)
             {
-                _communicator.SetProperty("IceDiscovery.Multicast.Endpoints",
+                _communicator.SetProperty($"{_pluginName}.Multicast.Endpoints",
                                           $"{defaultIPv4Endpoint}:{defaultIPv6Endpoint}");
             }
 
-            string? lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup");
+            string? lookupEndpoints = _communicator.GetProperty($"{_pluginName}.Lookup");
             if (lookupEndpoints == null)
             {
                 List<string> endpoints = new ();
@@ -65,40 +66,37 @@ namespace ZeroC.IceDiscovery
                 lookupEndpoints = string.Join(":", endpoints);
             }
 
-            if (_communicator.GetProperty("IceDiscovery.Reply.Endpoints") == null)
+            if (_communicator.GetProperty($"{_pluginName}.Reply.Endpoints") == null)
             {
-                _communicator.SetProperty("IceDiscovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
+                _communicator.SetProperty($"{_pluginName}.Reply.Endpoints", "udp -h \"::0\" -p 0");
+            }
+            _communicator.SetProperty($"{_pluginName}.Reply.ProxyOptions", "-d"); // create datagram proxies
+
+            if (_communicator.GetProperty($"{_pluginName}.Locator.Endpoints") == null)
+            {
+                _communicator.SetProperty($"{_pluginName}.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            if (_communicator.GetProperty("IceDiscovery.Locator.Endpoints") == null)
-            {
-                _communicator.SetProperty("IceDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
-            }
-
-            _multicastAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Multicast");
-            _replyAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Reply");
-            _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
-
-            // This undocumented object adapter hosts the locator and locator registry servants.
-            if (_locatorAdapter.Protocol != Protocol.Ice2)
-            {
-                throw new InvalidConfigurationException("the IceDiscovery.Locator object adapter must use ice2");
-            }
+            _multicastAdapter = _communicator.CreateObjectAdapter($"{_pluginName}.Multicast");
+            _replyAdapter = _communicator.CreateObjectAdapter($"{_pluginName}.Reply");
+            _locatorAdapter = _communicator.CreateObjectAdapter($"{_pluginName}.Locator");
 
             // Setup locator registry.
-            LocatorRegistry locatorRegistry = new ();
-            ILocatorRegistryPrx locatorRegistryPrx =
-                _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
+            var locatorRegistryServant = new LocatorRegistry(_communicator);
+            ILocatorRegistryPrx locatorRegistry =
+                _locatorAdapter.AddWithUUID(locatorRegistryServant, ILocatorRegistryPrx.Factory);
 
-            ILookupPrx lookupPrx =
+            ILookupPrx lookup =
                 ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", _communicator).Clone(clearRouter: true);
 
             // Add lookup Ice object
-            Lookup lookup = new (locatorRegistry, lookupPrx, _communicator, _replyAdapter);
-            _multicastAdapter.Add("IceDiscovery/Lookup", lookup);
+            var lookupServant = new Lookup(locatorRegistryServant, _pluginName, _communicator);
+            _multicastAdapter.Add("IceDiscovery/Lookup", lookupServant);
 
             // Setup locator on the communicator.
-            _locator = _locatorAdapter.AddWithUUID(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
+            _locator = _locatorAdapter.AddWithUUID(new Locator(locatorRegistry, lookup, _replyAdapter, _pluginName),
+                                                   ILocatorPrx.Factory);
+
             _defaultLocator = _communicator.DefaultLocator;
             _communicator.DefaultLocator = _locator;
 
@@ -107,13 +105,18 @@ namespace ZeroC.IceDiscovery
             _locatorAdapter.Activate();
         }
 
-        internal Plugin(Communicator communicator) => _communicator = communicator;
+        internal Plugin(Communicator communicator, string name)
+        {
+            _communicator = communicator;
+            _pluginName = name;
+        }
     }
 
     /// <summary>The IceDiscovery plug-in's factory.</summary>
     public sealed class PluginFactory : IPluginFactory
     {
         /// <inheritdoc/>
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
+        public IPlugin Create(Communicator communicator, string name, string[] args) =>
+            new Plugin(communicator, name);
     }
 }

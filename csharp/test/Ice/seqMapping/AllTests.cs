@@ -5,7 +5,7 @@ using System.IO;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IMyClassPrx Run(TestHelper helper, bool collocated)
         {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Slice.generation]]
+[[java:package(test.Slice.generation)]]
 module Test
 {
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.faultTolerance]]
+[[java:package(test.Ice.faultTolerance)]]
 module Test
 {
 

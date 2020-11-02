@@ -4,21 +4,21 @@
 
 #pragma once
 
-[[cpp:dll-export:GLACIER2_API]]
-[[cpp:doxygen:include:Glacier2/Glacier2.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:Glacier2/Config.h]]
+[[cpp:dll-export(GLACIER2_API)]]
+[[cpp:doxygen:include(Glacier2/Glacier2.h)]]
+[[cpp:header-ext(h)]]
+[[cpp:include(Glacier2/Config.h)]]
 
-[[js:module:ice]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Glacier2]]
+[[python:pkgdir(Glacier2)]]
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 #include <Glacier2/SSLInfo.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module Glacier2
 {
     /// This exception is raised if an attempt to create a new session failed.
@@ -145,7 +145,7 @@ module Glacier2
         ///
         /// @throws CannotCreateSessionException Raised if the session
         /// cannot be created.
-        [format:sliced]
+        [format(sliced)]
         Session* create(string userId, SessionControl* control)
             throws CannotCreateSessionException;
     }
@@ -170,7 +170,7 @@ module Glacier2
         ///
         /// @throws CannotCreateSessionException Raised if the session
         /// cannot be created.
-        [format:sliced]
+        [format(sliced)]
         Session* create(SSLInfo info, SessionControl* control)
             throws CannotCreateSessionException;
     }

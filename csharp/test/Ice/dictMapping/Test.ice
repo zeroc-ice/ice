@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::DictMapping
 {
@@ -15,10 +15,10 @@ dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
 
 sequence<int> AIS;
-[cs:generic:List] sequence<int> GIS;
+[cs:generic(List)] sequence<int> GIS;
 
 sequence<string> ASS;
-[cs:generic:List] sequence<string> GSS;
+[cs:generic(List)] sequence<string> GSS;
 
 dictionary<string, AIS> NDAIS;
 dictionary<string, GIS> NDGIS;

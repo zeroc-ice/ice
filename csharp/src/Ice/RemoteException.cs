@@ -35,9 +35,9 @@ namespace ZeroC.Ice
 
         /// <inheritdoc/>
         public override string? ToString() => Retryable switch {
-            Retryable.AfterDelay => $"after delay {Delay}",
-            Retryable.OtherReplica => $"other replica",
-            Retryable.No => $"no retry",
+            Retryable.AfterDelay => $"after {Delay.ToPropertyString()} delay",
+            Retryable.OtherReplica => "other replica",
+            Retryable.No => "no retry",
             _ => "unknown"
         };
 

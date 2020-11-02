@@ -159,8 +159,7 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             Communicator communicator,
-            bool oaEndpoint,
-            string _)
+            bool oaEndpoint)
         {
             Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
             return new TcpEndpoint(new EndpointData(transport, host, port, Array.Empty<string>()),
@@ -266,12 +265,12 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy)
+        internal virtual ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy)
         {
-            ITransceiver transceiver = new TcpTransceiver(Communicator, addr, proxy, SourceAddress);
+            ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
             if (IsSecure)
             {
-                transceiver = new SslTransceiver(Communicator, transceiver, Host, false);
+                transceiver = new SslTransceiver(Communicator, transceiver, Host, false, connector);
             }
             return transceiver;
         }

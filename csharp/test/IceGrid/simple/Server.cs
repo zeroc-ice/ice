@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using ZeroC.Ice;
-using Test;
 using System.Threading.Tasks;
+using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
@@ -13,7 +13,6 @@ namespace ZeroC.IceGrid.Test.Simple
         {
             var properties = new Dictionary<string, string>();
             properties.ParseArgs(ref args, "TestAdapter");
-            properties.Add("Test.Protocol", "ice1");
 
             await using Communicator communicator = Initialize(ref args, properties);
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");

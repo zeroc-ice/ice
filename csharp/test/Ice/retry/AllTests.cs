@@ -11,42 +11,11 @@ using Test;
 
 namespace ZeroC.Ice.Test.Retry
 {
-    public class AllTests
+    public static class AllTests
     {
-        private class Callback
-        {
-            private bool _called;
-            private readonly object _mutex = new object();
-
-            internal Callback() => _called = false;
-
-            public void Check()
-            {
-                lock (_mutex)
-                {
-                    while (!_called)
-                    {
-                        Monitor.Wait(this);
-                    }
-
-                    _called = false;
-                }
-            }
-
-            public void Called()
-            {
-                lock (_mutex)
-                {
-                    TestHelper.Assert(!_called);
-                    _called = true;
-                    Monitor.Pulse(this);
-                }
-            }
-        }
-
         public static IRetryPrx Run(TestHelper helper, Communicator communicator, bool colocated)
         {
-           bool ice1 = helper.Protocol == Protocol.Ice1;
+            bool ice1 = helper.Protocol == Protocol.Ice1;
 
             TextWriter output = helper.Output;
 
@@ -238,8 +207,7 @@ namespace ZeroC.Ice.Test.Retry
                     sb.Append(':');
                     sb.Append(helper.BasePort + 1);
 
-                    IReplicatedPrx? replicated = IReplicatedPrx.Parse(sb.ToString(), communicator).Clone(
-                        endpointSelection: EndpointSelectionType.Ordered);
+                    IReplicatedPrx? replicated = IReplicatedPrx.Parse(sb.ToString(), communicator);
 
                     replicated.IcePing();
                     TestHelper.Assert(((IPConnection)replicated.GetCachedConnection()!).RemoteEndpoint!.Port ==

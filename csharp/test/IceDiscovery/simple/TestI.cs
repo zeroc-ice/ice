@@ -1,14 +1,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using ZeroC.Ice;
 using Test;
 using System.Threading;
 
-namespace ZeroC.IceDiscovery.Test.Simple
+namespace ZeroC.Ice.Test.Discovery
 {
     public sealed class Controller : IController
     {
+        private readonly Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
+
         public void ActivateObjectAdapter(
             string name,
             string adapterId,
@@ -32,22 +33,20 @@ namespace ZeroC.IceDiscovery.Test.Simple
             _adapters.Remove(name);
         }
 
-        public void AddObject(string oaName, string id, Current current, CancellationToken cancel)
+        public void AddObject(string oaName, string identityAndFacet, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
-            _adapters[oaName].Add(id, new TestIntf());
+            _adapters[oaName].Add(identityAndFacet, new TestIntf());
         }
 
-        public void RemoveObject(string oaName, string id, Current current, CancellationToken cancel)
+        public void RemoveObject(string oaName, string identityAndFacet, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
-            _adapters[oaName].Remove(id);
+            _adapters[oaName].Remove(identityAndFacet);
         }
 
         public void Shutdown(Current current, CancellationToken cancel) =>
             current.Adapter.Communicator.ShutdownAsync();
-
-        private readonly Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
     }
 
     public sealed class TestIntf : ITestIntf

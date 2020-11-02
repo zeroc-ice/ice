@@ -2,9 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using ZeroC.Ice;
-using Test;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {

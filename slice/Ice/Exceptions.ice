@@ -4,20 +4,20 @@
 
 #pragma once
 
-[[cpp:dll-export:ICE_API]]
-[[cpp:doxygen:include:Ice/Ice.h]]
-[[cpp:header-ext:h]]
+[[cpp:dll-export(ICE_API)]]
+[[cpp:doxygen:include(Ice/Ice.h)]]
+[[cpp:header-ext(h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:Ice]]
+[[python:pkgdir(Ice)]]
 
-[[java:package:com.zeroc]]
+[[java:package(com.zeroc)]]
 
 #include <Ice/Identity.ice>
 
-[cs:namespace:ZeroC]
+[cs:namespace(ZeroC)]
 module Ice
 {
     /// Represents the origin of a remote exception. With the Ice 2.0 encoding, all remote exceptions have an implicit
@@ -56,4 +56,11 @@ module Ice
     {
     }
 #endif
+
+    /// One of the arguments to the operation has an invalid value.
+    exception InvalidArgumentException
+    {
+        /// The name of the corresponding parameter.
+        string paramName;
+    }
 }

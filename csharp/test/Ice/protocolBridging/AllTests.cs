@@ -1,13 +1,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Test;
 
 namespace ZeroC.Ice.Test.ProtocolBridging
 {
-    public class AllTests
+    public static class AllTests
     {
         public static ITestIntfPrx Run(TestHelper helper)
         {

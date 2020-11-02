@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Scope
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper)
         {

@@ -132,8 +132,7 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             Communicator communicator,
-            bool oaEndpoint,
-            string _)
+            bool oaEndpoint)
         {
             Debug.Assert(transport == Transport.WS || transport == Transport.WSS);
 
@@ -218,8 +217,8 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
 
-        internal override ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy) =>
-            new WSTransceiver(Communicator, base.CreateTransceiver(addr, proxy), Host, Resource);
+        internal override ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy) =>
+            new WSTransceiver(Communicator, base.CreateTransceiver(connector, addr, proxy), Host, Resource, connector);
 
         internal override ITransceiver CreateTransceiver(Socket socket, string adapterName) =>
             new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName));

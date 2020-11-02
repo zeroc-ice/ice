@@ -8,7 +8,7 @@
 
 #include <Test.ice>
 
-[[swift:class-resolver-prefix:IceSlicingExceptionsServer]]
+[[swift:class-resolver-prefix(IceSlicingExceptionsServer)]]
 
 module Test
 {

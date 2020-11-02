@@ -252,7 +252,7 @@ namespace ZeroC.Ice.Test.ACM
         }
     }
 
-    public class AllTests
+    public static class AllTests
     {
         private class InvocationHeartbeatTest : TestCase
         {
@@ -286,7 +286,7 @@ namespace ZeroC.Ice.Test.ACM
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!connection.IsActive);
                 }
-            }
+           }
         }
 
         private class HeartbeatOnIdleTest : TestCase

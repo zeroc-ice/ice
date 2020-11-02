@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.timeout]]
+[[java:package(test.Ice.timeout)]]
 module Test
 {
 

@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace ZeroC.Ice
 {
-
     /// <summary>Provides helper methods to parse proxy and endpoint strings in the URI format.</summary>
     internal static class UriParser
     {
@@ -33,13 +32,15 @@ namespace ZeroC.Ice
         /// format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice+transport URI; otherwise, false.</returns>
-        internal static bool IsEndpointUri(string s) => s.StartsWith("ice+") && s.Contains("://");
+        internal static bool IsEndpointUri(string s) =>
+            s.StartsWith("ice+", StringComparison.InvariantCulture) && s.Contains("://");
 
         /// <summary>Checks if a string is an ice or ice+transport URI, and not a proxy string using the ice1 string
         /// format.</summary>
         /// <param name="s">The string to check.</param>
         /// <returns>True when the string is most likely an ice or ice+transport URI; otherwise, false.</returns>
-        internal static bool IsProxyUri(string s) => s.StartsWith("ice:") || IsEndpointUri(s);
+        internal static bool IsProxyUri(string s) =>
+            s.StartsWith("ice:", StringComparison.InvariantCulture) || IsEndpointUri(s);
 
         /// <summary>Parses an ice+transport URI string that represents one or more object adapter endpoints.</summary>
         /// <param name="uriString">The URI string to parse.</param>
@@ -129,11 +130,10 @@ namespace ZeroC.Ice
             bool oaEndpoint,
             Dictionary<string, string> options,
             Protocol protocol,
-            Uri uri,
-            string uriString)
+            Uri uri)
         {
-            Debug.Assert(uri.Scheme.StartsWith("ice+"));
-            string transportName = uri.Scheme.Substring(4); // i.e. chop-off "ice+"
+            Debug.Assert(uri.Scheme.StartsWith("ice+", StringComparison.InvariantCulture));
+            string transportName = uri.Scheme[4..]; // i.e. chop-off "ice+"
 
             ushort port;
             checked
@@ -184,8 +184,7 @@ namespace ZeroC.Ice
                                                port,
                                                options,
                                                communicator,
-                                               oaEndpoint,
-                                               uriString) ??
+                                               oaEndpoint) ??
                 UniversalEndpoint.Parse(transport, uri.DnsSafeHost, port, options, communicator, protocol);
 
             if (options.Count > 0)
@@ -209,11 +208,11 @@ namespace ZeroC.Ice
         {
             if (endpointOptions == null) // i.e. ice scheme
             {
-                Debug.Assert(uriString.StartsWith("ice:"));
+                Debug.Assert(uriString.StartsWith("ice:", StringComparison.InvariantCulture));
                 Debug.Assert(!pureEndpoints);
 
                 string body = uriString.Substring(4);
-                if (body.StartsWith("//"))
+                if (body.StartsWith("//", StringComparison.InvariantCulture))
                 {
                     throw new FormatException("the ice URI scheme cannot define a host or port");
                 }
@@ -338,7 +337,7 @@ namespace ZeroC.Ice
 
             try
             {
-                bool iceScheme = uriString.StartsWith("ice:");
+                bool iceScheme = uriString.StartsWith("ice:", StringComparison.InvariantCulture);
                 if (iceScheme && oaEndpoints)
                 {
                     throw new FormatException("an object adapter endpoint supports only ice+transport URIs");
@@ -357,21 +356,21 @@ namespace ZeroC.Ice
                 {
                     endpoints = new List<Endpoint>
                     {
-                        CreateEndpoint(communicator, oaEndpoints, endpointOptions, protocol, uri, uriString)
+                        CreateEndpoint(communicator, oaEndpoints, endpointOptions, protocol, uri)
                     };
 
                     if (altEndpoint != null)
                     {
                         foreach (string endpointStr in altEndpoint.Split(','))
                         {
-                            if (endpointStr.StartsWith("ice:"))
+                            if (endpointStr.StartsWith("ice:", StringComparison.InvariantCulture))
                             {
                                 throw new FormatException(
                                     $"invalid URI scheme for endpoint `{endpointStr}': must be empty or ice+transport");
                             }
 
                             string altUriString = endpointStr;
-                            if (!altUriString.StartsWith("ice+"))
+                            if (!altUriString.StartsWith("ice+", StringComparison.InvariantCulture))
                             {
                                 altUriString = $"{uri.Scheme}://{altUriString}";
                             }
@@ -397,8 +396,7 @@ namespace ZeroC.Ice
                                                          oaEndpoints,
                                                          endpointOptions,
                                                          protocol,
-                                                         endpointUri,
-                                                         endpointStr));
+                                                         endpointUri));
                         }
                     }
                 }

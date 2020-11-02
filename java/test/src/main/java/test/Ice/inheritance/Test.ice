@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Ice.inheritance]]
+[[java:package(test.Ice.inheritance)]]
 
 module Test
 {

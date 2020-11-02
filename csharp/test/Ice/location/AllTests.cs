@@ -9,7 +9,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Location
 {
-    public class AllTests
+    public static class AllTests
     {
         public static void Run(TestHelper helper)
         {
@@ -23,9 +23,9 @@ namespace ZeroC.Ice.Test.Location
             TestHelper.Assert(registry != null);
 
             System.IO.TextWriter output = helper.Output;
-            output.Write("testing stringToProxy... ");
+            output.Write("testing ice1 string/URI parsing... ");
             output.Flush();
-            IObjectPrx base1, base2, base3, base4, base5, base6;
+            IObjectPrx base1, base2, base3, base4, base5, base6, base7;
             if (ice1)
             {
                 base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
@@ -34,6 +34,7 @@ namespace ZeroC.Ice.Test.Location
                 base4 = IObjectPrx.Parse("ServerManager", communicator);
                 base5 = IObjectPrx.Parse("test2", communicator);
                 base6 = IObjectPrx.Parse("test @ ReplicatedAdapter", communicator);
+                base7 = IObjectPrx.Parse("test3 -f facet", communicator);
             }
             else
             {
@@ -43,6 +44,7 @@ namespace ZeroC.Ice.Test.Location
                 base4 = IObjectPrx.Parse("ice:ServerManager", communicator);
                 base5 = IObjectPrx.Parse("ice:test2", communicator);
                 base6 = IObjectPrx.Parse("ice:ReplicatedAdapter//test", communicator);
+                base7 = IObjectPrx.Parse("ice:test3#facet", communicator);
             }
             output.WriteLine("ok");
 
@@ -280,6 +282,21 @@ namespace ZeroC.Ice.Test.Location
             hello.SayHello();
             output.WriteLine("ok");
 
+            output.Write("testing well-known proxy with facet... ");
+            output.Flush();
+            hello = IHelloPrx.Parse(ice1 ? "bonjour -f abc" : "ice:bonjour#abc", communicator);
+            hello.SayHello();
+            hello = IHelloPrx.Parse(ice1 ? "hello -f abc" : "ice:hello#abc", communicator);
+            try
+            {
+                hello.SayHello();
+                TestHelper.Assert(false);
+            }
+            catch (NoEndpointException) // hello does not have an abc facet
+            {
+            }
+            output.WriteLine("ok");
+
             output.Write("testing locator request queuing... ");
             output.Flush();
             hello = obj1.GetReplicatedHello()!.Clone(locatorCacheTimeout: TimeSpan.Zero, cacheConnection: false);
@@ -338,16 +355,18 @@ namespace ZeroC.Ice.Test.Location
             {
             }
 
-            registry.RegisterAdapterEndpoints(
+            RegisterAdapterEndpoints(
+                registry,
                 "TestAdapter3",
                 replicaGroupId: "",
-                locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
+                ResolveLocation(locator, "TestAdapter")!);
 
             try
             {
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
 
-                registry.RegisterAdapterEndpoints(
+                RegisterAdapterEndpoints(
+                    registry,
                     "TestAdapter3",
                     replicaGroupId: "",
                     IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
@@ -377,10 +396,11 @@ namespace ZeroC.Ice.Test.Location
             {
             }
 
-            registry.RegisterAdapterEndpoints(
+            RegisterAdapterEndpoints(
+                registry,
                 "TestAdapter3",
                 "",
-                locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
+                ResolveLocation(locator, "TestAdapter")!);
             try
             {
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter3" : "ice:TestAdapter3//test", communicator).IcePing();
@@ -405,7 +425,8 @@ namespace ZeroC.Ice.Test.Location
             }
             registry.AddObject(IObjectPrx.Parse(
                 ice1 ? "test3@TestAdapter4" : "ice:TestAdapter4//test3", communicator)); // Update
-            registry.RegisterAdapterEndpoints(
+            RegisterAdapterEndpoints(
+                registry,
                 "TestAdapter4",
                 "",
                 IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
@@ -417,10 +438,11 @@ namespace ZeroC.Ice.Test.Location
             catch (ConnectionRefusedException)
             {
             }
-            registry.RegisterAdapterEndpoints(
+            RegisterAdapterEndpoints(
+                registry,
                 "TestAdapter4",
                 "",
-                locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
+                ResolveLocation(locator, "TestAdapter")!);
             try
             {
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", communicator).IcePing();
@@ -430,7 +452,8 @@ namespace ZeroC.Ice.Test.Location
                 TestHelper.Assert(false);
             }
 
-            registry.RegisterAdapterEndpoints(
+            RegisterAdapterEndpoints(
+                registry,
                 "TestAdapter4",
                 "",
                 IObjectPrx.Parse(helper.GetTestProxy("dummy", 99), communicator));
@@ -497,10 +520,11 @@ namespace ZeroC.Ice.Test.Location
                 properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
                 using Communicator ic = helper.Initialize(properties);
 
-                registry.RegisterAdapterEndpoints(
+                RegisterAdapterEndpoints(
+                    registry,
                     "TestAdapter5",
                     "",
-                    locator.ResolveLocation(ImmutableArray.Create("TestAdapter"), locator.Protocol)!);
+                    ResolveLocation(locator, "TestAdapter")!);
                 registry.AddObject(IObjectPrx.Parse(
                     ice1 ? "test3@TestAdapter" : "ice:TestAdapter//test3", communicator));
 
@@ -510,7 +534,7 @@ namespace ZeroC.Ice.Test.Location
                 IObjectPrx.Parse(ice1 ? "test3" : "ice:test3", ic).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
                 count += 3;
                 TestHelper.Assert(count == locator.GetRequestCount());
-                registry.UnregisterAdapterEndpoints("TestAdapter5", "", locator.Protocol);
+                UnregisterAdapterEndpoints(registry, "TestAdapter5", "");
                 registry.AddObject(IObjectPrx.Parse(helper.GetTestProxy("test3", 99), communicator));
                 IObjectPrx.Parse(ice1 ? "test@TestAdapter5" : "ice:TestAdapter5//test", ic)
                     .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
@@ -639,12 +663,14 @@ namespace ZeroC.Ice.Test.Location
             }
             TestHelper.Assert(helloPrx.GetConnection() is ColocatedConnection);
 
-            // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-            helloPrx = adapter.CreateIndirectProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
+            // Ensure that calls on the indirect proxy (with adapter ID) is colocated
+            helloPrx = adapter.CreateProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
             TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() is ColocatedConnection);
 
-            // Ensure that calls on the direct proxy is collocated
-            helloPrx = adapter.CreateDirectProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
+            // Ensure that calls on the direct proxy is colocated
+            helloPrx = adapter.CreateProxy(id, IObjectPrx.Factory).Clone(
+                endpoints: adapter.PublishedEndpoints,
+                location: ImmutableArray<string>.Empty).CheckedCast(IHelloPrx.Factory);
             TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() is ColocatedConnection);
 
             output.WriteLine("ok");
@@ -653,6 +679,54 @@ namespace ZeroC.Ice.Test.Location
             output.Flush();
             manager.Shutdown();
             output.WriteLine("ok");
+        }
+
+        private static void RegisterAdapterEndpoints(
+            ILocatorRegistryPrx registry,
+            string adapterId,
+            string replicaGroupId,
+            IObjectPrx proxy)
+        {
+            if (proxy.Protocol == Protocol.Ice1)
+            {
+                registry.SetReplicatedAdapterDirectProxy(adapterId, replicaGroupId, proxy);
+            }
+            else
+            {
+                registry.RegisterAdapterEndpoints(adapterId, replicaGroupId, proxy.Endpoints.ToEndpointDataList());
+            }
+        }
+
+        private static IObjectPrx? ResolveLocation(ILocatorPrx locator, string adapterId)
+        {
+            if (locator.Protocol == Protocol.Ice1)
+            {
+                return locator.FindAdapterById(adapterId);
+            }
+            else
+            {
+                (EndpointData[] dataArray, string[] newLocation) =
+                    locator.ResolveLocation(ImmutableArray.Create(adapterId));
+
+                return dataArray.Length > 0 ?
+                    locator.Clone(endpoints: dataArray.ToEndpointList(locator.Communicator), location: newLocation) :
+                        null;
+            }
+        }
+
+        private static void UnregisterAdapterEndpoints(
+            ILocatorRegistryPrx registry,
+            string adapterId,
+            string replicaGroupId)
+        {
+            if (registry.Protocol == Protocol.Ice1)
+            {
+                registry.SetReplicatedAdapterDirectProxy(adapterId, replicaGroupId, null);
+            }
+            else
+            {
+                registry.UnregisterAdapterEndpoints(adapterId, replicaGroupId);
+            }
         }
     }
 }

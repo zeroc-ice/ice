@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -50,7 +51,8 @@ namespace ZeroC.Ice
             }
 
             // TODO: fix the Slice method addProxies to return non-nullable proxies.
-            IObjectPrx?[] evictedProxies = await Router.AddProxiesAsync(new IObjectPrx[] { proxy });
+            IObjectPrx?[] evictedProxies =
+                await Router.AddProxiesAsync(new IObjectPrx[] { proxy }).ConfigureAwait(false);
 
             lock (_mutex)
             {
@@ -91,6 +93,20 @@ namespace ZeroC.Ice
             }
         }
 
+        internal IReadOnlyList<Endpoint> GetClientEndpoints(CancellationToken cancel = default)
+        {
+            try
+            {
+                ValueTask<IReadOnlyList<Endpoint>> task = GetClientEndpointsAsync(cancel);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
         internal async ValueTask<IReadOnlyList<Endpoint>> GetClientEndpointsAsync(CancellationToken cancel = default)
         {
             lock (_mutex)
@@ -108,23 +124,42 @@ namespace ZeroC.Ice
             {
                 if (_clientEndpoints == null)
                 {
-                    // If GetClientProxy() returns nil, use router endpoints.
-                    _clientEndpoints = (clientProxy ?? Router).IceReference.Endpoints;
+                    // If GetClientProxy() returns null, use router endpoints.
+                    _clientEndpoints = (clientProxy ?? Router).Endpoints;
                     _hasRoutingTable = hasRoutingTable ?? true;
                 }
                 return _clientEndpoints;
             }
         }
+    }
 
-        internal async Task<IReadOnlyList<Endpoint>> GetServerEndpointsAsync()
+    internal static class RouterExtensions
+    {
+        internal static IReadOnlyList<Endpoint> GetServerEndpoints(
+            this IRouterPrx router,
+            CancellationToken cancel = default)
         {
-            IObjectPrx? serverProxy = await Router.GetServerProxyAsync().ConfigureAwait(false);
-            if (serverProxy == null)
+            try
             {
-                throw new InvalidConfigurationException($"router `{Router.Identity}' has no server endpoints");
+                return router.GetServerEndpointsAsync(cancel).Result;
             }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
 
-            return serverProxy.IceReference.Endpoints;
+        internal static async Task<IReadOnlyList<Endpoint>> GetServerEndpointsAsync(
+            this IRouterPrx router,
+            CancellationToken cancel = default)
+        {
+            IObjectPrx? serverProxy = await router.GetServerProxyAsync(cancel: cancel).ConfigureAwait(false);
+            if (serverProxy == null || serverProxy.Endpoints.Count == 0)
+            {
+                throw new InvalidConfigurationException($"router `{router}' has no server endpoints");
+            }
+            return serverProxy.Endpoints;
         }
     }
 }

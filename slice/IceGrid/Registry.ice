@@ -4,28 +4,28 @@
 
 #pragma once
 
-[[cpp:dll-export:ICEGRID_API]]
-[[cpp:doxygen:include:IceGrid/IceGrid.h]]
-[[cpp:header-ext:h]]
-[[cpp:include:IceGrid/Config.h]]
+[[cpp:dll-export(ICEGRID_API)]]
+[[cpp:doxygen:include(IceGrid/IceGrid.h)]]
+[[cpp:header-ext(h)]]
+[[cpp:include(IceGrid/Config.h)]]
 
-[[suppress-warning:reserved-identifier]]
-[[js:module:ice]]
+[[suppress-warning(reserved-identifier)]]
+[[js:module(ice)]]
 
-[[python:pkgdir:IceGrid]]
+[[python:pkgdir(IceGrid)]]
 
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <Ice/Locator.ice>
 
-[[java:package:com.zeroc]]
-[cs:namespace:ZeroC]
+[[java:package(com.zeroc)]]
+[cs:namespace(ZeroC)]
 module IceGrid
 {
     /// Determines which load sampling interval to use.
-    [cs:attribute:System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1712:Do not prefix enum values with type name",
-     Justification = "Cannot rename for backwards compatibility")]
+    [cs:attribute(System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1712:Do not prefix enum values with type name",
+     Justification = "Cannot rename for backwards compatibility"))]
     enum LoadSample
     {
         /// Sample every minute.

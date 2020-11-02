@@ -1,14 +1,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
-using System.IO;
 using System.Collections.Generic;
-using Test;
+using System.IO;
 using System.Threading;
+using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
-    public class AllTests
+    public static class AllTests
     {
         private class Relay : IRelay
         {

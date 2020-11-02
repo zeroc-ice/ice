@@ -92,7 +92,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        private ITestIntfPrx Self(Current current) =>
+        private static ITestIntfPrx Self(Current current) =>
             current.Adapter.CreateProxy(current.Identity, ITestIntfPrx.Factory);
 
         public ValueTask StartDispatchAsync(Current current, CancellationToken cancel)

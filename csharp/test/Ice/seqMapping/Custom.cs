@@ -30,9 +30,7 @@ namespace ZeroC.Ice.Test.SeqMapping
         public T this[int index]
         {
             get => _list[index];
-
             set => _list[index] = value;
-
         }
 
         public void Add(T elmt) => _list.Add(elmt);

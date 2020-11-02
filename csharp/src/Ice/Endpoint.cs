@@ -74,7 +74,7 @@ namespace ZeroC.Ice
         /// ice2, it's ice+transport (ice+tcp, ice+quic etc.) or ice+universal.</summary>
         public virtual string Scheme => Protocol == Protocol.Ice1 ? TransportName : $"ice+{TransportName}";
 
-        /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
+        /// <summary>The <see cref="Ice.Transport"></see> of this endpoint.</summary>
         public Transport Transport => Data.Transport;
 
         /// <summary>The name of the endpoint's transport in lowercase.</summary>
@@ -110,27 +110,6 @@ namespace ZeroC.Ice
         /// <param name="rhs">The right hand side operand.</param>
         /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
         public static bool operator !=(Endpoint? lhs, Endpoint? rhs) => !(lhs == rhs);
-
-        /// <summary>Creates an endpoint from an <see cref="EndpointData"/> struct.</summary>
-        /// <param name="data">The endpoint's data.</param>
-        /// <param name="communicator">The communicator.</param>
-        /// <param name="protocol">The endpoint's protocol. Must be ice2 or greater.</param>
-        /// <returns>A new endpoint.</returns>
-        public static Endpoint FromEndpointData(
-            EndpointData data,
-            Communicator communicator,
-            Protocol protocol = Protocol.Ice2)
-        {
-            if ((byte)protocol < (byte)Protocol.Ice2)
-            {
-                throw new ArgumentException("protocol must be ice2 or greater", nameof(protocol));
-            }
-
-            Ice2EndpointFactory? factory =
-                    protocol == Protocol.Ice2 ? communicator.FindIce2EndpointFactory(data.Transport) : null;
-
-            return factory?.Invoke(data, communicator) ?? UniversalEndpoint.Create(data, communicator, protocol);
-        }
 
         /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is Endpoint other && Equals(other);
@@ -206,12 +185,9 @@ namespace ZeroC.Ice
         public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
 
         /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
-        /// <param name="endpointSelection">The endpoint selection type used when expanding the endpoint address.
-        /// </param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A collector of connectors for this endpoint.</returns>
         public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType endpointSelection,
             CancellationToken cancel);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.
@@ -247,8 +223,46 @@ namespace ZeroC.Ice
         }
     }
 
-    internal static class EndpointExtensions
+    public static class EndpointExtensions
     {
+        /// <summary>Creates an endpoint from an <see cref="EndpointData"/> struct.</summary>
+        /// <param name="data">The endpoint's data.</param>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="protocol">The endpoint's protocol. Must be ice2 or greater.</param>
+        /// <returns>A new endpoint.</returns>
+        public static Endpoint ToEndpoint(
+            this EndpointData data,
+            Communicator communicator,
+            Protocol protocol = Protocol.Ice2)
+        {
+            if ((byte)protocol < (byte)Protocol.Ice2)
+            {
+                throw new ArgumentException("protocol must be ice2 or greater", nameof(protocol));
+            }
+
+            Ice2EndpointFactory? factory =
+                    protocol == Protocol.Ice2 ? communicator.FindIce2EndpointFactory(data.Transport) : null;
+
+            return factory?.Invoke(data, communicator) ?? UniversalEndpoint.Create(data, communicator, protocol);
+        }
+
+        /// <summary>Creates an endpoint data list from a sequence of endpoints.</summary>
+        /// <param name="endpoints">The sequence of endpoints.</param>
+        /// <returns>A new list of endpoint data.</returns>
+        public static List<EndpointData> ToEndpointDataList(this IEnumerable<Endpoint> endpoints) =>
+            endpoints.Select(e => e.Data).ToList();
+
+        /// <summary>Creates an endpoint list from a sequence of <see cref="EndpointData"/> structs.</summary>
+        /// <param name="dataSequence">The sequence of endpoint data.</param>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="protocol">The endpoint's protocol. Must be ice2 or greater.</param>
+        /// <returns>A new list of endpoints.</returns>
+        public static List<Endpoint> ToEndpointList(
+            this IEnumerable<EndpointData> dataSequence,
+            Communicator communicator,
+            Protocol protocol = Protocol.Ice2) =>
+            dataSequence.Select(data => data.ToEndpoint(communicator, protocol)).ToList();
+
         /// <summary>Appends the endpoint and all its options (if any) to this string builder, when using the URI
         /// format.</summary>
         /// <param name="sb">The string builder.</param>

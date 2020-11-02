@@ -1247,7 +1247,7 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
                             "ignoring invalid metadata `" + s + "' for operation with void return type");
                 metadata.remove(s);
             }
-            else if(s.find("cpp:const") == 0 || s.find("cpp:noexcept") == 0)
+            else if(s.find("cpp:const") == 0)
             {
                 continue;
             }
@@ -1325,7 +1325,7 @@ Slice::Gen::MetadataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
     {
         string s = *p++;
 
-        if(operation && (s == "cpp:const" || s == "cpp:noexcept"))
+        if(operation && (s == "cpp:const"))
         {
             continue;
         }

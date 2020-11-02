@@ -140,7 +140,7 @@ namespace ZeroC.Ice
 
             if (Endpoint.Communicator.TraceLevels.Transport >= 3)
             {
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory,
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"received {size} bytes via {Endpoint.TransportName}\n{this}");
             }
         }
@@ -182,7 +182,7 @@ namespace ZeroC.Ice
 
             if (Endpoint.Communicator.TraceLevels.Transport >= 3 && size > 0)
             {
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory,
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory,
                     $"sent {size} bytes via {Endpoint.TransportName}\n{this}");
             }
         }
@@ -209,8 +209,8 @@ namespace ZeroC.Ice
             // Abort the transport.
             Abort();
 
-            // Consider the abort as gracefull if the streams were already aborted.
-            bool gracefull = _streamsAborted;
+            // Consider the abort as graceful if the streams were already aborted.
+            bool graceful = _streamsAborted;
 
             // Abort the streams if not already done and wait for all the streams to be completed.
             if (!_streamsAborted)
@@ -233,13 +233,13 @@ namespace ZeroC.Ice
                 s.Append(ToString());
 
                 // Trace the cause of unexpected connection closures
-                if (!gracefull && !(exception is ConnectionClosedException || exception is ObjectDisposedException))
+                if (!graceful && !(exception is ConnectionClosedException || exception is ObjectDisposedException))
                 {
                     s.Append("\nexception = ");
                     s.Append(exception);
                 }
 
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
             }
         }
 
@@ -277,7 +277,7 @@ namespace ZeroC.Ice
         {
             if (_streamsAborted)
             {
-                throw new ConnectionClosedException();
+                throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             _streams[id] = stream;
             if (!stream.IsControl)
@@ -320,7 +320,7 @@ namespace ZeroC.Ice
                     s.Append(" connection\n");
                 }
                 s.Append(ToString());
-                Endpoint.Communicator.Logger.Trace(Endpoint.Communicator.TraceLevels.TransportCategory, s.ToString());
+                Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
             }
         }
 
@@ -551,7 +551,7 @@ namespace ZeroC.Ice
             s.Append('\n');
             s.Append(ToString());
 
-            communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
+            communicator.Logger.Trace(TraceLevels.ProtocolCategory, s.ToString());
         }
 
         internal async ValueTask WaitForEmptyStreamsAsync()

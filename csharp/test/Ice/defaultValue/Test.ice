@@ -1,11 +1,9 @@
-//
 // Copyright (c) ZeroC, Inc. All rights reserved.
-//
 
 #pragma once
 
 // deprecated for enumerator references
-[[suppress-warning:invalid-metadata, deprecated, reserved-identifier]]
+[[suppress-warning(all)]]
 
 module ZeroC::Ice::Test::DefaultValue
 {
@@ -100,52 +98,6 @@ exception DerivedEx : BaseEx
     Nested::Color nc1 = ConstNestedColor1;
     Nested::Color nc2 = ConstNestedColor2;
     Nested::Color nc3 = ConstNestedColor3;
-}
-
-[cs:property]
-class ClassProperty
-{
-    bool boolFalse = false;
-    bool boolTrue = true;
-    byte b = 1;
-    short s = 2;
-    int i = 3;
-    long l = 4;
-    float f = 5.1;
-    double d = 6.2;
-    string str = "foo bar";
-    tag(1) string? noDefault;
-    int zeroI = 0;
-    long zeroL = 0;
-    float zeroF = 0;
-    float zeroDotF = 0.0;
-    double zeroD = 0;
-    double zeroDotD = 0;
-}
-
-//
-// Exceptions don't support "clr:property" metadata, but
-// we want to ensure that the generated code compiles.
-//
-[cs:property]
-exception ExceptionProperty
-{
-    bool boolFalse = false;
-    bool boolTrue = true;
-    byte b = 1;
-    short s = 2;
-    int i = 3;
-    long l = 4;
-    float f = 5.1;
-    double d = 6.2;
-    string str = "foo bar";
-    tag(1) string? noDefault;
-    int zeroI = 0;
-    long zeroL = 0;
-    float zeroF = 0;
-    float zeroDotF = 0.0;
-    double zeroD = 0;
-    double zeroDotD = 0;
 }
 
 sequence<byte> ByteSeq;

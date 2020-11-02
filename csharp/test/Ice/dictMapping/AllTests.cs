@@ -5,7 +5,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
-    public class AllTests
+    public static class AllTests
     {
         public static IMyClassPrx Run(TestHelper helper, bool collocated)
         {

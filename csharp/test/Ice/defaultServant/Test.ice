@@ -4,8 +4,7 @@
 
 #pragma once
 
-[[normalize-case]]
-[[suppress-warning:reserved-identifier]]
+[[suppress-warning(reserved-identifier)]]
 
 module ZeroC::Ice::Test::DefaultServant
 {

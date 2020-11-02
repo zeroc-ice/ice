@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 {
                     socket.SetSocketOption(SocketOptionLevel.IPv6,
                                            SocketOptionName.IPv6Only,
-                                           endpoint.IsIPv6Only ? true : false);
+                                           endpoint.IsIPv6Only);
                 }
                 catch (SocketException ex)
                 {
@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Socket CreateSocket(bool udp, AddressFamily family)
+        internal static Socket CreateSocket(bool udp, AddressFamily family, IConnector? connector = null)
         {
             Socket socket;
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex);
+                throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
             }
 
             if (!udp)
@@ -87,24 +87,17 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex);
+                    throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
                 }
             }
             return socket;
         }
 
-        internal static IEnumerable<IPEndPoint> GetAddresses(
-            string host,
-            int port,
-            int ipVersion,
-            EndpointSelectionType selType)
+        internal static IEnumerable<IPEndPoint> GetAddresses(string host, int port, int ipVersion)
         {
             try
             {
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
-                                                                            port,
-                                                                            ipVersion,
-                                                                            selType);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -118,7 +111,6 @@ namespace ZeroC.Ice
             string host,
             int port,
             int ipVersion,
-            EndpointSelectionType selType,
             CancellationToken cancel = default)
         {
             Debug.Assert(host.Length > 0);
@@ -161,13 +153,7 @@ namespace ZeroC.Ice
                     throw new DNSException(host);
                 }
 
-                IEnumerable<IPEndPoint> addrs = addresses;
-                if (selType == EndpointSelectionType.Random)
-                {
-                    addrs = addrs.Shuffle();
-                }
-
-                return addrs;
+                return addresses;
             }
             catch (DNSException)
             {
@@ -183,12 +169,11 @@ namespace ZeroC.Ice
             string host,
             int port,
             int ipVersion,
-            EndpointSelectionType selType,
             CancellationToken cancel)
         {
             Debug.Assert(host.Length > 0);
 
-            return await GetAddressesAsync(host, port, ipVersion, selType, cancel).ConfigureAwait(false);
+            return await GetAddressesAsync(host, port, ipVersion, cancel).ConfigureAwait(false);
         }
 
         internal static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion)
@@ -200,10 +185,7 @@ namespace ZeroC.Ice
             try
             {
                 // Get the addresses for the given host and return the first one
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host,
-                                                                            port,
-                                                                            ipVersion,
-                                                                            EndpointSelectionType.Ordered);
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
                 return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
             }
             catch (AggregateException ex)
@@ -262,15 +244,15 @@ namespace ZeroC.Ice
             {
                 return socket.LocalEndPoint;
             }
-            catch (SocketException ex)
+            catch (SocketException)
             {
-                throw new TransportException(ex);
             }
+            return null;
         }
 
         internal static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
         {
-            List<IPAddress> addresses = new List<IPAddress>();
+            var addresses = new HashSet<IPAddress>();
             try
             {
                 NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
@@ -281,10 +263,9 @@ namespace ZeroC.Ice
                     foreach (UnicastIPAddressInformation uni in uniColl)
                     {
                         if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
-                           (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
+                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
                         {
-                            if (!addresses.Contains(uni.Address) &&
-                               (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
+                            if (includeLoopback || !IPAddress.IsLoopback(uni.Address))
                             {
                                 addresses.Add(uni.Address);
                                 if (singleAddressPerInterface)
@@ -298,7 +279,10 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                throw new TransportException("error retrieving local network interface IP addresses", ex);
+                throw new TransportException(
+                    "error retrieving local network interface IP addresses",
+                    ex,
+                    RetryPolicy.NoRetry);
             }
 
             return addresses.ToArray();

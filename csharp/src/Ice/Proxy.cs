@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,6 @@ namespace ZeroC.Ice
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="facet">The facet of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
@@ -74,7 +74,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null,
             string? facet = null,
             Connection? fixedConnection = null,
@@ -94,7 +93,6 @@ namespace ZeroC.Ice
                                            connectionId,
                                            context,
                                            encoding,
-                                           endpointSelection,
                                            endpoints,
                                            facet,
                                            fixedConnection,
@@ -121,7 +119,6 @@ namespace ZeroC.Ice
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
-        /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
@@ -144,7 +141,6 @@ namespace ZeroC.Ice
             string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
-            EndpointSelectionType? endpointSelection = null,
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
             InvocationMode? invocationMode = null,
@@ -162,7 +158,6 @@ namespace ZeroC.Ice
                                                      connectionId,
                                                      context,
                                                      encoding,
-                                                     endpointSelection,
                                                      endpoints,
                                                      facet: null,
                                                      fixedConnection,
@@ -212,46 +207,6 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
 
-        /// <summary>Sends a request synchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// twoway request.</param>
-        /// <returns>The response frame.</returns>
-        public static IncomingResponseFrame Invoke(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway = false)
-        {
-            try
-            {
-                return InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: true).Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Sends a request asynchronously.</summary>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
-        /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation. Usually this request
-        /// frame should have been created using the same proxy, however some differences are acceptable, for example
-        /// proxy can have different endpoints.</param>
-        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
-        /// two-way request.</param>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <returns>A task holding the response frame.</returns>
-        public static Task<IncomingResponseFrame> InvokeAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway = false,
-            IProgress<bool>? progress = null) =>
-                InvokeWithInterceptorsAsync(proxy, request, oneway, synchronous: false, progress);
-
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
         /// <remarks>When the incoming request frame's protocol and proxy's protocol are different, this method
@@ -277,17 +232,13 @@ namespace ZeroC.Ice
             return new OutgoingResponseFrame(request, response);
         }
 
-        private static Task<IncomingResponseFrame> InvokeAsync(
+        public static Task<IncomingResponseFrame> InvokeAsync(
             this IObjectPrx proxy,
             OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress,
-            CancellationToken cancel)
+            bool oneway = false,
+            IProgress<bool>? progress = null)
         {
-            request.Finish();
-            InvocationMode mode = proxy.IceReference.InvocationMode;
-            switch (mode)
+            switch (proxy.InvocationMode)
             {
                 case InvocationMode.BatchOneway:
                 case InvocationMode.BatchDatagram:
@@ -296,17 +247,54 @@ namespace ZeroC.Ice
                 case InvocationMode.Datagram when !oneway:
                     throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
                 default:
-                    return InvokeAsync();
+                    return InvokeWithInterceptorsAsync(proxy,
+                                                       request,
+                                                       oneway,
+                                                       0,
+                                                       progress,
+                                                       request.CancellationToken);
             }
 
-            async Task<IncomingResponseFrame> InvokeAsync()
+            Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+                IObjectPrx proxy,
+                OutgoingRequestFrame request,
+                bool oneway,
+                int i,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
             {
+                cancel.ThrowIfCancellationRequested();
+                if (i < proxy.Communicator.InvocationInterceptors.Count)
+                {
+                    // Call the next interceptor in the chain
+                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
+                    return interceptor(
+                        proxy,
+                        request,
+                        (target, request, cancel) =>
+                            InvokeWithInterceptorsAsync(target, request, oneway, i, progress, cancel),
+                        cancel);
+                }
+                else
+                {
+                    // After we went down the interceptor chain make the invocation.
+                    return PerformInvokeAsync(request, oneway, progress, cancel);
+                }
+            }
+
+            async Task<IncomingResponseFrame> PerformInvokeAsync(
+                OutgoingRequestFrame request,
+                bool oneway,
+                IProgress<bool>? progress,
+                CancellationToken cancel)
+            {
+                request.Finish();
                 Reference reference = proxy.IceReference;
 
                 IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
                                                                                      request.Operation,
                                                                                      request.Context);
-                int retryCount = 0;
+                int attempt = 1;
                 // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
                 // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
                 // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
@@ -319,6 +307,7 @@ namespace ZeroC.Ice
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
                     List<IConnector>? excludedConnectors = null;
+                    IConnector? connector = null;
                     while (true)
                     {
                         Connection? connection = null;
@@ -331,7 +320,7 @@ namespace ZeroC.Ice
                             connection = await reference.GetConnectionAsync(
                                 excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
                                 cancel).ConfigureAwait(false);
-
+                            connector = connection.Connector;
                             cancel.ThrowIfCancellationRequested();
 
                             // Create the outgoing stream.
@@ -408,17 +397,21 @@ namespace ZeroC.Ice
                         catch (NoEndpointException ex)
                         {
                             // The reference has no endpoints or the previous retry policy asked to retry on a
-                            // different replica but no more replicas are available (in this case, we rethrow
-                            // the remote exception instead of the NoEndpointException).
-                            lastException = response == null ? ex : null;
+                            // different replica but no more replicas are available (in this case, we throw
+                            // the previous exception instead of the NoEndpointException).
+                            if (response == null && lastException == null)
+                            {
+                                lastException = null;
+                            }
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
                         catch (TransportException ex)
                         {
                             var closedException = ex as ConnectionClosedException;
-                            if (connection != null && closedException == null)
+                            connector ??= ex.Connector;
+                            if (connector != null && closedException == null)
                             {
-                                reference.Communicator.OutgoingConnectionFactory.AddHintFailure(connection.Connector);
+                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connector);
                             }
 
                             lastException = ex;
@@ -428,7 +421,7 @@ namespace ZeroC.Ice
                             // connection was gracefully closed by the peer (in which case it's safe to retry).
                             if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
                             {
-                                retryPolicy = RetryPolicy.AfterDelay(TimeSpan.Zero);
+                                retryPolicy = ex.RetryPolicy;
                             }
                         }
                         catch (Exception ex)
@@ -445,33 +438,28 @@ namespace ZeroC.Ice
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("cannot retry request because " +
-                                           (requestSize > reference.Communicator.RetryRequestSizeMax ?
-                                               $"the request size `{requestSize}' exceeds Ice.RetryRequestSizeMax" :
-                                               "the retry buffer size would exceed Ice.RetryBufferSizeMax"),
-                                           retryCount,
+                                TraceRetry("request failed with retryable exception but the request is not retryable " +
+                                           "because\n" + (requestSize > reference.Communicator.RetryRequestSizeMax ?
+                                           "the request size exceeds Ice.RetryRequestSizeMax, " :
+                                           "the retry buffer size would exceed Ice.RetryBufferSizeMax, ") +
+                                           "passing exception through to the application",
+                                           attempt,
                                            retryPolicy,
                                            lastException);
                             }
                             break; // We cannot retry, get out of the loop
                         }
-                        else if (retryPolicy.Retryable == Retryable.No)
+                        else if (retryPolicy == RetryPolicy.NoRetry)
                         {
-                            if (reference.Communicator.TraceLevels.Retry >= 1)
-                            {
-                                TraceRetry($"cannot retry request because the exception can't be retried",
-                                           retryCount,
-                                           retryPolicy,
-                                           lastException);
-                            }
                             break; // We cannot retry, get out of the loop
                         }
-                        else if (++retryCount == reference.Communicator.RetryMaxAttempts)
+                        else if (++attempt > reference.Communicator.RetryMaxAttempts)
                         {
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("cannot retry request because the maximum retry count has been reached",
-                                           retryCount,
+                                TraceRetry("request failed with retryable exception but it was the final attempt,\n" +
+                                           "passing exception through to the application",
+                                           attempt,
                                            retryPolicy,
                                            lastException);
                             }
@@ -479,16 +467,17 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            Debug.Assert(retryCount < reference.Communicator.RetryMaxAttempts);
-                            if (retryPolicy.Retryable == Retryable.OtherReplica)
+                            Debug.Assert(attempt <= reference.Communicator.RetryMaxAttempts &&
+                                         retryPolicy != RetryPolicy.NoRetry);
+                            if (retryPolicy == RetryPolicy.OtherReplica)
                             {
+                                Debug.Assert(connector != null);
                                 excludedConnectors ??= new List<IConnector>();
-                                excludedConnectors.Add(connection!.Connector);
+                                excludedConnectors.Add(connector);
                                 if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
-                                    reference.Communicator.Logger.Trace(
-                                        reference.Communicator.TraceLevels.RetryCategory,
-                                        $"excluding connector\n{connection.Connector}");
+                                    reference.Communicator.Logger.Trace(TraceLevels.RetryCategory,
+                                                                        $"excluding connector\n{connector}");
                                 }
                             }
 
@@ -499,8 +488,8 @@ namespace ZeroC.Ice
 
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
-                                TraceRetry("retrying request because of exception",
-                                           retryCount,
+                                TraceRetry("retrying request because of retryable exception",
+                                           attempt,
                                            retryPolicy,
                                            lastException);
                             }
@@ -544,7 +533,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            void TraceRetry(string message, int retryCount, RetryPolicy policy, Exception? exception = null)
+            void TraceRetry(string message, int attempt, RetryPolicy policy, Exception? exception = null)
             {
                 var sb = new StringBuilder();
                 sb.Append(message);
@@ -552,10 +541,13 @@ namespace ZeroC.Ice
                 sb.Append(proxy);
                 sb.Append("\noperation = ");
                 sb.Append(request.Operation);
-                sb.Append("\nretry count = ");
-                sb.Append(retryCount);
-                sb.Append('/');
-                sb.Append(proxy.IceReference.Communicator.RetryMaxAttempts);
+                if (attempt <= proxy.Communicator.RetryMaxAttempts)
+                {
+                    sb.Append("\nrequest attempt = ");
+                    sb.Append(attempt);
+                    sb.Append('/');
+                    sb.Append(proxy.Communicator.RetryMaxAttempts);
+                }
                 sb.Append("\nretry policy = ");
                 sb.Append(policy);
                 if (exception != null)
@@ -567,51 +559,14 @@ namespace ZeroC.Ice
                 {
                     sb.Append("\nexception = remote exception");
                 }
-                proxy.IceReference.Communicator.Logger.Trace(proxy.IceReference.Communicator.TraceLevels.RetryCategory,
-                                                             sb.ToString());
+                proxy.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
 
-        private static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-            this IObjectPrx proxy,
-            OutgoingRequestFrame request,
-            bool oneway,
-            bool synchronous,
-            IProgress<bool>? progress = null)
-        {
-            return InvokeWithInterceptorsAsync(proxy,
-                                               request,
-                                               oneway,
-                                               synchronous,
-                                               0,
-                                               progress,
-                                               request.CancellationToken);
-
-            static Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
-                IObjectPrx proxy,
-                OutgoingRequestFrame request,
-                bool oneway,
-                bool synchronous,
-                int i,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
-            {
-                cancel.ThrowIfCancellationRequested();
-                if (i < proxy.Communicator.InvocationInterceptors.Count)
-                {
-                    InvocationInterceptor interceptor = proxy.Communicator.InvocationInterceptors[i++];
-                    return interceptor(
-                        proxy,
-                        request,
-                        (target, request, cancel) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, synchronous, i, progress, cancel),
-                        cancel);
-                }
-                else
-                {
-                    return proxy.InvokeAsync(request, oneway, synchronous, progress, cancel);
-                }
-            }
-        }
+        /// <summary>Produces a string representation of a location.</summary>
+        /// <param name="location">The location.</param>
+        /// <returns>The location as a percent-escaped string with segments separated by '/'.</returns>
+        public static string ToLocationString(this IEnumerable<string> location) =>
+            string.Join('/', location.Select(s => Uri.EscapeDataString(s)));
     }
 }

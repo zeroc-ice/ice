@@ -107,7 +107,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         Debug.Assert(request.BinaryContext.ContainsKey(2));
                         string[] s2 = request.BinaryContext[2].Read(istr =>
                             istr.ReadArray(1, InputStream.IceReaderIntoString));
-                        Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
+                        TestHelper.Assert(Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2));
 
                         if (request.HasCompressedPayload)
                         {
@@ -125,7 +125,7 @@ namespace ZeroC.Ice.Test.Interceptor
                             Debug.Assert(request.BinaryContext.ContainsKey(2));
                             s2 = request.BinaryContext[2].Read(istr =>
                                 istr.ReadArray(1, InputStream.IceReaderIntoString));
-                            Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2);
+                            TestHelper.Assert(Enumerable.Range(0, 10).Select(i => $"string-{i}").SequenceEqual(s2));
                         }
                     }
                     return await next(request, current, cancel);
