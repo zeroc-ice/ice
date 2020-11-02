@@ -280,7 +280,10 @@ namespace ZeroC.Ice
                 throw new ConnectionClosedException();
             }
             _streams[id] = stream;
-            Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+            if (!stream.IsControl)
+            {
+                Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+            }
         }
 
         internal void CheckStreamsEmpty()
@@ -332,7 +335,10 @@ namespace ZeroC.Ice
         {
             if (_streams.TryRemove(id, out TransceiverStream? stream))
             {
-                Interlocked.Decrement(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+                if (!stream.IsControl)
+                {
+                    Interlocked.Decrement(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+                }
                 CheckStreamsEmpty();
             }
         }

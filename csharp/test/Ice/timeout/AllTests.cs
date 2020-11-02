@@ -76,8 +76,8 @@ namespace ZeroC.Ice.Test.Timeout
                 using var comm = new Communicator(properties);
 
                 var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
-
-                // Expect TimeoutException.
+                to.IcePing();
+                // Expect ConnectionClosedException.
                 controller.HoldAdapter(-1);
 
                 try

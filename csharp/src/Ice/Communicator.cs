@@ -160,6 +160,7 @@ namespace ZeroC.Ice
         internal int IncomingFrameSizeMax { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
+        internal bool KeepAlive { get; }
         internal INetworkProxy? NetworkProxy { get; }
 
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
@@ -510,10 +511,12 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.IdleTimeout");
                 }
 
+                KeepAlive = GetPropertyAsBool("Ice.KeepAlive") ?? false;
+
                 SlicOptions = new SlicOptions
                 {
                     MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
-                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
+                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxUnidirectionalStreams") ?? 100,
                     PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
                 };
                 if (SlicOptions.MaxBidirectionalStreams < 1)

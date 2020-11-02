@@ -235,9 +235,7 @@ namespace ZeroC.IceGrid.Test.Simple
             IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
             Connection connection = session.GetConnection();
-            connection.Acm = new Acm(TimeSpan.FromSeconds(registry.GetACMTimeout()),
-                                     connection.Acm.Close,
-                                     AcmHeartbeat.Always);
+            connection.KeepAlive = true;
 
             IAdminPrx? admin = session.GetAdmin();
             TestHelper.Assert(admin != null);

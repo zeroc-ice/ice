@@ -12,7 +12,6 @@ module ZeroC::Ice::Test::ACM
 interface TestIntf
 {
     void sleep(int seconds);
-    void interruptSleep();
     void startHeartbeatCount();
     void waitForHeartbeatCount(int count);
 }

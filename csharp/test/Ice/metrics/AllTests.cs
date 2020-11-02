@@ -572,14 +572,9 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!colocated)
             {
-                metricsWithHold.GetConnection().Acm = new Acm(TimeSpan.FromMilliseconds(200),
-                                                              AcmClose.OnInvocation,
-                                                              AcmHeartbeat.Off);
                 controller.Hold();
                 try
                 {
-                    // The first try should fail with ConnectTimeoutException and the retry with
-                    // ConnectTimeoutException.
                     metricsWithHold.IcePing();
                     TestHelper.Assert(false);
                 }
@@ -600,9 +595,10 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 TestHelper.Assert(cm1.Failures == 5 && sm1.Failures >= 5);
 
-                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectionClosedException", 1, output);
-                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 4, output);
-                CheckFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
+                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 5, output);
+                // The exception depends on the transport and might not necessarily be a connection lost exception so
+                // we can't test the exception raised by the server side.
+                // CheckFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
             }
 
             IMetricsPrx m = metrics.Clone(connectionId: "Con1");

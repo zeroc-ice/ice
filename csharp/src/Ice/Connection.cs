@@ -213,6 +213,7 @@ namespace ZeroC.Ice
             ConnectionId = connectionId;
             Endpoint = endpoint;
             Endpoints = new List<Endpoint>() { endpoint };
+            KeepAlive = _communicator.KeepAlive;
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
@@ -329,7 +330,7 @@ namespace ZeroC.Ice
                     //
                     // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because
                     // Monitor is still only called every (IdleTimeout / 2) period.
-                    _ = Transceiver.PingAsync(default);
+                    _ = Transceiver.PingAsync(CancellationToken.None);
                 }
 
                 if (idleTime > IdleTimeout)

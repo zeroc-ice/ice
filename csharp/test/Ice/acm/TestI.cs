@@ -3,6 +3,8 @@
 using Test;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ZeroC.Ice.Test.ACM
 {
@@ -14,24 +16,26 @@ namespace ZeroC.Ice.Test.ACM
             Current current,
             CancellationToken cancel)
         {
-            Communicator communicator = current.Adapter.Communicator;
+            var communicator = new Communicator(
+                new Dictionary<string, string>(current.Adapter.Communicator.GetProperties())
+                {
+                    ["Ice.Warn.Connections"] = "0",
+                    ["Ice.IdleTimeout"] = $"{idleTimeout}s",
+                    ["Ice.KeepAlive"] = keepAlive ? "1" : "0"
+                });
+
+            var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
+
             string transport = communicator.GetProperty("Test.Transport")!;
             string host = communicator.GetProperty("Test.Host")!;
-
-            string name = Guid.NewGuid().ToString();
-            if (idleTimeout >= 0)
-            {
-                communicator.SetProperty($"Ice.IdleTimeout", $"{idleTimeout}s");
-            }
-            communicator.SetProperty($"Ice.KeepAlive", keepAlive ? "1" : "0");
-
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             if (!ice1 && host.Contains(':'))
             {
                 host = $"[{host}]";
             }
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name,
-                ice1 ? $"{transport} -h \"{host}\"" : $"ice+{transport}://{host}:0");
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("TestAdapter",
+                ice1 ? $"{transport} -h \"{host}\"" : $"ice+{transport}://{host}:0",
+                taskScheduler: schedulerPair.ExclusiveScheduler);
 
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
@@ -55,65 +59,42 @@ namespace ZeroC.Ice.Test.ACM
 
         public ITestIntfPrx GetTestIntf(Current current, CancellationToken cancel) => _testIntf;
 
-        public void Deactivate(Current current, CancellationToken cancel) => _adapter.Dispose();
+        public void Deactivate(Current current, CancellationToken cancel) =>
+            _adapter.Communicator.DisposeAsync().AsTask();
     }
 
     public class TestIntf : ITestIntf
     {
-        private HeartbeatCallback? _callback;
+        private int _count;
         private readonly object _mutex = new object();
+
         public void Sleep(int delay, Current current, CancellationToken cancel)
         {
-            lock (_mutex)
-            {
-                Monitor.Wait(_mutex, TimeSpan.FromSeconds(delay));
-            }
+            Thread.Sleep(TimeSpan.FromSeconds(delay));
         }
 
-        public void InterruptSleep(Current current, CancellationToken cancel)
+        public void StartHeartbeatCount(Current current, CancellationToken cancel)
         {
-            lock (_mutex)
-            {
-                Monitor.PulseAll(_mutex);
-            }
-        }
-
-        public class HeartbeatCallback
-        {
-            private int _count;
-            private readonly object _mutex = new object();
-
-            public void Heartbeat()
+            _count = 0;
+            current.Connection.PingReceived += (sender, args) =>
             {
                 lock (_mutex)
                 {
                     ++_count;
                     Monitor.PulseAll(_mutex);
                 }
-            }
-
-            public void WaitForCount(int count)
-            {
-                lock (_mutex)
-                {
-                    while (_count < count)
-                    {
-                        Monitor.Wait(_mutex);
-                    }
-                }
-            }
-        }
-
-        public void StartHeartbeatCount(Current current, CancellationToken cancel)
-        {
-            _callback = new HeartbeatCallback();
-            current.Connection.PingReceived += (sender, args) => _callback.Heartbeat();
+            };
         }
 
         public void WaitForHeartbeatCount(int count, Current current, CancellationToken cancel)
         {
-            TestHelper.Assert(_callback != null);
-            _callback.WaitForCount(count);
+            lock (_mutex)
+            {
+                while (_count < count)
+                {
+                    Monitor.Wait(_mutex);
+                }
+            }
         }
     }
 }

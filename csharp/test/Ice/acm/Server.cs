@@ -10,12 +10,8 @@ namespace ZeroC.Ice.Test.ACM
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string> properties = CreateTestProperties(ref args);
-            properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.ACM.Timeout"] = "1s";
-            await using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            communicator.SetProperty("TestAdapter.ACM.Timeout", "infinite");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());
             await adapter.ActivateAsync();
