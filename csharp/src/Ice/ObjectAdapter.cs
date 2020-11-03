@@ -950,29 +950,23 @@ namespace ZeroC.Ice
             return _colocatedConnectionFactory.PublishedEndpoint;
         }
 
-        internal bool IsLocal(Reference r)
+        internal bool IsLocal(Reference reference)
         {
             // The proxy protocol must match the object adapter's protocol.
-            if (r.Protocol != Protocol)
+            if (reference.Protocol != Protocol)
             {
                 return false;
             }
 
-            // NOTE: it's important that IsLocal() doesn't perform any blocking operations as
-            // it can be called for AMI invocations if the proxy has no delegate set yet.
-            if (r.IsWellKnown)
+            if (reference.IsWellKnown)
             {
-                lock (_mutex)
-                {
-                    // Is the servant in the ASM?
-                    // TODO: Currently doesn't check default servants - should we?
-                    return _identityServantMap.ContainsKey((r.Identity, r.Facet));
-                }
+                return Find(reference.Identity, reference.Facet) != null;
             }
-            else if (r.IsIndirect)
+            else if (reference.IsIndirect)
             {
                 // Proxy is local if the reference's location matches this adapter id or replica group id.
-                return r.Location.Count == 1 && (r.Location[0] == AdapterId || r.Location[0] == ReplicaGroupId);
+                return reference.Location.Count == 1 &&
+                    (reference.Location[0] == AdapterId || reference.Location[0] == ReplicaGroupId);
             }
             else
             {
@@ -985,7 +979,7 @@ namespace ZeroC.Ice
 
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
-                    return r.Endpoints.Any(endpoint =>
+                    return reference.Endpoints.Any(endpoint =>
                         _publishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
                         _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
