@@ -50,6 +50,15 @@ namespace ZeroC.Ice
         {
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _tokenRegistration.Dispose();
+            }
+        }
+
         protected void SignalCompletion(T result, bool runContinuationAsynchronously = false)
         {
             // If the source isn't already signaled, signal completion by setting the result. Otherwise if it's
@@ -70,6 +79,8 @@ namespace ZeroC.Ice
         {
             if (cancel.CanBeCanceled)
             {
+                Debug.Assert(_tokenRegistration == default);
+                cancel.ThrowIfCancellationRequested();
                 _tokenRegistration = cancel.Register(() =>
                 {
                     try
@@ -96,6 +107,7 @@ namespace ZeroC.Ice
             // Reset the source to allow the stream to be signaled again.
             _source.Reset();
             _tokenRegistration.Dispose();
+            _tokenRegistration = default;
             int value = Interlocked.CompareExchange(ref _signaled, 0, 1);
             Debug.Assert(value == 1);
 
