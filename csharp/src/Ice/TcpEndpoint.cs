@@ -36,6 +36,25 @@ namespace ZeroC.Ice
         public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
             new TcpAcceptor(this, manager, adapter);
 
+        protected internal override Connection Connect(
+            IPEndPoint address,
+            INetworkProxy? networkProxy,
+            string connectionId)
+        {
+            ITransceiver transceiver = CreateTransceiver(address, networkProxy);
+
+            MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = Protocol switch
+            {
+                Protocol.Ice1 => new LegacyTransceiver(transceiver, this, null),
+                _ => new SlicTransceiver(transceiver, this, null)
+            };
+
+            return CreateConnection(Communicator.OutgoingConnectionFactory,
+                                    multiStreamTranceiver,
+                                    connectionId,
+                                    null);
+        }
+
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
@@ -171,10 +190,9 @@ namespace ZeroC.Ice
         internal virtual Connection CreateConnection(
             IConnectionManager manager,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
-            new TcpConnection(manager, this, transceiver, connector, connectionId, adapter);
+            new TcpConnection(manager, this, transceiver, connectionId, adapter);
 
         private protected static TimeSpan ParseTimeout(Dictionary<string, string?> options, string endpointString)
         {
@@ -262,15 +280,12 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new TcpEndpoint(this, host, port);
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this, addr, proxy);
-
-        internal virtual ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy)
+        internal virtual ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy)
         {
-            ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
+            ITransceiver transceiver = new TcpTransceiver(Communicator, this, addr, proxy, SourceAddress);
             if (IsSecure)
             {
-                transceiver = new SslTransceiver(Communicator, transceiver, Host, false, connector);
+                transceiver = new SslTransceiver(Communicator, this, transceiver, Host, false);
             }
             return transceiver;
         }
@@ -280,7 +295,7 @@ namespace ZeroC.Ice
             ITransceiver transceiver = new TcpTransceiver(Communicator, socket);
             if (IsSecure)
             {
-                transceiver = new SslTransceiver(Communicator, transceiver, adapterName, true);
+                transceiver = new SslTransceiver(Communicator, this, transceiver, adapterName, true);
             }
             return transceiver;
         }

@@ -26,9 +26,9 @@ namespace ZeroC.Ice
             return new ColocatedConnection(_manager,
                                            _endpoint,
                                            new ColocatedTransceiver(_endpoint, id, writer, reader, true),
-                                           null,
                                            "",
-                                           _adapter);
+                                           _adapter,
+                                           true);
         }
 
         public void Dispose() => _writer.Complete();

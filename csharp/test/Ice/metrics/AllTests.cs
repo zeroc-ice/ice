@@ -666,7 +666,7 @@ namespace ZeroC.Ice.Test.Metrics
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
                 IceMX.Metrics? m1;
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
-                TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
+                TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id == (ice1 ? endpoint + " -t " + defaultTimeout : endpoint));
 
                 metrics.GetConnection().GoAwayAsync();
 
@@ -712,7 +712,8 @@ namespace ZeroC.Ice.Test.Metrics
                 Action c = () => Connect(metrics);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator",
                     c, output);
-                TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort,
+                TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id",
+                    ice1 ? endpoint + " -t " + defaultTimeout : endpoint,
                     c, output);
                 if (ice1)
                 {
@@ -745,24 +746,21 @@ namespace ZeroC.Ice.Test.Metrics
                 UpdateProps(clientProps, serverProps, update, props, "EndpointLookup");
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 0);
 
-                var prx = IObjectPrx.Parse(
-                    ice1 ?
-                        $"metrics:{transport} -h localhost -p {port}" :
-                        $"ice+{transport}://localhost:{port}/metrics",
-                    communicator);
+                var prx = IObjectPrx.Parse(ice1 ? $"metrics:{endpoint}" : $"{endpoint}/metrics", communicator);
 
                 try
                 {
                     prx.IcePing();
                     prx.GetConnection().GoAwayAsync();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
                 }
 
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 1);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0];
-                TestHelper.Assert(m1 != null && m1.Current <= 1 && m1.Total == 1);
+                TestHelper.Assert(m1 != null && m1.Current <= 1 && m1.Total == 1, $"Current: {m1.Current} Total: {m1.Total}");
 
                 bool dnsException = false;
                 try
@@ -819,7 +817,7 @@ namespace ZeroC.Ice.Test.Metrics
                     c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure,
                     c, output);
-                TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost",
+                TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "127.0.0.1",
                     c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", port,
                     c, output);

@@ -205,7 +205,7 @@ namespace ZeroC.Ice
         public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx prx,
             CancellationToken cancel = default) =>
-            prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
+            prx.IceReference.GetConnectionAsync(ImmutableList<Endpoint>.Empty, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>
@@ -306,8 +306,8 @@ namespace ZeroC.Ice
                 {
                     IncomingResponseFrame? response = null;
                     Exception? lastException = null;
-                    List<IConnector>? excludedConnectors = null;
-                    IConnector? connector = null;
+                    List<Endpoint>? excludedEndpoints = null;
+                    Endpoint? endpoint = null;
                     while (true)
                     {
                         Connection? connection = null;
@@ -318,9 +318,9 @@ namespace ZeroC.Ice
                         {
                             // Get the connection, this will eventually establish a connection if needed.
                             connection = await reference.GetConnectionAsync(
-                                excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
+                                excludedEndpoints ?? (IReadOnlyList<Endpoint>)ImmutableList<Endpoint>.Empty,
                                 cancel).ConfigureAwait(false);
-                            connector = connection.Connector;
+                            endpoint = connection.Endpoint;
                             cancel.ThrowIfCancellationRequested();
 
                             // Create the outgoing stream.
@@ -408,10 +408,10 @@ namespace ZeroC.Ice
                         catch (TransportException ex)
                         {
                             var closedException = ex as ConnectionClosedException;
-                            connector ??= ex.Connector;
-                            if (connector != null && closedException == null)
+                            endpoint ??= ex.Endpoint;
+                            if (endpoint != null && closedException == null)
                             {
-                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connector);
+                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(endpoint);
                             }
 
                             lastException = ex;
@@ -471,13 +471,13 @@ namespace ZeroC.Ice
                                          retryPolicy != RetryPolicy.NoRetry);
                             if (retryPolicy == RetryPolicy.OtherReplica)
                             {
-                                Debug.Assert(connector != null);
-                                excludedConnectors ??= new List<IConnector>();
-                                excludedConnectors.Add(connector);
+                                Debug.Assert(endpoint != null);
+                                excludedEndpoints ??= new List<Endpoint>();
+                                excludedEndpoints.Add(endpoint);
                                 if (reference.Communicator.TraceLevels.Retry >= 1)
                                 {
                                     reference.Communicator.Logger.Trace(TraceLevels.RetryCategory,
-                                                                        $"excluding connector\n{connector}");
+                                                                        $"excluding endpoint\n{endpoint}");
                                 }
                             }
 

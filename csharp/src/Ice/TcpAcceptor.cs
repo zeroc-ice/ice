@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 _ => new SlicTransceiver(transceiver, Endpoint, _adapter)
             };
 
-            return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamTranceiver, null, "", _adapter);
+            return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamTranceiver, "", _adapter);
         }
 
         public void Dispose() => _socket.CloseNoThrow();

@@ -60,11 +60,11 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint) => false;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel) =>
-            new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
-
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
+
+        public override ValueTask<Connection> ConnectAsync(string connectionId, CancellationToken cancel) =>
+            throw new NotImplementedException();
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {

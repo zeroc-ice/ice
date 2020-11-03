@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Socket CreateSocket(bool udp, AddressFamily family, IConnector? connector = null)
+        internal static Socket CreateSocket(bool udp, AddressFamily family, Endpoint? endpoint = null)
         {
             Socket socket;
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
+                throw new TransportException(ex, RetryPolicy.OtherReplica, endpoint);
             }
 
             if (!udp)
@@ -87,17 +87,17 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
+                    throw new TransportException(ex, RetryPolicy.OtherReplica, endpoint);
                 }
             }
             return socket;
         }
 
-        internal static IEnumerable<IPEndPoint> GetAddresses(string host, int port, int ipVersion)
+        internal static IReadOnlyList<IPEndPoint> GetAddresses(string host, int port, int ipVersion)
         {
             try
             {
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
+                ValueTask<IReadOnlyList<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
                 return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
@@ -107,7 +107,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(
+        internal static async ValueTask<IReadOnlyList<IPEndPoint>> GetAddressesAsync(
             string host,
             int port,
             int ipVersion,
@@ -165,7 +165,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(
+        internal static async ValueTask<IReadOnlyList<IPEndPoint>> GetAddressesForClientEndpointAsync(
             string host,
             int port,
             int ipVersion,
@@ -185,8 +185,8 @@ namespace ZeroC.Ice
             try
             {
                 // Get the addresses for the given host and return the first one
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
-                return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
+                ValueTask<IReadOnlyList<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
+                return (task.IsCompleted ? task.Result : task.AsTask().Result)[0];
             }
             catch (AggregateException ex)
             {

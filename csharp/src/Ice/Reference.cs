@@ -952,7 +952,7 @@ namespace ZeroC.Ice
         internal Connection? GetCachedConnection() => _connection;
 
         internal async ValueTask<Connection> GetConnectionAsync(
-            IReadOnlyList<IConnector> excludedConnectors,
+            IReadOnlyList<Endpoint> excludedEndpoints,
             CancellationToken cancel)
         {
             Connection? connection = _connection;
@@ -1049,7 +1049,7 @@ namespace ZeroC.Ice
                     filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
                 }
 
-                endpoints = filteredEndpoints.ToArray();
+                endpoints = filteredEndpoints.Except(excludedEndpoints).ToArray();
                 if (endpoints.Count == 0)
                 {
                     throw new NoEndpointException(ToString());
@@ -1066,7 +1066,6 @@ namespace ZeroC.Ice
                         connection = await factory.CreateAsync(endpoints,
                                                                false,
                                                                ConnectionId,
-                                                               excludedConnectors,
                                                                cancel).ConfigureAwait(false);
                     }
                     else
@@ -1082,7 +1081,6 @@ namespace ZeroC.Ice
                                 connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
                                                                        endpoint != lastEndpoint,
                                                                        ConnectionId,
-                                                                       excludedConnectors,
                                                                        cancel).ConfigureAwait(false);
                                 break;
                             }
@@ -1125,7 +1123,7 @@ namespace ZeroC.Ice
                                                       "connection to cached endpoints failed\n" +
                                                       $"removing endpoints from cache and trying again\n{ex}");
                         }
-                        return await GetConnectionAsync(excludedConnectors, cancel).ConfigureAwait(false);
+                        return await GetConnectionAsync(excludedEndpoints, cancel).ConfigureAwait(false);
                     }
                     throw;
                 }

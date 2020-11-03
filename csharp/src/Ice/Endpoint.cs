@@ -111,6 +111,13 @@ namespace ZeroC.Ice
         /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
         public static bool operator !=(Endpoint? lhs, Endpoint? rhs) => !(lhs == rhs);
 
+        /// <summary>Creates a connection. The connection may not be fully connected until its
+        /// <see cref="Connection.InitializeAsync"/> method is called.</summary>
+        /// <param name="connectionId">The connectionId.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <return>The connection.</return>
+        public abstract ValueTask<Connection> ConnectAsync(string connectionId, CancellationToken cancel);
+
         /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is Endpoint other && Equals(other);
 
@@ -183,12 +190,6 @@ namespace ZeroC.Ice
         /// <param name="adapter">The object adapter associated to the acceptor.</param>
         /// <returns>An acceptor for this endpoint.</returns>
         public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
-
-        /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>A collector of connectors for this endpoint.</returns>
-        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            CancellationToken cancel);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.
         /// Unlike stream-based transports, datagram endpoints don't support an acceptor responsible for accepting new

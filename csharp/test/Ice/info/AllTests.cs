@@ -222,7 +222,7 @@ namespace ZeroC.Ice.Test.Info
                 }
 
                 Dictionary<string, string> ctx = testIntf.GetConnectionInfoAsContext();
-                TestHelper.Assert(ctx["incoming"].Equals("true"));
+                TestHelper.Assert(ctx["incoming"].Equals("true"), ctx["incoming"]);
                 TestHelper.Assert(ctx["adapterName"].Equals("TestAdapter"));
                 TestHelper.Assert(ctx["remoteAddress"].Equals(connection.LocalEndpoint!.Address.ToString()));
                 TestHelper.Assert(ctx["localAddress"].Equals(connection.RemoteEndpoint!.Address.ToString()));

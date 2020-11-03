@@ -21,7 +21,7 @@ namespace ZeroC.Ice
 
         private readonly string? _adapterName;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
+        private readonly Endpoint _endpoint;
         private readonly SslEngine _engine;
         private readonly string? _host;
         private readonly bool _incoming;
@@ -67,15 +67,15 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             catch (AuthenticationException ex)
             {
-                throw new TransportException(ex, RetryPolicy.OtherReplica, _connector);
+                throw new TransportException(ex, RetryPolicy.OtherReplica, _endpoint);
             }
 
             if (_engine.SecurityTraceLevel >= 1)
@@ -130,15 +130,15 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             if (received == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             return received;
         }
@@ -159,15 +159,15 @@ namespace ZeroC.Ice
             catch (ObjectDisposedException ex)
             {
                 // The stream might have been disposed if the connection is closed.
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
         }
 
@@ -176,14 +176,14 @@ namespace ZeroC.Ice
         // Only for use by TcpEndpoint.
         internal SslTransceiver(
             Communicator communicator,
+            Endpoint endpoint,
             ITransceiver underlying,
             string hostOrAdapterName,
-            bool incoming,
-            IConnector? connector = null)
+            bool incoming)
         {
-            Debug.Assert(incoming || connector != null);
+            Debug.Assert(incoming || endpoint != null);
             _communicator = communicator;
-            _connector = connector;
+            _endpoint = endpoint;
             _engine = communicator.SslEngine;
             _underlying = underlying;
             _incoming = incoming;

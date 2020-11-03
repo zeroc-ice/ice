@@ -44,7 +44,7 @@ namespace ZeroC.Ice
 
         private bool _closing;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
+        private readonly Endpoint? _endpoint;
         private readonly bool _incoming;
         private readonly string _host;
         private string _key;
@@ -232,7 +232,7 @@ namespace ZeroC.Ice
 
             if (_receivePayloadLength == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _endpoint);
             }
 
             // Read the payload
@@ -263,10 +263,10 @@ namespace ZeroC.Ice
             ITransceiver del,
             string host,
             string resource,
-            IConnector? connector)
+            Endpoint? endpoint)
             : this(communicator, del)
         {
-            _connector = connector;
+            _endpoint = endpoint;
             _host = host;
             _resource = resource;
             _incoming = false;

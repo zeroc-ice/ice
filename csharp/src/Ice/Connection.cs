@@ -88,13 +88,10 @@ namespace ZeroC.Ice
         public Endpoint Endpoint { get; }
 
         /// <summary><c>true</c> for incoming connections <c>false</c> otherwise.</summary>
-        public bool IsIncoming => _connector == null;
+        public bool IsIncoming { get; }
 
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
-
-        // The connector from which the connection was created. This is used by the outgoing connection factory.
-        internal IConnector Connector => _connector!;
 
         // The endpoints which are associated with this connection. This is populated by the outgoing connection
         // factory when an endpoint resolves to the same connector as this connection's connector. Two endpoints
@@ -114,7 +111,6 @@ namespace ZeroC.Ice
         // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
         // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
@@ -130,7 +126,7 @@ namespace ZeroC.Ice
             AbortAsync(new ConnectionClosedException(message ?? "connection closed forcefully",
                                                      isClosedByPeer: false,
                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                     Connector));
+                                                     Endpoint));
 
         /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
         /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
@@ -169,7 +165,7 @@ namespace ZeroC.Ice
             GoAwayAsync(new ConnectionClosedException(message ?? "connection closed gracefully",
                                                       isClosedByPeer: false,
                                                       RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                      Connector),
+                                                      Endpoint),
                         cancel);
 
         /// <summary>This event is raised when the connection receives a ping frame. The connection object is
@@ -220,18 +216,18 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
-            ObjectAdapter? adapter)
+            ObjectAdapter? adapter,
+            bool isIncoming)
         {
             _communicator = endpoint.Communicator;
             _manager = manager;
             _monitor = manager?.AcmMonitor;
             Transceiver = transceiver;
-            _connector = connector;
             ConnectionId = connectionId;
             Endpoint = endpoint;
             Endpoints = new List<Endpoint>() { endpoint };
+            IsIncoming = isIncoming;
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
@@ -248,7 +244,7 @@ namespace ZeroC.Ice
                 {
                     throw new ConnectionClosedException(isClosedByPeer: false,
                                                         RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                        Connector);
+                                                        Endpoint);
                 }
                 return Transceiver.CreateStream(bidirectional);
             }
@@ -368,7 +364,7 @@ namespace ZeroC.Ice
                         _ = AbortAsync(new ConnectionClosedException("connection timed out",
                                                                      isClosedByPeer: false,
                                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                     Connector));
+                                                                     Endpoint));
                     }
                     else if (acm.Close != AcmClose.OnInvocation && Transceiver.StreamCount <= 2)
                     {
@@ -376,7 +372,7 @@ namespace ZeroC.Ice
                         _ = GoAwayAsync(new ConnectionClosedException("connection idle",
                                                                       isClosedByPeer: false,
                                                                       RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                      Connector));
+                                                                      Endpoint));
                     }
                 }
             }
@@ -416,7 +412,7 @@ namespace ZeroC.Ice
                         // initializes.
                         throw new ConnectionClosedException(isClosedByPeer: false,
                                                             RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                            Connector);
+                                                            Endpoint);
                     }
                     SetState(ConnectionState.Active);
 
@@ -427,7 +423,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero), Connector);
+                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero), Endpoint);
                 _ = AbortAsync(ex);
                 throw ex;
             }
@@ -665,7 +661,7 @@ namespace ZeroC.Ice
                     var exception = new ConnectionClosedException(message,
                                                                   isClosedByPeer: true,
                                                                   RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                  Connector);
+                                                                  Endpoint);
                     if (_state == ConnectionState.Active)
                     {
                         SetState(ConnectionState.Closing, exception);
@@ -731,10 +727,10 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             ColocatedTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
-            ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
+            ObjectAdapter? adapter,
+            bool isIncoming)
+            : base(manager, endpoint, transceiver, connectionId, adapter, isIncoming)
         {
         }
     }
@@ -780,10 +776,9 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter) => _transceiver = transceiver;
+            : base(manager, endpoint, transceiver, connectionId, adapter, adapter != null) => _transceiver = transceiver;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -823,10 +818,9 @@ namespace ZeroC.Ice
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connectionId, adapter)
         {
         }
     }
@@ -843,10 +837,9 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter) =>
+            : base(manager, endpoint, transceiver, connectionId, adapter) =>
             _udpTransceiver = (UdpTransceiver)_transceiver.Underlying;
     }
 
@@ -862,10 +855,9 @@ namespace ZeroC.Ice
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter) =>
+            : base(manager, endpoint, transceiver, connectionId, adapter) =>
             _wsTransceiver = (WSTransceiver)_transceiver.Underlying;
     }
 }

@@ -372,7 +372,7 @@ namespace ZeroC.Ice
                         break;
 
                     default:
-                        throw new FormatException("unknown option `{option}' in `{s}'");
+                        throw new FormatException($"unknown option `{option}' in `{s}'");
                 }
             }
 

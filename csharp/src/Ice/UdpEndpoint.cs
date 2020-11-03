@@ -48,13 +48,32 @@ namespace ZeroC.Ice
                 }
                 Endpoint endpoint = transceiver.Bind(this);
                 var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
-                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
+                return new UdpConnection(null, endpoint, multiStreamTransceiver, "", adapter);
             }
             catch (Exception)
             {
                 transceiver.Dispose();
                 throw;
             }
+        }
+
+        protected internal override Connection Connect(
+            IPEndPoint address,
+            INetworkProxy? networkProxy,
+            string connectionId)
+        {
+            var transceiver = new UdpTransceiver(Communicator,
+                                                 this,
+                                                 address,
+                                                 SourceAddress,
+                                                 MulticastInterface,
+                                                 MulticastTtl);
+
+            return new UdpConnection(Communicator.OutgoingConnectionFactory,
+                                     this,
+                                     new LegacyTransceiver(transceiver, this, null),
+                                     connectionId,
+                                     null);
         }
 
         public override bool Equals(Endpoint? other)
@@ -211,8 +230,6 @@ namespace ZeroC.Ice
                                    oaEndpoint,
                                    endpointString);
         }
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(this, addr);
 
         // Constructor for ice1 unmarshaling
         private UdpEndpoint(EndpointData data, bool compress, Communicator communicator)

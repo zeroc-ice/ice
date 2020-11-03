@@ -36,6 +36,45 @@ namespace ZeroC.Ice
         /// <summary>The source address of this IP endpoint.</summary>
         internal IPAddress? SourceAddress { get; }
 
+        public override async ValueTask<Connection> ConnectAsync(string connectionId, CancellationToken cancel)
+        {
+            Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
+            observer?.Attach();
+            try
+            {
+                INetworkProxy? networkProxy = Communicator.NetworkProxy;
+                if (networkProxy != null)
+                {
+                    networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
+                }
+
+                IReadOnlyList<IPEndPoint> addrs = await Network.GetAddressesForClientEndpointAsync(
+                        Host,
+                        Port,
+                        networkProxy?.IPVersion ?? Network.EnableBoth,
+                        cancel).ConfigureAwait(false);
+                Debug.Assert(addrs.Count > 0);
+                if (Communicator.TraceLevels.Transport >= 2)
+                {
+                    Communicator.Logger.Trace(
+                        TraceLevels.TransportCategory,
+                        @$"trying to establish {TransportName} connection to {
+                            Communicator.NetworkProxy?.ToString() ?? addrs[0].ToString()}");
+                }
+
+                return Connect(addrs[0], networkProxy, connectionId);
+            }
+            catch (Exception ex)
+            {
+                observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                throw;
+            }
+            finally
+            {
+                observer?.Detach();
+            }
+        }
+
         public override bool Equals(Endpoint? other) =>
             other is IPEndpoint ipEndpoint &&
                 Equals(SourceAddress, ipEndpoint.SourceAddress) &&
@@ -80,41 +119,16 @@ namespace ZeroC.Ice
             }
         }
 
+        protected internal abstract Connection Connect(
+            IPEndPoint address,
+            INetworkProxy? networkProxy,
+            string connectionId);
+
         protected internal override void WriteOptions(OutputStream ostr)
         {
             Debug.Assert(Protocol == Protocol.Ice1);
             ostr.WriteString(Host);
             ostr.WriteInt(Port);
-        }
-
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel)
-        {
-            Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
-            observer?.Attach();
-            try
-            {
-                INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                if (networkProxy != null)
-                {
-                    networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
-                }
-
-                IEnumerable<IPEndPoint> addrs =
-                    await Network.GetAddressesForClientEndpointAsync(Host,
-                                                                     Port,
-                                                                     networkProxy?.IPVersion ?? Network.EnableBoth,
-                                                                     cancel).ConfigureAwait(false);
-                return addrs.Select(item => CreateConnector(item, networkProxy));
-            }
-            catch (Exception ex)
-            {
-                observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                throw;
-            }
-            finally
-            {
-                observer?.Detach();
-            }
         }
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
@@ -413,8 +427,6 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a clone with the specified host and port.</summary>
         private protected abstract IPEndpoint Clone(string host, ushort port);
-
-        private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
         private IPEndpoint Clone(string host) => host == Host ? this : Clone(host, Port);
     }
