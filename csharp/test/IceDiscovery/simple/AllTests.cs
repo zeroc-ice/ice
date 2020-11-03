@@ -242,7 +242,7 @@ namespace ZeroC.Ice.Test.Discovery
 
                 {
                     Dictionary<string, string> properties = communicator.GetProperties();
-                    properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
+                    properties["Ice.Discovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                     using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     try
@@ -258,7 +258,7 @@ namespace ZeroC.Ice.Test.Discovery
                     Dictionary<string, string> properties = communicator.GetProperties();
                     string port = $"{helper.BasePort + 10}";
                     string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
-                    properties["IceDiscovery.Lookup"] =
+                    properties["Ice.Discovery.Lookup"] =
                         $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} --interface {intf}";
                     using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);

@@ -39,7 +39,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundAdapterById to `{reply}':\n{ex}");
+                        $"Ice.Discovery failed to send foundAdapterById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundObjectById to `{reply}':\n{ex}");
+                        $"Ice.Discovery failed to send foundObjectById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundAdapterId to `{reply}':\n{ex}");
+                        $"Ice.Discovery failed to send foundAdapterId to `{reply}':\n{ex}");
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"IceDiscovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
+                        $"Ice.Discovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace ZeroC.Ice.Discovery
         internal Lookup(LocatorRegistry registryServant, Communicator communicator)
         {
             _registryServant = registryServant;
-            _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
+            _domainId = communicator.GetProperty("Ice.Discovery.DomainId") ?? "";
         }
     }
 }

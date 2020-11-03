@@ -10,24 +10,26 @@ domainId = uuid.uuid4() # Ensures each test uses a unique domain ID
 def props(process, current):
     port = current.driver.getTestPort(10)
     discoveryProps = {
-        "IceDiscovery.RetryCount": 20,
-        "IceDiscovery.DomainId": domainId,
         "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client" # This is used for the trace file
     }
 
     if isinstance(current.testcase.getMapping(), CSharpMapping):
         discoveryProps.update({
             "Ice.Default.Locator": "discovery",
-            "IceDiscovery.Timeout": "50ms",
-            "IceDiscovery.Multicast.Endpoints":
+            "Ice.Discovery.RetryCount": 20,
+            "Ice.Discovery.DomainId": domainId,
+            "Ice.Discovery.Timeout": "50ms",
+            "Ice.Discovery.Multicast.Endpoints":
                 f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
-            "IceDiscovery.Lookup":
+            "Ice.Discovery.Lookup":
                 f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
-            "IceDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
+            "Ice.Discovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
         })
     else:
         discoveryProps.update({
             "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
+            "IceDiscovery.RetryCount": 20,
+            "IceDiscovery.DomainId": domainId,
             "IceDiscovery.Timeout": "50",
             "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
             "IceDiscovery.Port": port,

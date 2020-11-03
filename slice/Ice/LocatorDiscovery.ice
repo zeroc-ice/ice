@@ -14,15 +14,14 @@
 
 #include <Ice/Locator.ice>
 
-/// LocatorDiscovery is an Ice plug-in that enables the discovery of IceGrid and custom locators via UDP multicast.
-/// This plug-in is usually named IceLocatorDiscovery in Ice configuration. The LocatorDiscovery plug-in implements the
-/// {@see Ice::Locator} interface to locate (or discover) locators such as the IceGrid registry or custom IceGrid-like
-/// locator implementations using UDP multicast.
+/// Ice Locator Discovery is built-in {@see Ice::Locator} implementation that discovers IceGrid or custom locators via
+/// UDP multicast. You enable this built-in locator implementation by setting the configuration property
+/// Ice.Default.Locator to LocatorDiscovery.
 [cs:namespace(ZeroC)]
 [java:package(com.zeroc)]
 module Ice::LocatorDiscovery
 {
-    /// The {plug-in name}.Reply object adapter of a client application hosts a LookupReply object that processes
+    /// The Ice.LocatorDiscovery.Reply object adapter of a client application hosts a LookupReply object that processes
     /// replies to locator discovery requests.
     interface LookupReply
     {
