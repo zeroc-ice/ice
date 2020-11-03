@@ -401,7 +401,7 @@ namespace ZeroC.Ice
                             // the previous exception instead of the NoEndpointException).
                             if (response == null && lastException == null)
                             {
-                                lastException = null;
+                                lastException = ex;
                             }
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                         }
