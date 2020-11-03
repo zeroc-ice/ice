@@ -157,9 +157,9 @@ namespace ZeroC.Ice.LocatorDiscovery
                 {
                     if (locator.Identity != _locator.Identity || locator.Facet != _locator.Facet)
                     {
-                        var sb = new StringBuilder("Ice.LocatorDiscovery");
-                        sb.Append(": received Ice locator with different identities:\n")
-                          .Append("using = `").Append(_locator).Append("'\n")
+                        var sb = new StringBuilder(
+                            "Ice.LocatorDiscovery: received Ice locator with different identities:\n");
+                        sb.Append("using = `").Append(_locator).Append("'\n")
                           .Append("received = `").Append(locator).Append("'\n")
                           .Append("This is typically the case if multiple Ice locators with different ")
                           .Append("instance names are deployed and the property `")
@@ -170,10 +170,10 @@ namespace ZeroC.Ice.LocatorDiscovery
 
                     if (locator.Protocol != _locator.Protocol)
                     {
-                        var sb = new StringBuilder("Ice.LocatorDiscovery");
-                        sb.Append(": ignoring Ice locator with different protocol:\n")
-                          .Append("using = `").Append(_locator.Protocol).Append("'\n")
-                          .Append("received = `").Append(locator.Protocol).Append("'\n");
+                        var sb = new StringBuilder(
+                            "Ice.LocatorDiscovery: ignoring Ice locator with different protocol:\n");
+                        sb.Append("using = ").Append(_locator.Protocol.GetName()).Append('\n')
+                          .Append("received = ").Append(locator.Protocol.GetName()).Append('\n');
                         locator.Communicator.Logger.Warning(sb.ToString());
                         return;
                     }
