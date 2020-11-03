@@ -3,29 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Binding
 {
     public static class AllTests
     {
-        private static string GetAdapterNameWithAMI(ITestIntfPrx testIntf) => testIntf.GetAdapterNameAsync().Result;
-
-        private static void Shuffle(ref List<IRemoteObjectAdapterPrx> array)
-        {
-            for (int i = 0; i < array.Count - 1; ++i)
-            {
-                int r = _rand.Next(array.Count - i) + i;
-                TestHelper.Assert(r >= i && r < array.Count);
-                if (r != i)
-                {
-                    IRemoteObjectAdapterPrx tmp = array[i];
-                    array[i] = array[r];
-                    array[r] = tmp;
-                }
-            }
-        }
-
         private static ITestIntfPrx CreateTestIntfPrx(List<IRemoteObjectAdapterPrx> adapters)
         {
             var endpoints = new List<Endpoint>();
@@ -230,6 +214,65 @@ namespace ZeroC.Ice.Test.Binding
 
                     Deactivate(com, adapters);
                 }
+            }
+            output.WriteLine("ok");
+
+            output.Write("testing connection reuse with multiple endpoints... ");
+            output.Flush();
+            {
+                var adapters1 = new List<IRemoteObjectAdapterPrx>
+                {
+                    com.CreateObjectAdapter("Adapter81", testTransport)!,
+                    com.CreateObjectAdapter("Adapter82", testTransport)!,
+                    com.CreateObjectAdapter("Adapter83", testTransport)!
+                };
+
+                var adapters2 = new List<IRemoteObjectAdapterPrx>
+                {
+                    adapters1[0],
+                    com.CreateObjectAdapter("Adapter84", testTransport)!,
+                    com.CreateObjectAdapter("Adapter85", testTransport)!
+                };
+
+                ITestIntfPrx obj1 = CreateTestIntfPrx(adapters1);
+                ITestIntfPrx obj2 = CreateTestIntfPrx(adapters2);
+
+                com.DeactivateObjectAdapter(adapters1[0]);
+
+                Task<string> t1 = obj1.GetAdapterNameAsync();
+                Task<string> t2 = obj2.GetAdapterNameAsync();
+                TestHelper.Assert(t1.Result == "Adapter82");
+                TestHelper.Assert(t2.Result == "Adapter84");
+
+                Deactivate(com, adapters1);
+                Deactivate(com, adapters2);
+            }
+
+            {
+                var adapters1 = new List<IRemoteObjectAdapterPrx>
+                {
+                    com.CreateObjectAdapter("Adapter91", testTransport)!,
+                    com.CreateObjectAdapter("Adapter92", testTransport)!,
+                    com.CreateObjectAdapter("Adapter93", testTransport)!
+                };
+
+                var adapters2 = new List<IRemoteObjectAdapterPrx>
+                {
+                    adapters1[0],
+                    com.CreateObjectAdapter("Adapter94", testTransport)!,
+                    com.CreateObjectAdapter("Adapter95", testTransport)!
+                };
+
+                ITestIntfPrx obj1 = CreateTestIntfPrx(adapters1);
+                ITestIntfPrx obj2 = CreateTestIntfPrx(adapters2);
+
+                Task<string> t1 = obj1.GetAdapterNameAsync();
+                Task<string> t2 = obj2.GetAdapterNameAsync();
+                TestHelper.Assert(t1.Result == "Adapter91");
+                TestHelper.Assert(t2.Result == "Adapter91");
+
+                Deactivate(com, adapters1);
+                Deactivate(com, adapters2);
             }
             output.WriteLine("ok");
 
@@ -523,7 +566,5 @@ namespace ZeroC.Ice.Test.Binding
 
             com.Shutdown();
         }
-
-        private static readonly Random _rand = new Random(unchecked((int)DateTime.Now.Ticks));
     }
 }

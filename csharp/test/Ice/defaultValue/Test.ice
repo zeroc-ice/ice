@@ -100,50 +100,6 @@ exception DerivedEx : BaseEx
     Nested::Color nc3 = ConstNestedColor3;
 }
 
-[cs:property]
-class ClassProperty
-{
-    bool boolFalse = false;
-    bool boolTrue = true;
-    byte b = 1;
-    short s = 2;
-    int i = 3;
-    long l = 4;
-    float f = 5.1;
-    double d = 6.2;
-    string str = "foo bar";
-    tag(1) string? noDefault;
-    int zeroI = 0;
-    long zeroL = 0;
-    float zeroF = 0;
-    float zeroDotF = 0.0;
-    double zeroD = 0;
-    double zeroDotD = 0;
-}
-
-// Exceptions don't support "cs:property" metadata, but
-// we want to ensure that the generated code compiles.
-[cs:property]
-exception ExceptionProperty
-{
-    bool boolFalse = false;
-    bool boolTrue = true;
-    byte b = 1;
-    short s = 2;
-    int i = 3;
-    long l = 4;
-    float f = 5.1;
-    double d = 6.2;
-    string str = "foo bar";
-    tag(1) string? noDefault;
-    int zeroI = 0;
-    long zeroL = 0;
-    float zeroF = 0;
-    float zeroDotF = 0.0;
-    double zeroD = 0;
-    double zeroDotD = 0;
-}
-
 sequence<byte> ByteSeq;
 sequence<int> IntSeq;
 dictionary<int, string> IntStringDict;

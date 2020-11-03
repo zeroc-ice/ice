@@ -166,7 +166,6 @@ exception RequiredException : TaggedException
     VarStruct vs2;
 }
 
-[cs:property]
 class TaggedWithCustom
 {
     tag(1) SmallStructList? l;

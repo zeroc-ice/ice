@@ -2083,14 +2083,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const MemberPtr& p)
     }
     _out << typeToString(p->type(), getNamespace(cont));
     _out << " " << fixId(fieldName(p), ExceptionPtr::dynamicCast(cont) ? Slice::ExceptionType : Slice::ObjectType);
-    if(cont->hasMetadata("cs:property"))
-    {
-        _out << "{ get; set; }";
-    }
-    else
-    {
-        _out << ";";
-    }
+    _out << ";";
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
