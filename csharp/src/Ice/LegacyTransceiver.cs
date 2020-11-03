@@ -16,6 +16,8 @@ namespace ZeroC.Ice
     /// are translated to connection validation or close connection Ice1 frames.</summary>
     internal class LegacyTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
+        public override TimeSpan IdleTimeout { get; internal set; }
+
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
         internal bool IsValidated { get; private set; }
@@ -221,6 +223,7 @@ namespace ZeroC.Ice
         internal LegacyTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
             : base(endpoint, adapter, transceiver)
         {
+            IdleTimeout = endpoint.Communicator.IdleTimeout;
             _transceiver = transceiver;
 
             // If serialization is enabled on the object adapter, create semaphore to limit the number of concurrent

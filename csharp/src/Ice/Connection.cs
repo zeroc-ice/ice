@@ -52,22 +52,24 @@ namespace ZeroC.Ice
         /// <summary>Gets the connection idle timeout.</summary>
         public TimeSpan IdleTimeout
         {
-            get => Transceiver.IdleTimeout;
+            get
+            {
+                lock (_mutex)
+                {
+                    return Transceiver.IdleTimeout;
+                }
+            }
             set
             {
-                // Setting IdleTimeout is only supported with ice1 connections. With ice2 connections, the underlying
-                // transport (Slic or Quic) provides support for negotiating the idle timeout when the connection is
-                // established and the connection uses the negotiated idle timeout to monitor the connection.
-                if (Endpoint.Protocol != Protocol.Ice1)
-                {
-                    throw new NotSupportedException("setting IdleTimeout is only supported with ice1 connections");
-                }
-
                 lock (_mutex)
                 {
                     if (_state == ConnectionState.Active)
                     {
+                        // Setting the IdleTimeout might throw if it's not supported by the underlying transport. For
+                        // example with Slic, the idle timeout is negotiated when the connection is established, it
+                        // can't be updated after.
                         Transceiver.IdleTimeout = value;
+
                         _timer?.Dispose();
                         TimeSpan period = value / 2;
                         if (period != TimeSpan.Zero)

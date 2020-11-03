@@ -15,6 +15,12 @@ namespace ZeroC.Ice
     /// as TCP. It supports the same set of features as Quic.</summary>
     internal class SlicTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
+        public override TimeSpan IdleTimeout
+        {
+            get => _idleTimeout;
+            internal set => throw new NotSupportedException("setting IdleTimeout is not supported with Slic");
+        }
+
         internal int BidirectionalStreamCount;
         internal AsyncSemaphore? BidirectionalStreamSemaphore;
         internal readonly object Mutex = new ();
@@ -22,6 +28,7 @@ namespace ZeroC.Ice
         internal int UnidirectionalStreamCount;
         internal AsyncSemaphore? UnidirectionalStreamSemaphore;
 
+        private TimeSpan _idleTimeout;
         private long _lastBidirectionalId;
         private long _lastUnidirectionalId;
         private long _nextBidirectionalId;
@@ -286,7 +293,7 @@ namespace ZeroC.Ice
                         var initializeAckBody = new InitializeAckBody(
                             (ulong)Options.MaxBidirectionalStreams,
                             (ulong)Options.MaxUnidirectionalStreams,
-                            (ulong)IdleTimeout.TotalMilliseconds);
+                            (ulong)_idleTimeout.TotalMilliseconds);
                         initializeAckBody.IceWrite(ostr);
                     },
                     cancel: cancel).ConfigureAwait(false);
@@ -303,7 +310,7 @@ namespace ZeroC.Ice
                             Protocol.Ice2.GetName(),
                             (ulong)Options.MaxBidirectionalStreams,
                             (ulong)Options.MaxUnidirectionalStreams,
-                            (ulong)IdleTimeout.TotalMilliseconds);
+                            (ulong)_idleTimeout.TotalMilliseconds);
                         initializeBody.IceWrite(ostr);
                     },
                     cancel: cancel).ConfigureAwait(false);
@@ -342,7 +349,7 @@ namespace ZeroC.Ice
             // Use the smallest idle timeout.
             if (peerIdleTimeout < IdleTimeout)
             {
-                IdleTimeout = peerIdleTimeout;
+                _idleTimeout = peerIdleTimeout;
             }
         }
 
@@ -356,6 +363,7 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter)
             : base(endpoint, adapter, transceiver)
         {
+            _idleTimeout = endpoint.Communicator.IdleTimeout;
             _transceiver = new BufferedReadTransceiver(transceiver);
             _receiveStreamCompletionTaskSource.RunContinuationAsynchronously = true;
             _receiveStreamCompletionTaskSource.SetResult(0);

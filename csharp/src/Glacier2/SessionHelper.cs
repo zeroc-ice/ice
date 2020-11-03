@@ -231,8 +231,8 @@ namespace ZeroC.Glacier2
             }
 
             // When using Ice1, we need to figure out the router's acm/session timeout and configure the connection
-            // accordingly. With Ice2, this is no longer necessary, the idle timeout is configured is negotiated on
-            // connection establishment.
+            // accordingly. With Ice2, this is no longer necessary, the idle timeout is negotiated on connection
+            // establishment.
             Connection connection = router.GetConnection();
             if (router.Protocol == Protocol.Ice1)
             {
