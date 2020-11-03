@@ -241,10 +241,35 @@ namespace ZeroC.Ice.Test.Binding
 
                 Task<string> t1 = obj1.GetAdapterNameAsync();
                 Task<string> t2 = obj2.GetAdapterNameAsync();
-                string adapter1 = t1.Result;
-                string adapter2 = t2.Result;
-                TestHelper.Assert(adapter1 == "Adapter82", $"Adpter name: {adapter1}");
-                TestHelper.Assert(adapter2 == "Adapter84", $"Adpter name: {adapter2}");
+                TestHelper.Assert(t1.Result == "Adapter82");
+                TestHelper.Assert(t2.Result == "Adapter84");
+
+                Deactivate(com, adapters1);
+                Deactivate(com, adapters2);
+            }
+
+            {
+                var adapters1 = new List<IRemoteObjectAdapterPrx>
+                {
+                    com.CreateObjectAdapter("Adapter91", testTransport)!,
+                    com.CreateObjectAdapter("Adapter92", testTransport)!,
+                    com.CreateObjectAdapter("Adapter93", testTransport)!
+                };
+
+                var adapters2 = new List<IRemoteObjectAdapterPrx>
+                {
+                    adapters1[0],
+                    com.CreateObjectAdapter("Adapter94", testTransport)!,
+                    com.CreateObjectAdapter("Adapter95", testTransport)!
+                };
+
+                ITestIntfPrx obj1 = CreateTestIntfPrx(adapters1);
+                ITestIntfPrx obj2 = CreateTestIntfPrx(adapters2);
+
+                Task<string> t1 = obj1.GetAdapterNameAsync();
+                Task<string> t2 = obj2.GetAdapterNameAsync();
+                TestHelper.Assert(t1.Result == "Adapter91");
+                TestHelper.Assert(t2.Result == "Adapter91");
 
                 Deactivate(com, adapters1);
                 Deactivate(com, adapters2);
