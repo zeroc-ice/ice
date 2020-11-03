@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-#
 # Copyright (c) ZeroC, Inc. All rights reserved.
-#
 
 import uuid
 
@@ -11,24 +9,24 @@ def props(process, current):
     port = current.driver.getTestPort(10)
     discoveryProps = {
         "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client", # This is used for the trace file
-        "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
-        "IceDiscovery.RetryCount": 20,
-        "IceDiscovery.DomainId": domainId,
-        "IceDiscovery.Timeout": "50",
-        "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
-        "IceDiscovery.Port": port,
+        "Ice.Default.Locator": "discovery",
+        "Ice.Discovery.RetryCount": 20,
+        "Ice.Discovery.DomainId": domainId,
+        "Ice.Discovery.Timeout": "50ms",
+        "Ice.Discovery.Multicast.Endpoints":
+            f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
+        "Ice.Discovery.Lookup":
+            f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
+        "Ice.Discovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
     }
     return discoveryProps
-
 
 traceProps = {
     "Ice.Trace.Locator" : 2,
     "Ice.Trace.Protocol" : 1
 }
 
-#
 # Suppress the warning lines
-#
 suppressDiscoveryWarning=False
 def suppressWarning(x):
     global suppressDiscoveryWarning
@@ -45,10 +43,6 @@ def suppressWarning(x):
 outfilters = [ lambda x: suppressWarning(x) ]
 
 options = None
-if isinstance(platform,AIX):
-    # AIX test VMs only have IPv6 enabled on the loopback interface
-    # where multicast doesn't work
-    options = { "ipv6" : [False] }
 
 TestSuite(__name__, [
    ClientServerTestCase(client=Client(args=[3], props=props, outfilters=outfilters),
