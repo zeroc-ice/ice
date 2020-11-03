@@ -6,6 +6,9 @@
     <UseAppHost>true</UseAppHost>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' " />
   <ItemDefinitionGroup>
     <SliceCompile>
       <IncludeDirectories>../..</IncludeDirectories>
