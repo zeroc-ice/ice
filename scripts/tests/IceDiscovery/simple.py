@@ -12,12 +12,12 @@ def props(process, current):
     discoveryProps = {
         "IceDiscovery.RetryCount": 20,
         "IceDiscovery.DomainId": domainId,
-        "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
         "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client" # This is used for the trace file
     }
 
     if isinstance(current.testcase.getMapping(), CSharpMapping):
         discoveryProps.update({
+            "Ice.Default.Locator": "discovery",
             "IceDiscovery.Timeout": "50ms",
             "IceDiscovery.Multicast.Endpoints":
                 f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
@@ -27,6 +27,7 @@ def props(process, current):
         })
     else:
         discoveryProps.update({
+            "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
             "IceDiscovery.Timeout": "50",
             "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
             "IceDiscovery.Port": port,
