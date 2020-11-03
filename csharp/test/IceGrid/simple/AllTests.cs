@@ -46,8 +46,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 // Ensure the locator discovery plugin can discover the registries and make sure locator requests are
                 // forwarded.
                 Dictionary<string, string>? properties = communicator.GetProperties();
-                properties.Remove("Ice.Default.Locator");
-                properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
+                properties["Ice.Default.Locator"] = "LocatorDiscovery";
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
                 properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.Transport} -h 127.0.0.1";
 
@@ -132,8 +131,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 // Test invalid lookup endpoints
                 {
                     properties = communicator.GetProperties();
-                    properties.Remove("Ice.Default.Locator");
-                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
+                    properties["Ice.Default.Locator"] = "locatordiscovery";
                     properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
@@ -149,9 +147,8 @@ namespace ZeroC.IceGrid.Test.Simple
 
                 {
                     properties = communicator.GetProperties();
-                    properties.Remove("Ice.Default.Locator");
+                    properties["Ice.Default.Locator"] = "locatordiscovery";
                     properties["IceLocatorDiscovery.RetryCount"] = "0";
-                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
                     properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                     using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
@@ -167,9 +164,8 @@ namespace ZeroC.IceGrid.Test.Simple
 
                 {
                     properties = communicator.GetProperties();
-                    properties.Remove("Ice.Default.Locator");
+                    properties["Ice.Default.Locator"] = "locatordiscovery";
                     properties["IceLocatorDiscovery.RetryCount"] = "1";
-                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.Ice.LocatorDiscovery.PluginFactory";
                     {
                         string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                         string port = $"{helper.BasePort + 99}";

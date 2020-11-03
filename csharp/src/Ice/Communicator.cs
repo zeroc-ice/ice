@@ -697,7 +697,7 @@ namespace ZeroC.Ice
                     }
                     else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
                     {
-                        // _defaultLocator = LocatorDiscovery.Locator.Initialize(this);
+                        _defaultLocator = LocatorDiscovery.Locator.Initialize(this);
                     }
                     else
                     {
