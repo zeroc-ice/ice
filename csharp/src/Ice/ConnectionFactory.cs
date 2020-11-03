@@ -250,17 +250,19 @@ namespace ZeroC.Ice
                             Connection connection = completedTask.Result;
                             foreach ((IConnector connector, Endpoint endpoint) in connectors)
                             {
-                                // If the connection was established for another endpoint but to the same connector,
-                                // we ensure to also associate the connection with this endpoint.
-                                if (connection.Connector.Equals(connector) && !connection.Endpoints.Contains(endpoint))
+                                if (connection.Connector.Equals(connector))
                                 {
                                     Debug.Assert(connection.ConnectionId == connectionId);
-                                    connection.Endpoints.Add(endpoint);
-                                    _connectionsByEndpoint.Add((endpoint, connectionId), connection);
-                                    break;
+                                    // If the connection was established for another endpoint but to the same connector,
+                                    // we ensure to also associate the connection with this endpoint.
+                                    if (!connection.Endpoints.Contains(endpoint))
+                                    {
+                                        connection.Endpoints.Add(endpoint);
+                                        _connectionsByEndpoint.Add((endpoint, connectionId), connection);
+                                    }
+                                    return connection;
                                 }
                             }
-                            return connection;
                         }
                     }
                     connectTasks.Remove(completedTask);
