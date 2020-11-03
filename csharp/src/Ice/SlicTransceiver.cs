@@ -155,11 +155,8 @@ namespace ZeroC.Ice
                                 }
                             }
 
-                            if (size > 0)
-                            {
-                                // The stream has been disposed, read and ignore the data.
-                                await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
-                            }
+                            // The stream has been disposed, read and ignore the data.
+                            await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
                         }
                         break;
                     }
@@ -195,12 +192,14 @@ namespace ZeroC.Ice
 
             async ValueTask IgnoreReceivedData(SlicDefinitions.FrameType type, int size, long streamId)
             {
-                Debug.Assert(size > 0);
-                ArraySegment<byte> data = new byte[size];
-                await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                if (size > 0)
                 {
-                    TraceTransportFrame("received ", type, size, streamId);
+                    ArraySegment<byte> data = new byte[size];
+                    await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
+                    if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                    {
+                        TraceTransportFrame("received ", type, size, streamId);
+                    }
                 }
             }
         }

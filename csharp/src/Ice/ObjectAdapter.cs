@@ -782,13 +782,8 @@ namespace ZeroC.Ice
                                     (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
                                         this,
                                         expanded,
-<<<<<<< HEAD
-                                         publishedEndpoint) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint))));
-=======
                                         publishedEndpoint) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
->>>>>>> origin/master
+                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint))));
                     }
                     else
                     {

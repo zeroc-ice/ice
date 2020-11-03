@@ -65,47 +65,6 @@ namespace ZeroC.Ice.Test.Timeout
             }
             output.WriteLine("ok");
 
-            // The sequence needs to be large enough to fill the write/recv buffers
-            byte[] seq = new byte[2000000];
-
-            output.Write("testing connection timeout... ");
-            output.Flush();
-            {
-                Dictionary<string, string>? properties = communicator.GetProperties();
-                properties["Ice.IdleTimeout"] = "50ms";
-                using var comm = new Communicator(properties);
-
-                var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
-                to.IcePing();
-                // Expect ConnectionClosedException.
-                controller.HoldAdapter(-1);
-
-                try
-                {
-                    to.SendData(seq);
-                    TestHelper.Assert(false);
-                }
-                catch (ConnectionClosedException)
-                {
-                    // Expected.
-                }
-                controller.ResumeAdapter();
-                timeout.Op(); // Ensure adapter is active.
-            }
-            {
-                // Expect success.
-                controller.HoldAdapter(100);
-                try
-                {
-                    timeout.SendData(new byte[1000000]);
-                }
-                catch (ConnectionClosedException)
-                {
-                    TestHelper.Assert(false);
-                }
-            }
-            output.WriteLine("ok");
-
             output.Write("testing invocation timeout... ");
             output.Flush();
             {
@@ -131,6 +90,15 @@ namespace ZeroC.Ice.Test.Timeout
                     TestHelper.Assert(false);
                 }
                 TestHelper.Assert(connection == timeout.GetConnection());
+
+                try
+                {
+                    timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).Sleep(1000);
+                    TestHelper.Assert(false);
+                }
+                catch (OperationCanceledException)
+                {
+                }
             }
             output.WriteLine("ok");
 
@@ -165,28 +133,6 @@ namespace ZeroC.Ice.Test.Timeout
 
                 controller.ResumeAdapter();
                 timeout.Op(); // Ensure adapter is active.
-            }
-            output.WriteLine("ok");
-
-            output.Write("testing invocation timeouts with collocated calls... ");
-            output.Flush();
-            {
-                communicator.SetProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
-
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
-                adapter.Activate();
-
-                ITimeoutPrx proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory);
-                try
-                {
-                    proxy.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).SleepAsync(500).Wait();
-                    TestHelper.Assert(false);
-                }
-                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
-                {
-                }
-
-                adapter.Dispose();
             }
             output.WriteLine("ok");
 
