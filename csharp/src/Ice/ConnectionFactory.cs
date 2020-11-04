@@ -192,7 +192,11 @@ namespace ZeroC.Ice
                         await Task.WhenAny(connectTasks).WaitAsync(cancel).ConfigureAwait(false);
                     if (completedTask.IsCompletedSuccessfully)
                     {
-                        return completedTask.Result;
+                        var connection = completedTask.Result;
+                        if (endpoints.Contains(connection.Endpoint))
+                        {
+                            return connection;
+                        }
                     }
                     connectTasks.Remove(completedTask);
                 }
