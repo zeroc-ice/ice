@@ -12,7 +12,6 @@ module ZeroC::Ice::Test::ACM
 interface TestIntf
 {
     void sleep(int seconds);
-    void interruptSleep();
     void startHeartbeatCount();
     void waitForHeartbeatCount(int count);
 }
@@ -25,7 +24,7 @@ interface RemoteObjectAdapter
 
 interface RemoteCommunicator
 {
-    RemoteObjectAdapter* createObjectAdapter(int acmTimeout, string? close, string? heartbeat);
+    RemoteObjectAdapter* createObjectAdapter(int idleTimeout, bool keepAlive);
     void shutdown();
 }
 

@@ -14,9 +14,10 @@ namespace ZeroC.Ice
     internal abstract class SignaledTransceiverStream<T> : TransceiverStream, IValueTaskSource<T>
     {
         internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
-        private ManualResetValueTaskSourceCore<T> _source;
         private volatile Exception? _exception;
-        private volatile int _signaled;
+        private int _signaled;
+        private ManualResetValueTaskSourceCore<T> _source;
+        private CancellationTokenRegistration _tokenRegistration;
 
         /// <summary>Aborts the stream. If the stream is waiting to be signaled and the stream is not signaled
         /// already, the stream will be signaled with the exception. If the stream is signaled, we save the
@@ -49,6 +50,15 @@ namespace ZeroC.Ice
         {
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _tokenRegistration.Dispose();
+            }
+        }
+
         protected void SignalCompletion(T result, bool runContinuationAsynchronously = false)
         {
             // If the source isn't already signaled, signal completion by setting the result. Otherwise if it's
@@ -69,12 +79,21 @@ namespace ZeroC.Ice
         {
             if (cancel.CanBeCanceled)
             {
-                return new ValueTask<T>(this, _source.Version).WaitAsync(cancel);
+                Debug.Assert(_tokenRegistration == default);
+                cancel.ThrowIfCancellationRequested();
+                _tokenRegistration = cancel.Register(() =>
+                {
+                    try
+                    {
+                        _tokenRegistration.Token.ThrowIfCancellationRequested();
+                    }
+                    catch (Exception ex)
+                    {
+                        Abort(ex);
+                    }
+                });
             }
-            else
-            {
-                return new ValueTask<T>(this, _source.Version);
-            }
+            return new ValueTask<T>(this, _source.Version);
         }
 
         T IValueTaskSource<T>.GetResult(short token)
@@ -86,9 +105,11 @@ namespace ZeroC.Ice
             T result = _source.GetResult(token);
 
             // Reset the source to allow the stream to be signaled again.
-            Debug.Assert(_signaled == 1);
             _source.Reset();
-            _signaled = 0;
+            _tokenRegistration.Dispose();
+            _tokenRegistration = default;
+            int value = Interlocked.CompareExchange(ref _signaled, 0, 1);
+            Debug.Assert(value == 1);
 
             // If an exception is set, we try to set it on the source if it wasn't signaled in the meantime.
             if (_exception != null)
@@ -102,12 +123,20 @@ namespace ZeroC.Ice
             return result;
         }
 
-        ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token) => _source.GetStatus(token);
+        ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token)
+        {
+            Debug.Assert(token == _source.Version);
+            return _source.GetStatus(token);
+        }
 
         void IValueTaskSource<T>.OnCompleted(
             Action<object?> continuation,
             object? state,
             short token,
-            ValueTaskSourceOnCompletedFlags flags) => _source.OnCompleted(continuation, state, token, flags);
+            ValueTaskSourceOnCompletedFlags flags)
+        {
+            Debug.Assert(token == _source.Version);
+            _source.OnCompleted(continuation, state, token, flags);
+        }
     }
 }
