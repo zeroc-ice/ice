@@ -19,11 +19,11 @@ def clientProps(process, current):
     port = current.driver.getTestPort(99)
     if isinstance(current.testcase.getMapping(), CSharpMapping):
         return {
-            "IceLocatorDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
-            "IceLocatorDiscovery.RetryCount": 5,
-            "IceLocatorDiscovery.Lookup":
+            "Ice.LocatorDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
+            "Ice.LocatorDiscovery.RetryCount": 5,
+            "Ice.LocatorDiscovery.Lookup":
                 f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
-            "IceLocatorDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
+            "Ice.LocatorDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
         }
     else:
         return {
@@ -33,7 +33,7 @@ def clientProps(process, current):
             "IceLocatorDiscovery.Port": port,
         }
 
-clientTraceProps = { "IceLocatorDiscovery.Trace.Lookup" : 3 }
+clientTraceProps = { "Ice.LocatorDiscovery.Trace.Lookup" : 3, "IceLocatorDiscovery.Trace.Lookup" : 3 }
 
 # Filter-out the warning about invalid lookup proxy
 outfilters = [ lambda x: re.sub("-! .* warning: .*failed to lookup locator.*\n", "", x),

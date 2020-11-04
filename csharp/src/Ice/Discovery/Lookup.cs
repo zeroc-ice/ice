@@ -13,7 +13,6 @@ namespace ZeroC.Ice.Discovery
     {
         private readonly string _domainId;
 
-        private readonly string _pluginName;
         private readonly LocatorRegistry _registryServant;
 
         public async ValueTask FindAdapterByIdAsync(
@@ -40,7 +39,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"{_pluginName} failed to send foundAdapterById to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundAdapterById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -68,7 +67,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"{_pluginName} failed to send foundObjectById to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundObjectById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -95,7 +94,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"{_pluginName} failed to send foundAdapterId to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundAdapterId to `{reply}':\n{ex}");
                 }
             }
         }
@@ -125,16 +124,15 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"{_pluginName} failed to send foundWellKnownProxy to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
                 }
             }
         }
 
-        internal Lookup(LocatorRegistry registryServant, string pluginName, Communicator communicator)
+        internal Lookup(LocatorRegistry registryServant, Communicator communicator)
         {
-            _pluginName = pluginName;
             _registryServant = registryServant;
-            _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
+            _domainId = communicator.GetProperty("Ice.Discovery.DomainId") ?? "";
         }
     }
 }

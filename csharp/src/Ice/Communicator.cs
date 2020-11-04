@@ -692,13 +692,28 @@ namespace ZeroC.Ice
 
                 // The default router/locator may have been set during the loading of plugins.
                 // Therefore we only set it if it hasn't already been set.
-                try
+
+                if (_defaultLocator == null && GetProperty("Ice.Default.Locator") is string defaultLocatorValue)
                 {
-                    _defaultLocator ??= GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
-                }
-                catch (FormatException ex)
-                {
-                    throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
+                    if (defaultLocatorValue.Equals("discovery", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _defaultLocator = Discovery.Locator.Initialize(this);
+                    }
+                    else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _defaultLocator = LocatorDiscovery.Locator.Initialize(this);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            _defaultLocator = GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
+                        }
+                        catch (FormatException ex)
+                        {
+                            throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
+                        }
+                    }
                 }
 
                 try

@@ -354,6 +354,16 @@ generated from the section label.
         <property name="Default.Timeout" />
         <!-- TODO: do we really need a default transport? -->
         <property name="Default.Transport" />
+
+        <property name="Discovery.DomainId"/>
+        <property name="Discovery.LatencyMultiplier"/>
+        <property name="Discovery.Locator" class="objectadapter" />
+        <property name="Discovery.Lookup"/>
+        <property name="Discovery.Multicast" class="objectadapter" />
+        <property name="Discovery.Reply" class="objectadapter" />
+        <property name="Discovery.RetryCount"/>
+        <property name="Discovery.Timeout"/>
+
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
         <property name="HTTPProxyHost" />
@@ -366,6 +376,16 @@ generated from the section label.
         <property name="IPv4" />
         <!-- TODO: Remove IPv6 -->
         <property name="IPv6" />
+
+        <property name="LocatorDiscovery.InstanceName"/>
+        <property name="LocatorDiscovery.Locator" class="objectadapter" />
+        <property name="LocatorDiscovery.Lookup"/>
+        <property name="LocatorDiscovery.Reply" class="objectadapter" />
+        <property name="LocatorDiscovery.RetryCount"/>
+        <property name="LocatorDiscovery.RetryDelay"/>
+        <property name="LocatorDiscovery.Timeout"/>
+        <property name="LocatorDiscovery.Trace.Lookup"/>"
+
         <property name="KeepAlive" />
         <property name="LogFile" />
         <property name="LogFile.SizeMax" />
@@ -441,6 +461,7 @@ generated from the section label.
         <property name="Metrics.[any]" class="mx" />
     </section>
 
+    <!-- TODO: remove IceDiscovery, replaced by Ice.Discovery -->
     <section name="IceDiscovery">
         <property name="Multicast" class="objectadapter" />
         <property name="Reply" class="objectadapter" />
@@ -456,6 +477,7 @@ generated from the section label.
         <property name="DomainId"/>
     </section>
 
+    <!-- TODO: remove IceLocatorDiscovery, replaced by Ice.LocatorDiscovery-->
     <section name="IceLocatorDiscovery">
         <property name="Reply" class="objectadapter" />
         <property name="Locator" class="objectadapter" />

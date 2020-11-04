@@ -16,6 +16,8 @@ namespace ZeroC.Ice.Discovery
         private readonly string _domainId;
         private readonly int _latencyMultiplier;
 
+        private readonly ObjectAdapter _locatorAdapter;
+
         private readonly ILookupPrx _lookup;
 
         // The key is a single-endpoint datagram Lookup proxy extracted from the _lookup proxy.
@@ -23,11 +25,13 @@ namespace ZeroC.Ice.Discovery
         // and that matches the interface of the key's endpoint.
         private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new ();
 
-        private readonly string _pluginName;
+        private readonly ObjectAdapter _multicastAdapter;
 
-        private readonly ObjectAdapter _replyAdapter;
+        private readonly ILocatorPrx _proxy;
 
         private readonly ILocatorRegistryPrx _registry;
+
+        private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;
         private readonly TimeSpan _timeout;
 
@@ -136,31 +140,62 @@ namespace ZeroC.Ice.Discovery
                     adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
         }
 
-        internal Locator(ILocatorRegistryPrx registry, ILookupPrx lookup, ObjectAdapter replyAdapter, string pluginName)
+        internal static ILocatorPrx Initialize(Communicator communicator) => new Locator(communicator)._proxy;
+
+        private Locator(Communicator communicator)
         {
-            _pluginName = pluginName;
-            _registry = registry;
-            _replyAdapter = replyAdapter;
+            const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
+            const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
 
-            Communicator communicator = replyAdapter.Communicator;
+            if (communicator.GetProperty("Ice.Discovery.Multicast.Endpoints") == null)
+            {
+                communicator.SetProperty("Ice.Discovery.Multicast.Endpoints",
+                                          $"{defaultIPv4Endpoint}:{defaultIPv6Endpoint}");
+            }
 
-            _timeout = communicator.GetPropertyAsTimeSpan($"{_pluginName}.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            string? lookupEndpoints = communicator.GetProperty("Ice.Discovery.Lookup");
+            if (lookupEndpoints == null)
+            {
+                List<string> endpoints = new ();
+                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
+                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
+
+                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
+                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
+
+                lookupEndpoints = string.Join(":", endpoints);
+            }
+
+            if (communicator.GetProperty("Ice.Discovery.Reply.Endpoints") == null)
+            {
+                communicator.SetProperty("Ice.Discovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
+            }
+            communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d"); // create datagram proxies
+
+            _multicastAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Multicast");
+            _replyAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Reply");
+            _locatorAdapter = communicator.CreateObjectAdapter();
+
+            _timeout = communicator.GetPropertyAsTimeSpan("Ice.Discovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
-            _lookup = lookup.Clone(invocationTimeout: _timeout);
 
-            _retryCount = communicator.GetPropertyAsInt($"{_pluginName}.RetryCount") ?? 3;
+            _retryCount = communicator.GetPropertyAsInt("Ice.Discovery.RetryCount") ?? 3;
 
-            _latencyMultiplier = communicator.GetPropertyAsInt($"{_pluginName}.LatencyMultiplier") ?? 1;
+            _latencyMultiplier = communicator.GetPropertyAsInt("Ice.Discovery.LatencyMultiplier") ?? 1;
             if (_latencyMultiplier < 1)
             {
                 throw new InvalidConfigurationException(
-                    $"the value of `{_pluginName}.LatencyMultiplier' must be an integer greater than 0");
+                    "the value of Ice.Discovery.LatencyMultiplier must be an integer greater than 0");
             }
 
-            _domainId = communicator.GetProperty($"{_pluginName}.DomainId") ?? "";
+            _domainId = communicator.GetProperty("Ice.Discovery.DomainId") ?? "";
+
+            _lookup = ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
+                clearRouter: true,
+                invocationTimeout: _timeout);
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
             // of the lookup proxy.
@@ -173,7 +208,7 @@ namespace ZeroC.Ice.Discovery
             {
                 if (!endpoint.IsDatagram)
                 {
-                    throw new InvalidConfigurationException($"{_pluginName}.Lookup can only have udp endpoints");
+                    throw new InvalidConfigurationException("Ice.Discovery.Lookup can only have udp endpoints");
                 }
 
                 ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
@@ -193,6 +228,20 @@ namespace ZeroC.Ice.Discovery
                 }
             }
             Debug.Assert(_lookups.Count > 0);
+
+            _proxy = _locatorAdapter.AddWithUUID(this, ILocatorPrx.Factory);
+
+            // Setup locator registry.
+            var locatorRegistryServant = new LocatorRegistry(communicator);
+            _registry = _locatorAdapter.AddWithUUID(locatorRegistryServant, ILocatorRegistryPrx.Factory);
+
+            // Add lookup Ice object
+            var lookupServant = new Lookup(locatorRegistryServant, communicator);
+            _multicastAdapter.Add("IceDiscovery/Lookup", lookupServant);
+
+            _multicastAdapter.Activate();
+            _replyAdapter.Activate();
+            _locatorAdapter.Activate();
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
@@ -234,7 +283,7 @@ namespace ZeroC.Ice.Discovery
                         {
                             // All the tasks failed: log warning and return empty result (no retry)
                             _replyAdapter.Communicator.Logger.Warning(
-                                @$"{_pluginName} failed to send lookup request using `{_lookup
+                                @$"Ice discovery failed to send lookup request using `{_lookup
                                     }':\n{sendTask.Exception!.InnerException!}");
                             replyServant.SetEmptyResult();
                             return await replyServant.Task.ConfigureAwait(false);

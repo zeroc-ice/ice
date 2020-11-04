@@ -15,9 +15,11 @@
 #include <Ice/Endpoint.ice>
 #include <Ice/Identity.ice>
 
-/// The Discovery plug-in implements the {@see Ice::Locator} interface to locate (or discover) objects and object
-/// adapters using UDP multicast. It also implements the {@see Ice::LocatorDiscovery} interface to allow servers to
-/// respond to such multicast discovery requests. This plug-in is usually named IceDiscovery in Ice configuration.
+/// Ice Discovery is a built-in {@see Ice::Locator} implementation that locates (or discovers) objects and object
+/// adapters using UDP multicast. You enable this built-in locator implementation by setting the configuration property
+/// Ice.Default.Locator to Discovery.
+/// Ice Discovery also implements the {@see Ice::LocatorDiscovery} interface to allow servers to respond to such
+/// multicast discovery requests.
 [cs:namespace(ZeroC)]
 [java:package(com.zeroc)]
 module Ice::Discovery
@@ -27,7 +29,7 @@ module Ice::Discovery
     interface ResolveAdapterIdReply;
     interface ResolveWellKnownProxyReply;
 
-    /// The {plugin-name}.Multicast object adapter of a server application hosts a Lookup object that receives discovery
+    /// The Ice.Discovery.Multicast object adapter of a server application hosts a Lookup object that receives discovery
     /// requests from Discovery clients.
     interface Lookup
     {
