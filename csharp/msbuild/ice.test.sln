@@ -143,8 +143,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interceptor", "interceptor"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\interceptor\msbuild\client\client.csproj", "{E1D7CBDB-FD30-4293-9202-A0E1F94E83B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\interceptor\msbuild\collocated\collocated.csproj", "{0368F96E-74F0-4165-A819-EBF3DFB4F1AA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "plugin", "..\test\Ice\interceptor\msbuild\plugin\plugin.csproj", "{C7B47F0C-5714-402D-A602-53CB7AB058CD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\interceptor\msbuild\server\server.csproj", "{39AEACB1-F535-4D01-8555-5E7952BC395A}"
@@ -369,20 +367,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\str
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "discovery", "discovery", "{A1434DB6-CCB7-4F06-ABF2-4C1DF372F8E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "..\test\Ice\discovery\msbuild\client\client.csproj", "{66FF0ACD-1A09-4B2F-8BFB-8D5773CAD295}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\discovery\msbuild\client\client.csproj", "{66FF0ACD-1A09-4B2F-8BFB-8D5773CAD295}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "..\test\Ice\discovery\msbuild\server\server.csproj", "{98720339-215C-40F4-AD2F-D1982BA14378}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\discovery\msbuild\server\server.csproj", "{98720339-215C-40F4-AD2F-D1982BA14378}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-		Debug|Win32 = Debug|Win32
-		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{63FF211E-2182-4FA0-9A3E-D0BD1B2FE394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -569,10 +561,6 @@ Global
 		{E1D7CBDB-FD30-4293-9202-A0E1F94E83B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1D7CBDB-FD30-4293-9202-A0E1F94E83B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1D7CBDB-FD30-4293-9202-A0E1F94E83B9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0368F96E-74F0-4165-A819-EBF3DFB4F1AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0368F96E-74F0-4165-A819-EBF3DFB4F1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0368F96E-74F0-4165-A819-EBF3DFB4F1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0368F96E-74F0-4165-A819-EBF3DFB4F1AA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7B47F0C-5714-402D-A602-53CB7AB058CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C7B47F0C-5714-402D-A602-53CB7AB058CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7B47F0C-5714-402D-A602-53CB7AB058CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -951,7 +939,6 @@ Global
 		{9B7C3346-6D82-426B-9FD9-8968CC94B326} = {D283682A-A5B8-4BC0-A903-573DC4C1423C}
 		{024DEB8C-06AD-42C6-8AE1-32F66486BF20} = {293F634B-26D0-40BC-AD0C-AD00796E06AD}
 		{E1D7CBDB-FD30-4293-9202-A0E1F94E83B9} = {024DEB8C-06AD-42C6-8AE1-32F66486BF20}
-		{0368F96E-74F0-4165-A819-EBF3DFB4F1AA} = {024DEB8C-06AD-42C6-8AE1-32F66486BF20}
 		{C7B47F0C-5714-402D-A602-53CB7AB058CD} = {024DEB8C-06AD-42C6-8AE1-32F66486BF20}
 		{39AEACB1-F535-4D01-8555-5E7952BC395A} = {024DEB8C-06AD-42C6-8AE1-32F66486BF20}
 		{CBE1E823-26A8-4388-9225-B827D8083B6A} = {024DEB8C-06AD-42C6-8AE1-32F66486BF20}
