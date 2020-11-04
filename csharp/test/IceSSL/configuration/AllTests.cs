@@ -80,6 +80,8 @@ namespace ZeroC.IceSSL.Test.Configuration
             string defaultDir = $"{testDir}/../certs";
             Dictionary<string, string> defaultProperties = communicator.GetProperties();
             defaultProperties["IceSSL.DefaultDir"] = defaultDir;
+            defaultProperties.Remove("IceSSL.CertFile");
+            defaultProperties.Remove("IceSSL.CAs");
 
             // Load the CA certificates. We could use the IceSSL.ImportCert property, but it would be nice to remove
             // the CA certificates when the test finishes, so this test manually installs the certificates in the
