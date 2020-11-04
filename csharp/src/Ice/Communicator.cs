@@ -149,14 +149,15 @@ namespace ZeroC.Ice
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
-        internal Acm ClientAcm { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
 
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
+        internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameSizeMax { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
+        internal bool KeepAlive { get; }
         internal INetworkProxy? NetworkProxy { get; }
 
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
@@ -164,7 +165,6 @@ namespace ZeroC.Ice
         internal int RetryMaxAttempts { get; }
         internal int RetryBufferSizeMax { get; }
         internal int RetryRequestSizeMax { get; }
-        internal Acm ServerAcm { get; }
         internal SlicOptions SlicOptions { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -493,15 +493,19 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.ConnectTimeout");
                 }
 
-                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
-                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
+                IdleTimeout = GetPropertyAsTimeSpan("Ice.IdleTimeout") ?? TimeSpan.FromSeconds(60);
+                if (IdleTimeout == TimeSpan.Zero)
+                {
+                    throw new InvalidConfigurationException("0 is not a valid value for Ice.IdleTimeout");
+                }
+
+                KeepAlive = GetPropertyAsBool("Ice.KeepAlive") ?? false;
 
                 SlicOptions = new SlicOptions
                 {
                     MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
-                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
-                    IdleTimeout = GetPropertyAsTimeSpan("Ice.Slic.IdleTimeout") ?? TimeSpan.FromSeconds(30),
-                    PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
+                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxUnidirectionalStreams") ?? 100,
+                    PacketSizeMax = GetPropertyAsInt("Ice.Slic.PacketSizeMax") ?? 32 * 1024
                 };
                 if (SlicOptions.MaxBidirectionalStreams < 1)
                 {
@@ -513,10 +517,10 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
                         "value for Ice.Slic.MaxUnidirectionalStreams");
                 }
-                if (SlicOptions.PacketSize < 1024)
+                if (SlicOptions.PacketSizeMax < 1024)
                 {
-                    throw new InvalidConfigurationException($"{SlicOptions.PacketSize} is not a valid " +
-                        "value for Ice.Slic.PacketSize");
+                    throw new InvalidConfigurationException($"{SlicOptions.PacketSizeMax} is not a valid " +
+                        "value for Ice.Slic.PacketSizeMax");
                 }
 
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;

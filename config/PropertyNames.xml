@@ -303,11 +303,10 @@ generated from the section label.
     </class>
 
     <section name="Ice">
+        <!-- TODO: Remove once we remove ACM properties for all mappings. -->
         <property name="ACM.Client" deprecated="true"/>
         <property name="ACM.Server" deprecated="true"/>
         <property name="ACM" class="acm"/>
-        <property name="ACM.Client" class="acm"/>
-        <property name="ACM.Server" class="acm"/>
         <property name="AcceptNonSecureConnections" />
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
@@ -369,6 +368,7 @@ generated from the section label.
         <property name="FactoryAssemblies" />
         <property name="HTTPProxyHost" />
         <property name="HTTPProxyPort" />
+        <property name="IdleTimeout"/>
         <property name="ImplicitContext" />
         <property name="IncomingFrameSizeMax" />
         <property name="InitPlugins" />
@@ -386,6 +386,7 @@ generated from the section label.
         <property name="LocatorDiscovery.Timeout"/>
         <property name="LocatorDiscovery.Trace.Lookup"/>"
 
+        <property name="KeepAlive" />
         <property name="LogFile" />
         <property name="LogFile.SizeMax" />
         <property name="LogStdErr.Convert"/>
@@ -413,6 +414,9 @@ generated from the section label.
         <property name="RetryRequestSizeMax" />
         <property name="RetryIntervals" /> <!-- TODO remove -->
         <property name="ServerIdleTime" />
+        <property name="Slic.MaxBidirectionalStreams" />
+        <property name="Slic.MaxUnidirectionalStreams" />
+        <property name="Slic.PacketSizeMax" />
         <property name="SOCKSProxyHost" />
         <property name="SOCKSProxyPort" />
         <property name="StdErr" />

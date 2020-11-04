@@ -19,17 +19,21 @@ namespace ZeroC.Ice.Test.Timeout
 
         public void Sleep(int to, Current current, CancellationToken cancel)
         {
-            if (current.Connection == null)
+            if (current.Protocol == Protocol.Ice2)
             {
-                // Ensure the collocated dispatch is canceled when the invocation is canceled because of the invocation
+                // Ensure the dispatch is canceled when the invocation is canceled because of the invocation
                 // timeout.
                 try
                 {
                     Task.Delay(to, cancel).Wait(cancel);
-                    TestHelper.Assert(false);
+                    if (to >= 1000)
+                    {
+                        TestHelper.Assert(false);
+                    }
                 }
                 catch (TaskCanceledException)
                 {
+                    TestHelper.Assert(to >= 1000);
                 }
             }
             else

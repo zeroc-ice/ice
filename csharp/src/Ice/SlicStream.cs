@@ -116,7 +116,7 @@ namespace ZeroC.Ice
             int size = buffer.GetByteCount();
 
             // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
-            int maxFrameSize = _transceiver.Options.PacketSize;
+            int maxFrameSize = _transceiver.Options.PacketSizeMax;
             if (size > maxFrameSize)
             {
                 // The send buffer for the Slic packet.

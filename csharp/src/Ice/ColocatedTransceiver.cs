@@ -11,6 +11,12 @@ namespace ZeroC.Ice
     /// <summary>The MultiStreamTransceiver class for the colocated transport.</summary>
     internal class ColocatedTransceiver : MultiStreamTransceiver
     {
+        public override TimeSpan IdleTimeout
+        {
+            get => Timeout.InfiniteTimeSpan;
+            internal set => throw new NotSupportedException("IdleTimeout is not supported with colocated connections");
+        }
+
         internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
         internal readonly object Mutex = new ();
         internal AsyncSemaphore? PeerUnidirectionalSerializeSemaphore { get; private set; }
