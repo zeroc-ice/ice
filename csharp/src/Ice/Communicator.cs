@@ -149,11 +149,11 @@ namespace ZeroC.Ice
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
-        internal TimeSpan IdleTimeout { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
 
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
+        internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameSizeMax { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
@@ -505,7 +505,7 @@ namespace ZeroC.Ice
                 {
                     MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
                     MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxUnidirectionalStreams") ?? 100,
-                    PacketSize = GetPropertyAsInt("Ice.Slic.PacketSize") ?? 32 * 1024
+                    PacketSizeMax = GetPropertyAsInt("Ice.Slic.PacketSizeMax") ?? 32 * 1024
                 };
                 if (SlicOptions.MaxBidirectionalStreams < 1)
                 {
@@ -517,10 +517,10 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
                         "value for Ice.Slic.MaxUnidirectionalStreams");
                 }
-                if (SlicOptions.PacketSize < 1024)
+                if (SlicOptions.PacketSizeMax < 1024)
                 {
-                    throw new InvalidConfigurationException($"{SlicOptions.PacketSize} is not a valid " +
-                        "value for Ice.Slic.PacketSize");
+                    throw new InvalidConfigurationException($"{SlicOptions.PacketSizeMax} is not a valid " +
+                        "value for Ice.Slic.PacketSizeMax");
                 }
 
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;

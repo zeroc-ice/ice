@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
-
 namespace ZeroC.Ice
 {
     /// <summary>An abstract multi-stream transceiver based on a single stream transceiver.</summary>

@@ -303,6 +303,10 @@ generated from the section label.
     </class>
 
     <section name="Ice">
+        <!-- TODO: Remove once we remove ACM properties for all mappings. -->
+        <property name="ACM.Client" deprecated="true"/>
+        <property name="ACM.Server" deprecated="true"/>
+        <property name="ACM" class="acm"/>
         <property name="AcceptNonSecureConnections" />
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
@@ -392,7 +396,7 @@ generated from the section label.
         <property name="ServerIdleTime" />
         <property name="Slic.MaxBidirectionalStreams" />
         <property name="Slic.MaxUnidirectionalStreams" />
-        <property name="Slic.PacketSize" />
+        <property name="Slic.PacketSizeMax" />
         <property name="SOCKSProxyHost" />
         <property name="SOCKSProxyPort" />
         <property name="StdErr" />

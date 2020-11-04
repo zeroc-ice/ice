@@ -68,12 +68,18 @@ namespace ZeroC.Ice
                         // Setting the IdleTimeout might throw if it's not supported by the underlying transport. For
                         // example with Slic, the idle timeout is negotiated when the connection is established, it
                         // can't be updated after.
+                        if (value == TimeSpan.Zero)
+                        {
+                            throw new InvalidConfigurationException("0 is not a valid value for IdleTimeout");
+                        }
                         Transceiver.IdleTimeout = value;
 
                         _timer?.Dispose();
-                        TimeSpan period = value / 2;
-                        if (period != TimeSpan.Zero)
+                        _timer = null;
+
+                        if (value != Timeout.InfiniteTimeSpan)
                         {
+                            TimeSpan period = value / 2;
                             _timer = new Timer(value => Monitor(), null, period, period);
                         }
                     }
@@ -619,17 +625,12 @@ namespace ZeroC.Ice
             if (state == ConnectionState.Active)
             {
                 // Setup a timer to check for the connection idle time every IdleTimeout / 2 period. If the transport
-                // doesn't support idle timeout (e.g.: the colocated transport), IdleTimeout will be TimeSpan.Zero.
-                TimeSpan period = Transceiver.IdleTimeout / 2;
-                if (period != TimeSpan.Zero)
+                // doesn't support idle timeout (e.g.: the colocated transport), IdleTimeout will be infinite.
+                if (Transceiver.IdleTimeout != Timeout.InfiniteTimeSpan)
                 {
+                    TimeSpan period = Transceiver.IdleTimeout / 2;
                     _timer = new Timer(value => Monitor(), null, period, period);
                 }
-            }
-            else if (_state == ConnectionState.Active)
-            {
-                // Terminate the timer on connection closure.
-                _timer?.Dispose();
             }
 
             if (_communicator.Observer != null)

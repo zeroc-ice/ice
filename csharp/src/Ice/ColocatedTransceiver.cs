@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     {
         public override TimeSpan IdleTimeout
         {
-            get => TimeSpan.Zero;
+            get => Timeout.InfiniteTimeSpan;
             internal set => throw new NotSupportedException("IdleTimeout is not supported with colocated connections");
         }
 
