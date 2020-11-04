@@ -45,7 +45,7 @@ namespace ZeroC.Ice.Test.UDP
                 TestHelper.Assert(current.Connection != null);
                 try
                 {
-                    byte[] seq = new byte[32 * 1024];
+                    byte[] seq = new byte[64 * 1024];
                     current.Connection.CreateProxy(id, ITestIntfPrx.Factory).SendByteSeq(seq, null, cancel: cancel);
                 }
                 catch (DatagramLimitException)
