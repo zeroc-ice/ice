@@ -15,15 +15,11 @@ namespace ZeroC.Ice
 {
     public interface IConnectionManager
     {
-        IAcmMonitor AcmMonitor { get; }
-
         void Remove(Connection connection);
     }
 
     internal sealed class OutgoingConnectionFactory : IConnectionManager, IAsyncDisposable
     {
-        public IAcmMonitor AcmMonitor { get; }
-
         private readonly Communicator _communicator;
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint = new ();
         private Task? _disposeTask;
@@ -72,7 +68,6 @@ namespace ZeroC.Ice
         internal OutgoingConnectionFactory(Communicator communicator)
         {
             _communicator = communicator;
-            AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
 
         internal void AddTransportFailure(Endpoint endpoint) => _transportFailures[endpoint] = DateTime.Now;
@@ -418,8 +413,6 @@ namespace ZeroC.Ice
     // IncomingConnectionFactory for acceptor based transports.
     internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
     {
-        public IAcmMonitor AcmMonitor { get; }
-
         private readonly IAcceptor _acceptor;
         private Task? _acceptTask;
         private readonly ObjectAdapter _adapter;
@@ -471,14 +464,13 @@ namespace ZeroC.Ice
 
         public override string ToString() => _acceptor.ToString()!;
 
-        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish, Acm acm)
+        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish)
             : base(endpoint, publish)
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
             _acceptor = Endpoint.Acceptor(this, _adapter);
 
-            AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
             Endpoint = _acceptor.Endpoint;
 
             if (_communicator.TraceLevels.Transport >= 1)

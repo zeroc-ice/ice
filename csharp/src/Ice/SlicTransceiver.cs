@@ -15,14 +15,20 @@ namespace ZeroC.Ice
     /// as TCP. It supports the same set of features as Quic.</summary>
     internal class SlicTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
     {
+        public override TimeSpan IdleTimeout
+        {
+            get => _idleTimeout;
+            internal set => throw new NotSupportedException("setting IdleTimeout is not supported with Slic");
+        }
+
         internal int BidirectionalStreamCount;
         internal AsyncSemaphore? BidirectionalStreamSemaphore;
-        internal TimeSpan IdleTimeout;
         internal readonly object Mutex = new ();
         internal SlicOptions Options { get; }
         internal int UnidirectionalStreamCount;
         internal AsyncSemaphore? UnidirectionalStreamSemaphore;
 
+        private TimeSpan _idleTimeout;
         private long _lastBidirectionalId;
         private long _lastUnidirectionalId;
         private long _nextBidirectionalId;
@@ -156,11 +162,8 @@ namespace ZeroC.Ice
                                 }
                             }
 
-                            if (size > 0)
-                            {
-                                // The stream has been disposed, read and ignore the data.
-                                await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
-                            }
+                            // The stream has been disposed, read and ignore the data.
+                            await IgnoreReceivedData(type, size, streamId.Value).ConfigureAwait(false);
                         }
                         break;
                     }
@@ -196,12 +199,14 @@ namespace ZeroC.Ice
 
             async ValueTask IgnoreReceivedData(SlicDefinitions.FrameType type, int size, long streamId)
             {
-                Debug.Assert(size > 0);
-                ArraySegment<byte> data = new byte[size];
-                await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                if (size > 0)
                 {
-                    TraceTransportFrame("received ", type, size, streamId);
+                    ArraySegment<byte> data = new byte[size];
+                    await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
+                    if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                    {
+                        TraceTransportFrame("received ", type, size, streamId);
+                    }
                 }
             }
         }
@@ -288,7 +293,7 @@ namespace ZeroC.Ice
                         var initializeAckBody = new InitializeAckBody(
                             (ulong)Options.MaxBidirectionalStreams,
                             (ulong)Options.MaxUnidirectionalStreams,
-                            (ulong)Options.IdleTimeout.TotalMilliseconds);
+                            (ulong)_idleTimeout.TotalMilliseconds);
                         initializeAckBody.IceWrite(ostr);
                     },
                     cancel: cancel).ConfigureAwait(false);
@@ -305,7 +310,7 @@ namespace ZeroC.Ice
                             Protocol.Ice2.GetName(),
                             (ulong)Options.MaxBidirectionalStreams,
                             (ulong)Options.MaxUnidirectionalStreams,
-                            (ulong)Options.IdleTimeout.TotalMilliseconds);
+                            (ulong)_idleTimeout.TotalMilliseconds);
                         initializeBody.IceWrite(ostr);
                     },
                     cancel: cancel).ConfigureAwait(false);
@@ -342,7 +347,10 @@ namespace ZeroC.Ice
             }
 
             // Use the smallest idle timeout.
-            IdleTimeout = peerIdleTimeout < Options.IdleTimeout ? peerIdleTimeout : Options.IdleTimeout;
+            if (peerIdleTimeout < IdleTimeout)
+            {
+                _idleTimeout = peerIdleTimeout;
+            }
         }
 
         public override Task PingAsync(CancellationToken cancel) =>
@@ -355,6 +363,7 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter)
             : base(endpoint, adapter, transceiver)
         {
+            _idleTimeout = endpoint.Communicator.IdleTimeout;
             _transceiver = new BufferedReadTransceiver(transceiver);
             _receiveStreamCompletionTaskSource.RunContinuationAsynchronously = true;
             _receiveStreamCompletionTaskSource.SetResult(0);

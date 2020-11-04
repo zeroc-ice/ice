@@ -18,6 +18,9 @@ namespace ZeroC.Ice
         /// <summary>The endpoint from which the transceiver was created.</summary>
         public Endpoint Endpoint { get; }
 
+        /// <summary>Gets or set the idle timeout.</summary>
+        public abstract TimeSpan IdleTimeout { get; internal set; }
+
         /// <summary><c>true</c> for incoming transceivers <c>false</c> otherwise. An incoming transceiver is created
         /// by a server-side acceptor while an outgoing transceiver is created from the endpoint by the client-side.
         /// </summary>
@@ -48,11 +51,15 @@ namespace ZeroC.Ice
             }
         }
         internal event EventHandler? Ping;
-        internal int StreamCount => _streams.Count;
+        internal int IncomingStreamCount => Thread.VolatileRead(ref _incomingStreamCount);
+        internal int OutgoingStreamCount => Thread.VolatileRead(ref _outgoingStreamCount);
 
-        // The mutex provides thread-safety for the _observer and LastActivity data members.
-        private readonly object _mutex = new ();
+        private int _incomingStreamCount;
+        // The mutex provides thread-safety for the _observer and LastActivity data members. It can also be used
+        // by specializations to provide data member thread-safety.
+        private protected readonly object _mutex = new ();
         private IConnectionObserver? _observer;
+        private int _outgoingStreamCount;
         private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new ();
         private volatile bool _streamsAborted;
         private volatile TaskCompletionSource? _streamsEmptySource;
@@ -273,6 +280,10 @@ namespace ZeroC.Ice
                 throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             _streams[id] = stream;
+            if (!stream.IsControl)
+            {
+                Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+            }
         }
 
         internal void CheckStreamsEmpty()
@@ -322,8 +333,12 @@ namespace ZeroC.Ice
 
         internal void RemoveStream(long id)
         {
-            if (_streams.TryRemove(id, out TransceiverStream _))
+            if (_streams.TryRemove(id, out TransceiverStream? stream))
             {
+                if (!stream.IsControl)
+                {
+                    Interlocked.Decrement(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+                }
                 CheckStreamsEmpty();
             }
         }

@@ -74,10 +74,6 @@ namespace ZeroC.Ice
 
         private static readonly string[] _suffixes =
         {
-            "ACM",
-            "ACM.Timeout",
-            "ACM.Heartbeat",
-            "ACM.Close",
             "AdapterId",
             "Endpoints",
             "IncomingFrameSizeMax",
@@ -105,7 +101,6 @@ namespace ZeroC.Ice
             "ProxyOptions"
         };
 
-        private readonly Acm _acm;
         private Task? _activateTask;
 
         private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new ();
@@ -681,7 +676,6 @@ namespace ZeroC.Ice
 
             AdapterId = "";
             ReplicaGroupId = "";
-            _acm = Communicator.ServerAcm;
             Protocol = protocol;
         }
 
@@ -728,7 +722,6 @@ namespace ZeroC.Ice
             AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
             ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
-            _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
             int frameSizeMax =
                 Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
             IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
@@ -790,7 +783,7 @@ namespace ZeroC.Ice
                                         this,
                                         expanded,
                                         publishedEndpoint) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
+                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint))));
                     }
                     else
                     {
@@ -936,11 +929,9 @@ namespace ZeroC.Ice
 
                 if (_colocatedConnectionFactory == null)
                 {
-                    // TODO: ACM configuration?
                     _colocatedConnectionFactory = new AcceptorIncomingConnectionFactory(this,
                                                                                         new ColocatedEndpoint(this),
-                                                                                        null,
-                                                                                        new Acm());
+                                                                                        null);
 
                     // It's safe to start the connection within the synchronization, this isn't supposed to block for
                     // colocated connections.

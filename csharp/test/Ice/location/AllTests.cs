@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Location
             bool ice1 = helper.Protocol == Protocol.Ice1;
             var manager = IServerManagerPrx.Parse(helper.GetTestProxy("ServerManager", 0), communicator);
             var locator = communicator.DefaultLocator!.Clone(ITestLocatorPrx.Factory);
-            Console.WriteLine("registry checkedcast");
+
             var registry = locator.GetRegistry()!.Clone(ITestLocatorRegistryPrx.Factory);
             TestHelper.Assert(registry != null);
 
