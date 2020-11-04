@@ -6,8 +6,6 @@
     <UseAppHost>true</UseAppHost>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemDefinitionGroup>
     <SliceCompile>
       <IncludeDirectories>../..</IncludeDirectories>
