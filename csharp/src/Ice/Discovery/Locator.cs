@@ -172,14 +172,9 @@ namespace ZeroC.Ice.Discovery
             }
             communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d"); // create datagram proxies
 
-            if (communicator.GetProperty("Ice.Discovery.Locator.Endpoints") == null)
-            {
-                communicator.SetProperty("Ice.Discovery.Locator.AdapterId", Guid.NewGuid().ToString());
-            }
-
             _multicastAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Multicast");
             _replyAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Reply");
-            _locatorAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Locator");
+            _locatorAdapter = communicator.CreateObjectAdapter();
 
             _timeout = communicator.GetPropertyAsTimeSpan("Ice.Discovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == Timeout.InfiniteTimeSpan)
@@ -288,7 +283,7 @@ namespace ZeroC.Ice.Discovery
                         {
                             // All the tasks failed: log warning and return empty result (no retry)
                             _replyAdapter.Communicator.Logger.Warning(
-                                @$"Ice.Discovery failed to send lookup request using `{_lookup
+                                @$"Ice discovery failed to send lookup request using `{_lookup
                                     }':\n{sendTask.Exception!.InnerException!}");
                             replyServant.SetEmptyResult();
                             return await replyServant.Task.ConfigureAwait(false);

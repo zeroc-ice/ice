@@ -39,7 +39,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"Ice.Discovery failed to send foundAdapterById to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundAdapterById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"Ice.Discovery failed to send foundObjectById to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundObjectById to `{reply}':\n{ex}");
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"Ice.Discovery failed to send foundAdapterId to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundAdapterId to `{reply}':\n{ex}");
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace ZeroC.Ice.Discovery
                 catch (Exception ex)
                 {
                     current.Communicator.Logger.Warning(
-                        $"Ice.Discovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
+                        $"Ice discovery failed to send foundWellKnownProxy to `{reply}':\n{ex}");
                 }
             }
         }

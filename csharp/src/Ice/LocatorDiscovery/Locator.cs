@@ -158,12 +158,12 @@ namespace ZeroC.Ice.LocatorDiscovery
                     if (locator.Identity != _locator.Identity || locator.Facet != _locator.Facet)
                     {
                         var sb = new StringBuilder(
-                            "Ice.LocatorDiscovery: received Ice locator with different identities:\n");
+                            "Ice locator discovery: received Ice locator with different identities:\n");
                         sb.Append("using = `").Append(_locator).Append("'\n")
                           .Append("received = `").Append(locator).Append("'\n")
                           .Append("This is typically the case if multiple Ice locators with different ")
-                          .Append("instance names are deployed and the property `")
-                          .Append("Ice.LocatorDiscovery").Append(".InstanceName' is not set.");
+                          .Append("instance names are deployed and the property ")
+                          .Append("`Ice.LocatorDiscovery.InstanceName' is not set.");
                         locator.Communicator.Logger.Warning(sb.ToString());
                         return;
                     }
@@ -171,7 +171,7 @@ namespace ZeroC.Ice.LocatorDiscovery
                     if (locator.Protocol != _locator.Protocol)
                     {
                         var sb = new StringBuilder(
-                            "Ice.LocatorDiscovery: ignoring Ice locator with different protocol:\n");
+                            "Ice locator discovery: ignoring Ice locator with different protocol:\n");
                         sb.Append("using = ").Append(_locator.Protocol.GetName()).Append('\n')
                           .Append("received = ").Append(locator.Protocol.GetName()).Append('\n');
                         locator.Communicator.Logger.Warning(sb.ToString());
@@ -230,7 +230,7 @@ namespace ZeroC.Ice.LocatorDiscovery
 
             _timeout = communicator.GetPropertyAsTimeSpan("Ice.LocatorDiscovery.Timeout") ??
                  TimeSpan.FromMilliseconds(300);
-            if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
+            if (_timeout == Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
@@ -245,13 +245,8 @@ namespace ZeroC.Ice.LocatorDiscovery
             }
             communicator.SetProperty("Ice.LocatorDiscovery.Reply.ProxyOptions", "-d");
 
-            if (communicator.GetProperty("Ice.LocatorDiscovery.Locator.Endpoints") == null)
-            {
-                communicator.SetProperty("Ice.LocatorDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
-            }
-
             _replyAdapter = communicator.CreateObjectAdapter("Ice.LocatorDiscovery.Reply");
-            _locatorAdapter = communicator.CreateObjectAdapter("Ice.LocatorDiscovery.Locator");
+            _locatorAdapter = communicator.CreateObjectAdapter();
 
             var lookupReplyId = new Identity(Guid.NewGuid().ToString(), "");
             ILookupReplyPrx lookupReply = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory);
@@ -454,7 +449,7 @@ namespace ZeroC.Ice.LocatorDiscovery
                     {
                         // Could not find any locator or we got the same locator or a null locator after a failure.
                         _lookup.Communicator.Logger.Warning(
-                            $"Ice.LocatorDiscovery: failed to send request to discovered locator:\n{exception}");
+                            $"Ice locator discovery: failed to send request to discovered locator:\n{exception}");
                     }
 
                     return await callAsync(null).ConfigureAwait(false);

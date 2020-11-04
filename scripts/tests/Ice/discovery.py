@@ -46,6 +46,6 @@ options = None
 
 TestSuite(__name__, [
    ClientServerTestCase(client=Client(args=[3], props=props, outfilters=outfilters),
-                        servers=[Server(args=[i], readyCount=4, props=props) for i in range(0, 3)],
+                        servers=[Server(args=[i], readyCount=3, props=props) for i in range(0, 3)],
                         traceProps=traceProps)
 ], multihost=False, options=options)
