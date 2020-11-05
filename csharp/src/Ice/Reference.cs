@@ -30,6 +30,12 @@ namespace ZeroC.Ice
         // enumerators are used.
         internal InvocationMode InvocationMode { get; }
 
+        internal IEnumerable<InvocationInterceptor> InvocationInterceptors =>
+            // It is safe to return a lazy evaluated enumerable because both collections are immutable.
+            _invocationInterceptors != null ?
+                _invocationInterceptors.Concat(Communicator.InvocationInterceptors) :
+                Communicator.InvocationInterceptors;
+
         internal TimeSpan InvocationTimeout { get; }
         internal bool IsConnectionCached { get; }
         internal bool IsFixed { get; }
@@ -46,6 +52,8 @@ namespace ZeroC.Ice
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
         private int _hashCode;
+        private IReadOnlyList<InvocationInterceptor>? _invocationInterceptors;
+
         private volatile Connection? _connection; // readonly when IsFixed is true
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
@@ -665,6 +673,7 @@ namespace ZeroC.Ice
                                      proxyData.Facet ?? "",
                                      proxyData.Identity,
                                      proxyData.InvocationMode ?? InvocationMode.Twoway,
+                                     interceptors: null,
                                      (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
                                      protocol);
             }
@@ -700,8 +709,12 @@ namespace ZeroC.Ice
         }
 
         // Helper constructor for fixed references. Uses the communicator's defaults.
-        internal Reference(Communicator communicator, Connection fixedConnection, Identity identity)
-            : this(communicator: communicator,
+        internal Reference(
+            Communicator communicator,
+            Connection fixedConnection,
+            Identity identity,
+            IReadOnlyList<InvocationInterceptor> interceptors) // already a copy provided by Ice
+            : this (communicator: communicator,
                    context: communicator.DefaultContext,
                    encoding: fixedConnection.Protocol.GetEncoding(),
                    facet: "",
@@ -709,6 +722,7 @@ namespace ZeroC.Ice
                    identity: identity,
                    invocationMode: (fixedConnection.Endpoint?.IsDatagram ?? false) ?
                        InvocationMode.Datagram : InvocationMode.Twoway,
+                   interceptors,
                    invocationTimeout: communicator.DefaultInvocationTimeout)
         {
         }
@@ -732,6 +746,7 @@ namespace ZeroC.Ice
             Identity? identity = null,
             string? identityAndFacet = null,
             InvocationMode? invocationMode = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptor = null, // from app
             TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null, // from app
             ILocatorPrx? locator = null,
