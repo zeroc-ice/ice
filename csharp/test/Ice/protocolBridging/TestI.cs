@@ -36,7 +36,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
                 request.Context["Intercepted"] = "1";
             }
 
-            return _target.ForwardAsync(current.IsOneway, request, cancel: cancel);
+            return _target.ForwardAsync(request, current.IsOneway, cancel: cancel);
         }
 
         internal Forwarder(IObjectPrx target) => _target = target;

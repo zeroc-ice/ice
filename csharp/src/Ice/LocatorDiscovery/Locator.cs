@@ -54,7 +54,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             {
                 return await ForwardRequestAsync(
                     locator =>
-                    locator?.ForwardAsync(current.IsOneway, request, cancel: cancel).AsTask() ??
+                    locator?.ForwardAsync(request, current.IsOneway, cancel: cancel).AsTask() ??
                         // In the unlikely event locator is now null (e.g. after a failed attempt), we use the
                         // "transcoding dispatch method" which will in turn return null/empty with a null locator.
                         // See comments below.
