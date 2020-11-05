@@ -52,7 +52,8 @@ namespace ZeroC.Ice.Test.Retry
             {
             }
 
-            // With Ice1 the exception is not retryable, with Ice2 we can retry using the existing connection.
+            // With Ice1 the exception is not retryable, with Ice2 we can retry using the existing connection
+            // because the exception uses the AfterDelay retry policy.
             try
             {
                 bidir.AfterDelay(2, cancel: CancellationToken.None);
