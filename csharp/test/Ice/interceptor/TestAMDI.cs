@@ -1,7 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
@@ -23,6 +25,10 @@ namespace ZeroC.Ice.Test.Interceptor
             throw new ObjectNotExistException();
         public ValueTask Op1Async(Current current, CancellationToken cancel) => new ValueTask();
         public ValueTask OpWithBinaryContextAsync(Token token, Current current, CancellationToken cancel) => default;
+
+        public ValueTask<IReadOnlyDictionary<string, string>> Op2Async(Current current, CancellationToken cancel) =>
+            new ValueTask<IReadOnlyDictionary<string, string>>(current.Context);
+
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();

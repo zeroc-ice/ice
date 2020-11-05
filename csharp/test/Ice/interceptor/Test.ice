@@ -6,6 +6,8 @@
 
 [[suppress-warning(reserved-identifier)]]
 
+#include <Ice/Context.ice>
+
 module ZeroC::Ice::Test::Interceptor
 {
 
@@ -38,6 +40,8 @@ interface MyObject
     void opWithBinaryContext(Token token);
 
     void op1();
+
+    Ice::Context op2();
 
     void shutdown();
 }

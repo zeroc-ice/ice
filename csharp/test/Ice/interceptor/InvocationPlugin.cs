@@ -19,6 +19,8 @@ namespace ZeroC.Ice.Test.Interceptor
                     {
                         if (request.Protocol == Protocol.Ice2)
                         {
+                            request.ContextOverride["context1"] = "plug-in";
+                            request.ContextOverride["context2"] = "plug-in";
                             request.ContextOverride["InvocationPlugin"] = "1";
                         }
                         IncomingResponseFrame response = await next(target, request, cancel);

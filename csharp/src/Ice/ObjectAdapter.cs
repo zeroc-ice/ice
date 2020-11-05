@@ -506,6 +506,7 @@ namespace ZeroC.Ice
                                                 _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
+                                             invocationInterceptors: null,
                                              _invocationMode,
                                              location,
                                              protocol));
@@ -1063,6 +1064,7 @@ namespace ZeroC.Ice
                                                                         endpoints,
                                                                         facet: "",
                                                                         new Identity("dummy", ""),
+                                                                        invocationInterceptors: null,
                                                                         invocationMode: default,
                                                                         location: ImmutableArray<string>.Empty,
                                                                         protocol: endpoints[0].Protocol));

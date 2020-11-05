@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Generic;
 using System.Threading;
 using Test;
 
@@ -30,6 +31,8 @@ namespace ZeroC.Ice.Test.Interceptor
         public void OpWithBinaryContext(Token token, Current current, CancellationToken cancel)
         {
         }
+
+        public IReadOnlyDictionary<string, string> Op2(Current current, CancellationToken cancel) => current.Context;
 
         public void Shutdown(Current current, CancellationToken cancel) => current.Communicator.ShutdownAsync();
     }

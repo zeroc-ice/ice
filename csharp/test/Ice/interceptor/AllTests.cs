@@ -122,7 +122,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     invocationContext.Value = i;
                     var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
-                    Task t = prx1.Op1Async(new Dictionary<string, string> { { "local-user", $"{i}"} });
+                    Task t = prx1.Op1Async(new Dictionary<string, string> { { "local-user", $"{i}" } });
                     tasks.Add(t);
                 }
                 Task.WaitAll(tasks.ToArray());
@@ -309,6 +309,33 @@ namespace ZeroC.Ice.Test.Interceptor
                 TestHelper.Assert(request.IsSealed);
             }
             output.WriteLine("ok");
+
+            if (ice2)
+            {
+                // This test use ContextOverride not supported with ice1
+                output.Write("testing per proxy invocation interceptors... ");
+                output.Flush();
+                {
+                    Dictionary<string, string>? context = prx.Clone().Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(!context.ContainsKey("context3"));
+                    prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                        {
+                            (target, request, next, cancel) =>
+                            {
+                                request.ContextOverride["context2"] = "proxy";
+                                request.ContextOverride["context3"] = "proxy";
+                                return next(target, request, cancel);
+                            }
+                        });
+                    context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "proxy");
+                    TestHelper.Assert(context["context3"] == "proxy");
+                }
+                output.WriteLine("ok");
+            }
             return prx;
         }
     }
