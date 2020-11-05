@@ -11,6 +11,21 @@ using Test;
 
 namespace ZeroC.Ice.Test.Retry
 {
+    public class Bidir : IBidir
+    {
+        private int _n;
+        public void AfterDelay(int n, Current current, CancellationToken cancel)
+        {
+            if (++_n < n)
+            {
+                throw new ObjectNotExistException(RetryPolicy.AfterDelay(TimeSpan.FromMilliseconds(10)));
+            }
+            _n = 0;
+        }
+
+        public void OtherReplica(Current current, CancellationToken cancel) =>
+            throw new ObjectNotExistException(RetryPolicy.OtherReplica);
+    }
     public static class AllTests
     {
         public static IRetryPrx Run(TestHelper helper, Communicator communicator, bool colocated)
@@ -135,6 +150,18 @@ namespace ZeroC.Ice.Test.Retry
             Instrumentation.TestFailureCount(1);
             Instrumentation.TestRetryCount(0);
             output.WriteLine("ok");
+
+            if (!colocated)
+            {
+                output.Write("testing retry with fixed reference... ");
+                output.Flush();
+                var adapter = communicator.CreateObjectAdapter(protocol: ice1 ? Protocol.Ice1 : Protocol.Ice2);
+                var bidir = adapter.AddWithUUID(new Bidir(), IBidirPrx.Factory);
+                retry1.GetConnection().Adapter = adapter;
+                retry1.OpBidirRetry(bidir);
+
+                output.WriteLine("ok");
+            }
 
             if (!ice1)
             {
