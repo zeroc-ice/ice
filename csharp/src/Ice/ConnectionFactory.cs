@@ -68,10 +68,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal OutgoingConnectionFactory(Communicator communicator)
-        {
-            _communicator = communicator;
-        }
+        internal OutgoingConnectionFactory(Communicator communicator) => _communicator = communicator;
 
         internal void AddTransportFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
 

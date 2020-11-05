@@ -471,6 +471,12 @@ namespace ZeroC.Ice
                                          retryPolicy != RetryPolicy.NoRetry);
                             if (retryPolicy == RetryPolicy.OtherReplica)
                             {
+                                if (reference.IsFixed)
+                                {
+                                    // A fixed reference implies there are no more replicas
+                                    break;
+                                }
+
                                 Debug.Assert(connector != null);
                                 excludedConnectors ??= new List<IConnector>();
                                 excludedConnectors.Add(connector);
