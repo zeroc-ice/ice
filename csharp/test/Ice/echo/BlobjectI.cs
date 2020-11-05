@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Echo
                 IObjectPrx.Factory,
                 facet: current.Facet,
                 oneway: current.IsOneway);
-            return proxy.ForwardAsync(current.IsOneway, request, cancel: cancel);
+            return proxy.ForwardAsync(request, current.IsOneway, cancel: cancel);
         }
     }
 }
