@@ -98,7 +98,7 @@ namespace ZeroC.Ice
         public Protocol Protocol => Endpoint.Protocol;
 
         // The connector from which the connection was created. This is used by the outgoing connection factory.
-        internal IConnector Connector => _connector!;
+        internal IConnector? Connector => _connector;
 
         // The endpoints which are associated with this connection. This is populated by the outgoing connection
         // factory when an endpoint resolves to the same connector as this connection's connector. Two endpoints

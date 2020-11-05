@@ -60,6 +60,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
+                Debug.Assert(connection.Connector != null);
                 _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
                 foreach (Endpoint endpoint in connection.Endpoints)
                 {
@@ -242,6 +243,7 @@ namespace ZeroC.Ice
                             Connection connection = completedTask.Result;
                             foreach ((IConnector connector, Endpoint endpoint) in connectors)
                             {
+                                Debug.Assert(connection.Connector != null);
                                 if (connection.Connector.Equals(connector))
                                 {
                                     Debug.Assert(connection.ConnectionId == connectionId);
