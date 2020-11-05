@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using Test;
 
 namespace ZeroC.Ice.Test.Retry
 {
@@ -37,6 +38,31 @@ namespace ZeroC.Ice.Test.Retry
             int counter = _counter;
             _counter = 0;
             return counter;
+        }
+
+        public void OpBidirRetry(IBidirPrx bidir, Current current, CancellationToken cancel)
+        {
+            bidir = bidir.Clone(fixedConnection: current.Connection);
+            try
+            {
+                bidir.OtherReplica(cancel: CancellationToken.None);
+                TestHelper.Assert(false);
+            }
+            catch (ObjectNotExistException)
+            {
+            }
+
+            // With Ice1 the exception is not retryable, with Ice2 we can retry using the existing connection
+            // because the exception uses the AfterDelay retry policy.
+            try
+            {
+                bidir.AfterDelay(2, cancel: CancellationToken.None);
+                TestHelper.Assert(current.Protocol == Protocol.Ice2);
+            }
+            catch (ObjectNotExistException)
+            {
+                TestHelper.Assert(current.Protocol == Protocol.Ice1);
+            }
         }
 
         public void OpNotIdempotent(Current current, CancellationToken cancel) =>

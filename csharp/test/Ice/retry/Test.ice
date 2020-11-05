@@ -15,6 +15,12 @@ exception SystemFailure
 
 sequence<byte> ByteSeq;
 
+interface Bidir
+{
+    void otherReplica();
+    void afterDelay(int n);
+}
+
 interface Retry
 {
     void op(bool kill);
@@ -23,6 +29,7 @@ interface Retry
     void opNotIdempotent();
     void opSystemException();
     int opAfterDelay(int retries, int delay);
+    void opBidirRetry(Bidir prx);
 
     idempotent void sleep(int delay);
 
