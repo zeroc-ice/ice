@@ -331,7 +331,30 @@ namespace ZeroC.Ice.Test.Interceptor
                         });
                     context = prx.Op2();
                     TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "proxy");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(context["context3"] == "proxy");
+
+                    // Calling next twice doesn't change the result
+                    prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                        {
+                            (target, request, next, cancel) =>
+                            {
+                                request.ContextOverride["context2"] = "proxy";
+                                request.ContextOverride["context3"] = "proxy";
+                                _ = next(target, request, cancel);
+                                return next(target, request, cancel);
+                            }
+                        });
+                    context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(context["context3"] == "proxy");
+
+                    // Cloning the proxy preserve its interceptors
+                    prx = prx.Clone(invocationTimeout: TimeSpan.FromSeconds(10));
+                    context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
                     TestHelper.Assert(context["context3"] == "proxy");
                 }
                 output.WriteLine("ok");

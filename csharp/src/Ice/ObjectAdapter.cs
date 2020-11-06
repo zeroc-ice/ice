@@ -506,7 +506,7 @@ namespace ZeroC.Ice
                                                 _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
-                                             invocationInterceptors: null,
+                                             invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                              _invocationMode,
                                              location,
                                              protocol));
@@ -1059,15 +1059,16 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice1)
                 {
-                    IObjectPrx proxy = IObjectPrx.Factory(new Reference(Communicator,
-                                                                        Protocol.GetEncoding(),
-                                                                        endpoints,
-                                                                        facet: "",
-                                                                        new Identity("dummy", ""),
-                                                                        invocationInterceptors: null,
-                                                                        invocationMode: default,
-                                                                        location: ImmutableArray<string>.Empty,
-                                                                        protocol: endpoints[0].Protocol));
+                    IObjectPrx proxy = IObjectPrx.Factory(
+                        new Reference(Communicator,
+                                      Protocol.GetEncoding(),
+                                      endpoints,
+                                      facet: "",
+                                      new Identity("dummy", ""),
+                                      invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
+                                      invocationMode: default,
+                                      location: ImmutableArray<string>.Empty,
+                                      protocol: endpoints[0].Protocol));
                     if (ReplicaGroupId.Length > 0)
                     {
                         await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(

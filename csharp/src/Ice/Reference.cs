@@ -211,7 +211,7 @@ namespace ZeroC.Ice
                                  endpoints: endpoints,
                                  facet: facet,
                                  identity: identity,
-                                 invocationInterceptors: null,
+                                 invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                  invocationMode: invocationMode,
                                  invocationTimeout: invocationTimeout ?? communicator.DefaultInvocationTimeout,
                                  location: location,
@@ -305,7 +305,7 @@ namespace ZeroC.Ice
             {
                 return false;
             }
-            if (_invocationInterceptors != other._invocationInterceptors)
+            if (!_invocationInterceptors.SequenceEqual(other._invocationInterceptors))
             {
                 return false;
             }
@@ -347,7 +347,10 @@ namespace ZeroC.Ice
                 hash.Add(Encoding);
                 hash.Add(Facet);
                 hash.Add(Identity);
-                hash.Add(_invocationInterceptors);
+                foreach (InvocationInterceptor interceptor in _invocationInterceptors)
+                {
+                    hash.Add(interceptor);
+                }
                 hash.Add(InvocationMode);
                 hash.Add(InvocationTimeout);
                 hash.Add(Protocol);
@@ -587,6 +590,9 @@ namespace ZeroC.Ice
             bool oneway,
             IProgress<bool>? progress = null)
         {
+            IReadOnlyList<InvocationInterceptor> referenceInterceptors = proxy.IceReference._invocationInterceptors;
+            IReadOnlyList<InvocationInterceptor> communicatorInterceptos = proxy.Communicator.InvocationInterceptors;
+
             switch (proxy.InvocationMode)
             {
                 case InvocationMode.BatchOneway:
@@ -600,7 +606,6 @@ namespace ZeroC.Ice
                                                        request,
                                                        oneway,
                                                        0,
-                                                       proxy.IceReference._invocationInterceptors,
                                                        progress,
                                                        request.CancellationToken);
             }
@@ -610,20 +615,28 @@ namespace ZeroC.Ice
                 OutgoingRequestFrame request,
                 bool oneway,
                 int i,
-                IReadOnlyList<InvocationInterceptor> interceptors,
                 IProgress<bool>? progress,
                 CancellationToken cancel)
             {
                 cancel.ThrowIfCancellationRequested();
-                if (i < interceptors.Count)
+                InvocationInterceptor? interceptor = null;
+                if (i < referenceInterceptors.Count)
+                {
+                    interceptor = referenceInterceptors[i];
+                }
+                else if (i - referenceInterceptors.Count < communicatorInterceptos.Count)
+                {
+                    interceptor = communicatorInterceptos[i - referenceInterceptors.Count];
+                }
+
+                if (interceptor != null)
                 {
                     // Call the next interceptor in the chain
-                    InvocationInterceptor interceptor = interceptors[i++];
                     return interceptor(
                         proxy,
                         request,
                         (target, request, cancel) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, i, interceptors, progress, cancel),
+                            InvokeWithInterceptorsAsync(target, request, oneway, ++i, progress, cancel),
                         cancel);
                 }
                 else
@@ -969,7 +982,7 @@ namespace ZeroC.Ice
                                      endpoints,
                                      proxyData.FacetPath.Length == 1 ? proxyData.FacetPath[0] : "",
                                      identity,
-                                     invocationInterceptors: null,
+                                     invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                      proxyData.InvocationMode,
                                      location: location0.Length > 0 ?
                                         ImmutableArray.Create(location0) : ImmutableArray<string>.Empty,
@@ -1013,7 +1026,7 @@ namespace ZeroC.Ice
                                      endpoints,
                                      proxyData.Facet ?? "",
                                      proxyData.Identity,
-                                     invocationInterceptors: null,
+                                     invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                      proxyData.InvocationMode ?? InvocationMode.Twoway,
                                      (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
                                      protocol);
@@ -1027,7 +1040,7 @@ namespace ZeroC.Ice
             IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
             string facet,
             Identity identity,
-            IReadOnlyList<InvocationInterceptor>? invocationInterceptors, // already a copy provided by Ice
+            IReadOnlyList<InvocationInterceptor> invocationInterceptors, // already a copy provided by Ice
             InvocationMode invocationMode,
             IReadOnlyList<string> location, // already a copy provided by Ice
             Protocol protocol)
@@ -1055,15 +1068,14 @@ namespace ZeroC.Ice
         internal Reference(
             Communicator communicator,
             Connection fixedConnection,
-            Identity identity,
-            IReadOnlyList<InvocationInterceptor>? invocationInterceptors) // already a copy provided by Ice
+            Identity identity) // already a copy provided by Ice
             : this(communicator: communicator,
                    context: communicator.DefaultContext,
                    encoding: fixedConnection.Protocol.GetEncoding(),
                    facet: "",
                    fixedConnection: fixedConnection,
                    identity: identity,
-                   invocationInterceptors: invocationInterceptors,
+                   invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
                    invocationMode: (fixedConnection.Endpoint?.IsDatagram ?? false) ?
                        InvocationMode.Datagram : InvocationMode.Twoway,
                    invocationTimeout: communicator.DefaultInvocationTimeout)
@@ -1196,15 +1208,16 @@ namespace ZeroC.Ice
                     throw new ArgumentException("cannot change the router of a fixed proxy", nameof(clearRouter));
                 }
 
-                var clone = new Reference(Communicator,
-                                          context?.ToImmutableDictionary() ?? Context,
-                                          encoding ?? Encoding,
-                                          facet ?? Facet,
-                                          (fixedConnection ?? _connection)!,
-                                          identity ?? Identity,
-                                          invocationInterceptors?.ToImmutableArray(),
-                                          invocationMode ?? InvocationMode,
-                                          invocationTimeout ?? InvocationTimeout);
+                var clone = new Reference(
+                    Communicator,
+                    context?.ToImmutableDictionary() ?? Context,
+                    encoding ?? Encoding,
+                    facet ?? Facet,
+                    (fixedConnection ?? _connection)!,
+                    identity ?? Identity,
+                    invocationInterceptors?.ToImmutableArray() ?? _invocationInterceptors,
+                    invocationMode ?? InvocationMode,
+                    invocationTimeout ?? InvocationTimeout);
                 return clone == this ? this : clone;
             }
             else
@@ -1295,7 +1308,7 @@ namespace ZeroC.Ice
                                           newEndpoints ?? Endpoints,
                                           facet ?? Facet,
                                           identity ?? Identity,
-                                          invocationInterceptors?.ToImmutableArray(),
+                                          invocationInterceptors?.ToImmutableArray() ?? _invocationInterceptors,
                                           invocationMode ?? InvocationMode,
                                           invocationTimeout ?? InvocationTimeout,
                                           newLocation ?? Location,
@@ -1586,7 +1599,7 @@ namespace ZeroC.Ice
             IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
             string facet,
             Identity identity,
-            IReadOnlyList<InvocationInterceptor>? invocationInterceptors, // already a copy provided by Ice
+            IReadOnlyList<InvocationInterceptor> invocationInterceptors, // already a copy provided by Ice
             InvocationMode invocationMode,
             TimeSpan invocationTimeout,
             IReadOnlyList<string> location, // already a copy provided by Ice
@@ -1603,9 +1616,7 @@ namespace ZeroC.Ice
             Endpoints = endpoints;
             Facet = facet;
             Identity = identity;
-            _invocationInterceptors = invocationInterceptors == null ?
-                Communicator.InvocationInterceptors :
-                Communicator.InvocationInterceptors.Concat(invocationInterceptors).ToImmutableArray();
+            _invocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsConnectionCached = cacheConnection;
@@ -1639,7 +1650,7 @@ namespace ZeroC.Ice
             string facet,
             Connection fixedConnection,
             Identity identity,
-            IReadOnlyList<InvocationInterceptor>? invocationInterceptors, // already a copy provided by Ice
+            IReadOnlyList<InvocationInterceptor> invocationInterceptors, // already a copy provided by Ice
             InvocationMode invocationMode,
             TimeSpan invocationTimeout)
         {
@@ -1650,9 +1661,7 @@ namespace ZeroC.Ice
             Endpoints = Array.Empty<Endpoint>();
             Facet = facet;
             Identity = identity;
-            _invocationInterceptors = invocationInterceptors == null ?
-                Communicator.InvocationInterceptors :
-                Communicator.InvocationInterceptors.Concat(invocationInterceptors).ToImmutableArray();
+            _invocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsConnectionCached = false;
