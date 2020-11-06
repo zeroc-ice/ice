@@ -636,7 +636,7 @@ namespace ZeroC.Ice
                         proxy,
                         request,
                         (target, request, cancel) =>
-                            InvokeWithInterceptorsAsync(target, request, oneway, ++i, progress, cancel),
+                            InvokeWithInterceptorsAsync(target, request, oneway, i + 1, progress, cancel),
                         cancel);
                 }
                 else
