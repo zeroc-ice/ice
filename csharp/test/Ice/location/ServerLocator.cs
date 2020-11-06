@@ -42,17 +42,14 @@ namespace ZeroC.Ice.Test.Location
 
         public int GetRequestCount(Current current, CancellationToken cancel) => _requestCount;
 
-        public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveLocation(
-            string[] location,
-            Current current,
-            CancellationToken cancel)
+        public IEnumerable<EndpointData> ResolveLocation(string[] location, Current current, CancellationToken cancel)
         {
             ++_requestCount;
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
 
-            return (_registry.GetIce2Adapter(location[0]), location[1..]);
+            return _registry.GetIce2Adapter(location[0]);
         }
 
         public (IEnumerable<EndpointData>, IEnumerable<string>) ResolveWellKnownProxy(
