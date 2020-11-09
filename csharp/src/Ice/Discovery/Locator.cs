@@ -95,7 +95,7 @@ namespace ZeroC.Ice.Discovery
 
             using var replyServant = new ResolveAdapterIdReply(_replyAdapter);
 
-            IReadOnlyList<EndpointData> endpoints = await InvokeAsync(
+            return await InvokeAsync(
                 (lookup, dummyReply) =>
                 {
                     IResolveAdapterIdReplyPrx reply =
@@ -107,8 +107,6 @@ namespace ZeroC.Ice.Discovery
                                                         cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
-
-            return endpoints;
         }
 
         public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveWellKnownProxyAsync(
