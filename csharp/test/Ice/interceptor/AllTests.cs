@@ -122,7 +122,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     invocationContext.Value = i;
                     var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
-                    Task t = prx1.Op1Async(new Dictionary<string, string> { { "local-user", $"{i}"} });
+                    Task t = prx1.Op1Async(new Dictionary<string, string> { { "local-user", $"{i}" } });
                     tasks.Add(t);
                 }
                 Task.WaitAll(tasks.ToArray());
@@ -307,6 +307,75 @@ namespace ZeroC.Ice.Test.Interceptor
                 }
                 prx.InvokeAsync(request).Wait();
                 TestHelper.Assert(request.IsSealed);
+            }
+            output.WriteLine("ok");
+
+            output.Write("testing per proxy invocation interceptors... ");
+            output.Flush();
+            {
+                if (ice2)
+                {
+                    // This test use ContextOverride not supported with ice1
+                    Dictionary<string, string>? context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(!context.ContainsKey("context3"));
+                    prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                        {
+                            (target, request, next, cancel) =>
+                            {
+                                request.ContextOverride["context2"] = "proxy";
+                                request.ContextOverride["context3"] = "proxy";
+                                return next(target, request, cancel);
+                            }
+                        });
+                    context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(context["context3"] == "proxy");
+
+                    // Calling next twice doesn't change the result
+                    prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                        {
+                            (target, request, next, cancel) =>
+                            {
+                                request.ContextOverride["context2"] = "proxy";
+                                request.ContextOverride["context3"] = "proxy";
+                                _ = next(target, request, cancel);
+                                return next(target, request, cancel);
+                            }
+                        });
+                    context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(context["context3"] == "proxy");
+
+                    // Cloning the proxy preserve its interceptors
+                    prx = prx.Clone(invocationTimeout: TimeSpan.FromSeconds(10));
+                    context = prx.Op2();
+                    TestHelper.Assert(context["context1"] == "plug-in");
+                    TestHelper.Assert(context["context2"] == "plug-in");
+                    TestHelper.Assert(context["context3"] == "proxy");
+                }
+
+                // The server increments the result with each call when using the invocation interceptor we
+                // return a cached response, and we will see the same result with each call.
+                IncomingResponseFrame? response = null;
+                prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                    {
+                        async (target, request, next, cancel) =>
+                        {
+                            response ??= await next(target, request, cancel);
+                            return response;
+                        }
+                    });
+                TestHelper.Assert(prx.Op3() == 0);
+                TestHelper.Assert(prx.Op3() == 0);
+
+                // After clearing the invocation interceptors we should see the result increase with each call
+                prx = prx.Clone(invocationInterceptors: Array.Empty<InvocationInterceptor>());
+                TestHelper.Assert(prx.Op3() == 1);
+                TestHelper.Assert(prx.Op3() == 2);
             }
             output.WriteLine("ok");
             return prx;

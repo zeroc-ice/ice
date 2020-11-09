@@ -51,6 +51,8 @@ namespace ZeroC.Ice
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
         /// <param name="identity">The identity of the clone.</param>
         /// <param name="identityAndFacet">A relative URI string [category/]identity[#facet].</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will be
+        /// executed with each invocation</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
@@ -76,6 +78,7 @@ namespace ZeroC.Ice
             Connection? fixedConnection = null,
             Identity? identity = null,
             string? identityAndFacet = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null,
@@ -95,6 +98,7 @@ namespace ZeroC.Ice
                                            fixedConnection,
                                            identity,
                                            identityAndFacet,
+                                           invocationInterceptors,
                                            invocationMode,
                                            invocationTimeout,
                                            location,
@@ -119,6 +123,8 @@ namespace ZeroC.Ice
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
         /// <param name="fixedConnection">The connection of the clone (optional). When specified, the clone is a fixed
         /// proxy. You can clone a non-fixed proxy into a fixed proxy but not vice-versa.</param>
+        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will be
+        /// executed with each invocation</param>
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
@@ -140,6 +146,7 @@ namespace ZeroC.Ice
             Encoding? encoding = null,
             IEnumerable<Endpoint>? endpoints = null,
             Connection? fixedConnection = null,
+            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
             IEnumerable<string>? location = null,
@@ -160,6 +167,7 @@ namespace ZeroC.Ice
                                                      fixedConnection,
                                                      identity: null,
                                                      identityAndFacet: null,
+                                                     invocationInterceptors,
                                                      invocationMode,
                                                      invocationTimeout,
                                                      location,

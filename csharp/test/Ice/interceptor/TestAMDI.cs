@@ -1,12 +1,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
     public sealed class AsyncMyObject : IAsyncMyObject
     {
+        private int _i;
+
         public ValueTask<int> AddAsync(int x, int y, Current current, CancellationToken cancel) =>
             new ValueTask<int>(x + y);
         public ValueTask<int> AddWithRetryAsync(int x, int y, Current current, CancellationToken cancel)
@@ -23,6 +27,12 @@ namespace ZeroC.Ice.Test.Interceptor
             throw new ObjectNotExistException();
         public ValueTask Op1Async(Current current, CancellationToken cancel) => new ValueTask();
         public ValueTask OpWithBinaryContextAsync(Token token, Current current, CancellationToken cancel) => default;
+
+        public ValueTask<IReadOnlyDictionary<string, string>> Op2Async(Current current, CancellationToken cancel) =>
+            new ValueTask<IReadOnlyDictionary<string, string>>(current.Context);
+
+        public ValueTask<int> Op3Async(Current current, CancellationToken cancel) => new ValueTask<int>(_i++);
+
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();
