@@ -622,8 +622,8 @@ namespace ZeroC.Ice.Test.AMI
                 try
                 {
                     var cancelCtx = new Dictionary<string, string> { { "cancel", "" } };
-                    t1 = p.SleepAsync(300, cancel: cs1.Token, context: cancelCtx);
-                    t2 = p.SleepAsync(300, cancel: cs2.Token, context: cancelCtx);
+                    t1 = p.SleepAsync(700, cancel: cs1.Token, context: cancelCtx);
+                    t2 = p.SleepAsync(700, cancel: cs2.Token, context: cancelCtx);
                     cs1.Cancel();
                     cs2.Cancel();
                     cs3.Cancel();
@@ -683,7 +683,7 @@ namespace ZeroC.Ice.Test.AMI
                     source.CancelAfter(TimeSpan.FromMilliseconds(i));
                     try
                     {
-                        p.Clone().SleepAsync(50, cancel: source.Token, context: cancelCtx).Wait();
+                        p.Clone().SleepAsync(700, cancel: source.Token, context: cancelCtx).Wait();
                         TestHelper.Assert(false);
                     }
                     catch (OperationCanceledException)
