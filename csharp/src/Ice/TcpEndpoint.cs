@@ -14,7 +14,7 @@ namespace ZeroC.Ice
     internal class TcpEndpoint : IPEndpoint
     {
         public override bool IsDatagram => false;
-        public override bool IsSecure => Transport == Transport.SSL;
+        public override bool IsAlwaysSecure => Transport == Transport.SSL;
 
         public override string? this[string option] =>
             option switch
@@ -128,7 +128,7 @@ namespace ZeroC.Ice
 
         internal static TcpEndpoint CreateIce2Endpoint(EndpointData data, Communicator communicator)
         {
-            Debug.Assert(data.Transport == Transport.TCP || data.Transport == Transport.SSL); // TODO: remove SSL
+            Debug.Assert(data.Transport == Transport.TCP);
 
             // Drop all options since we don't understand any.
             return new TcpEndpoint(new EndpointData(data.Transport, data.Host, data.Port, Array.Empty<string>()),
@@ -265,20 +265,21 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy)
+        internal virtual ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy, bool secure)
         {
             ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
-            if (IsSecure)
+            if (IsAlwaysSecure || secure)
             {
                 transceiver = new SslTransceiver(Communicator, transceiver, Host, false, connector);
             }
             return transceiver;
         }
 
-        internal virtual ITransceiver CreateTransceiver(Socket socket, string adapterName)
+        internal virtual ITransceiver CreateTransceiver(Socket socket, string adapterName, bool secure)
         {
             ITransceiver transceiver = new TcpTransceiver(Communicator, socket);
-            if (IsSecure)
+
+            if (IsAlwaysSecure || secure)
             {
                 transceiver = new SslTransceiver(Communicator, transceiver, adapterName, true);
             }

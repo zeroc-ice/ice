@@ -236,13 +236,15 @@ namespace ZeroC.Ice.LocatorDiscovery
 
             _lookup = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
                     clearRouter: true,
-                    invocationTimeout: _timeout);
+                    invocationTimeout: _timeout,
+                    preferNonSecure: true);
 
             if (communicator.GetProperty("Ice.LocatorDiscovery.Reply.Endpoints") == null)
             {
                 communicator.SetProperty("Ice.LocatorDiscovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
             communicator.SetProperty("Ice.LocatorDiscovery.Reply.ProxyOptions", "-d");
+            communicator.SetProperty("Ice.LocatorDiscovery.Reply.AcceptNonSecure", "True");
 
             _replyAdapter = communicator.CreateObjectAdapter("Ice.LocatorDiscovery.Reply");
             _locatorAdapter = communicator.CreateObjectAdapter();

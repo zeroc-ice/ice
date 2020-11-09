@@ -36,7 +36,7 @@ namespace ZeroC.Ice
         internal bool IsConnectionCached { get; }
         internal bool IsFixed { get; }
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
-        public bool IsOneway => InvocationMode != InvocationMode.Twoway;
+        internal bool IsOneway => InvocationMode != InvocationMode.Twoway;
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
 
@@ -1411,14 +1411,20 @@ namespace ZeroC.Ice
                             return false;
                     }
 
-                    // If PreferNonSecure is false, filter out all non-secure endpoints
-                    return PreferNonSecure || endpoint.IsSecure;
+                    if (Protocol == Protocol.Ice1 && !PreferNonSecure)
+                    {
+                        return endpoint.IsAlwaysSecure;
+                    }
+
+                    // If we made it this far then the endpoint is either ice2 or it's ice1 and PreferNonSecure == true
+                    Debug.Assert(Protocol == Protocol.Ice2 || (Protocol == Protocol.Ice1 && PreferNonSecure));
+
+                    return true;
                 });
 
-                if (PreferNonSecure)
+                if (Protocol == Protocol.Ice1 && PreferNonSecure)
                 {
-                    // It's just a preference: we can fallback to secure endpoints.
-                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
+                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => !endpoint.IsAlwaysSecure);
                 }
 
                 endpoints = filteredEndpoints.ToArray();
@@ -1439,6 +1445,7 @@ namespace ZeroC.Ice
                                                                false,
                                                                ConnectionId,
                                                                excludedConnectors,
+                                                               PreferNonSecure,
                                                                cancel).ConfigureAwait(false);
                     }
                     else
@@ -1455,6 +1462,7 @@ namespace ZeroC.Ice
                                                                        endpoint != lastEndpoint,
                                                                        ConnectionId,
                                                                        excludedConnectors,
+                                                                       PreferNonSecure,
                                                                        cancel).ConfigureAwait(false);
                                 break;
                             }

@@ -644,8 +644,7 @@ namespace ZeroC.Ice.Test.Location
             output.Flush();
 
             communicator.SetProperty("Hello.AdapterId", Guid.NewGuid().ToString());
-            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(
-                "Hello", ice1 ? "tcp -h localhost" : "ice+tcp://localhost:0");
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(helper.GetTestEndpoint(ephemeral: true));
 
             var id = new Identity(Guid.NewGuid().ToString(), "");
             adapter.Add(id, new Hello());

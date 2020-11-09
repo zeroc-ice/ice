@@ -250,7 +250,7 @@ namespace ZeroC.Ice
                 Add("endpoint", obj => (obj as ConnectionHelper)?._connection.Endpoint);
                 Add("endpointTransport", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsSecure);
+                Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsAlwaysSecure);
                 Add("endpointHost", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Host);
                 Add("endpointPort", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Port);
             }
@@ -343,7 +343,7 @@ namespace ZeroC.Ice
                 Add("endpoint", obj => (obj as DispatchHelper)?.Connection.Endpoint);
                 Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Connection.Endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint?.IsSecure);
+                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint?.IsAlwaysSecure);
                 Add("endpointHost", obj => (obj as DispatchHelper)?.Connection.Endpoint?.Host);
                 Add("endpointPort", obj => (obj as DispatchHelper)?.Connection.Endpoint?.Port);
 
@@ -405,7 +405,7 @@ namespace ZeroC.Ice
                 Add("endpoint", obj => (obj as EndpointHelper)?._endpoint);
                 Add("endpointTransport", obj => (obj as EndpointHelper)?._endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as EndpointHelper)?._endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as EndpointHelper)?._endpoint?.IsSecure);
+                Add("endpointIsSecure", obj => (obj as EndpointHelper)?._endpoint?.IsAlwaysSecure);
                 Add("endpointHost", obj => (obj as EndpointHelper)?._endpoint.Host);
                 Add("endpointPort", obj => (obj as EndpointHelper)?._endpoint.Port);
             }
@@ -639,7 +639,7 @@ namespace ZeroC.Ice
                 Add("endpoint", obj => (obj as ChildInvocationHelper)?._connection.Endpoint);
                 Add("endpointTransport", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.Transport);
                 Add("endpointIsDatagram", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.IsSecure);
+                Add("endpointIsSecure", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.IsAlwaysSecure);
                 Add("endpointHost", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.Host);
                 Add("endpointPort", obj => (obj as ChildInvocationHelper)?._connection.Endpoint!.Port);
             }

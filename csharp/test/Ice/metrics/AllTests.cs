@@ -458,7 +458,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             Endpoint connectionEndpoint = metrics.GetCachedConnection()!.Endpoint;
             string transportName = connectionEndpoint.Transport.ToString();
-            string isSecure = connectionEndpoint.IsSecure ? "True" : "False";
+            string isSecure = connectionEndpoint.IsAlwaysSecure ? "True" : "False";
 
             Dictionary<string, IceMX.Metrics> map;
 

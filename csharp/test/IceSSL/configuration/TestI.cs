@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Test;
@@ -16,7 +17,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             try
             {
                 var tcpConnection = (TcpConnection)current.Connection;
-                TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                TestHelper.Assert(tcpConnection.IsEncrypted);
                 TestHelper.Assert(tcpConnection.RemoteCertificate == null);
             }
             catch
@@ -30,7 +31,8 @@ namespace ZeroC.IceSSL.Test.Configuration
             try
             {
                 var tcpConnection = (TcpConnection)current.Connection;
-                TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                var ice1 = current.Adapter.Protocol == Protocol.Ice1;
+                TestHelper.Assert(tcpConnection.IsEncrypted);
                 TestHelper.Assert(tcpConnection.RemoteCertificate != null);
                 TestHelper.Assert(tcpConnection.RemoteCertificate.Subject.Equals(subjectDN));
                 TestHelper.Assert(tcpConnection.RemoteCertificate.Issuer.Equals(issuerDN));
@@ -46,7 +48,8 @@ namespace ZeroC.IceSSL.Test.Configuration
             try
             {
                 var tcpConnection = (TcpConnection)current.Connection;
-                TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                var ice1 = current.Adapter.Protocol == Protocol.Ice1;
+                TestHelper.Assert(tcpConnection.IsEncrypted);
                 TestHelper.Assert(tcpConnection.NegotiatedCipherSuite!.ToString()!.Equals(cipher));
             }
             catch
@@ -83,7 +86,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             string serverEndpoint = TestHelper.GetTestEndpoint(
                 properties: communicator.GetProperties(),
                 num: 1,
-                transport: "ssl",
+                transport: ice1 ? "ssl" : "tcp",
                 ephemeral: host != "localhost");
 
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", serverEndpoint);

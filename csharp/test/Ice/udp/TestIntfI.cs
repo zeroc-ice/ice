@@ -13,11 +13,11 @@ namespace ZeroC.Ice.Test.UDP
             return 42;
         }
 
-        public void Ping(IPingReplyPrx? reply, Current current, CancellationToken cancel)
+        public void Ping(IPingReplyPrx reply, Current current, CancellationToken cancel)
         {
             try
             {
-                reply!.Reply(cancel: cancel);
+                reply.Clone(preferNonSecure: true).Reply(cancel: cancel);
             }
             catch
             {
@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             try
             {
-                reply!.Reply(cancel: cancel);
+                reply?.Clone(preferNonSecure: true).Reply(cancel: cancel);
             }
             catch
             {

@@ -13,6 +13,7 @@ namespace ZeroC.Ice.Test.Info
             if (Protocol == Protocol.Ice1)
             {
                 communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0) + ":" + GetTestEndpoint(0, "udp"));
+                communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
             }
             else
             {

@@ -122,6 +122,32 @@ namespace ZeroC.Ice
             }
         }
 
+        internal static async ValueTask<int> PeekAsync(Socket fd, ArraySegment<byte> buffer, CancellationToken cancel = default)
+        {
+            int received;
+            try
+            {
+                received = await fd.ReceiveAsync(buffer, SocketFlags.Peek, cancel).ConfigureAwait(false);
+            }
+            catch (SocketException) when (cancel.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancel);
+            }
+            catch (SocketException ex) when (ex.IsConnectionLost())
+            {
+                throw new ConnectionLostException(ex);
+            }
+            catch (SocketException ex)
+            {
+                throw new TransportException(ex);
+            }
+            if (received == 0)
+            {
+                throw new ConnectionLostException();
+            }
+            return received;
+        }
+
         public override string ToString() => _desc;
 
         internal TcpTransceiver(

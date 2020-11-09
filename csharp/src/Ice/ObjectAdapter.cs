@@ -18,6 +18,13 @@ namespace ZeroC.Ice
     /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
+        /// <summary>Indicates whether or not the object adapter accepts non-secure incoming
+        /// connections. When false, it only accepts only secure connections; when true, it accepts both secure and
+        /// non-secure connections. This property corresponds to the object adapter's AcceptNonSecure
+        /// property. If not set then the value of <see cref="Communicator.AcceptNonSecure"/> is used.
+        /// </summary>
+        public bool AcceptNonSecure { get; }
+
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
         /// have an adapter ID.</summary>
         public string AdapterId { get; }
@@ -74,6 +81,7 @@ namespace ZeroC.Ice
 
         private static readonly string[] _suffixes =
         {
+            "AcceptNonSecure",
             "AdapterId",
             "Endpoints",
             "IncomingFrameSizeMax",
@@ -672,6 +680,8 @@ namespace ZeroC.Ice
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
 
+            AcceptNonSecure = communicator.AcceptNonSecure;
+
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
@@ -727,6 +737,9 @@ namespace ZeroC.Ice
                 Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
             IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
+            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure")
+                ?? Communicator.AcceptNonSecure;
+
             try
             {
                 router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
@@ -775,6 +788,18 @@ namespace ZeroC.Ice
                             Protocol = Protocol.Ice1;
                             endpoints = Ice1Parser.ParseEndpoints(value, communicator);
                             _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
+
+                            if (!AcceptNonSecure)
+                            {
+                                foreach (var e in endpoints)
+                                {
+                                    if (!e.IsAlwaysSecure)
+                                    {
+                                        throw new InvalidConfigurationException(
+                                            $"object adapter `{Name}' is configured to use non-secure endpoint: `{e}'");
+                                    }
+                                }
+                            }
                         }
 
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>

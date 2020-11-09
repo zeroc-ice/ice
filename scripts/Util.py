@@ -739,6 +739,10 @@ class Mapping(object):
                     if isinstance(process.getMapping(current), CSharpMapping):
                         if not process.isFromBinDir():
                             props["Test.Transport"] = self.transport
+                            if self.transport in  {"wss", "ssl"}:
+                                # Switch this logic when the default in the Communicator is False
+                                props["Ice.Default.PreferNonSecure"] = "False";
+                                props["Ice.AcceptNonSecure"] = "False";
                     else:
                         props["Ice.Default.Transport"] = self.transport
                 if self.protocol:
@@ -748,11 +752,16 @@ class Mapping(object):
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
                     props["Ice.ThreadPool.Server.Serialize"] = "1"
-                props["Ice.IPv6"] = self.ipv6
+                # TODO: Remove once this property is removed in all mappings
+                if not isinstance(process.getMapping(current), CSharpMapping):
+                    props["Ice.IPv6"] = self.ipv6
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
                 if self.mx:
-                    props["Ice.Admin.Endpoints"] = "tcp -h \"::1\"" if self.ipv6 else "tcp -h 127.0.0.1"
+                    # TODO: the admin endpoints are also necessary for IceGrid/simple test.
+                    # Do we ever run it without mx ?
+                    transport = current.config.transport
+                    props["Ice.Admin.Endpoints"] = f"{transport} -h \"::1\"" if self.ipv6 else f"{transport} -h 127.0.0.1"
                     props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"
                     props["IceMX.Metrics.Debug.GroupBy"] ="id"
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"

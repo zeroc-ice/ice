@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     // Expected
                 }
 
-                communicator.SetProperty("TestAdapter0.Endpoints", "tcp -h *");
+                communicator.SetProperty("TestAdapter0.Endpoints", helper.GetTestEndpoint(ephemeral: true));
                 first = communicator.CreateObjectAdapter("TestAdapter0");
                 try
                 {
@@ -40,7 +40,12 @@ namespace ZeroC.Ice.Test.Exceptions
 
                 try
                 {
-                    _ = communicator.CreateObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
+                    // test that foo does not resolve
+                    var props = communicator.GetProperties();
+                    props["Test.Host"] = "foo";
+                    _ = communicator.CreateObjectAdapterWithEndpoints("TestAdapter0",
+                    TestHelper.GetTestEndpoint(props, ephemeral: true));
+
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentException)
@@ -53,7 +58,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             {
                 output.Write("testing servant registration exceptions... ");
-                communicator.SetProperty("TestAdapter1.Endpoints", "tcp -h *");
+                communicator.SetProperty("TestAdapter1.Endpoints", helper.GetTestEndpoint(ephemeral: true));
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter1");
                 var obj = new Empty();
                 adapter.Add("x", obj);

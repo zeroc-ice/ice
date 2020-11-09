@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.UDP
             {
             }
 
-            communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num, "tcp"));
+            communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num, Transport));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add("control", new TestIntf());
             await adapter.ActivateAsync();
@@ -34,6 +34,7 @@ namespace ZeroC.Ice.Test.UDP
             if (num == 0)
             {
                 communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(num, "udp"));
+                communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
                 ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter");
                 adapter2.Add("test", new TestIntf());
                 await adapter2.ActivateAsync();
@@ -63,6 +64,7 @@ namespace ZeroC.Ice.Test.UDP
             endpoint.Append(" -p ");
             endpoint.Append(GetTestBasePort(properties) + 10);
             communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
+            communicator.SetProperty("McastTestAdapter.AcceptNonSecure", "True");
             ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
             mcastAdapter.Add("test", new TestIntf());
             await mcastAdapter.ActivateAsync();

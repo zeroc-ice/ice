@@ -78,6 +78,7 @@ namespace ZeroC.Ice
             bool hasMore,
             string connectionId,
             IReadOnlyList<IConnector> excludedConnectors,
+            bool preferNonSecure,
             CancellationToken cancel)
         {
             Debug.Assert(endpoints.Count > 0);
@@ -205,7 +206,7 @@ namespace ZeroC.Ice
                     // a connection to them.
                     if (tried.Count == 0)
                     {
-                        Task<Connection> connectTask = ConnectAsync(connectors, connectionId, hasMore);
+                        Task<Connection> connectTask = ConnectAsync(connectors, connectionId, hasMore, !preferNonSecure);
                         if (connectTask.IsCompleted)
                         {
                             try
@@ -351,7 +352,8 @@ namespace ZeroC.Ice
         private async Task<Connection> ConnectAsync(
             IReadOnlyList<(IConnector Connector, Endpoint Endpoint)> connectors,
             string connectionId,
-            bool hasMore)
+            bool hasMore,
+            bool secure)
         {
             Debug.Assert(connectors.Count > 0);
 
@@ -380,7 +382,7 @@ namespace ZeroC.Ice
                             {
                                 throw new CommunicatorDisposedException();
                             }
-                            connection = connector.Connect(connectionId);
+                            connection = connector.Connect(connectionId, secure);
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                         }

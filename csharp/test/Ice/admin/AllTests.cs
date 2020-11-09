@@ -240,14 +240,13 @@ namespace ZeroC.Ice.Test.Admin
 
                 // Test: PropertiesAdmin.GetProperties()
                 Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
-                TestHelper.Assert(pd.Count == 7);
+                TestHelper.Assert(pd.Count == 6);
                 TestHelper.Assert(pd["Ice.ProgramName"] == "server");
                 TestHelper.Assert(pd["Ice.Admin.Endpoints"] == (ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0"));
                 TestHelper.Assert(pd["Ice.Admin.InstanceName"] == "Test");
                 TestHelper.Assert(pd["Prop1"] == "1");
                 TestHelper.Assert(pd["Prop2"] == "2");
                 TestHelper.Assert(pd["Prop3"] == "3");
-                TestHelper.Assert(pd["Test.Protocol"] == helper.Protocol.GetName());
 
                 Dictionary<string, string> changes;
 

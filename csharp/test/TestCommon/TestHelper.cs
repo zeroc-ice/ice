@@ -65,16 +65,9 @@ namespace Test
         public static string GetTestEndpoint(
             Dictionary<string, string> properties, int num = 0, string transport = "", bool ephemeral = false)
         {
-            if (transport.Length == 0 || transport == "default")
+            if (transport.Length == 0)
             {
-                if (properties.TryGetValue("Test.Transport", out string? value))
-                {
-                    transport = value;
-                }
-                else
-                {
-                    transport = "tcp";
-                }
+                transport = GetTestTransport(properties);
             }
 
             string host = GetTestHost(properties);
@@ -205,11 +198,23 @@ namespace Test
 
         public static string GetTestTransport(Dictionary<string, string> properties)
         {
-            if (!properties.TryGetValue("Test.Transport", out string? transport))
+            if (properties.TryGetValue("Test.Transport", out string? transport))
             {
-                transport = "tcp";
+                if (GetTestProtocol(properties) == Protocol.Ice1)
+                {
+                    return transport;
+                }
+                return transport switch
+                {
+                    "wss" => "ws",
+                    "ssl" => "tcp",
+                    _ => transport,
+                };
             }
-            return transport;
+            else
+            {
+                return "tcp";
+            }
         }
 
         public static ushort GetTestBasePort(Dictionary<string, string> properties)
@@ -245,9 +250,10 @@ namespace Test
             var tlsServerOptions = new TlsServerOptions();
             if (properties.TryGetValue("Test.Transport", out string? value))
             {
-                // When running test with WSS disable client authentication for browser compatibility
+                // When running test with WSS, disable client authentication for browser compatibility
                 tlsServerOptions.RequireClientCertificate = value == "ssl";
             }
+
             var communicator = new Communicator(properties, tlsServerOptions: tlsServerOptions, observer: observer);
 
             Communicator ??= communicator;

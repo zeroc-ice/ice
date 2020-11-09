@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com",
                 "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com:10000",
                 "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000,host2,host3,host4",
-                "ice+ssl://[::1]:10000/identity?alt-endpoint=host1:10000&alt-endpoint=host2,host3&alt-endpoint=[::2]",
+                "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000&alt-endpoint=host2,host3&alt-endpoint=[::2]",
                 "ice:location//identity#facet",
                 "ice+tcp://host.zeroc.com//identity",
                 "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
@@ -600,10 +600,10 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.RemoveProperty(property);
 
             property = propertyPrefix + ".PreferNonSecure";
-            TestHelper.Assert(b1.PreferNonSecure);
-            communicator.SetProperty(property, "0");
+            TestHelper.Assert(b1.PreferNonSecure == communicator.DefaultPreferNonSecure);
+            communicator.SetProperty(property, (!communicator.DefaultPreferNonSecure).ToString());
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
-            TestHelper.Assert(!b1.PreferNonSecure);
+            TestHelper.Assert(b1.PreferNonSecure != communicator.DefaultPreferNonSecure);
             communicator.RemoveProperty(property);
 
             property = propertyPrefix + ".ConnectionCached";

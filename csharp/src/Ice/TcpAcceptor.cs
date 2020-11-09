@@ -1,9 +1,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -16,12 +19,33 @@ namespace ZeroC.Ice
         private readonly IConnectionManager _manager;
         private readonly Socket _socket;
         private readonly IPEndPoint _addr;
+        private const byte TlsHandshakeRecord = 0x16;
 
         public async ValueTask<Connection> AcceptAsync()
         {
             Socket fd = await _socket.AcceptAsync().ConfigureAwait(false);
 
-            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name);
+            bool secure = Endpoint.IsAlwaysSecure || !_adapter.AcceptNonSecure;
+
+            if (_adapter.Protocol == Protocol.Ice2 && _adapter.AcceptNonSecure)
+            {
+                Debug.Assert(_adapter.Communicator.ConnectTimeout != TimeSpan.Zero);
+                // TODO: we are using reusing ConnectTimeout here so that peeking cannot block forever.
+                // However, this means that it's possible to end up waiting 2 * ConnectTime if reading the
+                // first byte is slow and then the actual connection initialization is also slow.
+
+                using var source = new CancellationTokenSource(_adapter.Communicator.ConnectTimeout);
+
+                // Peek one byte into the tcp stream to see if it contains the TLS handshake record
+                var buffer = new ArraySegment<byte>(new byte[1]);
+                var received = await TcpTransceiver.PeekAsync(fd, buffer, source.Token).ConfigureAwait(false);
+                Debug.Assert(received == 1);
+                secure = buffer.Array![0] == TlsHandshakeRecord;
+
+                // TODO: should we log something here that we've peeked into the stream?
+            }
+
+            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name, secure);
 
             MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = Endpoint.Protocol switch
             {

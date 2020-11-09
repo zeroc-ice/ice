@@ -14,7 +14,7 @@ namespace ZeroC.IceBox.Test.Admin
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            var admin = IObjectPrx.Parse("DemoIceBox/admin:default -h localhost -p 9996 -t 10000", communicator);
+            var admin = IObjectPrx.Parse("DemoIceBox/admin:tcp -h localhost -p 9996 -t 10000", communicator);
 
             ITestFacetPrx? facet;
 
