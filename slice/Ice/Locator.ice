@@ -79,16 +79,15 @@ module Ice
         /// Resolves the location of a proxy that uses the ice2 protocol.
         /// @param location The location to resolve.
         /// @return A sequence of one or more endpoints when the location can be resolved, and an empty sequence of
-        /// endpoints when the location cannot be resolved. When the location can be resolved, this operation also
-        /// returns a new location which is typically location[1..].
-        idempotent (EndpointDataSeq endpoints, StringSeq newLocation) resolveLocation(StringSeq location);
+        /// endpoints when the location cannot be resolved.
+        idempotent EndpointDataSeq resolveLocation(StringSeq location);
 
-        /// Locates the well-known object with the given identity and facet. This object must be reachable using the
+        /// Resolves the well-known object with the given identity and facet. This object must be reachable using the
         /// ice2 protocol.
         /// @param identity The identity of the well-known Ice object.
         /// @param facet The facet of the well-known Ice object.
-        /// @return A sequence of one or more endpoints and/or a non-empty location if the Locator could resolve the
-        /// identity and facet. Otherwise, an empty sequence of endpoints and an empty location.
+        /// @return If the locator can locate the well-known object, either a sequence of one or more endpoints or
+        /// a non-empty location. Otherwise, an empty sequence of endpoints and an empty location.
         idempotent (EndpointDataSeq endpoints, StringSeq location) resolveWellKnownProxy(
             Identity identity,
             string facet);

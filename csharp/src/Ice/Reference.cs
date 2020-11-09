@@ -1367,8 +1367,7 @@ namespace ZeroC.Ice
                     }
                     else if (LocatorInfo != null)
                     {
-                        // TODO: cache and send the new location with requests
-                        (endpoints, _, cached) =
+                        (endpoints, cached) =
                             await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
                     }
                 }
