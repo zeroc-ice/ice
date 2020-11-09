@@ -48,7 +48,7 @@ namespace ZeroC.Ice
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
         private int _hashCode;
-        private IReadOnlyList<InvocationInterceptor> _invocationInterceptors;
+        private readonly IReadOnlyList<InvocationInterceptor> _invocationInterceptors;
 
         private volatile Connection? _connection; // readonly when IsFixed is true
 
@@ -590,8 +590,8 @@ namespace ZeroC.Ice
             bool oneway,
             IProgress<bool>? progress = null)
         {
-            IReadOnlyList<InvocationInterceptor> referenceInterceptors = proxy.IceReference._invocationInterceptors;
-            IReadOnlyList<InvocationInterceptor> communicatorInterceptos = proxy.Communicator.InvocationInterceptors;
+            IReadOnlyList<InvocationInterceptor> proxyInterceptors = proxy.IceReference._invocationInterceptors;
+            IReadOnlyList<InvocationInterceptor> communicatorInterceptors = proxy.Communicator.InvocationInterceptors;
 
             switch (proxy.InvocationMode)
             {
@@ -620,13 +620,13 @@ namespace ZeroC.Ice
             {
                 cancel.ThrowIfCancellationRequested();
                 InvocationInterceptor? interceptor = null;
-                if (i < referenceInterceptors.Count)
+                if (i < proxyInterceptors.Count)
                 {
-                    interceptor = referenceInterceptors[i];
+                    interceptor = proxyInterceptors[i];
                 }
-                else if (i - referenceInterceptors.Count < communicatorInterceptos.Count)
+                else if (i - proxyInterceptors.Count < communicatorInterceptors.Count)
                 {
-                    interceptor = communicatorInterceptos[i - referenceInterceptors.Count];
+                    interceptor = communicatorInterceptors[i - proxyInterceptors.Count];
                 }
 
                 if (interceptor != null)

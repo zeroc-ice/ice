@@ -310,13 +310,13 @@ namespace ZeroC.Ice.Test.Interceptor
             }
             output.WriteLine("ok");
 
-            if (ice2)
+            output.Write("testing per proxy invocation interceptors... ");
+            output.Flush();
             {
-                // This test use ContextOverride not supported with ice1
-                output.Write("testing per proxy invocation interceptors... ");
-                output.Flush();
+                if (ice2)
                 {
-                    Dictionary<string, string>? context = prx.Clone().Op2();
+                    // This test use ContextOverride not supported with ice1
+                    Dictionary<string, string>? context = prx.Op2();
                     TestHelper.Assert(context["context1"] == "plug-in");
                     TestHelper.Assert(context["context2"] == "plug-in");
                     TestHelper.Assert(!context.ContainsKey("context3"));
@@ -357,8 +357,27 @@ namespace ZeroC.Ice.Test.Interceptor
                     TestHelper.Assert(context["context2"] == "plug-in");
                     TestHelper.Assert(context["context3"] == "proxy");
                 }
-                output.WriteLine("ok");
+
+                // The server increments the result with each call when using the invocation interceptor we
+                // return a cached response, and we will see the same result with each call.
+                IncomingResponseFrame? response = null;
+                prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                    {
+                        async (target, request, next, cancel) =>
+                        {
+                            response ??= await next(target, request, cancel);
+                            return response;
+                        }
+                    });
+                TestHelper.Assert(prx.Op3() == 0);
+                TestHelper.Assert(prx.Op3() == 0);
+
+                // After clearing the invocation interceptors we should see the result increase with each call
+                prx = prx.Clone(invocationInterceptors: Array.Empty<InvocationInterceptor>());
+                TestHelper.Assert(prx.Op3() == 1);
+                TestHelper.Assert(prx.Op3() == 2);
             }
+            output.WriteLine("ok");
             return prx;
         }
     }

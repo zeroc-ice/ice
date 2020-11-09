@@ -43,6 +43,8 @@ interface MyObject
 
     Ice::Context op2();
 
+    int op3();
+
     void shutdown();
 }
 
