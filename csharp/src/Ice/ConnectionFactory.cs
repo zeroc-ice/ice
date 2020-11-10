@@ -109,6 +109,16 @@ namespace ZeroC.Ice
                         if (connectionList.FirstOrDefault(connection => connection.IsActive)
                             is Connection connection)
                         {
+                            lock (_mutex)
+                            {
+                                // If the connection was established for another endpoint but to the same connector,
+                                // we ensure to also associate the connection with this endpoint.
+                                if (!connection.Endpoints.Contains(connector.Endpoint))
+                                {
+                                    connection.Endpoints.Add(connector.Endpoint);
+                                    _connectionsByEndpoint.Add((connector.Endpoint, connectionId), connection);
+                                }
+                            }
                             return connection;
                         }
                     }

@@ -779,6 +779,9 @@ namespace ZeroC.Ice
                             // are retrieved from a cache, a cached serial is returned and identifies the lookup of the
                             // cached entry. This is useful to ensure we don't perform a new lookup if the cached entry
                             // has already been updated since we got it.
+
+                            // TODO ComputeEndpointsAsync should return a integer indicating the locator cache version,
+                            // -1 indicates the locator was not contacted.
                             (cached, endpoints) = await reference.ComputeEndpointsAsync(cancel).ConfigureAwait(false);
 
                             // The communicator returns an existing  connection if one is already established to one of the given
@@ -823,6 +826,8 @@ namespace ZeroC.Ice
                                 if (connectors == null)
                                 {
                                     // ComputeEndpointsAsync throws if it can't figure out the endpoints
+                                    // TODO ComputeEndpointsAsync should return a integer indicating the locator cache version,
+                                    // -1 indicates the locator was not contacted.
                                     (cached, endpoints) = await reference.ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                                     // Compute the connectors from the endpoints, this throws if no connectors can be computed
                                     connectors = await connectionFactory.ComputeConnectorsAsync(
