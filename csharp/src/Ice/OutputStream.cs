@@ -135,6 +135,11 @@ namespace ZeroC.Ice
         /// <value>The encoding.</value>
         public Encoding Encoding { get; private set; }
 
+        /// <summary>Indicates whether or not the location of a relative proxy should be cleared during marshaling.
+        /// When true, an empty location is written. When false, the location (if present) is truncated to its last
+        /// segment.</summary>
+        internal bool ClearRelativeProxyLocation { get; }
+
         /// <summary>Determines the current size of the stream. This corresponds to the number of bytes already written
         /// to the stream.</summary>
         /// <value>The current size.</value>
@@ -1079,9 +1084,12 @@ namespace ZeroC.Ice
             IList<ArraySegment<byte>> data,
             Position startAt,
             Encoding payloadEncoding,
-            FormatType format)
+            FormatType format,
+            bool clearRelativeProxyLocation)
             : this(encoding, data, startAt)
         {
+            ClearRelativeProxyLocation = clearRelativeProxyLocation;
+
             _format = format;
             _startPos = _tail;
             WriteEncapsulationHeader(payloadEncoding); // with placeholder for size

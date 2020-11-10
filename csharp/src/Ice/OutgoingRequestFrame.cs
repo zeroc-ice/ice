@@ -113,7 +113,8 @@ namespace ZeroC.Ice
                                         request.Data,
                                         request.PayloadStart,
                                         request.Encoding,
-                                        format);
+                                        format,
+                                        clearRelativeProxyLocation: true);
             writer(ostr, args);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
@@ -157,7 +158,8 @@ namespace ZeroC.Ice
                                         request.Data,
                                         request.PayloadStart,
                                         request.Encoding,
-                                        format);
+                                        format,
+                                        clearRelativeProxyLocation: true);
             writer(ostr, in args);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)

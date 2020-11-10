@@ -1010,8 +1010,7 @@ namespace ZeroC.Ice
 
                 if (proxyData.Identity.Name.Length == 0)
                 {
-                    throw new InvalidDataException(
-                        $"received non-null proxy with empty identity name");
+                    throw new InvalidDataException("received non-null proxy with empty identity name");
                 }
 
                 Protocol protocol = proxyData.Protocol ?? Protocol.Ice2;
@@ -1022,22 +1021,103 @@ namespace ZeroC.Ice
                         $"received proxy for protocol {protocol.GetName()} with invocation mode set");
                 }
 
-                // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
-                // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
-                // sequence), for a total of 7 bytes.
-                IReadOnlyList<Endpoint> endpoints = proxyKind == ProxyKind20.Direct ?
-                    istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) :
-                    ImmutableArray<Endpoint>.Empty;
+                if (proxyKind == ProxyKind20.IndirectRelative)
+                {
+                    if (protocol == Protocol.Ice1)
+                    {
+                        throw new InvalidDataException("received a relative ice1 proxy");
+                    }
 
-                return new Reference(istr.Communicator!,
-                                     proxyData.Encoding ?? Encoding.V20,
-                                     endpoints,
-                                     proxyData.Facet ?? "",
-                                     proxyData.Identity,
-                                     invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
-                                     proxyData.InvocationMode ?? InvocationMode.Twoway,
-                                     (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
-                                     protocol);
+                    if (istr.Connection != null)
+                    {
+                        Communicator communicator = istr.Connection!.Communicator;
+
+                        // TODO: location is missing
+                        return new Reference(context: communicator.CurrentContext,
+                                             encoding: proxyData.Encoding ?? Encoding.V20,
+                                             facet: proxyData.Facet ?? "",
+                                             fixedConnection: istr.Connection!,
+                                             identity: proxyData.Identity,
+                                             invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
+                                             invocationMode: InvocationMode.Twoway,
+                                             invocationTimeout: communicator.DefaultInvocationTimeout);
+                    }
+                    else
+                    {
+                        Reference? source = istr.Reference;
+
+                        if (source == null)
+                        {
+                            throw new InvalidOperationException(
+                                "cannot read a relative proxy from InputStream created without a connection or proxy");
+                        }
+
+                        if (source.Protocol == Protocol.Ice1)
+                        {
+                            throw new InvalidDataException("received a relative proxy from a call on an ice1 proxy");
+                        }
+
+                        if (proxyData.Location?.Length > 1)
+                        {
+                            throw new InvalidDataException($"received a relative proxy with an invalid location");
+                        }
+
+                        IReadOnlyList<string> location = source.Location;
+                        if (proxyData.Location?.Length == 1)
+                        {
+                            // Replace the last segment of location
+                            if (location.Count == 0)
+                            {
+                                location = ImmutableArray.Create(proxyData.Location[0]);
+                            }
+                            else
+                            {
+                                var builder = ImmutableArray.CreateBuilder<string>(location.Count);
+                                builder.AddRange(location.SkipLast(1));
+                                builder.Add(proxyData.Location[0]);
+                                location = builder.ToImmutable();
+                            }
+                        }
+
+                        return new Reference(source.IsConnectionCached,
+                                             source.Communicator,
+                                             source.ConnectionId,
+                                             source.Context,
+                                             proxyData.Encoding ?? Encoding.V20,
+                                             source.Endpoints,
+                                             proxyData.Facet ?? "",
+                                             proxyData.Identity,
+                                             invocationInterceptors: source._invocationInterceptors,
+                                             source.InvocationMode,
+                                             source.InvocationTimeout,
+                                             location,
+                                             source.LocatorCacheTimeout,
+                                             source.LocatorInfo,
+                                             source.PreferNonSecure,
+                                             protocol,
+                                             source.IsRelative,
+                                             source.RouterInfo);
+                    }
+                }
+                else
+                {
+                    // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
+                    // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
+                    // sequence), for a total of 7 bytes.
+                    IReadOnlyList<Endpoint> endpoints = proxyKind == ProxyKind20.Direct ?
+                        istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) :
+                        ImmutableArray<Endpoint>.Empty;
+
+                    return new Reference(istr.Communicator!,
+                                         proxyData.Encoding ?? Encoding.V20,
+                                         endpoints,
+                                         proxyData.Facet ?? "",
+                                         proxyData.Identity,
+                                         invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
+                                         proxyData.InvocationMode ?? InvocationMode.Twoway,
+                                         (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
+                                         protocol);
+                }
             }
         }
 
@@ -1074,12 +1154,8 @@ namespace ZeroC.Ice
         }
 
         // Helper constructor for fixed references. Uses the communicator's defaults.
-        internal Reference(
-            Communicator communicator,
-            Connection fixedConnection,
-            Identity identity) // already a copy provided by Ice
-            : this(communicator: communicator,
-                   context: communicator.DefaultContext,
+        internal Reference(Connection fixedConnection, Identity identity)
+            : this(context: fixedConnection.Communicator.DefaultContext,
                    encoding: fixedConnection.Protocol.GetEncoding(),
                    facet: "",
                    fixedConnection: fixedConnection,
@@ -1087,7 +1163,7 @@ namespace ZeroC.Ice
                    invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
                    invocationMode: (fixedConnection.Endpoint?.IsDatagram ?? false) ?
                        InvocationMode.Datagram : InvocationMode.Twoway,
-                   invocationTimeout: communicator.DefaultInvocationTimeout)
+                   invocationTimeout: fixedConnection.Communicator.DefaultInvocationTimeout)
         {
         }
 
@@ -1223,7 +1299,6 @@ namespace ZeroC.Ice
                 }
 
                 var clone = new Reference(
-                    Communicator,
                     context?.ToImmutableDictionary() ?? Context,
                     encoding ?? Encoding,
                     facet ?? Facet,
@@ -1611,7 +1686,22 @@ namespace ZeroC.Ice
 
                 ostr.Write(Endpoints.Count > 0 ? ProxyKind20.Direct :
                     IsRelative ? ProxyKind20.IndirectRelative : ProxyKind20.Indirect);
-                ostr.WriteProxyData20(Identity, Protocol, Encoding, Location, InvocationMode, Facet);
+
+                IReadOnlyList<string> location = Location;
+                if (IsRelative && location.Count > 0)
+                {
+                    if (ostr.ClearRelativeProxyLocation)
+                    {
+                        location = ImmutableArray<string>.Empty;
+                    }
+                    else if (location.Count > 1)
+                    {
+                        // Reduce location to its last segment
+                        location = ImmutableArray.Create(location[location.Count - 1]);
+                    }
+                }
+
+                ostr.WriteProxyData20(Identity, Protocol, Encoding, location, InvocationMode, Facet);
 
                 if (Endpoints.Count > 0)
                 {
@@ -1678,7 +1768,6 @@ namespace ZeroC.Ice
 
         // Constructor for fixed references.
         private Reference(
-            Communicator communicator,
             IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
             Encoding encoding,
             string facet,
@@ -1688,7 +1777,7 @@ namespace ZeroC.Ice
             InvocationMode invocationMode,
             TimeSpan invocationTimeout)
         {
-            Communicator = communicator;
+            Communicator = fixedConnection.Communicator;
             ConnectionId = "";
             Context = context;
             Encoding = encoding;

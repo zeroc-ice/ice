@@ -147,7 +147,7 @@ namespace ZeroC.Ice
         /// </param>
         /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            factory(new Reference(Communicator, this, identity));
+            factory(new Reference(this, identity));
 
         /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
         /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender

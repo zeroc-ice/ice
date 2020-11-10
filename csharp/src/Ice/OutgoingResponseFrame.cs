@@ -272,7 +272,8 @@ namespace ZeroC.Ice
                                         Data,
                                         EncapsulationStart,
                                         Encoding,
-                                        FormatType.Sliced);
+                                        FormatType.Sliced,
+                                        clearRelativeProxyLocation: false);
 
                 if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
                 {
@@ -363,7 +364,8 @@ namespace ZeroC.Ice
                                         response.Data,
                                         EncapsulationStart,
                                         response.Encoding,
-                                        format);
+                                        format,
+                                        clearRelativeProxyLocation: false);
             return (response, ostr);
         }
 
