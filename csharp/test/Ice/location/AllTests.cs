@@ -705,12 +705,10 @@ namespace ZeroC.Ice.Test.Location
             }
             else
             {
-                (EndpointData[] dataArray, string[] newLocation) =
-                    locator.ResolveLocation(ImmutableArray.Create(adapterId));
+                EndpointData[] dataArray = locator.ResolveLocation(ImmutableArray.Create(adapterId));
 
                 return dataArray.Length > 0 ?
-                    locator.Clone(endpoints: dataArray.ToEndpointList(locator.Communicator), location: newLocation) :
-                        null;
+                    locator.Clone(endpoints: dataArray.ToEndpointList(locator.Communicator)) : null;
             }
         }
 
