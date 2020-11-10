@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Socket CreateSocket(bool udp, AddressFamily family, Connector? connector = null)
+        internal static Socket CreateSocket(bool udp, AddressFamily family)
         {
             Socket socket;
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
+                throw new TransportException(ex, RetryPolicy.OtherReplica);
             }
 
             if (!udp)
@@ -87,7 +87,7 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
+                    throw new TransportException(ex, RetryPolicy.OtherReplica);
                 }
             }
             return socket;

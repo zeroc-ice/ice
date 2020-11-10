@@ -67,15 +67,15 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (AuthenticationException ex)
             {
-                throw new TransportException(ex, RetryPolicy.OtherReplica, _connector);
+                throw new TransportException(ex, RetryPolicy.OtherReplica);
             }
 
             if (_engine.SecurityTraceLevel >= 1)
@@ -130,15 +130,15 @@ namespace ZeroC.Ice
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             if (received == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             return received;
         }
@@ -159,15 +159,15 @@ namespace ZeroC.Ice
             catch (ObjectDisposedException ex)
             {
                 // The stream might have been disposed if the connection is closed.
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (IOException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 

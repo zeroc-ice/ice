@@ -26,7 +26,6 @@ namespace ZeroC.Ice
 
         private IPEndPoint _addr;
         private readonly Communicator _communicator;
-        private readonly Connector? _connector;
         private readonly bool _incoming;
         private readonly string? _multicastInterface;
         private EndPoint? _peerAddr;
@@ -115,7 +114,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
             }
         }
@@ -168,9 +167,9 @@ namespace ZeroC.Ice
             {
                 if (e.IsConnectionLost())
                 {
-                    throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                    throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
-                throw new TransportException(e, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(e, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
 
             return buffer.Slice(0, received);
@@ -233,7 +232,7 @@ namespace ZeroC.Ice
 
             if (_incoming && _peerAddr == null)
             {
-                throw new TransportException("cannot send datagram to undefined peer", RetryPolicy.NoRetry, _connector);
+                throw new TransportException("cannot send datagram to undefined peer", RetryPolicy.NoRetry);
             }
 
             try
@@ -256,23 +255,21 @@ namespace ZeroC.Ice
             {
                 if (ex.IsConnectionLost())
                 {
-                    throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                    throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
         // Only for use by UdpConnector.
         internal UdpTransceiver(
             Communicator communicator,
-            Connector connector,
             EndPoint addr,
             IPAddress? sourceAddr,
             string? multicastInterface,
             int multicastTtl)
         {
             _communicator = communicator;
-            _connector = connector;
             _addr = (IPEndPoint)addr;
             _multicastInterface = multicastInterface;
             _incoming = false;
@@ -281,7 +278,7 @@ namespace ZeroC.Ice
                 _sourceAddr = new IPEndPoint(sourceAddr, 0);
             }
 
-            Socket = Network.CreateSocket(true, _addr.AddressFamily, _connector);
+            Socket = Network.CreateSocket(true, _addr.AddressFamily);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.UDP);
@@ -304,7 +301,7 @@ namespace ZeroC.Ice
             catch (SocketException ex)
             {
                 Socket.CloseNoThrow();
-                throw new TransportException(ex, RetryPolicy.NoRetry, _connector);
+                throw new TransportException(ex, RetryPolicy.NoRetry);
             }
         }
 
@@ -326,7 +323,7 @@ namespace ZeroC.Ice
             catch (SocketException ex)
             {
                 Socket.CloseNoThrow();
-                throw new TransportException(ex, RetryPolicy.NoRetry, _connector);
+                throw new TransportException(ex, RetryPolicy.NoRetry);
             }
         }
     }

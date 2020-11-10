@@ -232,7 +232,7 @@ namespace ZeroC.Ice
 
             if (_receivePayloadLength == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
 
             // Read the payload

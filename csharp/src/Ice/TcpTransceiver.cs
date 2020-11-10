@@ -58,11 +58,11 @@ namespace ZeroC.Ice
                 }
                 catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    throw new ConnectionRefusedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                    throw new ConnectionRefusedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
                 catch (SocketException ex)
                 {
-                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                    throw new ConnectFailedException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
             }
         }
@@ -88,15 +88,15 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             if (received == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             return received;
         }
@@ -114,11 +114,11 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
-                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
@@ -137,7 +137,7 @@ namespace ZeroC.Ice
             _addr = addr;
             _desc = "";
             _sourceAddr = sourceAddr;
-            Socket = Network.CreateSocket(false, (_proxy != null ? _proxy.Address : _addr).AddressFamily, _connector);
+            Socket = Network.CreateSocket(false, (_proxy != null ? _proxy.Address : _addr).AddressFamily);
             try
             {
                 Network.SetBufSize(Socket, _communicator, Transport.TCP);

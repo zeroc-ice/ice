@@ -203,6 +203,7 @@ namespace ZeroC.Ice.Test.Binding
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter66");
                     }
 
+                    // Wait 5 seconds to let recent connector failures expire
                     Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter65", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
@@ -210,6 +211,7 @@ namespace ZeroC.Ice.Test.Binding
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter65");
                     }
 
+                    // Wait 5 seconds to let recent connector failures expire
                     Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter64", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)

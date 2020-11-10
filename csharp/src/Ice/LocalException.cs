@@ -83,63 +83,37 @@ namespace ZeroC.Ice
         /// <summary>The exception retry policy.</summary>
         internal RetryPolicy RetryPolicy { get; }
 
-        /// <summary>The connector associated with the exception or null if no connector is associated with the
-        /// exception.</summary>
-        internal Connector? Connector { get; }
-
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class. A plain
         /// TransportException should have a custom message or an inner exception (or both).</summary>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        protected TransportException(RetryPolicy retryPolicy = default, Connector? connector = null)
-        {
-            RetryPolicy = retryPolicy;
-            Connector = connector;
-        }
+        protected TransportException(RetryPolicy retryPolicy = default) => RetryPolicy = retryPolicy;
 
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class with a specified error
         /// message.</summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        public TransportException(string message, RetryPolicy retryPolicy = default, Connector? connector = null)
-            : base(message)
-        {
-            RetryPolicy = retryPolicy;
-            Connector = connector;
-        }
+        public TransportException(string message, RetryPolicy retryPolicy = default)
+            : base(message) => RetryPolicy = retryPolicy;
 
         /// <summary>Constructs a new instance of the <see cref="TransportException"/> class with a reference to the
         /// inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public TransportException(
             Exception innerException,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base("", innerException)
-        {
-            RetryPolicy = retryPolicy;
-            Connector = connector;
-        }
+            RetryPolicy retryPolicy = default)
+            : base("", innerException) => RetryPolicy = retryPolicy;
 
         /// <summary>Constructs a new instance of the <see cref="LoadException"/> class with a specified error message
         /// and a reference to the inner exception that is the cause of this exception.</summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public TransportException(
             string message,
             Exception innerException,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base(message, innerException)
-        {
-            RetryPolicy = retryPolicy;
-            Connector = connector;
-        }
+            RetryPolicy retryPolicy = default)
+            : base(message, innerException) => RetryPolicy = retryPolicy;
     }
 
     /// <summary>This exception reports a failed attempt to establish a connection.</summary>
@@ -147,9 +121,8 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new instance of the <see cref="ConnectFailedException"/> class.</summary>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        public ConnectFailedException(RetryPolicy retryPolicy = default, Connector? connector = null)
-            : base(retryPolicy, connector)
+        public ConnectFailedException(RetryPolicy retryPolicy = default)
+            : base(retryPolicy)
         {
         }
 
@@ -157,12 +130,10 @@ namespace ZeroC.Ice
         /// the inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public ConnectFailedException(
             Exception innerException,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base(innerException, retryPolicy, connector)
+            RetryPolicy retryPolicy = default)
+            : base(innerException, retryPolicy)
         {
         }
     }
@@ -172,9 +143,8 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new instance of the <see cref="ConnectTimeoutException"/> class.</summary>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        public ConnectTimeoutException(RetryPolicy retryPolicy = default, Connector? connector = null)
-            : base(retryPolicy, connector)
+        public ConnectTimeoutException(RetryPolicy retryPolicy = default)
+            : base(retryPolicy)
         {
         }
     }
@@ -184,9 +154,8 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new instance of the <see cref="ConnectionRefusedException"/> class.</summary>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        public ConnectionRefusedException(RetryPolicy retryPolicy = default, Connector? connector = null)
-            : base(retryPolicy, connector)
+        public ConnectionRefusedException(RetryPolicy retryPolicy = default)
+            : base(retryPolicy)
         {
         }
 
@@ -194,12 +163,10 @@ namespace ZeroC.Ice
         /// to the inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public ConnectionRefusedException(
             Exception innerException,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base(innerException, retryPolicy, connector)
+            RetryPolicy retryPolicy = default)
+            : base(innerException, retryPolicy)
         {
         }
     }
@@ -209,9 +176,8 @@ namespace ZeroC.Ice
     {
         /// <summary>Constructs a new instance of the <see cref="ConnectionLostException"/> class.</summary>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        public ConnectionLostException(RetryPolicy retryPolicy = default, Connector? connector = null)
-            : base(retryPolicy, connector)
+        public ConnectionLostException(RetryPolicy retryPolicy = default)
+            : base(retryPolicy)
         {
         }
 
@@ -219,12 +185,10 @@ namespace ZeroC.Ice
         /// the inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public ConnectionLostException(
             Exception innerException,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base(innerException, retryPolicy, connector)
+            RetryPolicy retryPolicy = default)
+            : base(innerException, retryPolicy)
         {
         }
     }
@@ -239,12 +203,10 @@ namespace ZeroC.Ice
         /// <param name="isClosedByPeer"><c>true</c> if the connection closure originated from the peer, <c>false</c>
         /// otherwise</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public ConnectionClosedException(
             bool isClosedByPeer = false,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base("Cannot access closed connection.", retryPolicy, connector) =>
+            RetryPolicy retryPolicy = default)
+            : base("Cannot access closed connection.", retryPolicy) =>
             IsClosedByPeer = isClosedByPeer;
 
         /// <summary>Constructs a new instance of the <see cref="ConnectionClosedException"/> class with a specified
@@ -253,13 +215,11 @@ namespace ZeroC.Ice
         /// <param name="isClosedByPeer"><c>true</c> if the connection closure originated from the peer, <c>false</c>
         /// otherwise</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public ConnectionClosedException(
             string message,
             bool isClosedByPeer = false,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base(message, retryPolicy, connector) =>
+            RetryPolicy retryPolicy = default)
+            : base(message, retryPolicy) =>
             IsClosedByPeer = isClosedByPeer;
     }
 
@@ -269,9 +229,8 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new instance of the <see cref="DNSException"/> class.</summary>
         /// <param name="host">The hostname that was the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
-        public DNSException(string host, RetryPolicy retryPolicy = default, Connector? connector = null)
-            : base($"failed to resolve hostname `{host}'", retryPolicy, connector)
+        public DNSException(string host, RetryPolicy retryPolicy = default)
+            : base($"failed to resolve hostname `{host}'", retryPolicy)
         {
         }
 
@@ -280,13 +239,11 @@ namespace ZeroC.Ice
         /// <param name="host">The hostname that was the cause of the current exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        /// <param name="connector">The connector associated with this exception.</param>
         public DNSException(
             string host,
             Exception innerException,
-            RetryPolicy retryPolicy = default,
-            Connector? connector = null)
-            : base($"failed to resolve hostname `{host}'", innerException, retryPolicy, connector)
+            RetryPolicy retryPolicy = default)
+            : base($"failed to resolve hostname `{host}'", innerException, retryPolicy)
         {
         }
     }
@@ -301,7 +258,7 @@ namespace ZeroC.Ice
         /// <param name="message">The message that describes the error.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
         public DatagramLimitException(string message, RetryPolicy retryPolicy = default)
-            : base(message, retryPolicy, null)
+            : base(message, retryPolicy)
         {
         }
     }
