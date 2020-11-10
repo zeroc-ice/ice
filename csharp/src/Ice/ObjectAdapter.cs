@@ -789,16 +789,14 @@ namespace ZeroC.Ice
                             endpoints = Ice1Parser.ParseEndpoints(value, communicator);
                             _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
 
-                            if (!AcceptNonSecure)
+                            // When the adapter is configured to only accept secure connections ensure that all
+                            // configured endpoints only accept secure connections.
+                            if (!AcceptNonSecure &&
+                                endpoints.FirstOrDefault(endpoint => endpoint.IsAlwaysSecure) is Endpoint endpoint)
                             {
-                                foreach (var e in endpoints)
-                                {
-                                    if (!e.IsAlwaysSecure)
-                                    {
-                                        throw new InvalidConfigurationException(
-                                            $"object adapter `{Name}' is configured to use non-secure endpoint: `{e}'");
-                                    }
-                                }
+                                throw new InvalidConfigurationException($@"object adapter `{Name
+                                    }' is configured to only accept secure connections but endpoint: `{endpoint
+                                    }' accepts non-secure connections");
                             }
                         }
 
