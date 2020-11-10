@@ -77,8 +77,8 @@ module Ice
         /// A proxy with no endpoint; its URI scheme is ice.
         Indirect,
 
-        /// A proxy with no endpoint, and that is unmarshaled as a direct, indirect or fixed proxy.
-        Relative
+        /// An indirect proxy marked relative. It is always unmarshaled as a direct, indirect or fixed proxy.
+        IndirectRelative
     }
 
     /// With the 2.0 encoding, a proxy is encoded as a discrimated union with:

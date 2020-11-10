@@ -954,9 +954,9 @@ namespace ZeroC.Ice
             {
                 return Find(reference.Identity, reference.Facet) != null;
             }
-            else if (reference.ProxyKind == ProxyKind.Indirect)
+            else if (reference.IsIndirect)
             {
-                // Reference is local if the reference's location matches this adapter id or replica group id.
+                // Reference is local if the reference's location matches this adapter ID or replica group ID.
                 return reference.Location.Count == 1 &&
                     (reference.Location[0] == AdapterId || reference.Location[0] == ReplicaGroupId);
             }

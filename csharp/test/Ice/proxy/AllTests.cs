@@ -950,9 +950,9 @@ namespace ZeroC.Ice.Test.Proxy
             {
                 if (cl.GetConnection() is Connection connection2)
                 {
-                    TestHelper.Assert(cl.Kind != ProxyKind.Fixed);
+                    TestHelper.Assert(!cl.IsFixed);
                     IMyClassPrx prx = cl.Clone(fixedConnection: connection2);
-                    TestHelper.Assert(prx.Kind == ProxyKind.Fixed);
+                    TestHelper.Assert(prx.IsFixed);
                     prx.IcePing();
                     TestHelper.Assert(cl.Clone(IObjectPrx.Factory,
                                                facet: "facet",
