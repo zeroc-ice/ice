@@ -87,7 +87,7 @@ namespace ZeroC.Ice
             ostr.WriteInt(Port);
         }
 
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel)
+        public override async ValueTask<IEnumerable<Connector>> ConnectorsAsync(CancellationToken cancel)
         {
             Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
             observer?.Attach();
@@ -414,7 +414,7 @@ namespace ZeroC.Ice
         /// <summary>Creates a clone with the specified host and port.</summary>
         private protected abstract IPEndpoint Clone(string host, ushort port);
 
-        private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
+        private protected abstract Connector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
         private IPEndpoint Clone(string host) => host == Host ? this : Clone(host, Port);
     }

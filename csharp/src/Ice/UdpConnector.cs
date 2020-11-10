@@ -4,13 +4,15 @@ using System.Net;
 
 namespace ZeroC.Ice
 {
-    internal sealed class UdpConnector : IConnector
+    internal sealed class UdpConnector : Connector
     {
         private readonly UdpEndpoint _endpoint;
         private readonly EndPoint _addr;
         private readonly int _hashCode;
 
-        public Connection Connect(string connectionId)
+        public override Endpoint Endpoint => _endpoint;
+
+        public override Connection Connect(string connectionId)
         {
             var transceiver = new UdpTransceiver(_endpoint.Communicator,
                                                  this,
@@ -25,23 +27,6 @@ namespace ZeroC.Ice
                                      this,
                                      connectionId,
                                      null);
-        }
-
-        // Only for use by UdpEndpointI
-        internal UdpConnector(UdpEndpoint endpoint, EndPoint addr)
-        {
-            _endpoint = endpoint;
-            _addr = addr;
-
-            var hash = new System.HashCode();
-            hash.Add(_addr);
-            if (_endpoint.SourceAddress != null)
-            {
-                hash.Add(_endpoint.SourceAddress);
-            }
-            hash.Add(_endpoint.MulticastInterface);
-            hash.Add(_endpoint.MulticastTtl);
-            _hashCode = hash.ToHashCode();
         }
 
         public override bool Equals(object? obj)
@@ -76,8 +61,25 @@ namespace ZeroC.Ice
             }
         }
 
+        public override int GetHashCode() => _hashCode;
+
         public override string ToString() => _addr.ToString()!;
 
-        public override int GetHashCode() => _hashCode;
+        // Only for use by UdpEndpoint
+        internal UdpConnector(UdpEndpoint endpoint, EndPoint addr)
+        {
+            _endpoint = endpoint;
+            _addr = addr;
+
+            var hash = new System.HashCode();
+            hash.Add(_addr);
+            if (_endpoint.SourceAddress != null)
+            {
+                hash.Add(_endpoint.SourceAddress);
+            }
+            hash.Add(_endpoint.MulticastInterface);
+            hash.Add(_endpoint.MulticastTtl);
+            _hashCode = hash.ToHashCode();
+        }
     }
 }

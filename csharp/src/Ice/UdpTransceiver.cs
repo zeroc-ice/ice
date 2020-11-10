@@ -26,7 +26,7 @@ namespace ZeroC.Ice
 
         private IPEndPoint _addr;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
+        private readonly Connector? _connector;
         private readonly bool _incoming;
         private readonly string? _multicastInterface;
         private EndPoint? _peerAddr;
@@ -265,7 +265,7 @@ namespace ZeroC.Ice
         // Only for use by UdpConnector.
         internal UdpTransceiver(
             Communicator communicator,
-            IConnector connector,
+            Connector connector,
             EndPoint addr,
             IPAddress? sourceAddr,
             string? multicastInterface,

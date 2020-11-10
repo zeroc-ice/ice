@@ -187,7 +187,7 @@ namespace ZeroC.Ice
         /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A collector of connectors for this endpoint.</returns>
-        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
+        public abstract ValueTask<IEnumerable<Connector>> ConnectorsAsync(
             CancellationToken cancel);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.

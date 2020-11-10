@@ -22,7 +22,7 @@ namespace ZeroC.Ice
         internal ObjectAdapter Adapter { get; }
 
         private readonly Channel<(long, ColocatedChannelWriter, ColocatedChannelReader)> _channel;
-        private readonly IEnumerable<IConnector> _connectors;
+        private readonly IEnumerable<Connector> _connectors;
 
         public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
             new ColocatedAcceptor(this, manager, adapter, _channel.Writer, _channel.Reader);
@@ -33,8 +33,8 @@ namespace ZeroC.Ice
         protected internal override void WriteOptions(OutputStream ostr) =>
             throw new NotSupportedException("colocated endpoint can't be marshaled");
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            CancellationToken cancel) => new ValueTask<IEnumerable<IConnector>>(_connectors);
+        public override ValueTask<IEnumerable<Connector>> ConnectorsAsync(
+            CancellationToken cancel) => new ValueTask<IEnumerable<Connector>>(_connectors);
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
@@ -61,7 +61,7 @@ namespace ZeroC.Ice
                 AllowSynchronousContinuations = true
             };
             _channel = Channel.CreateUnbounded<(long, ColocatedChannelWriter, ColocatedChannelReader)>(options);
-            _connectors = new IConnector[] { new ColocatedConnector(this, _channel.Writer) };
+            _connectors = new Connector[] { new ColocatedConnector(this, _channel.Writer) };
         }
     }
 }

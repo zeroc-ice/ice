@@ -9,13 +9,14 @@ using ColocatedChannelWriter = System.Threading.Channels.ChannelWriter<(long Str
 namespace ZeroC.Ice
 {
     /// <summary>The IConnector implementation for the colocated transport.</summary>
-    internal class ColocatedConnector : IConnector
+    internal class ColocatedConnector : Connector
     {
         private readonly ColocatedEndpoint _endpoint;
         private readonly ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> _writer;
         private long _nextId;
 
-        public Connection Connect(string connectionId)
+        public override Endpoint Endpoint => _endpoint;
+        public override Connection Connect(string connectionId)
         {
             var readerOptions = new UnboundedChannelOptions
             {

@@ -211,7 +211,7 @@ namespace ZeroC.Ice
                                    oaEndpoint,
                                    endpointString);
         }
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+        private protected override Connector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new UdpConnector(this, addr);
 
         // Constructor for ice1 unmarshaling

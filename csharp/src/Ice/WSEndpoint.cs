@@ -203,7 +203,7 @@ namespace ZeroC.Ice
         internal override Connection CreateConnection(
             IConnectionManager manager,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
             new WSConnection(manager, this, transceiver, connector, connectionId, adapter);
@@ -217,7 +217,10 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
 
-        internal override ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy) =>
+        private protected override Connector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+            new WSConnector(this, addr, proxy);
+
+        internal override ITransceiver CreateTransceiver(Connector connector, EndPoint addr, INetworkProxy? proxy) =>
             new WSTransceiver(Communicator, base.CreateTransceiver(connector, addr, proxy), Host, Resource, connector);
 
         internal override ITransceiver CreateTransceiver(Socket socket, string adapterName) =>

@@ -17,7 +17,7 @@ namespace ZeroC.Ice
 
         private readonly EndPoint? _addr;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
+        private readonly Connector? _connector;
         private string _desc;
         private readonly INetworkProxy? _proxy;
         private readonly IPAddress? _sourceAddr;
@@ -126,7 +126,7 @@ namespace ZeroC.Ice
 
         internal TcpTransceiver(
             Communicator communicator,
-            IConnector? connector,
+            Connector? connector,
             EndPoint addr,
             INetworkProxy? proxy,
             IPAddress? sourceAddr)

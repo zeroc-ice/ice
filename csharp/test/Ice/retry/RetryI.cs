@@ -89,7 +89,7 @@ namespace ZeroC.Ice.Test.Retry
 
     public sealed class Replicated : IReplicated
     {
-        private bool _fail;
+        private readonly bool _fail;
         public Replicated(bool fail) => _fail = fail;
         public void OtherReplica(Current current, CancellationToken cancel)
         {

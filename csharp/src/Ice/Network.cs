@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Socket CreateSocket(bool udp, AddressFamily family, IConnector? connector = null)
+        internal static Socket CreateSocket(bool udp, AddressFamily family, Connector? connector = null)
         {
             Socket socket;
 

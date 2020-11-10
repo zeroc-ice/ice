@@ -588,15 +588,16 @@ namespace ZeroC.Ice.Test.Metrics
                 while (true)
                 {
                     sm1 = (ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                    if (sm1.Failures >= 5)
+                    if (sm1.Failures >= 6)
                     {
                         break;
                     }
                     Thread.Sleep(10);
                 }
-                TestHelper.Assert(cm1.Failures == 5 && sm1.Failures >= 5);
+                TestHelper.Assert(cm1.Failures == 6 && sm1.Failures >= 6,
+                                  $"cm1.Failures == {cm1.Failures} && sm1.Failures >= {sm1.Failures}");
 
-                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 5, output);
+                CheckFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 6, output);
                 // The exception depends on the transport and might not necessarily be a connection lost exception so
                 // we can't test the exception raised by the server side.
                 // CheckFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
@@ -688,22 +689,22 @@ namespace ZeroC.Ice.Test.Metrics
 
                     TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
                     m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
-                    TestHelper.Assert(m1.Total == 5 && m1.Failures == 5);
+                    TestHelper.Assert(m1.Total == 6 && m1.Failures == 6);
 
                     CheckFailure(clientMetrics,
                                 "ConnectionEstablishment",
                                 m1.Id,
                                 "ZeroC.Ice.ConnectTimeoutException",
-                                5,
+                                6,
                                 output);
                 }
                 controller.Resume();
 
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
-                TestHelper.Assert(m1.Total == 5 && m1.Failures == 5);
+                TestHelper.Assert(m1.Total == 6 && m1.Failures == 6);
 
-                CheckFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "ZeroC.Ice.ConnectTimeoutException", 5, output);
+                CheckFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "ZeroC.Ice.ConnectTimeoutException", 6, output);
 
                 Action c = () => Connect(metrics);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator",

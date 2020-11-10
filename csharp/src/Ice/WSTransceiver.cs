@@ -44,7 +44,7 @@ namespace ZeroC.Ice
 
         private bool _closing;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
+        private readonly Connector? _connector;
         private readonly bool _incoming;
         private readonly string _host;
         private string _key;
@@ -263,7 +263,7 @@ namespace ZeroC.Ice
             ITransceiver del,
             string host,
             string resource,
-            IConnector? connector)
+            Connector? connector)
             : this(communicator, del)
         {
             _connector = connector;

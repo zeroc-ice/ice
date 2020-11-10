@@ -21,14 +21,14 @@ namespace ZeroC.Ice
     internal sealed class OutgoingConnectionFactory : IConnectionManager, IAsyncDisposable
     {
         private readonly Communicator _communicator;
-        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector = new ();
+        private readonly MultiDictionary<(Connector, string), Connection> _connectionsByConnector = new ();
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint = new ();
         private Task? _disposeTask;
         private readonly object _mutex = new ();
-        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending = new ();
+        private readonly Dictionary<(Connector, string), Task<Connection>> _pending = new ();
         // We keep a map of the connectors that recently resulted in a transport failure. This is used to influence the
         // selection of connectors when creating new connections. Connectors with recent failures are tried last.
-        private readonly ConcurrentDictionary<IConnector, DateTime> _transportFailures = new ();
+        private readonly ConcurrentDictionary<Connector, DateTime> _transportFailures = new ();
 
         public async ValueTask DisposeAsync()
         {
@@ -71,23 +71,12 @@ namespace ZeroC.Ice
 
         internal OutgoingConnectionFactory(Communicator communicator) => _communicator = communicator;
 
-        internal void AddTransportFailure(IConnector connector) => _transportFailures[connector] = DateTime.Now;
+        internal void AddTransportFailure(Connector connector) => _transportFailures[connector] = DateTime.Now;
 
-        internal async ValueTask<Connection> CreateAsync(
-            IReadOnlyList<Endpoint> endpoints,
-            bool hasMore,
-            string connectionId,
-            IReadOnlyList<IConnector> excludedConnectors,
-            CancellationToken cancel)
+        internal Connection? GetConnection(IReadOnlyList<Endpoint> endpoints, string connectionId)
         {
-            Debug.Assert(endpoints.Count > 0);
             lock (_mutex)
             {
-                if (_disposeTask != null)
-                {
-                    throw new CommunicatorDisposedException();
-                }
-
                 // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
                 // lookup for the connection.
                 foreach (Endpoint endpoint in endpoints)
@@ -95,8 +84,7 @@ namespace ZeroC.Ice
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        if (connectionList.FirstOrDefault(connection =>
-                            connection.IsActive && !excludedConnectors.Contains(connection.Connector))
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive)
                             is Connection connection)
                         {
                             return connection;
@@ -104,18 +92,61 @@ namespace ZeroC.Ice
                     }
                 }
             }
+            return null;
+        }
+
+        internal Connection? GetConnection(IReadOnlyList<Connector> connectors, string connectionId)
+        {
+            lock (_mutex)
+            {
+                // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
+                // lookup for the connection.
+                foreach (Connector connector in connectors)
+                {
+                    if (_connectionsByConnector.TryGetValue((connector, connectionId),
+                                                            out ICollection<Connection>? connectionList))
+                    {
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive)
+                            is Connection connection)
+                        {
+                            return connection;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        internal async ValueTask<List<Connector>> ComputeConnectorsAsync(
+            Reference reference,
+            IReadOnlyList<Endpoint> endpoints,
+            IReadOnlyList<Connector> excludedConnectors,
+            CancellationToken cancel)
+        {
+            // Purge expired hint failures
+            DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
+            foreach ((Connector connector, DateTime date) in _transportFailures)
+            {
+                if (date <= expirationDate)
+                {
+                    _ = _transportFailures.TryRemove(connector, out DateTime _);
+                }
+            }
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
             // resolve an endpoint hostname into connector addresses.
-            var connectors = new List<(IConnector Connector, Endpoint Endpoint)>();
+            var connectors = new List<Connector>();
             foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
-                    IEnumerable<IConnector> endpointConnectors = await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
-                    foreach (IConnector connector in endpointConnectors)
+                    IEnumerable<Connector> endpointConnectors = await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
+                    foreach (Connector connector in endpointConnectors)
                     {
-                        connectors.Add((connector, endpoint));
+                        if (!excludedConnectors.Contains(connector))
+                        {
+                            connectors.Add(connector);
+                        }
                     }
                 }
                 catch (CommunicatorDisposedException)
@@ -142,6 +173,24 @@ namespace ZeroC.Ice
                 }
             }
 
+            // If all the connectors are in the excludedConnectors throw NoEndpointException to indicate the caller
+            // there is no more endpoints to try.
+            if (connectors.Count == 0)
+            {
+                throw new NoEndpointException(reference.ToString());
+            }
+
+            // Order the connectors moving connectors with recent failures to the end of the list.
+            return connectors.OrderBy(
+                item => _transportFailures.TryGetValue(item, out DateTime value) ? value : default).ToList();
+        }
+
+        internal async ValueTask<Connection> CreateConnectionAsync(
+            string connectionId,
+            Connector connector,
+            CancellationToken cancel)
+        {
+            Task<Connection>? connectTask;
             lock (_mutex)
             {
                 if (_disposeTask != null)
@@ -149,130 +198,68 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                // Purge expired hint failures
-                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
-                foreach ((IConnector connector, DateTime date) in _transportFailures)
+                if (_connectionsByConnector.TryGetValue((connector, connectionId),
+                                                        out ICollection<Connection>? connections))
                 {
-                    if (date <= expirationDate)
+                    if (connections.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                     {
-                        _ = _transportFailures.TryRemove(connector, out DateTime _);
+                        return connection;
                     }
                 }
 
-                // Exclude connectors that where already tried, order the remaining connectors moving connectors with
-                // recent failures to the end of the list.
-                connectors = connectors.Where(item => !excludedConnectors.Contains(item.Connector)).OrderBy(
-                    item => _transportFailures.TryGetValue(item.Connector, out DateTime value) ? value : default).ToList();
-
-                if (connectors.Count == 0)
+                if (!_pending.TryGetValue((connector, connectionId), out connectTask))
                 {
-                    throw new NoEndpointException();
+                    connectTask = PerformCreateConnectionAsync(connectionId, connector);
+                    _pending.TryAdd((connector, connectionId), connectTask);
                 }
             }
 
-            // Wait for connection establishment to one or some of the connectors to complete.
-            while (true)
+            return await connectTask.WaitAsync(cancel).ConfigureAwait(false);
+
+            async Task<Connection> PerformCreateConnectionAsync(
+                string connectionId,
+                Connector connector)
             {
-                var connectTasks = new List<Task<Connection>>();
-                var tried = new HashSet<IConnector>();
-                lock (_mutex)
+                // Yield to ensure the code below is executed without the mutex locked.
+                await Task.Yield();
+
+                IObserver? observer =
+                    _communicator.Observer?.GetConnectionEstablishmentObserver(connector.Endpoint,
+                                                                               connector.ToString()!);
+                try
                 {
-                    if (_disposeTask != null)
+                    observer?.Attach();
+
+                    if (_communicator.TraceLevels.Transport >= 2)
                     {
-                        throw new CommunicatorDisposedException();
+                        _communicator.Logger.Trace(TraceLevels.TransportCategory,
+                            $"trying to establish {connector.Endpoint.TransportName} connection to {connector}");
                     }
 
-                    // Search for pending connects for the set of connectors which weren't already tried.
-                    foreach ((IConnector connector, Endpoint endpoint) in connectors)
+                    Connection connection;
+                    lock (_mutex)
                     {
-                        if (_connectionsByConnector.TryGetValue((connector, connectionId),
-                                                                out ICollection<Connection>? connectionList))
+                        if (_disposeTask != null)
                         {
-                            if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
-                            {
-                                return connection;
-                            }
+                            throw new CommunicatorDisposedException();
                         }
-
-                        if (_pending.TryGetValue((connector, connectionId), out Task<Connection>? task))
-                        {
-                            connectTasks.Add(task);
-                            tried.Add(connector);
-                        }
+                        connection = connector.Connect(connectionId);
+                        _connectionsByConnector.Add((connector, connectionId), connection);
+                        _connectionsByEndpoint.Add((connector.Endpoint, connectionId), connection);
                     }
-
-                    // We didn't find pending connects for the remaining connectors so we can try to establish
-                    // a connection to them.
-                    if (tried.Count == 0)
-                    {
-                        Task<Connection> connectTask = ConnectAsync(connectors, connectionId, hasMore);
-                        if (connectTask.IsCompleted)
-                        {
-                            try
-                            {
-                                return connectTask.Result;
-                            }
-                            catch (AggregateException ex)
-                            {
-                                Debug.Assert(ex.InnerException != null);
-                                throw ExceptionUtil.Throw(ex.InnerException);
-                            }
-                        }
-
-                        foreach ((IConnector connector, Endpoint endpoint) in connectors)
-                        {
-                            // Use TryAdd in case there are duplicates.
-                            Debug.Assert(!_pending.ContainsKey((connector, connectionId)) ||
-                                         connectors.Count(v => v.Equals((connector, endpoint))) > 1);
-                            _pending.TryAdd((connector, connectionId), connectTask);
-                            tried.Add(connector);
-                        }
-                        connectTasks.Add(connectTask);
-                    }
+                    await connection.InitializeAsync().ConfigureAwait(false);
+                    return connection;
                 }
-
-                // Wait for the first successful connection establishment
-                Task<Connection> completedTask;
-                do
+                catch (Exception ex)
                 {
-                    completedTask = await Task.WhenAny(connectTasks).WaitAsync(cancel).ConfigureAwait(false);
-                    if (completedTask.IsCompletedSuccessfully)
-                    {
-                        lock (_mutex)
-                        {
-                            Connection connection = completedTask.Result;
-                            foreach ((IConnector connector, Endpoint endpoint) in connectors)
-                            {
-                                Debug.Assert(connection.Connector != null);
-                                if (connection.Connector.Equals(connector))
-                                {
-                                    Debug.Assert(connection.ConnectionId == connectionId);
-                                    // If the connection was established for another endpoint but to the same connector,
-                                    // we ensure to also associate the connection with this endpoint.
-                                    if (!connection.Endpoints.Contains(endpoint))
-                                    {
-                                        connection.Endpoints.Add(endpoint);
-                                        _connectionsByEndpoint.Add((endpoint, connectionId), connection);
-                                    }
-                                    return connection;
-                                }
-                            }
-                        }
-                    }
-                    connectTasks.Remove(completedTask);
+                    _transportFailures[connector] = DateTime.Now;
+                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    throw;
                 }
-                while (connectTasks.Count > 0);
-
-                // Remove the connectors we tried from the set of remaining connectors
-                connectors.RemoveAll(((IConnector Connector, Endpoint Endpoint) tuple) =>
-                    tried.Contains(tuple.Connector));
-
-                // If there are no more connectors to try, we failed to establish a connection and we raise the
-                // failure.
-                if (connectors.Count == 0)
+                finally
                 {
-                    Debug.Assert(completedTask.IsFaulted);
-                    return await completedTask.ConfigureAwait(false);
+                    _pending.Remove((connector, connectionId));
+                    observer?.Detach();
                 }
             }
         }
@@ -307,7 +294,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    foreach (IConnector connector in endpoint.ConnectorsAsync(cancel: default).AsTask().Result)
+                    foreach (Connector connector in endpoint.ConnectorsAsync(cancel: default).AsTask().Result)
                     {
                         lock (_mutex)
                         {
@@ -346,97 +333,6 @@ namespace ZeroC.Ice
                     }
                 }
             }
-        }
-
-        private async Task<Connection> ConnectAsync(
-            IReadOnlyList<(IConnector Connector, Endpoint Endpoint)> connectors,
-            string connectionId,
-            bool hasMore)
-        {
-            Debug.Assert(connectors.Count > 0);
-
-            try
-            {
-                for (int i = 0; i < connectors.Count; ++i)
-                {
-                    (IConnector connector, Endpoint endpoint) = connectors[i];
-
-                    IObserver? observer =
-                        _communicator.Observer?.GetConnectionEstablishmentObserver(endpoint, connector.ToString()!);
-                    try
-                    {
-                        observer?.Attach();
-
-                        if (_communicator.TraceLevels.Transport >= 2)
-                        {
-                            _communicator.Logger.Trace(TraceLevels.TransportCategory,
-                                $"trying to establish {endpoint.TransportName} connection to {connector}");
-                        }
-
-                        Connection connection;
-                        lock (_mutex)
-                        {
-                            if (_disposeTask != null)
-                            {
-                                throw new CommunicatorDisposedException();
-                            }
-                            connection = connector.Connect(connectionId);
-                            _connectionsByConnector.Add((connector, connectionId), connection);
-                            _connectionsByEndpoint.Add((endpoint, connectionId), connection);
-                        }
-                        await connection.InitializeAsync().ConfigureAwait(false);
-                        return connection;
-                    }
-                    catch (CommunicatorDisposedException ex)
-                    {
-                        observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                        throw; // No need to continue
-                    }
-                    catch (Exception ex)
-                    {
-                        observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-
-                        bool last = i == connectors.Count - 1;
-
-                        TraceLevels traceLevels = _communicator.TraceLevels;
-                        _transportFailures[connector] = DateTime.Now;
-
-                        if (traceLevels.Transport >= 2)
-                        {
-                            _communicator.Logger.Trace(TraceLevels.TransportCategory,
-                                $"failed to establish {endpoint.TransportName} connection to {connector} " +
-                                (last && !hasMore ?
-                                    $"and no more endpoints to try\n{ex}" :
-                                    $"trying next endpoint\n{ex}"));
-                        }
-
-                        if (last)
-                        {
-                            // If it's the last connector to try and we couldn't establish the connection, we're done.
-                            throw;
-                        }
-                    }
-                    finally
-                    {
-                        observer?.Detach();
-                    }
-                }
-            }
-            finally
-            {
-                lock (_mutex)
-                {
-                    foreach ((IConnector connector, Endpoint _) in connectors)
-                    {
-                        _pending.Remove((connector, connectionId));
-                    }
-                }
-            }
-
-            // The loop either raised an exception on the last connector or returned if the connection establishment
-            // succeeded.
-            Debug.Assert(false);
-            return null!;
         }
 
         private class MultiDictionary<TKey, TValue> : Dictionary<TKey, ICollection<TValue>> where TKey : notnull

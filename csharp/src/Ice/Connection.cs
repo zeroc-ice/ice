@@ -98,7 +98,7 @@ namespace ZeroC.Ice
         public Protocol Protocol => Endpoint.Protocol;
 
         // The connector from which the connection was created. This is used by the outgoing connection factory.
-        internal IConnector? Connector => _connector;
+        internal Connector? Connector => _connector;
 
         // The endpoints which are associated with this connection. This is populated by the outgoing connection
         // factory when an endpoint resolves to the same connector as this connection's connector. Two endpoints
@@ -118,7 +118,7 @@ namespace ZeroC.Ice
         // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
+        private readonly Connector? _connector;
         // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
@@ -224,7 +224,7 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter)
         {
@@ -729,7 +729,7 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             ColocatedTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter)
             : base(manager, endpoint, transceiver, connector, connectionId, adapter)
@@ -778,7 +778,7 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter)
             : base(manager, endpoint, transceiver, connector, connectionId, adapter) => _transceiver = transceiver;
@@ -821,7 +821,7 @@ namespace ZeroC.Ice
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter)
             : base(manager, endpoint, transceiver, connector, connectionId, adapter)
@@ -841,7 +841,7 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter)
             : base(manager, endpoint, transceiver, connector, connectionId, adapter) =>
@@ -860,7 +860,7 @@ namespace ZeroC.Ice
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter)
             : base(manager, endpoint, transceiver, connector, connectionId, adapter) =>

@@ -171,7 +171,7 @@ namespace ZeroC.Ice
         internal virtual Connection CreateConnection(
             IConnectionManager manager,
             MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
-            IConnector? connector,
+            Connector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
             new TcpConnection(manager, this, transceiver, connector, connectionId, adapter);
@@ -262,10 +262,10 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new TcpEndpoint(this, host, port);
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+        private protected override Connector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy)
+        internal virtual ITransceiver CreateTransceiver(Connector connector, EndPoint addr, INetworkProxy? proxy)
         {
             ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
             if (IsSecure)

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -193,6 +194,8 @@ namespace ZeroC.Ice.Test.Binding
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
                 if (helper.Protocol == Protocol.Ice1)
                 {
+                    // Wait 5 seconds to let recent connector failures expire
+                    Thread.Sleep(5000);
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter66", endpoints[2].ToString()));
                     for (int i = 0; i < 3; i++)
@@ -200,12 +203,14 @@ namespace ZeroC.Ice.Test.Binding
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter66");
                     }
 
+                    Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter65", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter65");
                     }
 
+                    Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter64", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
