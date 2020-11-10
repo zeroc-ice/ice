@@ -100,6 +100,7 @@ namespace ZeroC.Ice
             TimeSpan? invocationTimeout = null;
             IReadOnlyList<string> location;
             Protocol protocol;
+            bool relative = false;
 
             if (UriParser.IsProxyUri(proxyString))
             {
@@ -142,6 +143,7 @@ namespace ZeroC.Ice
                 }
 
                 invocationTimeout = proxyOptions.InvocationTimeout;
+                relative = proxyOptions.Relative ?? false;
             }
             else
             {
@@ -226,7 +228,7 @@ namespace ZeroC.Ice
                                     locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator),
                                  preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
                                  protocol: protocol,
-                                 relative: false, // TODO URI option
+                                 relative: relative,
                                  routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
         }
 

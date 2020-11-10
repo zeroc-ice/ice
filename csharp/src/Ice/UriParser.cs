@@ -14,10 +14,11 @@ namespace ZeroC.Ice
         /// <summary>The proxy options parsed by the UriParser.</summary>
         internal struct ProxyOptions
         {
-            // TODO: add more proxy options
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
             internal Protocol? Protocol;
+
+            internal bool? Relative;
         }
 
         // Common options for the generic URI parsers registered for the ice and ice+transport schemes.
@@ -298,6 +299,18 @@ namespace ZeroC.Ice
                     {
                         throw new FormatException("the URI format does not support protocol ice1");
                     }
+                }
+                else if (endpointOptions == null && name == "relative")
+                {
+                    if (pureEndpoints)
+                    {
+                        throw new FormatException($"relative is not a valid option for endpoint `{uriString}'");
+                    }
+                    if (proxyOptions.Relative != null)
+                    {
+                        throw new FormatException($"multiple relative options in `{uriString}'");
+                    }
+                    proxyOptions.Relative = bool.Parse(value);
                 }
                 else if (endpointOptions == null)
                 {
