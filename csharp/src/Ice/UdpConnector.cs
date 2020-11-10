@@ -10,9 +10,9 @@ namespace ZeroC.Ice
         private readonly UdpEndpoint _endpoint;
         private readonly EndPoint _addr;
         private readonly int _hashCode;
-        public Connection Connect(string connectionId, bool secure)
+        public Connection Connect(string connectionId, bool preferNonSecure)
         {
-            Debug.Assert(secure == false);
+            Debug.Assert(preferNonSecure == true);
             var transceiver = new UdpTransceiver(_endpoint.Communicator,
                                                  this,
                                                  _addr,

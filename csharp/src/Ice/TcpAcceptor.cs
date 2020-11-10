@@ -19,6 +19,8 @@ namespace ZeroC.Ice
         private readonly IConnectionManager _manager;
         private readonly Socket _socket;
         private readonly IPEndPoint _addr;
+
+        // See https://tools.ietf.org/html/rfc5246#appendix-A.4
         private const byte TlsHandshakeRecord = 0x16;
 
         public async ValueTask<Connection> AcceptAsync()
@@ -35,14 +37,35 @@ namespace ZeroC.Ice
                 // first byte is slow and then the actual connection initialization is also slow.
 
                 using var source = new CancellationTokenSource(_adapter.Communicator.ConnectTimeout);
+                CancellationToken cancel = source.Token;
 
                 // Peek one byte into the tcp stream to see if it contains the TLS handshake record
                 var buffer = new ArraySegment<byte>(new byte[1]);
-                var received = await TcpTransceiver.PeekAsync(fd, buffer, source.Token).ConfigureAwait(false);
+
+                int received;
+                try
+                {
+                    received = await fd.ReceiveAsync(buffer, SocketFlags.Peek, cancel).ConfigureAwait(false);
+                }
+                catch (SocketException) when (cancel.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException(cancel);
+                }
+                catch (SocketException ex) when (ex.IsConnectionLost())
+                {
+                    throw new ConnectionLostException(ex);
+                }
+                catch (SocketException ex)
+                {
+                    throw new TransportException(ex);
+                }
+                if (received == 0)
+                {
+                    throw new ConnectionLostException();
+                }
+
                 Debug.Assert(received == 1);
                 secure = buffer.Array![0] == TlsHandshakeRecord;
-
-                // TODO: should we log something here that we've peeked into the stream?
             }
 
             ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name, secure);

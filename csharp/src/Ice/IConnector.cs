@@ -10,6 +10,6 @@ namespace ZeroC.Ice
         /// <summary>Creates a transceiver. The transceiver may not be fully connected until its
         /// <see cref="ITransceiver.InitializeAsync"/> method is called.</summary>
         /// <return>The transceiver.</return>
-        Connection Connect(string connectionId, bool secure);
+        Connection Connect(string connectionId, bool preferNonSecure);
     }
 }

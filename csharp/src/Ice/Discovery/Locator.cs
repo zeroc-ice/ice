@@ -193,7 +193,7 @@ namespace ZeroC.Ice.Discovery
 
             _domainId = communicator.GetProperty("Ice.Discovery.DomainId") ?? "";
 
-            // Datagram proxies no not support SSL/TLS so they can only be used with PreferNonSecure set to true
+            // Datagram proxies do not support SSL/TLS so they can only be used with PreferNonSecure set to true
             _lookup = ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
                 clearRouter: true,
                 invocationTimeout: _timeout,

@@ -265,7 +265,11 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy, bool secure)
+        internal virtual ITransceiver CreateTransceiver(
+            IConnector connector,
+            EndPoint addr,
+            INetworkProxy? proxy,
+            bool secure)
         {
             ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
             if (IsAlwaysSecure || secure)

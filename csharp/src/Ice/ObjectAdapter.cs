@@ -737,8 +737,7 @@ namespace ZeroC.Ice
                 Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
             IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
-            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure")
-                ?? Communicator.AcceptNonSecure;
+            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
 
             try
             {
@@ -792,7 +791,7 @@ namespace ZeroC.Ice
                             // When the adapter is configured to only accept secure connections ensure that all
                             // configured endpoints only accept secure connections.
                             if (!AcceptNonSecure &&
-                                endpoints.FirstOrDefault(endpoint => endpoint.IsAlwaysSecure) is Endpoint endpoint)
+                                endpoints.FirstOrDefault(endpoint => !endpoint.IsAlwaysSecure) is Endpoint endpoint)
                             {
                                 throw new InvalidConfigurationException($@"object adapter `{Name
                                     }' is configured to only accept secure connections but endpoint: `{endpoint

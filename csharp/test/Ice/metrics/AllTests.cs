@@ -618,7 +618,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointTransport", transportName, output);
             TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
-            TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
+            TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsAlwaysSecure", isSecure, output);
             if (colocated)
             {
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", adapterName, output);
@@ -725,7 +725,7 @@ namespace ZeroC.Ice.Test.Metrics
                     transportName, c, output);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram",
                     "False", c, output);
-                TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure",
+                TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsAlwaysSecure",
                     isSecure, c, output);
                 TestAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host,
                     c, output);
@@ -813,7 +813,7 @@ namespace ZeroC.Ice.Test.Metrics
                     c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False",
                     c, output);
-                TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure,
+                TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsAlwaysSecure", isSecure,
                     c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost",
                     c, output);
@@ -931,7 +931,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTransport", transportName, op, output);
             TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
-            TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op, output);
+            TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsAlwaysSecure", isSecure, op, output);
             if (colocated)
             {
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", adapterName, op, output);

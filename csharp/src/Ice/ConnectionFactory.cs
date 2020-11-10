@@ -206,7 +206,7 @@ namespace ZeroC.Ice
                     // a connection to them.
                     if (tried.Count == 0)
                     {
-                        Task<Connection> connectTask = ConnectAsync(connectors, connectionId, hasMore, !preferNonSecure);
+                        Task<Connection> connectTask = ConnectAsync(connectors, connectionId, hasMore, preferNonSecure);
                         if (connectTask.IsCompleted)
                         {
                             try
@@ -353,7 +353,7 @@ namespace ZeroC.Ice
             IReadOnlyList<(IConnector Connector, Endpoint Endpoint)> connectors,
             string connectionId,
             bool hasMore,
-            bool secure)
+            bool preferNonSecure)
         {
             Debug.Assert(connectors.Count > 0);
 
@@ -382,7 +382,7 @@ namespace ZeroC.Ice
                             {
                                 throw new CommunicatorDisposedException();
                             }
-                            connection = connector.Connect(connectionId, secure);
+                            connection = connector.Connect(connectionId, preferNonSecure);
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                         }

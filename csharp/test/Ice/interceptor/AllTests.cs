@@ -170,7 +170,6 @@ namespace ZeroC.Ice.Test.Interceptor
 
             {
                 // throwing from an interceptor stops the interceptor chain
-                // TODO: this breaks colocation as the new communicator does not contain any OAs
                 using var communicator = new Communicator(
                     prx.Communicator.GetProperties(),
                     invocationInterceptors: new InvocationInterceptor[]
