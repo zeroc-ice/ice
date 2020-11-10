@@ -76,7 +76,7 @@ namespace ZeroC.Ice.Discovery
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
             new (_registry);
 
-        public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveLocationAsync(
+        public async ValueTask<IEnumerable<EndpointData>> ResolveLocationAsync(
             string[] location,
             Current current,
             CancellationToken cancel)
@@ -85,12 +85,17 @@ namespace ZeroC.Ice.Discovery
             {
                 throw new InvalidArgumentException("location cannot be empty", nameof(location));
             }
+            else if (location.Length > 1)
+            {
+                // Ice discovery supports only single-segment locations.
+                return ImmutableArray<EndpointData>.Empty;
+            }
 
             string adapterId = location[0];
 
             using var replyServant = new ResolveAdapterIdReply(_replyAdapter);
 
-            IReadOnlyList<EndpointData> endpoints = await InvokeAsync(
+            return await InvokeAsync(
                 (lookup, dummyReply) =>
                 {
                     IResolveAdapterIdReplyPrx reply =
@@ -102,15 +107,6 @@ namespace ZeroC.Ice.Discovery
                                                         cancel: cancel);
                 },
                 replyServant).ConfigureAwait(false);
-
-            if (endpoints.Count > 0)
-            {
-                return (endpoints, location[1..]);
-            }
-            else
-            {
-                return (endpoints, ImmutableArray<string>.Empty);
-            }
         }
 
         public async ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveWellKnownProxyAsync(

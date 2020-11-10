@@ -91,23 +91,22 @@ namespace ZeroC.Ice.LocatorDiscovery
                                 locator?.GetRegistryAsync(current.Context, cancel: cancel) ??
                                     Task.FromResult<ILocatorRegistryPrx?>(null));
 
-        public ValueTask<(IEnumerable<EndpointData>, IEnumerable<string>)> ResolveLocationAsync(
+        public ValueTask<IEnumerable<EndpointData>> ResolveLocationAsync(
             string[] location,
             Current current,
             CancellationToken cancel) =>
-            ForwardRequestAsync<(IEnumerable<EndpointData>, IEnumerable<string>)>(
+            ForwardRequestAsync<IEnumerable<EndpointData>>(
                 async locator =>
                 {
                     if (locator != null)
                     {
-                        return await locator.ResolveLocationAsync(
-                            location,
-                            current.Context,
-                            cancel: cancel).ConfigureAwait(false);
+                        return await locator.ResolveLocationAsync(location,
+                                                                  current.Context,
+                                                                  cancel: cancel).ConfigureAwait(false);
                     }
                     else
                     {
-                        return (ImmutableArray<EndpointData>.Empty, ImmutableArray<string>.Empty);
+                        return ImmutableArray<EndpointData>.Empty;
                     }
                 });
 
