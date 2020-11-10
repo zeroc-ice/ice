@@ -13,7 +13,7 @@ namespace ZeroC.Ice
 
         internal ILogger LocalLogger { get; }
         private static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
-        private readonly Channel<LogMessage> _channel;
+        private readonly Channel<(List<LogForwarder>, LogMessage)> _channel;
         private readonly LoggerAdmin _loggerAdmin;
 
         public ILogger CloneWithPrefix(string prefix) => LocalLogger.CloneWithPrefix(prefix);
@@ -66,7 +66,7 @@ namespace ZeroC.Ice
             // Create an unbounded channel to ensure the messages are sent from a separate thread. We don't allow
             // synchronous continuations to ensure that writes on the channel are never processed by the writer
             // thread.
-            _channel = Channel.CreateUnbounded<LogMessage>(new UnboundedChannelOptions
+            _channel = Channel.CreateUnbounded<(List<LogForwarder>, LogMessage)>(new UnboundedChannelOptions
             {
                 AllowSynchronousContinuations = false,
                 SingleReader = true,
@@ -76,20 +76,23 @@ namespace ZeroC.Ice
             Task.Run(async () =>
             {
                 // The enumeration completes when the channel writer Complete method is called.
-                await foreach (LogMessage logMessage in _channel.Reader.ReadAllAsync())
+                await foreach ((List<LogForwarder> forwarders, LogMessage logMessage) in _channel.Reader.ReadAllAsync())
                 {
-                    List<LogForwarder>? logForwarderList = _loggerAdmin.Log(logMessage);
-                    if (logForwarderList != null)
+                    foreach (LogForwarder forwarder in forwarders)
                     {
-                        foreach (LogForwarder p in logForwarderList)
-                        {
-                            p.Queue("log", LocalLogger, prx => prx.LogAsync(logMessage));
-                        }
+                        forwarder.Queue("log", LocalLogger, proxy => proxy.LogAsync(logMessage));
                     }
                 }
             });
         }
 
-        internal void Log(LogMessage logMessage) => _channel.Writer.TryWrite(logMessage);
+        internal void Log(LogMessage logMessage)
+        {
+            List<LogForwarder>? logForwarderList = _loggerAdmin.Log(logMessage);
+            if (logForwarderList != null)
+            {
+                _channel.Writer.TryWrite((logForwarderList, logMessage));
+            }
+        }
     }
 }
