@@ -8,6 +8,13 @@ namespace ZeroC.Ice.Test.Objects
 {
     public sealed class Initial : IInitial
     {
+
+        private ObjectAdapter _adapter;
+        private readonly B _b1;
+        private readonly B _b2;
+        private readonly C _c;
+        private readonly D _d;
+
         public Initial(ObjectAdapter adapter)
         {
             _adapter = adapter;
@@ -110,11 +117,5 @@ namespace ZeroC.Ice.Test.Objects
             (f31, new F3(new F1("F12"), IF2Prx.Parse("F22", current.Adapter.Communicator)));
 
         public bool HasF3(Current current, CancellationToken cancel) => true;
-
-        private ObjectAdapter _adapter;
-        private readonly B _b1;
-        private readonly B _b2;
-        private readonly C _c;
-        private readonly D _d;
     }
 }

@@ -9,6 +9,9 @@ namespace ZeroC.Ice.Test.Proxy
 {
     public sealed class AsyncMyDerivedClass : IAsyncMyDerivedClass
     {
+
+        private IReadOnlyDictionary<string, string>? _ctx;
+
         public ValueTask<IObjectPrx?> EchoAsync(IObjectPrx? obj, Current c, CancellationToken cancel) =>
             new ValueTask<IObjectPrx?>(obj);
 
@@ -31,7 +34,5 @@ namespace ZeroC.Ice.Test.Proxy
             _ctx = current.Context;
             return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
-
-        private IReadOnlyDictionary<string, string>? _ctx;
     }
 }

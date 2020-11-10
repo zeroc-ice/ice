@@ -8,6 +8,9 @@ namespace ZeroC.Ice.Test.Proxy
 {
     public sealed class MyDerivedClass : IMyDerivedClass
     {
+
+        private Dictionary<string, string>? _ctx;
+
         public IObjectPrx? Echo(IObjectPrx? obj, Current c, CancellationToken cancel) => obj;
 
         public IEnumerable<string> GetLocation(Current current, CancellationToken cancel) => current.Location;
@@ -22,7 +25,5 @@ namespace ZeroC.Ice.Test.Proxy
             _ctx = current.Context;
             return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
-
-        private Dictionary<string, string>? _ctx;
     }
 }

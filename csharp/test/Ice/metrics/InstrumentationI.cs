@@ -214,7 +214,7 @@ namespace ZeroC.Ice.Test.Metrics
         public Observer? EndpointLookupObserver;
         public InvocationObserver? InvocationObserver;
         protected IObserverUpdater? Updater;
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new ();
 
         public void SetObserverUpdater(IObserverUpdater? u)
         {
