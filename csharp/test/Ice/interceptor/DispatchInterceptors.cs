@@ -118,7 +118,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
                             Debug.Assert(request.BinaryContext.ContainsKey(1));
                             t1 = request.BinaryContext[1].Read(Token.IceReader);
-                            t2 = request.ReadArgs(current.Communicator, Token.IceReader);
+                            t2 = request.ReadArgs(current.Connection, Token.IceReader);
                             TestHelper.Assert(t1.Hash == t2.Hash);
                             TestHelper.Assert(t1.Expiration == t2.Expiration);
                             TestHelper.Assert(t1.Payload.SequenceEqual(t2.Payload));

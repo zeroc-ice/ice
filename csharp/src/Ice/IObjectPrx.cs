@@ -351,7 +351,7 @@ namespace ZeroC.Ice
             try
             {
                 IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway: false).Result;
-                return response.ReadReturnValue(Communicator, reader);
+                return response.ReadReturnValue(this, reader);
             }
             catch (AggregateException ex)
             {
@@ -376,7 +376,7 @@ namespace ZeroC.Ice
                 IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway).Result;
                 if (!oneway)
                 {
-                    response.ReadVoidReturnValue(Communicator);
+                    response.ReadVoidReturnValue(this);
                 }
             }
             catch (AggregateException ex)
@@ -420,7 +420,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return (await responseTask.ConfigureAwait(false)).ReadReturnValue(Communicator, reader);
+                    return (await responseTask.ConfigureAwait(false)).ReadReturnValue(this, reader);
                 }
                 finally
                 {
@@ -461,7 +461,7 @@ namespace ZeroC.Ice
                     IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
                     if (!oneway)
                     {
-                        response.ReadVoidReturnValue(Communicator);
+                        response.ReadVoidReturnValue(this);
                     }
                 }
                 finally

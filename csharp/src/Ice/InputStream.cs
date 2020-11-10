@@ -100,9 +100,13 @@ namespace ZeroC.Ice
         /// exception.</summary>
         public Communicator? Communicator { get; }
 
+        public Connection? Connection { get; }
+
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
         /// <value>The encoding.</value>
         public Encoding Encoding { get; }
+
+        public Reference? Reference { get; }
 
         /// <summary>The 0-based position (index) in the underlying buffer.</summary>
         internal int Pos { get; private set; }
@@ -977,16 +981,26 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of the buffer.</param>
-        /// <param name="communicator">The communicator.</param>
+        /// <param name="communicator">The communicator (optional).</param>
+        /// <param name="connection">The connection (optional).</param>
+        /// <param name="reference">The reference (optional).</param>
         /// <param name="startEncapsulation">When true, start reading an encapsulation in this byte buffer, and
         /// <c>encoding</c> represents the encoding of the header.</param>
         internal InputStream(
             ReadOnlyMemory<byte> buffer,
             Encoding encoding,
             Communicator? communicator = null,
+            Connection? connection = null,
+            Reference? reference = null,
             bool startEncapsulation = false)
         {
-            Communicator = communicator;
+            // Connection and reference are mutually exclusive - it's neither or one or the other.
+            Debug.Assert(connection == null || reference == null);
+
+            Communicator = communicator ?? connection?.Communicator ?? reference?.Communicator;
+            Connection = connection;
+            Reference = reference;
+
             Pos = 0;
             _buffer = buffer;
             Encoding = encoding;

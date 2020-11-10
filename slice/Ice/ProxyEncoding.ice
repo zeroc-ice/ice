@@ -64,7 +64,7 @@ module Ice
         Encoding encoding;
     }
 
-    /// The kind of proxy being marshaled/unmarshaled (2.0 encoding only)
+    /// The kind of proxy being marshaled/unmarshaled (2.0 encoding only).
     enum ProxyKind20 : byte
     {
         /// This optional proxy is null.
@@ -77,7 +77,7 @@ module Ice
         /// A proxy with no endpoint; its URI scheme is ice.
         Indirect,
 
-        /// An indirect proxy marked relative. It is always unmarshaled as a direct, indirect or fixed proxy.
+        /// An indirect proxy marked relative.
         IndirectRelative
     }
 
