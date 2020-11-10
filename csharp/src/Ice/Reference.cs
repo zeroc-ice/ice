@@ -1411,15 +1411,8 @@ namespace ZeroC.Ice
                             return false;
                     }
 
-                    if (Protocol == Protocol.Ice1 && !PreferNonSecure)
-                    {
-                        return endpoint.IsAlwaysSecure;
-                    }
-
-                    // If we made it this far then the endpoint is either ice2 or it's ice1 and PreferNonSecure == true
-                    Debug.Assert(Protocol == Protocol.Ice2 || (Protocol == Protocol.Ice1 && PreferNonSecure));
-
-                    return true;
+                    // With ice1 when PreferNonSecure is false filter out all non-secure endpoints.
+                    return Protocol == Protocol.Ice2 || PreferNonSecure || endpoint.IsAlwaysSecure;
                 });
 
                 if (Protocol == Protocol.Ice1 && PreferNonSecure)
