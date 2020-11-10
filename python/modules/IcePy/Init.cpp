@@ -141,7 +141,7 @@ initIcePy(void)
     Ice::registerIceDiscovery(false);
     Ice::registerIceLocatorDiscovery(false);
 
-#if PY_VERSION_HEX >= 0x03090000
+#if PY_VERSION_HEX < 0x03090000
     //
     // Notify Python that we are a multi-threaded extension. This method is deprecated
     // and does nothing since Python 3.9
