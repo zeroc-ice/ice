@@ -156,7 +156,7 @@ namespace ZeroC.Ice
                         reference.RouterInfo.ClearCache(reference);
                         return RetryPolicy.AfterDelay(TimeSpan.Zero);
                     }
-                    else if (reference.IsIndirect)
+                    else if (reference.ProxyKind == ProxyKind.Indirect)
                     {
                         if (reference.IsWellKnown)
                         {

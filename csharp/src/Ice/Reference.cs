@@ -34,10 +34,8 @@ namespace ZeroC.Ice
 
         internal TimeSpan InvocationTimeout { get; }
         internal bool IsConnectionCached { get; }
-        internal bool IsFixed { get; }
-        internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
         public bool IsOneway => InvocationMode != InvocationMode.Twoway;
-        internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && Location.Count == 0;
+        internal bool IsWellKnown => ProxyKind == ProxyKind.Indirect && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
 
         internal TimeSpan LocatorCacheTimeout { get; }
@@ -46,11 +44,13 @@ namespace ZeroC.Ice
 
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
+        internal ProxyKind ProxyKind { get; }
+
         internal RouterInfo? RouterInfo { get; }
         private int _hashCode;
         private readonly IReadOnlyList<InvocationInterceptor> _invocationInterceptors;
 
-        private volatile Connection? _connection; // readonly when IsFixed is true
+        private volatile Connection? _connection; // readonly for fixed reference
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>
@@ -220,6 +220,7 @@ namespace ZeroC.Ice
                                     locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator),
                                  preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
                                  protocol: protocol,
+                                 relative: false, // TODO URI option
                                  routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
         }
 
@@ -243,7 +244,7 @@ namespace ZeroC.Ice
                 return false;
             }
 
-            if (IsFixed)
+            if (ProxyKind == ProxyKind.Fixed)
             {
                 // Compare properties and fields specific to fixed references
                 if (_connection != other._connection)
@@ -253,7 +254,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                // Compare properties specific to routable references
+                // Compare properties specific to other kinds of references
                 if (ConnectionId != other.ConnectionId)
                 {
                     return false;
@@ -317,11 +318,11 @@ namespace ZeroC.Ice
             {
                 return false;
             }
-            if (IsFixed != other.IsFixed)
+            if (Protocol != other.Protocol)
             {
                 return false;
             }
-            if (Protocol != other.Protocol)
+            if (ProxyKind != other.ProxyKind)
             {
                 return false;
             }
@@ -354,8 +355,9 @@ namespace ZeroC.Ice
                 hash.Add(InvocationMode);
                 hash.Add(InvocationTimeout);
                 hash.Add(Protocol);
+                hash.Add(ProxyKind);
 
-                if (IsFixed)
+                if (ProxyKind == ProxyKind.Fixed)
                 {
                     hash.Add(_connection);
                 }
@@ -835,7 +837,7 @@ namespace ZeroC.Ice
                                          retryPolicy != RetryPolicy.NoRetry);
                             if (retryPolicy == RetryPolicy.OtherReplica)
                             {
-                                if (reference.IsFixed)
+                                if (reference.ProxyKind == ProxyKind.Fixed)
                                 {
                                     // A fixed reference implies there are no more replicas
                                     break;
@@ -992,8 +994,8 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(istr.Encoding == Encoding.V20);
 
-                ProxyKind proxyKind = istr.ReadProxyKind();
-                if (proxyKind == ProxyKind.Null)
+                ProxyKind20 proxyKind = istr.ReadProxyKind20();
+                if (proxyKind == ProxyKind20.Null)
                 {
                     return null;
                 }
@@ -1017,7 +1019,7 @@ namespace ZeroC.Ice
                 // The min size for an Endpoint with the 2.0 encoding is: transport (short = 2 bytes) + host name
                 // (min 2 bytes as it cannot be empty) + port number (ushort, 2 bytes) + options (1 byte for empty
                 // sequence), for a total of 7 bytes.
-                IReadOnlyList<Endpoint> endpoints = proxyKind == ProxyKind.Direct ?
+                IReadOnlyList<Endpoint> endpoints = proxyKind == ProxyKind20.Direct ?
                     istr.ReadArray(minElementSize: 7, istr => istr.ReadEndpoint(protocol)) :
                     ImmutableArray<Endpoint>.Empty;
 
@@ -1033,7 +1035,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
+        // Helper constructor for non-fixed references. Uses the communicator's defaults.
         internal Reference(
             Communicator communicator,
             Encoding encoding,
@@ -1060,6 +1062,7 @@ namespace ZeroC.Ice
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator),
                    preferNonSecure: communicator.DefaultPreferNonSecure,
                    protocol: protocol,
+                   relative: false,
                    routerInfo: communicator.GetRouterInfo(communicator.DefaultRouter))
         {
         }
@@ -1084,7 +1087,7 @@ namespace ZeroC.Ice
 
         private void ClearConnection(Connection connection)
         {
-            Debug.Assert(!IsFixed);
+            Debug.Assert(ProxyKind != ProxyKind.Fixed);
             Interlocked.CompareExchange(ref _connection, null, connection);
         }
 
@@ -1108,6 +1111,7 @@ namespace ZeroC.Ice
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
             bool? preferNonSecure = null,
+            bool? relative = null,
             IRouterPrx? router = null)
         {
             // Check for incompatible arguments
@@ -1158,7 +1162,7 @@ namespace ZeroC.Ice
                 (identity, facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             }
 
-            if (IsFixed || fixedConnection != null)
+            if (ProxyKind == ProxyKind.Fixed || fixedConnection != null)
             {
                 // Note that Clone does not allow to clear the fixedConnection
 
@@ -1199,6 +1203,10 @@ namespace ZeroC.Ice
                     throw new ArgumentException("cannot change the prefer non-secure configuration of a fixed proxy",
                         nameof(preferNonSecure));
                 }
+                if (relative ?? false)
+                {
+                    throw new ArgumentException("cannot convert a fixed proxy into a relative proxy", nameof(relative));
+                }
                 if (router != null)
                 {
                     throw new ArgumentException("cannot change the router of a fixed proxy", nameof(router));
@@ -1222,7 +1230,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                // Routable reference
+                // Non-fixed reference
                 if (endpoints?.FirstOrDefault(endpoint => endpoint.Protocol != Protocol) is Endpoint endpoint)
                 {
                     throw new ArgumentException($"the protocol of endpoint `{endpoint}' is not {Protocol}",
@@ -1278,6 +1286,11 @@ namespace ZeroC.Ice
                     {
                         newLocation = ImmutableArray<string>.Empty; // make sure the clone's location is empty
                     }
+
+                    if (relative ?? false)
+                    {
+                        throw new ArgumentException("an ice1 proxy cannot be relative", nameof(relative));
+                    }
                 }
 
                 LocatorInfo? locatorInfo = LocatorInfo;
@@ -1288,6 +1301,18 @@ namespace ZeroC.Ice
                 else if (clearLocator)
                 {
                     locatorInfo = null;
+                }
+
+                if (relative ?? ProxyKind == ProxyKind.Relative)
+                {
+                    if (newEndpoints?.Count > 0)
+                    {
+                        throw new ArgumentException("a relative proxy cannot have endpoints", nameof(relative));
+                    }
+                    else
+                    {
+                        newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
+                    }
                 }
 
                 RouterInfo? routerInfo = RouterInfo;
@@ -1316,6 +1341,7 @@ namespace ZeroC.Ice
                                           locatorInfo, // no fallback otherwise breaks clearLocator
                                           preferNonSecure ?? PreferNonSecure,
                                           Protocol,
+                                          relative ?? ProxyKind == ProxyKind.Relative,
                                           routerInfo); // no fallback otherwise breaks clearRouter
 
                 return clone == this ? this : clone;
@@ -1331,7 +1357,7 @@ namespace ZeroC.Ice
             Connection? connection = _connection;
 
             // If the cached connection is no longer active, clear it and get a new connection.
-            if (!IsFixed && connection != null && !connection.IsActive)
+            if (ProxyKind != ProxyKind.Fixed && connection != null && !connection.IsActive)
             {
                 ClearConnection(connection);
                 connection = null;
@@ -1339,7 +1365,7 @@ namespace ZeroC.Ice
 
             if (connection == null)
             {
-                Debug.Assert(!IsFixed);
+                Debug.Assert(ProxyKind != ProxyKind.Fixed);
 
                 IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
 
@@ -1483,7 +1509,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    if (LocatorInfo != null && IsIndirect)
+                    if (LocatorInfo != null && ProxyKind == ProxyKind.Indirect)
                     {
                         LocatorInfo.ClearCache(this);
                     }
@@ -1512,7 +1538,7 @@ namespace ZeroC.Ice
 
         internal Dictionary<string, string> ToProperty(string prefix)
         {
-            if (IsFixed)
+            if (ProxyKind == ProxyKind.Fixed)
             {
                 throw new NotSupportedException("cannot convert a fixed proxy to a property dictionary");
             }
@@ -1556,9 +1582,8 @@ namespace ZeroC.Ice
         // Marshal the non-null reference.
         internal void Write(OutputStream ostr)
         {
-            if (IsFixed)
+            if (ProxyKind == ProxyKind.Fixed)
             {
-                // TODO: should be true only for the 1.1 encoding once we add Fixed support in the 2.0 encoding
                 throw new NotSupportedException("cannot marshal a fixed proxy");
             }
 
@@ -1578,7 +1603,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(ostr.Encoding == Encoding.V20);
 
-                ostr.Write(Endpoints.Count > 0 ? ProxyKind.Direct : ProxyKind.Indirect);
+                ostr.Write(Endpoints.Count > 0 ? ProxyKind20.Direct : ProxyKind20.Indirect);
                 ostr.WriteProxyData20(Identity, Protocol, Encoding, Location, InvocationMode, Facet);
 
                 if (Endpoints.Count > 0)
@@ -1588,7 +1613,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // Constructor for routable references, not bound to a connection
+        // Constructor for non-fixed references, not bound to a connection
         private Reference(
             bool cacheConnection,
             Communicator communicator,
@@ -1606,6 +1631,7 @@ namespace ZeroC.Ice
             LocatorInfo? locatorInfo,
             bool preferNonSecure,
             Protocol protocol,
+            bool relative,
             RouterInfo? routerInfo)
         {
             Communicator = communicator;
@@ -1624,6 +1650,7 @@ namespace ZeroC.Ice
             LocatorInfo = locatorInfo;
             PreferNonSecure = preferNonSecure;
             Protocol = protocol;
+            ProxyKind = Endpoints.Count > 0 ? ProxyKind.Direct : relative ? ProxyKind.Relative : ProxyKind.Indirect;
             RouterInfo = routerInfo;
 
             if (Protocol == Protocol.Ice1)
@@ -1636,6 +1663,7 @@ namespace ZeroC.Ice
                 Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
 
+            Debug.Assert(!relative || Endpoints.Count == 0);
             Debug.Assert(location.Count == 0 || location[0].Length > 0); // first segment cannot be empty
             Debug.Assert(!Endpoints.Any(endpoint => endpoint.Protocol != Protocol));
             Debug.Assert(invocationTimeout != TimeSpan.Zero);
@@ -1664,12 +1692,12 @@ namespace ZeroC.Ice
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsConnectionCached = false;
-            IsFixed = true;
             Location = ImmutableArray<string>.Empty;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
             PreferNonSecure = false;
             Protocol = fixedConnection.Protocol;
+            ProxyKind = ProxyKind.Fixed;
             RouterInfo = null;
 
             _connection = fixedConnection;

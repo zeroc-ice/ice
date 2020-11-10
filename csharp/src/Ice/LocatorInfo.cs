@@ -51,7 +51,7 @@ namespace ZeroC.Ice
 
         internal void ClearCache(Reference reference)
         {
-            Debug.Assert(reference.IsIndirect);
+            Debug.Assert(reference.ProxyKind == ProxyKind.Indirect);
 
             if (reference.IsWellKnown)
             {
@@ -93,7 +93,7 @@ namespace ZeroC.Ice
             Reference reference,
             CancellationToken cancel)
         {
-            Debug.Assert(reference.IsIndirect);
+            Debug.Assert(reference.ProxyKind == ProxyKind.Indirect);
 
             EndpointList endpoints = ImmutableArray<Endpoint>.Empty;
             bool cached = false;
@@ -392,7 +392,8 @@ namespace ZeroC.Ice
 
                         Reference? resolved = proxy?.IceReference;
 
-                        if (resolved != null && (resolved.IsIndirect || resolved.Protocol != Protocol.Ice1))
+                        if (resolved != null &&
+                            (resolved.ProxyKind != ProxyKind.Direct || resolved.Protocol != Protocol.Ice1))
                         {
                             if (communicator.TraceLevels.Locator >= 1)
                             {

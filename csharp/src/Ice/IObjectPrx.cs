@@ -9,6 +9,25 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Describes characteristics of an object proxy.</summary>
+    public enum ProxyKind : byte
+    {
+        /// <summary>A proxy with one ore more endpoints.</summary>
+        Direct = 1,
+
+        /// <summary>A proxy with no endpoint that is not relative nor fixed. Such a proxy is resolved using a locator
+        /// (see <see cref="ILocator"/>).</summary>
+        Indirect = 2,
+
+        /// <summary>A proxy marked `relative' and that refers to a colocated Ice object. Such a proxy has no endpoint.
+        /// A relative proxy can be marshaled and is always unmarshaled into another kind of proxy.</summary>
+        Relative = 3,
+
+        /// <summary>A proxy bound to an incoming or connection. Such a proxy has no endpoint and cannot be marshaled.
+        /// </summary>
+        Fixed = 4
+    }
+
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
@@ -150,17 +169,15 @@ namespace ZeroC.Ice
         /// <value>True when the proxy caches its connection; otherwise, false.</value>
         public bool IsConnectionCached => IceReference.IsConnectionCached;
 
-        /// <summary>Indicates whether or not this proxy is fixed proxy.</summary>
-        /// <value>When true, the proxy is a fixed proxy; when false, the proxy is a regular proxy, not bound to
-        /// any connection.</value>
-        public bool IsFixed => IceReference.IsFixed;
-
         /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
         /// waits for an empty response from the target Ice object.</summary>
         /// <value>When true, invoking such an operation does not wait for the response from the target object. When
         /// false, invoking such an operation waits for the empty response from the target object, unless this behavior
         /// is overridden by metadata on the Slice operation's definition.</value>
         public bool IsOneway => IceReference.IsOneway;
+
+        /// <summary>Returns the kind of this proxy.</summary>
+        public ProxyKind Kind => IceReference.ProxyKind;
 
         /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
         public IReadOnlyList<string> Location => IceReference.Location;

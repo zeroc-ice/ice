@@ -65,7 +65,7 @@ module Ice
     }
 
     /// The kind of proxy being marshaled/unmarshaled (2.0 encoding only)
-    enum ProxyKind : byte
+    enum ProxyKind20 : byte
     {
         /// This optional proxy is null.
         Null,
@@ -76,13 +76,16 @@ module Ice
 
         /// A proxy with no endpoint; its URI scheme is ice.
         Indirect,
+
+        /// A proxy with no endpoint, and that is unmarshaled as a direct, indirect or fixed proxy.
+        Relative
     }
 
     /// With the 2.0 encoding, a proxy is encoded as a discrimated union with:
-    /// - ProxyKind (the discriminant)
-    /// - if ProxyKind is not Null:
+    /// - ProxyKind20 (the discriminant)
+    /// - if ProxyKind20 is not Null:
     ///    - ProxyData20
-    ///    - If ProxyKind is Direct, a sequence of one or more endpoints
+    ///    - If ProxyKind20 is Direct, a sequence of one or more endpoints
     [cs:readonly]
     struct ProxyData20
     {
