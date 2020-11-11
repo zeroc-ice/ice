@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Threading;
 using System.Threading.Channels;
 
@@ -12,8 +13,8 @@ namespace ZeroC.Ice
     internal class ColocatedConnector : Connector
     {
         private readonly ColocatedEndpoint _endpoint;
-        private readonly ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> _writer;
         private long _nextId;
+        private readonly ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> _writer;
 
         public override Endpoint Endpoint => _endpoint;
         public override Connection Connect(string connectionId)
@@ -51,6 +52,8 @@ namespace ZeroC.Ice
 
         public override string ToString() =>
             _endpoint.Adapter.Name.Length == 0 ? "unnamed adapter" : _endpoint.Adapter.Name;
+        public override bool Equals(Connector? obj) => ReferenceEquals(this, obj);
+        public override int GetHashCode() => _endpoint.GetHashCode();
 
         internal ColocatedConnector(
             ColocatedEndpoint endpoint,

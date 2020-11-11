@@ -31,7 +31,7 @@ namespace ZeroC.Ice
                                               null);
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(Connector? obj)
         {
             if (ReferenceEquals(this, obj))
             {

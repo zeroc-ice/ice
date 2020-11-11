@@ -950,12 +950,13 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        // Check if we can retry, we cannot retry the request if we have consumed all retry attempts,
-                        // the retry policy doesn't allow retries, the request was already released or a fixed
-                        // reference receives an exception with OtherReplica retry.
+                        // Check if we can retry, we cannot retry if we have consumed all retry attempts, the retry
+                        // policy doesn't allow retries, the request was already released, there are no more connectors
+                        // or a fixed reference receives an exception with OtherReplica retry.
                         if (retryAttempt == reference.Communicator.RetryMaxAttempts ||
                             retryPolicy == RetryPolicy.NoRetry ||
                             (sent && releaseRequestAfterSent) ||
+                            (triedAllConnectors && connectors != null && connectors.Count == 0) ||
                             (reference.IsFixed && retryPolicy == RetryPolicy.OtherReplica))
                         {
                             if (exception != null)
