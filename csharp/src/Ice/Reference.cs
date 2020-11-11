@@ -552,9 +552,21 @@ namespace ZeroC.Ice
                     sb.Append(Encoding);
                 }
 
+                if (IsFixed)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("fixed=true");
+                }
+
                 StartQueryOption(sb, ref firstOption);
                 sb.Append("invocation-timeout=");
                 sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
+
+                if (IsRelative)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("relative=true");
+                }
 
                 if (Endpoints.Count > 1)
                 {
@@ -1156,10 +1168,10 @@ namespace ZeroC.Ice
         }
 
         // Helper constructor for fixed references. Uses the communicator's defaults.
-        internal Reference(Connection fixedConnection, Identity identity)
+        internal Reference(Connection fixedConnection, Identity identity, string facet)
             : this(context: fixedConnection.Communicator.DefaultContext,
                    encoding: fixedConnection.Protocol.GetEncoding(),
-                   facet: "",
+                   facet: facet,
                    fixedConnection: fixedConnection,
                    identity: identity,
                    invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,

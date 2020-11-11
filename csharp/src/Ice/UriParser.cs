@@ -312,6 +312,10 @@ namespace ZeroC.Ice
                     }
                     proxyOptions.Relative = bool.Parse(value);
                 }
+                else if (name == "fixed")
+                {
+                    throw new FormatException("cannot create or recreate a fixed proxy from a URI");
+                }
                 else if (endpointOptions == null)
                 {
                     throw new FormatException($"the ice URI scheme does not support option `{name}'");

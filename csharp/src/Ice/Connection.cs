@@ -143,11 +143,12 @@ namespace ZeroC.Ice
         /// for example because of firewalls. In this case, the server would create a proxy using an already
         /// established connection from the client.</summary>
         /// <param name="identity">The identity for which a proxy is to be created.</param>
+        /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
-        /// <returns>A proxy that matches the given identity and uses this connection.</returns>
-        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            factory(new Reference(this, identity));
+        /// <returns>A proxy that matches the given identity and facet, and uses this connection.</returns>
+        public T CreateProxy<T>(Identity identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            factory(new Reference(this, identity, facet));
 
         /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
         /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
