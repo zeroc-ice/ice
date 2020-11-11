@@ -18,7 +18,7 @@ namespace ZeroC.Ice
 
             if (obj is WSConnector wsConnector)
             {
-                if (Endpoint["resource"] != wsConnector.Endpoint["resource"])
+                if (((WSEndpoint)Endpoint).Resource != ((WSEndpoint)wsConnector.Endpoint).Resource)
                 {
                     return false;
                 }

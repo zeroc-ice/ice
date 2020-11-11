@@ -17,7 +17,7 @@ namespace ZeroC.Ice
 
         /// <summary>A URI specifying the resource associated with this endpoint. The value is passed as the target for
         /// GET in the WebSocket upgrade request.</summary>
-        private string Resource => Data.Options.Length > 0 ? Data.Options[0] : "/";
+        internal string Resource => Data.Options.Length > 0 ? Data.Options[0] : "/";
 
         protected internal override bool HasOptions => Data.Options.Length > 0 || base.HasOptions;
 

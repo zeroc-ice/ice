@@ -8,6 +8,22 @@ namespace ZeroC.Ice
 {
     internal static class ExceptionExtensions
     {
+        internal static RetryPolicy GetRetryPolicy(this Exception exception, bool isIdempotent, bool sent)
+        {
+            RetryPolicy retryPolicy = RetryPolicy.NoRetry;
+            if (exception is TransportException transportException)
+            {
+                // Apply transport exception retry policy if the request is idempotent, the request was not sent or
+                // the connection was gracefully closed by the peer.
+                var closedException = exception as ConnectionClosedException;
+                if ((closedException?.IsClosedByPeer ?? false) || isIdempotent || !sent)
+                {
+                    retryPolicy = transportException.RetryPolicy;
+                }
+            }
+            return retryPolicy;
+        }
+
         /// <summary>This method tries to distinguish connection loss error conditions from other error conditions.
         /// It's a bit tedious since it's difficult to have an exhaustive list of errors that match this condition.
         /// An alternative would be to change the transports to always throw ConnectionLostException on failure to

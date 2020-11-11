@@ -629,10 +629,7 @@ namespace ZeroC.Ice
             return connection;
         }
 
-        internal async ValueTask<(Connection? Connection,
-                                  bool Cached,
-                                  IReadOnlyList<Endpoint> Endpoints,
-                                  List<Connector>? Connectors)> GetExistingConnectionAsync(CancellationToken cancel)
+        internal async ValueTask<(Connection? Connection, bool Cached, IReadOnlyList<Endpoint> Endpoints, List<Connector>? Connectors)> GetExistingConnectionAsync(CancellationToken cancel)
         {
             Connection? connection = GetCachedConnection();
             bool cached = false;
@@ -904,7 +901,10 @@ namespace ZeroC.Ice
 
                         // Compute retry policy based on the exception or response retry policy, whether or not the connection
                         // is established or the request sent and idempotent
-                        RetryPolicy retryPolicy = GetRetryPolicy(reference, response, exception, sent, request.IsIdempotent);
+                        Debug.Assert(response != null || exception != null);
+                        RetryPolicy retryPolicy =
+                            response?.GetRetryPolicy(reference) ??
+                            exception!.GetRetryPolicy(sent, request.IsIdempotent);
 
                         if (retryPolicy == RetryPolicy.OtherReplica)
                         {
@@ -1046,39 +1046,6 @@ namespace ZeroC.Ice
                     sb.Append("\nexception = remote exception");
                 }
                 proxy.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
-            }
-
-            RetryPolicy GetRetryPolicy(
-                Reference reference,
-                IncomingResponseFrame? response,
-                Exception? exception,
-                bool sent,
-                bool isIdempotent)
-            {
-                RetryPolicy retryPolicy = RetryPolicy.NoRetry;
-                if (exception is TransportException transportException)
-                {
-                    // Apply transport exception retry policy if the request is idempotent, the request was not sent or
-                    // the connection was gracefully closed by the peer.
-                    var closedException = exception as ConnectionClosedException;
-                    if ((closedException?.IsClosedByPeer ?? false) || isIdempotent || !sent)
-                    {
-                        retryPolicy = transportException.RetryPolicy;
-                    }
-                }
-                else if (response != null)
-                {
-                    if (response.Encoding == Encoding.V11)
-                    {
-                        retryPolicy = Ice1Definitions.GetRetryPolicy(response, reference);
-                    }
-                    else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
-                                                                out ReadOnlyMemory<byte> value))
-                    {
-                        retryPolicy = value.Read(istr => new RetryPolicy(istr));
-                    }
-                }
-                return retryPolicy;
             }
         }
 
@@ -1690,7 +1657,6 @@ namespace ZeroC.Ice
                 }
                 else if (LocatorInfo != null)
                 {
-                    // TODO: cache and send the new location with requests
                     (endpoints, cached) =
                         await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
                 }
@@ -1705,29 +1671,17 @@ namespace ZeroC.Ice
                     return false;
                 }
 
-                // Filter out based on InvocationMode and IsDatagram
-                switch (InvocationMode)
+                // Check if the endpoint is compatible with the proxy invocation mode, Twoway and Oneway invocation
+                // modes require a non datagram endpoint, Datagram invocation mode requires a datagram endpoint, the
+                // other invocation modes (BatchOneway and BatchDagram) are not supported.
+                if (InvocationMode switch
                 {
-                    case InvocationMode.Twoway:
-                    case InvocationMode.Oneway:
-                    case InvocationMode.BatchOneway:
-                        if (endpoint.IsDatagram)
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case InvocationMode.Datagram:
-                    case InvocationMode.BatchDatagram:
-                        if (!endpoint.IsDatagram)
-                        {
-                            return false;
-                        }
-                        break;
-
-                    default:
-                        Debug.Assert(false);
-                        return false;
+                    InvocationMode.Twoway or InvocationMode.Oneway => endpoint.IsDatagram,
+                    InvocationMode.Datagram => !endpoint.IsDatagram,
+                    _ => true
+                })
+                {
+                    return false;
                 }
 
                 // If PreferNonSecure is false, filter out all non-secure endpoints
@@ -1740,7 +1694,7 @@ namespace ZeroC.Ice
                 filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
             }
 
-            endpoints = filteredEndpoints.ToArray();
+            endpoints = filteredEndpoints.ToImmutableArray();
             if (endpoints.Count == 0)
             {
                 throw new NoEndpointException(ToString());

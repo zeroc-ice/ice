@@ -1,18 +1,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Net;
 
 namespace ZeroC.Ice
 {
     internal class TcpConnector : Connector
     {
+        public override Endpoint Endpoint => _endpoint;
+
         private readonly EndPoint _addr;
         private readonly TcpEndpoint _endpoint;
         private readonly int _hashCode;
         private readonly INetworkProxy? _proxy;
-
-        public override Endpoint Endpoint => _endpoint;
 
         public override Connection Connect(string connectionId)
         {

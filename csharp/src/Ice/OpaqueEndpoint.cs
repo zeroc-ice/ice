@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -79,7 +80,7 @@ namespace ZeroC.Ice
         }
 
         public override ValueTask<IEnumerable<Connector>> ConnectorsAsync(CancellationToken cancel) =>
-            new ValueTask<IEnumerable<Connector>>(new List<Connector>());
+            new ValueTask<IEnumerable<Connector>>(ImmutableArray<Connector>.Empty);
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();

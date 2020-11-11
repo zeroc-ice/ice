@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -61,7 +62,7 @@ namespace ZeroC.Ice
                 AllowSynchronousContinuations = true
             };
             _channel = Channel.CreateUnbounded<(long, ColocatedChannelWriter, ColocatedChannelReader)>(options);
-            _connectors = new Connector[] { new ColocatedConnector(this, _channel.Writer) };
+            _connectors = ImmutableArray.Create(new ColocatedConnector(this, _channel.Writer));
         }
     }
 }

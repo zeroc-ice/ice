@@ -12,11 +12,12 @@ namespace ZeroC.Ice
     /// <summary>The IConnector implementation for the colocated transport.</summary>
     internal class ColocatedConnector : Connector
     {
+        public override Endpoint Endpoint => _endpoint;
+
         private readonly ColocatedEndpoint _endpoint;
         private long _nextId;
         private readonly ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> _writer;
 
-        public override Endpoint Endpoint => _endpoint;
         public override Connection Connect(string connectionId)
         {
             var readerOptions = new UnboundedChannelOptions

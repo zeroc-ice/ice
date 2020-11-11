@@ -132,7 +132,7 @@ namespace ZeroC.Ice
             IReadOnlyList<Connector> excludedConnectors,
             CancellationToken cancel)
         {
-            // Purge expired hint failures
+            // Purge expired transport failures
             DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
             foreach ((Connector connector, DateTime date) in _transportFailures)
             {
