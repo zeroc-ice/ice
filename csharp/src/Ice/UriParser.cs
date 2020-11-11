@@ -301,10 +301,7 @@ namespace ZeroC.Ice
                 }
                 else if (endpointOptions == null && name == "relative")
                 {
-                    if (pureEndpoints)
-                    {
-                        throw new FormatException($"relative is not a valid option for endpoint `{uriString}'");
-                    }
+                    // endpointOptions == null implies ice scheme and !pureEndpoints, see above.
                     if (proxyOptions.Relative != null)
                     {
                         throw new FormatException($"multiple relative options in `{uriString}'");
