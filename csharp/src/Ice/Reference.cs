@@ -1096,24 +1096,10 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        return new Reference(source.IsConnectionCached,
-                                             source.Communicator,
-                                             source.ConnectionId,
-                                             source.Context,
-                                             proxyData.Encoding ?? Encoding.V20,
-                                             source.Endpoints,
-                                             proxyData.Facet ?? "",
-                                             proxyData.Identity,
-                                             invocationInterceptors: source._invocationInterceptors,
-                                             source.InvocationMode,
-                                             source.InvocationTimeout,
-                                             location,
-                                             source.LocatorCacheTimeout,
-                                             source.LocatorInfo,
-                                             source.PreferNonSecure,
-                                             protocol,
-                                             source.IsRelative,
-                                             source.RouterInfo);
+                        return source.Clone(encoding: proxyData.Encoding ?? Encoding.V20,
+                                            facet: proxyData.Facet ?? "",
+                                            identity: proxyData.Identity,
+                                            location: location);
                     }
                 }
                 else
