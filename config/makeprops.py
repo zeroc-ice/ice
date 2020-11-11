@@ -486,15 +486,15 @@ class CSPropertyHandler(PropertyHandler):
         return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
-        self.srcFile.write("             new (@\"^%s\.%s$\", deprecated: true),\n" % (self.currentSection, \
+        self.srcFile.write("             new(@\"^%s\.%s$\", deprecated: true),\n" % (self.currentSection, \
                 self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
-        self.srcFile.write("             new (@\"^%s\.%s$\", deprecated: true, deprecatedBy: @\"%s\"),\n" % \
+        self.srcFile.write("             new(@\"^%s\.%s$\", deprecated: true, deprecatedBy: @\"%s\"),\n" % \
                 (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
-        self.srcFile.write("             new (@\"^%s\.%s$\"),\n" % (self.currentSection, \
+        self.srcFile.write("             new(@\"^%s\.%s$\"),\n" % (self.currentSection, \
                 self.fix(propertyName)))
 
     def newSection(self):
