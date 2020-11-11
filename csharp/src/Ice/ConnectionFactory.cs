@@ -97,7 +97,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
+                // Try to find a connection to one of the given connectors. Ignore the endpoint compression flag to
                 // lookup for the connection.
                 foreach (Connector connector in connectors)
                 {
@@ -110,7 +110,8 @@ namespace ZeroC.Ice
                             lock (_mutex)
                             {
                                 // If the connection was established for another endpoint but to the same connector,
-                                // we ensure to also associate the connection with this endpoint.
+                                // we ensure to also associate the connection with this endpoint. Two connectors can
+                                // be equal and contain different endpoints.
                                 if (!connection.Endpoints.Contains(connector.Endpoint))
                                 {
                                     connection.Endpoints.Add(connector.Endpoint);
