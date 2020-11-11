@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Threading;
-using Test;
 
 namespace ZeroC.IceGrid.Test.Simple
 {

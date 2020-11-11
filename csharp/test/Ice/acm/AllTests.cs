@@ -286,7 +286,7 @@ namespace ZeroC.Ice.Test.ACM
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!connection.IsActive);
                 }
-           }
+            }
         }
 
         private class HeartbeatOnIdleTest : TestCase
