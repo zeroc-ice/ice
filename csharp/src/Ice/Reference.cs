@@ -1037,14 +1037,15 @@ namespace ZeroC.Ice
 
                 if (proxyKind == ProxyKind20.IndirectRelative)
                 {
-                    if (protocol == Protocol.Ice1)
-                    {
-                        throw new InvalidDataException("received a relative ice1 proxy");
-                    }
-
                     if (istr.Connection != null)
                     {
                         Communicator communicator = istr.Connection!.Communicator;
+
+                        if (istr.Connection!.Protocol != protocol)
+                        {
+                            throw new InvalidDataException(
+                                $"received a relative proxy with invalid protocol {protocol.GetName()}");
+                        }
 
                         // TODO: location is missing
                         return new Reference(context: communicator.CurrentContext,
@@ -1066,9 +1067,10 @@ namespace ZeroC.Ice
                                 "cannot read a relative proxy from InputStream created without a connection or proxy");
                         }
 
-                        if (source.Protocol == Protocol.Ice1)
+                        if (source.Protocol != protocol)
                         {
-                            throw new InvalidDataException("received a relative proxy from a call on an ice1 proxy");
+                            throw new InvalidDataException(
+                                $"received a relative proxy with invalid protocol {protocol.GetName()}");
                         }
 
                         if (proxyData.Location?.Length > 1)
@@ -1086,7 +1088,8 @@ namespace ZeroC.Ice
                             }
                             else
                             {
-                                var builder = ImmutableArray.CreateBuilder<string>(location.Count);
+                                ImmutableArray<string>.Builder builder =
+                                    ImmutableArray.CreateBuilder<string>(location.Count);
                                 builder.AddRange(location.SkipLast(1));
                                 builder.Add(proxyData.Location[0]);
                                 location = builder.ToImmutable();
@@ -1380,11 +1383,6 @@ namespace ZeroC.Ice
                     else if (newEndpoints?.Count > 0)
                     {
                         newLocation = ImmutableArray<string>.Empty; // make sure the clone's location is empty
-                    }
-
-                    if (relative ?? false)
-                    {
-                        throw new ArgumentException("an ice1 proxy cannot be relative", nameof(relative));
                     }
                 }
 

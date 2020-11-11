@@ -947,11 +947,12 @@ namespace ZeroC.Ice.Test.Proxy
                 output.WriteLine("ok");
             }
 
-            if (!ice1)
+            output.Write("testing relative proxies... ");
             {
-                output.Write("testing relative proxies... ");
+                // The Clone(encoding: Encoding.V20) are only for ice1; with ice2, it's the default encoding. We need
+                // to marshal all relative proxies with the 2.0 encoding.
 
-                using ObjectAdapter oa = communicator.CreateObjectAdapter();
+                using ObjectAdapter oa = communicator.CreateObjectAdapter(protocol: helper.Protocol);
                 cl.GetConnection().Adapter = oa;
                 ICallbackPrx callback = oa.AddWithUUID(
                     new Callback((relativeTest, current, cancel) =>
@@ -959,16 +960,16 @@ namespace ZeroC.Ice.Test.Proxy
                                     TestHelper.Assert(relativeTest.IsFixed);
                                     return relativeTest.DoIt(cancel: cancel);
                                  }),
-                    ICallbackPrx.Factory).Clone(relative: true);
+                    ICallbackPrx.Factory).Clone(encoding: Encoding.V20, relative: true);
                 TestHelper.Assert(callback.IsRelative);
                 callback.IcePing(); // colocated call
 
-                IRelativeTestPrx relativeTest = cl.OpRelative(callback);
+                IRelativeTestPrx relativeTest = cl.Clone(encoding: Encoding.V20).OpRelative(callback);
                 TestHelper.Assert(relativeTest.Endpoints == cl.Endpoints); // reference equality
                 TestHelper.Assert(!relativeTest.IsRelative);
                 TestHelper.Assert(relativeTest.DoIt() == 2);
-                output.WriteLine("ok");
             }
+            output.WriteLine("ok");
 
             output.Write("testing ice_fixed... ");
             output.Flush();
