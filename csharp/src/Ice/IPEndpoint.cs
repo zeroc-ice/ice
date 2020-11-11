@@ -108,6 +108,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
+                // TODO trace failure here
                 observer?.Failed(ex.GetType().FullName ?? "System.Exception");
                 throw;
             }

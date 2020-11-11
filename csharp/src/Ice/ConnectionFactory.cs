@@ -142,14 +142,17 @@ namespace ZeroC.Ice
                 }
             }
 
-            // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
-            // resolve an endpoint hostname into connector addresses.
+            // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to resolve
+            // an endpoint hostname into connector addresses.
             var connectors = new List<Connector>();
             foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
-                    IEnumerable<Connector> endpointConnectors = await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
+                    // TODO should we return a single connector from ConnectorsAsync corresponding with the first
+                    // DNS address?
+                    IEnumerable<Connector> endpointConnectors =
+                        await endpoint.ConnectorsAsync(cancel).ConfigureAwait(false);
                     foreach (Connector connector in endpointConnectors)
                     {
                         if (!excludedConnectors.Contains(connector))
@@ -162,23 +165,8 @@ namespace ZeroC.Ice
                 {
                     throw; // No need to continue
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    bool last = endpoint == endpoints[endpoints.Count - 1];
-
-                    TraceLevels traceLevels = _communicator.TraceLevels;
-                    if (traceLevels.Transport >= 2)
-                    {
-                        _communicator.Logger.Trace(TraceLevels.TransportCategory, last ?
-                            $"couldn't resolve endpoint host and no more endpoints to try\n{ex}" :
-                            $"couldn't resolve endpoint host, trying next endpoint\n{ex}");
-                    }
-
-                    if (connectors.Count == 0 && last)
-                    {
-                        // If this was the last endpoint and we didn't manage to get a single connector, we're done.
-                        throw;
-                    }
                 }
             }
 
