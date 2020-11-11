@@ -666,8 +666,8 @@ namespace ZeroC.Ice
                     {
                         // This will throw if no connectors can be computed.
 
-                        // TODO retry with fresh endpoints if ComputeConnectorsAsync throws and we are using
-                        // cached endpoints.
+                        // TODO retry with fresh endpoints if ComputeConnectorsAsync throws and we are using cached
+                        // endpoints.
                         connectors = await connectionFactory.ComputeConnectorsAsync(
                             this,
                             endpoints,
@@ -875,8 +875,12 @@ namespace ZeroC.Ice
                             // TODO report RemoteException?
                             observer?.RemoteException();
                         }
-                        catch (NoEndpointException ex) when (!cached && (connectors == null || connectors.Count == 0))
+                        catch (NoEndpointException ex) when (!cached)
                         {
+                            // If we get NoEndpointException while using non cached endpoints, either all connectors
+                            // have been excluded or the proxy has no endpoints. we cannot retry, return here to
+                            // preserve any previous exceptions that might have been throw.
+                            Debug.Assert(connectors == null || connectors.Count == 0);
                             childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                             return response ?? throw exception ?? ex;
                         }
@@ -904,15 +908,16 @@ namespace ZeroC.Ice
 
                         if (retryPolicy == RetryPolicy.OtherReplica)
                         {
-                            // Never try again this endpoint if we got an exception with the OtherReplica policy
-                            excludedConnectors ??= new ();
+                            // Add the current connector to the list of excluded connectors
                             if (connectors != null)
                             {
+                                excludedConnectors ??= new ();
                                 excludedConnectors.Add(connectors[nextConnector]);
                                 connectors.RemoveAt(nextConnector);
                             }
                             else if (connection?.Connector != null)
                             {
+                                excludedConnectors ??= new ();
                                 excludedConnectors.Add(connection.Connector);
                             }
                         }
@@ -921,16 +926,17 @@ namespace ZeroC.Ice
                         {
                             if (connection == null && retryPolicy != RetryPolicy.OtherReplica)
                             {
-                                // If connection establishment failed, try the next endpoint
+                                // If connection establishment failed, try the next connector
                                 nextConnector = ++nextConnector % connectors.Count;
                             }
 
                             if (connectors.Count == 0 || nextConnector == 0)
                             {
-                                // It failed on the last endpoint, we tried all the endpoints at this point.
+                                // If the connector set is empty because all connectors has been excluded, or next
+                                // connector is 0, means we already tried all connectors.
                                 if (cached)
                                 {
-                                    // If the endpoints were cached, we clear the endpoints to trigger a new endpoint lookup.
+                                    // If the endpoints were cached, we clear the connectors to trigger a new endpoint lookup.
                                     connectors = null;
                                     nextConnector = 0;
                                 }
@@ -944,15 +950,13 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        // Check if we can retry, we cannot retry the request if we have consume all retry attempts,
-                        // the retry policy doesn't allow retries, the request was already released, a fixed
-                        // reference receives an exception with OtherReplica retry, or there is no more connectors
-                        // to try.
+                        // Check if we can retry, we cannot retry the request if we have consumed all retry attempts,
+                        // the retry policy doesn't allow retries, the request was already released or a fixed
+                        // reference receives an exception with OtherReplica retry.
                         if (retryAttempt == reference.Communicator.RetryMaxAttempts ||
                             retryPolicy == RetryPolicy.NoRetry ||
                             (sent && releaseRequestAfterSent) ||
-                            (reference.IsFixed && retryPolicy == RetryPolicy.OtherReplica) ||
-                            (triedAllConnectors && connectors != null && connectors.Count == 0))
+                            (reference.IsFixed && retryPolicy == RetryPolicy.OtherReplica))
                         {
                             if (exception != null)
                             {
@@ -1659,6 +1663,7 @@ namespace ZeroC.Ice
         private async ValueTask<(bool Cached, IReadOnlyList<Endpoint> Endpoints)> ComputeEndpointsAsync(
             CancellationToken cancel)
         {
+            Debug.Assert(!IsFixed);
             // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
             // case we use the colocated endpoint.
             if (InvocationMode != InvocationMode.Datagram &&
