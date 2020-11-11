@@ -17,7 +17,6 @@ namespace ZeroC.Ice
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
             internal Protocol? Protocol;
-
             internal bool? Relative;
         }
 

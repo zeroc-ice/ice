@@ -35,9 +35,9 @@ namespace ZeroC.Ice
         internal TimeSpan InvocationTimeout { get; }
         internal bool IsConnectionCached { get; }
 
+        internal bool IsFixed { get; }
         internal bool IsIndirect => Endpoints.Count == 0 && !IsFixed;
 
-        internal bool IsFixed { get; }
         internal bool IsOneway => InvocationMode != InvocationMode.Twoway;
 
         internal bool IsRelative { get; }
@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         private int _hashCode;
         private readonly IReadOnlyList<InvocationInterceptor> _invocationInterceptors;
 
-        private volatile Connection? _connection; // readonly for fixed reference
+        private volatile Connection? _connection; // readonly when IsFixed is true
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>

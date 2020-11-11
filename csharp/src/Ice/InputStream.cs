@@ -100,7 +100,7 @@ namespace ZeroC.Ice
         /// exception.</summary>
         public Communicator? Communicator { get; }
 
-        /// <summary>The connection, used when unmarshaling a relative proxy into a fixed proxy.</summary>
+        /// <summary>The connection, used when reading a relative proxy into a fixed proxy.</summary>
         public Connection? Connection { get; }
 
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
@@ -110,7 +110,7 @@ namespace ZeroC.Ice
         /// <summary>The 0-based position (index) in the underlying buffer.</summary>
         internal int Pos { get; private set; }
 
-        /// <summary>The reference, used when unmarshaling a relative proxy into a direct or indirect proxy.</summary>
+        /// <summary>The reference, used when reading a relative proxy into a direct or indirect proxy.</summary>
         internal Reference? Reference { get; }
 
         /// <summary>The sliced-off slices held by the current instance, if any.</summary>
