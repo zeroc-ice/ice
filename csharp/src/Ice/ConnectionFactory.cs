@@ -71,8 +71,6 @@ namespace ZeroC.Ice
 
         internal OutgoingConnectionFactory(Communicator communicator) => _communicator = communicator;
 
-        internal void AddTransportFailure(Connector connector) => _transportFailures[connector] = DateTime.Now;
-
         internal Connection? GetConnection(IReadOnlyList<Endpoint> endpoints, string connectionId)
         {
             lock (_mutex)
