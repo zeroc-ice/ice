@@ -1684,6 +1684,11 @@ namespace ZeroC.Ice
 
             if (ostr.Encoding == Encoding.V11)
             {
+                if (IsRelative)
+                {
+                    throw new NotSupportedException("cannot marshal a relative proxy with the 1.1 encoding");
+                }
+
                 Identity.IceWrite(ostr);
                 ostr.WriteProxyData11(Facet, InvocationMode, Protocol, Encoding);
                 ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
