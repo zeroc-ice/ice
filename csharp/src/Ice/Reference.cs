@@ -1037,25 +1037,23 @@ namespace ZeroC.Ice
 
                 if (proxyKind == ProxyKind20.IndirectRelative)
                 {
-                    if (istr.Connection != null)
+                    if (istr.Connection is Connection connection)
                     {
-                        Communicator communicator = istr.Connection!.Communicator;
-
-                        if (istr.Connection!.Protocol != protocol)
+                        if (connection.Protocol != protocol)
                         {
                             throw new InvalidDataException(
                                 $"received a relative proxy with invalid protocol {protocol.GetName()}");
                         }
 
                         // TODO: location is missing
-                        return new Reference(context: communicator.CurrentContext,
+                        return new Reference(context: connection.Communicator.CurrentContext,
                                              encoding: proxyData.Encoding ?? Encoding.V20,
                                              facet: proxyData.Facet ?? "",
-                                             fixedConnection: istr.Connection!,
+                                             fixedConnection: connection,
                                              identity: proxyData.Identity,
                                              invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
                                              invocationMode: InvocationMode.Twoway,
-                                             invocationTimeout: communicator.DefaultInvocationTimeout);
+                                             invocationTimeout: connection.Communicator.DefaultInvocationTimeout);
                     }
                     else
                     {
@@ -1694,7 +1692,7 @@ namespace ZeroC.Ice
                 if (IsRelative && location.Count > 1)
                 {
                     // Reduce location to its last segment
-                    location = ImmutableArray.Create(location[location.Count - 1]);
+                    location = ImmutableArray.Create(location[^1]);
                 }
 
                 ostr.WriteProxyData20(Identity, Protocol, Encoding, location, InvocationMode, Facet);

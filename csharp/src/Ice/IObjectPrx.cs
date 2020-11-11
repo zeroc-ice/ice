@@ -151,8 +151,8 @@ namespace ZeroC.Ice
         public bool IsConnectionCached => IceReference.IsConnectionCached;
 
         /// <summary>Indicates whether or not this proxy is bound to a connection.</summary>
-        /// <value>True when this proxy is bound to an incoming or an outgoing connection. Such a proxy has no endpoint.
-        /// Otherwise, false.</value>
+        /// <value>True when this proxy is bound to a connection. Such a proxy has no endpoint. Otherwise, false.
+        /// </value>
         public bool IsFixed => IceReference.IsFixed;
 
         /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
