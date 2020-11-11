@@ -1702,17 +1702,10 @@ namespace ZeroC.Ice
                     IsRelative ? ProxyKind20.IndirectRelative : ProxyKind20.Indirect);
 
                 IReadOnlyList<string> location = Location;
-                if (IsRelative && location.Count > 0)
+                if (IsRelative && location.Count > 1)
                 {
-                    if (ostr.ClearRelativeProxyLocation)
-                    {
-                        location = ImmutableArray<string>.Empty;
-                    }
-                    else if (location.Count > 1)
-                    {
-                        // Reduce location to its last segment
-                        location = ImmutableArray.Create(location[location.Count - 1]);
-                    }
+                    // Reduce location to its last segment
+                    location = ImmutableArray.Create(location[location.Count - 1]);
                 }
 
                 ostr.WriteProxyData20(Identity, Protocol, Encoding, location, InvocationMode, Facet);

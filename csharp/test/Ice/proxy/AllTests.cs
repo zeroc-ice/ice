@@ -951,9 +951,15 @@ namespace ZeroC.Ice.Test.Proxy
             {
                 output.Write("testing relative proxies... ");
 
-                ObjectAdapter oa = communicator.CreateObjectAdapter();
+                using ObjectAdapter oa = communicator.CreateObjectAdapter();
                 cl.GetConnection().Adapter = oa;
-                ICallbackPrx callback = oa.AddWithUUID(new Callback(), ICallbackPrx.Factory).Clone(relative: true);
+                ICallbackPrx callback = oa.AddWithUUID(
+                    new Callback((relativeTest, current, cancel) =>
+                                 {
+                                    TestHelper.Assert(relativeTest.IsFixed);
+                                    return relativeTest.DoIt(cancel: cancel);
+                                 }),
+                    ICallbackPrx.Factory).Clone(relative: true);
                 TestHelper.Assert(callback.IsRelative);
                 callback.IcePing(); // colocated call
 
@@ -961,7 +967,6 @@ namespace ZeroC.Ice.Test.Proxy
                 TestHelper.Assert(relativeTest.Endpoints == cl.Endpoints); // reference equality
                 TestHelper.Assert(!relativeTest.IsRelative);
                 TestHelper.Assert(relativeTest.DoIt() == 2);
-                oa.Dispose();
                 output.WriteLine("ok");
             }
 
@@ -1183,12 +1188,15 @@ namespace ZeroC.Ice.Test.Proxy
         }
     }
 
+    internal delegate int CallbackDelegate(IRelativeTestPrx relativeTest, Current current, CancellationToken cancel);
+
     internal sealed class Callback : ICallback
     {
-        public int Op(IRelativeTestPrx relativeTest, Current current, CancellationToken cancel)
-        {
-            TestHelper.Assert(relativeTest.IsFixed);
-            return relativeTest.DoIt(cancel: cancel);
-        }
+        private CallbackDelegate _delegate;
+
+        public int Op(IRelativeTestPrx relativeTest, Current current, CancellationToken cancel) =>
+            _delegate(relativeTest, current, cancel);
+
+        internal Callback(CallbackDelegate @delegate) => _delegate = @delegate;
     }
 }
