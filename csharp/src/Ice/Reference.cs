@@ -903,20 +903,21 @@ namespace ZeroC.Ice
                         Debug.Assert(response != null || exception != null);
                         RetryPolicy retryPolicy =
                             response?.GetRetryPolicy(reference) ??
-                            exception!.GetRetryPolicy(sent, request.IsIdempotent);
+                            exception!.GetRetryPolicy(request.IsIdempotent, sent);
 
+                        // With the retry-policy OtherReplica we add the current connector to the list of excluded
+                        // connectors, this prevents the connector to be tried again during the current retry sequence.
                         if (retryPolicy == RetryPolicy.OtherReplica)
                         {
-                            // Add the current connector to the list of excluded connectors
                             if (connectors != null)
                             {
-                                excludedConnectors ??= new ();
+                                excludedConnectors ??= new();
                                 excludedConnectors.Add(connectors[nextConnector]);
                                 connectors.RemoveAt(nextConnector);
                             }
                             else if (connection?.Connector != null)
                             {
-                                excludedConnectors ??= new ();
+                                excludedConnectors ??= new();
                                 excludedConnectors.Add(connection.Connector);
                             }
                         }
@@ -949,7 +950,7 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        // Check if we can retry, we cannot retry if we have consumed all retry attempts, the retry
+                        // Check if we can retry, we cannot retry if we have consumed all attempts, the current retry
                         // policy doesn't allow retries, the request was already released, there are no more connectors
                         // or a fixed reference receives an exception with OtherReplica retry.
                         if (retryAttempt == reference.Communicator.RetryMaxAttempts ||
@@ -981,8 +982,8 @@ namespace ZeroC.Ice
 
                         if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
                         {
-                            // The delay task can be canceled either by the user code using the provided
-                            // cancellation token or if the communicator is destroyed.
+                            // The delay task can be canceled either by the user code using the provided cancellation
+                            // token or if the communicator is destroyed.
                             using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                                 cancel,
                                 proxy.Communicator.CancellationToken);
