@@ -347,10 +347,7 @@ namespace ZeroC.Ice
                 hash.Add(Encoding);
                 hash.Add(Facet);
                 hash.Add(Identity);
-                foreach (InvocationInterceptor interceptor in _invocationInterceptors)
-                {
-                    hash.Add(interceptor);
-                }
+                hash.Add(_invocationInterceptors.GetSequenceHashCode());
                 hash.Add(InvocationMode);
                 hash.Add(InvocationTimeout);
                 hash.Add(Protocol);
@@ -362,25 +359,13 @@ namespace ZeroC.Ice
                 else
                 {
                     hash.Add(ConnectionId);
-                    foreach (Endpoint e in Endpoints)
-                    {
-                        hash.Add(e);
-                    }
+                    hash.Add(Endpoints.GetSequenceHashCode());
                     hash.Add(IsConnectionCached);
-                    foreach (string s in Location)
-                    {
-                        hash.Add(s);
-                    }
+                    hash.Add(Location.GetSequenceHashCode());
                     hash.Add(LocatorCacheTimeout);
-                    if (LocatorInfo != null)
-                    {
-                        hash.Add(LocatorInfo);
-                    }
+                    hash.Add(LocatorInfo);
                     hash.Add(PreferNonSecure);
-                    if (RouterInfo != null)
-                    {
-                        hash.Add(RouterInfo);
-                    }
+                    hash.Add(RouterInfo);
                 }
 
                 int hashCode = hash.ToHashCode();

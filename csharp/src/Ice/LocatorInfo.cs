@@ -580,16 +580,8 @@ namespace ZeroC.Ice
                 (Location Location, Protocol Protocol) rhs) =>
                 lhs.Location.SequenceEqual(rhs.Location) && lhs.Protocol == rhs.Protocol;
 
-            public int GetHashCode((Location Location, Protocol Protocol) obj)
-            {
-                var hash = new HashCode();
-                foreach (string s in obj.Location)
-                {
-                    hash.Add(s);
-                }
-                hash.Add(obj.Protocol);
-                return hash.ToHashCode();
-            }
+            public int GetHashCode((Location Location, Protocol Protocol) obj) =>
+                HashCode.Combine(obj.Location.GetSequenceHashCode(), obj.Protocol);
         }
     }
 }
