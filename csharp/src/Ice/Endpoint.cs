@@ -207,46 +207,6 @@ namespace ZeroC.Ice
         }
     }
 
-    // Extends EndpointData with the correct Equals and GetHashCode implementation.
-    public readonly partial struct EndpointData : IEquatable<EndpointData>
-    {
-        /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
-        /// <param name="lhs">The left hand side operand.</param>
-        /// <param name="rhs">The right hand side operand.</param>
-        /// <returns><c>true</c> if the operands are equal, otherwise <c>false</c>.</returns>
-        public static bool operator ==(EndpointData lhs, EndpointData rhs) => lhs.Equals(rhs);
-
-        /// <summary>The inequality operator != returns true if its operands are not equal, false otherwise.</summary>
-        /// <param name="lhs">The left hand side operand.</param>
-        /// <param name="rhs">The right hand side operand.</param>
-        /// <returns><c>true</c> if the operands are not equal, otherwise <c>false</c>.</returns>
-        public static bool operator !=(EndpointData lhs, EndpointData rhs) => !lhs.Equals(rhs);
-
-        /// <inheritdoc/>
-        public readonly bool Equals(EndpointData other) =>
-            Transport == other.Transport &&
-            Host == other.Host &&
-            Port == other.Port &&
-            Options.SequenceEqual(other.Options);
-
-        /// <inheritdoc/>
-        public readonly override bool Equals(object? other) => other is EndpointData value && Equals(value);
-
-        /// <inheritdoc/>
-        public readonly override int GetHashCode()
-        {
-            var hash = new HashCode();
-            hash.Add(Transport);
-            hash.Add(Host);
-            hash.Add(Port);
-            foreach (string option in Options)
-            {
-                hash.Add(option);
-            }
-            return hash.ToHashCode();
-        }
-    }
-
     public static class EndpointExtensions
     {
         /// <summary>Creates an endpoint from an <see cref="EndpointData"/> struct.</summary>

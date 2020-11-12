@@ -63,28 +63,6 @@ isDefaultInitialized(const MemberPtr& member, bool considerDefaultValue)
     return isValueType(member->type());
 }
 
-// Returns true when the members of the struct are not sequence or dictionary. Nested struct are explored as well.
-// A class member is considered OK: it uses the default reference equality or a custom equality provided by the user.
-bool
-isEquatable(const StructPtr& p)
-{
-    for (const auto& member : p->dataMembers())
-    {
-        auto type = unwrapIfOptional(member->type());
-
-        if (SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))
-        {
-            return false;
-        }
-        else if (auto st = StructPtr::dynamicCast(type); st && !isEquatable(st))
-        {
-            return false;
-        }
-        // else move on to the next member
-    }
-    return true;
-}
-
 string
 opFormatTypeToString(const OperationPtr& op)
 {
@@ -1808,12 +1786,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << "readonly ";
     }
 
-    _out << "partial struct " << name << " : ";
-    if (isEquatable(p))
-    {
-        _out << "global::System.IEquatable<" << name << ">, ";
-    }
-    _out << "ZeroC.Ice.IStreamableStruct";
+    _out << "partial struct " << name << " : global::System.IEquatable<" << name << ">, ZeroC.Ice.IStreamableStruct";
 
     _out << sb;
 
@@ -1843,12 +1816,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     MemberList dataMembers = p->dataMembers();
 
-    bool equatable = isEquatable(p);
-
-    if (equatable)
-    {
-        emitEqualityOperators(name);
-    }
+    emitEqualityOperators(name);
 
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
@@ -1897,9 +1865,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << eb;
 
-    if (equatable)
+    _out << sp;
+    _out << nl << "/// <inheritdoc/>";
+    _out << nl << "public readonly override bool Equals(object? other) => other is " << name
+         << " value && this.Equals(value);";
+
+    if (!p->hasMetadata("cs:custom-equals"))
     {
-        // Equals implementation
+        // Default implementation for Equals and GetHashCode
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
         _out << nl << "public readonly bool Equals(" << name << " other)";
@@ -1909,19 +1882,59 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << nl;
         for (auto q = dataMembers.begin(); q != dataMembers.end();)
         {
-            string mName = fixId(fieldName(*q));
-            TypePtr mType = (*q)->type();
+            string mName = fixId(fieldName(*q), Slice::ObjectType);
+            string lhs = "this." + mName;
+            string rhs = "other." + mName;
+
+            TypePtr mType = unwrapIfOptional((*q)->type());
 
             if (mType->isInterfaceType())
             {
-                _out << "ZeroC.Ice.IObjectPrx.Equals(this." << mName << ", other." << mName << ")";
+                _out << "ZeroC.Ice.IObjectPrx.Equals(" << lhs << ", " << rhs << ")";
+            }
+            else if (SequencePtr::dynamicCast(mType))
+            {
+                // We always check for null values because a default-initialized struct will have null fields even for
+                // non nullable fields.
+
+                if (dataMembers.size() > 1)
+                {
+                    _out << "(";
+                }
+                _out << lhs << " == " << rhs << " ||";
+                _out.inc();
+                _out << nl << "(" << lhs << " != null && " << rhs << " != null && ";
+                _out << "global::System.Linq.Enumerable.SequenceEqual(" << lhs << ", " << rhs << ")";
+                _out << ")";
+                if (dataMembers.size() > 1)
+                {
+                    _out << ")";
+                }
+                _out.dec();
+            }
+            else if (DictionaryPtr::dynamicCast(mType))
+            {
+                if (dataMembers.size() > 1)
+                {
+                    _out << "(";
+                }
+                _out << lhs << " == " << rhs << " ||";
+                _out.inc();
+                _out << nl << "(" << lhs << " != null && " << rhs << " != null && ";
+                _out << "global::ZeroC.Ice.DictionaryExtensions.DictionaryEqual(" << lhs << ", " << rhs << ")";
+                _out << ")";
+                if (dataMembers.size() > 1)
+                {
+                    _out << ")";
+                }
+                _out.dec();
             }
             else
             {
-                _out << "this." << mName << " == other." << mName;
+                _out << lhs << " == " << rhs;
             }
 
-            if(++q != dataMembers.end())
+            if (++q != dataMembers.end())
             {
                 _out << " &&" << nl;
             }
@@ -1934,17 +1947,31 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
-        _out << nl << "public readonly override bool Equals(object? other) => other is " << name
-             << " value && this.Equals(value);";
-
-        _out << sp;
-        _out << nl << "/// <inheritdoc/>";
         _out << nl << "public readonly override int GetHashCode()";
         _out << sb;
         _out << nl << "var hash = new global::System.HashCode();";
-        for(const auto& i : dataMembers)
+        for (const auto& dataMember : dataMembers)
         {
-            _out << nl << "hash.Add(this." << fixId(fieldName(i), Slice::ObjectType) << ");";
+            string obj = "this." + fixId(fieldName(dataMember), Slice::ObjectType);
+            TypePtr mType = unwrapIfOptional(dataMember->type());
+            if (SequencePtr::dynamicCast(mType))
+            {
+                _out << nl << "if (" << obj << " != null)";
+                _out << sb;
+                _out << nl << "hash.Add(global::ZeroC.Ice.EnumerableExtensions.GetSequenceHashCode(" << obj << "));";
+                _out << eb;
+            }
+            else if (DictionaryPtr::dynamicCast(mType))
+            {
+                _out << nl << "if (" << obj << " != null)";
+                _out << sb;
+                _out << nl << "hash.Add(global::ZeroC.Ice.DictionaryExtensions.GetDictionaryHashCode(" << obj << "));";
+                _out << eb;
+            }
+            else
+            {
+                _out << nl << "hash.Add(" << obj << ");";
+            }
         }
         _out << nl << "return hash.ToHashCode();";
         _out << eb;
