@@ -220,8 +220,8 @@ namespace ZeroC.Ice
         private protected override Connector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new WSConnector(this, addr, proxy);
 
-        internal override ITransceiver CreateTransceiver(Connector connector, EndPoint addr, INetworkProxy? proxy) =>
-            new WSTransceiver(Communicator, base.CreateTransceiver(connector, addr, proxy), Host, Resource, connector);
+        internal override ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy) =>
+            new WSTransceiver(Communicator, base.CreateTransceiver(addr, proxy), Host, Resource);
 
         internal override ITransceiver CreateTransceiver(Socket socket, string adapterName) =>
             new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName));

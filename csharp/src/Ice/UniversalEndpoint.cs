@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -61,7 +62,7 @@ namespace ZeroC.Ice
         public override bool IsLocal(Endpoint endpoint) => false;
 
         public override ValueTask<IEnumerable<Connector>> ConnectorsAsync(CancellationToken cancel) =>
-            new ValueTask<IEnumerable<Connector>>(new List<Connector>());
+            new ValueTask<IEnumerable<Connector>>(ImmutableList<Connector>.Empty);
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();

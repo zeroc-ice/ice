@@ -11,18 +11,9 @@ namespace ZeroC.Ice
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(this, obj))
+            if (base.Equals(obj) && obj is WSConnector wsConnector)
             {
-                return true;
-            }
-
-            if (obj is WSConnector wsConnector)
-            {
-                if (((WSEndpoint)Endpoint).Resource != ((WSEndpoint)wsConnector.Endpoint).Resource)
-                {
-                    return false;
-                }
-                return base.Equals(obj);
+                return ((WSEndpoint)Endpoint).Resource == ((WSEndpoint)wsConnector.Endpoint).Resource;
             }
             else
             {

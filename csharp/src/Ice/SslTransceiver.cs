@@ -21,7 +21,6 @@ namespace ZeroC.Ice
 
         private readonly string? _adapterName;
         private readonly Communicator _communicator;
-        private readonly Connector? _connector;
         private readonly SslEngine _engine;
         private readonly string? _host;
         private readonly bool _incoming;
@@ -178,12 +177,9 @@ namespace ZeroC.Ice
             Communicator communicator,
             ITransceiver underlying,
             string hostOrAdapterName,
-            bool incoming,
-            Connector? connector = null)
+            bool incoming)
         {
-            Debug.Assert(incoming || connector != null);
             _communicator = communicator;
-            _connector = connector;
             _engine = communicator.SslEngine;
             _underlying = underlying;
             _incoming = incoming;

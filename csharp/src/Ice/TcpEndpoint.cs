@@ -265,12 +265,12 @@ namespace ZeroC.Ice
         private protected override Connector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(Connector connector, EndPoint addr, INetworkProxy? proxy)
+        internal virtual ITransceiver CreateTransceiver(EndPoint addr, INetworkProxy? proxy)
         {
-            ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
+            ITransceiver transceiver = new TcpTransceiver(Communicator, addr, proxy, SourceAddress);
             if (IsSecure)
             {
-                transceiver = new SslTransceiver(Communicator, transceiver, Host, false, connector);
+                transceiver = new SslTransceiver(Communicator, transceiver, Host, false);
             }
             return transceiver;
         }

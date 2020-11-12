@@ -83,8 +83,7 @@ namespace ZeroC.Ice
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        if (connectionList.FirstOrDefault(connection => connection.IsActive)
-                            is Connection connection)
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                         {
                             return connection;
                         }
@@ -104,19 +103,15 @@ namespace ZeroC.Ice
                     if (_connectionsByConnector.TryGetValue((connector, connectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
-                        if (connectionList.FirstOrDefault(connection => connection.IsActive)
-                            is Connection connection)
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                         {
-                            lock (_mutex)
+                            // If the connection was established for another endpoint but to the same connector,
+                            // we ensure to also associate the connection with this endpoint. Two connectors can
+                            // be equal even if created from different endpoints.
+                            if (!connection.Endpoints.Contains(connector.Endpoint))
                             {
-                                // If the connection was established for another endpoint but to the same connector,
-                                // we ensure to also associate the connection with this endpoint. Two connectors can
-                                // be equal and contain different endpoints.
-                                if (!connection.Endpoints.Contains(connector.Endpoint))
-                                {
-                                    connection.Endpoints.Add(connector.Endpoint);
-                                    _connectionsByEndpoint.Add((connector.Endpoint, connectionId), connection);
-                                }
+                                connection.Endpoints.Add(connector.Endpoint);
+                                _connectionsByEndpoint.Add((connector.Endpoint, connectionId), connection);
                             }
                             return connection;
                         }
@@ -138,13 +133,15 @@ namespace ZeroC.Ice
             {
                 if (date <= expirationDate)
                 {
-                    _ = _transportFailures.TryRemove(connector, out DateTime _);
+                    _ = ((ICollection<KeyValuePair<Connector, DateTime>>)_transportFailures).Remove(
+                        new KeyValuePair<Connector, DateTime>(connector, date));
                 }
             }
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to resolve
             // an endpoint hostname into connector addresses.
             var connectors = new List<Connector>();
+            Endpoint last = endpoints[^1];
             foreach (Endpoint endpoint in endpoints)
             {
                 try
@@ -165,8 +162,13 @@ namespace ZeroC.Ice
                 {
                     throw; // No need to continue
                 }
-                catch (Exception)
+                catch
                 {
+                    // If this is the last endpoint and we don't have any connectors let the exception go throw
+                    if (ReferenceEquals(endpoint, last) && connectors.Count == 0)
+                    {
+                        throw;
+                    }
                 }
             }
 
@@ -213,9 +215,7 @@ namespace ZeroC.Ice
 
             return await connectTask.WaitAsync(cancel).ConfigureAwait(false);
 
-            async Task<Connection> PerformCreateConnectionAsync(
-                string connectionId,
-                Connector connector)
+            async Task<Connection> PerformCreateConnectionAsync(string connectionId, Connector connector)
             {
                 // Yield to ensure the code below is executed without the mutex locked.
                 await Task.Yield();
@@ -255,7 +255,10 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    _pending.Remove((connector, connectionId));
+                    lock (_mutex)
+                    {
+                        _pending.Remove((connector, connectionId));
+                    }
                     observer?.Detach();
                 }
             }
