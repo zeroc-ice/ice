@@ -158,11 +158,11 @@ namespace ZeroC.Ice
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal bool KeepAlive { get; }
-        internal INetworkProxy? NetworkProxy { get; }
-
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
         /// invocation. It must be a number greater than 0.</summary>
-        internal int RetryMaxAttempts { get; }
+        internal int MaxAttempts { get; }
+        internal INetworkProxy? NetworkProxy { get; }
+
         internal int RetryBufferSizeMax { get; }
         internal int RetryRequestSizeMax { get; }
         internal SlicOptions SlicOptions { get; }
@@ -526,13 +526,13 @@ namespace ZeroC.Ice
                 int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
                 IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
-                RetryMaxAttempts = GetPropertyAsInt("Ice.RetryMaxAttempts") ?? 5;
+                MaxAttempts = GetPropertyAsInt("Ice.MaxAttempts") ?? 5;
 
-                if (RetryMaxAttempts <= 0)
+                if (MaxAttempts <= 0)
                 {
-                    throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
+                    throw new InvalidConfigurationException($"Ice.MaxAttempts must be greater than 0");
                 }
-                RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
+                MaxAttempts = Math.Min(MaxAttempts, 5);
                 RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024 * 100;
                 RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
 

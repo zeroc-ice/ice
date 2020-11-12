@@ -76,12 +76,11 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
-                // lookup for the connection.
+                // Try to find a connection to one of the given endpoints.
                 foreach (Endpoint endpoint in endpoints)
                 {
                     if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
-                                                            out ICollection<Connection>? connectionList))
+                                                           out ICollection<Connection>? connectionList))
                     {
                         if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                         {

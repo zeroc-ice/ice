@@ -9,17 +9,10 @@ namespace ZeroC.Ice
     {
         private readonly int _hashCode;
 
-        public override bool Equals(object? obj)
-        {
-            if (base.Equals(obj) && obj is WSConnector wsConnector)
-            {
-                return ((WSEndpoint)Endpoint).Resource == ((WSEndpoint)wsConnector.Endpoint).Resource;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        private string Resource => ((WSEndpoint)Endpoint).Resource;
+
+        public override bool Equals(object? obj) =>
+            base.Equals(obj) && obj is WSConnector wsConnector && Resource == wsConnector.Resource;
 
         public override int GetHashCode() => _hashCode;
 
