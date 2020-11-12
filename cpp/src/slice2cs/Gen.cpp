@@ -1464,8 +1464,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     if (!hasBaseClass)
     {
-        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
-            << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
+        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(";
+        _out.inc();
+        _out << nl << "\"Microsoft.Performance\","
+            << nl << "\"CA1801: Review unused parameters\","
+            << nl << "Justification=\"Special constructor used for Ice unmarshaling\")]";
+        _out.dec();
     }
     _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr)";
     if (hasBaseClass)
@@ -1798,19 +1802,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitDeprecate(p, false, _out);
     emitCommonAttributes();
     emitCustomAttributes(p);
-
-    bool equatable = isEquatable(p);
-
-    if (!equatable)
-    {
-        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(";
-        _out.inc();
-        _out << nl << "\"Microsoft.Performance\","
-            << nl << "\"CA1815: Override equals and operator equals on value types\","
-            << nl << "Justification=\"struct with sequence or dictionary field needs custom Equals and GetHashCode\")]";
-        _out.dec();
-    }
-
     _out << nl << "public ";
     if(p->hasMetadata("cs:readonly"))
     {
@@ -1818,7 +1809,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     }
 
     _out << "partial struct " << name << " : ";
-    if (equatable)
+    if (isEquatable(p))
     {
         _out << "global::System.IEquatable<" << name << ">, ";
     }
@@ -1857,11 +1848,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     if (equatable)
     {
         emitEqualityOperators(name);
-        _out << sp;
     }
 
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
+    _out << sp;
     _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
     for (const auto& member : dataMembers)
     {
@@ -1911,7 +1902,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         // Equals implementation
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
-        _out << nl << "public readonly bool Equals(" << fixId(p->name()) << " other)";
+        _out << nl << "public readonly bool Equals(" << name << " other)";
 
         _out << " =>";
         _out.inc();
