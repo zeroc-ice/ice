@@ -34,7 +34,8 @@ namespace ZeroC.Ice
         public override int GetHashCode() => HashCode.Combine(Retryable, Delay);
 
         /// <inheritdoc/>
-        public override string? ToString() => Retryable switch {
+        public override string? ToString() => Retryable switch
+        {
             Retryable.AfterDelay => $"after {Delay.ToPropertyString()} delay",
             Retryable.OtherReplica => "other replica",
             Retryable.No => "no retry",

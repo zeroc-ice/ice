@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.Compress
 {

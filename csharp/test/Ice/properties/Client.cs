@@ -288,7 +288,7 @@ namespace ZeroC.Ice.Test.Properties
             }
 
             {
-                var services = new string[] {"Logging Service", "Authentication Service", "Printing Service"};
+                var services = new string[] { "Logging Service", "Authentication Service", "Printing Service" };
                 var loggerProperties = new string[] { "IceSSL.Protocols=tls12,tls13",
                                                       "Ice.ProgramName=My Service",
                                                       "Test=Foo's Bar's Demo\"",

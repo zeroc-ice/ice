@@ -362,7 +362,7 @@ namespace ZeroC.Ice.Test.Proxy
             b1 = IObjectPrx.Parse("test -f 'facet@test'@test", communicator);
             TestHelper.Assert(b1.Identity.Name == "test" && b1.Identity.Category.Length == 0 &&
                     b1.Facet == "facet@test" && b1.Location[0] == "test");
-             // End of ice1 format-only tests.
+            // End of ice1 format-only tests.
 
             b1 = IObjectPrx.Parse("ice:test", communicator);
             TestHelper.Assert(b1.InvocationMode == InvocationMode.Twoway);

@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
