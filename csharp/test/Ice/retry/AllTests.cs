@@ -197,8 +197,8 @@ namespace ZeroC.Ice.Test.Retry
                 }
 
                 {
+                    // There are 4 invocation attempts each with a 50 ms delay
                     Instrumentation.TestInvocationReset();
-                    // No retries before timeout kicks-in
                     int n = retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpAfterDelay(4, 50);
                     Instrumentation.TestRetryCount(4);
                     retry1.OpAfterDelay(-1, 0);
@@ -208,7 +208,6 @@ namespace ZeroC.Ice.Test.Retry
                 {
                     // No more than 5 invocation attempts with the default settings
                     Instrumentation.TestInvocationReset();
-                    // No retries before timeout kicks-in
                     try
                     {
                         retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpAfterDelay(5, 50);

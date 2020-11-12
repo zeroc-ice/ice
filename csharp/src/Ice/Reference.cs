@@ -774,7 +774,7 @@ namespace ZeroC.Ice
                         await reference.GetExistingConnectionAsync(cancel).ConfigureAwait(false);
 
                     int nextConnector = 0;
-                    int retryAttempt = 0;
+                    int attempt = 1;
                     bool triedAllConnectors = false;
                     List<Connector>? excludedConnectors = null;
                     int maxRetryAttempts = reference.Communicator.RetryMaxAttempts;
@@ -890,14 +890,6 @@ namespace ZeroC.Ice
                             childObserver?.Detach();
                         }
 
-                        if (connection != null || triedAllConnectors)
-                        {
-                            // Only count a retry attempt if the connection was established or if all the endpoints were
-                            // tried at least once. This ensures that we don't end up into an infinite loop for connection
-                            // establishment failures which don't result in endpoint exclusion.
-                            ++retryAttempt;
-                        }
-
                         // Compute retry policy based on the exception or response retry policy, whether or not the connection
                         // is established or the request sent and idempotent
                         Debug.Assert(response != null || exception != null);
@@ -953,7 +945,7 @@ namespace ZeroC.Ice
                         // Check if we can retry, we cannot retry if we have consumed all attempts, the current retry
                         // policy doesn't allow retries, the request was already released, there are no more connectors
                         // or a fixed reference receives an exception with OtherReplica retry.
-                        if (retryAttempt == reference.Communicator.RetryMaxAttempts ||
+                        if (attempt == reference.Communicator.RetryMaxAttempts ||
                             retryPolicy == RetryPolicy.NoRetry ||
                             (sent && releaseRequestAfterSent) ||
                             (triedAllConnectors && connectors != null && connectors.Count == 0) ||
@@ -975,9 +967,17 @@ namespace ZeroC.Ice
                         if (reference.Communicator.TraceLevels.Retry >= 1)
                         {
                             TraceRetry("retrying request because of retryable exception",
-                                       retryAttempt,
+                                       attempt,
                                        retryPolicy,
                                        exception);
+                        }
+
+                        if (connection != null || triedAllConnectors)
+                        {
+                            // Only count a retry attempt if the connection was established or if all the endpoints were
+                            // tried at least once. This ensures that we don't end up into an infinite loop for connection
+                            // establishment failures which don't result in endpoint exclusion.
+                            attempt++;
                         }
 
                         if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
