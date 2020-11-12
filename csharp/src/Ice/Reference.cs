@@ -587,87 +587,98 @@ namespace ZeroC.Ice
         internal async ValueTask<Connection> GetConnectionAsync(CancellationToken cancel)
         {
             Connection? connection = GetCachedConnection();
-            bool cached = false;
-            IReadOnlyList<Endpoint>? endpoints = ImmutableList<Endpoint>.Empty;
+            bool cached;
+            IReadOnlyList<Endpoint> endpoints;
             List<Connector>? connectors = null;
 
-            if (connection == null || (!IsFixed && !connection.IsActive))
+            var linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                cancel,
+                Communicator.CancellationToken);
+            cancel = linkedCancellationSource.Token;
+            try
             {
-                // No cached connection, so now check if there's a connection to one of our endpoints if the
-                // prefer existing connection property is true.
-
-                // TODO replace IsConnectionCached with PreferExistingConnection
-                if (IsConnectionCached)
+                if (connection == null || (!IsFixed && !connection.IsActive))
                 {
-                    // Compute the endpoints (eventually performing a locator lookup, moving last the recently
-                    // failed endpoints, filtering endpoints based on the proxy properties). If the endpoints
-                    // are retrieved from a cache, a cached serial is returned and identifies the lookup of the
-                    // cached entry. This is useful to ensure we don't perform a new lookup if the cached entry
-                    // has already been updated since we got it.
-                    (cached, endpoints) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                    // No cached connection, so now check if there's a connection to one of our endpoints if the
+                    // prefer existing connection property is true.
 
-                    // The communicator returns an existing  connection if one is already established to one of the given
-                    // endpoints.
-                    OutgoingConnectionFactory connectionFactory = Communicator.OutgoingConnectionFactory;
-                    connection = connectionFactory.GetConnection(endpoints, ConnectionId);
-
-                    // If we couldn't find the connection using the endpoints, expand the endpoints to
-                    // connectors (DNS lookup for IP endpoints) and try to obtain a connection using the
-                    // connectors.
-                    if (connection == null)
+                    // TODO replace IsConnectionCached with PreferExistingConnection
+                    if (IsConnectionCached)
                     {
-                        // This will throw if no connectors can be computed.
+                        // Compute the endpoints (eventually performing a locator lookup, moving last the recently
+                        // failed endpoints, filtering endpoints based on the proxy properties). If the endpoints
+                        // are retrieved from a cache, a cached serial is returned and identifies the lookup of the
+                        // cached entry. This is useful to ensure we don't perform a new lookup if the cached entry
+                        // has already been updated since we got it.
+                        (cached, endpoints) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
 
-                        // TODO retry with fresh endpoints if ComputeConnectorsAsync throws and we are using cached
-                        // endpoints.
+                        // The communicator returns an existing  connection if one is already established to one of the
+                        // given endpoints.
+                        OutgoingConnectionFactory connectionFactory = Communicator.OutgoingConnectionFactory;
+                        connection = connectionFactory.GetConnection(endpoints, ConnectionId);
+
+                        // If we couldn't find the connection using the endpoints, expand the endpoints to connectors
+                        // (DNS lookup for IP endpoints) and try to obtain a connection using the connectors.
+                        if (connection == null)
+                        {
+                            // This will throw if no connectors can be computed.
+
+                            // TODO retry with fresh endpoints if ComputeConnectorsAsync throws and we are using cached
+                            // endpoints.
+                            connectors = await connectionFactory.ComputeConnectorsAsync(
+                                this,
+                                endpoints,
+                                ImmutableList<Connector>.Empty,
+                                linkedCancellationSource.Token).ConfigureAwait(false);
+
+                            // Lookup the connection using the connectors.
+                            connection = connectionFactory.GetConnection(connectors, ConnectionId);
+                        }
+                        _connection = connection;
+                    }
+                }
+
+                if (connection == null)
+                {
+                    OutgoingConnectionFactory connectionFactory = Communicator.OutgoingConnectionFactory;
+                    if (connectors == null)
+                    {
+                        (cached, endpoints) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                         connectors = await connectionFactory.ComputeConnectorsAsync(
                             this,
                             endpoints,
                             ImmutableList<Connector>.Empty,
                             cancel).ConfigureAwait(false);
-
-                        // Lookup the connection using the connectors.
-                        connection = connectionFactory.GetConnection(connectors, ConnectionId);
                     }
-                    _connection = connection;
+
+                    Debug.Assert(connectors.Count > 0);
+                    for (int i = 0; i < connectors.Count; ++i)
+                    {
+                        try
+                        {
+                            connection = await connectionFactory.CreateConnectionAsync(ConnectionId,
+                                                                                       connectors[i],
+                                                                                       cancel).ConfigureAwait(false);
+                            if (IsConnectionCached)
+                            {
+                                _connection = connection;
+                            }
+                            break;
+                        }
+                        catch (Exception)
+                        {
+                            if (i + 1 == connectors.Count)
+                            {
+                                // TODO retry with non cached endpoints
+                                throw;
+                            }
+                        }
+                    }
                 }
             }
-
-            if (connection == null)
+            finally
             {
-                OutgoingConnectionFactory connectionFactory = Communicator.OutgoingConnectionFactory;
-                if (connectors == null)
-                {
-                    (cached, endpoints) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
-                    connectors = await connectionFactory.ComputeConnectorsAsync(
-                        this,
-                        endpoints,
-                        ImmutableList<Connector>.Empty,
-                        cancel).ConfigureAwait(false);
-                }
-
-                Debug.Assert(connectors.Count > 0);
-                for (int i = 0; i < connectors.Count; ++i)
-                {
-                    try
-                    {
-                        connection = await connectionFactory.CreateConnectionAsync(ConnectionId,
-                                                                                   connectors[i],
-                                                                                   cancel).ConfigureAwait(false);
-                        if (IsConnectionCached)
-                        {
-                            _connection = connection;
-                        }
-                        break;
-                    }
-                    catch (Exception)
-                    {
-                        if (i + 1 == connectors.Count)
-                        {
-                            throw;
-                        }
-                    }
-                }
+                linkedCancellationSource.Dispose();
             }
             Debug.Assert(connection != null);
             return connection;
@@ -1676,10 +1687,7 @@ namespace ZeroC.Ice
                 {
                     // The delay task can be canceled either by the user code using the provided cancellation
                     // token or if the communicator is destroyed.
-                    using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                        cancel,
-                        Communicator.CancellationToken);
-                    await Task.Delay(retryPolicy.Delay, tokenSource.Token).ConfigureAwait(false);
+                    await Task.Delay(retryPolicy.Delay, cancel).ConfigureAwait(false);
                 }
 
                 observer?.Retried();

@@ -302,9 +302,8 @@ namespace ZeroC.Ice.Test.AMI
                     p2.OpAsync().Wait();
                     TestHelper.Assert(false);
                 }
-                catch (AggregateException ex)
+                catch (ObjectDisposedException)
                 {
-                    TestHelper.Assert(ex.InnerException is CommunicatorDisposedException);
                 }
             }
             output.WriteLine("ok");

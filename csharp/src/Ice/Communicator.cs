@@ -147,7 +147,17 @@ namespace ZeroC.Ice
         public ToStringMode ToStringMode { get; }
 
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
-        internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        internal CancellationToken CancellationToken
+        {
+            get
+            {
+                if (_disposeTask != null)
+                {
+                    throw new CommunicatorDisposedException();
+                }
+                return _cancellationTokenSource.Token;
+            }
+        }
         internal int ClassGraphDepthMax { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }

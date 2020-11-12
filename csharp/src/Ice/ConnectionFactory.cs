@@ -157,17 +157,14 @@ namespace ZeroC.Ice
                         }
                     }
                 }
-                catch (CommunicatorDisposedException)
+                catch (OperationCanceledException)
                 {
                     throw; // No need to continue
                 }
-                catch
+                catch when (!ReferenceEquals(endpoint, last) || connectors.Count > 0)
                 {
-                    // If this is the last endpoint and we don't have any connectors let the exception go throw
-                    if (ReferenceEquals(endpoint, last) && connectors.Count == 0)
-                    {
-                        throw;
-                    }
+                    // If this is not the last endpoint or if we have some connectors, ignore the exception
+                    // and keep going.
                 }
             }
 
