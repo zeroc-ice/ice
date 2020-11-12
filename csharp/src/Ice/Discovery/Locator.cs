@@ -439,7 +439,7 @@ namespace ZeroC.Ice.Discovery
     internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
     {
         private readonly object _mutex = new();
-        private readonly HashSet<EndpointData> _endpointDataSet = new(EndpointDataComparer.Instance);
+        private readonly HashSet<EndpointData> _endpointDataSet = new();
 
         public void FoundAdapterId(
             EndpointData[] endpoints,
@@ -490,31 +490,6 @@ namespace ZeroC.Ice.Discovery
         internal ResolveWellKnownProxyReply(ObjectAdapter replyAdapter)
             : base(emptyResult: "", replyAdapter)
         {
-        }
-    }
-
-    // Temporary helper class
-    internal sealed class EndpointDataComparer : IEqualityComparer<EndpointData>
-    {
-        internal static readonly EndpointDataComparer Instance = new();
-
-        public bool Equals(EndpointData x, EndpointData y) =>
-            x.Transport == y.Transport &&
-            x.Host == y.Host &&
-            x.Port == y.Port &&
-            x.Options.SequenceEqual(y.Options);
-
-        public int GetHashCode(EndpointData obj)
-        {
-            var hash = new HashCode();
-            hash.Add(obj.Transport);
-            hash.Add(obj.Host);
-            hash.Add(obj.Port);
-            foreach (string s in obj.Options)
-            {
-                hash.Add(s);
-            }
-            return hash.ToHashCode();
         }
     }
 }

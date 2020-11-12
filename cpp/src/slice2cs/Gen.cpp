@@ -63,6 +63,28 @@ isDefaultInitialized(const MemberPtr& member, bool considerDefaultValue)
     return isValueType(member->type());
 }
 
+// Returns true when the members of the struct are not sequence or dictionary. Nested struct are explored as well.
+// A class member is considered OK: it uses the default reference equality or a custom equality provided by the user.
+bool
+isEquatable(const StructPtr& p)
+{
+    for (const auto& member : p->dataMembers())
+    {
+        auto type = unwrapIfOptional(member->type());
+
+        if (SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))
+        {
+            return false;
+        }
+        else if (auto st = StructPtr::dynamicCast(type); st && !isEquatable(st))
+        {
+            return false;
+        }
+        // else move on to the next member
+    }
+    return true;
+}
+
 string
 opFormatTypeToString(const OperationPtr& op)
 {
@@ -1776,12 +1798,32 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitDeprecate(p, false, _out);
     emitCommonAttributes();
     emitCustomAttributes(p);
+
+    bool equatable = isEquatable(p);
+
+    if (!equatable)
+    {
+        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(";
+        _out.inc();
+        _out << nl << "\"Microsoft.Performance\","
+            << nl << "\"CA1815: Override equals and operator equals on value types\","
+            << nl << "Justification=\"struct with sequence or dictionary field needs custom Equals and GetHashCode\")]";
+        _out.dec();
+    }
+
     _out << nl << "public ";
     if(p->hasMetadata("cs:readonly"))
     {
         _out << "readonly ";
     }
-    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, ZeroC.Ice.IStreamableStruct";
+
+    _out << "partial struct " << name << " : ";
+    if (equatable)
+    {
+        _out << "global::System.IEquatable<" << name << ">, ";
+    }
+    _out << "ZeroC.Ice.IStreamableStruct";
+
     _out << sb;
 
     _out << sp;
@@ -1810,8 +1852,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     MemberList dataMembers = p->dataMembers();
 
-    emitEqualityOperators(name);
-    _out << sp;
+    bool equatable = isEquatable(p);
+
+    if (equatable)
+    {
+        emitEqualityOperators(name);
+        _out << sp;
+    }
 
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
@@ -1859,55 +1906,58 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << eb;
 
-    // Equals implementation
-    _out << sp;
-    _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public readonly bool Equals(" << fixId(p->name()) << " other)";
-
-    _out << " =>";
-    _out.inc();
-    _out << nl;
-    for (auto q = dataMembers.begin(); q != dataMembers.end();)
+    if (equatable)
     {
-        string mName = fixId(fieldName(*q));
-        TypePtr mType = (*q)->type();
+        // Equals implementation
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public readonly bool Equals(" << fixId(p->name()) << " other)";
 
-        if (mType->isInterfaceType())
+        _out << " =>";
+        _out.inc();
+        _out << nl;
+        for (auto q = dataMembers.begin(); q != dataMembers.end();)
         {
-            _out << "ZeroC.Ice.IObjectPrx.Equals(this." << mName << ", other." << mName << ")";
-        }
-        else
-        {
-            _out << "this." << mName << " == other." << mName;
-        }
+            string mName = fixId(fieldName(*q));
+            TypePtr mType = (*q)->type();
 
-        if(++q != dataMembers.end())
-        {
-            _out << " &&" << nl;
+            if (mType->isInterfaceType())
+            {
+                _out << "ZeroC.Ice.IObjectPrx.Equals(this." << mName << ", other." << mName << ")";
+            }
+            else
+            {
+                _out << "this." << mName << " == other." << mName;
+            }
+
+            if(++q != dataMembers.end())
+            {
+                _out << " &&" << nl;
+            }
+            else
+            {
+                _out << ";";
+            }
         }
-        else
+        _out.dec();
+
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public readonly override bool Equals(object? other) => other is " << name
+             << " value && this.Equals(value);";
+
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public readonly override int GetHashCode()";
+        _out << sb;
+        _out << nl << "var hash = new global::System.HashCode();";
+        for(const auto& i : dataMembers)
         {
-            _out << ";";
+            _out << nl << "hash.Add(this." << fixId(fieldName(i), Slice::ObjectType) << ");";
         }
+        _out << nl << "return hash.ToHashCode();";
+        _out << eb;
     }
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public readonly override bool Equals(object? other) => other is " << name
-        << " value && this.Equals(value);";
-
-    _out << sp;
-    _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public readonly override int GetHashCode()";
-    _out << sb;
-    _out << nl << "var hash = new global::System.HashCode();";
-    for(const auto& i : dataMembers)
-    {
-        _out << nl << "hash.Add(this." << fixId(fieldName(i), Slice::ObjectType) << ");";
-    }
-    _out << nl << "return hash.ToHashCode();";
-    _out << eb;
 
     _out << sp;
     _out << nl << "/// <summary>Marshals the struct by writing its fields to the "
@@ -2702,6 +2752,9 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "/// <summary>The frame holding the marshaled response.</summary>";
         _out << nl << "public ZeroC.Ice.OutgoingResponseFrame Response { get; }";
 
+        emitEqualityOperators(name);
+        _out << sp;
+
         _out << nl << "/// <summary>Constructs a new <see cref=\"" << name  << "\"/> instance that";
         _out << nl << "/// immediately marshals the return value of operation " << opName << ".</summary>";
         _out << nl << "public " << name << spar
@@ -2747,8 +2800,6 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
         _out << nl << "public override int GetHashCode() => Response.GetHashCode();";
-
-        emitEqualityOperators(name);
 
         _out << eb;
     }

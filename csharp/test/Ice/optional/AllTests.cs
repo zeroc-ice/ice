@@ -178,7 +178,6 @@ namespace ZeroC.Ice.Test.Optional
             output.Write("testing struct with optional data members... ");
             var myStruct = new MyStruct(test, null, new string?[] { "foo", null, "bar" });
             MyStruct myStructResult = test.OpMyStruct(myStruct);
-            TestHelper.Assert(myStruct != myStructResult); // the proxies and arrays can't be identical
             TestHelper.Assert(myStructResult.Proxy!.Equals(myStruct.Proxy) &&
                 myStructResult.X == myStruct.X &&
                 myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq!));
