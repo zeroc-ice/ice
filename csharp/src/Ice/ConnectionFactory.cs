@@ -97,8 +97,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // Try to find a connection to one of the given connectors. Ignore the endpoint compression flag to
-                // lookup for the connection.
+                // Try to find a connection to one of the given connectors.
                 foreach (Connector connector in connectors)
                 {
                     if (_connectionsByConnector.TryGetValue((connector, connectionId),
