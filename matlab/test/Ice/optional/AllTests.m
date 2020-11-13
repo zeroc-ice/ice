@@ -683,7 +683,7 @@ classdef AllTests
                 assert(ex.b == Ice.Unset);
                 assert(ex.vs == Ice.Unset);
                 assert(strcmp(ex.ss, 'test'));
-                assert(isempty(ex.vs2));
+                assert(strcmp(ex.vs2.m, ''));
             end
 
             try

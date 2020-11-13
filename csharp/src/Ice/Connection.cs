@@ -41,11 +41,14 @@ namespace ZeroC.Ice
             set => _adapter = value;
         }
 
-        /// <summary>Get the connection ID which was used to create the connection.</summary>
+        /// <summary>Gets the communicator.</summary>
+        public Communicator Communicator { get; }
+
+        /// <summary>Gets the connection ID which was used to create the connection.</summary>
         /// <value>The connection ID used to create the connection.</value>
         public string ConnectionId { get; }
 
-        /// <summary>Get the endpoint from which the connection was created.</summary>
+        /// <summary>Gets the endpoint from which the connection was created.</summary>
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
 
@@ -117,8 +120,9 @@ namespace ZeroC.Ice
         private EventHandler? _closed;
         // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
-        private readonly Communicator _communicator;
+
         private readonly Connector? _connector;
+
         // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
@@ -140,11 +144,12 @@ namespace ZeroC.Ice
         /// for example because of firewalls. In this case, the server would create a proxy using an already
         /// established connection from the client.</summary>
         /// <param name="identity">The identity for which a proxy is to be created.</param>
+        /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
-        /// <returns>A proxy that matches the given identity and uses this connection.</returns>
-        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            factory(new Reference(_communicator, this, identity));
+        /// <returns>A proxy that matches the given identity and facet, and uses this connection.</returns>
+        public T CreateProxy<T>(Identity identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            factory(new Reference(this, identity, facet));
 
         /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
         /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
@@ -226,14 +231,14 @@ namespace ZeroC.Ice
             string connectionId,
             ObjectAdapter? adapter)
         {
-            _communicator = endpoint.Communicator;
+            Communicator = endpoint.Communicator;
             _manager = manager;
             Transceiver = transceiver;
             _connector = connector;
             ConnectionId = connectionId;
             Endpoint = endpoint;
             Endpoints = new List<Endpoint>() { endpoint };
-            KeepAlive = _communicator.KeepAlive;
+            KeepAlive = Communicator.KeepAlive;
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
@@ -296,8 +301,8 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    Debug.Assert(_communicator.CloseTimeout != TimeSpan.Zero);
-                    using var source = new CancellationTokenSource(_communicator.CloseTimeout);
+                    Debug.Assert(Communicator.CloseTimeout != TimeSpan.Zero);
+                    using var source = new CancellationTokenSource(Communicator.CloseTimeout);
                     CancellationToken cancel = source.Token;
 
                     // Write the close frame
@@ -378,8 +383,8 @@ namespace ZeroC.Ice
         {
             try
             {
-                Debug.Assert(_communicator.ConnectTimeout > TimeSpan.Zero);
-                using var source = new CancellationTokenSource(_communicator.ConnectTimeout);
+                Debug.Assert(Communicator.ConnectTimeout > TimeSpan.Zero);
+                using var source = new CancellationTokenSource(Communicator.ConnectTimeout);
                 CancellationToken cancel = source.Token;
 
                 // Initialize the transport.
@@ -439,7 +444,7 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                Transceiver.Observer = _communicator.Observer?.GetConnectionObserver(this,
+                Transceiver.Observer = Communicator.Observer?.GetConnectionObserver(this,
                                                                                      _state,
                                                                                      Transceiver.Observer);
             }
@@ -477,7 +482,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                    Communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
                 }
 
                 // Remove the connection from the factory, must be called without the connection mutex locked
@@ -610,10 +615,10 @@ namespace ZeroC.Ice
                 state == ConnectionState.Closed &&
                 !Endpoint.IsDatagram &&
                 ((Transceiver as LegacyTransceiver)?.IsValidated ?? true) &&
-                _communicator.WarnConnections)
+                Communicator.WarnConnections)
             {
                 Debug.Assert(exception != null);
-                _communicator.Logger.Warning($"connection exception:\n{exception}\n{this}");
+                Communicator.Logger.Warning($"connection exception:\n{exception}\n{this}");
             }
 
             if (state == ConnectionState.Active)
@@ -627,9 +632,9 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (_communicator.Observer != null)
+            if (Communicator.Observer != null)
             {
-                Transceiver.Observer = _communicator.Observer.GetConnectionObserver(this, state, Transceiver.Observer);
+                Transceiver.Observer = Communicator.Observer.GetConnectionObserver(this, state, Transceiver.Observer);
 
                 if (Transceiver.Observer != null && state == ConnectionState.Closed)
                 {

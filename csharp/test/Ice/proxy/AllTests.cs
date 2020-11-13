@@ -42,6 +42,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000,host2,host3,host4",
                 "ice+ssl://[::1]:10000/identity?alt-endpoint=host1:10000&alt-endpoint=host2,host3&alt-endpoint=[::2]",
                 "ice:location//identity#facet",
+                "ice:location//identity?relative=true#facet",
                 "ice+tcp://host.zeroc.com//identity",
                 "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
                 "ice+universal://com.zeroc.ice/identity?transport=iaps&option=a,b%2Cb,c&option=d",
@@ -119,6 +120,8 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp://host.zeroc.com/identity?alt-endpoint=host2?protocol=ice2", // protocol option in alt-endpoint
                 "ice+tcp://host.zeroc.com/identity?foo=bar", // unknown option
                 "ice+tcp://host.zeroc.com/identity?invocation-timeout=0s", // 0 is not a valid invocation timeout
+                "ice:foo?relative=bad", // bad value for relative
+                "ice:foo?fixed=true", // cannot create fixed proxy from URI
 
                 "",
                 "\"\"",
@@ -523,21 +526,20 @@ namespace ZeroC.Ice.Test.Proxy
 
             output.WriteLine("ok");
 
-            output.Write("testing proxyToString... ");
+            output.Write("testing fixed proxies... ");
             output.Flush();
             b1 = IObjectPrx.Parse(rf, communicator);
 
             Connection connection = b1.GetConnection();
-            IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
+            IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), facet: "", IObjectPrx.Factory);
             if (connection.Protocol == Protocol.Ice1)
             {
                 TestHelper.Assert(b2.ToString() == "fixed -t -e 1.1");
             }
             else
             {
-                TestHelper.Assert(b2.ToString() == "ice:fixed?invocation-timeout=1m");
+                TestHelper.Assert(b2.ToString() == "ice:fixed?fixed=true&invocation-timeout=1m");
             }
-
             output.WriteLine("ok");
 
             output.Write("testing propertyToProxy... ");
@@ -945,6 +947,30 @@ namespace ZeroC.Ice.Test.Proxy
                 output.WriteLine("ok");
             }
 
+            output.Write("testing relative proxies... ");
+            {
+                // The Clone(encoding: Encoding.V20) are only for ice1; with ice2, it's the default encoding. We need
+                // to marshal all relative proxies with the 2.0 encoding.
+
+                using ObjectAdapter oa = communicator.CreateObjectAdapter(protocol: helper.Protocol);
+                cl.GetConnection().Adapter = oa;
+                ICallbackPrx callback = oa.AddWithUUID(
+                    new Callback((relativeTest, current, cancel) =>
+                                 {
+                                    TestHelper.Assert(relativeTest.IsFixed);
+                                    return relativeTest.DoIt(cancel: cancel);
+                                 }),
+                    ICallbackPrx.Factory).Clone(encoding: Encoding.V20, relative: true);
+                TestHelper.Assert(callback.IsRelative);
+                callback.IcePing(); // colocated call
+
+                IRelativeTestPrx relativeTest = cl.Clone(encoding: Encoding.V20).OpRelative(callback);
+                TestHelper.Assert(relativeTest.Endpoints == cl.Endpoints); // reference equality
+                TestHelper.Assert(!relativeTest.IsRelative);
+                TestHelper.Assert(relativeTest.DoIt() == 2);
+            }
+            output.WriteLine("ok");
+
             output.Write("testing ice_fixed... ");
             output.Flush();
             {
@@ -1161,5 +1187,17 @@ namespace ZeroC.Ice.Test.Proxy
 
             return cl;
         }
+    }
+
+    internal delegate int CallbackDelegate(IRelativeTestPrx relativeTest, Current current, CancellationToken cancel);
+
+    internal sealed class Callback : ICallback
+    {
+        private CallbackDelegate _delegate;
+
+        public int Op(IRelativeTestPrx relativeTest, Current current, CancellationToken cancel) =>
+            _delegate(relativeTest, current, cancel);
+
+        internal Callback(CallbackDelegate @delegate) => _delegate = @delegate;
     }
 }
