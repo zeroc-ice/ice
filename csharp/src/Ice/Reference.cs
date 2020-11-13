@@ -622,12 +622,13 @@ namespace ZeroC.Ice
                     }
 
                     Debug.Assert(connectors.Count > 0);
-                    for (int i = 0; i < connectors.Count; ++i)
+                    Connector last = connectors[^1];
+                    foreach (Connector connector in connectors)
                     {
                         try
                         {
                             connection = await connectionFactory.CreateConnectionAsync(ConnectionId,
-                                                                                       connectors[i],
+                                                                                       connector,
                                                                                        cancel).ConfigureAwait(false);
                             if (IsConnectionCached)
                             {
@@ -635,13 +636,10 @@ namespace ZeroC.Ice
                             }
                             break;
                         }
-                        catch (Exception)
+                        catch when (!ReferenceEquals(connector, last))
                         {
-                            if (i + 1 == connectors.Count)
-                            {
-                                // TODO retry with non cached endpoints
-                                throw;
-                            }
+                            // Ignore the exception unless this is the last connector.
+                            // TODO retry with non cached endpoints
                         }
                     }
                 }
