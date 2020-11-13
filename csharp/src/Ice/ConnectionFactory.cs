@@ -72,34 +72,42 @@ namespace ZeroC.Ice
 
         internal OutgoingConnectionFactory(Communicator communicator) => _communicator = communicator;
 
-        internal Connection? GetConnection(IReadOnlyList<Endpoint> endpoints, string connectionId)
+        internal async ValueTask<(Connection? Connection, bool Cached, IReadOnlyList<Endpoint> Endpoints, List<Connector>? Connectors)> GetConnectionAsync(
+            Reference reference,
+            CancellationToken cancel)
         {
+            bool cached;
+            IReadOnlyList<Endpoint> endpoints;
+            List<Connector>? connectors = null;
+
+            (cached, endpoints) = await reference.ComputeEndpointsAsync(cancel).ConfigureAwait(false);
             lock (_mutex)
             {
                 // Try to find a connection to one of the given endpoints.
                 foreach (Endpoint endpoint in endpoints)
                 {
-                    if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
+                    if (_connectionsByEndpoint.TryGetValue((endpoint, reference.ConnectionId),
                                                            out ICollection<Connection>? connectionList))
                     {
                         if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                         {
-                            return connection;
+                            return (connection, cached, endpoints, connectors);
                         }
                     }
                 }
             }
-            return null;
-        }
 
-        internal Connection? GetConnection(IReadOnlyList<Connector> connectors, string connectionId)
-        {
+            connectors = await ComputeConnectorsAsync(reference,
+                                                      endpoints,
+                                                      ImmutableList<Connector>.Empty,
+                                                      cancel).ConfigureAwait(false);
+
             lock (_mutex)
             {
                 // Try to find a connection to one of the given connectors.
                 foreach (Connector connector in connectors)
                 {
-                    if (_connectionsByConnector.TryGetValue((connector, connectionId),
+                    if (_connectionsByConnector.TryGetValue((connector, reference.ConnectionId),
                                                             out ICollection<Connection>? connectionList))
                     {
                         if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
@@ -110,14 +118,14 @@ namespace ZeroC.Ice
                             if (!connection.Endpoints.Contains(connector.Endpoint))
                             {
                                 connection.Endpoints.Add(connector.Endpoint);
-                                _connectionsByEndpoint.Add((connector.Endpoint, connectionId), connection);
+                                _connectionsByEndpoint.Add((connector.Endpoint, reference.ConnectionId), connection);
                             }
-                            return connection;
+                            return (connection, cached, endpoints, connectors);
                         }
                     }
                 }
             }
-            return null;
+            return (null, cached, endpoints, connectors);
         }
 
         internal async ValueTask<List<Connector>> ComputeConnectorsAsync(
