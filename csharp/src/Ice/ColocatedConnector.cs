@@ -52,7 +52,7 @@ namespace ZeroC.Ice
 
         public override string ToString() =>
             _endpoint.Adapter.Name.Length == 0 ? "unnamed adapter" : _endpoint.Adapter.Name;
-        public override bool Equals(Connector? obj) => ReferenceEquals(this, obj);
+        public override bool Equals(Connector? obj) => ReferenceEquals(Endpoint, obj?.Endpoint);
         public override int GetHashCode() => _endpoint.GetHashCode();
 
         internal ColocatedConnector(

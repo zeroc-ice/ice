@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Net;
 
 namespace ZeroC.Ice
@@ -39,12 +40,12 @@ namespace ZeroC.Ice
 
             if (obj is TcpConnector tcpConnector)
             {
-                if (_endpoint.Protocol != tcpConnector._endpoint.Protocol)
+                if (!_addr.Equals(tcpConnector._addr))
                 {
                     return false;
                 }
 
-                if (_endpoint.Transport != tcpConnector._endpoint.Transport)
+                if (_endpoint.Protocol != tcpConnector._endpoint.Protocol)
                 {
                     return false;
                 }
@@ -54,7 +55,17 @@ namespace ZeroC.Ice
                     return false;
                 }
 
-                return _addr.Equals(tcpConnector._addr);
+                if (_endpoint.Timeout != tcpConnector._endpoint.Timeout)
+                {
+                    return false;
+                }
+
+                if (_endpoint.Transport != tcpConnector._endpoint.Transport)
+                {
+                    return false;
+                }
+
+                return ReferenceEquals(_proxy, tcpConnector._proxy);
             }
             else
             {
@@ -72,12 +83,16 @@ namespace ZeroC.Ice
             }
             else
             {
-                var hash = new System.HashCode();
-                hash.Add(_endpoint.Protocol);
-                hash.Add(_endpoint.Transport);
+                var hash = new HashCode();
                 hash.Add(_addr);
+                hash.Add(_endpoint.Protocol);
                 hash.Add(_endpoint.SourceAddress);
-                _hashCode = hash.ToHashCode();
+                hash.Add(_endpoint.Timeout);
+                hash.Add(_endpoint.Transport);
+                hash.Add(_proxy);
+                int hashCode = hash.ToHashCode();
+                // 0 is not a valid value as it means "not initialized".
+                _hashCode = hashCode == 0 ? 1 : hashCode;
                 return _hashCode;
             }
         }

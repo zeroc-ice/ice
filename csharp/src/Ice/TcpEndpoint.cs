@@ -25,8 +25,9 @@ namespace ZeroC.Ice
                 _ => base[option],
             };
 
+        internal TimeSpan Timeout { get; } = DefaultTimeout;
+
         private protected bool HasCompressionFlag { get; }
-        private protected TimeSpan Timeout { get; } = DefaultTimeout;
 
         /// <summary>The default timeout for ice1 endpoints.</summary>
         protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);

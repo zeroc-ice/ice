@@ -213,11 +213,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<(Connection? Connection, bool Cached, IReadOnlyList<Endpoint> Endpoints, List<Connector>? Connectors)> GetConnectionAsync(
+        internal async ValueTask<(Connection? Connection, IReadOnlyList<Endpoint> Endpoints, bool Cached, List<Connector>? Connectors)> GetConnectionAsync(
             Reference reference,
             CancellationToken cancel)
         {
-            (bool cached, IReadOnlyList<Endpoint> endpoints) =
+            (IReadOnlyList<Endpoint> endpoints, bool cached) =
                 await reference.ComputeEndpointsAsync(cancel).ConfigureAwait(false);
             lock (_mutex)
             {
@@ -229,7 +229,7 @@ namespace ZeroC.Ice
                     {
                         if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
                         {
-                            return (connection, cached, endpoints, null);
+                            return (connection, endpoints, cached, null);
                         }
                     }
                 }
@@ -258,12 +258,12 @@ namespace ZeroC.Ice
                                 connection.Endpoints.Add(connector.Endpoint);
                                 _connectionsByEndpoint.Add((connector.Endpoint, reference.ConnectionId), connection);
                             }
-                            return (connection, cached, endpoints, connectors);
+                            return (connection, endpoints, cached, connectors);
                         }
                     }
                 }
             }
-            return (null, cached, endpoints, connectors);
+            return (null, endpoints, cached, connectors);
         }
 
         internal void RemoveAdapter(ObjectAdapter adapter)

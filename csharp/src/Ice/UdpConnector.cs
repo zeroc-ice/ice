@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Net;
 
 namespace ZeroC.Ice
@@ -37,6 +38,10 @@ namespace ZeroC.Ice
 
             if (obj is UdpConnector udpConnector)
             {
+                if (!_addr.Equals(udpConnector._addr))
+                {
+                    return false;
+                }
                 if (_endpoint.MulticastInterface != udpConnector._endpoint.MulticastInterface)
                 {
                     return false;
@@ -47,12 +52,7 @@ namespace ZeroC.Ice
                     return false;
                 }
 
-                if (!Equals(_endpoint.SourceAddress, udpConnector._endpoint.SourceAddress))
-                {
-                    return false;
-                }
-
-                return _addr.Equals(udpConnector._addr);
+                return Equals(_endpoint.SourceAddress, udpConnector._endpoint.SourceAddress);
             }
             else
             {
@@ -70,12 +70,14 @@ namespace ZeroC.Ice
             }
             else
             {
-                var hash = new System.HashCode();
+                var hash = new HashCode();
                 hash.Add(_addr);
                 hash.Add(_endpoint.SourceAddress);
                 hash.Add(_endpoint.MulticastInterface);
                 hash.Add(_endpoint.MulticastTtl);
-                _hashCode = hash.ToHashCode();
+                int hashCode = hash.ToHashCode();
+                // 0 is not a valid value as it means "not initialized".
+                _hashCode = hashCode == 0 ? 1 : hashCode;
                 return _hashCode;
             }
         }
