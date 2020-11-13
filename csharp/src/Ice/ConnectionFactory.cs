@@ -72,62 +72,6 @@ namespace ZeroC.Ice
 
         internal OutgoingConnectionFactory(Communicator communicator) => _communicator = communicator;
 
-        internal async ValueTask<(Connection? Connection, bool Cached, IReadOnlyList<Endpoint> Endpoints, List<Connector>? Connectors)> GetConnectionAsync(
-            Reference reference,
-            CancellationToken cancel)
-        {
-            bool cached;
-            IReadOnlyList<Endpoint> endpoints;
-            List<Connector>? connectors = null;
-
-            (cached, endpoints) = await reference.ComputeEndpointsAsync(cancel).ConfigureAwait(false);
-            lock (_mutex)
-            {
-                // Try to find a connection to one of the given endpoints.
-                foreach (Endpoint endpoint in endpoints)
-                {
-                    if (_connectionsByEndpoint.TryGetValue((endpoint, reference.ConnectionId),
-                                                           out ICollection<Connection>? connectionList))
-                    {
-                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
-                        {
-                            return (connection, cached, endpoints, connectors);
-                        }
-                    }
-                }
-            }
-
-            connectors = await ComputeConnectorsAsync(reference,
-                                                      endpoints,
-                                                      ImmutableList<Connector>.Empty,
-                                                      cancel).ConfigureAwait(false);
-
-            lock (_mutex)
-            {
-                // Try to find a connection to one of the given connectors.
-                foreach (Connector connector in connectors)
-                {
-                    if (_connectionsByConnector.TryGetValue((connector, reference.ConnectionId),
-                                                            out ICollection<Connection>? connectionList))
-                    {
-                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
-                        {
-                            // If the connection was established for another endpoint but to the same connector,
-                            // we ensure to also associate the connection with this endpoint. Two connectors can
-                            // be equal even if created from different endpoints.
-                            if (!connection.Endpoints.Contains(connector.Endpoint))
-                            {
-                                connection.Endpoints.Add(connector.Endpoint);
-                                _connectionsByEndpoint.Add((connector.Endpoint, reference.ConnectionId), connection);
-                            }
-                            return (connection, cached, endpoints, connectors);
-                        }
-                    }
-                }
-            }
-            return (null, cached, endpoints, connectors);
-        }
-
         internal async ValueTask<List<Connector>> ComputeConnectorsAsync(
             Reference reference,
             IReadOnlyList<Endpoint> endpoints,
@@ -267,6 +211,59 @@ namespace ZeroC.Ice
                     observer?.Detach();
                 }
             }
+        }
+
+        internal async ValueTask<(Connection? Connection, bool Cached, IReadOnlyList<Endpoint> Endpoints, List<Connector>? Connectors)> GetConnectionAsync(
+            Reference reference,
+            CancellationToken cancel)
+        {
+            (bool cached, IReadOnlyList<Endpoint> endpoints) =
+                await reference.ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+            lock (_mutex)
+            {
+                // Try to find a connection to one of the given endpoints.
+                foreach (Endpoint endpoint in endpoints)
+                {
+                    if (_connectionsByEndpoint.TryGetValue((endpoint, reference.ConnectionId),
+                                                           out ICollection<Connection>? connectionList))
+                    {
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
+                        {
+                            return (connection, cached, endpoints, null);
+                        }
+                    }
+                }
+            }
+
+            List<Connector>? connectors = await ComputeConnectorsAsync(reference,
+                                                                       endpoints,
+                                                                       ImmutableList<Connector>.Empty,
+                                                                       cancel).ConfigureAwait(false);
+
+            lock (_mutex)
+            {
+                // Try to find a connection to one of the given connectors.
+                foreach (Connector connector in connectors)
+                {
+                    if (_connectionsByConnector.TryGetValue((connector, reference.ConnectionId),
+                                                            out ICollection<Connection>? connectionList))
+                    {
+                        if (connectionList.FirstOrDefault(connection => connection.IsActive) is Connection connection)
+                        {
+                            // If the connection was established for another endpoint but to the same connector,
+                            // we ensure to also associate the connection with this endpoint. Two connectors can
+                            // be equal even if created from different endpoints.
+                            if (!connection.Endpoints.Contains(connector.Endpoint))
+                            {
+                                connection.Endpoints.Add(connector.Endpoint);
+                                _connectionsByEndpoint.Add((connector.Endpoint, reference.ConnectionId), connection);
+                            }
+                            return (connection, cached, endpoints, connectors);
+                        }
+                    }
+                }
+            }
+            return (null, cached, endpoints, connectors);
         }
 
         internal void RemoveAdapter(ObjectAdapter adapter)

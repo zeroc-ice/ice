@@ -1131,6 +1131,81 @@ namespace ZeroC.Ice
             }
         }
 
+        internal async ValueTask<(bool Cached, IReadOnlyList<Endpoint> Endpoints)> ComputeEndpointsAsync(
+            CancellationToken cancel)
+        {
+            Debug.Assert(!IsFixed);
+            // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
+            // case we use the colocated endpoint.
+            if (InvocationMode != InvocationMode.Datagram &&
+                Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
+            {
+                return (false, ImmutableArray.Create(colocatedEndpoint));
+            }
+
+            IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
+            if (RouterInfo != null)
+            {
+                // Get the router client endpoints if a router is configured
+                endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
+            }
+
+            bool cached = false;
+            if (endpoints.Count == 0)
+            {
+                // Get the proxy's endpoint or query the locator to get endpoints
+                if (Endpoints.Count > 0)
+                {
+                    endpoints = Endpoints;
+                }
+                else if (LocatorInfo != null)
+                {
+                    (endpoints, cached) =
+                        await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
+                }
+            }
+
+            // Apply overrides and filter endpoints
+            IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
+            {
+                // Filter out opaque and universal endpoints
+                if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
+                {
+                    return false;
+                }
+
+                // Check if the endpoint is compatible with the proxy invocation mode, Twoway and Oneway invocation
+                // modes require a non datagram endpoint, Datagram invocation mode requires a datagram endpoint, the
+                // other invocation modes (BatchOneway and BatchDagram) are not supported.
+                if (InvocationMode switch
+                {
+                    InvocationMode.Twoway or InvocationMode.Oneway => endpoint.IsDatagram,
+                    InvocationMode.Datagram => !endpoint.IsDatagram,
+                    _ => true
+                })
+                {
+                    return false;
+                }
+
+                // If PreferNonSecure is false, filter out all non-secure endpoints
+                return PreferNonSecure || endpoint.IsSecure;
+            });
+
+            if (PreferNonSecure)
+            {
+                // It's just a preference: we can fallback to secure endpoints.
+                filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
+            }
+
+            endpoints = filteredEndpoints.ToImmutableArray();
+            if (endpoints.Count == 0)
+            {
+                throw new NoEndpointException(ToString());
+            }
+
+            return (cached, endpoints);
+        }
+
         internal Connection? GetCachedConnection() => _connection;
 
         internal Dictionary<string, string> ToProperty(string prefix)
@@ -1318,81 +1393,6 @@ namespace ZeroC.Ice
                 Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
             Debug.Assert(invocationTimeout != TimeSpan.Zero);
-        }
-
-        internal async ValueTask<(bool Cached, IReadOnlyList<Endpoint> Endpoints)> ComputeEndpointsAsync(
-            CancellationToken cancel)
-        {
-            Debug.Assert(!IsFixed);
-            // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
-            // case we use the colocated endpoint.
-            if (InvocationMode != InvocationMode.Datagram &&
-                Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
-            {
-                return (false, ImmutableArray.Create(colocatedEndpoint));
-            }
-
-            IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
-            if (RouterInfo != null)
-            {
-                // Get the router client endpoints if a router is configured
-                endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
-            }
-
-            bool cached = false;
-            if (endpoints.Count == 0)
-            {
-                // Get the proxy's endpoint or query the locator to get endpoints
-                if (Endpoints.Count > 0)
-                {
-                    endpoints = Endpoints;
-                }
-                else if (LocatorInfo != null)
-                {
-                    (endpoints, cached) =
-                        await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
-                }
-            }
-
-            // Apply overrides and filter endpoints
-            IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
-            {
-                // Filter out opaque and universal endpoints
-                if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
-                {
-                    return false;
-                }
-
-                // Check if the endpoint is compatible with the proxy invocation mode, Twoway and Oneway invocation
-                // modes require a non datagram endpoint, Datagram invocation mode requires a datagram endpoint, the
-                // other invocation modes (BatchOneway and BatchDagram) are not supported.
-                if (InvocationMode switch
-                {
-                    InvocationMode.Twoway or InvocationMode.Oneway => endpoint.IsDatagram,
-                    InvocationMode.Datagram => !endpoint.IsDatagram,
-                    _ => true
-                })
-                {
-                    return false;
-                }
-
-                // If PreferNonSecure is false, filter out all non-secure endpoints
-                return PreferNonSecure || endpoint.IsSecure;
-            });
-
-            if (PreferNonSecure)
-            {
-                // It's just a preference: we can fallback to secure endpoints.
-                filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
-            }
-
-            endpoints = filteredEndpoints.ToImmutableArray();
-            if (endpoints.Count == 0)
-            {
-                throw new NoEndpointException(ToString());
-            }
-
-            return (cached, endpoints);
         }
 
         private async Task<IncomingResponseFrame> PerformInvokeAsync(
