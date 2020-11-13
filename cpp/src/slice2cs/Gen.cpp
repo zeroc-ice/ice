@@ -2896,7 +2896,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     else
     {
         _out << nl << "var " << (params.size() == 1 ? paramName(params.front(), "iceP_") : "args")
-            << " = request.ReadArgs(current.Communicator, Request." << fixId(opName) << ");";
+            << " = request.ReadArgs(current.Connection, Request." << fixId(opName) << ");";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)

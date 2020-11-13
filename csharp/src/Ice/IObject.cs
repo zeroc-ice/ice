@@ -170,7 +170,7 @@ namespace ZeroC.Ice
             Current current,
             CancellationToken cancel)
         {
-            string id = request.ReadArgs(current.Communicator, Request.IceIsA);
+            string id = request.ReadArgs(current.Connection, Request.IceIsA);
             bool returnValue = IceIsA(id, current, cancel);
             return new ValueTask<OutgoingResponseFrame>(Response.IceIsA(current, returnValue));
         }

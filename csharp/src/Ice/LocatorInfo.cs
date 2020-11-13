@@ -392,7 +392,8 @@ namespace ZeroC.Ice
 
                         Reference? resolved = proxy?.IceReference;
 
-                        if (resolved != null && (resolved.IsIndirect || resolved.Protocol != Protocol.Ice1))
+                        if (resolved != null &&
+                            (resolved.Endpoints.Count == 0 || resolved.Protocol != Protocol.Ice1))
                         {
                             if (communicator.TraceLevels.Locator >= 1)
                             {

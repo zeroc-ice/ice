@@ -4,10 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+using Test;
+
 namespace ZeroC.Ice.Test.Proxy
 {
-    public sealed class MyDerivedClass : IMyDerivedClass
+    internal sealed class MyDerivedClass : IMyDerivedClass
     {
+        private Dictionary<string, string>? _ctx;
+
         public IObjectPrx? Echo(IObjectPrx? obj, Current c, CancellationToken cancel) => obj;
 
         public IEnumerable<string> GetLocation(Current current, CancellationToken cancel) => current.Location;
@@ -23,6 +27,21 @@ namespace ZeroC.Ice.Test.Proxy
             return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
-        private Dictionary<string, string>? _ctx;
+        public IRelativeTestPrx OpRelative(ICallbackPrx callback, Current current, CancellationToken cancel)
+        {
+            TestHelper.Assert(callback.IsFixed);
+            IRelativeTestPrx relativeTest =
+                current.Adapter.AddWithUUID(new RelativeTest(), IRelativeTestPrx.Factory).Clone(relative: true);
+
+            TestHelper.Assert(callback.Op(relativeTest, cancel: cancel) == 1);
+            return relativeTest;
+        }
+    }
+
+    internal sealed class RelativeTest : IRelativeTest
+    {
+        private int _count;
+
+        public int DoIt(Current current, CancellationToken cancel) => ++_count;
     }
 }
