@@ -326,6 +326,10 @@ namespace ZeroC.Ice
             {
                 return false;
             }
+            if (IsFixed != other.IsFixed)
+            {
+                return false;
+            }
             if (IsRelative != other.IsRelative)
             {
                 return false;
@@ -362,6 +366,7 @@ namespace ZeroC.Ice
                 }
                 hash.Add(InvocationMode);
                 hash.Add(InvocationTimeout);
+                hash.Add(IsFixed);
                 hash.Add(IsRelative);
                 hash.Add(Protocol);
 
