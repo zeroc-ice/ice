@@ -35,11 +35,12 @@ namespace ZeroC.Ice
         /// <summary>Reads the return value. If this response frame carries a failure, reads and throws this exception.
         /// </summary>
         /// <paramtype name="T">The type of the return value.</paramtype>
-        /// <param name="communicator">The communicator.</param>
+        /// <param name="proxy">The proxy used to send the request. <c>proxy</c> is used to read relative proxies.
+        /// </param>
         /// <param name="reader">An input stream reader used to read the frame return value, when the frame
         /// return value contain multiple values the reader must use a tuple to return the values.</param>
         /// <returns>The frame return value.</returns>
-        public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
+        public T ReadReturnValue<T>(IObjectPrx proxy, InputStreamReader<T> reader)
         {
             if (HasCompressedPayload)
             {
@@ -48,18 +49,19 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+                return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), reader, proxy: proxy);
             }
             else
             {
-                throw ReadException(communicator);
+                throw ReadException(proxy);
             }
         }
 
         /// <summary>Reads the return value and makes sure this return value is empty (void) or has only unknown tagged
         /// members. If this response frame carries a failure, reads and throws this exception.</summary>
-        /// <param name="communicator">The communicator.</param>
-        public void ReadVoidReturnValue(Communicator communicator)
+        /// <param name="proxy">The proxy used to send the request. <c>proxy</c> is used to read relative proxies.
+        /// </param>
+        public void ReadVoidReturnValue(IObjectPrx proxy)
         {
             if (HasCompressedPayload)
             {
@@ -72,7 +74,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                throw ReadException(communicator);
+                throw ReadException(proxy);
             }
         }
 
@@ -129,7 +131,7 @@ namespace ZeroC.Ice
             return Payload.Slice(1);
         }
 
-        private Exception ReadException(Communicator communicator)
+        private Exception ReadException(IObjectPrx proxy)
         {
             Debug.Assert(ResultType != ResultType.Success);
 
@@ -141,7 +143,7 @@ namespace ZeroC.Ice
             {
                 istr = new InputStream(Payload.Slice(1),
                                        Protocol.GetEncoding(),
-                                       communicator,
+                                       reference: proxy.IceReference,
                                        startEncapsulation: true);
 
                 if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)

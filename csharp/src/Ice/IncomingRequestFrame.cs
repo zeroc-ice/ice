@@ -141,16 +141,16 @@ namespace ZeroC.Ice
 
         /// <summary>Reads the arguments from a request.</summary>
         /// <paramtype name="T">The type of the arguments.</paramtype>
-        /// <param name="communicator">The communicator.</param>
+        /// <param name="connection">The current connection.</param>
         /// <param name="reader">The delegate used to read the arguments.</param>
         /// <returns>The request arguments.</returns>
-        public T ReadArgs<T>(Communicator communicator, InputStreamReader<T> reader)
+        public T ReadArgs<T>(Connection connection, InputStreamReader<T> reader)
         {
             if (HasCompressedPayload)
             {
                 DecompressPayload();
             }
-            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), reader, connection: connection);
         }
 
         private protected override ArraySegment<byte> GetEncapsulation() => Payload;
