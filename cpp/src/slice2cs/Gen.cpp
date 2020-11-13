@@ -1921,7 +1921,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 _out << lhs << " == " << rhs << " ||";
                 _out.inc();
                 _out << nl << "(" << lhs << " != null && " << rhs << " != null && ";
-                _out << "global::ZeroC.Ice.DictionaryExtensions.DictionaryEqual(" << lhs << ", " << rhs << ")";
+                _out << "ZeroC.Ice.DictionaryExtensions.DictionaryEqual(" << lhs << ", " << rhs << ")";
                 _out << ")";
                 if (dataMembers.size() > 1)
                 {
@@ -1958,14 +1958,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 _out << nl << "if (" << obj << " != null)";
                 _out << sb;
-                _out << nl << "hash.Add(global::ZeroC.Ice.EnumerableExtensions.GetSequenceHashCode(" << obj << "));";
+                _out << nl << "hash.Add(ZeroC.Ice.EnumerableExtensions.GetSequenceHashCode(" << obj << "));";
                 _out << eb;
             }
             else if (DictionaryPtr::dynamicCast(mType))
             {
                 _out << nl << "if (" << obj << " != null)";
                 _out << sb;
-                _out << nl << "hash.Add(global::ZeroC.Ice.DictionaryExtensions.GetDictionaryHashCode(" << obj << "));";
+                _out << nl << "hash.Add(ZeroC.Ice.DictionaryExtensions.GetDictionaryHashCode(" << obj << "));";
                 _out << eb;
             }
             else
