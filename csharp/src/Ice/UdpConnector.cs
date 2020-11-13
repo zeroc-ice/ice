@@ -8,7 +8,7 @@ namespace ZeroC.Ice
     {
         private readonly UdpEndpoint _endpoint;
         private readonly EndPoint _addr;
-        private readonly int _hashCode;
+        private int _hashCode;
 
         public override Endpoint Endpoint => _endpoint;
 
@@ -60,7 +60,25 @@ namespace ZeroC.Ice
             }
         }
 
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode()
+        {
+            // This code is thread safe because reading/writing _hashCode (an int) is atomic.
+            if (_hashCode != 0)
+            {
+                // Return cached value
+                return _hashCode;
+            }
+            else
+            {
+                var hash = new System.HashCode();
+                hash.Add(_addr);
+                hash.Add(_endpoint.SourceAddress);
+                hash.Add(_endpoint.MulticastInterface);
+                hash.Add(_endpoint.MulticastTtl);
+                _hashCode = hash.ToHashCode();
+                return _hashCode;
+            }
+        }
 
         public override string ToString() => _addr.ToString()!;
 
@@ -69,16 +87,6 @@ namespace ZeroC.Ice
         {
             _endpoint = endpoint;
             _addr = addr;
-
-            var hash = new System.HashCode();
-            hash.Add(_addr);
-            if (_endpoint.SourceAddress != null)
-            {
-                hash.Add(_endpoint.SourceAddress);
-            }
-            hash.Add(_endpoint.MulticastInterface);
-            hash.Add(_endpoint.MulticastTtl);
-            _hashCode = hash.ToHashCode();
         }
     }
 }

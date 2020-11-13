@@ -10,7 +10,7 @@ namespace ZeroC.Ice
 
         private readonly EndPoint _addr;
         private readonly TcpEndpoint _endpoint;
-        private readonly int _hashCode;
+        private int _hashCode;
         private readonly INetworkProxy? _proxy;
 
         public override Connection Connect(string connectionId)
@@ -62,7 +62,25 @@ namespace ZeroC.Ice
             }
         }
 
-        public override int GetHashCode() => _hashCode;
+        public override int GetHashCode()
+        {
+            // This code is thread safe because reading/writing _hashCode (an int) is atomic.
+            if (_hashCode != 0)
+            {
+                // Return cached value
+                return _hashCode;
+            }
+            else
+            {
+                var hash = new System.HashCode();
+                hash.Add(_endpoint.Protocol);
+                hash.Add(_endpoint.Transport);
+                hash.Add(_addr);
+                hash.Add(_endpoint.SourceAddress);
+                _hashCode = hash.ToHashCode();
+                return _hashCode;
+            }
+        }
 
         public override string ToString() => (_proxy?.Address ?? _addr).ToString()!;
 
@@ -71,16 +89,6 @@ namespace ZeroC.Ice
             _endpoint = endpoint;
             _addr = addr;
             _proxy = proxy;
-
-            var hash = new System.HashCode();
-            hash.Add(_endpoint.Protocol);
-            hash.Add(_endpoint.Transport);
-            hash.Add(_addr);
-            if (_endpoint.SourceAddress != null)
-            {
-                hash.Add(_endpoint.SourceAddress);
-            }
-            _hashCode = hash.ToHashCode();
         }
     }
 }
