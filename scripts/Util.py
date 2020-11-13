@@ -758,8 +758,6 @@ class Mapping(object):
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
                 if self.mx:
-                    # TODO: the admin endpoints are also necessary for IceGrid/simple test.
-                    # Do we ever run it without mx ?
                     transport = current.config.transport
                     props["Ice.Admin.Endpoints"] = f"{transport} -h \"::1\"" if self.ipv6 else f"{transport} -h 127.0.0.1"
                     props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"
