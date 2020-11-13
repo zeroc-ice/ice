@@ -33,7 +33,7 @@ namespace ZeroC.Ice
         public bool IsIdempotent { get; }
 
         /// <summary>The location of the target Ice object. With ice1, it is always empty.</summary>
-        public string[] Location { get; }
+        public IReadOnlyList<string> Location { get; }
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }

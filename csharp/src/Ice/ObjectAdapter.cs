@@ -103,18 +103,18 @@ namespace ZeroC.Ice
 
         private Task? _activateTask;
 
-        private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new ();
+        private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new();
         private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;
-        private readonly Dictionary<string, IObject> _defaultServantMap = new ();
+        private readonly Dictionary<string, IObject> _defaultServantMap = new();
         private Task? _disposeTask;
-        private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new ();
+        private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new();
 
-        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new ();
-        private readonly List<DispatchInterceptor> _interceptors = new ();
+        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new();
+        private readonly List<DispatchInterceptor> _interceptors = new();
         private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
 
         private volatile LocatorInfo? _locatorInfo;
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
 
         private readonly RouterInfo? _routerInfo;

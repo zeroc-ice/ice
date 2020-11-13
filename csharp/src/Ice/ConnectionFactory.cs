@@ -21,14 +21,14 @@ namespace ZeroC.Ice
     internal sealed class OutgoingConnectionFactory : IConnectionManager, IAsyncDisposable
     {
         private readonly Communicator _communicator;
-        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector = new ();
-        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint = new ();
+        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector = new();
+        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint = new();
         private Task? _disposeTask;
-        private readonly object _mutex = new ();
-        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending = new ();
+        private readonly object _mutex = new();
+        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending = new();
         // We keep a map of the connectors that recently resulted in a transport failure. This is used to influence the
         // selection of connectors when creating new connections. Connectors with recent failures are tried last.
-        private readonly ConcurrentDictionary<IConnector, DateTime> _transportFailures = new ();
+        private readonly ConcurrentDictionary<IConnector, DateTime> _transportFailures = new();
 
         public async ValueTask DisposeAsync()
         {
@@ -494,9 +494,9 @@ namespace ZeroC.Ice
         private Task? _acceptTask;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
-        private readonly HashSet<Connection> _connections = new ();
+        private readonly HashSet<Connection> _connections = new();
         private bool _disposed;
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
 
         public override async ValueTask DisposeAsync()
         {

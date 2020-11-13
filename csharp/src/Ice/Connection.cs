@@ -126,7 +126,7 @@ namespace ZeroC.Ice
         private readonly IConnectionManager? _manager;
         // The mutex protects mutable non-volatile data members and ensures the logic for some operations is
         // performed atomically.
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
         private volatile ConnectionState _state; // The current state.
         private Timer? _timer;
 

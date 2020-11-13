@@ -27,21 +27,21 @@ namespace ZeroC.Ice
         private readonly bool _background;
 
         private readonly ConcurrentDictionary<(Location, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints)> _locationCache =
-            new (_locationComparer);
+            new(_locationComparer);
 
         private readonly Dictionary<(Location, Protocol), Task<EndpointList>> _locationRequests =
-            new (_locationComparer);
+            new(_locationComparer);
 
         private ILocatorRegistryPrx? _locatorRegistry;
 
         // _mutex protects _locationRequests and _wellKnownProxyRequests
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
 
         private readonly ConcurrentDictionary<(Identity, string, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
-            new ();
+            new();
 
         private readonly Dictionary<(Identity, string, Protocol), Task<(EndpointList, Location)>> _wellKnownProxyRequests =
-            new ();
+            new();
 
         internal LocatorInfo(ILocatorPrx locator, bool background)
         {

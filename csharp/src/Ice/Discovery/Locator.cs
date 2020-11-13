@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Discovery
         // The key is a single-endpoint datagram Lookup proxy extracted from the _lookup proxy.
         // The value is a dummy datagram proxy with usually a single endpoint that is one of _replyAdapter's endpoints
         // and that matches the interface of the key's endpoint.
-        private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new ();
+        private readonly Dictionary<ILookupPrx, IObjectPrx> _lookups = new();
 
         private readonly ObjectAdapter _multicastAdapter;
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice.Discovery
         }
 
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
-            new (_registry);
+            new(_registry);
 
         public async ValueTask<IEnumerable<EndpointData>> ResolveLocationAsync(
             string[] location,
@@ -152,7 +152,7 @@ namespace ZeroC.Ice.Discovery
             string? lookupEndpoints = communicator.GetProperty("Ice.Discovery.Lookup");
             if (lookupEndpoints == null)
             {
-                List<string> endpoints = new ();
+                List<string> endpoints = new();
                 List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
                 List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
 
@@ -353,8 +353,8 @@ namespace ZeroC.Ice.Discovery
             // Add servant (this) to object adapter with new UUID identity.
             Identity = replyAdapter.AddWithUUID(this, IObjectPrx.Factory).Identity;
 
-            _cancellationSource = new ();
-            _completionSource = new ();
+            _cancellationSource = new();
+            _completionSource = new();
             _emptyResult = emptyResult;
             _replyAdapter = replyAdapter;
         }
@@ -373,8 +373,8 @@ namespace ZeroC.Ice.Discovery
     /// <summary>Servant class that implements the Slice interface FindAdapterByIdReply.</summary>
     internal sealed class FindAdapterByIdReply : ReplyServant<IObjectPrx?>, IFindAdapterByIdReply
     {
-        private readonly object _mutex = new ();
-        private readonly HashSet<IObjectPrx> _proxies = new ();
+        private readonly object _mutex = new();
+        private readonly HashSet<IObjectPrx> _proxies = new();
 
         public void FoundAdapterById(
             string adapterId,
@@ -438,8 +438,8 @@ namespace ZeroC.Ice.Discovery
     /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
     internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
     {
-        private readonly object _mutex = new ();
-        private readonly HashSet<EndpointData> _endpointDataSet = new (EndpointDataComparer.Instance);
+        private readonly object _mutex = new();
+        private readonly HashSet<EndpointData> _endpointDataSet = new(EndpointDataComparer.Instance);
 
         public void FoundAdapterId(
             EndpointData[] endpoints,
@@ -496,7 +496,7 @@ namespace ZeroC.Ice.Discovery
     // Temporary helper class
     internal sealed class EndpointDataComparer : IEqualityComparer<EndpointData>
     {
-        internal static readonly EndpointDataComparer Instance = new ();
+        internal static readonly EndpointDataComparer Instance = new();
 
         public bool Equals(EndpointData x, EndpointData y) =>
             x.Transport == y.Transport &&

@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using Test;
 using System.Threading;
+using Test;
 
 namespace ZeroC.Ice.Test.Discovery
 {

@@ -531,8 +531,10 @@ namespace ZeroC.IceBox
                 }
                 catch (Exception ex)
                 {
-                    throw new LoadException(@$"IceBox.ServiceManager: unable to load service `{entryPoint
-                        }': error loading assembly `{assemblyName}'", ex);
+                    throw new LoadException(
+                        @$"IceBox.ServiceManager: unable to load service `{entryPoint
+                        }': error loading assembly `{assemblyName}'",
+                        ex);
                 }
 
                 Type? c = null;
@@ -542,8 +544,10 @@ namespace ZeroC.IceBox
                 }
                 catch (Exception ex)
                 {
-                    throw new LoadException(@$"IceBox.ServiceManager: unable to load service `{entryPoint
-                        }': cannot find the service class `{className}'", ex);
+                    throw new LoadException(
+                        @$"IceBox.ServiceManager: unable to load service `{entryPoint
+                        }': cannot find the service class `{className}'",
+                        ex);
                 }
                 Debug.Assert(c != null);
 
