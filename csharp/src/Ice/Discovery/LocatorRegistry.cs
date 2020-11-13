@@ -15,12 +15,12 @@ namespace ZeroC.Ice.Discovery
         private readonly IObjectPrx _dummyIce1Proxy;
         private readonly IObjectPrx _dummyIce2Proxy;
 
-        private readonly Dictionary<string, IObjectPrx> _ice1Adapters = new ();
-        private readonly Dictionary<string, IReadOnlyList<EndpointData>> _ice2Adapters = new ();
+        private readonly Dictionary<string, IObjectPrx> _ice1Adapters = new();
+        private readonly Dictionary<string, IReadOnlyList<EndpointData>> _ice2Adapters = new();
 
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
 
-        private readonly Dictionary<(string AdapterId, Protocol Protocol), HashSet<string>> _replicaGroups = new ();
+        private readonly Dictionary<(string AdapterId, Protocol Protocol), HashSet<string>> _replicaGroups = new();
 
         public void RegisterAdapterEndpoints(
             string adapterId,
@@ -228,7 +228,7 @@ namespace ZeroC.Ice.Discovery
                 {
                     if (!_replicaGroups.TryGetValue((replicaGroupId, protocol), out HashSet<string>? adapterIds))
                     {
-                        adapterIds = new ();
+                        adapterIds = new();
                         _replicaGroups.Add((replicaGroupId, protocol), adapterIds);
                     }
                     adapterIds.Add(adapterId);

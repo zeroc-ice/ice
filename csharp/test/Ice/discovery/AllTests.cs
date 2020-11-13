@@ -258,8 +258,12 @@ namespace ZeroC.Ice.Test.Discovery
                     Dictionary<string, string> properties = communicator.GetProperties();
                     string port = $"{helper.BasePort + 10}";
                     string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
-                    properties["Ice.Discovery.Lookup"] =
-                        $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} --interface {intf}";
+                    string lookup = $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}";
+                    if (!OperatingSystem.IsLinux())
+                    {
+                        lookup += " --interface {intf}";
+                    }
+
                     using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     IObjectPrx.Parse(ice1 ? "controller0@control0" : "ice:control0//controller0", comm).IcePing();

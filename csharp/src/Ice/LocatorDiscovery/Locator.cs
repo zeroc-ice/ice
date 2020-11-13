@@ -26,7 +26,7 @@ namespace ZeroC.Ice.LocatorDiscovery
         private readonly ObjectAdapter _locatorAdapter;
 
         private readonly ILookupPrx _lookup;
-        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new ();
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups = new();
 
         private readonly string _lookupTraceCategory;
         private readonly int _lookupTraceLevel;
@@ -217,7 +217,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             string? lookupEndpoints = communicator.GetProperty("Ice.LocatorDiscovery.Lookup");
             if (lookupEndpoints == null)
             {
-                List<string> endpoints = new ();
+                List<string> endpoints = new();
                 List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
                 List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
 

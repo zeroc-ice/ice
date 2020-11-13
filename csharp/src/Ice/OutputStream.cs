@@ -430,7 +430,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    this.Write(ProxyKind.@Null);
+                    this.Write(ProxyKind20.Null);
                 }
             }
         }

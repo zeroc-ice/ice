@@ -215,7 +215,7 @@ namespace ZeroC.Ice
         private static bool _oneOffDone;
         private static bool _printProcessIdDone;
         private readonly ConcurrentDictionary<
-            string, Func<string?, RemoteExceptionOrigin?, RemoteException>?> _remoteExceptionFactoryCache = new ();
+            string, Func<string?, RemoteExceptionOrigin?, RemoteException>?> _remoteExceptionFactoryCache = new();
         private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();

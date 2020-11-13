@@ -57,10 +57,10 @@ namespace ZeroC.Ice
         private int _incomingStreamCount;
         // The mutex provides thread-safety for the _observer and LastActivity data members. It can also be used
         // by specializations to provide data member thread-safety.
-        private protected readonly object _mutex = new ();
+        private protected readonly object _mutex = new();
         private IConnectionObserver? _observer;
         private int _outgoingStreamCount;
-        private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new ();
+        private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new();
         private volatile bool _streamsAborted;
         private volatile TaskCompletionSource? _streamsEmptySource;
 

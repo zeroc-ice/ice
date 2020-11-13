@@ -23,7 +23,7 @@ namespace ZeroC.Ice
 
         internal int BidirectionalStreamCount;
         internal AsyncSemaphore? BidirectionalStreamSemaphore;
-        internal readonly object Mutex = new ();
+        internal readonly object Mutex = new();
         internal SlicOptions Options { get; }
         internal int UnidirectionalStreamCount;
         internal AsyncSemaphore? UnidirectionalStreamSemaphore;
@@ -33,7 +33,7 @@ namespace ZeroC.Ice
         private long _lastUnidirectionalId;
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
-        private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new ();
+        private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new();
         private Task _sendTask = Task.CompletedTask;
         private readonly BufferedReadTransceiver _transceiver;
 

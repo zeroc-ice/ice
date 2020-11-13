@@ -45,7 +45,7 @@ namespace ZeroC.Ice
         public bool IsOneway { get; }
 
         /// <summary>The location of the target Ice object.</summary>
-        public string[] Location => IncomingRequestFrame.Location;
+        public IReadOnlyList<string> Location => IncomingRequestFrame.Location;
 
         /// <summary>The operation name.</summary>
         public string Operation => IncomingRequestFrame.Operation;

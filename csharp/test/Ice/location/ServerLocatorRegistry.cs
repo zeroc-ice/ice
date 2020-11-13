@@ -1,14 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Test;
 
 namespace ZeroC.Ice.Test.Location
 {

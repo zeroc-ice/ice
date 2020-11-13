@@ -165,7 +165,7 @@ namespace ZeroC.Ice
             return new WSEndpoint(data, options, communicator, oaEndpoint);
         }
 
-         // Constructor for ice1 unmarshaling
+        // Constructor for ice1 unmarshaling
         private WSEndpoint(EndpointData data, TimeSpan timeout, bool compress, Communicator communicator)
             : base(data, timeout, compress, communicator)
         {

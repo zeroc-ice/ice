@@ -62,6 +62,7 @@ namespace ZeroC.Ice
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
+        /// <param name="relative">When true, the new proxy is a relative proxy (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(
@@ -86,6 +87,7 @@ namespace ZeroC.Ice
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
             bool? preferNonSecure = null,
+            bool? relative = null,
             IRouterPrx? router = null) where T : class, IObjectPrx =>
             factory(prx.IceReference.Clone(cacheConnection,
                                            clearLocator,
@@ -106,6 +108,7 @@ namespace ZeroC.Ice
                                            locatorCacheTimeout,
                                            oneway,
                                            preferNonSecure,
+                                           relative,
                                            router));
 
         /// <summary>Creates a clone of this proxy. The clone is identical to this proxy except for options set
@@ -134,6 +137,7 @@ namespace ZeroC.Ice
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
+        /// <param name="relative">When true, the new proxy is a relative proxy (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
         /// <returns>A new proxy with the same type as this proxy.</returns>
         public static T Clone<T>(
@@ -154,6 +158,7 @@ namespace ZeroC.Ice
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
             bool? preferNonSecure = null,
+            bool? relative = null,
             IRouterPrx? router = null) where T : IObjectPrx
         {
             Reference clone = prx.IceReference.Clone(cacheConnection,
@@ -175,6 +180,7 @@ namespace ZeroC.Ice
                                                      locatorCacheTimeout,
                                                      oneway,
                                                      preferNonSecure,
+                                                     relative,
                                                      router);
 
             // Reference.Clone never returns a new reference == to itself.

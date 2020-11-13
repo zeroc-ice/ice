@@ -282,9 +282,9 @@ namespace ZeroC.Ice.Test.Exceptions
                 {
                     // Expected with JS bidir server
                 }
-                catch
+                catch (Exception ex)
                 {
-                    TestHelper.Assert(false);
+                    TestHelper.Assert(false, $"unexpected exception:\n{ex}");
                 }
 
                 try

@@ -150,9 +150,9 @@ namespace ZeroC.Ice
         /// <value>True when the proxy caches its connection; otherwise, false.</value>
         public bool IsConnectionCached => IceReference.IsConnectionCached;
 
-        /// <summary>Indicates whether or not this proxy is fixed proxy.</summary>
-        /// <value>When true, the proxy is a fixed proxy; when false, the proxy is a regular proxy, not bound to
-        /// any connection.</value>
+        /// <summary>Indicates whether or not this proxy is bound to a connection.</summary>
+        /// <value>True when this proxy is bound to a connection. Such a proxy has no endpoint. Otherwise, false.
+        /// </value>
         public bool IsFixed => IceReference.IsFixed;
 
         /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
@@ -161,6 +161,11 @@ namespace ZeroC.Ice
         /// false, invoking such an operation waits for the empty response from the target object, unless this behavior
         /// is overridden by metadata on the Slice operation's definition.</value>
         public bool IsOneway => IceReference.IsOneway;
+
+        /// <summary>Indicates whether or not this proxy is marked relative.</summary>
+        /// <value>True when this proxy is marked relative. Such a proxy has no endpoint and cannot be fixed as well.
+        /// </value>
+        public bool IsRelative => IceReference.IsRelative;
 
         /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
         public IReadOnlyList<string> Location => IceReference.Location;
@@ -346,7 +351,7 @@ namespace ZeroC.Ice
             try
             {
                 IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway: false).Result;
-                return response.ReadReturnValue(Communicator, reader);
+                return response.ReadReturnValue(this, reader);
             }
             catch (AggregateException ex)
             {
@@ -371,7 +376,7 @@ namespace ZeroC.Ice
                 IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway).Result;
                 if (!oneway)
                 {
-                    response.ReadVoidReturnValue(Communicator);
+                    response.ReadVoidReturnValue(this);
                 }
             }
             catch (AggregateException ex)
@@ -415,7 +420,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return (await responseTask.ConfigureAwait(false)).ReadReturnValue(Communicator, reader);
+                    return (await responseTask.ConfigureAwait(false)).ReadReturnValue(this, reader);
                 }
                 finally
                 {
@@ -456,7 +461,7 @@ namespace ZeroC.Ice
                     IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
                     if (!oneway)
                     {
-                        response.ReadVoidReturnValue(Communicator);
+                        response.ReadVoidReturnValue(this);
                     }
                 }
                 finally

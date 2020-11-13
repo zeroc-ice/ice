@@ -111,18 +111,18 @@ namespace ZeroC.Ice
 
         private Task? _activateTask;
 
-        private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new ();
+        private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new();
         private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;
-        private readonly Dictionary<string, IObject> _defaultServantMap = new ();
+        private readonly Dictionary<string, IObject> _defaultServantMap = new();
         private Task? _disposeTask;
-        private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new ();
+        private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new();
 
-        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new ();
-        private readonly List<DispatchInterceptor> _interceptors = new ();
+        private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new();
+        private readonly List<DispatchInterceptor> _interceptors = new();
         private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
 
         private volatile LocatorInfo? _locatorInfo;
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
 
         private readonly RouterInfo? _routerInfo;
@@ -484,9 +484,9 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Creates a proxy for the object with the given identity and facet. If this object adapter is
-        /// configured with an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group
-        /// id is also defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
-        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// configured with an adapter ID, creates an indirect proxy that refers to the adapter ID. If a replica group
+        /// ID is also defined, creates an indirect proxy that refers to the replica group ID. Otherwise, if no adapter
+        /// ID is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
         /// <param name="identity">The object's identity.</param>
         /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
@@ -978,7 +978,7 @@ namespace ZeroC.Ice
             }
             else if (reference.IsIndirect)
             {
-                // Proxy is local if the reference's location matches this adapter id or replica group id.
+                // Reference is local if the reference's location matches this adapter ID or replica group ID.
                 return reference.Location.Count == 1 &&
                     (reference.Location[0] == AdapterId || reference.Location[0] == ReplicaGroupId);
             }
