@@ -586,7 +586,7 @@ namespace ZeroC.Ice
 
         internal async ValueTask<Connection> GetConnectionAsync(CancellationToken cancel)
         {
-            Connection? connection = GetCachedConnection();
+            Connection? connection = _connection;
             bool cached;
             IReadOnlyList<Endpoint> endpoints;
             List<Connector>? connectors = null;
@@ -1389,7 +1389,7 @@ namespace ZeroC.Ice
             // Apply overrides and filter endpoints
             IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
             {
-                // Filter out opaque endpoints
+                // Filter out opaque and universal endpoints
                 if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
                 {
                     return false;
@@ -1435,7 +1435,7 @@ namespace ZeroC.Ice
             IInvocationObserver? observer,
             CancellationToken cancel)
         {
-            Connection? connection = GetCachedConnection();
+            Connection? connection = _connection;
             bool cached = false;
             IReadOnlyList<Endpoint> endpoints;
             List<Connector>? connectors = null;
@@ -1605,7 +1605,8 @@ namespace ZeroC.Ice
                     response?.GetRetryPolicy(this) ?? exception!.GetRetryPolicy(request.IsIdempotent, sent);
 
                 // With the retry-policy OtherReplica we add the current connector to the list of excluded
-                // connectors, this prevents the connector to be tried again during the current retry sequence.
+                // connectors and remove if from the list of connectors, this prevents the connector to be
+                // tried again during the current retry sequence.
                 if (retryPolicy == RetryPolicy.OtherReplica)
                 {
                     if ((connectors?[nextConnector] ?? connection?.Connector) is Connector connector)
@@ -1620,7 +1621,8 @@ namespace ZeroC.Ice
                 {
                     if (connection == null && retryPolicy != RetryPolicy.OtherReplica)
                     {
-                        // If connection establishment failed, try the next connector
+                        // If connection establishment failed and the connector was not excluded, try the next
+                        // connector
                         nextConnector = ++nextConnector % connectors.Count;
                     }
 
@@ -1654,25 +1656,32 @@ namespace ZeroC.Ice
                     (triedAllConnectors && connectors != null && connectors.Count == 0) ||
                     (IsFixed && retryPolicy == RetryPolicy.OtherReplica))
                 {
-                    if (exception != null)
-                    {
-                        observer?.Failed(exception.GetType().FullName ?? "System.Exception");
-                        throw ExceptionUtil.Throw(exception);
-                    }
-                    else
-                    {
-                        observer?.Failed("System.Exception"); // TODO cleanup observer logic
-                        Debug.Assert(response != null && response.ResultType == ResultType.Failure);
-                        return response;
-                    }
+                    // TODO cleanup observer logic, we are reporting "System.Exception" for all RemoteExceptions
+                    // as they are not unmarshaled
+                    observer?.Failed(exception?.GetType().FullName ?? "System.Exception");
+                    return response ?? throw ExceptionUtil.Throw(exception!);
                 }
 
                 if (Communicator.TraceLevels.Retry >= 1)
                 {
-                    TraceRetry("retrying request because of retryable exception",
-                                attempt,
-                                retryPolicy,
-                                exception);
+                    if (connection != null)
+                    {
+                        TraceRetry("retrying request because of retryable exception", attempt, retryPolicy, exception);
+                    }
+                    else if (triedAllConnectors)
+                    {
+                        TraceRetry("retrying connection establishment because of retryable exception",
+                                   attempt,
+                                   retryPolicy,
+                                   exception);
+                    }
+                    else
+                    {
+                        TraceRetry("retrying connection establishment because of retryable exception",
+                                   0,
+                                   policy: null,
+                                   exception);
+                    }
                 }
 
                 if (connection != null || triedAllConnectors)
@@ -1706,32 +1715,29 @@ namespace ZeroC.Ice
                 }
             }
 
-            void TraceRetry(string message, int attempt, RetryPolicy policy, Exception? exception = null)
+            void TraceRetry(string message, int attempt = 0, RetryPolicy? policy = null, Exception? exception = null)
             {
+                Debug.Assert(attempt >= 0 && attempt <= Communicator.MaxAttempts);
                 var sb = new StringBuilder();
                 sb.Append(message);
                 sb.Append("\nproxy = ");
                 sb.Append(this);
                 sb.Append("\noperation = ");
                 sb.Append(request.Operation);
-                if (attempt <= Communicator.MaxAttempts)
+                if (attempt > 0)
                 {
                     sb.Append("\nrequest attempt = ");
                     sb.Append(attempt);
                     sb.Append('/');
                     sb.Append(Communicator.MaxAttempts);
                 }
-                sb.Append("\nretry policy = ");
-                sb.Append(policy);
-                if (exception != null)
+                if (policy != null)
                 {
-                    sb.Append("\nexception = ");
-                    sb.Append(exception);
+                    sb.Append("\nretry policy = ");
+                    sb.Append(policy);
                 }
-                else
-                {
-                    sb.Append("\nexception = remote exception");
-                }
+                sb.Append("\nexception = ");
+                sb.Append(exception?.ToString() ?? "\nexception = remote exception");
                 Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
