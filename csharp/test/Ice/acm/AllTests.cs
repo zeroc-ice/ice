@@ -258,14 +258,14 @@ namespace ZeroC.Ice.Test.ACM
         {
             // Faster ACM to make sure we receive enough ACM heartbeats
             public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
-                : base("invocation heartbeat", com, helper) => SetServerParams(1, false);
+                : base("invocation heartbeat", com, helper) => SetServerParams(2, false);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.Sleep(4);
 
                 lock (Mutex)
                 {
-                    TestHelper.Assert(Heartbeat >= 4);
+                    TestHelper.Assert(Heartbeat >= 2);
                     TestHelper.Assert(!Closed);
                 }
             }
