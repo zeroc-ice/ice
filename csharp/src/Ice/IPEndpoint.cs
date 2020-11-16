@@ -26,7 +26,7 @@ namespace ZeroC.Ice
         protected internal override bool HasOptions => Protocol == Protocol.Ice1 || SourceAddress != null;
 
         // The default port with ice1 is 0.
-        protected internal override ushort DefaultPort => Protocol == Protocol.Ice1 ? (ushort)0 : DefaultIPPort;
+        protected internal override ushort DefaultPort => Protocol == Protocol.Ice1 ? 0 : DefaultIPPort;
 
         internal const ushort DefaultIPPort = 4062;
 

@@ -55,11 +55,6 @@ namespace ZeroC.Ice
                     return false;
                 }
 
-                if (_endpoint.Timeout != tcpConnector._endpoint.Timeout)
-                {
-                    return false;
-                }
-
                 if (_endpoint.Transport != tcpConnector._endpoint.Transport)
                 {
                     return false;
@@ -87,7 +82,6 @@ namespace ZeroC.Ice
                 hash.Add(_addr);
                 hash.Add(_endpoint.Protocol);
                 hash.Add(_endpoint.SourceAddress);
-                hash.Add(_endpoint.Timeout);
                 hash.Add(_endpoint.Transport);
                 hash.Add(_proxy);
                 int hashCode = hash.ToHashCode();
