@@ -349,6 +349,14 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Attempts to establish a connection to one of the given endpoints using its paired
+        /// connector.</summary>
+        /// <param name="connectors">The list of connector and endpoint tuples used to create a connection.</param>
+        /// <param name="connectionId">The connection ID for the new connection.</param>
+        /// <param name="hasMore">If there are more connectors other than the ones specified.</param>
+        /// <param name="preferNonSecure">Indicates whether the connector should prefer creating a non-secure
+        /// over secure connection.</param>
+        /// <returns>The connection.</returns>
         private async Task<Connection> ConnectAsync(
             IReadOnlyList<(IConnector Connector, Endpoint Endpoint)> connectors,
             string connectionId,
