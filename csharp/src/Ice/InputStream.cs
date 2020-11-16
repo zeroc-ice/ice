@@ -1097,7 +1097,9 @@ namespace Ice
             try
             {
                 var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _instance));
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
                 return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
             }
             catch(System.Exception ex)
             {

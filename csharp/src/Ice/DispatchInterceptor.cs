@@ -37,7 +37,9 @@ namespace Ice
                 // encoding version used by the client to eventually marshal the user exception. It's also needed
                 // if we dispatch a batch oneway request to read the next batch request.
                 //
-                if(current.encoding == null || (current.encoding.major == 0 && current.encoding.minor == 0))
+#pragma warning disable CS8073 // The result of the expression is always 'false'
+                if (current.encoding == null || (current.encoding.major == 0 && current.encoding.minor == 0))
+#pragma warning restore CS8073 // The result of the expression is always 'false'
                 {
                     inc.skipReadParams();
                 }

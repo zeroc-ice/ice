@@ -121,10 +121,6 @@ namespace Ice
 
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
-            {
-                return true;
-            }
             if(other == null)
             {
                 return false;

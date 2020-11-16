@@ -171,9 +171,11 @@ namespace Ice
                     new StreamingContext(StreamingContextStates.All, communicator));
                 using(MemoryStream mem = new MemoryStream())
                 {
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
                     bin.Serialize(mem, o);
                     mem.Seek(0, 0);
                     return(T)bin.Deserialize(mem);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
                 }
             }
         }

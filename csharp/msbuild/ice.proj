@@ -37,6 +37,20 @@
         </Otherwise>
     </Choose>
 
+    <!-- NET 5 on Windows requires Visual Studio 2019 -->
+    <Choose>
+        <When Condition="'$(VisualStudioVersion)' == '16.0' or '$(OS)' != 'Windows_NT'">
+            <PropertyGroup>
+                <Net5Targets>true</Net5Targets>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <Net5Targets>false</Net5Targets>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
     <!-- Targets required to build Slice compilers -->
     <Choose>
         <When Condition="'$(VisualStudioVersion)' == '12.0' or '$(OS)' != 'Windows_NT'">
@@ -70,6 +84,15 @@
     </Target>
 
     <ItemGroup>
+        <!-- .NET 5 Solution files -->
+        <Net5DistSolution Include="ice.net5.sln">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+        </Net5DistSolution>
+
+        <Net5TestSolution Include="ice.net5.test.sln">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+        </Net5TestSolution>
+
         <!-- .NET 4.5 Solution files -->
         <Net45DistSolution Include="ice.net45.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
@@ -88,6 +111,63 @@
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
+
+    <!-- NET 5 Targets -->
+    <Target Name="Net5NuGetRestoreDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net5Targets)' == 'true'">
+        <MSBuild Projects="@(Net5DistSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Restore"/>
+    </Target>
+
+    <Target Name="Net5BuildDist"
+            DependsOnTargets="SliceCompilers;Net5NuGetRestoreDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all'">
+
+        <MSBuild Projects="@(Net5DistSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"/>
+
+    </Target>
+
+    <Target Name="Net5CleanDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all'">
+
+        <MSBuild Projects="@(Net5DistSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Clean" />
+
+    </Target>
+
+    <Target Name="Net5NuGetRestore"
+            DependsOnTargets="Net5NuGetRestoreDist"
+            Condition="'$(Net5Targets)' == 'true'">
+        <MSBuild Projects="@(Net5TestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Restore"/>
+    </Target>
+
+    <Target Name="Net5Build"
+            DependsOnTargets="Net5BuildDist;Net5NuGetRestore">
+
+        <MSBuild Projects="@(Net5TestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"/>
+
+    </Target>
+
+    <Target Name="Net5Clean"
+            DependsOnTargets="Net5CleanDist">
+
+        <MSBuild Projects="@(Net5TestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Clean" />
+
+    </Target>
 
     <!-- NET 4.5 Targets -->
     <Target Name="Net45NuGetRestoreDist"
@@ -206,19 +286,19 @@
 
     <!-- Meta targets -->
 
-    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist">
+    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist;Net5BuildDist">
     </Target>
 
-    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist">
+    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist;Net5CleanDist">
     </Target>
 
-    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore">
+    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore;Net5NuGetRestore">
     </Target>
 
-    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build">
+    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build;Net5Build">
     </Target>
 
-    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean">
+    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean;Net5Clean">
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
@@ -237,6 +317,12 @@
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp3.1;BaseIntermediateOutputPath=obj\netcoreapp3.1\"
                  Targets="Restore;Publish"
                  Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+
+        <!-- Build iceboxnet with net5 target framework -->
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net5\icebox.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU"
+                 Targets="Restore;Publish"
+                 Condition="'$(Net5Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
 
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net;NetStandardTargets=$(NetStandardTargets);
@@ -281,6 +367,11 @@
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.1"
               Condition="'$(NetStandardTargets)' == 'true'"/>
+
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
+                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
+              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net5"
+              Condition="'$(Net5Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"

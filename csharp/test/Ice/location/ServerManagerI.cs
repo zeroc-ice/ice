@@ -75,11 +75,11 @@ namespace Ice
                         adapter2.activate();
                         break;
                     }
-                    catch(Ice.SocketException ex)
+                    catch(Ice.SocketException)
                     {
                         if(nRetry == 0)
                         {
-                            throw ex;
+                            throw;
                         }
 
                         // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web

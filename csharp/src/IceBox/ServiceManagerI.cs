@@ -492,8 +492,10 @@ class ServiceManagerI : ServiceManagerDisp_
                     }
                     catch(Exception)
                     {
-                         throw ex;
-                    }
+#pragma warning disable CA2200 // Rethrow to preserve stack details
+                            throw ex;
+#pragma warning restore CA2200 // Rethrow to preserve stack details
+                        }
                 }
             }
             catch(Exception ex)
