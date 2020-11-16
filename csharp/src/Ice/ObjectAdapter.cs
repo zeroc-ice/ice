@@ -18,10 +18,10 @@ namespace ZeroC.Ice
     /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
-        /// <summary>Indicates whether or not the object adapter accepts non-secure incoming
-        /// connections. When false, it only accepts secure connections; when true, it accepts both secure and
-        /// non-secure connections. This property corresponds to the object adapter's AcceptNonSecure
-        /// property. If not set then the value of <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
+        /// <summary>Indicates whether or not the object adapter accepts non-secure incoming connections. When false, it
+        /// only accepts secure connections; when true, it accepts both secure and non-secure connections. This property
+        /// corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
+        /// <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
         public bool AcceptNonSecure { get; }
 
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
