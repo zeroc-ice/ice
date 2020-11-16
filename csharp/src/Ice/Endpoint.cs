@@ -119,26 +119,10 @@ namespace ZeroC.Ice
             other is Endpoint endpoint &&
                 Communicator == endpoint.Communicator &&
                 Protocol == endpoint.Protocol &&
-                Transport == endpoint.Transport &&
-                Host == endpoint.Host &&
-                Port == endpoint.Port &&
-                Data.Options.SequenceEqual(endpoint.Data.Options);
+                Data == endpoint.Data;
 
         /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            var hash = new HashCode();
-            hash.Add(Communicator);
-            hash.Add(Protocol);
-            hash.Add(Transport);
-            hash.Add(Host);
-            hash.Add(Port);
-            foreach (string s in Data.Options)
-            {
-                hash.Add(s);
-            }
-            return hash.ToHashCode();
-        }
+        public override int GetHashCode() => HashCode.Combine(Communicator, Protocol, Data);
 
         /// <summary>Converts the endpoint into a string. The format of this string depends on the protocol: either
         /// ice1 format (for ice1) or URI format (for ice2 and up).</summary>
