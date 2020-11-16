@@ -151,11 +151,14 @@ namespace ZeroC.Ice
         {
             get
             {
-                if (_disposeTask != null)
+                try
                 {
-                    throw new CommunicatorDisposedException();
+                    return _cancellationTokenSource.Token;
                 }
-                return _cancellationTokenSource.Token;
+                catch (ObjectDisposedException ex)
+                {
+                    throw new CommunicatorDisposedException(ex);
+                }
             }
         }
         internal int ClassGraphDepthMax { get; }

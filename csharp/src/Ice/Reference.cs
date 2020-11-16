@@ -662,10 +662,14 @@ namespace ZeroC.Ice
                             }
                             break;
                         }
-                        catch when (!ReferenceEquals(connector, last))
+                        catch
                         {
                             // Ignore the exception unless this is the last connector.
                             // TODO retry with non cached endpoints
+                            if (ReferenceEquals(connector, last))
+                            {
+                                throw;
+                            }
                         }
                     }
                 }

@@ -113,11 +113,13 @@ namespace ZeroC.Ice
                 {
                     throw; // No need to continue
                 }
-                catch when (!ReferenceEquals(endpoint, last) || connectors.Count > 0)
+                catch
                 {
-                    // If this is not the last endpoint or if we have some connectors, ignore the exception and keep
-                    // going, otherwise if this is the last endpoint and we have no connectors let the exception go
-                    // throw and give the caller a chance to retry with fresh endpoints.
+                    // Ignore the exception unless this is the last endpoint and we have no connectors.
+                    if (ReferenceEquals(endpoint, last) && connectors.Count == 0)
+                    {
+                        throw;
+                    }
                 }
             }
 
