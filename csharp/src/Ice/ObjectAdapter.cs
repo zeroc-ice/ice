@@ -21,8 +21,7 @@ namespace ZeroC.Ice
         /// <summary>Indicates whether or not the object adapter accepts non-secure incoming
         /// connections. When false, it only accepts secure connections; when true, it accepts both secure and
         /// non-secure connections. This property corresponds to the object adapter's AcceptNonSecure
-        /// property. If not set then the value of <see cref="Communicator.AcceptNonSecure"/> is used.
-        /// </summary>
+        /// property. If not set then the value of <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
         public bool AcceptNonSecure { get; }
 
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not

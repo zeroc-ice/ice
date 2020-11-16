@@ -8,7 +8,7 @@ namespace ZeroC.Ice
     {
         public Connection Connect(string connectionId, bool preferNonSecure)
         {
-            ITransceiver transceiver = _endpoint.CreateTransceiver(this, _addr, _proxy, !preferNonSecure);
+            ITransceiver transceiver = _endpoint.CreateTransceiver(this, _addr, _proxy, preferNonSecure);
 
             MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = _endpoint.Protocol switch
             {

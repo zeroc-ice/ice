@@ -221,14 +221,14 @@ namespace ZeroC.Ice
             IConnector connector,
             EndPoint addr,
             INetworkProxy? proxy,
-            bool secure) =>
+            bool preferNonSecure) =>
             new WSTransceiver(Communicator,
-                              base.CreateTransceiver(connector, addr, proxy, secure),
+                              base.CreateTransceiver(connector, addr, proxy, preferNonSecure),
                               Host,
                               Resource,
                               connector);
 
-        internal override ITransceiver CreateTransceiver(Socket socket, string adapterName, bool secure) =>
-            new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName, secure));
+        internal override ITransceiver CreateTransceiver(Socket socket, string adapterName, bool preferNonSecure) =>
+            new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName, preferNonSecure));
     }
 }

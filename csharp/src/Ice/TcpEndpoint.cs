@@ -269,21 +269,21 @@ namespace ZeroC.Ice
             IConnector connector,
             EndPoint addr,
             INetworkProxy? proxy,
-            bool secure)
+            bool preferNonSecure)
         {
             ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
-            if (IsAlwaysSecure || secure)
+            if (IsAlwaysSecure || !preferNonSecure)
             {
                 transceiver = new SslTransceiver(Communicator, transceiver, Host, false, connector);
             }
             return transceiver;
         }
 
-        internal virtual ITransceiver CreateTransceiver(Socket socket, string adapterName, bool secure)
+        internal virtual ITransceiver CreateTransceiver(Socket socket, string adapterName, bool preferNonSecure)
         {
             ITransceiver transceiver = new TcpTransceiver(Communicator, socket);
 
-            if (IsAlwaysSecure || secure)
+            if (IsAlwaysSecure || !preferNonSecure)
             {
                 transceiver = new SslTransceiver(Communicator, transceiver, adapterName, true);
             }

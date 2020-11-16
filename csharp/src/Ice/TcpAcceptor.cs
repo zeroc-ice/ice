@@ -68,7 +68,7 @@ namespace ZeroC.Ice
                 secure = buffer.Array![0] == TlsHandshakeRecord;
             }
 
-            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name, secure);
+            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name, !secure);
 
             MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = Endpoint.Protocol switch
             {
