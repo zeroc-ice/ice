@@ -11,10 +11,10 @@ using ZeroC.Ice.Slic;
 namespace ZeroC.Ice
 {
     /// <summary>The stream implementation for Slic.</summary>
-    internal class SlicStream : SignaledTransceiverStream<(int, bool)>
+    internal class SlicStream : SignaledSocketStream<(int, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
-        private readonly SlicTransceiver _transceiver;
+        private readonly SlicSocket _socket;
         private int _receivedOffset;
         private int _receivedSize;
         private bool _receivedEndOfStream;
@@ -42,12 +42,12 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // If there's still data pending to be receive for the stream, we notify the transceiver that
+                // If there's still data pending to be receive for the stream, we notify the socket that
                 // we're abandoning the reading. It will finish to read the stream's frame data in order to
                 // continue receiving frames for other streams.
                 if (_receivedOffset < _receivedSize)
                 {
-                    _transceiver.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
+                    _socket.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
                 }
 
                 // Only release incoming streams on Dispose. Slic outgoing streams are released when the StreamLast
@@ -78,23 +78,23 @@ namespace ZeroC.Ice
 
                 // Read and append the received stream frame data into the given buffer.
                 int size = Math.Min(_receivedSize - _receivedOffset, buffer.Slice(offset).Count);
-                await _transceiver.ReceiveDataAsync(buffer.Slice(offset, size),
+                await _socket.ReceiveDataAsync(buffer.Slice(offset, size),
                                                     CancellationToken.None).ConfigureAwait(false);
                 offset += size;
                 _receivedOffset += size;
 
-                // If we've consumed the whole Slic frame, notify the transceiver that it can start receiving
+                // If we've consumed the whole Slic frame, notify the socket that it can start receiving
                 // a new frame.
                 if (_receivedOffset == _receivedSize)
                 {
-                    _transceiver.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
+                    _socket.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
                 }
             }
             return _receivedEndOfStream;
         }
 
         protected override async ValueTask ResetAsync(long errorCode) =>
-            await _transceiver.PrepareAndSendFrameAsync(
+            await _socket.PrepareAndSendFrameAsync(
                 SlicDefinitions.FrameType.StreamReset,
                 ostr =>
                 {
@@ -116,7 +116,7 @@ namespace ZeroC.Ice
             int size = buffer.GetByteCount();
 
             // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
-            int maxFrameSize = _transceiver.Options.PacketSizeMax;
+            int maxFrameSize = _socket.Options.PacketSizeMax;
             if (size > maxFrameSize)
             {
                 // The send buffer for the Slic packet.
@@ -186,20 +186,20 @@ namespace ZeroC.Ice
                     Debug.Assert(!IsIncoming);
                     if (IsBidirectional)
                     {
-                        await _transceiver.BidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                        await _socket.BidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
                     }
                     else
                     {
-                        await _transceiver.UnidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                        await _socket.UnidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
                     }
 
                     // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
                     // receive stream frames with out-of-order stream IDs. The ID assignment will throw if the
                     // connection is being closed and no new streams can be created.
                     Task task;
-                    lock (_transceiver.Mutex)
+                    lock (_socket.Mutex)
                     {
-                        Id = _transceiver.AllocateId(IsBidirectional);
+                        Id = _socket.AllocateId(IsBidirectional);
                         task = PerformSendFrameAsync(frameSize, fin, buffer);
                     }
                     Debug.Assert(!IsControl);
@@ -242,14 +242,14 @@ namespace ZeroC.Ice
                 headerData.AsSpan(1 + sizeLength, streamIdLength).WriteFixedLengthVarLong(Id);
                 buffer[0] = headerData;
 
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Transport > 2)
+                if (_socket.Endpoint.Communicator.TraceLevels.Transport > 2)
                 {
-                    _transceiver.TraceTransportFrame("sending ", frameType, frameSize, Id);
+                    _socket.TraceTransportFrame("sending ", frameType, frameSize, Id);
                 }
 
                 try
                 {
-                    await _transceiver.SendFrameAsync(buffer, cancel).ConfigureAwait(false);
+                    await _socket.SendFrameAsync(buffer, cancel).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -258,10 +258,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal SlicStream(long streamId, SlicTransceiver transceiver)
-            : base(streamId, transceiver)
+        internal SlicStream(long streamId, SlicSocket socket)
+            : base(streamId, socket)
         {
-            _transceiver = transceiver;
+            _socket = socket;
 
             if (IsIncoming && !IsControl)
             {
@@ -270,27 +270,27 @@ namespace ZeroC.Ice
                 // it after.
                 if (IsBidirectional)
                 {
-                    if (_transceiver.BidirectionalStreamCount == _transceiver.Options.MaxBidirectionalStreams)
+                    if (_socket.BidirectionalStreamCount == _socket.Options.MaxBidirectionalStreams)
                     {
                         throw new InvalidDataException(
-                            $"maximum bidirectional stream count {_transceiver.Options.MaxBidirectionalStreams} reached");
+                            $"maximum bidirectional stream count {_socket.Options.MaxBidirectionalStreams} reached");
                     }
-                    Interlocked.Increment(ref _transceiver.BidirectionalStreamCount);
+                    Interlocked.Increment(ref _socket.BidirectionalStreamCount);
                 }
                 else
                 {
-                    if (_transceiver.UnidirectionalStreamCount == _transceiver.Options.MaxUnidirectionalStreams)
+                    if (_socket.UnidirectionalStreamCount == _socket.Options.MaxUnidirectionalStreams)
                     {
                         throw new InvalidDataException(
-                            $"maximum unidirectional stream count {_transceiver.Options.MaxUnidirectionalStreams} reached");
+                            $"maximum unidirectional stream count {_socket.Options.MaxUnidirectionalStreams} reached");
                     }
-                    Interlocked.Increment(ref _transceiver.UnidirectionalStreamCount);
+                    Interlocked.Increment(ref _socket.UnidirectionalStreamCount);
                 }
             }
         }
 
-        internal SlicStream(bool bidirectional, SlicTransceiver transceiver)
-            : base(bidirectional, transceiver) => _transceiver = transceiver;
+        internal SlicStream(bool bidirectional, SlicSocket socket)
+            : base(bidirectional, socket) => _socket = socket;
 
         internal void ReceivedFrame(int size, bool fin)
         {
@@ -331,29 +331,29 @@ namespace ZeroC.Ice
                 {
                     if (IsBidirectional)
                     {
-                        Interlocked.Decrement(ref _transceiver.BidirectionalStreamCount);
+                        Interlocked.Decrement(ref _socket.BidirectionalStreamCount);
                     }
                     else
                     {
-                        Interlocked.Decrement(ref _transceiver.UnidirectionalStreamCount);
+                        Interlocked.Decrement(ref _socket.UnidirectionalStreamCount);
                     }
 
                     if (notifyPeer)
                     {
                         // It's important to decrement the stream count before sending the StreamLast frame to prevent
                         // a race where the peer could start a new stream before the counter is decremented.
-                        _transceiver.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
+                        _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
                     }
                 }
                 else if (IsStarted)
                 {
                     if (IsBidirectional)
                     {
-                        _transceiver.BidirectionalStreamSemaphore!.Release();
+                        _socket.BidirectionalStreamSemaphore!.Release();
                     }
                     else
                     {
-                        _transceiver.UnidirectionalStreamSemaphore!.Release();
+                        _socket.UnidirectionalStreamSemaphore!.Release();
                     }
                 }
                 return true;

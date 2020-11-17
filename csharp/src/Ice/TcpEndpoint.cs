@@ -170,11 +170,11 @@ namespace ZeroC.Ice
 
         internal virtual Connection CreateConnection(
             IConnectionManager manager,
-            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            MultiStreamOverSingleStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
-            new TcpConnection(manager, this, transceiver, connector, connectionId, adapter);
+            new TcpConnection(manager, this, socket, connector, connectionId, adapter);
 
         private protected static TimeSpan ParseTimeout(Dictionary<string, string?> options, string endpointString)
         {
@@ -265,29 +265,28 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual ITransceiver CreateTransceiver(
+        internal virtual SingleStreamSocket CreateSocket(
             IConnector connector,
             EndPoint addr,
             INetworkProxy? proxy,
             bool preferNonSecure)
         {
-            ITransceiver transceiver = new TcpTransceiver(Communicator, connector, addr, proxy, SourceAddress);
+            SingleStreamSocket singleStreamSocket = new TcpSocket(Communicator, connector, addr, proxy, SourceAddress);
             if (IsAlwaysSecure || !preferNonSecure)
             {
-                transceiver = new SslTransceiver(Communicator, transceiver, Host, false, connector);
+                singleStreamSocket = new SslSocket(Communicator, singleStreamSocket, Host, false, connector);
             }
-            return transceiver;
+            return singleStreamSocket;
         }
 
-        internal virtual ITransceiver CreateTransceiver(Socket socket, string adapterName, bool preferNonSecure)
+        internal virtual SingleStreamSocket CreateSocket(Socket socket, string adapterName, bool preferNonSecure)
         {
-            ITransceiver transceiver = new TcpTransceiver(Communicator, socket);
-
+            SingleStreamSocket singleStreamSocket = new TcpSocket(Communicator, socket);
             if (IsAlwaysSecure || !preferNonSecure)
             {
-                transceiver = new SslTransceiver(Communicator, transceiver, adapterName, true);
+                singleStreamSocket = new SslSocket(Communicator, singleStreamSocket, adapterName, true);
             }
-            return transceiver;
+            return singleStreamSocket;
         }
     }
 }

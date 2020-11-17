@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The TransceiverStream class for the colocated transport.</summary>
-    internal class ColocatedStream : SignaledTransceiverStream<(object, bool)>
+    /// <summary>The SocketStream class for the colocated transport.</summary>
+    internal class ColocatedStream : SignaledSocketStream<(object, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
-        private readonly ColocatedTransceiver _transceiver;
+        private readonly ColocatedSocket _socket;
 
         protected override void Dispose(bool disposing)
         {
@@ -22,11 +22,11 @@ namespace ZeroC.Ice
             {
                 if (IsIncoming && !IsBidirectional && !IsControl)
                 {
-                    _transceiver.PeerUnidirectionalSerializeSemaphore?.Release();
+                    _socket.PeerUnidirectionalSerializeSemaphore?.Release();
                 }
                 else if (!IsIncoming && IsBidirectional && IsStarted)
                 {
-                    _transceiver.BidirectionalSerializeSemaphore?.Release();
+                    _socket.BidirectionalSerializeSemaphore?.Release();
                 }
             }
         }
@@ -38,7 +38,7 @@ namespace ZeroC.Ice
         protected override ValueTask ResetAsync(long errorCode) =>
             // A null frame indicates a stream reset.
             // TODO: Provide the error code?
-            _transceiver.SendFrameAsync(Id, frame: null, fin: true, CancellationToken.None);
+            _socket.SendFrameAsync(Id, frame: null, fin: true, CancellationToken.None);
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel)
         {
@@ -46,19 +46,19 @@ namespace ZeroC.Ice
             // handled by the SendFrameAsync method override below.
             if (!IsStarted)
             {
-                Id = _transceiver.AllocateId(false);
+                Id = _socket.AllocateId(false);
             }
             Debug.Assert(IsControl && !IsBidirectional);
-            return _transceiver.SendFrameAsync(Id, buffer, fin, cancel);
+            return _socket.SendFrameAsync(Id, buffer, fin, cancel);
         }
 
         /// <summary>Constructor for incoming colocated stream</summary>
-        internal ColocatedStream(long streamId, ColocatedTransceiver transceiver)
-            : base(streamId, transceiver) => _transceiver = transceiver;
+        internal ColocatedStream(long streamId, ColocatedSocket socket)
+            : base(streamId, socket) => _socket = socket;
 
         /// <summary>Constructor for outgoing colocated stream</summary>
-        internal ColocatedStream(bool bidirectional, ColocatedTransceiver transceiver)
-            : base(bidirectional, transceiver) => _transceiver = transceiver;
+        internal ColocatedStream(bool bidirectional, ColocatedSocket socket)
+            : base(bidirectional, socket) => _socket = socket;
 
         internal void ReceivedFrame(object frame, bool fin) =>
             // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
@@ -81,7 +81,7 @@ namespace ZeroC.Ice
             else if (frame is List<ArraySegment<byte>> data)
             {
                 // Initialize or GoAway frame.
-                if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
+                if (_socket.Endpoint.Protocol == Protocol.Ice1)
                 {
                     Debug.Assert(expectedFrameType == data[0][8]);
                     return (ArraySegment<byte>.Empty, fin);
@@ -114,32 +114,32 @@ namespace ZeroC.Ice
                 // isn't called until the adapter is ready to dispatch a new request.
                 if (IsBidirectional)
                 {
-                    if (_transceiver.BidirectionalSerializeSemaphore != null)
+                    if (_socket.BidirectionalSerializeSemaphore != null)
                     {
-                        await _transceiver.BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                        await _socket.BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
                     }
                 }
-                else if (_transceiver.UnidirectionalSerializeSemaphore != null)
+                else if (_socket.UnidirectionalSerializeSemaphore != null)
                 {
-                    await _transceiver.UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                    await _socket.UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
                 }
 
                 // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
                 // receive stream frames with out-of-order stream IDs.
                 ValueTask task;
-                lock (_transceiver.Mutex)
+                lock (_socket.Mutex)
                 {
-                    Id = _transceiver.AllocateId(IsBidirectional);
-                    task = _transceiver.SendFrameAsync(Id, frame, fin, cancel);
+                    Id = _socket.AllocateId(IsBidirectional);
+                    task = _socket.SendFrameAsync(Id, frame, fin, cancel);
                 }
                 await task.ConfigureAwait(false);
             }
             else
             {
-                await _transceiver.SendFrameAsync(Id, frame, fin, cancel).ConfigureAwait(false);
+                await _socket.SendFrameAsync(Id, frame, fin, cancel).ConfigureAwait(false);
             }
 
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(frame);
             }

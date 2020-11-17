@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class UdpTransceiver : ITransceiver
+    internal sealed class UdpSocket : SingleStreamSocket
     {
-        public Socket Socket { get; }
-        public SslStream? SslStream => null;
+        public override Socket Socket { get; }
+        public override SslStream? SslStream => null;
 
         internal IPEndPoint? MulticastAddress { get; private set; }
 
@@ -85,7 +85,7 @@ namespace ZeroC.Ice
             return endpoint.Clone((ushort)_addr.Port);
         }
 
-        public void CheckSendSize(int size)
+        public override void CheckSendSize(int size)
         {
             // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send buffer size
             // (which ever is smaller).
@@ -96,11 +96,9 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask CloseAsync(Exception exception, CancellationToken cancel) => new ValueTask();
+        public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) => new ValueTask();
 
-        public void Dispose() => Socket.Dispose();
-
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             if (!_incoming)
             {
@@ -120,7 +118,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel)
+        public override async ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel)
         {
             int packetSize = Math.Min(MaxPacketSize, _rcvSize - UdpOverhead);
             ArraySegment<byte> buffer = new byte[packetSize];
@@ -176,8 +174,46 @@ namespace ZeroC.Ice
             return buffer.Slice(0, received);
         }
 
-        public ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
+        public override ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
             throw new InvalidOperationException();
+
+        public override async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        {
+            int count = buffer.GetByteCount();
+
+            // The caller is supposed to check the send size before by calling checkSendSize
+            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= count);
+
+            if (_incoming && _peerAddr == null)
+            {
+                throw new TransportException("cannot send datagram to undefined peer", RetryPolicy.NoRetry, _connector);
+            }
+
+            try
+            {
+                if (!_incoming)
+                {
+                    // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
+                    return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    Debug.Assert(_peerAddr != null);
+                    // TODO: Fix to use the cancellable API with 5.0
+                    return await Socket.SendToAsync(buffer.GetSegment(0, count),
+                                                    SocketFlags.None,
+                                                    _peerAddr).WaitAsync(cancel).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.IsConnectionLost())
+                {
+                    throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                }
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+            }
+        }
 
         public override string ToString()
         {
@@ -224,46 +260,10 @@ namespace ZeroC.Ice
             }
         }
 
-        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
-        {
-            int count = buffer.GetByteCount();
-
-            // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= count);
-
-            if (_incoming && _peerAddr == null)
-            {
-                throw new TransportException("cannot send datagram to undefined peer", RetryPolicy.NoRetry, _connector);
-            }
-
-            try
-            {
-                if (!_incoming)
-                {
-                    // TODO: Use cancellable API once https://github.com/dotnet/runtime/issues/33417 is fixed.
-                    return await Socket.SendAsync(buffer, SocketFlags.None).WaitAsync(cancel).ConfigureAwait(false);
-                }
-                else
-                {
-                    Debug.Assert(_peerAddr != null);
-                    // TODO: Fix to use the cancellable API with 5.0
-                    return await Socket.SendToAsync(buffer.GetSegment(0, count),
-                                                    SocketFlags.None,
-                                                    _peerAddr).WaitAsync(cancel).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex.IsConnectionLost())
-                {
-                    throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
-                }
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
-            }
-        }
+        protected override void Dispose(bool disposing) => Socket.Dispose();
 
         // Only for use by UdpConnector.
-        internal UdpTransceiver(
+        internal UdpSocket(
             Communicator communicator,
             IConnector connector,
             EndPoint addr,
@@ -309,7 +309,7 @@ namespace ZeroC.Ice
         }
 
         // Only for use by UdpEndpoint.
-        internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator)
+        internal UdpSocket(UdpEndpoint endpoint, Communicator communicator)
         {
             _communicator = communicator;
             _addr = Network.GetAddressForServerEndpoint(endpoint.Host, endpoint.Port, Network.EnableBoth);

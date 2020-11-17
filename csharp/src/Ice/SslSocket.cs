@@ -14,10 +14,10 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class SslTransceiver : ITransceiver
+    internal sealed class SslSocket : SingleStreamSocket
     {
-        public Socket? Socket => _underlying.Socket;
-        public SslStream? SslStream { get; private set; }
+        public override Socket? Socket => _underlying.Socket;
+        public override SslStream? SslStream => _sslStream;
 
         private readonly string? _adapterName;
         private readonly Communicator _communicator;
@@ -25,14 +25,16 @@ namespace ZeroC.Ice
         private readonly SslEngine _engine;
         private readonly string? _host;
         private readonly bool _incoming;
+        private SslStream? _sslStream;
         private BufferedStream? _writeStream;
-        private readonly ITransceiver _underlying;
+        private readonly SingleStreamSocket _underlying;
 
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
 
-            SslStream = new SslStream(new NetworkStream(_underlying.Socket!, false), false);
+            // This can only be created with a connected socket.
+            _sslStream = new SslStream(new NetworkStream(_underlying.Socket!, false), false);
 
             try
             {
@@ -46,7 +48,7 @@ namespace ZeroC.Ice
                         _engine.TlsServerOptions.ClientCertificateValidationCallback ??
                         RemoteCertificateValidationCallback;
                     options.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
-                    await SslStream.AuthenticateAsServerAsync(options, cancel).ConfigureAwait(false);
+                    await _sslStream.AuthenticateAsServerAsync(options, cancel).ConfigureAwait(false);
                 }
                 else
                 {
@@ -62,7 +64,7 @@ namespace ZeroC.Ice
                         (options.ClientCertificates?.Count > 0 ?
                             CertificateSelectionCallback : (LocalCertificateSelectionCallback?)null);
                     options.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
-                    await SslStream.AuthenticateAsClientAsync(options, cancel).ConfigureAwait(false);
+                    await _sslStream.AuthenticateAsClientAsync(options, cancel).ConfigureAwait(false);
                 }
             }
             catch (IOException ex) when (ex.IsConnectionLost())
@@ -80,43 +82,25 @@ namespace ZeroC.Ice
 
             if (_engine.SecurityTraceLevel >= 1)
             {
-                _engine.TraceStream(SslStream, ToString());
+                _engine.TraceStream(_sslStream, ToString());
             }
 
             // Use a buffered stream for writes. This ensures that small requests which are composed of multiple
             // small buffers will be sent within a single SSL frame.
-            _writeStream = new BufferedStream(SslStream);
+            _writeStream = new BufferedStream(_sslStream);
         }
 
-        public ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
+        public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             // TODO: implement TLS close_notify and call ShutdownAsync? This might be required for implementation
             // session resumption if we want to allow connection migration.
             _underlying.CloseAsync(exception, cancel);
 
-        public void CheckSendSize(int size) => _underlying.CheckSendSize(size);
+        public override void CheckSendSize(int size) => _underlying.CheckSendSize(size);
 
-        public void Dispose()
-        {
-            _underlying.Dispose();
-
-            if (SslStream != null)
-            {
-                SslStream.Dispose();
-                try
-                {
-                    _writeStream!.Dispose();
-                }
-                catch (Exception)
-                {
-                    // Ignore: the buffer flush which will fail since the underlying transport is closed.
-                }
-            }
-        }
-
-        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+        public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             throw new InvalidOperationException("only supported by datagram transports");
 
-        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             if (buffer.Count == 0)
             {
@@ -126,7 +110,7 @@ namespace ZeroC.Ice
             int received;
             try
             {
-                received = await SslStream!.ReadAsync(buffer, cancel).ConfigureAwait(false);
+                received = await _sslStream!.ReadAsync(buffer, cancel).ConfigureAwait(false);
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
@@ -143,7 +127,7 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        public override async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             try
             {
@@ -173,10 +157,26 @@ namespace ZeroC.Ice
 
         public override string ToString() => _underlying.ToString()!;
 
+        protected override void Dispose(bool disposing)
+        {
+            _underlying.Dispose();
+
+            _sslStream?.Dispose();
+
+            try
+            {
+                _writeStream?.Dispose();
+            }
+            catch (Exception)
+            {
+                // Ignore: the buffer flush which will fail since the underlying transport is closed.
+            }
+        }
+
         // Only for use by TcpEndpoint.
-        internal SslTransceiver(
+        internal SslSocket(
             Communicator communicator,
-            ITransceiver underlying,
+            SingleStreamSocket underlying,
             string hostOrAdapterName,
             bool incoming,
             IConnector? connector = null)

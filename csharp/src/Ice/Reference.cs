@@ -700,7 +700,7 @@ namespace ZeroC.Ice
                             cancel.ThrowIfCancellationRequested();
 
                             // Create the outgoing stream.
-                            using TransceiverStream stream = connection.CreateStream(!oneway);
+                            using SocketStream stream = connection.CreateStream(!oneway);
 
                             childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
                             childObserver?.Attach();

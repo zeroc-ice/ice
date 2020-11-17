@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The MultiStreamTransceiver class for the colocated transport.</summary>
-    internal class ColocatedTransceiver : MultiStreamTransceiver
+    /// <summary>The MultiStreamSocket class for the colocated transport.</summary>
+    internal class ColocatedSocket : MultiStreamSocket
     {
         public override TimeSpan IdleTimeout
         {
@@ -30,7 +30,7 @@ namespace ZeroC.Ice
 
         public override void Abort() => _writer.TryComplete();
 
-        public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
+        public override async ValueTask<SocketStream> AcceptStreamAsync(CancellationToken cancel)
         {
             while (true)
             {
@@ -92,7 +92,7 @@ namespace ZeroC.Ice
             await _reader.Completion.ConfigureAwait(false);
         }
 
-        public override TransceiverStream CreateStream(bool bidirectional) => new ColocatedStream(bidirectional, this);
+        public override SocketStream CreateStream(bool bidirectional) => new ColocatedStream(bidirectional, this);
 
         public async override ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -111,7 +111,7 @@ namespace ZeroC.Ice
         public override string ToString() =>
             $"colocated ID = {_id}\nobject adapter = {((ColocatedEndpoint)Endpoint).Adapter.Name}\nincoming = {IsIncoming}";
 
-        internal ColocatedTransceiver(
+        internal ColocatedSocket(
             ColocatedEndpoint endpoint,
             long id,
             ChannelWriter<(long, object?, bool)> writer,
@@ -142,7 +142,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal override (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate)
+        internal override (long, long) AbortStreams(Exception exception, Func<SocketStream, bool>? predicate)
         {
             (long, long) streamIds = base.AbortStreams(exception, predicate);
 

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The LegacyStream class provides a stream implementation of the LegacyTransceiver and Ice1 protocol.
-    /// </summary>
-    internal class LegacyStream : SignaledTransceiverStream<(Ice1Definitions.FrameType, ArraySegment<byte>)>
+    /// <summary>The Ice1NetworkSocketStream class provides a stream implementation of the Ice1NetworkSocketSocket and
+    /// Ice1 protocol.</summary>
+    internal class Ice1NetworkSocketStream : SignaledSocketStream<(Ice1Definitions.FrameType, ArraySegment<byte>)>
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         private int RequestId => IsBidirectional ? ((int)(Id >> 2) + 1) : 0;
-        private readonly LegacyTransceiver _transceiver;
+        private readonly Ice1NetworkSocket _socket;
 
         protected override void Dispose(bool disposing)
         {
@@ -22,11 +22,11 @@ namespace ZeroC.Ice
             {
                 if (IsBidirectional)
                 {
-                    _transceiver.BidirectionalSerializeSemaphore?.Release();
+                    _socket.BidirectionalSerializeSemaphore?.Release();
                 }
                 else if (!IsControl)
                 {
-                    _transceiver.UnidirectionalSerializeSemaphore?.Release();
+                    _socket.UnidirectionalSerializeSemaphore?.Release();
                 }
             }
         }
@@ -40,10 +40,10 @@ namespace ZeroC.Ice
             new ValueTask();
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
-            _transceiver.SendFrameAsync(buffer, cancel);
+            _socket.SendFrameAsync(buffer, cancel);
 
-        internal LegacyStream(long streamId, LegacyTransceiver transceiver)
-            : base(streamId, transceiver) => _transceiver = transceiver;
+        internal Ice1NetworkSocketStream(long streamId, Ice1NetworkSocket socket)
+            : base(streamId, socket) => _socket = socket;
 
         internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame)
         {
@@ -52,7 +52,7 @@ namespace ZeroC.Ice
             // would be blocked calling user code through this method.
             if (frameType == Ice1Definitions.FrameType.Reply)
             {
-                _transceiver.LastResponseStreamId = Id;
+                _socket.LastResponseStreamId = Id;
                 SignalCompletion((frameType, frame), runContinuationAsynchronously: true);
             }
             else
@@ -104,12 +104,12 @@ namespace ZeroC.Ice
             if (BZip2.IsLoaded && frame.Compress)
             {
                 List<ArraySegment<byte>>? compressed = null;
-                if (size >= _transceiver.Endpoint.Communicator.CompressionMinSize)
+                if (size >= _socket.Endpoint.Communicator.CompressionMinSize)
                 {
                     compressed = BZip2.Compress(buffer,
                                                 size,
                                                 Ice1Definitions.HeaderSize,
-                                                _transceiver.Endpoint.Communicator.CompressionLevel);
+                                                _socket.Endpoint.Communicator.CompressionLevel);
                 }
 
                 ArraySegment<byte> header;
@@ -128,11 +128,11 @@ namespace ZeroC.Ice
             }
 
             // Ensure the frame isn't bigger than what we can send with the transport.
-            _transceiver.Underlying.CheckSendSize(size);
+            _socket.Underlying.CheckSendSize(size);
 
-            await _transceiver.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+            await _socket.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
 
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(frame, 0, compressionStatus);
             }

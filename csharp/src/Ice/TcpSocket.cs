@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class TcpTransceiver : ITransceiver
+    internal sealed class TcpSocket : SingleStreamSocket
     {
-        public Socket Socket { get; }
-        public SslStream? SslStream => null;
+        public override Socket Socket { get; }
+        public override SslStream? SslStream => null;
 
         private readonly EndPoint? _addr;
         private readonly Communicator _communicator;
@@ -22,15 +22,9 @@ namespace ZeroC.Ice
         private readonly INetworkProxy? _proxy;
         private readonly IPAddress? _sourceAddr;
 
-        public void CheckSendSize(int size)
-        {
-        }
+        public override ValueTask CloseAsync(Exception ex, CancellationToken cancel) => new ValueTask();
 
-        public ValueTask CloseAsync(Exception ex, CancellationToken cancel) => new ValueTask();
-
-        public void Dispose() => Socket.Dispose();
-
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             if (_addr != null)
             {
@@ -67,10 +61,10 @@ namespace ZeroC.Ice
             }
         }
 
-        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+        public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             throw new InvalidOperationException("only supported by datagram transports");
 
-        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             if (buffer.Count == 0)
             {
@@ -101,7 +95,7 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        public override async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             try
             {
@@ -124,7 +118,9 @@ namespace ZeroC.Ice
 
         public override string ToString() => _desc;
 
-        internal TcpTransceiver(
+        protected override void Dispose(bool disposing) => Socket.Dispose();
+
+        internal TcpSocket(
             Communicator communicator,
             IConnector? connector,
             EndPoint addr,
@@ -149,7 +145,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal TcpTransceiver(Communicator communicator, Socket fd)
+        internal TcpSocket(Communicator communicator, Socket fd)
         {
             _communicator = communicator;
             Socket = fd;

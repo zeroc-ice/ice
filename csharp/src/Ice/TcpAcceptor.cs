@@ -68,15 +68,15 @@ namespace ZeroC.Ice
                 secure = buffer.Array![0] == TlsHandshakeRecord;
             }
 
-            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name, !secure);
+            SingleStreamSocket socket = ((TcpEndpoint)Endpoint).CreateSocket(fd, _adapter.Name, !secure);
 
-            MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = Endpoint.Protocol switch
+            MultiStreamOverSingleStreamSocket multiStreamSocket = Endpoint.Protocol switch
             {
-                Protocol.Ice1 => new LegacyTransceiver(transceiver, Endpoint, _adapter),
-                _ => new SlicTransceiver(transceiver, Endpoint, _adapter)
+                Protocol.Ice1 => new Ice1NetworkSocket(socket, Endpoint, _adapter),
+                _ => new SlicSocket(socket, Endpoint, _adapter)
             };
 
-            return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamTranceiver, null, "", _adapter);
+            return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamSocket, null, "", _adapter);
         }
 
         public void Dispose() => _socket.CloseNoThrow();

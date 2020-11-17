@@ -56,12 +56,12 @@ namespace ZeroC.Ice
         public long StreamId => Stream.Id;
         internal bool EndOfStream { get; }
         internal IncomingRequestFrame IncomingRequestFrame { get; }
-        internal TransceiverStream Stream { get; }
+        internal SocketStream Stream { get; }
 
         internal Current(
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
-            TransceiverStream stream,
+            SocketStream stream,
             bool endOfStream,
             Connection connection)
         {
