@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The TransceiverStream abstract base class to be overridden by multi-stream transport implementations.
-    /// There's an instance of this class for each active stream managed by the multi-stream transceiver.</summary>
-    public abstract class TransceiverStream : IDisposable
+    /// <summary>The SocketStream abstract base class to be overridden by multi-stream transport implementations.
+    /// There's an instance of this class for each active stream managed by the multi-stream socket.</summary>
+    public abstract class SocketStream : IDisposable
     {
         /// <summary>The stream ID. If the stream ID hasn't been assigned yet, an exception is thrown. Assigning the
-        /// stream ID registers the stream with the transceiver.</summary>
+        /// stream ID registers the stream with the socket.</summary>
         /// <exception cref="InvalidOperationException">If the stream ID has not been assigned yet.</exception>
         public long Id
         {
@@ -29,12 +29,12 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_id == -1);
                 _id = value;
-                _transceiver.AddStream(_id, this);
+                _socket.AddStream(_id, this);
             }
         }
 
         /// <summary>Returns True if the stream is an incoming stream, False otherwise.</summary>
-        public bool IsIncoming => _id % 2 == (_transceiver.IsIncoming ? 0 : 1);
+        public bool IsIncoming => _id % 2 == (_socket.IsIncoming ? 0 : 1);
 
         /// <summary>Returns True if the stream is a bidirectional stream, False otherwise.</summary>
         public bool IsBidirectional { get; }
@@ -54,7 +54,7 @@ namespace ZeroC.Ice
 
         private protected bool IsStarted => _id != -1;
         private long _id = -1;
-        private readonly MultiStreamTransceiver _transceiver;
+        private readonly MultiStreamSocket _socket;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
         /// implementation should abort the pending receive task.</summary>
@@ -85,38 +85,38 @@ namespace ZeroC.Ice
 
         /// <summary>Constructs a stream with the given ID.</summary>
         /// <param name="streamId">The stream ID.</param>
-        /// <param name="transceiver">The parent transceiver.</param>
-        protected TransceiverStream(long streamId, MultiStreamTransceiver transceiver)
+        /// <param name="socket">The parent socket.</param>
+        protected SocketStream(long streamId, MultiStreamSocket socket)
         {
-            _transceiver = transceiver;
+            _socket = socket;
             _id = streamId;
-            _transceiver.AddStream(_id, this);
+            _socket.AddStream(_id, this);
             IsBidirectional = _id % 4 < 2;
         }
 
         /// <summary>Constructs an outgoing stream.</summary>
         /// <param name="bidirectional">True to create a bidirectional, False otherwise.</param>
-        /// <param name="transceiver">The parent transceiver.</param>
-        protected TransceiverStream(bool bidirectional, MultiStreamTransceiver transceiver)
+        /// <param name="socket">The parent socket.</param>
+        protected SocketStream(bool bidirectional, MultiStreamSocket socket)
         {
             IsBidirectional = bidirectional;
-            _transceiver = transceiver;
+            _socket = socket;
         }
 
-        /// <summary>Releases the resources used by the transceiver.</summary>
+        /// <summary>Releases the resources used by the socket.</summary>
         /// <param name="disposing">True to release both managed and unmanaged resources; false to release only
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (IsStarted)
             {
-                _transceiver.RemoveStream(Id);
+                _socket.RemoveStream(Id);
             }
         }
 
         internal virtual async ValueTask<((long, long), string message)> ReceiveGoAwayFrameAsync()
         {
-            byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
+            byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
 
             (ArraySegment<byte> data, bool fin) =
@@ -126,18 +126,18 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"expected end of stream after GoAway frame");
             }
 
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(data, frameType);
             }
 
-            if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
+            if (_socket.Endpoint.Protocol == Protocol.Ice1)
             {
                 // LastResponseStreamId contains the stream ID of the last received response. We make sure to return
                 // this stream ID to ensure the request with this stream ID will complete successfully in case the
                 // close connection message is received shortly after the response and potentially processed before
                 // due to the thread scheduling.
-                return ((_transceiver.LastResponseStreamId, 0), "connection gracefully closed by peer");
+                return ((_socket.LastResponseStreamId, 0), "connection gracefully closed by peer");
             }
             else
             {
@@ -150,7 +150,7 @@ namespace ZeroC.Ice
 
         internal virtual async ValueTask ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
-            byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
+            byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.ValidateConnection : (byte)Ice2Definitions.FrameType.Initialize;
 
             (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
@@ -159,12 +159,12 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received unexpected end of stream after initialize frame");
             }
 
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(data, frameType);
             }
 
-            if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
+            if (_socket.Endpoint.Protocol == Protocol.Ice1)
             {
                 if (data.Count > 0)
                 {
@@ -180,18 +180,18 @@ namespace ZeroC.Ice
 
         internal async ValueTask<(IncomingRequestFrame, bool)> ReceiveRequestFrameAsync(CancellationToken cancel)
         {
-            byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
+            byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.Request : (byte)Ice2Definitions.FrameType.Request;
 
             (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
-            var request = new IncomingRequestFrame(_transceiver.Endpoint.Protocol,
+            var request = new IncomingRequestFrame(_socket.Endpoint.Protocol,
                                                    data,
-                                                   _transceiver.IncomingFrameSizeMax);
+                                                   _socket.IncomingFrameSizeMax);
 
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                _transceiver.TraceFrame(Id, request);
+                _socket.TraceFrame(Id, request);
             }
 
             return (request, fin);
@@ -201,16 +201,16 @@ namespace ZeroC.Ice
         {
             try
             {
-                byte frameType = _transceiver.Endpoint.Protocol == Protocol.Ice1 ?
+                byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                     (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
 
                 (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
-                var response = new IncomingResponseFrame(_transceiver.Endpoint.Protocol,
+                var response = new IncomingResponseFrame(_socket.Endpoint.Protocol,
                                                          data,
-                                                         _transceiver.IncomingFrameSizeMax);
+                                                         _socket.IncomingFrameSizeMax);
 
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     TraceFrame(response);
                 }
@@ -218,7 +218,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                if (_transceiver.Endpoint.Protocol != Protocol.Ice1)
+                if (_socket.Endpoint.Protocol != Protocol.Ice1)
                 {
                     await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
                 }
@@ -231,11 +231,11 @@ namespace ZeroC.Ice
             string reason,
             CancellationToken cancel)
         {
-            if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
+            if (_socket.Endpoint.Protocol == Protocol.Ice1)
             {
                 await SendAsync(Ice1Definitions.CloseConnectionFrame, true, cancel).ConfigureAwait(false);
 
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.CloseConnection);
                 }
@@ -259,7 +259,7 @@ namespace ZeroC.Ice
 
                 await SendAsync(data, true, cancel).ConfigureAwait(false);
 
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.GoAway);
                 }
@@ -268,11 +268,11 @@ namespace ZeroC.Ice
 
         internal virtual async ValueTask SendInitializeFrameAsync(CancellationToken cancel)
         {
-            if (_transceiver.Endpoint.Protocol == Protocol.Ice1)
+            if (_socket.Endpoint.Protocol == Protocol.Ice1)
             {
                 await SendAsync(Ice1Definitions.ValidateConnectionFrame, false, cancel).ConfigureAwait(false);
 
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.ValidateConnection);
                 }
@@ -288,7 +288,7 @@ namespace ZeroC.Ice
 
                 await SendAsync(data, false, cancel).ConfigureAwait(false);
 
-                if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
                     TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice2Definitions.FrameType.Initialize);
                 }
@@ -306,7 +306,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                if (IsStarted && _transceiver.Endpoint.Protocol != Protocol.Ice1)
+                if (IsStarted && _socket.Endpoint.Protocol != Protocol.Ice1)
                 {
                     await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
                 }
@@ -322,7 +322,7 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             // The default implementation only supports the Ice2 protocol
-            Debug.Assert(_transceiver.Endpoint.Protocol == Protocol.Ice2);
+            Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
 
             // Read the Ice2 protocol header (byte frameType, varulong size)
             ArraySegment<byte> buffer = new byte[256];
@@ -344,7 +344,7 @@ namespace ZeroC.Ice
             // Read the frame data
             if (size > 0)
             {
-                if (size > _transceiver.IncomingFrameSizeMax)
+                if (size > _socket.IncomingFrameSizeMax)
                 {
                     throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
                 }
@@ -360,7 +360,7 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             // The default implementation only supports the Ice2 protocol
-            Debug.Assert(_transceiver.Endpoint.Protocol == Protocol.Ice2);
+            Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
 
             var data = new List<ArraySegment<byte>>(frame.Data.Count + 1);
             int headerLength = Header.Length;
@@ -380,13 +380,13 @@ namespace ZeroC.Ice
 
             await SendAsync(data, fin, cancel).ConfigureAwait(false);
 
-            if (_transceiver.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(frame);
             }
         }
 
         internal void TraceFrame(object frame, byte type = 0, byte compress = 0) =>
-            _transceiver.TraceFrame(Id, frame, type, compress);
+            _socket.TraceFrame(Id, frame, type, compress);
     }
 }

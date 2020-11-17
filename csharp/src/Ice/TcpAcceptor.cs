@@ -21,12 +21,12 @@ namespace ZeroC.Ice
         {
             Socket fd = await _socket.AcceptAsync().ConfigureAwait(false);
 
-            ITransceiver transceiver = ((TcpEndpoint)Endpoint).CreateTransceiver(fd, _adapter.Name);
+            SingleStreamSocket socket = ((TcpEndpoint)Endpoint).CreateSocket(fd, _adapter.Name);
 
-            MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = Endpoint.Protocol switch
+            MultiStreamOverSingleStreamSocket multiStreamTranceiver = Endpoint.Protocol switch
             {
-                Protocol.Ice1 => new LegacyTransceiver(transceiver, Endpoint, _adapter),
-                _ => new SlicTransceiver(transceiver, Endpoint, _adapter)
+                Protocol.Ice1 => new Ice1NetworkSocket(socket, Endpoint, _adapter),
+                _ => new SlicSocket(socket, Endpoint, _adapter)
             };
 
             return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamTranceiver, null, "", _adapter);

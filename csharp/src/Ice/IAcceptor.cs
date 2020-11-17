@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>An acceptor listens and accepts incoming connection requests from clients. It creates a transceiver
+    /// <summary>An acceptor listens and accepts incoming connection requests from clients. It creates a connection
     /// which is used to exchange data with the remote peer.</summary>
     public interface IAcceptor : IDisposable
     {
@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         Endpoint Endpoint { get; }
 
         /// <summary>Accepts a new connection.</summary>
-        /// <return>The accepted transceiver.</return>
+        /// <return>The accepted connection.</return>
         ValueTask<Connection> AcceptAsync();
 
         /// <summary>Get a detailed description of the acceptor.</summary>

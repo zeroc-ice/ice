@@ -42,7 +42,7 @@ namespace ZeroC.Ice
 
             return new ColocatedConnection(_endpoint.Communicator.OutgoingConnectionFactory,
                                            _endpoint,
-                                           new ColocatedTransceiver(_endpoint, id, reader.Writer, writer.Reader, false),
+                                           new ColocatedSocket(_endpoint, id, reader.Writer, writer.Reader, false),
                                            this,
                                            connectionId,
                                            null);

@@ -10,34 +10,33 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The BufferedReadTransceiver is a wrapper around the ITransceiver interface to provide buffered
-    /// receive. This helps to limit the number of operating system Receive calls when the user needs to read
-    /// only few bytes before reading more (typically to read a frame header) by receiving the data in a small
-    /// buffer. It's similar to the C# System.IO.BufferedStream class. It's used to implement Slic and WebSocket.
+    /// <summary>The BufferedReceiveOverSingleStreamSocket is a wrapper around SingleStreamSocket to provide
+    /// buffered data receive. This helps to limit the number of operating system Receive calls when the user
+    /// needs to read only few bytes before reading more (typically to read a frame header) by receiving the
+    /// data in a small buffer. It's similar to the C# System.IO.BufferedStream class. It's used to implement
+    /// Slic and WebSocket.
     /// </summary>
-    internal class BufferedReadTransceiver : ITransceiver
+    internal class BufferedReceiveOverSingleStreamSocket : SingleStreamSocket
     {
-        public Socket? Socket => Underlying.Socket;
-        public SslStream? SslStream => Underlying.SslStream;
+        public override Socket? Socket => Underlying.Socket;
+        public override SslStream? SslStream => Underlying.SslStream;
 
-        internal ITransceiver Underlying { get; }
+        internal SingleStreamSocket Underlying { get; }
 
         // The buffered data.
         private ArraySegment<byte> _buffer;
 
-        public void CheckSendSize(int size) => Underlying.CheckSendSize(size);
+        public override void CheckSendSize(int size) => Underlying.CheckSendSize(size);
 
-        public ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
+        public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             Underlying.CloseAsync(exception, cancel);
 
-        public void Dispose() => Underlying.Dispose();
+        public override ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
 
-        public ValueTask InitializeAsync(CancellationToken cancel) => Underlying.InitializeAsync(cancel);
-
-        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+        public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             Underlying.ReceiveDatagramAsync(cancel);
 
-        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
+        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
         {
             int received = 0;
             if (_buffer.Count > 0)
@@ -57,13 +56,15 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
+        public override ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel = default) =>
             Underlying.SendAsync(buffer, cancel);
 
         /// <inheritdoc/>
         public override string? ToString() => Underlying.ToString();
 
-        internal BufferedReadTransceiver(ITransceiver underlying, int bufferSize = 256)
+        protected override void Dispose(bool disposing) => Underlying.Dispose();
+
+        internal BufferedReceiveOverSingleStreamSocket(SingleStreamSocket underlying, int bufferSize = 256)
         {
             Underlying = underlying;
 
@@ -73,7 +74,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Returns buffered data. If there's no buffered data, the buffer is filled using the underlying
-        /// transceiver to receive additional data. The method returns when the buffer contains at least byteCount
+        /// socket to receive additional data. The method returns when the buffer contains at least byteCount
         /// data. If byteCount is set to zero, it returns all the buffered data.</summary>
         /// <param name="byteCount">The number of bytes of buffered data to return. It can be set to null to get all
         /// the buffered data.</param>

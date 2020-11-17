@@ -13,10 +13,11 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class WSTransceiver : ITransceiver
+    internal sealed class WSSocket : SingleStreamSocket
     {
-        public Socket? Socket => _underlying.Socket;
-        public SslStream? SslStream => (_underlying.Underlying as SslTransceiver)?.SslStream;
+        public override Socket? Socket => _underlying.Socket;
+        public override SslStream? SslStream => (_underlying.Underlying as SslSocket)?.SslStream;
+
         internal IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
 
         private enum OpCode : byte
@@ -50,7 +51,7 @@ namespace ZeroC.Ice
         private string _key;
         private readonly HttpParser _parser;
         private readonly object _mutex = new object();
-        private readonly BufferedReadTransceiver _underlying;
+        private readonly BufferedReceiveOverSingleStreamSocket _underlying;
         private readonly Random _rand;
         private bool _receiveLastFrame;
         private readonly byte[] _receiveMask = new byte[4];
@@ -62,9 +63,9 @@ namespace ZeroC.Ice
         private readonly IList<ArraySegment<byte>> _sendBuffer;
         private Task _sendTask = Task.CompletedTask;
 
-        public void CheckSendSize(int size) => _underlying.CheckSendSize(size);
+        public override void CheckSendSize(int size) => _underlying.CheckSendSize(size);
 
-        public async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
+        public override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             byte[] payload = new byte[2];
             short reason = System.Net.IPAddress.HostToNetworkOrder(
@@ -77,9 +78,7 @@ namespace ZeroC.Ice
             await SendImplAsync(OpCode.Close, new List<ArraySegment<byte>> { payload }, cancel).ConfigureAwait(false);
         }
 
-        public void Dispose() => _underlying.Dispose();
-
-        public async ValueTask InitializeAsync(CancellationToken cancel)
+        public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
 
@@ -218,10 +217,10 @@ namespace ZeroC.Ice
                 }
             }
         }
-        public ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
+        public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             throw new InvalidOperationException("only supported by datagram transports");
 
-        public async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
         {
             // If we've fully read the previous DATA frame payload, read a new frame
             if (_receivePayloadOffset == _receivePayloadLength)
@@ -253,14 +252,16 @@ namespace ZeroC.Ice
             return received;
         }
 
-        public ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel) =>
+        public override ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel) =>
              SendImplAsync(OpCode.Data, buffers, cancel);
 
         public override string ToString() => _underlying.ToString()!;
 
-        internal WSTransceiver(
+        protected override void Dispose(bool disposing) => _underlying.Dispose();
+
+        internal WSSocket(
             Communicator communicator,
-            ITransceiver del,
+            SingleStreamSocket del,
             string host,
             string resource,
             IConnector? connector)
@@ -270,13 +271,13 @@ namespace ZeroC.Ice
             _host = host;
             _resource = resource;
             _incoming = false;
-            _transportName = (del is SslTransceiver) ? "wss" : "ws";
+            _transportName = (del is SslSocket) ? "wss" : "ws";
         }
 
-        internal WSTransceiver(Communicator communicator, ITransceiver underlying)
+        internal WSSocket(Communicator communicator, SingleStreamSocket underlying)
         {
             _communicator = communicator;
-            _underlying = new BufferedReadTransceiver(underlying);
+            _underlying = new BufferedReceiveOverSingleStreamSocket(underlying);
             _parser = new HttpParser();
             _receiveLastFrame = true;
             _sendBuffer = new List<ArraySegment<byte>>();
@@ -286,7 +287,7 @@ namespace ZeroC.Ice
             _host = "";
             _resource = "";
             _incoming = true;
-            _transportName = (underlying is SslTransceiver) ? "wss" : "ws";
+            _transportName = (underlying is SslSocket) ? "wss" : "ws";
         }
 
         private ArraySegment<byte> PrepareHeaderForSend(OpCode opCode, int payloadLength)

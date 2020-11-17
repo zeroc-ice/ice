@@ -12,16 +12,16 @@ namespace ZeroC.Ice
 
         public Connection Connect(string connectionId)
         {
-            var transceiver = new UdpTransceiver(_endpoint.Communicator,
-                                                 this,
-                                                 _addr,
-                                                 _endpoint.SourceAddress,
-                                                 _endpoint.MulticastInterface,
-                                                 _endpoint.MulticastTtl);
+            var socket = new UdpSocket(_endpoint.Communicator,
+                                       this,
+                                       _addr,
+                                       _endpoint.SourceAddress,
+                                       _endpoint.MulticastInterface,
+                                       _endpoint.MulticastTtl);
 
             return new UdpConnection(_endpoint.Communicator.OutgoingConnectionFactory,
                                      _endpoint,
-                                     new LegacyTransceiver(transceiver, _endpoint, null),
+                                     new Ice1NetworkSocket(socket, _endpoint, null),
                                      this,
                                      connectionId,
                                      null);

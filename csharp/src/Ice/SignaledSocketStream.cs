@@ -8,10 +8,10 @@ using System.Threading.Tasks.Sources;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The SignaledTransceiverStream abstract class provides signaling functionality using the
-    /// IValueTaskSource interface. It's useful for stream implementations that depend on the transceiver
-    /// for receiving data. The transceiver can easily signal the stream when new data is available.</summary>
-    internal abstract class SignaledTransceiverStream<T> : TransceiverStream, IValueTaskSource<T>
+    /// <summary>The SignaledSocketStream abstract class provides signaling functionality using the
+    /// IValueTaskSource interface. It's useful for stream implementations that depend on the socket
+    /// for receiving data. The socket can easily signal the stream when new data is available.</summary>
+    internal abstract class SignaledSocketStream<T> : SocketStream, IValueTaskSource<T>
     {
         internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
         private volatile Exception? _exception;
@@ -40,13 +40,13 @@ namespace ZeroC.Ice
             }
         }
 
-        protected SignaledTransceiverStream(long streamId, MultiStreamTransceiver transceiver)
-            : base(streamId, transceiver)
+        protected SignaledSocketStream(long streamId, MultiStreamSocket socket)
+            : base(streamId, socket)
         {
         }
 
-        protected SignaledTransceiverStream(bool bidirectional, MultiStreamTransceiver transceiver)
-            : base(bidirectional, transceiver)
+        protected SignaledSocketStream(bool bidirectional, MultiStreamSocket socket)
+            : base(bidirectional, socket)
         {
         }
 
