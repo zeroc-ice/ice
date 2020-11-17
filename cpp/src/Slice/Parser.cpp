@@ -1295,20 +1295,6 @@ Slice::Container::thisScope() const
     return "::";
 }
 
-void
-Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
-{
-    for (const auto& content : contents())
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(content);
-        if (constructed && dependencies.find(constructed) != dependencies.end())
-        {
-            dependencies.insert(constructed);
-            constructed->recDependencies(dependencies);
-        }
-    }
-}
-
 bool
 Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 {
@@ -2456,14 +2442,6 @@ Slice::Constructed::typeId() const
     return scoped();
 }
 
-ConstructedList
-Slice::Constructed::dependencies()
-{
-    set<ConstructedPtr> resultSet;
-    recDependencies(resultSet);
-    return ConstructedList(resultSet.begin(), resultSet.end());
-}
-
 Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
@@ -2528,20 +2506,6 @@ void
 Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitClassDecl(this);
-}
-
-void
-Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    if (_definition)
-    {
-        _definition->containerRecDependencies(dependencies);
-        ClassDefPtr base = _definition->base();
-        if (base)
-        {
-            base->declaration()->recDependencies(dependencies);
-        }
-    }
 }
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
@@ -2771,19 +2735,6 @@ void
 Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitInterfaceDecl(this);
-}
-
-void
-Slice::InterfaceDecl::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    if (_definition)
-    {
-        _definition->containerRecDependencies(dependencies);
-        for (auto& base : _definition->bases())
-        {
-            base->declaration()->recDependencies(dependencies);
-        }
-    }
 }
 
 void
@@ -3453,12 +3404,6 @@ Slice::Struct::visit(ParserVisitor* visitor, bool all)
     }
 }
 
-void
-Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    containerRecDependencies(dependencies);
-}
-
 Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
@@ -3526,17 +3471,6 @@ void
 Slice::Sequence::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitSequence(this);
-}
-
-void
-Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(_type);
-    if (constructed && dependencies.find(constructed) != dependencies.end())
-    {
-        dependencies.insert(constructed);
-        constructed->recDependencies(dependencies);
-    }
 }
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type,
@@ -3634,28 +3568,6 @@ void
 Slice::Dictionary::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitDictionary(this);
-}
-
-void
-Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(_keyType);
-        if (constructed && dependencies.find(constructed) != dependencies.end())
-        {
-            dependencies.insert(constructed);
-            constructed->recDependencies(dependencies);
-        }
-    }
-
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(_valueType);
-        if (constructed && dependencies.find(constructed) != dependencies.end())
-        {
-            dependencies.insert(constructed);
-            constructed->recDependencies(dependencies);
-        }
-    }
 }
 
 //
@@ -3845,12 +3757,6 @@ void
 Slice::Enum::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitEnum(this);
-}
-
-void
-Slice::Enum::recDependencies(set<ConstructedPtr>&)
-{
-    // An Enum does not have any dependencies.
 }
 
 void

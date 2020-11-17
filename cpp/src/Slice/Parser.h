@@ -120,7 +120,6 @@ typedef std::set<std::string> StringSet;
 typedef std::list<std::string> StringList;
 typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
-typedef std::list<ConstructedPtr> ConstructedList;
 typedef std::list<ClassDefPtr> ClassList;
 typedef std::list<InterfaceDefPtr> InterfaceList;
 typedef std::list<ExceptionPtr> ExceptionList;
@@ -459,7 +458,6 @@ public:
     virtual ContainedList contents() const = 0;
     bool hasContentsWithMetadata(const std::string&) const;
     std::string thisScope() const;
-    void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = nullptr);
 
@@ -556,9 +554,6 @@ class Constructed : public virtual Type, public virtual Contained
 public:
 
     std::string typeId() const override;
-    bool isVariableLength() const override = 0;
-    ConstructedList dependencies();
-    virtual void recDependencies(std::set<ConstructedPtr>&) = 0; // Internal operation, don't use directly.
 
 protected:
 
@@ -583,7 +578,6 @@ public:
     bool isVariableLength() const override;
     void visit(ParserVisitor*, bool) override;
     std::string kindOf() const override;
-    void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
 
 protected:
 
@@ -651,7 +645,6 @@ public:
     bool isVariableLength() const override;
     void visit(ParserVisitor*, bool) override;
     std::string kindOf() const override;
-    void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
 
     static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
 
@@ -856,7 +849,6 @@ public:
     bool isVariableLength() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
-    void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
 
 protected:
 
@@ -883,7 +875,6 @@ public:
     bool isVariableLength() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
-    void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
 
 protected:
 
@@ -915,7 +906,6 @@ public:
     bool isVariableLength() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
-    void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
 
     static bool legalKeyType(const TypePtr&, bool&);
 
@@ -966,7 +956,6 @@ public:
     bool isVariableLength() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
-    void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
 
     // Sets the underlying type shortly after construction and before any enumerator is added.
     void initUnderlying(const TypePtr&);
