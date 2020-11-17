@@ -70,11 +70,11 @@
 
     <ItemGroup>
         <!-- .NET 5 Solution files -->
-        <Net5DistSolution Include="ice.net5.sln">
+        <Net5DistSolution Include="ice.net5.0.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </Net5DistSolution>
 
-        <Net5TestSolution Include="ice.net5.test.sln">
+        <Net5TestSolution Include="ice.net5.0.test.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </Net5TestSolution>
 
@@ -374,7 +374,9 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net5.0\icebox.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU"
+                 Targets="Publish"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Publish"/>

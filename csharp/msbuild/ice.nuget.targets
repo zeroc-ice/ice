@@ -23,7 +23,7 @@
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
                              $(IceSrcRootDir)lib\**\*.xml"/>
 
-        <Net5Pdbs Include="$(IceSrcRootDir)lib\net5\*.pdb" />
+        <Net5Pdbs Include="$(IceSrcRootDir)lib\net5.0\*.pdb" />
         <Net45Pdbs Include="$(IcePdbRootDir)\lib\net45\*.pdb" />
         <NetStandardPdbs Include="$(IceSrcRootDir)lib\netstandard2.0\*.pdb" />
 
@@ -35,7 +35,7 @@
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
         <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib\%(Assemblies.RecursiveDir)"/>
-        <Copy SourceFiles="@(Net5Pdbs)" DestinationFolder="$(PackageDirectory)\lib\net5"/>
+        <Copy SourceFiles="@(Net5Pdbs)" DestinationFolder="$(PackageDirectory)\lib\net5.0"/>
         <Copy SourceFiles="@(Net45Pdbs)" DestinationFolder="$(PackageDirectory)\lib\net45"/>
         <Copy SourceFiles="@(NetStandardPdbs)" DestinationFolder="$(PackageDirectory)\lib\netstandard2.0"
               Condition="'$(NetStandardTargets)' == 'true'"/>

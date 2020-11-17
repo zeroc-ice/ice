@@ -28,8 +28,8 @@ class IceBox(ProcessFromBinDir, Server):
                     newConfigFile = "{}.{}".format(configFile, framework)
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
-                            if current.config.framework == "net5":
-                                target.write(line.replace("\\net45\\", "\\net5\\"))
+                            if current.config.framework == "net5.0":
+                                target.write(line.replace("\\net45\\", "\\net5.0\\"))
                             else:
                                 target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework)))
                         current.files.append(newConfigFile)

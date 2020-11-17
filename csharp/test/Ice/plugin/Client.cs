@@ -24,7 +24,7 @@ public class Client : Test.TestHelper
 #if NET45
         string pluginPath = "msbuild/plugin/net45/Plugin.dll";
 #elif NET5_0
-        string pluginPath = "msbuild/plugin/net5/Plugin.dll";
+        string pluginPath = "msbuild/plugin/net5.0/Plugin.dll";
 #else
         string pluginPath =
             String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",

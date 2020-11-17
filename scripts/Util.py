@@ -3434,7 +3434,7 @@ class CSharpMapping(Mapping):
                 self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
                 self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             else:
-                self.libTargetFramework = self.framework if self.framework in ["net5", "net45"] else "netstandard2.0"
+                self.libTargetFramework = self.framework if self.framework in ["net5.0", "net45"] else "netstandard2.0"
                 self.binTargetFramework = self.framework
                 self.testTargetFramework = self.framework
 
@@ -3452,8 +3452,8 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.framework == "net5":
-            return os.path.join("msbuild", name, "net5")
+        if current.config.framework == "net5.0":
+            return os.path.join("msbuild", name, "net5.0")
         elif current.config.dotnetcore or current.config.framework != "":
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
         else:

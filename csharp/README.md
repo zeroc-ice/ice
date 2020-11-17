@@ -19,8 +19,8 @@ resulting binaries. As an alternative, you can download and install the
 
 ## Building on Windows
 
-A source build of Ice for .NET on Windows produces two sets of assemblies:
- - assemblies for [.NET 5][8]
+A source build of Ice for .NET on Windows produces three sets of assemblies:
+ - assemblies for [.NET 5.0][8]
  - assemblies for the .NET Framework 4.5
  - assemblies for [.NET Standard 2.0][2]
 
@@ -46,21 +46,21 @@ To build all Ice assemblies and the associated test suite, run:
 msbuild msbuild\ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET 5, the .NET Framework 4.5 and .NET Standard
-2.0 are placed in the `lib\net5`, `lib\net45` and `lib\netstandard2.0` folders respectively.
+Upon completion, the Ice assemblies for .NET 5.0, the .NET Framework 4.5 and .NET Standard
+2.0 are placed in the `lib\net5.0`, `lib\net45` and `lib\netstandard2.0` folders respectively.
 
-> Note: the assemblies for .NET 5.0 are created only when you build with Visual Studio 2017
+> Note: the assemblies for .NET 5.0 are created only when you build with Visual Studio 2019
 > or greater.
 
-> Note: the assemblies for .NET Standard 2.0 are created only when you build with
-> Visual Studio 2017 or greater.
+> Note: the assemblies for .NET Standard 2.0 are created only when you build with Visual Studio
+> 2017 or greater.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `Net5Build`, `Net45Build`, `Net5BuildDist`, `Net45BuildDist`, `NetStandardBuild` and
+The `Net5Build`, `Net5BuildDist`, `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and
 `NetStandardBuildDist` targets allow you to build assemblies only for .NET 5, the .NET
 Framework 4.5 or .NET Standard 2.0, with or without the test suite.
 
@@ -135,18 +135,22 @@ Then run:
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the
-`lib/netstandard2.0` directory.
+Upon completion, the Ice assemblies for .NET 5.0 and .NET Standard 2.0 are placed
+in the `lib/net5.0` and `lib/netstandard2.0` directory respectively.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
-The iceboxnet and test applications target `netcoreapp3.1` when using .NET Core
-3.1 SDK and `netcoreapp2.1` when using .NET Core 2.1 SDK. You can change the
-target framework by setting the `AppTargetFramework` property to a different
-Target Framework Moniker value, for example:
+The `Net5Build`, `Net5BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets
+allow you to build assemblies only for .NET 5, or .NET Standard 2.0, with or without the
+test suite.
+
+The .NET Standard build of iceboxnet and test applications target `netcoreapp3.1` when using
+.NET Core 3.1 SDK and `netcoreapp2.1` when using .NET Core 2.1 SDK. You can change the target
+framework by setting the `AppTargetFramework` property to a different Target Framework Moniker
+value, for example:
 
 ```
 dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=netcoreapp2.2"
@@ -204,11 +208,15 @@ directory.
 
 > Note: The NuGet package always includes assemblies for the .NET Framework 4.5.
 >
+> If you build with Visual Studio 2019, the NuGet package also includes assemblies
+> for .NET 5.0.
+>
 > If you build with Visual Studio 2017 or Visual Studio 2019, the NuGet package
 > also includes assemblies for .NET Standard 2.0.
 >
 > If you build with Visual Studio 2019 the NuGet package include iceboxnet
-> executables targeting .NET Framework 4.5, .NET Core 3.1 and .NET Core 2.1.
+> executable targeting .NET 5, .NET Framework 4.5, .NET Core 3.1 and .NET
+> Core 2.1.
 >
 > If you build with Visual Studio 2017 the NuGet package include iceboxnet
 > executables targeting .NET Framework 4.5 and .NET Core 2.1.
