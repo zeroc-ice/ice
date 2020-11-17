@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.AMI
 {
     public class TestIntf : ITestIntf
     {
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
         private bool _shutdown;
         private TaskCompletionSource<object?>? _pending;
         private int _value;

@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Discovery
 {
     public sealed class Controller : IController
     {
-        private readonly Dictionary<string, ObjectAdapter> _adapters = new ();
+        private readonly Dictionary<string, ObjectAdapter> _adapters = new();
 
         public void ActivateObjectAdapter(
             string name,

@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Threading
 
             private readonly ManualResetEvent _event = new ManualResetEvent(false);
 
-            void IProgress<bool>.Report(bool value)
+            public void IProgress<bool>.Report(bool value)
             {
                 _scheduler = TaskScheduler.Current;
                 _event.Set();

@@ -100,7 +100,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public class UpdateCallbackI
         {
-            private readonly object _mutex = new ();
+            private readonly object _mutex = new();
             private readonly IPropertiesAdminPrx _serverProps;
             private bool _updated;
 

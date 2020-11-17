@@ -35,7 +35,7 @@ namespace ZeroC.Ice
         private ILocatorRegistryPrx? _locatorRegistry;
 
         // _mutex protects _locationRequests and _wellKnownProxyRequests
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
 
         private readonly ConcurrentDictionary<(Identity, string, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
             new ();

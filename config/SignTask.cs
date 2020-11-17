@@ -33,7 +33,7 @@ public class SignTask : Task
 
     protected string GenerateCommandLineCommands()
     {
-        CommandLineBuilder builder = new CommandLineBuilder(false);
+        CommandLineBuilder builder = new(false);
         builder.AppendSwitch("sign");
         if (AdditionalOptions != null)
         {
@@ -101,7 +101,7 @@ public class SignTask : Task
 
     public static int RunCommand(string workingDir, string command, string args, ref string output, ref string error)
     {
-        Process process = new Process();
+        Process process = new();
         process.StartInfo.FileName = command;
         process.StartInfo.Arguments = args;
         process.StartInfo.CreateNoWindow = true;
@@ -110,7 +110,7 @@ public class SignTask : Task
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.WorkingDirectory = workingDir;
 
-        var streamReader = new StreamReader();
+        var streamReader = new();
         process.OutputDataReceived += new DataReceivedEventHandler(streamReader.ouput);
         process.ErrorDataReceived += new DataReceivedEventHandler(streamReader.error);
 

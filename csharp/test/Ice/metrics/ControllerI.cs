@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Metrics
     public sealed class Controller : IController
     {
         private readonly TaskScheduler _scheduler;
-        private readonly SemaphoreSlim _semaphore = new (0);
+        private readonly SemaphoreSlim _semaphore = new(0);
 
         public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
 

@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public sealed class MyDerivedClass : IMyDerivedClass
     {
-        private readonly object _mutex = new ();
+        private readonly object _mutex = new();
 
         private int _opByteSOnewayCallCount;
 

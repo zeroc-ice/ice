@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Location
     {
 
         private readonly ServerLocatorRegistry _registry;
-        private readonly List<Communicator> _communicators = new ();
+        private readonly List<Communicator> _communicators = new();
         private readonly TestHelper _helper;
         private int _nextPort = 1;
 

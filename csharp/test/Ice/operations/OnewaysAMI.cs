@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Operations
         private class CallbackBase
         {
             private bool _called;
-            private readonly object _mutex = new ();
+            private readonly object _mutex = new();
 
             public virtual void Check()
             {
