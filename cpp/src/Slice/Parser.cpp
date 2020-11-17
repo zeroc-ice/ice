@@ -2431,23 +2431,6 @@ Slice::Module::hasOnlySubModules() const
 }
 
 // ----------------------------------------------------------------------
-// Constructed
-// ----------------------------------------------------------------------
-
-string
-Slice::Constructed::typeId() const
-{
-    return scoped();
-}
-
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
-    SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
-    Contained(container, name)
-{
-}
-
-// ----------------------------------------------------------------------
 // ClassDecl
 // ----------------------------------------------------------------------
 
@@ -2462,6 +2445,12 @@ ClassDefPtr
 Slice::ClassDecl::definition() const
 {
     return _definition;
+}
+
+string
+Slice::ClassDecl::typeId() const
+{
+    return scoped();
 }
 
 bool
@@ -2509,8 +2498,7 @@ Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
-    Contained(container, name),
-    Constructed(container, name)
+    Contained(container, name)
 {
 }
 
@@ -2693,6 +2681,12 @@ Slice::InterfaceDecl::definition() const
     return _definition;
 }
 
+string
+Slice::InterfaceDecl::typeId() const
+{
+    return scoped();
+}
+
 bool
 Slice::InterfaceDecl::uses(const ContainedPtr&) const
 {
@@ -2771,8 +2765,7 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
 Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
-    Contained(container, name),
-    Constructed(container, name)
+    Contained(container, name)
 {
 }
 
@@ -3336,6 +3329,12 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
                                                  defaultLiteral);
 }
 
+string
+Slice::Struct::typeId() const
+{
+    return scoped();
+}
+
 bool
 Slice::Struct::usesClasses() const
 {
@@ -3407,8 +3406,7 @@ Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     Container(container->unit()),
     Contained(container, name),
     DataMemberContainer(container, name),
-    Type(container->unit()),
-    Constructed(container, name)
+    Type(container->unit())
 {
 }
 
@@ -3426,6 +3424,12 @@ StringList
 Slice::Sequence::typeMetadata() const
 {
     return _typeMetadata;
+}
+
+string
+Slice::Sequence::typeId() const
+{
+    return scoped();
 }
 
 bool
@@ -3476,7 +3480,6 @@ Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, con
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name),
     _type(type),
     _typeMetadata(typeMetadata)
 {
@@ -3508,6 +3511,12 @@ StringList
 Slice::Dictionary::valueMetadata() const
 {
     return _valueMetadata;
+}
+
+string
+Slice::Dictionary::typeId() const
+{
+    return scoped();
 }
 
 bool
@@ -3637,7 +3646,6 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name),
     _keyType(keyType),
     _valueType(valueType),
     _keyMetadata(keyMetadata),
@@ -3715,6 +3723,12 @@ Slice::Enum::contents() const
     return result;
 }
 
+string
+Slice::Enum::typeId() const
+{
+    return scoped();
+}
+
 bool
 Slice::Enum::uses(const ContainedPtr&) const
 {
@@ -3783,7 +3797,6 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool unchec
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name),
     _unchecked(unchecked),
     _underlying(nullptr),
     _explicitValue(false),

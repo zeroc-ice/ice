@@ -70,7 +70,6 @@ class Contained;
 class Container;
 class DataMemberContainer;
 class Module;
-class Constructed;
 class ClassDecl;
 class ClassDef;
 class InterfaceDecl;
@@ -98,7 +97,6 @@ typedef ::IceUtil::Handle<Contained> ContainedPtr;
 typedef ::IceUtil::Handle<Container> ContainerPtr;
 typedef ::IceUtil::Handle<DataMemberContainer> DataMemberContainerPtr;
 typedef ::IceUtil::Handle<Module> ModulePtr;
-typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
 typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
 typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
 typedef ::IceUtil::Handle<InterfaceDecl> InterfaceDeclPtr;
@@ -546,30 +544,16 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// Constructed
-// ----------------------------------------------------------------------
-
-class Constructed : public virtual Type, public virtual Contained
-{
-public:
-
-    std::string typeId() const override;
-
-protected:
-
-    Constructed(const ContainerPtr&, const std::string&);
-};
-
-// ----------------------------------------------------------------------
 // ClassDecl
 // ----------------------------------------------------------------------
 
-class ClassDecl : public virtual Constructed
+class ClassDecl : public virtual Contained, public virtual Type
 {
 public:
 
     void destroy() override;
     ClassDefPtr definition() const;
+    std::string typeId() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     bool isClassType() const override { return true; }
@@ -631,12 +615,13 @@ protected:
 // InterfaceDecl
 // ----------------------------------------------------------------------
 
-class InterfaceDecl : public virtual Constructed
+class InterfaceDecl : public virtual Contained, public virtual Type
 {
 public:
 
     void destroy() override;
     InterfaceDefPtr definition() const;
+    std::string typeId() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     bool isInterfaceType() const override { return true; }
@@ -806,7 +791,6 @@ private:
 // Exception
 // ----------------------------------------------------------------------
 
-// No inheritance from Constructed, as this is not a Type
 class Exception : public virtual DataMemberContainer, public virtual Contained
 {
 public:
@@ -838,11 +822,12 @@ protected:
 // Struct
 // ----------------------------------------------------------------------
 
-class Struct : public virtual DataMemberContainer, public virtual Constructed
+class Struct : public virtual DataMemberContainer, public virtual Contained, public virtual Type
 {
 public:
     MemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
                                const std::string& = "", const std::string& = "") override;
+    std::string typeId() const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
     std::string getTagFormat() const override;
@@ -862,12 +847,13 @@ protected:
 // Sequence
 // ----------------------------------------------------------------------
 
-class Sequence : public virtual Constructed
+class Sequence : public virtual Contained, public virtual Type
 {
 public:
 
     TypePtr type() const;
     StringList typeMetadata() const;
+    std::string typeId() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -891,7 +877,7 @@ protected:
 // Dictionary
 // ----------------------------------------------------------------------
 
-class Dictionary : public virtual Constructed
+class Dictionary : public virtual Contained, public virtual Type
 {
 public:
 
@@ -899,6 +885,7 @@ public:
     TypePtr valueType() const;
     StringList keyMetadata() const;
     StringList valueMetadata() const;
+    std::string typeId() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -927,7 +914,7 @@ protected:
 // Enum
 // ----------------------------------------------------------------------
 
-class Enum : public virtual Container, public virtual Constructed
+class Enum : public virtual Container, public virtual Contained, public virtual Type
 {
 public:
 
@@ -949,6 +936,7 @@ public:
     std::int64_t minValue() const;
     std::int64_t maxValue() const;
     ContainedList contents() const override;
+    std::string typeId() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
