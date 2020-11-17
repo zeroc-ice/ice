@@ -180,12 +180,13 @@ option. For example:
 python allTests.py --dotnetcore
 ```
 
-If you build the test against a different target framework you must use
-`--framework` option with the corresponding target framework.
+If you want to run the test with .NET 5.0 you must use `--framework` option
+with `net5.0` target framework.
 
-For example to run test build against .NET Framework 4.6.2:
+For example:
+
 ```
-python allTests.py --framework=net462
+python allTests.py --framework=net5.0
 ```
 
 And to run test build against .NET Core 3.1:
