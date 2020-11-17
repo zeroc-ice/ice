@@ -25,16 +25,9 @@ namespace ZeroC.Ice.Test.ACM
                 });
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
-
-            string transport = communicator.GetProperty("Test.Transport")!;
-            string host = communicator.GetProperty("Test.Host")!;
-            bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
-            if (!ice1 && host.Contains(':'))
-            {
-                host = $"[{host}]";
-            }
+            string endpoint = TestHelper.GetTestEndpoint(properties: communicator.GetProperties(), ephemeral: true);
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("TestAdapter",
-                ice1 ? $"{transport} -h \"{host}\"" : $"ice+{transport}://{host}:0",
+                endpoint,
                 taskScheduler: schedulerPair.ExclusiveScheduler);
 
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);

@@ -30,15 +30,15 @@ namespace ZeroC.Ice
         /// <summary>The host name or address.</summary>
         public string Host => Data.Host;
 
+        /// <summary>Indicates whether or not this endpoint's transport is always secure. Only applies to ice1.</summary>
+        /// <value>True when this endpoint's transport is secure; otherwise, false.</value>
+        public virtual bool IsAlwaysSecure => false;
+
         /// <summary>Indicates whether or not this endpoint's transport uses datagrams with no ordering or delivery
         /// guarantees.</summary>
         /// <value>True when this endpoint's transport is datagram-based; otherwise, false. There is currently a
         /// single datagram-based transport: UDP.</value>
         public virtual bool IsDatagram => false;
-
-        /// <summary>Indicates whether or not this endpoint's transport is secure. Only applies to ice1.</summary>
-        /// <value>True when this endpoint's transport is secure; otherwise, false.</value>
-        public virtual bool IsSecure => false;
 
         /// <summary>Gets an option of the endpoint.</summary>
         /// <param name="option">The name of the option to retrieve.</param>

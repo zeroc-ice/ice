@@ -3,4 +3,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-TestSuite(__name__, options = { "ipv6" : [False] }, multihost=False)
+# TODO: remove the transport option and update the test so that the server can use the client.p12
+# cert when calling the client's OA
+TestSuite(__name__, options = { "transport": ["tcp", "ws"] }, multihost=False)

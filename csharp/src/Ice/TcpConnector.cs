@@ -6,9 +6,9 @@ namespace ZeroC.Ice
 {
     internal sealed class TcpConnector : IConnector
     {
-        public Connection Connect(string connectionId)
+        public Connection Connect(string connectionId, bool preferNonSecure)
         {
-            ITransceiver transceiver = _endpoint.CreateTransceiver(this, _addr, _proxy);
+            ITransceiver transceiver = _endpoint.CreateTransceiver(this, _addr, _proxy, preferNonSecure);
 
             MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = _endpoint.Protocol switch
             {

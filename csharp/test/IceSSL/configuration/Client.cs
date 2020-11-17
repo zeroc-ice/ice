@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -10,7 +11,10 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Ice.Communicator communicator = Initialize(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            // TODO: remove this when False is the communicator default
+            properties["Ice.Default.PreferNonSecure"] = "False";
+            await using Ice.Communicator communicator = Initialize(properties);
             if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: client testdir");

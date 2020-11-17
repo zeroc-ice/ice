@@ -1504,14 +1504,13 @@ namespace ZeroC.Ice
                             return false;
                     }
 
-                    // If PreferNonSecure is false, filter out all non-secure endpoints
-                    return PreferNonSecure || endpoint.IsSecure;
+                    // With ice1 when PreferNonSecure is false filter out all non-secure endpoints.
+                    return Protocol == Protocol.Ice2 || PreferNonSecure || endpoint.IsAlwaysSecure;
                 });
 
-                if (PreferNonSecure)
+                if (Protocol == Protocol.Ice1 && PreferNonSecure)
                 {
-                    // It's just a preference: we can fallback to secure endpoints.
-                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
+                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => !endpoint.IsAlwaysSecure);
                 }
 
                 endpoints = filteredEndpoints.ToArray();
@@ -1532,6 +1531,7 @@ namespace ZeroC.Ice
                                                                false,
                                                                ConnectionId,
                                                                excludedConnectors,
+                                                               PreferNonSecure,
                                                                cancel).ConfigureAwait(false);
                     }
                     else
@@ -1548,6 +1548,7 @@ namespace ZeroC.Ice
                                                                        endpoint != lastEndpoint,
                                                                        ConnectionId,
                                                                        excludedConnectors,
+                                                                       PreferNonSecure,
                                                                        cancel).ConfigureAwait(false);
                                 break;
                             }
