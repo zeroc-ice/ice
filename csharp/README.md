@@ -20,6 +20,7 @@ resulting binaries. As an alternative, you can download and install the
 ## Building on Windows
 
 A source build of Ice for .NET on Windows produces two sets of assemblies:
+ - assemblies for [.NET 5][8]
  - assemblies for the .NET Framework 4.5
  - assemblies for [.NET Standard 2.0][2]
 
@@ -28,10 +29,10 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
  - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
- - the [.NET Core 3.1 SDK][5], if you use Visual Studio 2019
+ - the [.NET Core 3.1 SDK][5] or the  [.NET Core 5.0 SDK][6], if you use Visual Studio 2019
 
-> Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
-> builds.
+> Note: Visual Studio 2019 version 16.8 or higher is required for .NET 5 builds.
+> Note: Visual Studio 2017 version 15.3 or higher is required for .NET Core builds.
 
 ### Compiling Ice for .NET on Windows
 
@@ -45,8 +46,11 @@ To build all Ice assemblies and the associated test suite, run:
 msbuild msbuild\ice.proj
 ```
 
-Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard
-2.0 are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
+Upon completion, the Ice assemblies for .NET 5, the .NET Framework 4.5 and .NET Standard
+2.0 are placed in the `lib\net5`, `lib\net45` and `lib\netstandard2.0` folders respectively.
+
+> Note: the assemblies for .NET 5.0 are created only when you build with Visual Studio 2017
+> or greater.
 
 > Note: the assemblies for .NET Standard 2.0 are created only when you build with
 > Visual Studio 2017 or greater.
@@ -56,12 +60,12 @@ You can skip the build of the test suite with the `BuildDist` target:
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and
-`NetStandardBuildDist` targets allow you to build assemblies only for the .NET
+The `Net5Build`, `Net45Build`, `Net5BuildDist`, `Net45BuildDist`, `NetStandardBuild` and
+`NetStandardBuildDist` targets allow you to build assemblies only for .NET 5, the .NET
 Framework 4.5 or .NET Standard 2.0, with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp3.1` when using Visual
-Studio 2019 and `netcoreapp2.1` when using Visual Studio 2017. You can change
+The .NET Standard build of iceboxnet and test applications target `netcoreapp3.1` when using
+Visual Studio 2019 and `netcoreapp2.1` when using Visual Studio 2017. You can change
 the target framework by setting the `AppTargetFramework` property to a different
 Target Framework Moniker value, for example:
 
@@ -88,7 +92,7 @@ If only `KEYFILE` is set, the assemblies are fully signed during the build using
 
 If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed
 during the build using `PUBLIC_KEYFILE` and re-signed after the build using
-`KEYFILE`. This can be used for generating [Enhanced Strong Naming][6]
+`KEYFILE`. This can be used for generating [Enhanced Strong Naming][7]
 signatures.
 
 *Strong Name Signatures can be generated only from Windows builds.*
@@ -116,8 +120,8 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.1 SDK][4] or [.NET Core 3.1 SDK][5] to build
-Ice for .NET from source.
+You need the [.NET Core 2.1 SDK][4], [.NET Core 3.1 SDK][5] or [.NET 5 SDK][6]
+to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -313,4 +317,6 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 [3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-4
 [4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
 [5]: https://dotnet.microsoft.com/download/dotnet-core/3.1
-[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[6]: https://dotnet.microsoft.com/download/dotnet-core/5.0
+[7]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[8]: https://devblogs.microsoft.com/dotnet/announcing-net-5-0/
