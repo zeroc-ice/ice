@@ -1581,7 +1581,7 @@ Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllEx
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasOtherConstructedOrExceptions())
+    if(!p->hasNonClassTypes())
     {
         return false;
     }

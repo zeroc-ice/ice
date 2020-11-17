@@ -2388,25 +2388,23 @@ Slice::Module::hasOnlyInterfaces() const
 }
 
 bool
-Slice::Module::hasOtherConstructedOrExceptions() const
+Slice::Module::hasNonClassTypes() const
 {
     for (const auto& content : _contents)
     {
-        if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content)
-            && ConstructedPtr::dynamicCast(content))
+        if (auto submodule = ModulePtr::dynamicCast(content))
         {
-            return true;
+            if (submodule->hasNonClassTypes())
+            {
+                return true;
+            }
         }
-
-        if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
+        else
         {
-            return true;
-        }
-
-        ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if (submodule && submodule->hasOtherConstructedOrExceptions())
-        {
-            return true;
+            if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content))
+            {
+                return true;
+            }
         }
     }
     return false;

@@ -533,8 +533,8 @@ public:
     bool hasInterfaceDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasOnlyInterfaces() const;
-    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasOnlySubModules() const;
+    bool hasNonClassTypes() const;
 
 protected:
 
