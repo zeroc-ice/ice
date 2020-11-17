@@ -12,7 +12,12 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    /// <summary>A multi-stream The MultiStreamSocket abstract base class to implement multi-stream transports.</summary>
+    /// <summary>A multi-stream socket enables transmitting raw binary data over multiple independent streams. The
+    /// data transmitted over these streams can either be transmitted using a datagram oriented transport such as
+    /// Quic or a stream oriented transport such as TCP (data multiplexing is used to transmit the data from multiple
+    /// concurrent streams over the same TCP socket). The Ice core relies on a multi-stream sockets to support the
+    /// Ice protocol.
+    /// </summary>
     public abstract class MultiStreamSocket : IDisposable
     {
         /// <summary>The endpoint from which the socket was created.</summary>
