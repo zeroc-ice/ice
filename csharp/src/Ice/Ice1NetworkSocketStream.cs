@@ -113,22 +113,18 @@ namespace ZeroC.Ice
                 }
 
                 ArraySegment<byte> header;
+                header = buffer[0];
                 if (compressed != null)
                 {
                     buffer = compressed;
-                    header = buffer[0];
-                    size = buffer.GetByteCount();
                 }
-                else // Message not compressed, request compressed response, if any.
+                else
                 {
-                    header = buffer[0];
+                    // Message not compressed, request compressed response, if any.
                     header[9] = 1; // Write the compression status
                 }
                 compressionStatus = header[9];
             }
-
-            // Ensure the frame isn't bigger than what we can send with the transport.
-            _socket.Underlying.CheckSendSize(size);
 
             await _socket.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
 

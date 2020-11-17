@@ -119,10 +119,10 @@ namespace ZeroC.Ice.Test.UDP
                     replyI.WaitReply(1, TimeSpan.FromSeconds(10));
                 }
             }
-            catch (DatagramLimitException)
+            catch (TransportException)
             {
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that
-                // DatagramLimitException will be throw when try to send a packet bigger than that.
+                // TransportException will be throw when try to send a packet bigger than that.
                 TestHelper.Assert(seq.Length > 16384);
             }
             obj.GetConnection().GoAwayAsync();
@@ -138,7 +138,7 @@ namespace ZeroC.Ice.Test.UDP
                 // delivered.
                 TestHelper.Assert(!b);
             }
-            catch (DatagramLimitException)
+            catch (TransportException)
             {
             }
             catch (Exception ex)

@@ -85,17 +85,6 @@ namespace ZeroC.Ice
             return endpoint.Clone((ushort)_addr.Port);
         }
 
-        public override void CheckSendSize(int size)
-        {
-            // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send buffer size
-            // (which ever is smaller).
-            int packetSize = Math.Min(MaxPacketSize, _sndSize - UdpOverhead);
-            if (packetSize < size)
-            {
-                throw new DatagramLimitException($"cannot send more than {packetSize} bytes with UDP");
-            }
-        }
-
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) => new ValueTask();
 
         public override async ValueTask InitializeAsync(CancellationToken cancel)
@@ -149,7 +138,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    // TODO: Fix to use the cancellable API with 5.0
+                    // TODO: Use the cancellable API once https://github.com/dotnet/runtime/issues/33418 is fixed
                     SocketReceiveFromResult result =
                         await Socket.ReceiveFromAsync(buffer,
                                                       SocketFlags.None,
@@ -180,9 +169,6 @@ namespace ZeroC.Ice
         public override async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             int count = buffer.GetByteCount();
-
-            // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(Math.Min(MaxPacketSize, _sndSize - UdpOverhead) >= count);
 
             if (_incoming && _peerAddr == null)
             {
