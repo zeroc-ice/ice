@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,7 +61,11 @@ namespace ZeroC.Ice
             }
             else
             {
-                int hashCode = HashCode.Combine(base.GetHashCode(), ValueEncoding, Value);
+                int hashCode = HashCode.Combine(
+                    base.GetHashCode(),
+                    ValueEncoding,
+                    MemoryMarshal.ToEnumerable(Value).GetSequenceHashCode());
+
                 if (hashCode == 0)
                 {
                     hashCode = 1;

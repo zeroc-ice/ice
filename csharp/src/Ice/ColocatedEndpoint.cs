@@ -14,7 +14,7 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the colocated transport.</summary>
     internal class ColocatedEndpoint : Endpoint
     {
-        public override bool IsSecure => true;
+        public override bool IsAlwaysSecure => true;
 
         protected internal override bool HasOptions => false;
         protected internal override ushort DefaultPort => 0;

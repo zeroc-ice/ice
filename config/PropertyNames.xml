@@ -264,6 +264,7 @@ generated from the section label.
 
     <class name="objectadapter" prefix-only="true">
         <suffix name="ACM" class="acm"/>
+        <suffix name="AcceptNonSecure" />
         <suffix name="AdapterId" />
         <suffix name="Endpoints" />
         <suffix name="IncomingFrameSizeMax" />
@@ -307,7 +308,7 @@ generated from the section label.
         <property name="ACM.Client" deprecated="true"/>
         <property name="ACM.Server" deprecated="true"/>
         <property name="ACM" class="acm"/>
-        <property name="AcceptNonSecureConnections" />
+        <property name="AcceptNonSecure" />
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
         <property name="Admin.Enabled" />

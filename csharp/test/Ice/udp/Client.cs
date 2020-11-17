@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.UDP
 
             for (int i = 0; i < num; ++i)
             {
-                ITestIntfPrx.Parse(GetTestProxy("control", i, "tcp"), communicator).Shutdown();
+                ITestIntfPrx.Parse(GetTestProxy("control", i, Transport), communicator).Shutdown();
             }
         }
 

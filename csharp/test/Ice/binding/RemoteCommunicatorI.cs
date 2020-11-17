@@ -21,6 +21,11 @@ namespace ZeroC.Ice.Test.Binding
                     string endpoints =
                         TestHelper.GetTestEndpoint(current.Communicator.GetProperties(), _nextPort++, transport);
 
+                    if (transport == "udp")
+                    {
+                        // udp endpoints are always non-secure. Set name.AcceptNonSecure = true
+                        current.Communicator.SetProperty($"{name}.AcceptNonSecure", "true");
+                    }
                     ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
                     return current.Adapter.AddWithUUID(
                         new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);

@@ -47,8 +47,9 @@ namespace ZeroC.Ice.Test.Binding
             output.Write("testing binding with single endpoint... ");
             output.Flush();
             {
-                // Use "default" here to ensure that it still works
-                IRemoteObjectAdapterPrx? adapter = com.CreateObjectAdapter("Adapter", "default");
+                // Use "default" with ice1 + tcp here to ensure that it still works
+                IRemoteObjectAdapterPrx? adapter = com.CreateObjectAdapter("Adapter",
+                    (ice1 && testTransport == "tcp") ? "default" : testTransport);
                 TestHelper.Assert(adapter != null);
                 ITestIntfPrx? test1 = adapter.GetTestIntf();
                 ITestIntfPrx? test2 = adapter.GetTestIntf();
@@ -290,7 +291,19 @@ namespace ZeroC.Ice.Test.Binding
                     ITestIntfPrx obj = CreateTestIntfPrx(adapters);
                     TestHelper.Assert(obj.GetAdapterName().Equals("Adapter71"));
 
-                    ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram);
+                    // test that datagram proxies fail if PreferNonSecure is false
+                    ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: false);
+                    try
+                    {
+                        testUDP.GetConnection();
+                        TestHelper.Assert(false);
+                    }
+                    catch (NoEndpointException)
+                    {
+                        // expected
+                    }
+
+                    testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: true);
                     TestHelper.Assert(obj.GetConnection() != testUDP.GetConnection());
                     try
                     {

@@ -33,7 +33,7 @@ namespace ZeroC.Ice.Test.Info
                 IReadOnlyList<Endpoint> endps = p1.Endpoints;
 
                 Endpoint tcpEndpoint = endps[0];
-                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && !tcpEndpoint.IsSecure);
+                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && !tcpEndpoint.IsAlwaysSecure);
                 TestHelper.Assert(tcpEndpoint.Host == "tcphost");
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
                 TestHelper.Assert(tcpEndpoint["source-address"] == "10.10.10.10");
@@ -54,7 +54,7 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(udpEndpoint["source-address"] == "10.10.10.10");
                     TestHelper.Assert(udpEndpoint["timeout"] == null);
                     TestHelper.Assert(udpEndpoint["compress"] == null);
-                    TestHelper.Assert(!udpEndpoint.IsSecure);
+                    TestHelper.Assert(!udpEndpoint.IsAlwaysSecure);
                     TestHelper.Assert(udpEndpoint.IsDatagram);
                     TestHelper.Assert(udpEndpoint.Transport == Transport.UDP);
 
@@ -77,6 +77,7 @@ namespace ZeroC.Ice.Test.Info
             {
                 communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + helper.Host +
                     "\" -t 15000:udp -h \"" + helper.Host + "\"");
+                communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 IReadOnlyList<Endpoint> endpoints = adapter.GetEndpoints();
@@ -99,6 +100,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(udpEndpoint.Host == helper.Host);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
                 TestHelper.Assert(udpEndpoint.Port > 0);
+                TestHelper.Assert(!udpEndpoint.IsAlwaysSecure);
 
                 endpoints = new List<Endpoint> { endpoints[0] };
 
@@ -165,7 +167,8 @@ namespace ZeroC.Ice.Test.Info
                 if (ice1)
                 {
                     Endpoint udpEndpoint =
-                        testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!.Endpoint;
+                        testIntf.Clone(invocationMode: InvocationMode.Datagram,
+                                       preferNonSecure: true).GetConnection()!.Endpoint;
                     TestHelper.Assert(udpEndpoint.Port == endpointPort);
                     TestHelper.Assert(udpEndpoint.Host == defaultHost);
                 }
@@ -187,11 +190,12 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(connection.RemoteEndpoint!.Address.ToString() == defaultHost);
                 }
 
-                if (connection.Endpoint.IsSecure)
+                // This could be either an ice1 ssl endpoint or an ice2 tcp endpoint with PreferNonSecure == False
+                if (connection.Endpoint.IsAlwaysSecure || !testIntf.PreferNonSecure)
                 {
                     TestHelper.Assert(((TcpConnection)connection).IsEncrypted);
                     // WSS tests run client authentication disabled for compatibility with web browser testing.
-                    if (connection.Endpoint.Transport == Transport.SSL)
+                    if (connection.Endpoint.Transport != Transport.WSS && connection.Endpoint.Transport != Transport.WS)
                     {
                         TestHelper.Assert(((TcpConnection)connection).IsMutuallyAuthenticated);
                         TestHelper.Assert(((TcpConnection)connection).LocalCertificate != null);
@@ -245,7 +249,8 @@ namespace ZeroC.Ice.Test.Info
 
                 if (ice1)
                 {
-                    connection = (IPConnection)testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
+                    connection = (IPConnection)testIntf.Clone(invocationMode: InvocationMode.Datagram,
+                                                              preferNonSecure: true).GetConnection()!;
 
                     var udpConnection = connection as UdpConnection;
                     TestHelper.Assert(udpConnection != null);

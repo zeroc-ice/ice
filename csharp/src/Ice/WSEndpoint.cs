@@ -11,7 +11,7 @@ namespace ZeroC.Ice
 {
     internal sealed class WSEndpoint : TcpEndpoint
     {
-        public override bool IsSecure => Transport == Transport.WSS;
+        public override bool IsAlwaysSecure => Transport == Transport.WSS;
 
         public override string? this[string option] => option == "resource" ? Resource : base[option];
 
@@ -217,10 +217,18 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
 
-        internal override SingleStreamSocket CreateSocket(IConnector connector, EndPoint addr, INetworkProxy? proxy) =>
-            new WSSocket(Communicator, base.CreateSocket(connector, addr, proxy), Host, Resource, connector);
+        internal override SingleStreamSocket CreateSocket(
+            IConnector connector,
+            EndPoint addr,
+            INetworkProxy? proxy,
+            bool preferNonSecure) =>
+            new WSSocket(Communicator,
+                         base.CreateSocket(connector, addr, proxy, preferNonSecure),
+                         Host,
+                         Resource,
+                         connector);
 
-        internal override SingleStreamSocket CreateSocket(Socket socket, string adapterName) =>
-            new WSSocket(Communicator, base.CreateSocket(socket, adapterName));
+        internal override SingleStreamSocket CreateSocket(Socket socket, string adapterName, bool preferNonSecure) =>
+            new WSSocket(Communicator, base.CreateSocket(socket, adapterName, preferNonSecure));
     }
 }

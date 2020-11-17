@@ -14,7 +14,7 @@ namespace ZeroC.Ice
     internal class TcpEndpoint : IPEndpoint
     {
         public override bool IsDatagram => false;
-        public override bool IsSecure => Transport == Transport.SSL;
+        public override bool IsAlwaysSecure => Transport == Transport.SSL;
 
         public override string? this[string option] =>
             option switch
@@ -128,7 +128,7 @@ namespace ZeroC.Ice
 
         internal static TcpEndpoint CreateIce2Endpoint(EndpointData data, Communicator communicator)
         {
-            Debug.Assert(data.Transport == Transport.TCP || data.Transport == Transport.SSL); // TODO: remove SSL
+            Debug.Assert(data.Transport == Transport.TCP);
 
             // Drop all options since we don't understand any.
             return new TcpEndpoint(new EndpointData(data.Transport, data.Host, data.Port, Array.Empty<string>()),
@@ -265,20 +265,24 @@ namespace ZeroC.Ice
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this, addr, proxy);
 
-        internal virtual SingleStreamSocket CreateSocket(IConnector connector, EndPoint addr, INetworkProxy? proxy)
+        internal virtual SingleStreamSocket CreateSocket(
+            IConnector connector,
+            EndPoint addr,
+            INetworkProxy? proxy,
+            bool preferNonSecure)
         {
             SingleStreamSocket singleStreamSocket = new TcpSocket(Communicator, connector, addr, proxy, SourceAddress);
-            if (IsSecure)
+            if (IsAlwaysSecure || !preferNonSecure)
             {
                 singleStreamSocket = new SslSocket(Communicator, singleStreamSocket, Host, false, connector);
             }
             return singleStreamSocket;
         }
 
-        internal virtual SingleStreamSocket CreateSocket(Socket socket, string adapterName)
+        internal virtual SingleStreamSocket CreateSocket(Socket socket, string adapterName, bool preferNonSecure)
         {
             SingleStreamSocket singleStreamSocket = new TcpSocket(Communicator, socket);
-            if (IsSecure)
+            if (IsAlwaysSecure || !preferNonSecure)
             {
                 singleStreamSocket = new SslSocket(Communicator, singleStreamSocket, adapterName, true);
             }

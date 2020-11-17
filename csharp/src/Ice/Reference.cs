@@ -360,10 +360,7 @@ namespace ZeroC.Ice
                 hash.Add(Encoding);
                 hash.Add(Facet);
                 hash.Add(Identity);
-                foreach (InvocationInterceptor interceptor in _invocationInterceptors)
-                {
-                    hash.Add(interceptor);
-                }
+                hash.Add(_invocationInterceptors.GetSequenceHashCode());
                 hash.Add(InvocationMode);
                 hash.Add(InvocationTimeout);
                 hash.Add(IsFixed);
@@ -377,25 +374,13 @@ namespace ZeroC.Ice
                 else
                 {
                     hash.Add(ConnectionId);
-                    foreach (Endpoint e in Endpoints)
-                    {
-                        hash.Add(e);
-                    }
+                    hash.Add(Endpoints.GetSequenceHashCode());
                     hash.Add(IsConnectionCached);
-                    foreach (string s in Location)
-                    {
-                        hash.Add(s);
-                    }
+                    hash.Add(Location.GetSequenceHashCode());
                     hash.Add(LocatorCacheTimeout);
-                    if (LocatorInfo != null)
-                    {
-                        hash.Add(LocatorInfo);
-                    }
+                    hash.Add(LocatorInfo);
                     hash.Add(PreferNonSecure);
-                    if (RouterInfo != null)
-                    {
-                        hash.Add(RouterInfo);
-                    }
+                    hash.Add(RouterInfo);
                 }
 
                 int hashCode = hash.ToHashCode();
@@ -1519,14 +1504,13 @@ namespace ZeroC.Ice
                             return false;
                     }
 
-                    // If PreferNonSecure is false, filter out all non-secure endpoints
-                    return PreferNonSecure || endpoint.IsSecure;
+                    // With ice1 when PreferNonSecure is false filter out all non-secure endpoints.
+                    return Protocol == Protocol.Ice2 || PreferNonSecure || endpoint.IsAlwaysSecure;
                 });
 
-                if (PreferNonSecure)
+                if (Protocol == Protocol.Ice1 && PreferNonSecure)
                 {
-                    // It's just a preference: we can fallback to secure endpoints.
-                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
+                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => !endpoint.IsAlwaysSecure);
                 }
 
                 endpoints = filteredEndpoints.ToArray();
@@ -1547,6 +1531,7 @@ namespace ZeroC.Ice
                                                                false,
                                                                ConnectionId,
                                                                excludedConnectors,
+                                                               PreferNonSecure,
                                                                cancel).ConfigureAwait(false);
                     }
                     else
@@ -1563,6 +1548,7 @@ namespace ZeroC.Ice
                                                                        endpoint != lastEndpoint,
                                                                        ConnectionId,
                                                                        excludedConnectors,
+                                                                       PreferNonSecure,
                                                                        cancel).ConfigureAwait(false);
                                 break;
                             }

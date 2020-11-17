@@ -13,7 +13,9 @@ namespace ZeroC.Ice.Test.DefaultServant
             TextWriter output = helper.Output;
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
-            ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
+
+            ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA",
+                helper.GetTestEndpoint(ephemeral: true));
             oa.Activate();
 
             output.Write("testing single category... ");

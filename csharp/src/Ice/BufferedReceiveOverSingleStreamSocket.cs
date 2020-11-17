@@ -26,8 +26,6 @@ namespace ZeroC.Ice
         // The buffered data.
         private ArraySegment<byte> _buffer;
 
-        public override void CheckSendSize(int size) => Underlying.CheckSendSize(size);
-
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             Underlying.CloseAsync(exception, cancel);
 

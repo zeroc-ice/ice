@@ -1578,7 +1578,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
             }
             else if(StructPtr::dynamicCast(cont))
             {
-                if(s.substr(csPrefix.size()) == "readonly")
+                if (s == "cs:readonly" || s == "cs:custom-equals")
                 {
                     newLocalMetadata.push_back(s);
                     continue;

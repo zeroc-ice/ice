@@ -17,6 +17,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
+            communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
             Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
             await adapter.ActivateAsync();

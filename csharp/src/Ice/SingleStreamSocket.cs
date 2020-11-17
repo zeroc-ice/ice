@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>A single-stream socket enables transmitting and receiving raw binary data over a transport such
-    /// as TCP, UDP, TLS or WebSocket. More transports can be supported by deriving this class.</summary>
+    /// <summary>A single-stream socket represents the local end of a network connection and enables transmitting
+    /// raw binary data over a transport such as TCP, UDP or WebSocket.</summary>
     public abstract class SingleStreamSocket : IDisposable
     {
         /// <summary>Gets the optional .NET socket associated with this single-stream socket.</summary>

@@ -44,13 +44,11 @@ namespace ZeroC.Ice
 
         /// <summary>Indicates whether or not object adapters created by this communicator accept non-secure incoming
         /// connections. When false, they accept only secure connections; when true, they accept both secure and
-        /// non-secure connections. This property corresponds to the Ice.AcceptNonSecureConnections configuration
+        /// non-secure connections. This property corresponds to the Ice.AcceptNonSecure configuration
         /// property. It can be overridden for each object adapter by the object adapter property with the same name.
         /// </summary>
-        // TODO: update doc with default value for AcceptNonSecureConnections - it's currently true but should be
-        // false.
-        // TODO: currently only this property is implemented and nothing else.
-        public bool AcceptNonSecureConnections { get; }
+        // TODO: update doc with default value for AcceptNonSecure - it's currently true but should be false
+        public bool AcceptNonSecure { get; }
 
         /// <summary>The connection close timeout.</summary>
         public TimeSpan CloseTimeout { get; }
@@ -545,8 +543,8 @@ namespace ZeroC.Ice
                     GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
                 CompressionMinSize = GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
 
-                // TODO: switch to 0 default
-                AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;
+                // TODO: switch to false default (see ObjectAdapter also)
+                AcceptNonSecure = GetPropertyAsBool("Ice.AcceptNonSecure") ?? true;
                 int classGraphDepthMax = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
                 ClassGraphDepthMax = classGraphDepthMax < 1 ? int.MaxValue : classGraphDepthMax;
 
@@ -591,19 +589,6 @@ namespace ZeroC.Ice
 
                 RegisterIce2Transport(Transport.WS,
                                       "ws",
-                                      WSEndpoint.CreateIce2Endpoint,
-                                      WSEndpoint.ParseIce2Endpoint,
-                                      IPEndpoint.DefaultIPPort);
-
-                // TODO: this is temporary, ice2 should not have ssl and wss transports
-                RegisterIce2Transport(Transport.SSL,
-                                      "ssl",
-                                      TcpEndpoint.CreateIce2Endpoint,
-                                      TcpEndpoint.ParseIce2Endpoint,
-                                      IPEndpoint.DefaultIPPort);
-
-                RegisterIce2Transport(Transport.WSS,
-                                      "wss",
                                       WSEndpoint.CreateIce2Endpoint,
                                       WSEndpoint.ParseIce2Endpoint,
                                       IPEndpoint.DefaultIPPort);

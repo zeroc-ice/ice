@@ -33,6 +33,10 @@ namespace ZeroC.Ice.Discovery
                 // Reply to the multicast request using the given proxy.
                 try
                 {
+                    if (reply.InvocationMode == InvocationMode.Datagram)
+                    {
+                        reply = reply.Clone(preferNonSecure: true);
+                    }
                     await reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, cancel: cancel).
                         ConfigureAwait(false);
                 }
@@ -62,6 +66,10 @@ namespace ZeroC.Ice.Discovery
                 // Reply to the multicast request using the given proxy.
                 try
                 {
+                    if (reply.InvocationMode == InvocationMode.Datagram)
+                    {
+                        reply = reply.Clone(preferNonSecure: true);
+                    }
                     await reply.FoundObjectByIdAsync(id, proxy, cancel: cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -89,6 +97,10 @@ namespace ZeroC.Ice.Discovery
             {
                 try
                 {
+                    if (reply.InvocationMode == InvocationMode.Datagram)
+                    {
+                        reply = reply.Clone(preferNonSecure: true);
+                    }
                     await reply.FoundAdapterIdAsync(endpoints, isReplicaGroup, cancel: cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -119,6 +131,10 @@ namespace ZeroC.Ice.Discovery
             {
                 try
                 {
+                    if (reply.InvocationMode == InvocationMode.Datagram)
+                    {
+                        reply = reply.Clone(preferNonSecure: true);
+                    }
                     await reply.FoundWellKnownProxyAsync(adapterId, cancel: cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)

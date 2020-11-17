@@ -20,8 +20,8 @@ dictionary<string, string> Properties;
 
 interface ServerFactory
 {
-    Server* createServer(Properties properties, bool requireClientCertificate);
-    void destroyServer(Server* srv);
+    Server createServer(Properties properties, bool requireClientCertificate);
+    void destroyServer(Server srv);
     void shutdown();
 }
 
