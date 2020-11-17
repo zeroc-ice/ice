@@ -215,7 +215,7 @@ directory.
 > also includes assemblies for .NET Standard 2.0.
 >
 > If you build with Visual Studio 2019 the NuGet package include iceboxnet
-> executable targeting .NET 5, .NET Framework 4.5, .NET Core 3.1 and .NET
+> executable targeting .NET 5.0, .NET Framework 4.5, .NET Core 3.1 and .NET
 > Core 2.1.
 >
 > If you build with Visual Studio 2017 the NuGet package include iceboxnet
