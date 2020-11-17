@@ -25,13 +25,16 @@ namespace ZeroC.Ice
         private readonly SslEngine _engine;
         private readonly string? _host;
         private readonly bool _incoming;
-        private readonly SslStream _sslStream;
+        private SslStream? _sslStream;
         private BufferedStream? _writeStream;
         private readonly SingleStreamSocket _underlying;
 
         public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             await _underlying.InitializeAsync(cancel).ConfigureAwait(false);
+
+            // This can only be created with a connected socket.
+            _sslStream = new SslStream(new NetworkStream(_underlying.Socket!, false), false);
 
             try
             {
@@ -107,7 +110,7 @@ namespace ZeroC.Ice
             int received;
             try
             {
-                received = await _sslStream.ReadAsync(buffer, cancel).ConfigureAwait(false);
+                received = await _sslStream!.ReadAsync(buffer, cancel).ConfigureAwait(false);
             }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
@@ -156,7 +159,10 @@ namespace ZeroC.Ice
 
         protected override void Dispose(bool disposing)
         {
-            SslStream?.Dispose();
+            _underlying.Dispose();
+
+            _sslStream?.Dispose();
+
             try
             {
                 _writeStream?.Dispose();
@@ -189,7 +195,6 @@ namespace ZeroC.Ice
             {
                 _host = hostOrAdapterName;
             }
-            _sslStream = new SslStream(new NetworkStream(_underlying.Socket!, false), false);
         }
 
         private X509Certificate CertificateSelectionCallback(
