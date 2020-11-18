@@ -2064,6 +2064,25 @@ Slice::Module::createStruct(const string& name, NodeType nt)
     return p;
 }
 
+TypeAliasPtr
+Slice::Module::createTypeAlias(const TypePtr& type, const string& name)
+{
+    if (!checkForRedefinition(this, name, "typealias"))
+    {
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the alias anyway.
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': a typealias can only be defined at module scope");
+    }
+
+    TypeAliasPtr alias = new TypeAlias(this, type, name);
+    _contents.push_back(alias);
+    return alias;
+}
+
 SequencePtr
 Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metadata)
 {
@@ -3407,6 +3426,96 @@ Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     DataMemberContainer(container, name),
     Type(container->unit())
 {
+}
+
+// ----------------------------------------------------------------------
+// TypeAlias
+// ----------------------------------------------------------------------
+
+void
+Slice::TypeAlias::destroy()
+{
+    _underlying = nullptr;
+    SyntaxTreeBase::destroy();
+}
+
+string
+Slice::TypeAlias::typeId() const
+{
+    return _underlying->typeId();
+}
+
+bool
+Slice::TypeAlias::uses(const ContainedPtr& contained) const
+{
+    ContainedPtr contained2 = ContainedPtr::dynamicCast(_underlying);
+    return (contained2 && contained2 == contained);
+}
+
+bool
+Slice::TypeAlias::usesClasses() const
+{
+    return _underlying->usesClasses();
+}
+
+string
+Slice::TypeAlias::kindOf() const
+{
+    return "typealias";
+}
+
+bool
+Slice::TypeAlias::isClassType() const
+{
+    return _underlying->isClassType();
+}
+
+bool
+Slice::TypeAlias::isInterfaceType() const
+{
+    return _underlying->isInterfaceType();
+}
+
+size_t
+Slice::TypeAlias::minWireSize() const
+{
+    return _underlying->minWireSize();
+}
+
+string
+Slice::TypeAlias::getTagFormat() const
+{
+    return _underlying->getTagFormat();
+}
+
+bool
+Slice::TypeAlias::isVariableLength() const
+{
+    return _underlying->isVariableLength();
+}
+
+void
+Slice::TypeAlias::visit(ParserVisitor*, bool)
+{
+    // visitor->visitTypeAlias(this); TODOAUSTIN
+}
+
+Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const TypePtr& underlying, const string& name) :
+    SyntaxTreeBase(container->unit()),
+    Type(container->unit()),
+    Contained(container, name),
+    Constructed(container, name)
+{
+    // Optional types can't be aliased.
+    if (auto optional = OptionalPtr::dynamicCast(underlying))
+    {
+        _unit->error("`" + name + "': optional types cannot be type-aliased");
+        _underlying = optional->underlying();
+    }
+    else
+    {
+        _underlying = underlying;
+    }
 }
 
 // ----------------------------------------------------------------------

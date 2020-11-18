@@ -79,6 +79,7 @@ class Optional;
 class Struct;
 class Operation;
 class Member;
+class TypeAlias;
 class Sequence;
 class Dictionary;
 class Enum;
@@ -106,6 +107,7 @@ typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
 typedef ::IceUtil::Handle<Operation> OperationPtr;
 typedef ::IceUtil::Handle<Member> MemberPtr;
+typedef ::IceUtil::Handle<TypeAlias> TypeAliasPtr;
 typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
 typedef ::IceUtil::Handle<Enum> EnumPtr;
@@ -513,6 +515,7 @@ public:
     InterfaceDeclPtr createInterfaceDecl(const std::string&);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
     StructPtr createStruct(const std::string&, NodeType = Real);
+    TypeAliasPtr createTypeAlias(const TypePtr& type, const std::string& name);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                                    const StringList&);
@@ -842,6 +845,37 @@ protected:
 
     friend class Container;
     friend class Module;
+};
+
+// ----------------------------------------------------------------------
+// TypeAlias
+// ----------------------------------------------------------------------
+
+class TypeAlias : public virtual Constructed
+{
+public:
+
+    void destroy() override;
+    TypePtr underlying() const { return _underlying; }
+
+    std::string typeId() const override;
+    bool uses(const ContainedPtr& contained) const override;
+    bool usesClasses() const override;
+    bool isClassType() const override;
+    bool isInterfaceType() const override;
+    size_t minWireSize() const override;
+    std::string getTagFormat() const override;
+    bool isVariableLength() const override;
+    std::string kindOf() const override;
+    void visit(ParserVisitor* visitor, bool all) override;
+
+protected:
+
+    TypeAlias(const ContainerPtr& container, const TypePtr& underlying, const std::string& name);
+
+    friend class Module;
+
+    TypePtr _underlying;
 };
 
 // ----------------------------------------------------------------------
