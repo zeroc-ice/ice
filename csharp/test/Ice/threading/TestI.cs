@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Threading
     {
         private readonly TaskScheduler _scheduler;
         private int _level;
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
 
         public TestIntf(TaskScheduler scheduler) => _scheduler = scheduler;
 

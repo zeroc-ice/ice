@@ -12,8 +12,8 @@ namespace ZeroC.Ice.Test.UDP
     {
         public class PingReplyI : IPingReply
         {
-            private readonly object _mutex = new object();
-            private readonly Stopwatch _stopwatch = new Stopwatch();
+            private readonly object _mutex = new();
+            private readonly Stopwatch _stopwatch = new();
 
             public PingReplyI() => _stopwatch.Start();
 

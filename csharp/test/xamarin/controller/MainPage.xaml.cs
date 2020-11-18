@@ -352,6 +352,17 @@ namespace controller
 
     public class ControllerHelperI : ControllerHelper
     {
+        private MainPage _page;
+        private PlatformAdapter _platformAdapter;
+        private string _name;
+        private string[] _args;
+        private TestHelper _helper;
+        private bool _ready;
+        private bool _completed;
+        private int _status;
+        private Thread _thread;
+        private string _typename;
+
         public ControllerHelperI(string name, string[] args, MainPage page, PlatformAdapter platformAdapter)
         {
             _name = name;
@@ -503,21 +514,12 @@ namespace controller
                 return _status;
             }
         }
-
-        private MainPage _page;
-        private PlatformAdapter _platformAdapter;
-        private string _name;
-        private string[] _args;
-        private TestHelper _helper;
-        private bool _ready;
-        private bool _completed;
-        private int _status;
-        private Thread _thread;
-        private string _typename;
     }
 
     public class ProccessI : Test.Common.Process
     {
+        private ControllerHelperI _controllerHelper;
+
         public ProccessI(ControllerHelperI controllerHelper)
         {
             _controllerHelper = controllerHelper;
@@ -540,12 +542,12 @@ namespace controller
             _controllerHelper.join();
             return _controllerHelper.getOutput();
         }
-
-        private ControllerHelperI _controllerHelper;
     }
 
     public class ProcessControllerI : Test.Common.ProcessController
     {
+        private MainPage _mainPage;
+
         public ProcessControllerI(MainPage mainPage)
         {
             _mainPage = mainPage;
@@ -574,12 +576,15 @@ namespace controller
                 return _mainPage.getHost(ipv6);
             }
         }
-
-        private MainPage _mainPage;
     }
 
     public class ControllerI
     {
+        private Communicator _communicator;
+        private MainPage _mainPage;
+        private ObjectAdapter _adapter;
+        private ProcessControllerPrx _processController;
+
         public ControllerI(MainPage mainPage)
         {
             IceSSL.Util.registerIceSSL(false);
@@ -664,15 +669,20 @@ namespace controller
                     }
                 });
         }
-
-        private Communicator _communicator;
-        private MainPage _mainPage;
-        private ObjectAdapter _adapter;
-        private ProcessControllerPrx _processController;
     }
 
     public partial class MainPage : ContentPage
     {
+
+        public PlatformAdapter platformAdapter
+        {
+            get;
+            private set;
+        }
+
+        private ObservableCollection<string> _outputSource = new ObservableCollection<string>();
+        private ControllerI _controllerI;
+
         public MainPage(PlatformAdapter platformAdapter)
         {
             InitializeComponent();
@@ -753,18 +763,9 @@ namespace controller
             return ProcessControllerRegistryHost.Text;
         }
 
-        public PlatformAdapter platformAdapter
-        {
-            get;
-            private set;
-        }
-
         public string getHost(bool ipv6)
         {
             return ipv6 ? IPv6Address.SelectedItem.ToString() : IPv4Address.SelectedItem.ToString();
         }
-
-        private ObservableCollection<string> _outputSource = new ObservableCollection<string>();
-        private ControllerI _controllerI;
     }
 }
