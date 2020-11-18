@@ -63,8 +63,6 @@ namespace ZeroC.Ice
         private readonly IList<ArraySegment<byte>> _sendBuffer;
         private Task _sendTask = Task.CompletedTask;
 
-        public override void CheckSendSize(int size) => _underlying.CheckSendSize(size);
-
         public override async ValueTask CloseAsync(Exception exception, CancellationToken cancel)
         {
             byte[] payload = new byte[2];

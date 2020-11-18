@@ -190,11 +190,6 @@ namespace ZeroC.Ice
                 compressedHeader[9] = 2;
                 compressedHeader.AsSpan(10, 4).WriteInt(compressedSize);
 
-                // Write the compression status and size of the compressed stream into the header of the decompressed
-                // stream -- we need this to trace requests correctly.
-                headerSegment[9] = 2;
-                headerSegment.AsSpan(10, 4).WriteInt(compressedSize);
-
                 // Add the size of the decompressed stream before the frame body.
                 compressedHeader.AsSpan(headerSize, 4).WriteInt(size);
 

@@ -222,6 +222,7 @@ namespace ZeroC.Ice
             {
                 AbortStreams(exception);
             }
+
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
             lock (_mutex)
@@ -293,7 +294,7 @@ namespace ZeroC.Ice
 
         internal void CheckStreamsEmpty()
         {
-            if (_streams.Count <= 2)
+            if (_incomingStreamCount == 0 && _outgoingStreamCount == 0)
             {
                 _streamsEmptySource?.TrySetResult();
             }
@@ -561,7 +562,7 @@ namespace ZeroC.Ice
 
         internal async ValueTask WaitForEmptyStreamsAsync()
         {
-            if (_streams.Count > 2)
+            if (_incomingStreamCount > 0 || _outgoingStreamCount > 0)
             {
                 // Create a task completion source to wait for the streams to complete.
                 _streamsEmptySource ??= new TaskCompletionSource();
