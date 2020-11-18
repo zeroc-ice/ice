@@ -163,6 +163,7 @@ namespace ZeroC.Ice
         internal int RetryMaxAttempts { get; }
         internal int RetryBufferMaxSize { get; }
         internal int RetryRequestMaxSize { get; }
+        internal string ServerName { get; }
         internal SlicOptions SlicOptions { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -498,6 +499,8 @@ namespace ZeroC.Ice
                 }
 
                 KeepAlive = GetPropertyAsBool("Ice.KeepAlive") ?? false;
+
+                ServerName = GetProperty("Ice.ServerName") ?? Dns.GetHostName();
 
                 SlicOptions = new SlicOptions
                 {

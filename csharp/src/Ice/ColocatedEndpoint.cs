@@ -48,6 +48,9 @@ namespace ZeroC.Ice
         {
         }
 
+        protected internal override Endpoint Clone(string host) =>
+            throw new NotImplementedException("cannot clone a colocated endpoint");
+
         internal ColocatedEndpoint(ObjectAdapter adapter)
             : base(new EndpointData(Transport.Colocated, host: adapter.Name, port: 0, Array.Empty<string>()),
                    adapter.Communicator,

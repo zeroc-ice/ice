@@ -111,6 +111,13 @@ namespace ZeroC.Ice
             }
         }
 
+        protected internal override Endpoint Clone(string host) =>
+            host == Host ? this :
+                new OpaqueEndpoint(new EndpointData(Data.Transport, host, Data.Port, Data.Options),
+                                   ValueEncoding,
+                                   Value,
+                                   Communicator);
+
         internal static OpaqueEndpoint Create(
             Transport transport,
             Encoding valueEncoding,

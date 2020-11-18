@@ -75,9 +75,12 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test object adapter endpoint information... ");
             output.Flush();
             {
+                string serverName = "testhost";
+
                 communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + helper.Host +
                     "\" -t 15000:udp -h \"" + helper.Host + "\"");
                 communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
+                communicator.SetProperty("TestAdapter.ServerName", serverName);
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 IReadOnlyList<Endpoint> endpoints = adapter.GetEndpoints();
@@ -92,12 +95,12 @@ namespace ZeroC.Ice.Test.Info
                                   tcpEndpoint.Transport == Transport.WS ||
                                   tcpEndpoint.Transport == Transport.WSS);
 
-                TestHelper.Assert(tcpEndpoint.Host == helper.Host);
+                TestHelper.Assert(tcpEndpoint.Host == serverName);
                 TestHelper.Assert(tcpEndpoint.Port > 0);
                 TestHelper.Assert(tcpEndpoint["timeout"] is string value && int.Parse(value) == 15000);
 
                 Endpoint udpEndpoint = endpoints[1];
-                TestHelper.Assert(udpEndpoint.Host == helper.Host);
+                TestHelper.Assert(udpEndpoint.Host == serverName);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
                 TestHelper.Assert(udpEndpoint.Port > 0);
                 TestHelper.Assert(!udpEndpoint.IsAlwaysSecure);

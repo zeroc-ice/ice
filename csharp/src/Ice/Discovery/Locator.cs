@@ -167,6 +167,7 @@ namespace ZeroC.Ice.Discovery
             {
                 communicator.SetProperty("Ice.Discovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
+
             // create datagram proxies
             communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d");
             // datagram connection are nonsecure

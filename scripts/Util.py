@@ -3046,6 +3046,7 @@ class Driver:
             if isinstance(process.getMapping(current), CSharpMapping):
                 if not process.isFromBinDir():
                     props["Test.Host"] = testHost
+                    props["Ice.ServerName"] = testHost
             else:
                 props["Ice.Default.Host"] = testHost
         return props

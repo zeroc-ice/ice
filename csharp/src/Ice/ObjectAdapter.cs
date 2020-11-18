@@ -90,6 +90,7 @@ namespace ZeroC.Ice
             "Locator.ConnectionCached",
             "Locator.PreferNonSecure",
             "Locator.Router",
+            "ProxyOptions",
             "PublishedEndpoints",
             "ReplicaGroupId",
             "Router",
@@ -105,7 +106,7 @@ namespace ZeroC.Ice
             "Router.Locator.InvocationTimeout",
             "Router.LocatorCacheTimeout",
             "Router.InvocationTimeout",
-            "ProxyOptions"
+            "ServerName"
         };
 
         private Task? _activateTask;
@@ -798,14 +799,16 @@ namespace ZeroC.Ice
                             }
                         }
 
+                        string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
+
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
                                 expanded.IsDatagram ?
                                     (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
                                         this,
                                         expanded,
-                                        publishedEndpoint) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint))));
+                                        serverName) :
+                                    new AcceptorIncomingConnectionFactory(this, expanded, serverName))));
                     }
                     else
                     {
@@ -1037,14 +1040,10 @@ namespace ZeroC.Ice
             if (endpoints.Count == 0)
             {
                 // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
-                // endpoints, expanding any endpoint that may be listening on INADDR_ANY to include actual addresses
-                // in the published endpoints.
-                // We also filter out duplicate endpoints, this might occur if an endpoint with a DNS name
-                // expands to multiple addresses. In this case, multiple incoming connection factories can point to
-                // the same published endpoint.
+                // endpoints and eliminate duplicates.
 
-                endpoints = _incomingConnectionFactories.SelectMany(factory =>
-                    factory.PublishedEndpoint.ExpandIfWildcard()).Distinct().ToImmutableArray();
+                endpoints = _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).Distinct().
+                    ToImmutableArray();
             }
 
             if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)

@@ -210,6 +210,8 @@ namespace ZeroC.Ice
             }
         }
 
+        protected internal override Endpoint Clone(string host) => host == Host ? this : Clone(host, Port);
+
         internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
 
         private protected static bool ParseCompress(Dictionary<string, string?> options, string endpointString)
@@ -415,7 +417,5 @@ namespace ZeroC.Ice
         private protected abstract IPEndpoint Clone(string host, ushort port);
 
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
-
-        private IPEndpoint Clone(string host) => host == Host ? this : Clone(host, Port);
     }
 }

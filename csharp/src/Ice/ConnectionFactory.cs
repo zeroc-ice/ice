@@ -475,31 +475,26 @@ namespace ZeroC.Ice
 
     internal abstract class IncomingConnectionFactory : IAsyncDisposable
     {
-        internal Endpoint PublishedEndpoint => _publishedEndpoint ?? Endpoint;
+        internal virtual Endpoint PublishedEndpoint => Endpoint;
 
-        internal abstract void Activate();
-
-        internal abstract void UpdateConnectionObservers();
-
-        protected Endpoint Endpoint { get; set; }
-
-        private readonly Endpoint? _publishedEndpoint;
+        private protected Endpoint Endpoint { get; init; }
 
         public abstract ValueTask DisposeAsync();
 
-        internal bool IsLocal(Endpoint endpoint) =>
-            _publishedEndpoint != null && (endpoint.IsLocal(_publishedEndpoint) || endpoint.IsLocal(Endpoint));
+        internal abstract void Activate();
 
-        protected IncomingConnectionFactory(Endpoint endpoint, Endpoint? publishedEndpoint)
-        {
-            Endpoint = endpoint;
-            _publishedEndpoint = publishedEndpoint;
-        }
+        internal bool IsLocal(Endpoint endpoint) => endpoint.IsLocal(Endpoint); // TODO: eliminate
+
+        internal abstract void UpdateConnectionObservers();
+
+        private protected IncomingConnectionFactory(Endpoint endpoint) => Endpoint = endpoint;
     }
 
     // IncomingConnectionFactory for acceptor based transports.
     internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
     {
+        internal override Endpoint PublishedEndpoint { get; }
+
         private readonly IAcceptor _acceptor;
         private Task? _acceptTask;
         private readonly ObjectAdapter _adapter;
@@ -551,14 +546,15 @@ namespace ZeroC.Ice
 
         public override string ToString() => _acceptor.ToString()!;
 
-        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish)
-            : base(endpoint, publish)
+        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, string? serverName)
+            : base(endpoint)
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
             _acceptor = Endpoint.Acceptor(this, _adapter);
 
             Endpoint = _acceptor.Endpoint;
+            PublishedEndpoint = serverName != null ? Endpoint.Clone(serverName) : Endpoint;
 
             if (_communicator.TraceLevels.Transport >= 1)
             {
@@ -657,6 +653,8 @@ namespace ZeroC.Ice
     // IncomingConnectionFactory for datagram based transports
     internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory
     {
+        internal override Endpoint PublishedEndpoint { get; }
+
         private readonly Connection _connection;
 
         public override async ValueTask DisposeAsync()
@@ -667,11 +665,12 @@ namespace ZeroC.Ice
 
         public override string ToString() => _connection.ToString()!;
 
-        internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish)
-            : base(endpoint, publish)
+        internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, string serverName)
+            : base(endpoint)
         {
             _connection = endpoint.CreateDatagramServerConnection(adapter);
             Endpoint = _connection.Endpoint;
+            PublishedEndpoint = Endpoint.Clone(serverName);
             _ = _connection.InitializeAsync();
         }
 
