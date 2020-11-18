@@ -75,7 +75,9 @@ namespace IceSSL
                 _protocols = 0;
                 foreach(int v in Enum.GetValues(typeof(SslProtocols)))
                 {
-                    if(v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
+#pragma warning disable CS0618 // Type or member is obsolete
+                    if (v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
+#pragma warning restore CS0618 // Type or member is obsolete
                     {
                         _protocols |= (SslProtocols)v;
                     }
@@ -637,9 +639,11 @@ namespace IceSSL
 
         private SslProtocols parseProtocols(string[] arr)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             SslProtocols result = SslProtocols.Default;
+#pragma warning restore CS0618 // Type or member is obsolete
 
-            if(arr.Length > 0)
+            if (arr.Length > 0)
             {
                 result = 0;
                 for(int i = 0; i < arr.Length; ++i)

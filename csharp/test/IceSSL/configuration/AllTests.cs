@@ -16,9 +16,6 @@ using System.Threading;
 
 public class AllTests
 {
-    private static bool IsCatalinaOrGreater =
-        IceInternal.AssemblyUtil.isMacOS && Environment.OSVersion.Version.Major >= 19;
-
     private static void test(bool b)
     {
         if(!b)
@@ -591,7 +588,7 @@ public class AllTests
                         catch(Ice.LocalException ex)
                         {
                             //
-                            // macOS catalina does not check the certificate common name
+                            // macOS catalina or greater does not check the certificate common name
                             //
                             if(!IceInternal.AssemblyUtil.isMacOS)
                             {
@@ -648,7 +645,7 @@ public class AllTests
                         catch(Ice.LocalException)
                         {
                             // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
-                            test(IsCatalinaOrGreater);
+                            test(IceInternal.AssemblyUtil.isMacOS);
                         }
                         fact.destroyServer(server);
                         comm.destroy();
@@ -784,7 +781,7 @@ public class AllTests
                         catch(Ice.SecurityException ex)
                         {
                             //
-                            // macOS catalina does not check the certificate common name
+                            // macOS catalina or greater does not check the certificate common name
                             //
                             if(!IceInternal.AssemblyUtil.isMacOS)
                             {

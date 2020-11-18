@@ -16,9 +16,8 @@ class IceBox(ProcessFromBinDir, Server):
         mapping = self.getMapping(current)
 
         #
-        # If running IceBox tests with .NET Core we need to generate a config
-        # file that use the service for the .NET Framework used to build the
-        # tests
+        # If running IceBox tests with non default framweork we need to generate a custom config
+        # file.
         #
         if self.configFile:
             if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
@@ -29,7 +28,10 @@ class IceBox(ProcessFromBinDir, Server):
                     newConfigFile = "{}.{}".format(configFile, framework)
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
-                            target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework)))
+                            if current.config.framework == "net5.0":
+                                target.write(line.replace("\\net45\\", "\\net5.0\\"))
+                            else:
+                                target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework)))
                         current.files.append(newConfigFile)
 
     def getExe(self, current):

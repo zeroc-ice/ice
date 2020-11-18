@@ -3434,9 +3434,9 @@ class CSharpMapping(Mapping):
                 self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
                 self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             else:
-                self.libTargetFramework = "net45" if self.framework == "" else "netstandard2.0"
-                self.binTargetFramework = "net45" if self.framework == "" else self.framework
-                self.testTargetFramework = "net45" if self.framework == "" else self.framework
+                self.libTargetFramework = self.framework if self.framework in ["net5.0", "net45"] else "netstandard2.0"
+                self.binTargetFramework = self.framework
+                self.testTargetFramework = self.framework
 
             # Set Xamarin flag if UWP/iOS or Android testing flag is also specified
             if self.uwp or self.android or "iphone" in self.buildPlatform:
@@ -3452,7 +3452,9 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.dotnetcore or current.config.framework != "":
+        if current.config.framework == "net5.0":
+            return os.path.join("msbuild", name, "net5.0")
+        elif current.config.dotnetcore or current.config.framework != "":
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
         else:
             return os.path.join("msbuild", name, self.getTargetFramework(current))

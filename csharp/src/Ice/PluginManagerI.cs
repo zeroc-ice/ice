@@ -451,7 +451,9 @@ namespace Ice
                         }
                         catch(System.IO.IOException)
                         {
+#pragma warning disable CA2200 // Rethrow to preserve stack details
                             throw ex;
+#pragma warning restore CA2200 // Rethrow to preserve stack details
                         }
                     }
                 }

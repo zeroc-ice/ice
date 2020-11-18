@@ -175,15 +175,15 @@ namespace IceInternal
                     _adapters.Add(adapter);
                 }
             }
-            catch(Ice.CommunicatorDestroyedException ex)
+            catch(Ice.CommunicatorDestroyedException)
             {
                 if(adapter != null)
                 {
                     adapter.destroy();
                 }
-                throw ex;
+                throw;
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException)
             {
                 if(name.Length > 0)
                 {
@@ -192,7 +192,7 @@ namespace IceInternal
                         _adapterNamesInUse.Remove(name);
                     }
                 }
-                throw ex;
+                throw;
             }
 
             return adapter;
