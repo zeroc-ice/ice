@@ -288,9 +288,9 @@ generated from the section label.
 
     <section name="Ice">
         <!-- TODO: Remove once we remove ACM properties for all mappings. -->
-        <property name="ACM.Client" deprecated="true"/>
-        <property name="ACM.Server" deprecated="true"/>
         <property name="ACM" class="acm"/>
+        <property name="ACM.Client" class="acm"/>
+        <property name="ACM.Server" class="acm"/>
         <property name="AcceptNonSecure" />
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
