@@ -122,7 +122,7 @@ namespace ZeroC.Ice.Test.UDP
             catch (TransportException)
             {
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that
-                // TransportException will be throw when try to send a packet bigger than that.
+                // TransportException will be thrown when we try to send a larger packet.
                 TestHelper.Assert(seq.Length > 16384);
             }
             obj.GetConnection().GoAwayAsync();

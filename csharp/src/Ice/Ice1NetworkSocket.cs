@@ -294,11 +294,11 @@ namespace ZeroC.Ice
                                                     ex.InnerException is SocketException socketException &&
                                                     socketException.SocketErrorCode == SocketError.MessageSize)
                 {
-                    // If the send failed because the datagram was too large, ignore and continue sending.
+                    // If the previous send failed because the datagram was too large, ignore and continue sending.
                 }
                 catch (OperationCanceledException)
                 {
-                    // Ignore if it got canceled.
+                    // Ignore if the previous send got canceled.
                 }
 
                 // If the send got cancelled, throw to notify the connection of the cancellation. This isn't a fatal
