@@ -513,9 +513,9 @@ public:
     InterfaceDeclPtr createInterfaceDecl(const std::string&);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
     StructPtr createStruct(const std::string&, NodeType = Real);
-    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
+    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-                                   const StringList&, NodeType = Real);
+                                   const StringList&);
     EnumPtr createEnum(const std::string&, bool, NodeType = Real);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
                          const std::string&, const std::string&, NodeType = Real);

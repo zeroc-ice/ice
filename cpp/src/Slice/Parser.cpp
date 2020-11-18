@@ -2065,7 +2065,7 @@ Slice::Module::createStruct(const string& name, NodeType nt)
 }
 
 SequencePtr
-Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metadata, NodeType nt)
+Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metadata)
 {
     _unit->checkType(type);
     if (!checkForRedefinition(this, name, "sequence"))
@@ -2074,7 +2074,7 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
     }
 
     checkIdentifier(name); // Don't return here -- we create the sequence anyway.
-    if (nt == Real && _name == "")
+    if (_name == "")
     {
         _unit->error("`" + name + "': a sequence can only be defined at module scope");
     }
@@ -2086,7 +2086,7 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
 
 DictionaryPtr
 Slice::Module::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetadata,
-                                const TypePtr& valueType, const StringList& valueMetadata, NodeType nt)
+                                const TypePtr& valueType, const StringList& valueMetadata)
 {
     _unit->checkType(keyType);
     _unit->checkType(valueType);
@@ -2096,23 +2096,20 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
     }
 
     checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
-    if (nt == Real)
+    if (_name == "")
     {
-        if (_name == "")
-        {
-            _unit->error("`" + name + "': a dictionary can only be defined at module scope");
-        }
+        _unit->error("`" + name + "': a dictionary can only be defined at module scope");
+    }
 
-        bool containsSequence = false;
-        if (!Dictionary::legalKeyType(keyType, containsSequence))
-        {
-            _unit->error("dictionary `" + name + "' uses an illegal key type");
-            return nullptr;
-        }
-        if (containsSequence)
-        {
-            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
-        }
+    bool containsSequence = false;
+    if (!Dictionary::legalKeyType(keyType, containsSequence))
+    {
+        _unit->error("dictionary `" + name + "' uses an illegal key type");
+        return nullptr;
+    }
+    if (containsSequence)
+    {
+        _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
     }
 
     DictionaryPtr p = new Dictionary(this, name, keyType, keyMetadata, valueType, valueMetadata);
