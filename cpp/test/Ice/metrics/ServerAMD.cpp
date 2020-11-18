@@ -23,7 +23,7 @@ ServerAMD::run(int argc, char** argv)
     properties->setProperty("Ice.Admin.InstanceName", "server");
     properties->setProperty("Ice.Warn.Connections", "0");
     properties->setProperty("Ice.Warn.Dispatch", "0");
-    properties->setProperty("Ice.MessageSizeMax", "50000");
+    properties->setProperty("Ice.MessageMaxSize", "50000");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());

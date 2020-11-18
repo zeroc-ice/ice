@@ -117,7 +117,7 @@ class IceStormStressTestCase(IceStormTestCase):
         current.writeln("ok")
 
         current.write("Sending 5000 ordered events with max queue size drop events... ")
-        opts = " --IceStorm.Send.QueueSizeMax=2000 --IceStorm.Send.QueueSizeMaxPolicy=DropEvents"
+        opts = " --IceStorm.Send.QueueMaxSize=2000 --IceStorm.Send.QueueMaxSizePolicy=DropEvents"
         for s in icestorm1:
             s.start(current, args=opts.split(" "))
         doTest(("TestIceStorm1", '--events 5000 --qos "reliability,ordered" --maxQueueDropEvents=2000'),
@@ -128,7 +128,7 @@ class IceStormStressTestCase(IceStormTestCase):
         current.writeln("ok")
 
         current.write("Sending 5000 ordered events with max queue size remove subscriber... ")
-        opts = " --IceStorm.Send.QueueSizeMax=2000 --IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber"
+        opts = " --IceStorm.Send.QueueMaxSize=2000 --IceStorm.Send.QueueMaxSizePolicy=RemoveSubscriber"
         for s in icestorm1:
             s.start(current, args=opts.split(" "))
         doTest(("TestIceStorm1", '--events 5000 --qos "reliability,ordered" --maxQueueRemoveSub=2000'),

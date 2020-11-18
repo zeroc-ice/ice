@@ -19,7 +19,7 @@ public class Server extends test.TestHelper
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        properties.setProperty("Ice.MessageSizeMax", "20000");
+        properties.setProperty("Ice.MessageMaxSize", "20000");
         //
         // opIdempotent raises UnknownException, we disable dispatch
         // warnings to prevent warnings.

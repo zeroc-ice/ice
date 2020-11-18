@@ -323,7 +323,7 @@ export class Client extends TestHelper
                     await initial.setRecursive(top);
                 }
             }
-            test(!(await initial.supportsClassGraphDepthMax()));
+            test(!(await initial.supportsClassGraphMaxDepth()));
         }
         catch(ex)
         {

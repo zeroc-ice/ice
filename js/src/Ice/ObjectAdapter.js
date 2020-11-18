@@ -40,7 +40,7 @@ const _suffixes =
     "Locator.PreferSecure",
     "Locator.CollocationOptimized",
     "Locator.Router",
-    "MessageSizeMax",
+    "MessageMaxSize",
     "PublishedEndpoints",
     "ReplicaGroupId",
     "Router",
@@ -60,8 +60,8 @@ const _suffixes =
     "Router.InvocationTimeout",
     "ProxyOptions",
     "ThreadPool.Size",
-    "ThreadPool.SizeMax",
-    "ThreadPool.SizeWarn",
+    "ThreadPool.MaxSize",
+    "ThreadPool.WarnSize",
     "ThreadPool.StackSize",
     "ThreadPool.Serialize"
 ];
@@ -95,7 +95,7 @@ class ObjectAdapter
         if(this._noConfig)
         {
             this._reference = this._instance.referenceFactory().createFromString("dummy -t", "");
-            this._messageSizeMax = this._instance.messageSizeMax();
+            this._messageMaxSize = this._instance.messageMaxSize();
             promise.resolve(this);
             return;
         }
@@ -145,15 +145,15 @@ class ObjectAdapter
         }
 
         {
-            const defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
-            const num = properties.getPropertyAsIntWithDefault(this._name + ".MessageSizeMax", defaultMessageSizeMax);
+            const defaultMessageMaxSize = this._instance.messageMaxSize() / 1024;
+            const num = properties.getPropertyAsIntWithDefault(this._name + ".MessageMaxSize", defaultMessageMaxSize);
             if(num < 1 || num > 0x7fffffff / 1024)
             {
-                this._messageSizeMax = 0x7fffffff;
+                this._messageMaxSize = 0x7fffffff;
             }
             else
             {
-                this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                this._messageMaxSize = num * 1024; // Property is in kilobytes, _messageMaxSize in bytes
             }
         }
 
@@ -490,9 +490,9 @@ class ObjectAdapter
         connection.setAdapterAndServantManager(this, this._servantManager);
     }
 
-    messageSizeMax()
+    messageMaxSize()
     {
-        return this._messageSizeMax;
+        return this._messageMaxSize;
     }
 
     newProxy(ident, facet)

@@ -902,7 +902,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _name(name),
     _directCount(0),
     _noConfig(noConfig),
-    _messageSizeMax(0)
+    _messageMaxSize(0)
 {
 }
 
@@ -965,27 +965,27 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
             ACMConfig(properties, _communicator->getLogger(), _name + ".ACM", _instance->serverACM());
 
         {
-            const int defaultMessageSizeMax = static_cast<int>(_instance->messageSizeMax() / 1024);
-            Int num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            const int defaultMessageMaxSize = static_cast<int>(_instance->messageMaxSize() / 1024);
+            Int num = properties->getPropertyAsIntWithDefault(_name + ".MessageMaxSize", defaultMessageMaxSize);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_messageMaxSize) = static_cast<size_t>(0x7fffffff);
             }
             else
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+                const_cast<size_t&>(_messageMaxSize) = static_cast<size_t>(num) * 1024;
             }
         }
 
         int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
-        int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+        int threadPoolMaxSize = properties->getPropertyAsInt(_name + ".ThreadPool.MaxSize");
         bool hasPriority = properties->getProperty(_name + ".ThreadPool.ThreadPriority") != "";
 
         //
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
         // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
         //
-        if(threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
+        if(threadPoolSize > 0 || threadPoolMaxSize > 0 || hasPriority)
         {
             _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
         }
@@ -1414,7 +1414,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Locator.PreferSecure",
         "Locator.CollocationOptimized",
         "Locator.Router",
-        "MessageSizeMax",
+        "MessageMaxSize",
         "PublishedEndpoints",
         "ReplicaGroupId",
         "Router",
@@ -1434,8 +1434,8 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "Router.InvocationTimeout",
         "ProxyOptions",
         "ThreadPool.Size",
-        "ThreadPool.SizeMax",
-        "ThreadPool.SizeWarn",
+        "ThreadPool.MaxSize",
+        "ThreadPool.WarnSize",
         "ThreadPool.StackSize",
         "ThreadPool.Serialize",
         "ThreadPool.ThreadPriority"

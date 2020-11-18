@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-class BufSizeWarnInfo
+class BufWarnSizeInfo
 {
     // Whether send size warning has been emitted
     public boolean sndWarn;

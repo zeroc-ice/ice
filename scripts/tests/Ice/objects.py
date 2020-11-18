@@ -4,7 +4,7 @@
 
 #
 # Use a server stack size of 512KB, this is in particular important for Java
-# servers which don't implement Ice.ClassGraphDepthMax and which could cause
+# servers which don't implement Ice.ClassGraphMaxDepth and which could cause
 # a client stack overflow if the client stack is too small compared to the
 # Java server stack.
 #

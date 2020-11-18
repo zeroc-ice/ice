@@ -81,9 +81,9 @@ namespace ZeroC.Ice
         /// <summary>Constructs an incoming response frame.</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="data">The frame data as an array segment.</param>
-        /// <param name="sizeMax">The maximum payload size, checked during decompress.</param>
-        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
-            : base(data, protocol, sizeMax)
+        /// <param name="maxSize">The maximum payload size, checked during decompress.</param>
+        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int maxSize)
+            : base(data, protocol, maxSize)
         {
             bool hasEncapsulation = false;
 

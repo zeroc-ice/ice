@@ -54,7 +54,7 @@ public class Ex
     public static void throwMemoryLimitException(int requested, int maximum)
     {
         throw new com.zeroc.Ice.MemoryLimitException(
-            "requested " + requested + " bytes, maximum allowed is " + maximum + " bytes (see Ice.MessageSizeMax)");
+            "requested " + requested + " bytes, maximum allowed is " + maximum + " bytes (see Ice.MessageMaxSize)");
     }
 
     //

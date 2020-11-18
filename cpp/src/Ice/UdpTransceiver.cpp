@@ -777,7 +777,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
             }
             else if(*addr < sizeRequested)
             {
-                BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
+                BufWarnSizeInfo winfo = _instance->getBufWarnSize(UDPEndpointType);
                 if((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
                    (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
                 {
@@ -787,11 +787,11 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
 
                     if(isSnd)
                     {
-                        _instance->setSndBufSizeWarn(UDPEndpointType, sizeRequested);
+                        _instance->setSndBufWarnSize(UDPEndpointType, sizeRequested);
                     }
                     else
                     {
-                        _instance->setRcvBufSizeWarn(UDPEndpointType, sizeRequested);
+                        _instance->setRcvBufWarnSize(UDPEndpointType, sizeRequested);
                     }
                 }
             }

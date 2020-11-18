@@ -152,7 +152,7 @@ public class Root extends Communicator
         _childrenArray[0] = _metrics;
         _childrenArray[1] = _slaves;
         _childrenArray[2] = _nodes;
-        _messageSizeMax = computeMessageSizeMax(_coordinator.getProperties().getPropertyAsInt("Ice.MessageSizeMax"));
+        _messageMaxSize = computeMessageMaxSize(_coordinator.getProperties().getPropertyAsInt("Ice.MessageMaxSize"));
 
         _treeModel = new FilteredTreeModel(this);
         _tree = new JTree();
@@ -967,9 +967,9 @@ public class Root extends Communicator
         _showLogFileDialogMap.clear();
     }
 
-    public int getMessageSizeMax()
+    public int getMessageMaxSize()
     {
-        return _messageSizeMax;
+        return _messageMaxSize;
     }
 
     public void setLogPrefs(int maxLines, int maxSize, int initialLines, int maxReadSize, int period)
@@ -1010,9 +1010,9 @@ public class Root extends Communicator
         _logMaxReadSize = logPrefs.getInt("maxReadSize", 1000000);
         _logPeriod = logPrefs.getInt("period", 300);
 
-        if(_logMaxReadSize + 512 > _messageSizeMax)
+        if(_logMaxReadSize + 512 > _messageMaxSize)
         {
-            _logMaxReadSize = _messageSizeMax - 512;
+            _logMaxReadSize = _messageMaxSize - 512;
         }
     }
 
@@ -1036,7 +1036,7 @@ public class Root extends Communicator
         insertSortedChild(node, _nodes, _treeModel);
     }
 
-    public static int computeMessageSizeMax(int num)
+    public static int computeMessageMaxSize(int num)
     {
         if(num <= 0)
         {
@@ -1091,7 +1091,7 @@ public class Root extends Communicator
     //
     // ShowLogFileDialog and ShowIceLogFileDialog
     //
-    private final int _messageSizeMax;
+    private final int _messageMaxSize;
 
     private final java.util.Map<String, ShowIceLogDialog> _showIceLogDialogMap = new java.util.HashMap<>();
     private final java.util.Map<String, ShowLogFileDialog> _showLogFileDialogMap = new java.util.HashMap<>();

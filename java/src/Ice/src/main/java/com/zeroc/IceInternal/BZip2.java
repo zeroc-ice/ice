@@ -85,7 +85,7 @@ public class BZip2
         return r;
     }
 
-    public static Buffer uncompress(Buffer buf, int headerSize, int messageSizeMax)
+    public static Buffer uncompress(Buffer buf, int headerSize, int messageMaxSize)
     {
         assert(supported());
 
@@ -95,9 +95,9 @@ public class BZip2
         {
             throw new com.zeroc.Ice.IllegalMessageSizeException();
         }
-        if(uncompressedSize > messageSizeMax)
+        if(uncompressedSize > messageMaxSize)
         {
-            Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
+            Ex.throwMemoryLimitException(uncompressedSize, messageMaxSize);
         }
 
         int compressedLen = buf.size() - headerSize - 4;

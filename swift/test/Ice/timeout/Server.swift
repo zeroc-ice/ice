@@ -18,7 +18,7 @@ class Server: TestHelperI {
         // The client sends large messages to cause the transport
         // buffers to fill up.
         //
-        properties.setProperty(key: "Ice.MessageSizeMax", value: "20000")
+        properties.setProperty(key: "Ice.MessageMaxSize", value: "20000")
 
         //
         // Limit the recv buffer size, this test relies on the socket

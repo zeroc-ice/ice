@@ -21,7 +21,7 @@ public class Server extends test.TestHelper
         // The client sends large messages to cause the transport
         // buffers to fill up.
         //
-        properties.setProperty("Ice.MessageSizeMax", "20000");
+        properties.setProperty("Ice.MessageMaxSize", "20000");
 
         //
         // This test kills connections, so we don't want warnings.

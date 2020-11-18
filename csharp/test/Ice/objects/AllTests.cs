@@ -214,7 +214,7 @@ namespace ZeroC.Ice.Test.Objects
                         initial.SetRecursive(top);
                     }
                 }
-                TestHelper.Assert(!initial.SupportsClassGraphDepthMax());
+                TestHelper.Assert(!initial.SupportsClassGraphMaxDepth());
             }
             catch (UnhandledException)
             {

@@ -1126,12 +1126,12 @@ public final class Network
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
-                BufSizeWarnInfo winfo = instance.getBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value);
+                BufWarnSizeInfo winfo = instance.getBufWarnSize(com.zeroc.Ice.TCPEndpointType.value);
                 if(!winfo.rcvWarn || rcvSize != winfo.rcvSize)
                 {
                     instance.logger().warning("TCP receive buffer size: requested size of " + rcvSize +
                                               " adjusted to " + size);
-                    instance.setRcvBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value, rcvSize);
+                    instance.setRcvBufWarnSize(com.zeroc.Ice.TCPEndpointType.value, rcvSize);
                 }
             }
         }
@@ -1149,12 +1149,12 @@ public final class Network
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
-                BufSizeWarnInfo winfo = instance.getBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value);
+                BufWarnSizeInfo winfo = instance.getBufWarnSize(com.zeroc.Ice.TCPEndpointType.value);
                 if(!winfo.sndWarn || sndSize != winfo.sndSize)
                 {
                     instance.logger().warning("TCP send buffer size: requested size of " + sndSize +
                                               " adjusted to " + size);
-                    instance.setSndBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value, sndSize);
+                    instance.setSndBufWarnSize(com.zeroc.Ice.TCPEndpointType.value, sndSize);
                 }
             }
         }
@@ -1190,12 +1190,12 @@ public final class Network
             {
                 // Warn if the size that was set is less than the requested size and
                 // we have not already warned.
-                BufSizeWarnInfo winfo = instance.getBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value);
+                BufWarnSizeInfo winfo = instance.getBufWarnSize(com.zeroc.Ice.TCPEndpointType.value);
                 if(!winfo.rcvWarn || sizeRequested != winfo.rcvSize)
                 {
                     instance.logger().warning("TCP receive buffer size: requested size of " + sizeRequested +
                                               " adjusted to " + size);
-                    instance.setRcvBufSizeWarn(com.zeroc.Ice.TCPEndpointType.value, sizeRequested);
+                    instance.setRcvBufWarnSize(com.zeroc.Ice.TCPEndpointType.value, sizeRequested);
                 }
             }
         }

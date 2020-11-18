@@ -368,10 +368,10 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     public int
-    messageSizeMax()
+    messageMaxSize()
     {
         // No mutex lock, immutable.
-        return _messageSizeMax;
+        return _messageMaxSize;
     }
 
     public int
@@ -1000,45 +1000,30 @@ public final class Instance implements java.util.function.Function<String, Class
                                                      new ACMConfig(true)));
 
             {
-                final int defaultMessageSizeMax = 1024;
-                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+                final int defaultMessageMaxSize = 1024;
+                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageMaxSize", defaultMessageMaxSize);
                 if(num < 1 || num > 0x7fffffff / 1024)
                 {
-                    _messageSizeMax = 0x7fffffff;
+                    _messageMaxSize = 0x7fffffff;
                 }
                 else
                 {
-                    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                    _messageMaxSize = num * 1024; // Property is in kilobytes, _messageMaxSize in bytes
                 }
             }
 
-            if(_initData.properties.getProperty("Ice.BatchAutoFlushSize").isEmpty() &&
-               !_initData.properties.getProperty("Ice.BatchAutoFlush").isEmpty())
+            int num = _initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
+            if(num < 1)
             {
-                if(_initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
-                {
-                    _batchAutoFlushSize = _messageSizeMax;
-                }
-                else
-                {
-                    _batchAutoFlushSize = 0;
-                }
+                _batchAutoFlushSize = num;
+            }
+            else if(num > 0x7fffffff / 1024)
+            {
+                _batchAutoFlushSize = 0x7fffffff;
             }
             else
             {
-                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB
-                if(num < 1)
-                {
-                    _batchAutoFlushSize = num;
-                }
-                else if(num > 0x7fffffff / 1024)
-                {
-                    _batchAutoFlushSize = 0x7fffffff;
-                }
-                else
-                {
-                    _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
-                }
+                _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
             }
 
             String toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
@@ -1606,47 +1591,47 @@ public final class Instance implements java.util.function.Function<String, Class
         }
     }
 
-    public BufSizeWarnInfo getBufSizeWarn(short type)
+    public BufWarnSizeInfo getBufWarnSize(short type)
     {
-        synchronized(_setBufSizeWarn)
+        synchronized(_setBufWarnSize)
         {
-            BufSizeWarnInfo info;
-            if(!_setBufSizeWarn.containsKey(type))
+            BufWarnSizeInfo info;
+            if(!_setBufWarnSize.containsKey(type))
             {
-                info = new BufSizeWarnInfo();
+                info = new BufWarnSizeInfo();
                 info.sndWarn = false;
                 info.sndSize = -1;
                 info.rcvWarn = false;
                 info.rcvSize = -1;
-                _setBufSizeWarn.put(type, info);
+                _setBufWarnSize.put(type, info);
             }
             else
             {
-                info = _setBufSizeWarn.get(type);
+                info = _setBufWarnSize.get(type);
             }
             return info;
         }
     }
 
-    public void setSndBufSizeWarn(short type, int size)
+    public void setSndBufWarnSize(short type, int size)
     {
-        synchronized(_setBufSizeWarn)
+        synchronized(_setBufWarnSize)
         {
-            BufSizeWarnInfo info = getBufSizeWarn(type);
+            BufWarnSizeInfo info = getBufWarnSize(type);
             info.sndWarn = true;
             info.sndSize = size;
-            _setBufSizeWarn.put(type, info);
+            _setBufWarnSize.put(type, info);
         }
     }
 
-    public void setRcvBufSizeWarn(short type, int size)
+    public void setRcvBufWarnSize(short type, int size)
     {
-        synchronized(_setBufSizeWarn)
+        synchronized(_setBufWarnSize)
         {
-            BufSizeWarnInfo info = getBufSizeWarn(type);
+            BufWarnSizeInfo info = getBufWarnSize(type);
             info.rcvWarn = true;
             info.rcvSize = size;
-            _setBufSizeWarn.put(type, info);
+            _setBufWarnSize.put(type, info);
         }
     }
 
@@ -1873,7 +1858,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private final com.zeroc.Ice.InitializationData _initData; // Immutable, not reset by destroy().
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
-    private final int _messageSizeMax; // Immutable, not reset by destroy().
+    private final int _messageMaxSize; // Immutable, not reset by destroy().
     private final int _batchAutoFlushSize; // Immutable, not reset by destroy().
     private final com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
@@ -1903,7 +1888,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private java.util.Map<String, com.zeroc.Ice.Object> _adminFacets = new java.util.HashMap<>();
     private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<>();
     private com.zeroc.Ice.Identity _adminIdentity;
-    private java.util.Map<Short, BufSizeWarnInfo> _setBufSizeWarn = new java.util.HashMap<>();
+    private java.util.Map<Short, BufWarnSizeInfo> _setBufWarnSize = new java.util.HashMap<>();
 
     private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<>();
     final private String[] _packages;

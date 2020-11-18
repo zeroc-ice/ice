@@ -352,7 +352,7 @@ allTests(Test::TestHelper* helper)
                 initial->setRecursive(top);
             }
         }
-        test(!initial->supportsClassGraphDepthMax());
+        test(!initial->supportsClassGraphMaxDepth());
     }
     catch(const Ice::UnknownLocalException&)
     {

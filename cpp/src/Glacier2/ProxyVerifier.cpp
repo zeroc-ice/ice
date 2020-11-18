@@ -823,11 +823,11 @@ public:
         istringstream s(count);
         if(!(s >> _count) || !s.eof())
         {
-            throw invalid_argument("Error parsing ProxySizeMax property");
+            throw invalid_argument("Error parsing ProxyMaxSize property");
         }
         if(_count <= 0)
         {
-            throw invalid_argument("ProxySizeMax must be greater than 1");
+            throw invalid_argument("ProxyMaxSize must be greater than 1");
         }
     }
 
@@ -891,7 +891,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(shared_ptr<Communicator> communicator):
         }
     }
 
-    s = _communicator->getProperties()->getProperty("Glacier2.Filter.ProxySizeMax");
+    s = _communicator->getProperties()->getProperty("Glacier2.Filter.ProxyMaxSize");
     if(s != "")
     {
         try
@@ -902,7 +902,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(shared_ptr<Communicator> communicator):
         catch(const exception& ex)
         {
             ostringstream os;
-            os << "invalid `Glacier2.Filter.ProxySizeMax' property:\n" << ex.what();
+            os << "invalid `Glacier2.Filter.ProxyMaxSize' property:\n" << ex.what();
             throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }

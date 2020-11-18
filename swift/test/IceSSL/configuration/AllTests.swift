@@ -665,7 +665,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     output.write("testing protocols... ")
     //
     // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
-    // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
+    // instead we use IceSSL.ProtocolMaxVersion IceSSL.ProtocolMinVersion to set the maximun and minimum
     // enabled protocol versions. See the test bellow.
     //
 
@@ -676,16 +676,16 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     properties = createClientProps(defaultProperties)
     properties.setProperty(key: "IceSSL.Ciphers", value: "(DH_anon*)")
     properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
-    properties.setProperty(key: "IceSSL.ProtocolVersionMax", value: "tls1")
-    properties.setProperty(key: "IceSSL.ProtocolVersionMin", value: "tls1")
+    properties.setProperty(key: "IceSSL.ProtocolMaxVersion", value: "tls1")
+    properties.setProperty(key: "IceSSL.ProtocolMinVersion", value: "tls1")
 
     comm = try helper.initialize(properties)
     fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
     d = createServerProps(defaultProperties)
     d["IceSSL.Ciphers"] = "(DH_anon*)"
     d["IceSSL.VerifyPeer"] = "0"
-    d["IceSSL.ProtocolVersionMax"] = "tls1_2"
-    d["IceSSL.ProtocolVersionMin"] = "tls1_2"
+    d["IceSSL.ProtocolMaxVersion"] = "tls1_2"
+    d["IceSSL.ProtocolMinVersion"] = "tls1_2"
     server = try fact.createServer(d)!
     do {
         try server.ice_ping()
@@ -706,8 +706,8 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     d = createServerProps(defaultProperties)
     d["IceSSL.Ciphers"] = "(DH_anon*)"
     d["IceSSL.VerifyPeer"] = "0"
-    d["IceSSL.ProtocolVersionMax"] = "tls1"
-    d["IceSSL.ProtocolVersionMin"] = "ssl3"
+    d["IceSSL.ProtocolMaxVersion"] = "tls1"
+    d["IceSSL.ProtocolMinVersion"] = "ssl3"
     server = try fact.createServer(d)!
     try server.ice_ping()
     try fact.destroyServer(server)
@@ -719,8 +719,8 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     //
     properties = createClientProps(defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
     properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
-    properties.setProperty(key: "IceSSL.ProtocolVersionMin", value: "ssl3")
-    properties.setProperty(key: "IceSSL.ProtocolVersionMax", value: "ssl3")
+    properties.setProperty(key: "IceSSL.ProtocolMinVersion", value: "ssl3")
+    properties.setProperty(key: "IceSSL.ProtocolMaxVersion", value: "ssl3")
 
     comm = try helper.initialize(properties)
 
@@ -744,14 +744,14 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     //
     properties = createClientProps(defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
     properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
-    properties.setProperty(key: "IceSSL.ProtocolVersionMin", value: "ssl3")
-    properties.setProperty(key: "IceSSL.ProtocolVersionMax", value: "ssl3")
+    properties.setProperty(key: "IceSSL.ProtocolMinVersion", value: "ssl3")
+    properties.setProperty(key: "IceSSL.ProtocolMaxVersion", value: "ssl3")
     comm = try helper.initialize(properties)
 
     fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
     d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
     d["IceSSL.VerifyPeer"] = "0"
-    d["IceSSL.ProtocolVersionMin"] = "ssl3"
+    d["IceSSL.ProtocolMinVersion"] = "ssl3"
     server = try fact.createServer(d)!
     try server.ice_ping()
     try fact.destroyServer(server)

@@ -119,7 +119,7 @@ Server::run(int argc, char** argv)
     //
     properties->setProperty("Ice.Warn.Connections", "0");
 
-    properties->setProperty("Ice.MessageSizeMax", "50000");
+    properties->setProperty("Ice.MessageMaxSize", "50000");
 
     //
     // This test relies on filling the TCP send/recv buffer, so

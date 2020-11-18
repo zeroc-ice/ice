@@ -338,12 +338,12 @@ final class UdpMulticastServerTransceiver implements Transceiver
             //
             if(_size < _newSize)
             {
-                BufSizeWarnInfo winfo = _instance.getBufSizeWarn(com.zeroc.Ice.UDPEndpointType.value);
+                BufWarnSizeInfo winfo = _instance.getBufWarnSize(com.zeroc.Ice.UDPEndpointType.value);
                 if(!winfo.rcvWarn || winfo.rcvSize != _newSize)
                 {
                     _instance.logger().warning("UDP receive buffer size: requested size of " + _newSize +
                                                " adjusted to " + _size);
-                    _instance.setRcvBufSizeWarn(com.zeroc.Ice.UDPEndpointType.value, _newSize);
+                    _instance.setRcvBufWarnSize(com.zeroc.Ice.UDPEndpointType.value, _newSize);
                 }
             }
         }

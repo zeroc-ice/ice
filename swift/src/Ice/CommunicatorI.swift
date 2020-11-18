@@ -9,17 +9,17 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     private let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
-    let classGraphDepthMax: Int32
+    let classGraphMaxDepth: Int32
     let traceSlicing: Bool
 
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         self.initData = initData
-        let num = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.ClassGraphDepthMax", value: 50)
+        let num = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.ClassGraphMaxDepth", value: 50)
         if num < 1 || num > 0x7FFF_FFFF {
-            classGraphDepthMax = 0x7FFF_FFFF
+            classGraphMaxDepth = 0x7FFF_FFFF
         } else {
-            classGraphDepthMax = num
+            classGraphMaxDepth = num
         }
         traceSlicing = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
 

@@ -70,7 +70,7 @@ class Instance
 
         this._traceLevels = null;
         this._defaultsAndOverrides = null;
-        this._messageSizeMax = 0;
+        this._messageMaxSize = 0;
         this._batchAutoFlushSize = 0;
         this._clientACM = null;
         this._toStringMode = Ice.ToStringMode.Unicode;
@@ -223,10 +223,10 @@ class Instance
         return this._endpointFactoryManager;
     }
 
-    messageSizeMax()
+    messageMaxSize()
     {
         // This value is immutable.
-        return this._messageSizeMax;
+        return this._messageMaxSize;
     }
 
     batchAutoFlushSize()
@@ -307,15 +307,15 @@ class Instance
 
             this._defaultsAndOverrides = new DefaultsAndOverrides(this._initData.properties, this._initData.logger);
 
-            const defMessageSizeMax = 1024;
-            let num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
+            const defMessageMaxSize = 1024;
+            let num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageMaxSize", defMessageMaxSize);
             if(num < 1 || num > 0x7fffffff / 1024)
             {
-                this._messageSizeMax = 0x7fffffff;
+                this._messageMaxSize = 0x7fffffff;
             }
             else
             {
-                this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                this._messageMaxSize = num * 1024; // Property is in kilobytes, _messageMaxSize in bytes
             }
 
             if(this._initData.properties.getProperty("Ice.BatchAutoFlushSize").length === 0 &&
@@ -323,7 +323,7 @@ class Instance
             {
                 if(this._initData.properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0)
                 {
-                    this._batchAutoFlushSize = this._messageSizeMax;
+                    this._batchAutoFlushSize = this._messageMaxSize;
                 }
             }
             else

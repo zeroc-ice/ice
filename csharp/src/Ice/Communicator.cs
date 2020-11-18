@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class BufSizeWarnInfo
+    internal sealed class BufWarnSizeInfo
     {
         // Whether send size warning has been emitted
         public bool SndWarn;
@@ -146,13 +146,13 @@ namespace ZeroC.Ice
 
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
-        internal int ClassGraphDepthMax { get; }
+        internal int ClassGraphMaxDepth { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
 
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal TimeSpan IdleTimeout { get; }
-        internal int IncomingFrameSizeMax { get; }
+        internal int IncomingFrameMaxSize { get; }
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal bool KeepAlive { get; }
@@ -161,8 +161,8 @@ namespace ZeroC.Ice
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
         /// invocation. It must be a number greater than 0.</summary>
         internal int RetryMaxAttempts { get; }
-        internal int RetryBufferSizeMax { get; }
-        internal int RetryRequestSizeMax { get; }
+        internal int RetryBufferMaxSize { get; }
+        internal int RetryRequestMaxSize { get; }
         internal SlicOptions SlicOptions { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
@@ -219,8 +219,8 @@ namespace ZeroC.Ice
         private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
-        private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
-            new Dictionary<Transport, BufSizeWarnInfo>();
+        private readonly Dictionary<Transport, BufWarnSizeInfo> _setBufWarnSize =
+            new Dictionary<Transport, BufWarnSizeInfo>();
         private Task? _shutdownTask;
         private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
 
@@ -503,7 +503,7 @@ namespace ZeroC.Ice
                 {
                     MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
                     MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxUnidirectionalStreams") ?? 100,
-                    PacketSizeMax = GetPropertyAsInt("Ice.Slic.PacketSizeMax") ?? 32 * 1024
+                    PacketMaxSize = GetPropertyAsInt("Ice.Slic.PacketMaxSize") ?? 32 * 1024
                 };
                 if (SlicOptions.MaxBidirectionalStreams < 1)
                 {
@@ -515,14 +515,14 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
                         "value for Ice.Slic.MaxUnidirectionalStreams");
                 }
-                if (SlicOptions.PacketSizeMax < 1024)
+                if (SlicOptions.PacketMaxSize < 1024)
                 {
-                    throw new InvalidConfigurationException($"{SlicOptions.PacketSizeMax} is not a valid " +
-                        "value for Ice.Slic.PacketSizeMax");
+                    throw new InvalidConfigurationException($"{SlicOptions.PacketMaxSize} is not a valid " +
+                        "value for Ice.Slic.PacketMaxSize");
                 }
 
-                int frameSizeMax = GetPropertyAsByteSize("Ice.IncomingFrameSizeMax") ?? 1024 * 1024;
-                IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
+                int frameMaxSize = GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
+                IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
 
                 RetryMaxAttempts = GetPropertyAsInt("Ice.RetryMaxAttempts") ?? 5;
 
@@ -531,8 +531,8 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
                 }
                 RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
-                RetryBufferSizeMax = GetPropertyAsByteSize("Ice.RetryBufferSizeMax") ?? 1024 * 1024 * 100;
-                RetryRequestSizeMax = GetPropertyAsByteSize("Ice.RetryRequestSizeMax") ?? 1024 * 1024;
+                RetryBufferMaxSize = GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
+                RetryRequestMaxSize = GetPropertyAsByteSize("Ice.RetryRequestMaxSize") ?? 1024 * 1024;
 
                 WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
                 WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
@@ -545,8 +545,8 @@ namespace ZeroC.Ice
 
                 // TODO: switch to false default (see ObjectAdapter also)
                 AcceptNonSecure = GetPropertyAsBool("Ice.AcceptNonSecure") ?? true;
-                int classGraphDepthMax = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
-                ClassGraphDepthMax = classGraphDepthMax < 1 ? int.MaxValue : classGraphDepthMax;
+                int classGraphMaxDepth = GetPropertyAsInt("Ice.ClassGraphMaxDepth") ?? 100;
+                ClassGraphMaxDepth = classGraphMaxDepth < 1 ? int.MaxValue : classGraphMaxDepth;
 
                 ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
@@ -1200,23 +1200,23 @@ namespace ZeroC.Ice
             }
         }
 
-        internal BufSizeWarnInfo GetBufSizeWarn(Transport transport)
+        internal BufWarnSizeInfo GetBufWarnSize(Transport transport)
         {
-            lock (_setBufSizeWarn)
+            lock (_setBufWarnSize)
             {
-                BufSizeWarnInfo info;
-                if (!_setBufSizeWarn.ContainsKey(transport))
+                BufWarnSizeInfo info;
+                if (!_setBufWarnSize.ContainsKey(transport))
                 {
-                    info = new BufSizeWarnInfo();
+                    info = new BufWarnSizeInfo();
                     info.SndWarn = false;
                     info.SndSize = -1;
                     info.RcvWarn = false;
                     info.RcvSize = -1;
-                    _setBufSizeWarn.Add(transport, info);
+                    _setBufWarnSize.Add(transport, info);
                 }
                 else
                 {
-                    info = _setBufSizeWarn[transport];
+                    info = _setBufWarnSize[transport];
                 }
                 return info;
             }
@@ -1308,7 +1308,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (size + _retryBufferSize < RetryBufferSizeMax)
+                if (size + _retryBufferSize < RetryBufferMaxSize)
                 {
                     _retryBufferSize += size;
                     return true;
@@ -1319,14 +1319,14 @@ namespace ZeroC.Ice
 
         internal OutgoingConnectionFactory OutgoingConnectionFactory { get; }
 
-        internal void SetRcvBufSizeWarn(Transport transport, int size)
+        internal void SetRcvBufWarnSize(Transport transport, int size)
         {
-            lock (_setBufSizeWarn)
+            lock (_setBufWarnSize)
             {
-                BufSizeWarnInfo info = GetBufSizeWarn(transport);
+                BufWarnSizeInfo info = GetBufWarnSize(transport);
                 info.RcvWarn = true;
                 info.RcvSize = size;
-                _setBufSizeWarn[transport] = info;
+                _setBufWarnSize[transport] = info;
             }
         }
 
@@ -1362,14 +1362,14 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void SetSndBufSizeWarn(Transport transport, int size)
+        internal void SetSndBufWarnSize(Transport transport, int size)
         {
-            lock (_setBufSizeWarn)
+            lock (_setBufWarnSize)
             {
-                BufSizeWarnInfo info = GetBufSizeWarn(transport);
+                BufWarnSizeInfo info = GetBufWarnSize(transport);
                 info.SndWarn = true;
                 info.SndSize = size;
-                _setBufSizeWarn[transport] = info;
+                _setBufWarnSize[transport] = info;
             }
         }
 

@@ -16,7 +16,7 @@ class LoggerI : public Logger
 {
 public:
 
-    LoggerI(const std::string&, const std::string&, bool convert = true, std::size_t sizeMax = 0);
+    LoggerI(const std::string&, const std::string&, bool convert = true, std::size_t maxSize = 0);
     ~LoggerI();
 
     virtual void print(const std::string&);
@@ -37,7 +37,7 @@ private:
     std::ofstream _out;
 
     std::string _file;
-    std::size_t _sizeMax;
+    std::size_t _maxSize;
 
     //
     // In case of a log file rename failure is set to the time in milliseconds

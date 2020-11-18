@@ -173,7 +173,7 @@ InitialI::setRecursive(RecursivePtr, const Ice::Current&)
 }
 
 bool
-InitialI::supportsClassGraphDepthMax(const Ice::Current&)
+InitialI::supportsClassGraphMaxDepth(const Ice::Current&)
 {
     return true;
 }

@@ -210,7 +210,7 @@ export class InitialI extends Test.Initial
     {
     }
 
-    supportsClassGraphDepthMax(current:Ice.Current):boolean
+    supportsClassGraphMaxDepth(current:Ice.Current):boolean
     {
         return false;
     }

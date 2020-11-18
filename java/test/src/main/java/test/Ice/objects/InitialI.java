@@ -106,7 +106,7 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public boolean supportsClassGraphDepthMax(com.zeroc.Ice.Current current)
+    public boolean supportsClassGraphMaxDepth(com.zeroc.Ice.Current current)
     {
         return false;
     }

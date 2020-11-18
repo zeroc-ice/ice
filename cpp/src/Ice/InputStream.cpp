@@ -158,7 +158,7 @@ Ice::InputStream::initialize(Instance* instance, const EncodingVersion& encoding
     _instance = instance;
 
     _traceSlicing = _instance->traceLevels()->slicing > 0;
-    _classGraphDepthMax = _instance->classGraphDepthMax();
+    _classGraphMaxDepth = _instance->classGraphMaxDepth();
 }
 
 void
@@ -168,7 +168,7 @@ Ice::InputStream::initialize(const EncodingVersion& encoding)
     _encoding = encoding;
     _currentEncaps = 0;
     _traceSlicing = false;
-    _classGraphDepthMax = 0x7fffffff;
+    _classGraphMaxDepth = 0x7fffffff;
     _closure = 0;
     _sliceValues = true;
     _startSeq = -1;
@@ -220,15 +220,15 @@ Ice::InputStream::setTraceSlicing(bool on)
 }
 
 void
-Ice::InputStream::setClassGraphDepthMax(size_t classGraphDepthMax)
+Ice::InputStream::setClassGraphMaxDepth(size_t classGraphMaxDepth)
 {
-    if(classGraphDepthMax < 1)
+    if(classGraphMaxDepth < 1)
     {
-        _classGraphDepthMax = 0x7fffffff;
+        _classGraphMaxDepth = 0x7fffffff;
     }
     else
     {
-        _classGraphDepthMax = classGraphDepthMax;
+        _classGraphMaxDepth = classGraphMaxDepth;
     }
 }
 
@@ -254,7 +254,7 @@ Ice::InputStream::swap(InputStream& other)
     std::swap(_instance, other._instance);
     std::swap(_encoding, other._encoding);
     std::swap(_traceSlicing, other._traceSlicing);
-    std::swap(_classGraphDepthMax, other._classGraphDepthMax);
+    std::swap(_classGraphMaxDepth, other._classGraphMaxDepth);
     std::swap(_closure, other._closure);
     std::swap(_sliceValues, other._sliceValues);
 
@@ -1496,11 +1496,11 @@ Ice::InputStream::initEncaps()
         ValueFactoryManagerPtr vfm = valueFactoryManager();
         if(_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _sliceValues, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _sliceValues, _classGraphMaxDepth, vfm);
         }
         else
         {
-            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _sliceValues, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _sliceValues, _classGraphMaxDepth, vfm);
         }
     }
 }
@@ -1979,7 +1979,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         }
     }
 
-    if(++_classGraphDepth > _classGraphDepthMax)
+    if(++_classGraphDepth > _classGraphMaxDepth)
     {
         throw MarshalException(__FILE__, __LINE__, "maximum class graph depth reached");
     }
@@ -2416,7 +2416,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
         startSlice(); // Read next Slice header for next iteration.
     }
 
-    if(++_classGraphDepth > _classGraphDepthMax)
+    if(++_classGraphDepth > _classGraphMaxDepth)
     {
         throw MarshalException(__FILE__, __LINE__, "maximum class graph depth reached");
     }

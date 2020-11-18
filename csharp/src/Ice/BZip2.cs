@@ -209,7 +209,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int frameSizeMax)
+        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int frameMaxSize)
         {
             Debug.Assert(IsLoaded);
             int decompressedSize = compressed.AsReadOnlySpan(headerSize, 4).ReadInt();
@@ -218,10 +218,10 @@ namespace ZeroC.Ice
                 throw new InvalidDataException(
                     $"received compressed ice1 frame with a decompressed size of only {decompressedSize} bytes");
             }
-            if (decompressedSize > frameSizeMax)
+            if (decompressedSize > frameMaxSize)
             {
                 throw new InvalidDataException(
-                    $"decompressed size of {decompressedSize} bytes is greater than Ice.IncomingFrameSizeMax value");
+                    $"decompressed size of {decompressedSize} bytes is greater than Ice.IncomingFrameMaxSize value");
             }
 
             byte[] decompressed = new byte[decompressedSize];

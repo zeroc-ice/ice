@@ -12,7 +12,7 @@ class Client(TestHelper):
 
     def run(self, args):
         properties = self.createTestProperties(args)
-        properties.setProperty("Ice.MessageSizeMax", "10")
+        properties.setProperty("Ice.MessageMaxSize", "10")
         properties.setProperty("Ice.Warn.Connections", "0")
         with self.initialize(properties=properties) as communicator:
             thrower = AllTests.allTests(self, communicator)

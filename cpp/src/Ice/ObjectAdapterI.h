@@ -101,7 +101,7 @@ public:
     IceInternal::ServantManagerPtr getServantManager() const;
     IceInternal::ACMConfig getACM() const;
     void setAdapterOnConnection(const Ice::ConnectionIPtr&);
-    size_t messageSizeMax() const { return _messageSizeMax; }
+    size_t messageMaxSize() const { return _messageMaxSize; }
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&,
                    const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, bool);
@@ -149,7 +149,7 @@ private:
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _noConfig;
-    size_t _messageSizeMax;
+    size_t _messageMaxSize;
 };
 
 }

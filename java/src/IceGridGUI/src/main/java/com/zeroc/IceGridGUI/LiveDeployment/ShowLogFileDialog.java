@@ -677,9 +677,9 @@ class ShowLogFileDialog extends JDialog
         {
             maxReadSize = 100;
         }
-        else if(maxReadSize + 512 > _root.getMessageSizeMax())
+        else if(maxReadSize + 512 > _root.getMessageMaxSize())
         {
-            maxReadSize =  _root.getMessageSizeMax() - 512;
+            maxReadSize =  _root.getMessageMaxSize() - 512;
         }
         _maxReadSize = maxReadSize;
 
