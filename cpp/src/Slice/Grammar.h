@@ -79,11 +79,19 @@ extern int slice_debug;
     ICE_INTERFACE = 260,           /* ICE_INTERFACE  */
     ICE_EXCEPTION = 261,           /* ICE_EXCEPTION  */
     ICE_STRUCT = 262,              /* ICE_STRUCT  */
+<<<<<<< HEAD
     ICE_SEQUENCE = 263,            /* ICE_SEQUENCE  */
     ICE_DICTIONARY = 264,          /* ICE_DICTIONARY  */
     ICE_ENUM = 265,                /* ICE_ENUM  */
     ICE_OUT = 266,                 /* ICE_OUT  */
     ICE_STREAM = 267,              /* ICE_STREAM  */
+=======
+    ICE_USING = 263,               /* ICE_USING  */
+    ICE_SEQUENCE = 264,            /* ICE_SEQUENCE  */
+    ICE_DICTIONARY = 265,          /* ICE_DICTIONARY  */
+    ICE_ENUM = 266,                /* ICE_ENUM  */
+    ICE_OUT = 267,                 /* ICE_OUT  */
+>>>>>>> Regenerated compilers, and fixed build errors.
     ICE_EXTENDS = 268,             /* ICE_EXTENDS  */
     ICE_IMPLEMENTS = 269,          /* ICE_IMPLEMENTS  */
     ICE_THROWS = 270,              /* ICE_THROWS  */

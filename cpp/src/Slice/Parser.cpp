@@ -3502,9 +3502,8 @@ Slice::TypeAlias::visit(ParserVisitor* visitor, bool)
 
 Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const string& name, const TypePtr& underlying) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name)
+    Type(container->unit())
 {
     // Optional types can't be aliased.
     if (auto optional = OptionalPtr::dynamicCast(underlying))
