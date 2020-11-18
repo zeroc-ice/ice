@@ -1193,11 +1193,24 @@ Slice::Container::lookupException(const string& scoped, bool printError)
         ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
         if (!ex)
         {
-            if (printError)
+            if (auto alias = TypeAliasPtr::dynamicCast(p))
             {
-                _unit->error("`" + scoped + "' is not an exception");
+                if (!alias->typeMetadata().empty())
+                {
+                    _unit->error("illegal metadata: typealias metadata `" + alias->typeMetadata().front() +
+                                "' cannot be used with exceptions");
+                }
+                ex = ExceptionPtr::dynamicCast(alias->underlying());
             }
-            return nullptr;
+
+            if (!ex)
+            {
+                if (printError)
+                {
+                    _unit->error("`" + scoped + "' is not an exception");
+                }
+                return nullptr;
+            }
         }
         exceptions.push_back(ex);
     }

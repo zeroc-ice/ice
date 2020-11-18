@@ -69,6 +69,7 @@ ciequals(const std::string& a, const std::string& b);
 std::string
 prependA(const std::string& s);
 
+TypePtr rewrapIfOptional(const TypePtr& oldType, const TypePtr& newType);
 TypePtr unwrapIfOptional(const TypePtr& type);
 TypePtr unwrapIfAlias(const TypePtr& type);
 TypePtr unwrapType(const TypePtr& type);
@@ -119,6 +120,13 @@ bool hasMetadata(const std::string& directive, const std::map<std::string, std::
 // Otherwise it returns a null optional to indicate the metadata isn't set.
 std::optional<std::string> findMetadata(const std::string& directive,
                                         const std::map<std::string, std::string>& metadata);
+
+// Adds the metadata from m2 into m1. m2 is not altered by this operation, but m1 is.
+// If metadata is repeated, the values in m1 take precedence.
+void mergeMetadataInPlace(StringList& m1, const StringList& m2);
+
+// Combines the metadata in m1 and m2 into a new StringList. If metadata is repeated, the values in m1 take precedence.
+StringList mergeMetadata(const StringList& m1, const StringList& m2);
 
 }
 

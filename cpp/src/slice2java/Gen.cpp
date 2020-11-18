@@ -1988,7 +1988,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
     else
     {
-        ContainedPtr cont = ContainedPtr::dynamicCast(l.front());
+        ContainedPtr cont = ContainedPtr::dynamicCast(unwrapType(l.front()));
         assert(cont);
         out << getUnqualified(cont) << rest;
     }

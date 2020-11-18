@@ -650,6 +650,16 @@ Slice::prependA(const string& s)
 }
 
 TypePtr
+Slice::rewrapIfOptional(const TypePtr& oldType, const TypePtr& newType)
+{
+    if (OptionalPtr::dynamicCast(oldType))
+    {
+        return new Optional(newType);
+    }
+    return newType;
+}
+
+TypePtr
 Slice::unwrapIfOptional(const TypePtr& type)
 {
     if (auto optional = OptionalPtr::dynamicCast(type))
@@ -933,4 +943,25 @@ optional<string> Slice::findMetadata(const string& directive, const map<string, 
 {
     auto match = metadata.find(directive);
     return (match != metadata.end() ? make_optional(match->second) : nullopt);
+}
+
+// Adds the metadata from m2 into m1. m2 is not altered by this operation, but m1 is.
+// If metadata is repeated, the values in m1 take precedence.
+void Slice::mergeMetadataInPlace(StringList& m1, const StringList& m2)
+{
+    for (const auto& m : m2)
+    {
+        if (find(m1.begin(), m1.end(), m) == m1.end())
+        {
+            m1.push_back(m);
+        }
+    }
+}
+
+// Combines the metadata in m1 and m2 into a new StringList. If metadata is repeated, the values in m1 take precedence.
+StringList Slice::mergeMetadata(const StringList& m1, const StringList& m2)
+{
+    StringList result = m1;
+    mergeMetadataInPlace(result, m2);
+    return result;
 }
