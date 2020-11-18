@@ -152,6 +152,7 @@ const int QUALIFIER_STREAM = 2;
 %token ICE_INTERFACE
 %token ICE_EXCEPTION
 %token ICE_STRUCT
+%token ICE_USING
 %token ICE_SEQUENCE
 %token ICE_DICTIONARY
 %token ICE_ENUM
@@ -342,6 +343,15 @@ opt_semicolon
     assert($1 == 0 || SequencePtr::dynamicCast($1));
 }
 ';'
+| type_alias_def
+{
+    assert($1 == 0 || TypeAliasPtr::dynamicCast($1));
+}
+';'
+| type_alias_def
+{
+    unit->error("`;' missing after type-alias");
+}
 | sequence_def
 {
     unit->error("`;' missing after sequence definition");
@@ -1666,6 +1676,24 @@ exception
     $$ = unit->currentModule()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
 ;
+
+// ----------------------------------------------------------------------
+type_alias_def
+// ----------------------------------------------------------------------
+: ICE_USING ICE_IDENTIFIER '=' type
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    TypePtr type = TypePtr::dynamicCast($4);
+
+    ModulePtr cont = unit->currentModule();
+    $$ = cont->createTypeAlias(ident->v, type);
+}
+| ICE_USING ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    unit->error("missing underlying type");
+    $$ = nullptr;
+}
 
 // ----------------------------------------------------------------------
 sequence_def

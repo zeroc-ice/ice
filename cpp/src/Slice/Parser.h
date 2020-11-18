@@ -178,6 +178,7 @@ public:
     virtual void visitExceptionEnd(const ExceptionPtr&) { }
     virtual bool visitStructStart(const StructPtr&) { return true; }
     virtual void visitStructEnd(const StructPtr&) { }
+    virtual void visitTypeAlias(const TypeAliasPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
     virtual void visitParameter(const MemberPtr&) { }
     virtual void visitDataMember(const MemberPtr&) { }
@@ -515,7 +516,7 @@ public:
     InterfaceDeclPtr createInterfaceDecl(const std::string&);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
     StructPtr createStruct(const std::string&, NodeType = Real);
-    TypeAliasPtr createTypeAlias(const TypePtr& type, const std::string& name);
+    TypeAliasPtr createTypeAlias(const std::string& name, const TypePtr& type);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                                    const StringList&);
@@ -871,7 +872,7 @@ public:
 
 protected:
 
-    TypeAlias(const ContainerPtr& container, const TypePtr& underlying, const std::string& name);
+    TypeAlias(const ContainerPtr& container, const std::string& name, const TypePtr& underlying);
 
     friend class Module;
 

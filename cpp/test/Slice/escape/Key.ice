@@ -65,7 +65,6 @@ const int typeid = 0;
 const int typename = 0;
 const int union = 0;
 const int unsigned = 0;
-const int using = 0;
 const int virtual = 0;
 const int while = 0;
 const int xor = 0;

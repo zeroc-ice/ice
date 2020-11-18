@@ -2065,7 +2065,7 @@ Slice::Module::createStruct(const string& name, NodeType nt)
 }
 
 TypeAliasPtr
-Slice::Module::createTypeAlias(const TypePtr& type, const string& name)
+Slice::Module::createTypeAlias(const string& name, const TypePtr& type)
 {
     if (!checkForRedefinition(this, name, "typealias"))
     {
@@ -2078,7 +2078,7 @@ Slice::Module::createTypeAlias(const TypePtr& type, const string& name)
         _unit->error("`" + name + "': a typealias can only be defined at module scope");
     }
 
-    TypeAliasPtr alias = new TypeAlias(this, type, name);
+    TypeAliasPtr alias = new TypeAlias(this, name, type);
     _contents.push_back(alias);
     return alias;
 }
@@ -3495,12 +3495,12 @@ Slice::TypeAlias::isVariableLength() const
 }
 
 void
-Slice::TypeAlias::visit(ParserVisitor*, bool)
+Slice::TypeAlias::visit(ParserVisitor* visitor, bool)
 {
-    // visitor->visitTypeAlias(this); TODOAUSTIN
+    visitor->visitTypeAlias(this);
 }
 
-Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const TypePtr& underlying, const string& name) :
+Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const string& name, const TypePtr& underlying) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
