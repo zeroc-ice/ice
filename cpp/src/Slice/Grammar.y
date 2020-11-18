@@ -1680,13 +1680,14 @@ exception
 // ----------------------------------------------------------------------
 type_alias_def
 // ----------------------------------------------------------------------
-: ICE_USING ICE_IDENTIFIER '=' type
+: ICE_USING ICE_IDENTIFIER '=' local_metadata type
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypePtr type = TypePtr::dynamicCast($4);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
+    TypePtr type = TypePtr::dynamicCast($5);
 
     ModulePtr cont = unit->currentModule();
-    $$ = cont->createTypeAlias(ident->v, type);
+    $$ = cont->createTypeAlias(ident->v, type, metadata->v);
 }
 | ICE_USING ICE_IDENTIFIER
 {

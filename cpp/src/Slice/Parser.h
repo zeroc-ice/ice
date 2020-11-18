@@ -516,7 +516,7 @@ public:
     InterfaceDeclPtr createInterfaceDecl(const std::string&);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
     StructPtr createStruct(const std::string&, NodeType = Real);
-    TypeAliasPtr createTypeAlias(const std::string& name, const TypePtr& type);
+    TypeAliasPtr createTypeAlias(const std::string& name, const TypePtr& type, const StringList& metadata);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                                    const StringList&);
@@ -858,6 +858,7 @@ public:
 
     void destroy() override;
     TypePtr underlying() const { return _underlying; }
+    StringList typeMetadata() const { return _typeMetadata; }
 
     std::string typeId() const override;
     bool uses(const ContainedPtr& contained) const override;
@@ -872,11 +873,13 @@ public:
 
 protected:
 
-    TypeAlias(const ContainerPtr& container, const std::string& name, const TypePtr& underlying);
+    TypeAlias(const ContainerPtr& container, const std::string& name, const TypePtr& underlying,
+              const StringList& typeMetadata);
 
     friend class Module;
 
     TypePtr _underlying;
+    StringList _typeMetadata;
 };
 
 // ----------------------------------------------------------------------

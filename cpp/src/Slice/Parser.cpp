@@ -2065,7 +2065,7 @@ Slice::Module::createStruct(const string& name, NodeType nt)
 }
 
 TypeAliasPtr
-Slice::Module::createTypeAlias(const string& name, const TypePtr& type)
+Slice::Module::createTypeAlias(const string& name, const TypePtr& type, const StringList& metadata)
 {
     if (!checkForRedefinition(this, name, "typealias"))
     {
@@ -2078,7 +2078,7 @@ Slice::Module::createTypeAlias(const string& name, const TypePtr& type)
         _unit->error("`" + name + "': a typealias can only be defined at module scope");
     }
 
-    TypeAliasPtr alias = new TypeAlias(this, name, type);
+    TypeAliasPtr alias = new TypeAlias(this, name, type, metadata);
     _contents.push_back(alias);
     return alias;
 }
@@ -3500,20 +3500,18 @@ Slice::TypeAlias::visit(ParserVisitor* visitor, bool)
     visitor->visitTypeAlias(this);
 }
 
-Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const string& name, const TypePtr& underlying) :
+Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const string& name, const TypePtr& underlying,
+                            const StringList& typeMetadata) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
-    Type(container->unit())
+    Type(container->unit()),
+    _underlying(underlying),
+    _typeMetadata(typeMetadata)
 {
-    // Optional types can't be aliased.
-    if (auto optional = OptionalPtr::dynamicCast(underlying))
+    if (auto optional = OptionalPtr::dynamicCast(_underlying))
     {
         _unit->error("`" + name + "': optional types cannot be type-aliased");
         _underlying = optional->underlying();
-    }
-    else
-    {
-        _underlying = underlying;
     }
 }
 
