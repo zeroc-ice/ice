@@ -16,7 +16,7 @@
       <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../Ice//msbuild/net5.0//ice.csproj" />
+    <ProjectReference Include="../../../Ice/msbuild/net5.0/ice.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)../../../../msbuild/ice.sign.targets"/>
 </Project>

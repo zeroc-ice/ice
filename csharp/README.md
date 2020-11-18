@@ -31,7 +31,7 @@ In order to build Ice for .NET from source, you need all of the following:
  - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
  - the [.NET Core 3.1 SDK][5] or the  [.NET Core 5.0 SDK][6], if you use Visual Studio 2019
 
-> Note: Visual Studio 2019 version 16.8 or higher is required for .NET 5 builds.
+> Note: Visual Studio 2019 version 16.8 or higher is required for .NET 5.0 builds.
 > Note: Visual Studio 2017 version 15.3 or higher is required for .NET Core builds.
 
 ### Compiling Ice for .NET on Windows
@@ -61,7 +61,7 @@ msbuild msbuild\ice.proj /t:BuildDist
 ```
 
 The `Net5Build`, `Net5BuildDist`, `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and
-`NetStandardBuildDist` targets allow you to build assemblies only for .NET 5, the .NET
+`NetStandardBuildDist` targets allow you to build assemblies only for .NET 5.0, the .NET
 Framework 4.5 or .NET Standard 2.0, with or without the test suite.
 
 The .NET Standard build of iceboxnet and test applications target `netcoreapp3.1` when using
@@ -120,7 +120,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.1 SDK][4], [.NET Core 3.1 SDK][5] or [.NET 5 SDK][6]
+You need the [.NET Core 2.1 SDK][4], [.NET Core 3.1 SDK][5] or [.NET 5.0 SDK][6]
 to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
@@ -144,7 +144,7 @@ dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
 The `Net5Build`, `Net5BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets
-allow you to build assemblies only for .NET 5, or .NET Standard 2.0, with or without the
+allow you to build assemblies only for .NET 5.0, or .NET Standard 2.0, with or without the
 test suite.
 
 The .NET Standard build of iceboxnet and test applications target `netcoreapp3.1` when using

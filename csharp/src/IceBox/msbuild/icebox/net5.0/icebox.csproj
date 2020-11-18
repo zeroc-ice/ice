@@ -17,8 +17,8 @@
     <Compile Include="../../../ServiceManagerI.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../../Ice//msbuild/net5.0//ice.csproj" />
-    <ProjectReference Include="../../../../IceSSL//msbuild/net5.0//icessl.csproj" />
+    <ProjectReference Include="../../../../Ice/msbuild/net5.0/ice.csproj" />
+    <ProjectReference Include="../../../../IceSSL/msbuild/net5.0/icessl.csproj" />
     <ProjectReference Include="../../iceboxlib/net5.0/iceboxlib.csproj" />
   </ItemGroup>
   <ItemGroup>
