@@ -656,10 +656,23 @@ Slice::unwrapIfOptional(const TypePtr& type)
     {
         return optional->underlying();
     }
-    else
+    return type;
+}
+
+TypePtr
+Slice::unwrapIfAlias(const TypePtr& type)
+{
+    if (auto typealias = TypeAliasPtr::dynamicCast(type))
     {
-        return type;
+        return typealias->underlying();
     }
+    return type;
+}
+
+TypePtr
+Slice::unwrapType(const TypePtr& type)
+{
+    return unwrapIfOptional(unwrapIfAlias(type));
 }
 
 CaseConvention

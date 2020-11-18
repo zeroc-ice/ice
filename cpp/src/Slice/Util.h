@@ -69,8 +69,9 @@ ciequals(const std::string& a, const std::string& b);
 std::string
 prependA(const std::string& s);
 
-TypePtr
-unwrapIfOptional(const TypePtr&);
+TypePtr unwrapIfOptional(const TypePtr& type);
+TypePtr unwrapIfAlias(const TypePtr& type);
+TypePtr unwrapType(const TypePtr& type);
 
 enum CaseConvention { SliceCase, CamelCase, PascalCase, SnakeCase };
 
