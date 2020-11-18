@@ -103,7 +103,7 @@ class ControllerI {
     init(view: ViewController, ipv4: String, ipv6: String) throws {
         let properties = Ice.createProperties()
         properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
-        properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
+        properties.setProperty(key: "Ice.ThreadPool.Server.MaxSize", value: "10")
         properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
         properties.setProperty(key: "ControllerAdapter.Endpoints", value: "tcp")
         properties.setProperty(key: "ControllerAdapter.AdapterId", value: UUID().uuidString)

@@ -469,7 +469,7 @@ export class Client extends TestHelper
         try
         {
             const [properties] = this.createTestProperties(args);
-            properties.setProperty("Ice.MessageSizeMax", "10");
+            properties.setProperty("Ice.MessageMaxSize", "10");
             properties.setProperty("Ice.Warn.Connections", "0");
             properties.setProperty("Ice.PrintStackTraces", "1");
             [communicator] = this.initialize(properties);

@@ -1057,9 +1057,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                             throw new IllegalMessageSizeException();
                         }
 
-                        if(size > _messageSizeMax)
+                        if(size > _messageMaxSize)
                         {
-                            com.zeroc.IceInternal.Ex.throwMemoryLimitException(size, _messageSizeMax);
+                            com.zeroc.IceInternal.Ex.throwMemoryLimitException(size, _messageMaxSize);
                         }
                         if(size > _readStream.size())
                         {
@@ -1684,7 +1684,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
             _acmLastActivity = -1;
         }
         _nextRequestId = 1;
-        _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
+        _messageMaxSize = adapter != null ? adapter.messageMaxSize() : instance.messageMaxSize();
         _batchRequestQueue = new com.zeroc.IceInternal.BatchRequestQueue(instance, _endpoint.datagram());
         _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         _readHeader = false;
@@ -2548,7 +2548,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 {
                     Buffer ubuf = com.zeroc.IceInternal.BZip2.uncompress(info.stream.getBuffer(),
                                                                          Protocol.headerSize,
-                                                                         _messageSizeMax);
+                                                                         _messageMaxSize);
                     info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
                 }
                 else
@@ -3141,7 +3141,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     private LocalException _exception;
 
-    private final int _messageSizeMax;
+    private final int _messageMaxSize;
     private com.zeroc.IceInternal.BatchRequestQueue _batchRequestQueue;
 
     private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<>();

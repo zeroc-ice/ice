@@ -120,9 +120,9 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
     // to some suitably high number. This ensures no deadlocks in the
     // replicated case due to call forwarding from replicas to
     // coordinators.
-    if(id != -1 && properties->getProperty(name + ".TopicManager.ThreadPool.SizeMax").empty())
+    if(id != -1 && properties->getProperty(name + ".TopicManager.ThreadPool.MaxSize").empty())
     {
-        properties->setProperty(name + ".TopicManager.ThreadPool.SizeMax", "100");
+        properties->setProperty(name + ".TopicManager.ThreadPool.MaxSize", "100");
     }
 
     auto topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
@@ -307,11 +307,11 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                 ostringstream os;
                 os << nodes.size() + 1;
                 properties->setProperty(name + ".Node.ThreadPool.Size", os.str());
-                properties->setProperty(name + ".Node.ThreadPool.SizeWarn", "0");
+                properties->setProperty(name + ".Node.ThreadPool.WarnSize", "0");
             }
-            if(properties->getProperty(name + ".Node.MessageSizeMax").empty())
+            if(properties->getProperty(name + ".Node.MessageMaxSize").empty())
             {
-                properties->setProperty(name + ".Node.MessageSizeMax", "0"); // No limit on data exchanged internally
+                properties->setProperty(name + ".Node.MessageMaxSize", "0"); // No limit on data exchanged internally
             }
 
             auto nodeAdapter = communicator->createObjectAdapter(name + ".Node");
@@ -469,8 +469,8 @@ ServiceI::validateProperties(const string& name, const shared_ptr<Properties>& p
         "Publish.ReplicaGroupId",
         "Publish.Router",
         "Publish.ThreadPool.Size",
-        "Publish.ThreadPool.SizeMax",
-        "Publish.ThreadPool.SizeWarn",
+        "Publish.ThreadPool.MaxSize",
+        "Publish.ThreadPool.WarnSize",
         "Publish.ThreadPool.StackSize",
         "Node.AdapterId",
         "Node.Endpoints",
@@ -479,8 +479,8 @@ ServiceI::validateProperties(const string& name, const shared_ptr<Properties>& p
         "Node.ReplicaGroupId",
         "Node.Router",
         "Node.ThreadPool.Size",
-        "Node.ThreadPool.SizeMax",
-        "Node.ThreadPool.SizeWarn",
+        "Node.ThreadPool.MaxSize",
+        "Node.ThreadPool.WarnSize",
         "Node.ThreadPool.StackSize",
         "TopicManager.AdapterId",
         "TopicManager.Endpoints",
@@ -497,8 +497,8 @@ ServiceI::validateProperties(const string& name, const shared_ptr<Properties>& p
         "TopicManager.ReplicaGroupId",
         "TopicManager.Router",
         "TopicManager.ThreadPool.Size",
-        "TopicManager.ThreadPool.SizeMax",
-        "TopicManager.ThreadPool.SizeWarn",
+        "TopicManager.ThreadPool.MaxSize",
+        "TopicManager.ThreadPool.WarnSize",
         "TopicManager.ThreadPool.StackSize",
         "Trace.Election",
         "Trace.Replication",
@@ -506,8 +506,8 @@ ServiceI::validateProperties(const string& name, const shared_ptr<Properties>& p
         "Trace.Topic",
         "Trace.TopicManager",
         "Send.Timeout",
-        "Send.QueueSizeMax",
-        "Send.QueueSizeMaxPolicy",
+        "Send.QueueMaxSize",
+        "Send.QueueMaxSizePolicy",
         "Discard.Interval",
         "LMDB.Path",
         "LMDB.MapSize"

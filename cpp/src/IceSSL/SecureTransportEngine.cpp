@@ -817,8 +817,8 @@ IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& commun
     IceSSL::SSLEngine(communicator),
     _certificateAuthorities(0),
     _chain(0),
-    _protocolVersionMax(kSSLProtocolUnknown),
-    _protocolVersionMin(kSSLProtocolUnknown)
+    _protocolMaxVersion(kSSLProtocolUnknown),
+    _protocolMinVersion(kSSLProtocolUnknown)
 {
 }
 
@@ -851,10 +851,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     try
     {
         string caFile = properties->getProperty("IceSSL.CAs");
-        if(caFile.empty())
-        {
-            caFile = properties->getProperty("IceSSL.CertAuthFile");
-        }
         if(!caFile.empty())
         {
             string resolved;
@@ -1011,19 +1007,19 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     //
     // Parse protocols
     //
-    const string protocolVersionMax = properties->getProperty("IceSSL.ProtocolVersionMax");
-    if(!protocolVersionMax.empty())
+    const string protocolMaxVersion = properties->getProperty("IceSSL.ProtocolMaxVersion");
+    if(!protocolMaxVersion.empty())
     {
-        _protocolVersionMax = parseProtocol(protocolVersionMax);
+        _protocolMaxVersion = parseProtocol(protocolMaxVersion);
     }
 
     //
     // The default min protocol version is set to TLS1.0 to avoid security issues with SSLv3
     //
-    const string protocolVersionMin = properties->getPropertyWithDefault("IceSSL.ProtocolVersionMin", "tls1_0");
-    if(!protocolVersionMin.empty())
+    const string protocolMinVersion = properties->getPropertyWithDefault("IceSSL.ProtocolMinVersion", "tls1_0");
+    if(!protocolMinVersion.empty())
     {
-        _protocolVersionMin = parseProtocol(protocolVersionMin);
+        _protocolMinVersion = parseProtocol(protocolMinVersion);
     }
     _initialized = true;
 }
@@ -1115,18 +1111,18 @@ IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
         throw SecurityException(__FILE__, __LINE__, "IceSSL: error while setting SSL option:\n" + sslErrorToString(err));
     }
 
-    if(_protocolVersionMax != kSSLProtocolUnknown)
+    if(_protocolMaxVersion != kSSLProtocolUnknown)
     {
-        if((err = SSLSetProtocolVersionMax(ssl, _protocolVersionMax)))
+        if((err = SSLSetProtocolVersionMax(ssl, _protocolMaxVersion)))
         {
             throw SecurityException(__FILE__, __LINE__,
                                     "IceSSL: error while setting SSL protocol version max:\n" + sslErrorToString(err));
         }
     }
 
-    if(_protocolVersionMin != kSSLProtocolUnknown)
+    if(_protocolMinVersion != kSSLProtocolUnknown)
     {
-        if((err = SSLSetProtocolVersionMin(ssl, _protocolVersionMin)))
+        if((err = SSLSetProtocolVersionMin(ssl, _protocolMinVersion)))
         {
             throw SecurityException(__FILE__, __LINE__,
                                     "IceSSL: error while setting SSL protocol version min:\n" + sslErrorToString(err));

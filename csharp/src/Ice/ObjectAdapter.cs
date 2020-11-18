@@ -76,14 +76,14 @@ namespace ZeroC.Ice
         /// <summary>Returns the TaskScheduler used to dispatch requests.</summary>
         public TaskScheduler? TaskScheduler { get; }
 
-        internal int IncomingFrameSizeMax { get; }
+        internal int IncomingFrameMaxSize { get; }
 
         private static readonly string[] _suffixes =
         {
             "AcceptNonSecure",
             "AdapterId",
             "Endpoints",
-            "IncomingFrameSizeMax",
+            "IncomingFrameMaxSize",
             "Locator",
             "Locator.Encoding",
             "Locator.EndpointSelection",
@@ -732,9 +732,9 @@ namespace ZeroC.Ice
             AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
             ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
-            int frameSizeMax =
-                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
-            IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
+            int frameMaxSize =
+                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
+            IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
 
             AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
 

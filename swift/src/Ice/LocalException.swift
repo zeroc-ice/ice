@@ -1496,7 +1496,7 @@ open class UnexpectedObjectException: MarshalException {
 
 /// This exception is raised when Ice receives a request or reply
 /// message whose size exceeds the limit specified by the
-/// Ice.MessageSizeMax property.
+/// Ice.MessageMaxSize property.
 open class MemoryLimitException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///

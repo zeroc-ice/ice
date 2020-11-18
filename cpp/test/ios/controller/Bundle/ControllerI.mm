@@ -355,7 +355,7 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
 
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
-    initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
+    initData.properties->setProperty("Ice.ThreadPool.Server.MaxSize", "10");
     initData.properties->setProperty("IceDiscovery.DomainId", "TestController");
     initData.properties->setProperty("ControllerAdapter.Endpoints", "tcp");
     //initData.properties->setProperty("Ice.Trace.Network", "2");

@@ -253,7 +253,7 @@ def allTests(helper, communicator):
                (depth % 10000) == 0:
                 initial.setRecursive(top)
             depth += 1
-        test(not initial.supportsClassGraphDepthMax())
+        test(not initial.supportsClassGraphMaxDepth())
     except Ice.UnknownLocalException:
         # Expected marshal exception from the server (max class graph depth reached)
         pass

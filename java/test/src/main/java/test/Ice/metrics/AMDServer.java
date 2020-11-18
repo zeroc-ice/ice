@@ -14,7 +14,7 @@ public class AMDServer extends test.TestHelper
         properties.setProperty("Ice.Admin.InstanceName", "server");
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.MessageSizeMax", "50000");
+        properties.setProperty("Ice.MessageMaxSize", "50000");
 
         try(com.zeroc.Ice.Communicator  communicator = initialize(properties))
         {

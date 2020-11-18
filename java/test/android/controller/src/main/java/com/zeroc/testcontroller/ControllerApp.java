@@ -188,7 +188,7 @@ public class ControllerApp extends Application
         {
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = com.zeroc.Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
+            initData.properties.setProperty("Ice.ThreadPool.Server.MaxSize", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
             //initData.properties.setProperty("Ice.Trace.Network", "3");
             //initData.properties.setProperty("Ice.Trace.Protocol", "1");

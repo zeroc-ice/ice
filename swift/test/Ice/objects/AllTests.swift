@@ -218,7 +218,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
                 try initial.setRecursive(top)
             }
         }
-        try test(!initial.supportsClassGraphDepthMax())
+        try test(!initial.supportsClassGraphMaxDepth())
     } catch is Ice.UnknownLocalException {
         // Expected marshal exception from the server(max class graph depth reached)
     } catch is Ice.UnknownException {

@@ -367,7 +367,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"could not find index {index} in {nameof(_instanceMap)}");
             }
 
-            if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
+            if (++_classGraphDepth > Communicator.ClassGraphMaxDepth)
             {
                 throw new InvalidDataException("maximum class graph depth reached");
             }
@@ -675,7 +675,7 @@ namespace ZeroC.Ice
                 }
                 if (index == 1)
                 {
-                    if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
+                    if (++_classGraphDepth > Communicator.ClassGraphMaxDepth)
                     {
                         throw new InvalidDataException("maximum class graph depth reached");
                     }

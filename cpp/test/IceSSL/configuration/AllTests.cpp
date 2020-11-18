@@ -1960,7 +1960,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #  else
         //
         // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
-        // instead we use IceSSL.ProtocolVersionMax IceSSL.ProtocolVersionMin to set the maximun and minimum
+        // instead we use IceSSL.ProtocolMaxVersion IceSSL.ProtocolMinVersion to set the maximun and minimum
         // enabled protocol versions. See the test bellow.
         //
 
@@ -1973,16 +1973,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties = createClientProps(defaultProps, p12);
             initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "tls1");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "tls1");
+            initData.properties->setProperty("IceSSL.ProtocolMaxVersion", "tls1");
+            initData.properties->setProperty("IceSSL.ProtocolMinVersion", "tls1");
             CommunicatorPtr comm = initialize(initData);
             Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, p12);
             d["IceSSL.Ciphers"] = "(DH_anon*)";
             d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.ProtocolVersionMax"] = "tls1_2";
-            d["IceSSL.ProtocolVersionMin"] = "tls1_2";
+            d["IceSSL.ProtocolMaxVersion"] = "tls1_2";
+            d["IceSSL.ProtocolMinVersion"] = "tls1_2";
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
@@ -2014,8 +2014,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(defaultProps, p12);
             d["IceSSL.Ciphers"] = "(DH_anon*)";
             d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.ProtocolVersionMax"] = "tls1";
-            d["IceSSL.ProtocolVersionMin"] = "ssl3";
+            d["IceSSL.ProtocolMaxVersion"] = "tls1";
+            d["IceSSL.ProtocolMinVersion"] = "ssl3";
             server = fact->createServer(d);
             try
             {
@@ -2038,8 +2038,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
+            initData.properties->setProperty("IceSSL.ProtocolMinVersion", "ssl3");
+            initData.properties->setProperty("IceSSL.ProtocolMaxVersion", "ssl3");
             CommunicatorPtr comm = initialize(initData);
 
             Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
@@ -2076,15 +2076,15 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
-            initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
+            initData.properties->setProperty("IceSSL.ProtocolMinVersion", "ssl3");
+            initData.properties->setProperty("IceSSL.ProtocolMaxVersion", "ssl3");
             CommunicatorPtr comm = initialize(initData);
 
             Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
             d["IceSSL.VerifyPeer"] = "0";
-            d["IceSSL.ProtocolVersionMin"] = "ssl3";
+            d["IceSSL.ProtocolMinVersion"] = "ssl3";
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {

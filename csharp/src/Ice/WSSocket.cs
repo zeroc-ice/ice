@@ -114,10 +114,10 @@ namespace ZeroC.Ice
                 while (true)
                 {
                     ReadOnlyMemory<byte> buffer = await _underlying.ReceiveAsync(0, cancel).ConfigureAwait(false);
-                    if (httpBuffer.Count + buffer.Length > _communicator.IncomingFrameSizeMax)
+                    if (httpBuffer.Count + buffer.Length > _communicator.IncomingFrameMaxSize)
                     {
                         throw new InvalidDataException(
-                            "WebSocket frame size is greater than the configured IncomingFrameSizeMax value");
+                            "WebSocket frame size is greater than the configured IncomingFrameMaxSize value");
                     }
 
                     ArraySegment<byte> tmpBuffer = new byte[httpBuffer.Count + buffer.Length];

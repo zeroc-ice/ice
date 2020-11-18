@@ -862,10 +862,10 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     public int
-    messageSizeMax()
+    messageMaxSize()
     {
         // No mutex lock, immutable.
-        return _messageSizeMax;
+        return _messageMaxSize;
     }
 
     //
@@ -890,7 +890,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _replicaGroupId = "";
             _reference = _instance.referenceFactory().create("dummy -t", "");
             _acm = _instance.serverACM();
-            _messageSizeMax = _instance.messageSizeMax();
+            _messageMaxSize = _instance.messageMaxSize();
             return;
         }
 
@@ -954,27 +954,27 @@ public final class ObjectAdapterI implements ObjectAdapter
                                                    instance.serverACM());
 
         {
-            final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
-            int num = properties.getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            final int defaultMessageMaxSize = instance.messageMaxSize() / 1024;
+            int num = properties.getPropertyAsIntWithDefault(_name + ".MessageMaxSize", defaultMessageMaxSize);
             if(num < 1 || num > 0x7fffffff / 1024)
             {
-                _messageSizeMax = 0x7fffffff;
+                _messageMaxSize = 0x7fffffff;
             }
             else
             {
-                _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                _messageMaxSize = num * 1024; // Property is in kilobytes, _messageMaxSize in bytes
             }
         }
 
         try
         {
             int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-            int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+            int threadPoolMaxSize = properties.getPropertyAsInt(_name + ".ThreadPool.MaxSize");
 
             //
             // Create the per-adapter thread pool, if necessary.
             //
-            if(threadPoolSize > 0 || threadPoolSizeMax > 0)
+            if(threadPoolSize > 0 || threadPoolMaxSize > 0)
             {
                 _threadPool = new com.zeroc.IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
@@ -1467,7 +1467,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         "Locator.PreferSecure",
         "Locator.CollocationOptimized",
         "Locator.Router",
-        "MessageSizeMax",
+        "MessageMaxSize",
         "PublishedEndpoints",
         "ReplicaGroupId",
         "Router",
@@ -1487,8 +1487,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         "Router.InvocationTimeout",
         "ProxyOptions",
         "ThreadPool.Size",
-        "ThreadPool.SizeMax",
-        "ThreadPool.SizeWarn",
+        "ThreadPool.MaxSize",
+        "ThreadPool.WarnSize",
         "ThreadPool.StackSize",
         "ThreadPool.Serialize"
     };
@@ -1560,5 +1560,5 @@ public final class ObjectAdapterI implements ObjectAdapter
     private com.zeroc.IceInternal.LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;
-    private final int _messageSizeMax;
+    private final int _messageMaxSize;
 }

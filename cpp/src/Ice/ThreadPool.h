@@ -148,8 +148,8 @@ private:
 
     const int _size; // Number of threads that are pre-created.
     const int _sizeIO; // Maximum number of threads that can concurrently perform IO.
-    const int _sizeMax; // Maximum number of threads.
-    const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    const int _maxSize; // Maximum number of threads.
+    const int _warnSize; // If _inUse reaches _warnSize, a "low on threads" warning will be printed.
     const bool _serialize; // True if requests need to be serialized over the connection.
     const bool _hasPriority;
     const int _priority;

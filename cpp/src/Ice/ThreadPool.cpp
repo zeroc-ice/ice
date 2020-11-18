@@ -276,8 +276,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _nextThreadId(0),
     _size(0),
     _sizeIO(0),
-    _sizeMax(0),
-    _sizeWarn(0),
+    _maxSize(0),
+    _warnSize(0),
     _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
     _hasPriority(false),
     _priority(0),
@@ -325,31 +325,31 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         size = 1;
     }
 
-    int sizeMax = properties->getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
-    if(sizeMax == -1)
+    int maxSize = properties->getPropertyAsIntWithDefault(_prefix + ".MaxSize", size);
+    if(maxSize == -1)
     {
-        sizeMax = nProcessors;
+        maxSize = nProcessors;
     }
 
-    if(sizeMax < size)
+    if(maxSize < size)
     {
         Warning out(_instance->initializationData().logger);
-        out << _prefix << ".SizeMax < " << _prefix << ".Size; SizeMax adjusted to Size (" << size << ")";
-        sizeMax = size;
+        out << _prefix << ".MaxSize < " << _prefix << ".Size; MaxSize adjusted to Size (" << size << ")";
+        maxSize = size;
     }
 
-    int sizeWarn = properties->getPropertyAsInt(_prefix + ".SizeWarn");
-    if(sizeWarn != 0 && sizeWarn < size)
+    int warnSize = properties->getPropertyAsInt(_prefix + ".WarnSize");
+    if(warnSize != 0 && warnSize < size)
     {
         Warning out(_instance->initializationData().logger);
-        out << _prefix << ".SizeWarn < " << _prefix << ".Size; adjusted SizeWarn to Size (" << size << ")";
-        sizeWarn = size;
+        out << _prefix << ".WarnSize < " << _prefix << ".Size; adjusted WarnSize to Size (" << size << ")";
+        warnSize = size;
     }
-    else if(sizeWarn > sizeMax)
+    else if(warnSize > maxSize)
     {
         Warning out(_instance->initializationData().logger);
-        out << _prefix << ".SizeWarn > " << _prefix << ".SizeMax; adjusted SizeWarn to SizeMax (" << sizeMax << ")";
-        sizeWarn = sizeMax;
+        out << _prefix << ".WarnSize > " << _prefix << ".MaxSize; adjusted WarnSize to MaxSize (" << maxSize << ")";
+        warnSize = maxSize;
     }
 
     int threadIdleTime = properties->getPropertyAsIntWithDefault(_prefix + ".ThreadIdleTime", 60);
@@ -361,9 +361,9 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     }
 
     const_cast<int&>(_size) = size;
-    const_cast<int&>(_sizeMax) = sizeMax;
-    const_cast<int&>(_sizeWarn) = sizeWarn;
-    const_cast<int&>(_sizeIO) = min(sizeMax, nProcessors);
+    const_cast<int&>(_maxSize) = maxSize;
+    const_cast<int&>(_warnSize) = warnSize;
+    const_cast<int&>(_sizeIO) = min(maxSize, nProcessors);
     const_cast<int&>(_threadIdleTime) = threadIdleTime;
 
 #ifdef ICE_USE_IOCP
@@ -402,8 +402,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     if(_instance->traceLevels()->threadPool >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->threadPoolCat);
-        out << "creating " << _prefix << ": Size = " << _size << ", SizeMax = " << _sizeMax << ", SizeWarn = "
-            << _sizeWarn;
+        out << "creating " << _prefix << ": Size = " << _size << ", MaxSize = " << _maxSize << ", WarnSize = "
+            << _warnSize;
     }
 
     __setNoDelete(true);
@@ -713,7 +713,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     return; // Wait timed-out.
                 }
             }
-            else if(_sizeMax > 1)
+            else if(_maxSize > 1)
             {
                 if(!current._ioCompleted)
                 {
@@ -784,7 +784,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     thread->setState(ThreadState::ThreadStateIdle);
                 }
             }
-            else if(_sizeMax > 1)
+            else if(_maxSize > 1)
             {
                 //
                 // Increment the IO thread count and if there are still threads available
@@ -810,7 +810,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         }
         catch(const SelectorTimeoutException&)
         {
-            if(_sizeMax > 1)
+            if(_maxSize > 1)
             {
                 Lock sync(*this);
 
@@ -885,7 +885,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 
         {
             Lock sync(*this);
-            if(_sizeMax > 1 && current._ioCompleted)
+            if(_maxSize > 1 && current._ioCompleted)
             {
                 assert(_inUse > 0);
                 --_inUse;
@@ -905,7 +905,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
     current._thread->setState(ThreadState::ThreadStateInUseForUser);
 
-    if(_sizeMax > 1)
+    if(_maxSize > 1)
     {
 
 #if !defined(ICE_USE_IOCP)
@@ -935,17 +935,17 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         assert(_inUse >= 0);
         ++_inUse;
 
-        if(_inUse == _sizeWarn)
+        if(_inUse == _warnSize)
         {
             Warning out(_instance->initializationData().logger);
             out << "thread pool `" << _prefix << "' is running low on threads\n"
-                << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn;
+                << "Size=" << _size << ", " << "MaxSize=" << _maxSize << ", " << "WarnSize=" << _warnSize;
         }
 
         if(!_destroyed)
         {
             assert(_inUse <= static_cast<int>(_threads.size()));
-            if(_inUse < _sizeMax && _inUse == static_cast<int>(_threads.size()))
+            if(_inUse < _maxSize && _inUse == static_cast<int>(_threads.size()))
             {
                 if(_instance->traceLevels()->threadPool >= 1)
                 {

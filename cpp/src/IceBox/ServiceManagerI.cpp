@@ -304,22 +304,6 @@ IceBox::ServiceManagerI::start()
         PropertiesPtr properties = _communicator->getProperties();
 
         //
-        // Create an object adapter. Services probably should NOT share
-        // this object adapter, as the endpoint(s) for this object adapter
-        // will most likely need to be firewalled for security reasons.
-        //
-        ObjectAdapterPtr adapter;
-        if(properties->getProperty("IceBox.ServiceManager.Endpoints") != "")
-        {
-            adapter = _communicator->createObjectAdapter("IceBox.ServiceManager");
-
-            Identity identity;
-            identity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-            identity.name = "ServiceManager";
-            adapter->add(obj, identity);
-        }
-
-        //
         // Parse the property set with the prefix "IceBox.Service.". These
         // properties should have the following format:
         //
@@ -437,14 +421,10 @@ IceBox::ServiceManagerI::start()
         }
 
         //
-        // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+        // Start Admin (if enabled)
         //
         _communicator->addAdminFacet(shared_from_this(), "IceBox.ServiceManager");
         _communicator->getAdmin();
-        if(adapter)
-        {
-            adapter->activate();
-        }
 
         //
         // We may want to notify external scripts that the services

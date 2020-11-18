@@ -60,7 +60,7 @@ namespace ZeroC.Ice.Test.Objects
         {
         }
 
-        public bool SupportsClassGraphDepthMax(Current current, CancellationToken cancel) => true;
+        public bool SupportsClassGraphMaxDepth(Current current, CancellationToken cancel) => true;
 
         public D1? GetD1(D1? d1, Current current, CancellationToken cancel) => d1;
 

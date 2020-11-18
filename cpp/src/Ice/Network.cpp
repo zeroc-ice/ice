@@ -1456,12 +1456,12 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
-            BufSizeWarnInfo winfo = instance->getBufSizeWarn(TCPEndpointType);
+            BufWarnSizeInfo winfo = instance->getBufWarnSize(TCPEndpointType);
             if(!winfo.rcvWarn || rcvSize != winfo.rcvSize)
             {
                 Ice::Warning out(instance->logger());
                 out << "TCP receive buffer size: requested size of " << rcvSize << " adjusted to " << size;
-                instance->setRcvBufSizeWarn(TCPEndpointType, rcvSize);
+                instance->setRcvBufWarnSize(TCPEndpointType, rcvSize);
             }
         }
     }
@@ -1479,12 +1479,12 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
         {
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
-            BufSizeWarnInfo winfo = instance->getBufSizeWarn(TCPEndpointType);
+            BufWarnSizeInfo winfo = instance->getBufWarnSize(TCPEndpointType);
             if(!winfo.sndWarn || sndSize != winfo.sndSize)
             {
                 Ice::Warning out(instance->logger());
                 out << "TCP send buffer size: requested size of " << sndSize << " adjusted to " << size;
-                instance->setSndBufSizeWarn(TCPEndpointType, sndSize);
+                instance->setSndBufWarnSize(TCPEndpointType, sndSize);
             }
         }
     }

@@ -1526,9 +1526,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         throw IllegalMessageSizeException(__FILE__, __LINE__);
                     }
 
-                    if(size > static_cast<Int>(_messageSizeMax))
+                    if(size > static_cast<Int>(_messageMaxSize))
                     {
-                        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
+                        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageMaxSize);
                     }
                     if(static_cast<size_t>(size) > _readStream.b.size())
                     {
@@ -2103,7 +2103,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _compressionLevel(1),
     _nextRequestId(1),
     _asyncRequestsHint(_asyncRequests.end()),
-    _messageSizeMax(adapter ? adapter->messageSizeMax() : _instance->messageSizeMax()),
+    _messageMaxSize(adapter ? adapter->messageMaxSize() : _instance->messageMaxSize()),
     _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
     _readStream(_instance.get(), Ice::currentProtocolEncoding),
     _readHeader(false),
@@ -3045,9 +3045,9 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
         throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
 
-    if(uncompressedSize > static_cast<Int>(_messageSizeMax))
+    if(uncompressedSize > static_cast<Int>(_messageMaxSize))
     {
-        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(uncompressedSize), _messageSizeMax);
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(uncompressedSize), _messageMaxSize);
     }
     uncompressed.resize(static_cast<size_t>(uncompressedSize));
 

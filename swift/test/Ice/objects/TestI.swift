@@ -156,7 +156,7 @@ class InitialI: Initial {
 
     func setRecursive(p _: Recursive?, current _: Ice.Current) {}
 
-    func supportsClassGraphDepthMax(current _: Ice.Current) throws -> Bool {
+    func supportsClassGraphMaxDepth(current _: Ice.Current) throws -> Bool {
         return true
     }
 

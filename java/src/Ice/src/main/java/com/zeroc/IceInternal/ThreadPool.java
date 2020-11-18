@@ -117,30 +117,30 @@ public final class ThreadPool implements java.util.concurrent.Executor
             size = 1;
         }
 
-        int sizeMax = properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
-        if(sizeMax == -1)
+        int maxSize = properties.getPropertyAsIntWithDefault(_prefix + ".MaxSize", size);
+        if(maxSize == -1)
         {
-            sizeMax = nProcessors;
+            maxSize = nProcessors;
         }
-        if(sizeMax < size)
+        if(maxSize < size)
         {
-            String s = _prefix + ".SizeMax < " + _prefix + ".Size; SizeMax adjusted to Size (" + size + ")";
+            String s = _prefix + ".MaxSize < " + _prefix + ".Size; MaxSize adjusted to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
-            sizeMax = size;
+            maxSize = size;
         }
 
-        int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
-        if(sizeWarn != 0 && sizeWarn < size)
+        int warnSize = properties.getPropertyAsInt(_prefix + ".WarnSize");
+        if(warnSize != 0 && warnSize < size)
         {
-            String s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
+            String s = _prefix + ".WarnSize < " + _prefix + ".Size; adjusted WarnSize to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
-            sizeWarn = size;
+            warnSize = size;
         }
-        else if(sizeWarn > sizeMax)
+        else if(warnSize > maxSize)
         {
-            String s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax (" + sizeMax + ")";
+            String s = _prefix + ".WarnSize > " + _prefix + ".MaxSize; adjusted WarnSize to MaxSize (" + maxSize + ")";
             _instance.initializationData().logger.warning(s);
-            sizeWarn = sizeMax;
+            warnSize = maxSize;
         }
 
         int threadIdleTime = properties.getPropertyAsIntWithDefault(_prefix + ".ThreadIdleTime", 60);
@@ -152,9 +152,9 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
 
         _size = size;
-        _sizeMax = sizeMax;
-        _sizeWarn = sizeWarn;
-        _sizeIO = Math.min(sizeMax, nProcessors);
+        _maxSize = maxSize;
+        _warnSize = warnSize;
+        _sizeIO = Math.min(maxSize, nProcessors);
         _threadIdleTime = threadIdleTime;
 
         int stackSize = properties.getPropertyAsInt( _prefix + ".StackSize");
@@ -181,8 +181,8 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
         if(_instance.traceLevels().threadPool >= 1)
         {
-            String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
-                       _sizeWarn;
+            String s = "creating " + _prefix + ": Size = " + _size + ", MaxSize = " + _maxSize + ", WarnSize = " +
+                       _warnSize;
             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
         }
 
@@ -459,7 +459,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                         return; // Wait timed-out.
                     }
                 }
-                else if(_sizeMax > 1)
+                else if(_maxSize > 1)
                 {
                     if(!current._ioCompleted)
                     {
@@ -527,7 +527,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
                         thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
                     }
                 }
-                else if(_sizeMax > 1)
+                else if(_maxSize > 1)
                 {
                     //
                     // Increment the IO thread count and if there's still threads available
@@ -550,7 +550,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
         current._thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
 
-        if(_sizeMax > 1)
+        if(_maxSize > 1)
         {
             --_inUseIO;
 
@@ -577,17 +577,17 @@ public final class ThreadPool implements java.util.concurrent.Executor
             assert(_inUse >= 0);
             ++_inUse;
 
-            if(_inUse == _sizeWarn)
+            if(_inUse == _warnSize)
             {
                 String s = "thread pool `" + _prefix + "' is running low on threads\n"
-                    + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
+                    + "Size=" + _size + ", " + "MaxSize=" + _maxSize + ", " + "WarnSize=" + _warnSize;
                 _instance.initializationData().logger.warning(s);
             }
 
             if(!_destroyed)
             {
                 assert(_inUse <= _threads.size());
-                if(_inUse < _sizeMax && _inUse == _threads.size())
+                if(_inUse < _maxSize && _inUse == _threads.size())
                 {
                     if(_instance.traceLevels().threadPool >= 1)
                     {
@@ -822,8 +822,8 @@ public final class ThreadPool implements java.util.concurrent.Executor
 
     private final int _size; // Number of threads that are pre-created.
     private final int _sizeIO; // Number of threads that can concurrently perform IO.
-    private final int _sizeMax; // Maximum number of threads.
-    private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    private final int _maxSize; // Maximum number of threads.
+    private final int _warnSize; // If _inUse reaches _warnSize, a "low on threads" warning will be printed.
     private final boolean _serialize; // True if requests need to be serialized over the connection.
     private final int _priority;
     private final boolean _hasPriority;

@@ -19,7 +19,7 @@ public class InputStream {
 
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
-    private let classGraphDepthMax: Int32
+    private let classGraphMaxDepth: Int32
 
     private var remaining: Int {
         return data.count - pos
@@ -41,7 +41,7 @@ public class InputStream {
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
         self.communicator = communicator
         self.encoding = encoding
-        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
+        classGraphMaxDepth = (communicator as! CommunicatorI).classGraphMaxDepth
         traceSlicing = (communicator as! CommunicatorI).traceSlicing
     }
 
@@ -346,11 +346,11 @@ public class InputStream {
             if encaps.encoding_1_0 {
                 encaps.decoder = EncapsDecoder10(stream: self,
                                                  valueFactoryManager: valueFactoryManager,
-                                                 classGraphDepthMax: classGraphDepthMax)
+                                                 classGraphMaxDepth: classGraphMaxDepth)
             } else {
                 encaps.decoder = EncapsDecoder11(stream: self,
                                                  valueFactoryManager: valueFactoryManager,
-                                                 classGraphDepthMax: classGraphDepthMax)
+                                                 classGraphMaxDepth: classGraphMaxDepth)
             }
         }
     }
@@ -894,7 +894,7 @@ private protocol EncapsDecoder: AnyObject {
 
     var typeIdCache: [String: Value.Type?] { get set }
 
-    var classGraphDepthMax: Int32 { get }
+    var classGraphMaxDepth: Int32 { get }
     var classGraphDepth: Int32 { get set }
 
     func readValue(cb: Callback?) throws
@@ -1075,14 +1075,14 @@ private class EncapsDecoder10: EncapsDecoder {
     var sliceSize: Int32!
     var typeId: String!
 
-    let classGraphDepthMax: Int32
+    let classGraphMaxDepth: Int32
     var classGraphDepth: Int32
 
-    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphMaxDepth: Int32) {
         self.stream = stream
         self.valueFactoryManager = valueFactoryManager
         sliceType = SliceType.NoSlice
-        self.classGraphDepthMax = classGraphDepthMax
+        self.classGraphMaxDepth = classGraphMaxDepth
         classGraphDepth = 0
     }
 
@@ -1309,7 +1309,7 @@ private class EncapsDecoder10: EncapsDecoder {
             classGraphDepth = l.reduce(0) { max($0, $1.classGraphDepth) }
         }
         classGraphDepth += 1
-        if classGraphDepth > classGraphDepthMax {
+        if classGraphDepth > classGraphMaxDepth {
             throw MarshalException(reason: "maximum class graph depth reached")
         }
 
@@ -1331,7 +1331,7 @@ private class EncapsDecoder11: EncapsDecoder {
     lazy var valueList = [Value]()
     lazy var typeIdCache = [String: Value.Type?]()
 
-    let classGraphDepthMax: Int32
+    let classGraphMaxDepth: Int32
     var classGraphDepth: Int32
 
     private var current: InstanceData!
@@ -1373,10 +1373,10 @@ private class EncapsDecoder11: EncapsDecoder {
         }
     }
 
-    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphMaxDepth: Int32) {
         self.stream = stream
         self.valueFactoryManager = valueFactoryManager
-        self.classGraphDepthMax = classGraphDepthMax
+        self.classGraphMaxDepth = classGraphMaxDepth
         classGraphDepth = 0
     }
 
@@ -1747,7 +1747,7 @@ private class EncapsDecoder11: EncapsDecoder {
         }
 
         classGraphDepth += 1
-        if classGraphDepth > classGraphDepthMax {
+        if classGraphDepth > classGraphMaxDepth {
             throw MarshalException(reason: "maximum class graph depth reached")
         }
 

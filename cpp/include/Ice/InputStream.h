@@ -262,7 +262,7 @@ public:
      * unmarshaling, the stream raises MarshalException.
      * @param n The maximum depth.
      */
-    void setClassGraphDepthMax(size_t n);
+    void setClassGraphMaxDepth(size_t n);
 
     /**
      * Obtains the closure data associated with this stream.
@@ -1114,9 +1114,9 @@ private:
 
     protected:
 
-        EncapsDecoder(InputStream* stream, Encaps* encaps, bool sliceValues, size_t classGraphDepthMax,
+        EncapsDecoder(InputStream* stream, Encaps* encaps, bool sliceValues, size_t classGraphMaxDepth,
                       const Ice::ValueFactoryManagerPtr& f) :
-            _stream(stream), _encaps(encaps), _sliceValues(sliceValues), _classGraphDepthMax(classGraphDepthMax),
+            _stream(stream), _encaps(encaps), _sliceValues(sliceValues), _classGraphMaxDepth(classGraphMaxDepth),
             _classGraphDepth(0), _valueFactoryManager(f), _typeIdIndex(0)
         {
         }
@@ -1142,7 +1142,7 @@ private:
         InputStream* _stream;
         Encaps* _encaps;
         const bool _sliceValues;
-        const size_t _classGraphDepthMax;
+        const size_t _classGraphMaxDepth;
         size_t _classGraphDepth;
         Ice::ValueFactoryManagerPtr _valueFactoryManager;
 
@@ -1162,9 +1162,9 @@ private:
     {
     public:
 
-        EncapsDecoder10(InputStream* stream, Encaps* encaps, bool sliceValues, size_t classGraphDepthMax,
+        EncapsDecoder10(InputStream* stream, Encaps* encaps, bool sliceValues, size_t classGraphMaxDepth,
                         const Ice::ValueFactoryManagerPtr& f) :
-            EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
+            EncapsDecoder(stream, encaps, sliceValues, classGraphMaxDepth, f),
             _sliceType(NoSlice)
         {
         }
@@ -1197,9 +1197,9 @@ private:
     {
     public:
 
-        EncapsDecoder11(InputStream* stream, Encaps* encaps, bool sliceValues, size_t classGraphDepthMax,
+        EncapsDecoder11(InputStream* stream, Encaps* encaps, bool sliceValues, size_t classGraphMaxDepth,
                         const Ice::ValueFactoryManagerPtr& f) :
-            EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
+            EncapsDecoder(stream, encaps, sliceValues, classGraphMaxDepth, f),
             _preAllocatedInstanceData(0), _current(0), _valueIdIndex(1)
         {
         }
@@ -1336,7 +1336,7 @@ private:
 
     bool _traceSlicing;
 
-    size_t _classGraphDepthMax;
+    size_t _classGraphMaxDepth;
 
     void* _closure;
 

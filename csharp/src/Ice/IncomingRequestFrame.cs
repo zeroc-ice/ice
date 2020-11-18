@@ -44,9 +44,9 @@ namespace ZeroC.Ice
         /// <summary>Constructs an incoming request frame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
-        /// <param name="sizeMax">The maximum payload size, checked during decompression.</param>
-        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
-            : base(data, protocol, sizeMax)
+        /// <param name="maxSize">The maximum payload size, checked during decompression.</param>
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int maxSize)
+            : base(data, protocol, maxSize)
         {
             var istr = new InputStream(Data, Protocol.GetEncoding());
 

@@ -19,7 +19,7 @@ public class Collocated extends test.TestHelper
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        initData.properties.setProperty("Ice.MessageMaxSize", "10"); // 10KB max
         try(com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

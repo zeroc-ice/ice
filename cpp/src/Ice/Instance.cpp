@@ -932,9 +932,9 @@ bool logStdErrConvert = true;
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
-    _messageSizeMax(0),
+    _messageMaxSize(0),
     _batchAutoFlushSize(0),
-    _classGraphDepthMax(0),
+    _classGraphMaxDepth(0),
     _collectObjects(false),
     _toStringMode(ToStringMode::Unicode),
     _implicitContext(0),
@@ -1109,7 +1109,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
             if(!logfile.empty())
             {
-                Int sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
+                Int sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.MaxSize", 0);
                 if(sz < 0)
                 {
                     sz = 0;
@@ -1146,28 +1146,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                                                        defaultServerACM);
 
         {
-            static const int defaultMessageSizeMax = 1024;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+            static const int defaultMessageMaxSize = 1024;
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageMaxSize", defaultMessageMaxSize);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_messageMaxSize) = static_cast<size_t>(0x7fffffff);
             }
             else
             {
-                // Property is in kilobytes, _messageSizeMax in bytes.
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+                // Property is in kilobytes, _messageMaxSize in bytes.
+                const_cast<size_t&>(_messageMaxSize) = static_cast<size_t>(num) * 1024;
             }
         }
 
-        if(_initData.properties->getProperty("Ice.BatchAutoFlushSize").empty() &&
-           !_initData.properties->getProperty("Ice.BatchAutoFlush").empty())
-        {
-            if(_initData.properties->getPropertyAsInt("Ice.BatchAutoFlush") > 0)
-            {
-                const_cast<size_t&>(_batchAutoFlushSize) = _messageSizeMax;
-            }
-        }
-        else
         {
             Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
             if(num < 1)
@@ -1187,14 +1178,14 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         {
             static const int defaultValue = 100;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphMaxDepth", defaultValue);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
             {
-                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_classGraphMaxDepth) = static_cast<size_t>(0x7fffffff);
             }
             else
             {
-                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(num);
+                const_cast<size_t&>(_classGraphMaxDepth) = static_cast<size_t>(num);
             }
         }
 
@@ -1782,26 +1773,26 @@ IceInternal::Instance::updateThreadObservers()
     }
 }
 
-BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarn(Short type)
+BufWarnSizeInfo
+IceInternal::Instance::getBufWarnSize(Short type)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    IceUtil::Mutex::Lock lock(_setBufWarnSizeMutex);
 
-    return getBufSizeWarnInternal(type);
+    return getBufWarnSizeInternal(type);
 }
 
-BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarnInternal(Short type)
+BufWarnSizeInfo
+IceInternal::Instance::getBufWarnSizeInternal(Short type)
 {
-    BufSizeWarnInfo info;
-    map<Short, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
-    if(p == _setBufSizeWarn.end())
+    BufWarnSizeInfo info;
+    map<Short, BufWarnSizeInfo>::iterator p = _setBufWarnSize.find(type);
+    if(p == _setBufWarnSize.end())
     {
         info.sndWarn = false;
         info.sndSize = -1;
         info.rcvWarn = false;
         info.rcvSize = -1;
-        _setBufSizeWarn.insert(make_pair(type, info));
+        _setBufWarnSize.insert(make_pair(type, info));
     }
     else
     {
@@ -1811,25 +1802,25 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 }
 
 void
-IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
+IceInternal::Instance::setSndBufWarnSize(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    IceUtil::Mutex::Lock lock(_setBufWarnSizeMutex);
 
-    BufSizeWarnInfo info = getBufSizeWarnInternal(type);
+    BufWarnSizeInfo info = getBufWarnSizeInternal(type);
     info.sndWarn = true;
     info.sndSize = size;
-    _setBufSizeWarn[type] =  info;
+    _setBufWarnSize[type] =  info;
 }
 
 void
-IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
+IceInternal::Instance::setRcvBufWarnSize(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    IceUtil::Mutex::Lock lock(_setBufWarnSizeMutex);
 
-    BufSizeWarnInfo info = getBufSizeWarnInternal(type);
+    BufWarnSizeInfo info = getBufWarnSizeInternal(type);
     info.rcvWarn = true;
     info.rcvSize = size;
-    _setBufSizeWarn[type] =  info;
+    _setBufWarnSize[type] =  info;
 }
 
 void
