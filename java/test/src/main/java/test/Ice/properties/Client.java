@@ -45,7 +45,7 @@ public class Client extends test.TestHelper
             System.out.println("ok");
             System.out.print("testing load properties from UTF-8 path using Ice::Application... ");
             PropertiesClient c = new PropertiesClient();
-            c.main("", args, configPath);
+            c.main("", new String[0], configPath);
             System.out.println("ok");
         }
         {

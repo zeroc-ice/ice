@@ -63,5 +63,12 @@ module Ice
         /// The peer no longer wants to receive data from the stream.
         StopStreamingData = 1,
     }
+
+    struct Ice2GoAwayBody
+    {
+        varulong lastBidirectionalStreamId;
+        varulong lastUnidirectionalStreamId;
+        string message;
+    }
 #endif
 }

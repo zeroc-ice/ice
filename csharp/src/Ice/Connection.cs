@@ -656,7 +656,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                // Wait to receive the close frame on the control stream.
+                // Wait to receive the GoAway frame on the control stream.
                 ((long Bidirectional, long Unidirectional) lastStreamIds, string message) =
                     await peerControlStream.ReceiveGoAwayFrameAsync().ConfigureAwait(false);
 
