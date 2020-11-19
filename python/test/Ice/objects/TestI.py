@@ -123,7 +123,7 @@ class InitialI(Test.Initial):
     def setRecursive(self, r, current):
         pass
 
-    def supportsClassGraphDepthMax(self, current):
+    def supportsClassGraphMaxDepth(self, current):
         return True
 
     def getMB(self, current):

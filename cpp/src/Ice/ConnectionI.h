@@ -322,7 +322,7 @@ private:
 
     IceInternal::UniquePtr<LocalException> _exception;
 
-    const size_t _messageSizeMax;
+    const size_t _messageMaxSize;
     IceInternal::BatchRequestQueuePtr _batchRequestQueue;
 
     std::deque<OutgoingMessage> _sendStreams;

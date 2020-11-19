@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Admin.InstanceName"] = "server";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
-            properties["Ice.IncomingFrameSizeMax"] = "50M";
+            properties["Ice.IncomingFrameMaxSize"] = "50M";
 
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));

@@ -20,14 +20,14 @@ public class AMDServer extends test.TestHelper
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions.AMD");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        initData.properties.setProperty("Ice.MessageMaxSize", "10"); // 10KB max
         try(com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
-            communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0");
+            communicator.getProperties().setProperty("TestAdapter2.MessageMaxSize", "0");
             communicator.getProperties().setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
-            communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1");
+            communicator.getProperties().setProperty("TestAdapter3.MessageMaxSize", "1");
 
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");

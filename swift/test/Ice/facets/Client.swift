@@ -10,7 +10,7 @@ public class Client: TestHelperI {
     public override func run(args: [String]) throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-        properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max
+        properties.setProperty(key: "Ice.MessageMaxSize", value: "10") // 10KB max
         var initData = Ice.InitializationData()
         initData.properties = properties
         let communicator = try initialize(initData)

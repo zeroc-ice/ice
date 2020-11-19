@@ -22,7 +22,7 @@ public:
 
 private:
 
-    const int _messageSizeMax;
+    const int _messageMaxSize;
 };
 
 };

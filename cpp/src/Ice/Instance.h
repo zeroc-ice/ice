@@ -60,7 +60,7 @@ typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
 //
 // Structure to track warnings for attempts to set socket buffer sizes
 //
-struct BufSizeWarnInfo
+struct BufWarnSizeInfo
 {
     // Whether send size warning has been emitted
     bool sndWarn;
@@ -101,9 +101,9 @@ public:
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
-    size_t messageSizeMax() const { return _messageSizeMax; }
+    size_t messageMaxSize() const { return _messageMaxSize; }
     size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
-    size_t classGraphDepthMax() const { return _classGraphDepthMax; }
+    size_t classGraphMaxDepth() const { return _classGraphMaxDepth; }
     bool collectObjects() const { return _collectObjects; }
     Ice::ToStringMode toStringMode() const { return _toStringMode; }
     const ACMConfig& clientACM() const;
@@ -130,9 +130,9 @@ public:
     const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
     const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
 
-    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
-    void setSndBufSizeWarn(Ice::Short type, int size);
-    void setRcvBufSizeWarn(Ice::Short type, int size);
+    BufWarnSizeInfo getBufWarnSize(Ice::Short type);
+    void setSndBufWarnSize(Ice::Short type, int size);
+    void setRcvBufWarnSize(Ice::Short type, int size);
 
     void addObjectFactory(const Ice::ObjectFactoryPtr&, const std::string&);
     Ice::ObjectFactoryPtr findObjectFactory(const std::string&) const;
@@ -154,7 +154,7 @@ private:
     void addAllAdminFacets();
     void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
 
-    BufSizeWarnInfo getBufSizeWarnInternal(Ice::Short type);
+    BufWarnSizeInfo getBufWarnSizeInternal(Ice::Short type);
 
     enum State
     {
@@ -166,9 +166,9 @@ private:
     Ice::InitializationData _initData;
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
-    const size_t _messageSizeMax; // Immutable, not reset by destroy().
+    const size_t _messageMaxSize; // Immutable, not reset by destroy().
     const size_t _batchAutoFlushSize; // Immutable, not reset by destroy().
-    const size_t _classGraphDepthMax; // Immutable, not reset by destroy().
+    const size_t _classGraphMaxDepth; // Immutable, not reset by destroy().
     const bool _collectObjects; // Immutable, not reset by destroy().
     const Ice::ToStringMode _toStringMode; // Immutable, not reset by destroy()
     ACMConfig _clientACM;
@@ -200,8 +200,8 @@ private:
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
-    std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
-    IceUtil::Mutex _setBufSizeWarnMutex;
+    std::map<Ice::Short, BufWarnSizeInfo> _setBufWarnSize;
+    IceUtil::Mutex _setBufWarnSizeMutex;
     ObjectFactoryMap _objectFactoryMap;
     mutable ObjectFactoryMap::iterator _objectFactoryMapHint;
 };

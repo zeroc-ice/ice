@@ -14,7 +14,7 @@ class Collocated(TestHelper):
 
     def run(self, args):
         properties = self.createTestProperties(args)
-        properties.setProperty("Ice.MessageSizeMax", "10")
+        properties.setProperty("Ice.MessageMaxSize", "10")
 
         with self.initialize(properties=properties) as communicator:
             communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0")

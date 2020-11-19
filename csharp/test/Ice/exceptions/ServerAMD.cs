@@ -13,13 +13,13 @@ namespace ZeroC.Ice.Test.Exceptions
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.IncomingFrameSizeMax"] = "10K";
+            properties["Ice.IncomingFrameMaxSize"] = "10K";
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
-            communicator.SetProperty("TestAdapter2.IncomingFrameSizeMax", "0");
+            communicator.SetProperty("TestAdapter2.IncomingFrameMaxSize", "0");
             communicator.SetProperty("TestAdapter3.Endpoints", GetTestEndpoint(2));
-            communicator.SetProperty("TestAdapter3.IncomingFrameSizeMax", "1K");
+            communicator.SetProperty("TestAdapter3.IncomingFrameMaxSize", "1K");
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");

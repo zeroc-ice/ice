@@ -11,7 +11,7 @@ function client(args)
     helper = TestHelper();
     properties = helper.createTestProperties(args);
     properties.setProperty('Ice.Warn.Connections', '0');
-    properties.setProperty('Ice.MessageSizeMax', '10'); % 10KB max
+    properties.setProperty('Ice.MessageMaxSize', '10'); % 10KB max
     communicator = helper.initialize(properties);
     cleanup = onCleanup(@() communicator.destroy());
 

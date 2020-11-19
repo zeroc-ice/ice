@@ -192,7 +192,7 @@ namespace ZeroC.Ice
 
             var request = new IncomingRequestFrame(_socket.Endpoint.Protocol,
                                                    data,
-                                                   _socket.IncomingFrameSizeMax);
+                                                   _socket.IncomingFrameMaxSize);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
@@ -213,7 +213,7 @@ namespace ZeroC.Ice
 
                 var response = new IncomingResponseFrame(_socket.Endpoint.Protocol,
                                                          data,
-                                                         _socket.IncomingFrameSizeMax);
+                                                         _socket.IncomingFrameMaxSize);
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
@@ -362,9 +362,9 @@ namespace ZeroC.Ice
             // Read the frame data
             if (size > 0)
             {
-                if (size > _socket.IncomingFrameSizeMax)
+                if (size > _socket.IncomingFrameMaxSize)
                 {
-                    throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
+                    throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameMaxSize value");
                 }
                 buffer = size > buffer.Array!.Length ? new ArraySegment<byte>(new byte[size]) : buffer.Slice(0, size);
                 fin = await ReceiveAsync(buffer, cancel).ConfigureAwait(false);

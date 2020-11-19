@@ -69,7 +69,7 @@ namespace ZeroC.Ice
 
         private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
 
-        private readonly int _sizeMax;
+        private readonly int _maxSize;
 
         /// <summary>Decompress the encapsulation payload if it is compressed. Compressed encapsulations are
         /// only supported with 2.0 encoding.</summary>
@@ -90,10 +90,10 @@ namespace ZeroC.Ice
                 // compressed +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
                 (int decompressedSize, int decompressedSizeLength) = buffer.Slice(sizeLength + 3).ReadSize20();
 
-                if (decompressedSize > _sizeMax)
+                if (decompressedSize > _maxSize)
                 {
                     throw new InvalidDataException(@$"decompressed size of {decompressedSize
-                                                   } bytes is greater than the configured IncomingFrameSizeMax value");
+                                                   } bytes is greater than the configured IncomingFrameMaxSize value");
                 }
 
                 // We are going to replace the Data segment with a new Data segment/array that contains a decompressed
@@ -147,12 +147,12 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new <see cref="IncomingFrame"/>.</summary>
         /// <param name="data">The frame data.</param>
         /// <param name="protocol">The frame protocol.</param>
-        /// <param name="sizeMax">The maximum payload size, checked during decompression.</param>
-        protected IncomingFrame(ArraySegment<byte> data, Protocol protocol, int sizeMax)
+        /// <param name="maxSize">The maximum payload size, checked during decompression.</param>
+        protected IncomingFrame(ArraySegment<byte> data, Protocol protocol, int maxSize)
         {
             Data = data;
             Protocol = protocol;
-            _sizeMax = sizeMax;
+            _maxSize = maxSize;
         }
 
         // Returns the subset of Payload that represents the encapsulation.

@@ -19,7 +19,7 @@ public class Client extends test.TestHelper
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        properties.setProperty("Ice.MessageSizeMax", "20000");
+        properties.setProperty("Ice.MessageMaxSize", "20000");
         //
         // Retry up to 2 times, sleep 2s for the last retry. This is
         // useful to test interrupting the retry sleep

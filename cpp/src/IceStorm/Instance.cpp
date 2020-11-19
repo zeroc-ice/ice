@@ -61,8 +61,8 @@ Instance::Instance(const string& instanceName,
     _flushInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Flush.Timeout", 1000)),
     // default one minute.
     _sendTimeout(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
-    _sendQueueSizeMax(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.QueueSizeMax", -1)),
-    _sendQueueSizeMaxPolicy(RemoveSubscriber),
+    _sendQueueMaxSize(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.QueueMaxSize", -1)),
+    _sendQueueMaxSizePolicy(RemoveSubscriber),
     _topicReaper(make_shared<TopicReaper>()),
     _observers(make_shared<Observers>(_traceLevels))
 {
@@ -87,19 +87,19 @@ Instance::Instance(const string& instanceName,
 
         _timer = new IceUtil::Timer();
 
-        string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
+        string policy = properties->getProperty(name + ".Send.QueueMaxSizePolicy");
         if(policy == "RemoveSubscriber")
         {
-            const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = RemoveSubscriber;
+            const_cast<SendQueueMaxSizePolicy&>(_sendQueueMaxSizePolicy) = RemoveSubscriber;
         }
         else if(policy == "DropEvents")
         {
-            const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = DropEvents;
+            const_cast<SendQueueMaxSizePolicy&>(_sendQueueMaxSizePolicy) = DropEvents;
         }
         else if(!policy.empty())
         {
             Ice::Warning warn(_traceLevels->logger);
-            warn << "invalid value `" << policy << "' for `" << name << ".Send.QueueSizeMaxPolicy'";
+            warn << "invalid value `" << policy << "' for `" << name << ".Send.QueueMaxSizePolicy'";
         }
 
         //
@@ -245,15 +245,15 @@ Instance::sendTimeout() const
 }
 
 int
-Instance::sendQueueSizeMax() const
+Instance::sendQueueMaxSize() const
 {
-    return _sendQueueSizeMax;
+    return _sendQueueMaxSize;
 }
 
-Instance::SendQueueSizeMaxPolicy
-Instance::sendQueueSizeMaxPolicy() const
+Instance::SendQueueMaxSizePolicy
+Instance::sendQueueMaxSizePolicy() const
 {
-    return _sendQueueSizeMaxPolicy;
+    return _sendQueueMaxSizePolicy;
 }
 
 void

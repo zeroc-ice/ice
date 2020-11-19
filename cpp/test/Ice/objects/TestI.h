@@ -77,7 +77,7 @@ public:
     virtual Test::FPtr getF(const Ice::Current&);
 
     virtual void setRecursive(Test::RecursivePtr, const Ice::Current&);
-    virtual bool supportsClassGraphDepthMax(const Ice::Current&);
+    virtual bool supportsClassGraphMaxDepth(const Ice::Current&);
 
     virtual GetMBMarshaledResult getMB(const Ice::Current&);
     virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,

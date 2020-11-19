@@ -133,7 +133,7 @@ final class WSTransceiver implements Transceiver
                         // Enlarge the buffer and try to read more.
                         //
                         final int oldSize = _readBuffer.b.position();
-                        if(oldSize + 1024 > _instance.messageSizeMax())
+                        if(oldSize + 1024 > _instance.messageMaxSize())
                         {
                             throw new com.zeroc.Ice.MemoryLimitException();
                         }

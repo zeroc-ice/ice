@@ -741,8 +741,8 @@ class Mapping(object):
                             props["Test.Transport"] = self.transport
                             if self.transport in  {"wss", "ssl"}:
                                 # Switch this logic when the default in the Communicator is False
-                                props["Ice.Default.PreferNonSecure"] = "False";
-                                props["Ice.AcceptNonSecure"] = "False";
+                                props["Ice.Default.PreferNonSecure"] = "False"
+                                props["Ice.AcceptNonSecure"] = "False"
                     else:
                         props["Ice.Default.Transport"] = self.transport
                 if self.protocol:
@@ -1059,8 +1059,8 @@ class Mapping(object):
                 props.update(self.getSSLProps(process, current))
         if isinstance(process, Server):
             props["Ice.ThreadPool.Server.Size"] = 1
-            props["Ice.ThreadPool.Server.SizeMax"] = 3
-            props["Ice.ThreadPool.Server.SizeWarn"] = 0
+            props["Ice.ThreadPool.Server.MaxSize"] = 3
+            props["Ice.ThreadPool.Server.WarnSize"] = 0
         return props
 
     def getSSLProps(self, process, current):
@@ -1458,7 +1458,7 @@ class EchoServer(Server):
 
     def getProps(self, current):
         props = Server.getProps(self, current)
-        props["Ice.MessageSizeMax"] = 8192  # Don't limit the amount of data to transmit between client/server
+        props["Ice.MessageMaxSize"] = 8192  # Don't limit the amount of data to transmit between client/server
         return props
 
     def getCommandLine(self, current, args=""):
@@ -3432,8 +3432,8 @@ class CSharpMapping(Mapping):
             if current.config.transport in ["ssl", "wss"] and current.config.mx:
                 props["Ice.Admin.DelayCreation"] = "1"
         props.pop("Ice.ThreadPool.Server.Size", None)
-        props.pop("Ice.ThreadPool.Server.SizeMax", None)
-        props.pop("Ice.ThreadPool.Server.SizeWarn", None)
+        props.pop("Ice.ThreadPool.Server.MaxSize", None)
+        props.pop("Ice.ThreadPool.Server.WarnSize", None)
         return props
 
     def getOptions(self, current):

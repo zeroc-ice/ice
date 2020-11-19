@@ -59,9 +59,9 @@ namespace ZeroC.Ice
                     ReceivedInvalidData($"received ice1 frame with only {size} bytes");
                     continue;
                 }
-                if (size > IncomingFrameSizeMax)
+                if (size > IncomingFrameMaxSize)
                 {
-                    ReceivedInvalidData($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
+                    ReceivedInvalidData($"frame with {size} bytes exceeds Ice.IncomingFrameMaxSize value");
                     continue;
                 }
 
@@ -334,7 +334,7 @@ namespace ZeroC.Ice
             {
                 if (BZip2.IsLoaded)
                 {
-                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, IncomingFrameSizeMax);
+                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, IncomingFrameMaxSize);
                 }
                 else
                 {

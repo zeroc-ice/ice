@@ -194,16 +194,6 @@ namespace ZeroC.IceBox
         {
             try
             {
-                // Create an object adapter. Services probably should NOT share this object adapter, as the endpoint(s)
-                // for this object adapter will most likely need to be behind a firewall for security reasons.
-                ObjectAdapter? adapter = null;
-                if (_communicator.GetProperty("IceBox.ServiceManager.Endpoints") != null)
-                {
-                    adapter = _communicator.CreateObjectAdapter("IceBox.ServiceManager");
-                    string instanceName = _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox";
-                    adapter.Add(new Identity("ServiceManager", instanceName), this);
-                }
-
                 // Parse the property set with the prefix "IceBox.Service.". These properties should have the following
                 // format:
                 //
@@ -286,13 +276,9 @@ namespace ZeroC.IceBox
                     StartService(s.Name, s.EntryPoint, s.Args);
                 }
 
-                // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+                // Start Admin (if enabled)
                 _communicator.AddAdminFacet("IceBox.ServiceManager", this);
                 _communicator.GetAdmin();
-                if (adapter != null)
-                {
-                    await adapter.ActivateAsync().ConfigureAwait(false);
-                }
 
                 // We may want to notify external scripts that the services have started and that IceBox is "ready".
                 // This is done by defining the property IceBox.PrintServicesReady=bundleName, bundleName is whatever

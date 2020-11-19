@@ -671,12 +671,12 @@ namespace ZeroC.Ice
                                                                                      request.Operation,
                                                                                      request.Context);
                 int attempt = 1;
-                // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
-                // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
+                // If the request size is greater than Ice.RetryRequestMaxSize or the size of the request
+                // would increase the buffer retry size beyond Ice.RetryBufferMaxSize we release the request
                 // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
                 int requestSize = request.Size;
                 bool releaseRequestAfterSent =
-                    requestSize > reference.Communicator.RetryRequestSizeMax ||
+                    requestSize > reference.Communicator.RetryRequestMaxSize ||
                     !reference.Communicator.IncRetryBufferSize(requestSize);
                 try
                 {
@@ -815,9 +815,9 @@ namespace ZeroC.Ice
                             if (reference.Communicator.TraceLevels.Retry >= 1)
                             {
                                 TraceRetry("request failed with retryable exception but the request is not retryable " +
-                                           "because\n" + (requestSize > reference.Communicator.RetryRequestSizeMax ?
-                                           "the request size exceeds Ice.RetryRequestSizeMax, " :
-                                           "the retry buffer size would exceed Ice.RetryBufferSizeMax, ") +
+                                           "because\n" + (requestSize > reference.Communicator.RetryRequestMaxSize ?
+                                           "the request size exceeds Ice.RetryRequestMaxSize, " :
+                                           "the retry buffer size would exceed Ice.RetryBufferMaxSize, ") +
                                            "passing exception through to the application",
                                            attempt,
                                            retryPolicy,

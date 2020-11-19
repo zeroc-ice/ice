@@ -212,7 +212,7 @@ interface Initial
     F getF();
 
     void setRecursive(Recursive p);
-    bool supportsClassGraphDepthMax();
+    bool supportsClassGraphMaxDepth();
 
     [marshaled-result] B getMB();
     [amd] [marshaled-result] B getAMDMB();

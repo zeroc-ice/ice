@@ -4,13 +4,13 @@
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
+        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphMaxDepth)
             obj.is = is;
             obj.encaps = encaps;
             obj.sliceValues = sliceValues;
             obj.valueFactoryManager = valueFactoryManager;
             obj.classResolver = classResolver;
-            obj.classGraphDepthMax = classGraphDepthMax;
+            obj.classGraphMaxDepth = classGraphMaxDepth;
             obj.classGraphDepth = 0;
             obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
@@ -243,7 +243,7 @@ classdef (Abstract) EncapsDecoder < handle
         valueFactoryManager
         classResolver
         classGraphDepth
-        classGraphDepthMax
+        classGraphMaxDepth
         patchMap
     end
     properties(Access=private)
