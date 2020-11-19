@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -30,11 +31,35 @@ namespace ZeroC.Ice
 
         internal const ushort DefaultIPPort = 4062;
 
+        /// <summary>When Host is an IP address, returns the parsed IP address. Otherwise, when Host is a DNS name,
+        /// returns IPAddress.None.</summary>
+        internal IPAddress Address
+        {
+            get
+            {
+                if (_address == null)
+                {
+                    try
+                    {
+                        _address = IPAddress.Parse(Host);
+                    }
+                    catch (FormatException)
+                    {
+                        // Assume it's a DNS name
+                        _address = IPAddress.None;
+                    }
+                }
+                return _address;
+            }
+        }
+
         /// <summary>Whether IPv6 sockets created from this endpoint are dual-mode or IPv6 only.</summary>
         internal bool IsIPv6Only { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
         internal IPAddress? SourceAddress { get; }
+
+        private IPAddress? _address;
 
         public override bool Equals(Endpoint? other) =>
             other is IPEndpoint ipEndpoint &&
@@ -117,26 +142,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
-        {
-            publish = null;
-
-            // If using a fixed port, this endpoint can be used as the published endpoint to access the returned
-            // endpoints. Otherwise, we'll publish each individual expanded endpoint.
-            publish = Port > 0 ? this : null;
-
-            IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host, Port, Network.EnableBoth);
-
-            if (addresses.Count() == 1)
-            {
-                return new Endpoint[] { this };
-            }
-            else
-            {
-                return addresses.Select(address => Clone(address.Address.ToString(), (ushort)address.Port));
-            }
-        }
-
         public override IEnumerable<Endpoint> ExpandIfWildcard()
         {
             int ipv6only = IsIPv6Only ? Network.EnableIPv6 : Network.EnableBoth;
@@ -211,6 +216,20 @@ namespace ZeroC.Ice
         }
 
         protected internal override Endpoint Clone(string host) => host == Host ? this : Clone(host, Port);
+
+        protected internal override IEnumerable<Endpoint> ExpandHost()
+        {
+            IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host, Port, Network.EnableBoth);
+
+            if (addresses.Count() == 1)
+            {
+                return ImmutableArray.Create(this);
+            }
+            else
+            {
+                return addresses.Select(address => Clone(address.Address.ToString(), (ushort)address.Port));
+            }
+        }
 
         internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
 

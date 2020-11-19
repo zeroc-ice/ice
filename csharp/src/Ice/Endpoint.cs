@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -186,19 +187,17 @@ namespace ZeroC.Ice
         /// <returns>The collection containing the expanded endpoints.</returns>
         public abstract IEnumerable<Endpoint> ExpandIfWildcard();
 
-        /// <summary>Expands endpoint out into separate endpoints for each IP address returned by the DNS resolver.
-        /// Also returns the endpoint which can be used to connect to the returned endpoints or null if no specific
-        /// endpoint can be used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if
-        /// it uses a fixed port, null otherwise).
-        /// </summary>
-        /// <param name="publishedEndpoint">TODO.</param>
-        /// <returns>The collection containing the expanded endpoints.</returns>
-        public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
-
         /// <summary>Clones this endpoint into an identical endpoint except with the specified host.</summary>
         /// <param name="host">The new host name.</param>
         /// <returns>A new endpoint, or the same endpoint is if host matches endpoint.Host.</returns>
         protected internal abstract Endpoint Clone(string host);
+
+        /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
+        /// </summary>
+        /// <returns>The expanded endpoints if Host is a DNS name or IP address and an empty collection if this
+        /// endpoint is not usable as an object adapter endpoint.</returns>
+        // TODO: should this be ExpandHostAsync?
+        protected internal virtual IEnumerable<Endpoint> ExpandHost() => ImmutableArray<Endpoint>.Empty;
 
         /// <summary>Constructs a new endpoint</summary>
         /// <param name="data">The <see cref="EndpointData"/> struct.</param>

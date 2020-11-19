@@ -66,12 +66,6 @@ namespace ZeroC.Ice
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
-        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
-        {
-            publishedEndpoint = null;
-            return new Endpoint[] { this };
-        }
-
         public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
