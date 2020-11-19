@@ -175,11 +175,22 @@ namespace ZeroC.Ice
             }
             else
             {
-                // Read the transport parameters which are encoded with the binary context encoding.
+                // Read the protocol parameters which are encoded with the binary context encoding.
                 var istr = new InputStream(data, Ice2Definitions.Encoding);
-                istr.ReadSize();
+                int dictionarySize = istr.ReadSize();
+                var parameters = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
+                for (int i = 0; i < dictionarySize; ++i)
+                {
+                    int key = istr.ReadVarInt();
+                    int entrySize = istr.ReadSize();
+                    if (!parameters.TryAdd(key, data.Slice(istr.Pos, entrySize)))
+                    {
+                        throw new InvalidDataException($"duplicate Ice2 protocol parameter `{key}");
+                    }
+                    istr.Skip(entrySize);
+                }
 
-                // TODO: support parameters?
+                // TODO: support some parameters?
             }
         }
 
@@ -299,7 +310,7 @@ namespace ZeroC.Ice
                 // Encode the transport parameters with the binary context encoding.
                 ostr.WriteSize(0);
 
-                // TODO: send protocol specific settings from the frame?
+                // TODO: send protocol specific parameters from the frame?
 
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
