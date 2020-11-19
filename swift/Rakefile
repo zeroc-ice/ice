@@ -672,7 +672,6 @@ def target_add_swiftlint_build_phase(target, basedir)
     EOF
 end
 
-
 def find_files(basedir, patterns, exclude = [])
     files = []
     Dir.chdir(basedir) do
@@ -750,15 +749,27 @@ def target_add_carthage_framework(target, platform, framework, copy=false)
     group = target.project.frameworks_group[(platform == :osx ? "OS X" : "iOS")]
     carthage_prefix = (platform == :osx) ? "Mac" : "iOS"
     group_add_files(group, "../Carthage/Build/#{carthage_prefix}", [framework]).each do |ref|
-        target.frameworks_build_phases.add_file_reference(ref, true)
+        # When copy is true we copy the framework to the target, for :ios targets we use the carthage copy-frameworks
+        # script for macOS targets we use the regular copy phase.
         if copy then
-            copy_phase = target.shell_script_build_phases.select { |script| script.name == "Copy Frameworks" }.first
-            unless copy_phase then
-                copy_phase = target.new_shell_script_build_phase("Copy Frameworks")
-                copy_phase.shell_script = "/usr/local/bin/carthage copy-frameworks"
+            if platform == :ios then
+                copy_phase = target.shell_script_build_phases.select { |script| script.name == "Copy Frameworks" }.first
+                unless copy_phase then
+                    copy_phase = target.new_shell_script_build_phase("Copy Frameworks")
+                    copy_phase.shell_script = "/usr/local/bin/carthage copy-frameworks"
+                end
+                copy_phase.input_paths << "$(SRCROOT)/../Carthage/Build/#{carthage_prefix}/#{framework}"
+                copy_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/#{framework}"
+            else
+                file = target.copy_files_build_phases[0].add_file_reference(ref)
+                file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
             end
-            copy_phase.input_paths << "$(SRCROOT)/../Carthage/Build/#{carthage_prefix}/#{framework}"
-            copy_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/#{framework}"
+        end
+
+        # when copy is false or the target platform is ios we also have to add a reference into the target
+        # frameworks build phase.
+        unless copy and platform == :macos then
+            target.frameworks_build_phases.add_file_reference(ref, true)
         end
     end
 end
