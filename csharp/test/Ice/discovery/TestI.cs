@@ -25,6 +25,8 @@ namespace ZeroC.Ice.Test.Discovery
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
             communicator.SetProperty($"{name}.Endpoints", ice1 ? $"{transport} -h 127.0.0.1" :
                 $"ice+{transport}://127.0.0.1:0");
+
+            communicator.SetProperty($"{name}.ServerName", "localhost");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();

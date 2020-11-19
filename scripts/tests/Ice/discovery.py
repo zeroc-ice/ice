@@ -21,8 +21,7 @@ def props(process, current):
         "Ice.Discovery.Timeout": "50ms",
         "Ice.Discovery.Multicast.Endpoints": f"{ipv4Endpoint}:{ipv6Endpoint}",
         "Ice.Discovery.Lookup": f"{ipv4Endpoint}:{ipv6Endpoint}",
-        "Ice.Discovery.Reply.Endpoints": "udp -h \"::1\" -p 0",
-        "Ice.Discovery.Reply.ServerName": "::1",
+        "Ice.Discovery.Reply.ServerName": "localhost",
     }
     return discoveryProps
 
