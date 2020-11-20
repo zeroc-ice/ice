@@ -646,7 +646,7 @@ namespace ZeroC.Ice
                                          (ulong)MaxBidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxUnidirectionalStreams,
-                                         (ulong)MaxBidirectionalStreams,
+                                         (ulong)MaxUnidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
 
             if (writeIdleTimeout)

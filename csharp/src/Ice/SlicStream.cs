@@ -116,8 +116,8 @@ namespace ZeroC.Ice
             int size = buffer.GetByteCount();
 
             // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
-            int maxFrameSize = _socket.Endpoint.Communicator.SlicPacketMaxSize;
-            if (size > maxFrameSize)
+            int packetMaxSize = _socket.Endpoint.Communicator.SlicPacketMaxSize;
+            if (size > packetMaxSize)
             {
                 // The send buffer for the Slic packet.
                 var sendBuffer = new List<ArraySegment<byte>>(buffer.Count);
@@ -146,9 +146,9 @@ namespace ZeroC.Ice
                     for (int i = start.Segment; i < buffer.Count; ++i)
                     {
                         int segmentOffset = i == start.Segment ? start.Offset : 0;
-                        if (sendSize + buffer[i].Slice(segmentOffset).Count > maxFrameSize)
+                        if (sendSize + buffer[i].Slice(segmentOffset).Count > packetMaxSize)
                         {
-                            sendBuffer.Add(buffer[i].Slice(segmentOffset, maxFrameSize - sendSize));
+                            sendBuffer.Add(buffer[i].Slice(segmentOffset, packetMaxSize - sendSize));
                             start = new OutputStream.Position(i, segmentOffset + sendBuffer[^1].Count);
                             sendSize += sendBuffer[^1].Count;
                             break;

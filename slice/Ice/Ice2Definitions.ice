@@ -28,7 +28,8 @@ module Ice
     {
     }
 
-    enum Ice2ParameterKey : int
+    /// The keys for supported Ice2 connection parameters.
+    unchecked enum Ice2ParameterKey : int
     {
         OutgoingFrameMaxSize = 0
     }
