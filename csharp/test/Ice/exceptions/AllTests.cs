@@ -262,12 +262,21 @@ namespace ZeroC.Ice.Test.Exceptions
                     thrower.ThrowMemoryLimitException(Array.Empty<byte>());
                     TestHelper.Assert(false);
                 }
-                catch (InvalidDataException)
+                catch (MarshalException ex)
                 {
+                    TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1,
+                                      $"unexpected exception:\n{ex}");
+                    TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
                 }
-                catch
+                catch (InvalidDataException ex)
                 {
-                    TestHelper.Assert(false);
+                    TestHelper.Assert(thrower.GetCachedConnection()!.Protocol == Protocol.Ice1,
+                                      $"unexpected exception:\n{ex}");
+                    TestHelper.Assert(!thrower.GetCachedConnection()!.IsActive);
+                }
+                catch (Exception ex)
+                {
+                    TestHelper.Assert(false, $"unexpected exception:\n{ex}");
                 }
 
                 try
@@ -275,12 +284,20 @@ namespace ZeroC.Ice.Test.Exceptions
                     thrower.ThrowMemoryLimitException(new byte[20 * 1024]); // 20KB
                     TestHelper.Assert(false);
                 }
+                catch (MarshalException)
+                {
+                    TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1);
+                    TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
+                }
                 catch (ConnectionLostException)
                 {
+                    TestHelper.Assert(thrower.GetCachedConnection()!.Protocol == Protocol.Ice1);
+                    TestHelper.Assert(!thrower.GetCachedConnection()!.IsActive);
                 }
                 catch (UnhandledException)
                 {
                     // Expected with JS bidir server
+                    TestHelper.Assert(thrower.GetConnection().Protocol == Protocol.Ice1);
                 }
                 catch (Exception ex)
                 {
@@ -294,8 +311,13 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         thrower2.ThrowMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                     }
+                    catch (MarshalException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1);
+                    }
                     catch (InvalidDataException)
                     {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.Protocol == Protocol.Ice1);
                     }
 
                     var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
@@ -304,8 +326,13 @@ namespace ZeroC.Ice.Test.Exceptions
                         thrower3.ThrowMemoryLimitException(new byte[1024]); // 1KB limit
                         TestHelper.Assert(false);
                     }
+                    catch (MarshalException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1);
+                    }
                     catch (ConnectionLostException)
                     {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.Protocol == Protocol.Ice1);
                     }
                 }
                 catch (ConnectionRefusedException)

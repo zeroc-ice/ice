@@ -190,7 +190,13 @@ namespace ZeroC.Ice
                     istr.Skip(entrySize);
                 }
 
-                // TODO: support some parameters?
+                if (parameters.TryGetValue((int)Ice2ParameterKey.OutgoingFrameMaxSize, out ReadOnlyMemory<byte> value))
+                {
+                    checked
+                    {
+                        _socket.OutgoingFrameMaxSize = (int)value.Span.ReadVarULong().Value;
+                    }
+                }
             }
         }
 
@@ -308,9 +314,12 @@ namespace ZeroC.Ice
                 OutputStream.Position pos = ostr.Tail;
 
                 // Encode the transport parameters with the binary context encoding.
-                ostr.WriteSize(0);
+                ostr.WriteSize(1);
 
-                // TODO: send protocol specific parameters from the frame?
+                // The outgoing frame maximum size for the peer is the local incoming frame maximum size
+                ostr.WriteBinaryContextEntry((int)Ice2ParameterKey.OutgoingFrameMaxSize,
+                                             (ulong)_socket.IncomingFrameMaxSize,
+                                             OutputStream.IceWriterFromVarULong);
 
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
@@ -390,6 +399,20 @@ namespace ZeroC.Ice
         {
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
+
+            if (frame.Size > _socket.OutgoingFrameMaxSize)
+            {
+                if (frame is OutgoingRequestFrame)
+                {
+                    throw new MarshalException($"the request size is larger than {_socket.OutgoingFrameMaxSize}");
+                }
+                else
+                {
+                    // Throw a remote exception instead for response, the Ice connection will catch it and send it
+                    // as the response instead of sending this response which is too large.
+                    throw new MarshalException($"the response size is larger than {_socket.OutgoingFrameMaxSize}");
+                }
+            }
 
             var data = new List<ArraySegment<byte>>(frame.Data.Count + 1);
             int headerLength = Header.Length;

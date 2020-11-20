@@ -23,8 +23,9 @@ namespace ZeroC.Ice
 
         internal int BidirectionalStreamCount;
         internal AsyncSemaphore? BidirectionalStreamSemaphore;
+        internal int MaxBidirectionalStreams;
+        internal int MaxUnidirectionalStreams;
         internal readonly object Mutex = new();
-        internal SlicOptions Options { get; }
         internal int UnidirectionalStreamCount;
         internal AsyncSemaphore? UnidirectionalStreamSemaphore;
 
@@ -339,11 +340,9 @@ namespace ZeroC.Ice
 
             // If serialization is enabled on the adapter, we configure the maximum stream counts to 1 to ensure
             // the peer won't open more than one stream.
-            Options = Endpoint.Communicator.SlicOptions;
-            if (adapter?.SerializeDispatch ?? false)
-            {
-                Options = Options with { MaxBidirectionalStreams = 1, MaxUnidirectionalStreams = 1 };
-            }
+            bool serializeDispatch = adapter?.SerializeDispatch ?? false;
+            MaxBidirectionalStreams = serializeDispatch ? 1 : endpoint.Communicator.MaxBidirectionalStreams;
+            MaxUnidirectionalStreams = serializeDispatch ? 1 : endpoint.Communicator.MaxUnidirectionalStreams;
 
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)
@@ -643,12 +642,14 @@ namespace ZeroC.Ice
             bool writeIdleTimeout = !IsIncoming || Endpoint.Communicator.IdleTimeout < _idleTimeout;
 
             ostr.WriteSize(writeIdleTimeout ? 3 : 2);
+
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxBidirectionalStreams,
-                                         (ulong)Options.MaxBidirectionalStreams,
+                                         (ulong)MaxBidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxUnidirectionalStreams,
-                                         (ulong)Options.MaxUnidirectionalStreams,
+                                         (ulong)MaxBidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
+
             if (writeIdleTimeout)
             {
                 ostr.WriteBinaryContextEntry((int)ParameterKey.IdleTimeout,

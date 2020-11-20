@@ -572,8 +572,19 @@ namespace ZeroC.Ice
 
                 if (stream.IsBidirectional)
                 {
-                    // Send the response over the stream
-                    await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
+                    try
+                    {
+                        // Send the response over the stream
+                        await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
+                    }
+                    catch (RemoteException ex)
+                    {
+                        // Send the exception as the response instead of sending the response from the dispatch
+                        // if sending raises a remote exception.
+                        response = new OutgoingResponseFrame(request, ex);
+                        response.Finish();
+                        await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
+                    }
                 }
             }
             catch (OperationCanceledException)

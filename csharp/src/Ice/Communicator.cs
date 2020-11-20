@@ -156,14 +156,16 @@ namespace ZeroC.Ice
         internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal bool KeepAlive { get; }
+        internal int MaxBidirectionalStreams { get; }
+        internal int MaxUnidirectionalStreams { get; }
         internal INetworkProxy? NetworkProxy { get; }
+        internal int SlicPacketMaxSize { get; }
 
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
         /// invocation. It must be a number greater than 0.</summary>
         internal int RetryMaxAttempts { get; }
         internal int RetryBufferMaxSize { get; }
         internal int RetryRequestMaxSize { get; }
-        internal SlicOptions SlicOptions { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
         internal bool WarnConnections { get; }
@@ -499,25 +501,24 @@ namespace ZeroC.Ice
 
                 KeepAlive = GetPropertyAsBool("Ice.KeepAlive") ?? false;
 
-                SlicOptions = new SlicOptions
+                MaxBidirectionalStreams = GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
+                if (MaxBidirectionalStreams < 1)
                 {
-                    MaxBidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxBidirectionalStreams") ?? 100,
-                    MaxUnidirectionalStreams = GetPropertyAsInt("Ice.Slic.MaxUnidirectionalStreams") ?? 100,
-                    PacketMaxSize = GetPropertyAsInt("Ice.Slic.PacketMaxSize") ?? 32 * 1024
-                };
-                if (SlicOptions.MaxBidirectionalStreams < 1)
-                {
-                    throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
-                        "value for Ice.Slic.MaxBidirectionalStreams");
+                    throw new InvalidConfigurationException($"{MaxBidirectionalStreams} is not a valid " +
+                        "value for Ice.MaxBidirectionalStreams");
                 }
-                if (SlicOptions.MaxUnidirectionalStreams < 1)
+
+                MaxUnidirectionalStreams = GetPropertyAsInt("Ice.MaxUnidirectionalStreams") ?? 100;
+                if (MaxUnidirectionalStreams < 1)
                 {
-                    throw new InvalidConfigurationException($"{SlicOptions.MaxBidirectionalStreams} is not a valid " +
-                        "value for Ice.Slic.MaxUnidirectionalStreams");
+                    throw new InvalidConfigurationException($"{MaxBidirectionalStreams} is not a valid " +
+                        "value for Ice.MaxUnidirectionalStreams");
                 }
-                if (SlicOptions.PacketMaxSize < 1024)
+
+                SlicPacketMaxSize = GetPropertyAsInt("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
+                if (SlicPacketMaxSize < 1024)
                 {
-                    throw new InvalidConfigurationException($"{SlicOptions.PacketMaxSize} is not a valid " +
+                    throw new InvalidConfigurationException($"{SlicPacketMaxSize} is not a valid " +
                         "value for Ice.Slic.PacketMaxSize");
                 }
 

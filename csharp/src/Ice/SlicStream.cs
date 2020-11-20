@@ -116,7 +116,7 @@ namespace ZeroC.Ice
             int size = buffer.GetByteCount();
 
             // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
-            int maxFrameSize = _socket.Options.PacketMaxSize;
+            int maxFrameSize = _socket.Endpoint.Communicator.SlicPacketMaxSize;
             if (size > maxFrameSize)
             {
                 // The send buffer for the Slic packet.
@@ -270,19 +270,19 @@ namespace ZeroC.Ice
                 // it after.
                 if (IsBidirectional)
                 {
-                    if (_socket.BidirectionalStreamCount == _socket.Options.MaxBidirectionalStreams)
+                    if (_socket.BidirectionalStreamCount == _socket.MaxBidirectionalStreams)
                     {
                         throw new InvalidDataException(
-                            $"maximum bidirectional stream count {_socket.Options.MaxBidirectionalStreams} reached");
+                            $"maximum bidirectional stream count {_socket.MaxBidirectionalStreams} reached");
                     }
                     Interlocked.Increment(ref _socket.BidirectionalStreamCount);
                 }
                 else
                 {
-                    if (_socket.UnidirectionalStreamCount == _socket.Options.MaxUnidirectionalStreams)
+                    if (_socket.UnidirectionalStreamCount == _socket.MaxUnidirectionalStreams)
                     {
                         throw new InvalidDataException(
-                            $"maximum unidirectional stream count {_socket.Options.MaxUnidirectionalStreams} reached");
+                            $"maximum unidirectional stream count {_socket.MaxUnidirectionalStreams} reached");
                     }
                     Interlocked.Increment(ref _socket.UnidirectionalStreamCount);
                 }

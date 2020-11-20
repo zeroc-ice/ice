@@ -63,4 +63,10 @@ module Ice
         /// The name of the corresponding parameter.
         string paramName;
     }
+
+    /// A marshal exception is thrown when a request or response can't be encoded. This can occur if the
+    /// request or response exceeds the frame maximum size for example.
+    exception MarshalException
+    {
+    }
 }
