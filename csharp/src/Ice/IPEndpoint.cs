@@ -39,13 +39,9 @@ namespace ZeroC.Ice
             {
                 if (_address == null)
                 {
-                    try
+                    if (!IPAddress.TryParse(Host, out _address))
                     {
-                        _address = IPAddress.Parse(Host);
-                    }
-                    catch (FormatException)
-                    {
-                        // Assume it's a DNS name
+                         // Assume it's a DNS name
                         _address = IPAddress.None;
                     }
                 }
@@ -142,20 +138,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public override IEnumerable<Endpoint> ExpandIfWildcard()
-        {
-            int ipv6only = IsIPv6Only ? Network.EnableIPv6 : Network.EnableBoth;
-            List<string> hosts = Network.GetHostsForEndpointExpand(Host, ipv6only, false);
-            if (hosts.Count == 0)
-            {
-                return new Endpoint[] { this };
-            }
-            else
-            {
-                return hosts.Select(host => Clone(host));
-            }
-        }
-
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
             if (Protocol == Protocol.Ice1)
@@ -215,7 +197,8 @@ namespace ZeroC.Ice
             }
         }
 
-        protected internal override Endpoint Clone(string host) => host == Host ? this : Clone(host, Port);
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
+            serverName == Host ? this : Clone(serverName, Port);
 
         protected internal override IEnumerable<Endpoint> ExpandHost()
         {
@@ -223,26 +206,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return ExpandDnsHostAsync().Result;
-                }
-                catch (AggregateException ex)
-                {
-                    throw ExceptionUtil.Throw(ex.InnerException!);
-                }
-            }
-            else
-            {
-                return ImmutableArray.Create(this);
-            }
-
-            async Task<IEnumerable<Endpoint>> ExpandDnsHostAsync(CancellationToken cancel = default)
-            {
-                try
-                {
-                    IPAddress[] addresses =
-                        await Dns.GetHostAddressesAsync(Host).WaitAsync(cancel).ConfigureAwait(false);
-
-                    return addresses.Select(
+                    return Dns.GetHostAddresses(Host).Select(
                         address =>
                         {
                             IPEndpoint expanded = Clone(address.ToString(), Port);
@@ -254,6 +218,10 @@ namespace ZeroC.Ice
                 {
                     throw new DNSException(Host, ex);
                 }
+            }
+            else
+            {
+                return ImmutableArray.Create(this);
             }
         }
 

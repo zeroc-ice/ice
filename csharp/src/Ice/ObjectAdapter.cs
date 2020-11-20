@@ -807,6 +807,7 @@ namespace ZeroC.Ice
                                 throw new InvalidConfigurationException(@$"object adapter `{Name
                                     }': only one endpoint is allowed when a dynamic IP port (:0) is configured");
                             }
+
                             if (endpoints[0] is IPEndpoint ipEndpoint && ipEndpoint.Address == IPAddress.None)
                             {
                                 throw new InvalidConfigurationException(@$"object adapter `{Name
@@ -971,7 +972,7 @@ namespace ZeroC.Ice
                 {
                     _colocatedConnectionFactory = new AcceptorIncomingConnectionFactory(this,
                                                                                         new ColocatedEndpoint(this),
-                                                                                        null);
+                                                                                        "");
 
                     // It's safe to start the connection within the synchronization, this isn't supposed to block for
                     // colocated connections.

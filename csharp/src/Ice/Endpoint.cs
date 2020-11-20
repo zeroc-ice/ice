@@ -182,22 +182,18 @@ namespace ZeroC.Ice
         /// <returns>The datagram server side connection.</returns>
         public abstract Connection CreateDatagramServerConnection(ObjectAdapter adapter);
 
-        /// <summary>Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on
-        /// server side or if no host was specified on client side.</summary>
-        /// <returns>The collection containing the expanded endpoints.</returns>
-        public abstract IEnumerable<Endpoint> ExpandIfWildcard();
-
-        /// <summary>Clones this endpoint into an identical endpoint except with the specified host.</summary>
-        /// <param name="host">The new host name.</param>
-        /// <returns>A new endpoint, or the same endpoint is if host matches endpoint.Host.</returns>
-        protected internal abstract Endpoint Clone(string host);
-
         /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
         /// </summary>
         /// <returns>The expanded endpoints if Host is a DNS name or IP address and an empty collection if this
         /// endpoint is not usable as an object adapter endpoint.</returns>
         // TODO: should this be ExpandHostAsync?
         protected internal virtual IEnumerable<Endpoint> ExpandHost() => ImmutableArray<Endpoint>.Empty;
+
+        /// <summary>Returns the published endpoint for this object adapter endpoint.</summary>
+        /// <param name="serverName">The server name, to be used as the host of the published endpoint when the
+        /// endpoint's type supports DNS resolution of its hosts. Otherwise, <c>serverName</c> is not used.</param>
+        /// <returns>The published endpoint.</returns>
+        protected internal abstract Endpoint GetPublishedEndpoint(string serverName);
 
         /// <summary>Constructs a new endpoint</summary>
         /// <param name="data">The <see cref="EndpointData"/> struct.</param>

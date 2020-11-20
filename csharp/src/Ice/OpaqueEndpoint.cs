@@ -89,8 +89,6 @@ namespace ZeroC.Ice
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
-        public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
-
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
             sb.Append(" -t ");
@@ -105,12 +103,8 @@ namespace ZeroC.Ice
             }
         }
 
-        protected internal override Endpoint Clone(string host) =>
-            host == Host ? this :
-                new OpaqueEndpoint(new EndpointData(Data.Transport, host, Data.Port, Data.Options),
-                                   ValueEncoding,
-                                   Value,
-                                   Communicator);
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
+            throw new NotSupportedException("cannot create published endpoint for opaque endpoint");
 
         internal static OpaqueEndpoint Create(
             Transport transport,
