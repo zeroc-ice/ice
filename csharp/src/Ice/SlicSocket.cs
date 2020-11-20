@@ -276,7 +276,7 @@ namespace ZeroC.Ice
                 }
 
                 // Read transport parameters
-                ReadParameters(data, istr);
+                ReadParameters(istr);
 
                 // Send back an INITIALIZE_ACK frame.
                 await PrepareAndSendFrameAsync(
@@ -318,7 +318,7 @@ namespace ZeroC.Ice
                 }
 
                 // Read transport parameters
-                ReadParameters(data, istr);
+                ReadParameters(istr);
             }
         }
 
@@ -517,50 +517,49 @@ namespace ZeroC.Ice
             // like a regular stream and if serialization is enabled, it would acquire the semaphore.
             new SlicStream(AllocateId(false), this);
 
-        private void ReadParameters(ReadOnlyMemory<byte> data, InputStream istr)
+        private void ReadParameters(InputStream istr)
         {
+            TimeSpan? peerIdleTimeout = null;
             int dictionarySize = istr.ReadSize();
-            var parameters = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
             for (int i = 0; i < dictionarySize; ++i)
             {
-                int key = istr.ReadVarInt();
-                int entrySize = istr.ReadSize();
-                if (!parameters.TryAdd(key, data.Slice(istr.Pos, entrySize)))
+                (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
+                if (key == (int)ParameterKey.MaxBidirectionalStreams)
                 {
-                    throw new InvalidDataException($"duplicate Slic transport parameter `{key}");
+                    BidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
                 }
-                istr.Skip(entrySize);
+                else if (key == (int)ParameterKey.MaxUnidirectionalStreams)
+                {
+                    UnidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
+                }
+                else if (key == (int)ParameterKey.IdleTimeout)
+                {
+                    // Use the smallest idle timeout.
+                    peerIdleTimeout = TimeSpan.FromMilliseconds(value.Span.ReadVarULong().Value);
+                    if (peerIdleTimeout < IdleTimeout)
+                    {
+                        _idleTimeout = peerIdleTimeout.Value;
+                    }
+                }
+                else
+                {
+                    // Ignore unsupported parameters
+                }
             }
 
-            if (parameters.TryGetValue((int)ParameterKey.MaxBidirectionalStreams, out ReadOnlyMemory<byte> value))
-            {
-                BidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
-            }
-            else
+            // Now, ensure required parameters are set.
+
+            if (BidirectionalStreamSemaphore == null)
             {
                 throw new InvalidDataException("missing MaxBidirectionalStreams Slic transport parameter");
             }
 
-            if (parameters.TryGetValue((int)ParameterKey.MaxUnidirectionalStreams, out value))
-            {
-                UnidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
-            }
-            else
+            if (UnidirectionalStreamSemaphore == null)
             {
                 throw new InvalidDataException("missing MaxUnidirectionalStreams Slic transport parameter");
             }
 
-            TimeSpan peerIdleTimeout;
-            if (parameters.TryGetValue((int)ParameterKey.IdleTimeout, out value))
-            {
-                // Use the smallest idle timeout.
-                peerIdleTimeout = TimeSpan.FromMilliseconds(value.Span.ReadVarULong().Value);
-                if (peerIdleTimeout < IdleTimeout)
-                {
-                    _idleTimeout = peerIdleTimeout;
-                }
-            }
-            else if (IsIncoming)
+            if (IsIncoming && peerIdleTimeout == null)
             {
                 // The client must send its idle timeout parameter. A server can however omit the idle timeout if its
                 // configured idle timeout is larger than the client's idle timeout.

@@ -19,16 +19,15 @@ module Ice
     // These definitions help with the encoding of Slic frames.
     module Slic
     {
-        /// The keys for supported Slic transport parameters. Slic transport parameters are encoded with the same
-        /// encoding as binary contexts.
-        enum ParameterKey : int
+        /// The keys for supported Slic connection parameters.
+        unchecked enum ParameterKey : int
         {
             MaxBidirectionalStreams = 0,
             MaxUnidirectionalStreams = 1,
-            IdleTimeout = 3,
+            IdleTimeout = 2,
         }
 
-        /// The header of the Slic initialize frame body. This header is followed by transport parameters encoded
+        /// The header of the Slic initialize frame body. This header is followed by connection parameters encoded
         /// as a binary context.
         [cs:readonly]
         struct InitializeHeaderBody

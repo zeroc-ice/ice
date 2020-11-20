@@ -178,19 +178,11 @@ namespace ZeroC.Ice
                 // Read the protocol parameters which are encoded with the binary context encoding.
                 var istr = new InputStream(data, Ice2Definitions.Encoding);
                 int dictionarySize = istr.ReadSize();
-                var parameters = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
                 for (int i = 0; i < dictionarySize; ++i)
                 {
-                    int key = istr.ReadVarInt();
-                    int entrySize = istr.ReadSize();
-                    if (!parameters.TryAdd(key, data.Slice(istr.Pos, entrySize)))
-                    {
-                        throw new InvalidDataException($"duplicate Ice2 protocol parameter `{key}");
-                    }
-                    istr.Skip(entrySize);
+                    _ = istr.ReadBinaryContextEntry();
+                    // TODO: support some parameters?
                 }
-
-                // TODO: support some parameters?
             }
         }
 
