@@ -221,7 +221,6 @@ namespace ZeroC.Ice
             // Initialize the underlying transport
             await _socket.InitializeAsync(cancel).ConfigureAwait(false);
 
-            TimeSpan peerIdleTimeout;
             if (IsIncoming)
             {
                 (SlicDefinitions.FrameType type, ArraySegment<byte> data) =
@@ -233,7 +232,7 @@ namespace ZeroC.Ice
 
                 // Check that the Slic version is supported (we only support version 1 for now)
                 var istr = new InputStream(data, SlicDefinitions.Encoding);
-                var initializeBody = new InitializeBody(istr);
+                var initializeBody = new InitializeHeaderBody(istr);
 
                 if (initializeBody.SlicVersion != 1)
                 {
@@ -255,7 +254,7 @@ namespace ZeroC.Ice
                     }
 
                     istr = new InputStream(data, SlicDefinitions.Encoding);
-                    initializeBody = new InitializeBody(istr);
+                    initializeBody = new InitializeHeaderBody(istr);
                     if (initializeBody.SlicVersion != 1)
                     {
                         throw new InvalidDataException($"unsupported Slic version `{initializeBody.SlicVersion}'");
@@ -276,26 +275,13 @@ namespace ZeroC.Ice
                         $"unknown application protocol `{initializeBody.ApplicationProtocolName}'", ex);
                 }
 
-                // Read the maximum stream counts and peer idle timeout and configure the semaphores to ensure
-                // we don't open more streams than the peer allows.
-                checked
-                {
-                    BidirectionalStreamSemaphore = new AsyncSemaphore((int)initializeBody.MaxBidirectionalStreams);
-                    UnidirectionalStreamSemaphore = new AsyncSemaphore((int)initializeBody.MaxUnidirectionalStreams);
-                }
-                peerIdleTimeout = TimeSpan.FromMilliseconds(initializeBody.IdleTimeout);
+                // Read transport parameters
+                ReadParameters(istr);
 
                 // Send back an INITIALIZE_ACK frame.
                 await PrepareAndSendFrameAsync(
                     SlicDefinitions.FrameType.InitializeAck,
-                    ostr =>
-                    {
-                        var initializeAckBody = new InitializeAckBody(
-                            (ulong)Options.MaxBidirectionalStreams,
-                            (ulong)Options.MaxUnidirectionalStreams,
-                            (ulong)_idleTimeout.TotalMilliseconds);
-                        initializeAckBody.IceWrite(ostr);
-                    },
+                    WriteParameters,
                     cancel: cancel).ConfigureAwait(false);
             }
             else
@@ -305,13 +291,9 @@ namespace ZeroC.Ice
                     SlicDefinitions.FrameType.Initialize,
                     ostr =>
                     {
-                        var initializeBody = new InitializeBody(
-                            1,
-                            Protocol.Ice2.GetName(),
-                            (ulong)Options.MaxBidirectionalStreams,
-                            (ulong)Options.MaxUnidirectionalStreams,
-                            (ulong)_idleTimeout.TotalMilliseconds);
+                        var initializeBody = new InitializeHeaderBody(1, Protocol.Ice2.GetName());
                         initializeBody.IceWrite(ostr);
+                        WriteParameters(ostr);
                     },
                     cancel: cancel).ConfigureAwait(false);
 
@@ -335,21 +317,8 @@ namespace ZeroC.Ice
                     throw new InvalidDataException($"unexpected Slic frame with frame type `{type}'");
                 }
 
-                // Read the maximum stream counts and peer idle timeout and configure the semaphores to ensure
-                // we don't open more streams than the peer allows.
-                var initializeAckBody = new InitializeAckBody(istr);
-                checked
-                {
-                    BidirectionalStreamSemaphore = new AsyncSemaphore((int)initializeAckBody.MaxBidirectionalStreams);
-                    UnidirectionalStreamSemaphore = new AsyncSemaphore((int)initializeAckBody.MaxUnidirectionalStreams);
-                }
-                peerIdleTimeout = TimeSpan.FromMilliseconds(initializeAckBody.IdleTimeout);
-            }
-
-            // Use the smallest idle timeout.
-            if (peerIdleTimeout < IdleTimeout)
-            {
-                _idleTimeout = peerIdleTimeout;
+                // Read transport parameters
+                ReadParameters(istr);
             }
         }
 
@@ -368,7 +337,7 @@ namespace ZeroC.Ice
             _receiveStreamCompletionTaskSource.RunContinuationAsynchronously = true;
             _receiveStreamCompletionTaskSource.SetResult(0);
 
-            // If serialization if enabled on the adapter, we configure the maximum stream counts to 1 to ensure
+            // If serialization is enabled on the adapter, we configure the maximum stream counts to 1 to ensure
             // the peer won't open more than one stream.
             Options = Endpoint.Communicator.SlicOptions;
             if (adapter?.SerializeDispatch ?? false)
@@ -543,6 +512,61 @@ namespace ZeroC.Ice
             Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
         }
 
+        private protected override SocketStream CreateControlStream() =>
+            // We make sure to allocate the ID for the control stream right away. Otherwise, it would be considered
+            // like a regular stream and if serialization is enabled, it would acquire the semaphore.
+            new SlicStream(AllocateId(false), this);
+
+        private void ReadParameters(InputStream istr)
+        {
+            TimeSpan? peerIdleTimeout = null;
+            int dictionarySize = istr.ReadSize();
+            for (int i = 0; i < dictionarySize; ++i)
+            {
+                (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
+                if (key == (int)ParameterKey.MaxBidirectionalStreams)
+                {
+                    BidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
+                }
+                else if (key == (int)ParameterKey.MaxUnidirectionalStreams)
+                {
+                    UnidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
+                }
+                else if (key == (int)ParameterKey.IdleTimeout)
+                {
+                    // Use the smallest idle timeout.
+                    peerIdleTimeout = TimeSpan.FromMilliseconds(value.Span.ReadVarULong().Value);
+                    if (peerIdleTimeout < IdleTimeout)
+                    {
+                        _idleTimeout = peerIdleTimeout.Value;
+                    }
+                }
+                else
+                {
+                    // Ignore unsupported parameters
+                }
+            }
+
+            // Now, ensure required parameters are set.
+
+            if (BidirectionalStreamSemaphore == null)
+            {
+                throw new InvalidDataException("missing MaxBidirectionalStreams Slic connection parameter");
+            }
+
+            if (UnidirectionalStreamSemaphore == null)
+            {
+                throw new InvalidDataException("missing MaxUnidirectionalStreams Slic connection parameter");
+            }
+
+            if (IsIncoming && peerIdleTimeout == null)
+            {
+                // The client must send its idle timeout parameter. A server can however omit the idle timeout if its
+                // configured idle timeout is larger than the client's idle timeout.
+                throw new InvalidDataException("missing IdleTimeout Slic connection parameter");
+            }
+        }
+
         private async ValueTask<(SlicDefinitions.FrameType, ArraySegment<byte>)> ReceiveFrameAsync(
             CancellationToken cancel)
         {
@@ -599,11 +623,6 @@ namespace ZeroC.Ice
             return (type, size - streamIdLength, (long?)streamId);
         }
 
-        private protected override SocketStream CreateControlStream() =>
-            // We make sure to allocate the ID for the control stream right away. Otherwise, it would be considered
-            // like a regular stream and if serialization is enabled, it would acquire the semaphore.
-            new SlicStream(AllocateId(false), this);
-
         private async ValueTask WaitForReceivedStreamDataCompletionAsync(CancellationToken cancel)
         {
             // If the stream didn't fully read the stream data, finish reading it here before returning. The stream
@@ -613,6 +632,27 @@ namespace ZeroC.Ice
             {
                 ArraySegment<byte> data = new byte[size];
                 await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
+            }
+        }
+
+        private void WriteParameters(OutputStream ostr)
+        {
+            // Client connections always send the idle timeout. On the server side however, if the received client's
+            // idle timeout is smaller then the configured idle timeout, we can omit sending the server's idle timeout.
+            bool writeIdleTimeout = !IsIncoming || Endpoint.Communicator.IdleTimeout < _idleTimeout;
+
+            ostr.WriteSize(writeIdleTimeout ? 3 : 2);
+            ostr.WriteBinaryContextEntry((int)ParameterKey.MaxBidirectionalStreams,
+                                         (ulong)Options.MaxBidirectionalStreams,
+                                         OutputStream.IceWriterFromVarULong);
+            ostr.WriteBinaryContextEntry((int)ParameterKey.MaxUnidirectionalStreams,
+                                         (ulong)Options.MaxUnidirectionalStreams,
+                                         OutputStream.IceWriterFromVarULong);
+            if (writeIdleTimeout)
+            {
+                ostr.WriteBinaryContextEntry((int)ParameterKey.IdleTimeout,
+                                             (ulong)_idleTimeout.TotalMilliseconds,
+                                             OutputStream.IceWriterFromVarULong);
             }
         }
     }

@@ -19,41 +19,24 @@ module Ice
     // These definitions help with the encoding of Slic frames.
     module Slic
     {
-        /// The body of a Slic initialize frame.
-        /// TODO: should we use tagged data members instead for parameters? If we do, we can no longer use structs
-        /// however
+        /// The keys for supported Slic connection parameters.
+        unchecked enum ParameterKey : int
+        {
+            MaxBidirectionalStreams = 0,
+            MaxUnidirectionalStreams = 1,
+            IdleTimeout = 2,
+        }
+
+        /// The header of the Slic initialize frame body. This header is followed by connection parameters encoded
+        /// as a binary context.
         [cs:readonly]
-        struct InitializeBody
+        struct InitializeHeaderBody
         {
             /// The supported Slic version.
             varuint slicVersion;
 
             /// The application protocol name.
             string applicationProtocolName;
-
-            /// The maximum number of concurrent bidirectional streams that the peer is allowed to open.
-            varulong maxBidirectionalStreams;
-
-            /// The maximum number of concurrent undirectional streams that the peer is allowed to open.
-            varulong maxUnidirectionalStreams;
-
-            /// The configured idle timeout.
-            varulong idleTimeout;
-        }
-
-        /// The body of a Slic initialize acknowledgment frame. This frame is sent in response to an initialize frame
-        /// if the Slic version from the initialize frame is supported by the receiver.
-        [cs:readonly]
-        struct InitializeAckBody
-        {
-            /// The maximum number of concurrent bidirectional streams that the peer is allowed to open.
-            varulong maxBidirectionalStreams;
-
-            /// The maximum number of concurrent undirectional streams that the peer is allowed to open.
-            varulong maxUnidirectionalStreams;
-
-            /// The configured idle timeout.
-            varulong idleTimeout;
         }
 
         sequence<varuint> VersionSeq;

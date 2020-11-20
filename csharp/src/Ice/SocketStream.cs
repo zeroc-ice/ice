@@ -114,7 +114,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask<((long, long), string message)> ReceiveGoAwayFrameAsync()
+        internal virtual async ValueTask<((long, long), string)> ReceiveGoAwayFrameAsync()
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
@@ -141,8 +141,9 @@ namespace ZeroC.Ice
             }
             else
             {
-                var istr = new InputStream(data, Ice2Definitions.Encoding);
-                return (((long)istr.ReadVarULong(), (long)istr.ReadVarULong()), istr.ReadString());
+                var goAwayFrame = new Ice2GoAwayBody(new InputStream(data, Ice2Definitions.Encoding));
+                return (((long)goAwayFrame.LastBidirectionalStreamId, (long)goAwayFrame.LastUnidirectionalStreamId),
+                        goAwayFrame.Message);
             }
         }
 
@@ -174,7 +175,14 @@ namespace ZeroC.Ice
             }
             else
             {
-                // TODO: read initialize settings?
+                // Read the protocol parameters which are encoded with the binary context encoding.
+                var istr = new InputStream(data, Ice2Definitions.Encoding);
+                int dictionarySize = istr.ReadSize();
+                for (int i = 0; i < dictionarySize; ++i)
+                {
+                    _ = istr.ReadBinaryContextEntry();
+                    // TODO: support some parameters?
+                }
             }
         }
 
@@ -251,9 +259,11 @@ namespace ZeroC.Ice
                 ostr.WriteByte((byte)Ice2Definitions.FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
-                ostr.WriteVarULong((ulong)streamIds.Bidirectional);
-                ostr.WriteVarULong((ulong)streamIds.Unidirectional);
-                ostr.WriteString(reason);
+                var goAwayFrameBody = new Ice2GoAwayBody(
+                    (ulong)streamIds.Bidirectional,
+                    (ulong)streamIds.Unidirectional,
+                    reason);
+                goAwayFrameBody.IceWrite(ostr);
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
 
@@ -279,12 +289,23 @@ namespace ZeroC.Ice
             }
             else
             {
-                var data = new List<ArraySegment<byte>>() { new byte[Header.Length + 2] };
-                Header.CopyTo(data[0]);
-                data[0].Slice(Header.Length)[0] = (byte)Ice2Definitions.FrameType.Initialize;
-                data[0].Slice(Header.Length + 1).AsSpan().WriteFixedLengthSize20(0);
+                var data = new List<ArraySegment<byte>>() { new byte[1024] };
+                var ostr = new OutputStream(Ice2Definitions.Encoding, data);
+                if (!Header.IsEmpty)
+                {
+                    ostr.WriteByteSpan(Header.Span);
+                }
+                ostr.WriteByte((byte)Ice2Definitions.FrameType.Initialize);
+                OutputStream.Position sizePos = ostr.StartFixedLengthSize();
+                OutputStream.Position pos = ostr.Tail;
 
-                // TODO: send protocol specific settings from the frame?
+                // Encode the transport parameters with the binary context encoding.
+                ostr.WriteSize(0);
+
+                // TODO: send protocol specific parameters from the frame?
+
+                ostr.EndFixedLengthSize(sizePos);
+                data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
 
                 await SendAsync(data, false, cancel).ConfigureAwait(false);
 
