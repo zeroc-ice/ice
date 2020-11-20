@@ -8,6 +8,11 @@ namespace ZeroC.Ice.Test.Location
 {
     public class ServerManager : IServerManager
     {
+        private readonly ServerLocatorRegistry _registry;
+        private readonly List<Communicator> _communicators = new();
+        private readonly TestHelper _helper;
+        private int _nextPort = 1;
+
         internal ServerManager(ServerLocatorRegistry registry, TestHelper helper)
         {
             _registry = registry;
@@ -87,10 +92,5 @@ namespace ZeroC.Ice.Test.Location
             _communicators.Clear();
             current.Adapter.Communicator.ShutdownAsync();
         }
-
-        private readonly ServerLocatorRegistry _registry;
-        private readonly List<Communicator> _communicators = new List<Communicator>();
-        private readonly TestHelper _helper;
-        private int _nextPort = 1;
     }
 }

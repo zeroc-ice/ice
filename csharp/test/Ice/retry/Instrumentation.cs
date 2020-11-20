@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Retry
 {
     public static class Instrumentation
     {
-        private static readonly object _mutex = new object();
+        private static readonly object _mutex = new();
         private static int _nFailure;
         private static int _nInvocation;
         private static int _nRetry;
@@ -73,9 +73,9 @@ namespace ZeroC.Ice.Test.Retry
             }
         }
 
-        private static readonly ICommunicatorObserver _communicatorObserver = new CommunicatorObserverI();
-
         public static ICommunicatorObserver GetObserver() => _communicatorObserver;
+
+        private static readonly ICommunicatorObserver _communicatorObserver = new CommunicatorObserverI();
 
         private static void TestEqual(ref int value, int expected)
         {

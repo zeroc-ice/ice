@@ -125,6 +125,10 @@ namespace ZeroC.Ice.Test.ACM
 
     public abstract class TestCase
     {
+        protected bool Closed;
+        protected int Heartbeat;
+        protected readonly object Mutex = new object();
+
         private IRemoteObjectAdapterPrx? _adapter;
         private readonly IRemoteCommunicatorPrx _com;
         private int? _clientIdleTimeout;
@@ -139,10 +143,6 @@ namespace ZeroC.Ice.Test.ACM
         private bool? _serverKeepAlive;
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private Thread? _thread;
-
-        protected bool Closed;
-        protected int Heartbeat;
-        protected readonly object Mutex = new object();
 
         public TestCase(string name, IRemoteCommunicatorPrx com, TestHelper helper)
         {

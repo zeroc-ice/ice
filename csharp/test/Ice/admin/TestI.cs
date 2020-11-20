@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using Test;
 
 namespace ZeroC.Ice.Test.Admin
 {

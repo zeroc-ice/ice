@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Test;
@@ -65,6 +64,9 @@ namespace ZeroC.IceSSL.Test.Configuration
 
     internal sealed class ServerFactory : IServerFactory
     {
+        private readonly string _defaultDir;
+        private readonly Dictionary<Identity, SSLServer> _servers = new();
+
         public ServerFactory(string defaultDir) => _defaultDir = defaultDir;
 
         public IServerPrx CreateServer(
@@ -111,8 +113,5 @@ namespace ZeroC.IceSSL.Test.Configuration
             TestHelper.Assert(_servers.Count == 0);
             current.Adapter.Communicator.ShutdownAsync();
         }
-
-        private readonly string _defaultDir;
-        private readonly Dictionary<Identity, SSLServer> _servers = new Dictionary<Identity, SSLServer>();
     }
 }

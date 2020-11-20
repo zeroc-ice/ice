@@ -6,6 +6,13 @@ namespace ZeroC.Ice.Test.Plugin
 {
     public abstract class BasePluginFail : IPlugin
     {
+        protected Communicator _communicator;
+        protected bool _destroyed;
+        protected bool _initialized;
+        protected BasePluginFail? _one;
+        protected BasePluginFail? _two;
+        protected BasePluginFail? _three;
+
         public BasePluginFail(Communicator communicator)
         {
             _communicator = communicator;
@@ -19,12 +26,5 @@ namespace ZeroC.Ice.Test.Plugin
 
         public abstract void Initialize(PluginInitializationContext context);
         public abstract ValueTask DisposeAsync();
-
-        protected Communicator _communicator;
-        protected bool _initialized;
-        protected bool _destroyed;
-        protected BasePluginFail? _one;
-        protected BasePluginFail? _two;
-        protected BasePluginFail? _three;
     }
 }

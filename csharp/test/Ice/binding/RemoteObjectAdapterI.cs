@@ -7,6 +7,9 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteObjectAdapter : IRemoteObjectAdapter
     {
+        private readonly ObjectAdapter _adapter;
+        private readonly ITestIntfPrx _testIntf;
+
         public RemoteObjectAdapter(ObjectAdapter adapter)
         {
             _adapter = adapter;
@@ -26,8 +29,5 @@ namespace ZeroC.Ice.Test.Binding
             {
             }
         }
-
-        private readonly ObjectAdapter _adapter;
-        private readonly ITestIntfPrx _testIntf;
     }
 }

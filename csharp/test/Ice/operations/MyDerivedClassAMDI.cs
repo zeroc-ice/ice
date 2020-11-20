@@ -11,13 +11,13 @@ namespace ZeroC.Ice.Test.Operations
 {
     public sealed class AsyncMyDerivedClass : IAsyncMyDerivedClass
     {
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
         private int _opByteSOnewayCallCount;
         private Thread_opVoid? _opVoidThread;
 
         internal class Thread_opVoid : TaskCompletionSource<object?>
         {
-            private readonly object _mutex = new object();
+            private readonly object _mutex = new();
 
             public void Start()
             {

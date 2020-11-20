@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.AMI
 
         public class ProgressCallback : IProgress<bool>
         {
-            private readonly object _mutex = new object();
+            private readonly object _mutex = new();
             private bool _sent;
             private bool _sentSynchronously;
 
@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.AMI
         private class CallbackBase
         {
             private bool _called;
-            private readonly object _mutex = new object();
+            private readonly object _mutex = new();
 
             public virtual void Check()
             {

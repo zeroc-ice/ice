@@ -10,7 +10,9 @@ namespace ZeroC.Ice.Test.Operations
 {
     public sealed class MyDerivedClass : IMyDerivedClass
     {
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
+
+        private int _opByteSOnewayCallCount;
 
         // Override the Object "pseudo" operations to verify the operation mode.
         public bool IceIsA(string id, Current current, CancellationToken cancel)
@@ -996,7 +998,5 @@ namespace ZeroC.Ice.Test.Operations
             Current current,
             CancellationToken cancel) =>
             new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
-
-        private int _opByteSOnewayCallCount;
     }
 }

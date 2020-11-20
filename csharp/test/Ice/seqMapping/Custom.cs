@@ -76,6 +76,6 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public override int GetHashCode() => base.GetHashCode();
 
-        private readonly List<T> _list = new List<T>();
+        private readonly List<T> _list = new();
     }
 }
